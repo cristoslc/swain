@@ -1,0 +1,53 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: PERSONA-{{ number }}
+status: {{ status | default("Draft") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+linked-journeys:
+{%- for journey in linked_journeys | default([]) %}
+  - JOURNEY-{{ journey }}
+{%- endfor %}
+linked-stories:
+{%- for story in linked_stories | default([]) %}
+  - STORY-{{ story }}
+{%- endfor %}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+---
+
+# {{ name | default(title) }}
+
+## Archetype Label
+
+{{ archetype_label | default("A short label for this persona type (e.g., 'Power User', 'First-Time Buyer').") }}
+
+## Demographic Summary
+
+{{ demographics | default("Age range, role, technical proficiency, and other relevant demographics.") }}
+
+## Goals and Motivations
+
+{{ goals | default("What drives this persona. What they are trying to achieve.") }}
+
+## Frustrations and Pain Points
+
+{{ frustrations | default("What blocks or annoys this persona today.") }}
+
+## Behavioral Patterns
+
+{{ behaviors | default("How this persona typically interacts with the product or problem space.") }}
+
+## Context of Use
+
+{{ context_of_use | default("When, where, and how this persona interacts with the product.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

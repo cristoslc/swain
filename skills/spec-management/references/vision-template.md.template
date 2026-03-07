@@ -1,0 +1,37 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: VISION-{{ number }}
+status: {{ status | default("Draft") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+---
+
+# {{ title }}
+
+## Target Audience
+
+{{ target_audience | default("Who this product serves.") }}
+
+## Value Proposition
+
+{{ value_proposition | default("What better state of the world this product enables.") }}
+
+## Success Metrics
+
+{{ success_metrics | default("How we measure whether the vision is being realized.") }}
+
+## Non-Goals
+
+{{ non_goals | default("What this vision explicitly does NOT cover.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

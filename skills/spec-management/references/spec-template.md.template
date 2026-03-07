@@ -1,0 +1,55 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: SPEC-{{ number }}
+status: {{ status | default("Draft") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+parent-epic: EPIC-{{ parent_epic_number }}
+linked-research:
+{%- for ref in linked_research | default([]) %}
+  - {{ ref }}
+{%- endfor %}
+linked-adrs:
+{%- for adr in linked_adrs | default([]) %}
+  - {{ adr }}
+{%- endfor %}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+addresses:
+{%- for pp in addresses | default([]) %}
+  - {{ pp }}
+{%- endfor %}
+execution-tracking: required
+---
+
+# {{ title }}
+
+## Problem Statement
+
+{{ problem_statement | default("What problem this spec addresses — scoped from the parent Epic's goal.") }}
+
+## External Behavior
+
+{{ external_behavior | default("Inputs, outputs, preconditions, postconditions, constraints, and interfaces.") }}
+
+## Acceptance Criteria
+
+{{ acceptance_criteria | default("Given/When/Then scenarios — concise and verifiable.") }}
+
+## Scope & Constraints
+
+{{ scope_constraints | default("Boundaries, non-goals, and token-budget awareness.") }}
+
+## Implementation Approach
+
+{{ implementation_approach | default("High-level plan that seeds the implementation plan (via execution-tracking).") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

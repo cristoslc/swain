@@ -1,0 +1,46 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: EPIC-{{ number }}
+status: {{ status | default("Proposed") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+parent-vision: VISION-{{ parent_vision_number }}
+success-criteria:
+{%- for criterion in success_criteria %}
+  - {{ criterion }}
+{%- endfor %}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+addresses:
+{%- for pp in addresses | default([]) %}
+  - {{ pp }}
+{%- endfor %}
+---
+
+# {{ title }}
+
+## Goal / Objective
+
+{{ goal | default("What this epic aims to achieve.") }}
+
+## Scope Boundaries
+
+{{ scope | default("What is in scope and what is explicitly out of scope.") }}
+
+## Child Specs
+
+{{ child_specs | default("Updated as Agent Specs are created under this epic.") }}
+
+## Key Dependencies
+
+{{ dependencies | default("Dependencies on other Epics or external factors.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Proposed") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

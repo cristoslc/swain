@@ -1,0 +1,45 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: ADR-{{ number }}
+status: {{ status | default("Draft") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+linked-epics:
+{%- for epic in linked_epics | default([]) %}
+  - EPIC-{{ epic }}
+{%- endfor %}
+linked-specs:
+{%- for spec in linked_specs | default([]) %}
+  - SPEC-{{ spec }}
+{%- endfor %}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+---
+
+# {{ title }}
+
+## Context
+
+{{ context | default("What situation or problem prompted this decision.") }}
+
+## Decision
+
+{{ decision | default("The specific choice that was made.") }}
+
+## Alternatives Considered
+
+{{ alternatives | default("Other options that were evaluated, with brief rationale for why they were not chosen.") }}
+
+## Consequences
+
+{{ consequences | default("What follows from this decision — both positive trade-offs and accepted downsides.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

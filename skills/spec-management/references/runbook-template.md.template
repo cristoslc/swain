@@ -1,0 +1,50 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: RUNBOOK-{{ number }}
+status: {{ status | default("Draft") }}
+mode: {{ mode | default("manual") }}
+trigger: {{ trigger | default("on-demand") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+validates:
+{%- for v in validates | default([]) %}
+  - {{ v }}
+{%- endfor %}
+parent-epic: {{ parent_epic | default("") }}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+---
+
+# {{ title }}
+
+## Purpose
+
+{{ purpose | default("What this runbook validates and why it exists.") }}
+
+## Prerequisites
+
+{{ prerequisites | default("What must be true before running this procedure (environment, credentials, state).") }}
+
+## Steps
+
+{{ steps | default("1. **Action:** Describe what to do.\n   **Expected:** Describe the expected outcome.\n\n2. **Action:** Next step.\n   **Expected:** Expected outcome.") }}
+
+## Teardown
+
+{{ teardown | default("Cleanup actions to restore the environment to its pre-run state (if applicable).") }}
+
+## Run Log
+
+| Date | Executor | Result | Duration | Notes |
+|------|----------|--------|----------|-------|
+| {{ created_date }} | {{ author }} | - | - | Template created |
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |
