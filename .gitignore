@@ -1,0 +1,13 @@
+# Runtime artifacts
+specwatch.log
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Skill installation artifacts (consumer-side)
+skills-lock.json
