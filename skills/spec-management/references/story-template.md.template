@@ -1,0 +1,41 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: STORY-{{ number }}
+status: {{ status | default("Draft") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+parent-epic: EPIC-{{ parent_epic_number }}
+{%- if related_journeys %}
+related:
+{%- for journey in related_journeys %}
+  - JOURNEY-{{ journey }}
+{%- endfor %}
+{%- endif %}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+addresses:
+{%- for pp in addresses | default([]) %}
+  - {{ pp }}
+{%- endfor %}
+execution-tracking: required
+---
+
+# {{ title }}
+
+**As a** {{ role | default("[role/persona]") }}, **I want** {{ capability | default("[capability]") }}, **so that** {{ benefit | default("[benefit/outcome]") }}.
+
+## Acceptance Criteria
+
+1. {{ ac_1 | default("First testable condition.") }}
+2. {{ ac_2 | default("Second testable condition.") }}
+3. {{ ac_3 | default("Third testable condition.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

@@ -1,0 +1,62 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: DESIGN-{{ number }}
+status: {{ status | default("Draft") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+superseded-by: {{ superseded_by | default("") }}
+linked-epics:
+{%- for epic in linked_epics | default([]) %}
+  - EPIC-{{ epic }}
+{%- endfor %}
+linked-stories:
+{%- for story in linked_stories | default([]) %}
+  - STORY-{{ story }}
+{%- endfor %}
+linked-specs:
+{%- for spec in linked_specs | default([]) %}
+  - SPEC-{{ spec }}
+{%- endfor %}
+linked-bugs:
+{%- for bug in linked_bugs | default([]) %}
+  - BUG-{{ bug }}
+{%- endfor %}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+---
+
+# {{ title }}
+
+## Interaction Surface
+
+{{ interaction_surface | default("What part of the product this design covers. Scope it to a single cohesive workflow or screen area.") }}
+
+## User Flow
+
+{{ user_flow | default("The happy-path sequence: what the user does step-by-step. Use numbered steps or a flow diagram.") }}
+
+## Screen States
+
+{{ screen_states | default("Key states the UI can be in (empty, loading, populated, error, etc.). Reference wireframes in supporting files if applicable.") }}
+
+## Edge Cases and Error States
+
+{{ edge_cases | default("What happens when things go wrong or the user takes an unexpected path.") }}
+
+## Design Decisions
+
+{{ design_decisions | default("Key choices made in this design and why. Link to ADRs if the decision has broader architectural implications.") }}
+
+## Assets
+
+{{ assets | default("Index of supporting files in this folder: wireframes, mockups, flow diagrams, prototypes.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

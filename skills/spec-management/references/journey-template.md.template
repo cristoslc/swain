@@ -1,0 +1,59 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: JOURNEY-{{ number }}
+status: {{ status | default("Draft") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+parent-vision: VISION-{{ parent_vision_number }}
+linked-personas:
+{%- for persona in linked_personas %}
+  - PERSONA-{{ persona }}
+{%- endfor %}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+---
+
+# {{ title }}
+
+## Persona
+
+{{ persona_description | default("Reference the PERSONA-NNN artifact. Describe who is taking this journey.") }}
+
+## Goal
+
+{{ goal | default("What the persona is trying to accomplish.") }}
+
+## Steps / Stages
+
+{{ steps | default("The end-to-end flow the persona follows.") }}
+
+```mermaid
+journey
+    title {{ title }}
+    section {{ first_stage_name | default("Stage Name") }}
+      {{ first_action | default("Action description") }}: {{ first_score | default(3) }}: {{ actor | default("Persona") }}
+```
+
+## Pain Points
+
+{{ pain_points | default("Friction points identified in the journey (each must correspond to a score <= 2 in the diagram). Use `> **PP-NN:** Description...` callouts in Steps / Stages to mark pain points inline.") }}
+
+### Pain Points Summary
+
+| ID | Pain Point | Score | Stage | Root Cause | Opportunity |
+|----|------------|-------|-------|------------|-------------|
+| JOURNEY-{{ number }}.PP-01 | {{ pp_01_description | default("First pain point") }} | {{ pp_01_score | default(2) }} | {{ pp_01_stage | default("Stage") }} | {{ pp_01_root_cause | default("Root cause") }} | {{ pp_01_opportunity | default("Opportunity") }} |
+
+## Opportunities
+
+{{ opportunities | default("Where the product can improve the experience.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

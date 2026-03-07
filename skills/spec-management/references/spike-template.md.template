@@ -1,0 +1,43 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: SPIKE-{{ number }}
+status: {{ status | default("Planned") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+question: "{{ question }}"
+gate: {{ gate | default("Pre-MVP") }}
+risks-addressed:
+{%- for risk in risks_addressed | default([]) %}
+  - {{ risk }}
+{%- endfor %}
+depends-on:
+{%- for dep in depends_on | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+---
+
+# {{ title }}
+
+## Question
+
+{{ question }}
+
+## Go / No-Go Criteria
+
+{{ go_nogo_criteria | default("Measurable thresholds that determine pass/fail (not just 'investigate X').") }}
+
+## Pivot Recommendation
+
+{{ pivot_recommendation | default("Specific alternative approach if the gate fails (not just 'reconsider approach').") }}
+
+## Findings
+
+{{ findings | default("Results of the investigation (populated during Active phase).") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Planned") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |
