@@ -1,6 +1,7 @@
 # Runtime artifacts
-specwatch.log
 *.log
+.agents/specwatch.log
+.agents/specwatch-ignore
 
 # OS files
 .DS_Store
