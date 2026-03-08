@@ -1,8 +1,10 @@
 <!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
 ---
 title: "{{ title }}"
 artifact: VISION-{{ number }}
 status: {{ status | default("Draft") }}
+product-type: {{ product_type }}  # "competitive" or "personal"
 author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
@@ -21,6 +23,40 @@ depends-on:
 ## Value Proposition
 
 {{ value_proposition | default("What better state of the world this product enables.") }}
+
+{# --- Competitive product sections --- #}
+{% if product_type == "competitive" %}
+## Competitive Landscape
+
+{{ competitive_landscape | default("Who are the incumbents? What gap does this fill? Why now?") }}
+
+## Moat
+
+{{ moat | default("What structural advantage makes this hard to replicate? (Network effects, proprietary data, switching costs, ecosystem lock-in, etc.)") }}
+
+## Scaling Model
+
+{{ scaling_model | default("How does this grow beyond early adopters? What changes at 10x/100x/1000x?") }}
+{% endif %}
+
+{# --- Personal product sections --- #}
+{% if product_type == "personal" %}
+## Problem Statement
+
+{{ problem_statement | default("What specific friction or gap prompted this?") }}
+
+## Existing Landscape
+
+{{ existing_landscape | default("What was tried, what came close, what fell short?") }}
+
+## Build vs. Buy
+
+{{ build_vs_buy | default("Priority: (1) existing solution, (2) glue-code existing tools, (3) build from scratch. Which tier did we land on, and why?") }}
+
+## Maintenance Budget
+
+{{ maintenance_budget | default("How much ongoing effort is acceptable? This constrains architectural choices downstream.") }}
+{% endif %}
 
 ## Success Metrics
 

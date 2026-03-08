@@ -281,12 +281,13 @@ When an operation fails (missing parent, number collision, script error, etc.), 
 ### Workflow
 
 1. Scan `docs/<type>/` (recursively, across all phase subdirectories) to determine the next available number for the prefix.
-2. Read the artifact's definition file and template from the lookup table below.
-3. Create the artifact in the correct phase subdirectory (usually the first phase — e.g., `docs/epic/Proposed/`, `docs/spec/Draft/`). Create the phase directory with `mkdir -p` if it doesn't exist yet. See the definition file for the exact directory structure.
-4. Populate frontmatter with the required fields for the type (see the template).
-5. Initialize the lifecycle table with the appropriate phase and current date. This is usually the first phase (Draft, Planned, etc.), but an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
-6. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
-7. **Index refresh step** — update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
+2. **For VISION artifacts:** Before drafting, ask the user whether this is a **competitive product** or a **personal product**. The answer determines which template sections to include and shapes the entire downstream decomposition. See the vision definition for details on each product type.
+3. Read the artifact's definition file and template from the lookup table below.
+4. Create the artifact in the correct phase subdirectory (usually the first phase — e.g., `docs/epic/Proposed/`, `docs/spec/Draft/`). Create the phase directory with `mkdir -p` if it doesn't exist yet. See the definition file for the exact directory structure.
+5. Populate frontmatter with the required fields for the type (see the template).
+6. Initialize the lifecycle table with the appropriate phase and current date. This is usually the first phase (Draft, Planned, etc.), but an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
+7. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
+8. **Index refresh step** — update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
 
 ### Artifact type definitions
 

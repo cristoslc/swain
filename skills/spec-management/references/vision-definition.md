@@ -17,6 +17,36 @@ The highest-level specification artifact. Follow **Marty Cagan's product vision 
 
 A Vision is NOT a spec, NOT a feature list, NOT a roadmap, NOT a technical architecture document, and NOT a tracking artifact. If content describes *how* the system is built, *what* technologies it uses, *when* things ship, or *which tasks* remain, it belongs in a child artifact (Epic, Agent Spec, ADR, Spike), not the Vision.
 
+## Product type
+
+Before drafting a Vision, ask the user: **"Is this a competitive product or a personal product?"** The answer fundamentally shapes the vision's strategy section and the decomposition that follows.
+
+### Competitive product
+
+A competitive product is intended for a market — it needs users, differentiation, and a defensible position. The vision should address:
+
+- **Competitive moat** — what structural advantage makes this hard to replicate? (Network effects, proprietary data, switching costs, brand, ecosystem lock-in, etc.)
+- **Scaling model** — how does this grow beyond early adopters? What changes at 10x, 100x, 1000x users?
+- **Market positioning** — who are the incumbents, what gap does this fill, why now?
+- **Differentiation** — what does this do that alternatives cannot or will not?
+
+### Personal product
+
+A personal product solves a need for the author (and possibly a small cluster of related users — family, team, friends). The economics are completely different: building from scratch is the *worst* outcome, not the default.
+
+The priority stack for a personal product is:
+
+1. **Find an existing solution** that covers 100% of the need. If one exists, the Vision should document it and close — the best personal product is one you don't have to build.
+2. **Glue-code existing solutions** — combine 2-3 existing tools/services/libraries to cover the need. The Vision focuses on the integration surface, not the components.
+3. **Build from scratch** — only when options 1 and 2 genuinely fail. The Vision should explain why existing solutions were insufficient (this becomes the "Alternatives Considered" content).
+
+Personal products don't need to scale, don't need competitive moats, and don't need market positioning. They need to be *maintainable by one person* and *solve the actual problem*. The vision should emphasize:
+
+- **Exact problem statement** — what specific friction or gap prompted this?
+- **Existing landscape** — what was tried, what came close, what fell short?
+- **Build-vs-buy decision** — which tier of the priority stack did we land on, and why?
+- **Maintenance budget** — how much ongoing effort is acceptable? (This constrains architectural choices downstream.)
+
 - **Folder structure:** `docs/vision/<Phase>/(VISION-NNN)-<Title>/` — the Vision folder lives inside a subdirectory matching its current lifecycle phase. Phase subdirectories: `Draft/`, `Active/`, `Sunset/`.
   - Example: `docs/vision/Active/(VISION-001)-Personal-Agent-Platform/`
   - When transitioning phases, **move the folder** to the new phase directory (e.g., `git mv docs/vision/Draft/(VISION-001)-Foo/ docs/vision/Active/(VISION-001)-Foo/`).
