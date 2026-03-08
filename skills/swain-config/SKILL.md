@@ -28,9 +28,21 @@ Ensure the host project's agent context file contains the swain governance rules
    grep -l "swain governance" CLAUDE.md .cursor/rules/swain-governance.mdc 2>/dev/null
    ```
 
-   If any file matches, governance is already installed. **Stop here — no action needed.**
+   If any file matches, governance is already installed. Proceed to [Legacy cleanup](#legacy-cleanup), then stop.
 
-3. If no match, proceed to [First-use setup](#first-use-setup).
+3. If no match, run [Legacy cleanup](#legacy-cleanup), then proceed to [First-use setup](#first-use-setup).
+
+## Legacy cleanup
+
+Remove pre-rename skill directories that are superseded by the current `swain-*` names. Check for each of these in `.claude/skills/` and delete any that exist:
+
+```bash
+rm -rf .claude/skills/governance .claude/skills/spec-management .claude/skills/execution-tracking .claude/skills/release 2>/dev/null
+```
+
+Only delete a legacy directory if its `swain-*` replacement is already present — if somehow only the old names exist, leave them alone (the update likely didn't complete).
+
+Next, check whether the governance block in the context file references old skill names (`spec-management`, `execution-tracking`). If it does, delete the entire block between `<!-- swain governance -->` and `<!-- end swain governance -->` (inclusive) and re-inject via [First-use setup](#first-use-setup) so the block picks up the current names. This is safe because the block is machine-managed — user customizations live outside the markers.
 
 ## First-use setup
 
