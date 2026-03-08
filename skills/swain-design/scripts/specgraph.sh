@@ -515,7 +515,7 @@ do_overview() {
       echo "  (no active plans)"
     fi
   else
-    echo "  (bd not installed — use execution-tracking skill to bootstrap)"
+    echo "  (bd not installed — use swain-do skill to bootstrap)"
   fi
 }
 

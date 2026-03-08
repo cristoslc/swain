@@ -24,4 +24,4 @@ A strategic initiative that decomposes into multiple Agent Specs, Spikes, and AD
   - Supporting docs live alongside it in the same folder.
 - An Epic is "Complete" when all child Agent Specs reach "Implemented" and success criteria are met.
 - Epics can trace back to journey pain points via `addresses:` in frontmatter (list of `JOURNEY-NNN.PP-NN` IDs). This is informational — it records which pain points the Epic was created to resolve.
-- **Tracking requirement:** Execution-tracking runs on child SPECs and STORYs, not on the Epic directly. If implementation is requested on an Epic, spec-management decomposes it into children first (see SKILL.md § Execution tracking handoff).
+- **Tracking requirement:** Swain-do runs on child SPECs and STORYs, not on the Epic directly. If implementation is requested on an Epic, swain-design decomposes it into children first (see SKILL.md § Execution tracking handoff).

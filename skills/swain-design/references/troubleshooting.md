@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Error paths and recovery procedures for spec-management operations.
+Error paths and recovery procedures for swain-design operations.
 
 ## Artifact creation failures
 
