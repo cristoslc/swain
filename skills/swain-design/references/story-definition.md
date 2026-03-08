@@ -20,4 +20,4 @@ The atomic unit of user-facing requirements. Follow **Mike Cohn's user story mod
   - When transitioning phases, **move the file** to the new phase directory (e.g., `git mv docs/story/Draft/(STORY-003)-Foo.md docs/story/Ready/(STORY-003)-Foo.md`).
 - Stories should be small enough to implement and verify independently. If a story requires multiple Agent Specs, it is likely scoped too broadly (should be an Epic).
 - A Story is "Ready" when acceptance criteria are defined and agreed upon. A Story is "Implemented" when all acceptance criteria pass.
-- **Tracking requirement:** All Stories carry `execution-tracking: required` in frontmatter. When a Story comes up for implementation, invoke the execution-tracking skill to create a tracked plan before writing code (see SKILL.md § Execution tracking handoff).
+- **Tracking requirement:** All Stories carry `swain-do: required` in frontmatter. When a Story comes up for implementation, invoke the swain-do skill to create a tracked plan before writing code (see SKILL.md § Execution tracking handoff).

@@ -1,6 +1,6 @@
 ---
-name: execution-tracking
-description: Bootstrap, install, and operate an external task-management CLI as the source of truth for agent execution tracking (instead of built-in todos). Provides the abstraction layer between spec-management intent (implementation plans and tasks) and concrete CLI commands. MUST be invoked when any implementation-tier artifact (SPEC, STORY, BUG) comes up for implementation — create a tracked plan before writing code. Optional but recommended for complex SPIKEs. For coordination-tier artifacts (EPIC, VISION, JOURNEY), spec-management must decompose into implementable children first — this skill tracks the children, not the container. Also use for standalone tasks that require backend portability, persistent progress across agent runtimes, or external supervision. Use this skill whenever the user asks to track tasks, create an implementation plan, check what to work on next, see task status, manage dependencies between work items, or close/abandon tasks — even if they don't mention "execution tracking" explicitly.
+name: swain-do
+description: Bootstrap, install, and operate an external task-management CLI as the source of truth for agent execution tracking (instead of built-in todos). Provides the abstraction layer between swain-design intent (implementation plans and tasks) and concrete CLI commands. MUST be invoked when any implementation-tier artifact (SPEC, STORY, BUG) comes up for implementation — create a tracked plan before writing code. Optional but recommended for complex SPIKEs. For coordination-tier artifacts (EPIC, VISION, JOURNEY), swain-design must decompose into implementable children first — this skill tracks the children, not the container. Also use for standalone tasks that require backend portability, persistent progress across agent runtimes, or external supervision. Use this skill whenever the user asks to track tasks, create an implementation plan, check what to work on next, see task status, manage dependencies between work items, or close/abandon tasks — even if they don't mention "execution tracking" explicitly.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
@@ -11,22 +11,22 @@ metadata:
 
 # Execution Tracking
 
-Abstraction layer for agent execution tracking. Other skills (e.g., spec-management) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
+Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
 **Before first use:** Read [references/bd-cheatsheet.md](references/bd-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
 
 ## Artifact handoff protocol
 
-This skill receives handoffs from spec-management based on a four-tier tracking model:
+This skill receives handoffs from swain-design based on a four-tier tracking model:
 
 | Tier | Artifacts | This skill's role |
 |------|-----------|-------------------|
 | **Implementation** | SPEC, STORY, BUG | Create a tracked implementation plan and task breakdown before any code is written |
-| **Coordination** | EPIC, VISION, JOURNEY | Do not track directly — spec-management decomposes these into children first, then hands off the children |
+| **Coordination** | EPIC, VISION, JOURNEY | Do not track directly — swain-design decomposes these into children first, then hands off the children |
 | **Research** | SPIKE | Create a tracked plan when the research is complex enough to benefit from task breakdown |
 | **Reference** | ADR, PERSONA, RUNBOOK | No tracking expected |
 
-If invoked directly on a coordination-tier artifact (EPIC, VISION, JOURNEY) without prior decomposition, defer to spec-management to create child SPECs or STORYs first, then create plans for those children.
+If invoked directly on a coordination-tier artifact (EPIC, VISION, JOURNEY) without prior decomposition, defer to swain-design to create child SPECs or STORYs first, then create plans for those children.
 
 ## Term mapping
 
@@ -43,7 +43,7 @@ Other skills use these abstract terms. This skill maps them to the current backe
 | **claim** | Atomically take ownership of a task | `bd update <id> --claim --json` |
 | **complete** | Mark a task as done | `bd close <id> --reason "..."` |
 | **abandon** | Close a task that will not be completed | `bd close <id> --reason "Abandoned: <why>" --json` |
-| **escalate** | Abandon + invoke spec-management to update upstream artifacts | Abandon, then invoke spec-management skill |
+| **escalate** | Abandon + invoke swain-design to update upstream artifacts | Abandon, then invoke swain-design skill |
 
 ## Configuration
 
@@ -133,16 +133,16 @@ bd dep relate <task-a> <task-b>
 
 ## Escalation
 
-When work cannot proceed as designed, use this protocol to abandon tasks and flow control back to spec-management for upstream changes before re-planning.
+When work cannot proceed as designed, use this protocol to abandon tasks and flow control back to swain-design for upstream changes before re-planning.
 
 ### Triage table
 
 | Scope | Situation | Action |
 |-------|-----------|--------|
 | Single task | Alternative approach exists | Abandon task, create replacement under same plan |
-| Single task | Spec assumption is wrong | Abandon task, invoke spec-management to update SPEC, create replacement task |
-| Multiple tasks | Direction change needed | Abandon affected tasks, create ADR + update SPEC via spec-management, seed new tasks |
-| Entire plan | Fundamental rethink required | Abandon all tasks, abandon SPEC (and possibly EPIC) via spec-management, create new SPEC if needed |
+| Single task | Spec assumption is wrong | Abandon task, invoke swain-design to update SPEC, create replacement task |
+| Multiple tasks | Direction change needed | Abandon affected tasks, create ADR + update SPEC via swain-design, seed new tasks |
+| Entire plan | Fundamental rethink required | Abandon all tasks, abandon SPEC (and possibly EPIC) via swain-design, create new SPEC if needed |
 
 ### Abandoning tasks
 
@@ -167,10 +167,10 @@ bd close <id> --reason "Abandoned: <why>" --json
    bd update <epic-id> --append-notes "Blocked: <description of blocker>"
    ```
 
-2. **Invoke spec-management.** Choose the appropriate scope:
+2. **Invoke swain-design.** Choose the appropriate scope:
    - **Spec tweak** — update the SPEC's assumptions or requirements, then return here.
    - **Design pivot** — create an ADR documenting the decision change, update affected SPECs, then return here.
-   - **Full abandon** — transition the SPEC (and possibly EPIC) to Abandoned phase via spec-management.
+   - **Full abandon** — transition the SPEC (and possibly EPIC) to Abandoned phase via swain-design.
 
 3. **Seed replacement plan** from the updated spec. Create a new implementation plan linked to the same (or new) SPEC via origin ref:
    ```bash
@@ -186,7 +186,7 @@ bd close <id> --reason "Abandoned: <why>" --json
 
 ### Cross-spec escalation
 
-When abandoned tasks carry multiple `spec:` labels, each referenced spec may need upstream changes. Check every spec label on the abandoned tasks and invoke spec-management for each affected spec before re-planning.
+When abandoned tasks carry multiple `spec:` labels, each referenced spec may need upstream changes. Check every spec label on the abandoned tasks and invoke swain-design for each affected spec before re-planning.
 
 ```bash
 # List spec labels on an abandoned task
@@ -208,9 +208,9 @@ bd ready --json
 bd list --status=in_progress --json
 ```
 
-If bd is initialized and has tasks, present the results. If bd is not initialized or has no tasks, report that and defer to the spec-management skill's `specgraph.sh next` for artifact-level guidance.
+If bd is initialized and has tasks, present the results. If bd is not initialized or has no tasks, report that and defer to the swain-design skill's `specgraph.sh next` for artifact-level guidance.
 
-When invoked from the spec-management skill's combined "what's next?" flow, this skill provides the **task layer** — concrete claimable work items — complementing the spec layer's artifact-level readiness view.
+When invoked from the swain-design skill's combined "what's next?" flow, this skill provides the **task layer** — concrete claimable work items — complementing the spec layer's artifact-level readiness view.
 
 ## Observer pattern expectations
 

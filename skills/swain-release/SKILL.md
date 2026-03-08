@@ -1,5 +1,5 @@
 ---
-name: release
+name: swain-release
 description: Cut a release — detect versioning context, generate a changelog from conventional commits, bump versions, and create a git tag. Use when the user says "release", "cut a release", "tag a release", "bump the version", "create a changelog", or any variation of shipping/publishing a version. This skill is intentionally generic and works across any repo — it infers context from git history and project structure rather than assuming a specific setup.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
@@ -85,7 +85,7 @@ Group commits by conventional-commit type. Use clear, human-readable headings:
 
 ### New Features
 - Add superpowers plan ingestion script (#SPEC-003)
-- Add superpowers detection and routing to spec-management (#SPEC-004)
+- Add superpowers detection and routing to swain-design (#SPEC-004)
 
 ### Bug Fixes
 - Fix specwatch false positives on cross-directory refs
@@ -155,4 +155,4 @@ Don't push without asking — the user may want to review first, or they may hav
 
 **No conventional commits:** If the commit history doesn't use conventional prefixes, don't force the grouping. Present a flat list and let the changelog be a simple bullet list of changes.
 
-**Dirty working tree:** If there are uncommitted changes when `/release` is invoked, warn the user and ask whether to proceed (changes won't be included in the release) or abort so they can commit first.
+**Dirty working tree:** If there are uncommitted changes when `/swain-release` is invoked, warn the user and ask whether to proceed (changes won't be included in the release) or abort so they can commit first.

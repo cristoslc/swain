@@ -1,6 +1,6 @@
 ---
-name: spec-management
-description: Create, validate, and transition documentation artifacts (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Bug, Design) and their supporting docs (architecture overviews, journey maps, competitive analyses) through their lifecycle phases. Use when the user wants to write a spec, plan a feature, create an epic, add a user story, draft an ADR, start a research spike, define a persona, create a user persona, create a runbook, define a validation procedure, file a bug, report a defect, create a design, capture a wireframe, document a UI flow, sketch interaction states, update the architecture overview, document the system architecture, move an artifact to a new phase, seed an implementation plan, implement a spec, fix a bug, work on a story, or validate cross-references between artifacts. When a SPEC, STORY, or BUG comes up for implementation, always chain into the execution-tracking skill to create a tracked plan before any code is written. When execution-tracking is requested on an EPIC, VISION, or JOURNEY, decompose into implementable children first — execution-tracking runs on the children, not the container. Covers any request to create, update, review, or transition spec artifacts and supporting docs.
+name: swain-design
+description: Create, validate, and transition documentation artifacts (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Bug, Design) and their supporting docs (architecture overviews, journey maps, competitive analyses) through their lifecycle phases. Use when the user wants to write a spec, plan a feature, create an epic, add a user story, draft an ADR, start a research spike, define a persona, create a user persona, create a runbook, define a validation procedure, file a bug, report a defect, create a design, capture a wireframe, document a UI flow, sketch interaction states, update the architecture overview, document the system architecture, move an artifact to a new phase, seed an implementation plan, implement a spec, fix a bug, work on a story, or validate cross-references between artifacts. When a SPEC, STORY, or BUG comes up for implementation, always chain into the swain-do skill to create a tracked plan before any code is written. When swain-do is requested on an EPIC, VISION, or JOURNEY, decompose into implementable children first — swain-do runs on the children, not the container. Covers any request to create, update, review, or transition spec artifacts and supporting docs.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
@@ -237,11 +237,11 @@ Each agent reports gaps as a structured table with file path, issue type, and mi
 
 ## Status overview
 
-When the user asks for status, progress, or "what's next?", **default to showing both spec-management and execution-tracking layers** unless they specifically ask for only one. The `overview` command is the single entry point.
+When the user asks for status, progress, or "what's next?", **default to showing both swain-design and swain-do layers** unless they specifically ask for only one. The `overview` command is the single entry point.
 
 ### `specgraph.sh overview` (primary — use this by default)
 
-Renders a hierarchy tree in the terminal showing every artifact with its status, blocking dependencies, and execution-tracking progress:
+Renders a hierarchy tree in the terminal showing every artifact with its status, blocking dependencies, and swain-do progress:
 
 ```
   ✓ VISION-001: Personal Agent Patterns [Active]
@@ -260,7 +260,7 @@ Renders a hierarchy tree in the terminal showing every artifact with its status,
   (bd status output here)
 ```
 
-**Status indicators:** `✓` = resolved (Complete/Implemented/Adopted/etc.), `→` = active/in-progress. Blocked dependencies show inline with `↳ blocked by:`. Cross-cutting artifacts (ADR, Persona, Runbook, Bug, Spike) appear in their own section. The execution-tracking tail calls `bd status` automatically.
+**Status indicators:** `✓` = resolved (Complete/Implemented/Adopted/etc.), `→` = active/in-progress. Blocked dependencies show inline with `↳ blocked by:`. Cross-cutting artifacts (ADR, Persona, Runbook, Bug, Spike) appear in their own section. The swain-do tail calls `bd status` automatically.
 
 **Display rule:** Present the `specgraph.sh overview` output verbatim — do not summarize, paraphrase, or reformat the tree. The script's output is already designed for human consumption. You may add a brief note after the output only if the user asked a specific question (e.g., "what should I work on next?").
 
@@ -340,43 +340,43 @@ Artifact types fall into four tracking tiers based on their relationship to impl
 | Tier | Artifacts | Rule |
 |------|-----------|------|
 | **Implementation** | SPEC, STORY, BUG | Execution-tracking **must** be invoked when the artifact comes up for implementation — create a tracked plan before writing code |
-| **Coordination** | EPIC, VISION, JOURNEY | Spec-management decomposes into implementable children first; execution-tracking runs on the children, not the container |
+| **Coordination** | EPIC, VISION, JOURNEY | Swain-design decomposes into implementable children first; swain-do runs on the children, not the container |
 | **Research** | SPIKE | Execution-tracking is optional but recommended for complex spikes with multiple investigation threads |
 | **Reference** | ADR, PERSONA, RUNBOOK | No execution tracking expected |
 
-### The `execution-tracking` frontmatter field
+### The `swain-do` frontmatter field
 
-Artifacts that need execution-tracking carry `execution-tracking: required` in their frontmatter. This field is:
+Artifacts that need swain-do carry `swain-do: required` in their frontmatter. This field is:
 - **Always present** on SPEC, STORY, and BUG artifacts (injected by their templates)
-- **Added per-instance** on SPIKE artifacts when spec-management assesses the spike is complex enough to warrant tracked research
+- **Added per-instance** on SPIKE artifacts when swain-design assesses the spike is complex enough to warrant tracked research
 - **Never present** on EPIC, VISION, JOURNEY, ADR, PERSONA, or RUNBOOK artifacts — orchestration for those types lives in the skill, not the artifact
 
-When an agent reads an artifact with `execution-tracking: required`, it should invoke the execution-tracking skill before beginning implementation work.
+When an agent reads an artifact with `swain-do: required`, it should invoke the swain-do skill before beginning implementation work.
 
 ### What "comes up for implementation" means
 
 The trigger is intent, not phase transition alone. An artifact comes up for implementation when the user or workflow indicates they want to start building — not merely when its status changes. When implementation begins, the resulting plan should follow TDD methodology (see [Implementation plans § TDD methodology](#tdd-methodology)) — tests derived from acceptance criteria are written before the code they verify.
 
-- "Let's implement SPEC-003" → invoke execution-tracking with TDD-structured plan
+- "Let's implement SPEC-003" → invoke swain-do with TDD-structured plan
 - "Move SPEC-003 to Approved" → phase transition only, no tracking yet
-- "Fix BUG-001" → invoke execution-tracking (write a failing regression test first, then fix)
+- "Fix BUG-001" → invoke swain-do (write a failing regression test first, then fix)
 - "Let's work on EPIC-008" → decompose into SPECs/STORYs first, then track the children
 
 ### Coordination artifact decomposition
 
-When execution-tracking is requested on an EPIC, VISION, or JOURNEY:
+When swain-do is requested on an EPIC, VISION, or JOURNEY:
 
-1. **Spec-management leads.** Decompose the artifact into implementable children (SPECs, STORYs) if they don't already exist.
-2. **Execution-tracking follows.** Create tracked plans for the child artifacts, not the container.
-3. **Spec-management monitors.** The container transitions (e.g., EPIC → Complete) based on child completion per the existing completion rules.
+1. **Swain-design leads.** Decompose the artifact into implementable children (SPECs, STORYs) if they don't already exist.
+2. **Swain-do follows.** Create tracked plans for the child artifacts, not the container.
+3. **Swain-design monitors.** The container transitions (e.g., EPIC → Complete) based on child completion per the existing completion rules.
 
 ### STORY and SPEC coordination
 
-Under the same parent Epic, Stories define user-facing requirements and Specs define technical implementations. They connect through shared `addresses` pain-point references and their common parent Epic. When creating execution-tracking plans, tag tasks with both `spec:SPEC-NNN` and `story:STORY-NNN` labels when a task satisfies both artifacts.
+Under the same parent Epic, Stories define user-facing requirements and Specs define technical implementations. They connect through shared `addresses` pain-point references and their common parent Epic. When creating swain-do plans, tag tasks with both `spec:SPEC-NNN` and `story:STORY-NNN` labels when a task satisfies both artifacts.
 
 ### Superpowers integration
 
-When superpowers (obra/superpowers) is installed, route implementation through its brainstorming → writing-plans pipeline to produce higher-quality plans before handing off to execution-tracking.
+When superpowers (obra/superpowers) is installed, route implementation through its brainstorming → writing-plans pipeline to produce higher-quality plans before handing off to swain-do.
 
 **Detection:** Check whether the `brainstorming` and `writing-plans` skills exist:
 
@@ -384,23 +384,23 @@ When superpowers (obra/superpowers) is installed, route implementation through i
 ls .claude/skills/brainstorming/SKILL.md .claude/skills/writing-plans/SKILL.md 2>/dev/null
 ```
 
-If both exist, superpowers is available. If either is missing, use the current direct-to-execution-tracking flow.
+If both exist, superpowers is available. If either is missing, use the current direct-to-swain-do flow.
 
 **Routing when superpowers IS present:**
 
 1. Invoke the `brainstorming` skill with the artifact's context — pass the problem statement, acceptance criteria, and scope from the artifact's frontmatter and body.
 2. Brainstorming produces a design and invokes `writing-plans` automatically.
 3. `writing-plans` saves a plan file to `docs/plans/YYYY-MM-DD-<feature-name>.md`.
-4. After the plan file is saved, invoke execution-tracking's plan ingestion:
+4. After the plan file is saved, invoke swain-do's plan ingestion:
    ```bash
-   python3 .claude/skills/execution-tracking/scripts/ingest-plan.py \
+   python3 .claude/skills/swain-do/scripts/ingest-plan.py \
      docs/plans/<plan-file>.md <ARTIFACT-ID>
    ```
 5. This creates a bd epic with child tasks, sequential dependencies, and spec lineage tags.
 
 **Routing when superpowers is NOT present:**
 
-Use the current flow — invoke execution-tracking directly for ad-hoc task breakdown.
+Use the current flow — invoke swain-do directly for ad-hoc task breakdown.
 
 **If the user rejects the brainstorming design:** Stop cleanly. No plan file is produced, no bd tasks are created. The user can either retry brainstorming or fall back to the direct flow.
 
@@ -408,7 +408,7 @@ Use the current flow — invoke execution-tracking directly for ad-hoc task brea
 
 ## Implementation plans
 
-Implementation plans bridge declarative specs (`docs/`) and execution tracking. They are not doc-type artifacts. All CLI operations are handled by the **execution-tracking** skill — invoke it to bootstrap the task backend before creating plans.
+Implementation plans bridge declarative specs (`docs/`) and execution tracking. They are not doc-type artifacts. All CLI operations are handled by the **swain-do** skill — invoke it to bootstrap the task backend before creating plans.
 
 ### TDD methodology
 
@@ -433,8 +433,8 @@ When superpowers is present, the brainstorming step should produce a TDD-structu
 
 - Progress lives in the execution backend, not the spec doc. Transition the spec to "Implemented" once the plan completes.
 - Note cross-spec tasks in each affected artifact's lifecycle entry (e.g., "Implemented — shared serializer also covers SPEC-007").
-- If execution reveals the spec is unworkable, the execution-tracking skill's escalation protocol flows control back to this skill for spec updates before re-planning.
+- If execution reveals the spec is unworkable, the swain-do skill's escalation protocol flows control back to this skill for spec updates before re-planning.
 
 ### Fallback
 
-If execution-tracking is unavailable, fall back to the agent's built-in todo system (`todo`, `in_progress`, `blocked`, `done`). Maintain lineage by including artifact IDs in task titles (e.g., `[SPEC-003] Add export endpoint`).
+If swain-do is unavailable, fall back to the agent's built-in todo system (`todo`, `in_progress`, `blocked`, `done`). Maintain lineage by including artifact IDs in task titles (e.g., `[SPEC-003] Add export endpoint`).

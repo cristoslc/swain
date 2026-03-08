@@ -17,7 +17,7 @@ depends-on:
 {%- for dep in depends_on | default([]) %}
   - {{ dep }}
 {%- endfor %}
-execution-tracking: required
+swain-do: required
 ---
 
 # {{ title }}
