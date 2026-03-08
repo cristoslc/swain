@@ -355,11 +355,11 @@ When an agent reads an artifact with `execution-tracking: required`, it should i
 
 ### What "comes up for implementation" means
 
-The trigger is intent, not phase transition alone. An artifact comes up for implementation when the user or workflow indicates they want to start building — not merely when its status changes.
+The trigger is intent, not phase transition alone. An artifact comes up for implementation when the user or workflow indicates they want to start building — not merely when its status changes. When implementation begins, the resulting plan should follow TDD methodology (see [Implementation plans § TDD methodology](#tdd-methodology)) — tests derived from acceptance criteria are written before the code they verify.
 
-- "Let's implement SPEC-003" → invoke execution-tracking
+- "Let's implement SPEC-003" → invoke execution-tracking with TDD-structured plan
 - "Move SPEC-003 to Approved" → phase transition only, no tracking yet
-- "Fix BUG-001" → invoke execution-tracking
+- "Fix BUG-001" → invoke execution-tracking (write a failing regression test first, then fix)
 - "Let's work on EPIC-008" → decompose into SPECs/STORYs first, then track the children
 
 ### Coordination artifact decomposition
@@ -410,10 +410,23 @@ Use the current flow — invoke execution-tracking directly for ad-hoc task brea
 
 Implementation plans bridge declarative specs (`docs/`) and execution tracking. They are not doc-type artifacts. All CLI operations are handled by the **execution-tracking** skill — invoke it to bootstrap the task backend before creating plans.
 
+### TDD methodology
+
+Implementation plans follow **test-driven development** as the default methodology. Every plan should structure tasks so that tests are written before the code they verify — the classic red-green-refactor cycle. This matters because tests written after implementation tend to confirm what was built rather than what was specified; writing tests first forces the plan to stay anchored to the acceptance criteria.
+
+**Task ordering principles:**
+
+1. **Test first.** For each functional unit, the plan should contain a test task *before* its implementation task. The test task writes a failing test derived from the artifact's acceptance criteria. The implementation task makes it pass.
+2. **Small cycles.** Prefer many small red-green pairs over a single "write all tests" → "write all code" split. Each cycle should cover one acceptance criterion or one behavioral facet.
+3. **Refactor explicitly.** When a cycle produces working but rough code, include a refactor task after the green phase. Not every cycle needs one — only when the implementation warrants cleanup.
+4. **Integration tests bookend the plan.** Start with a skeleton integration test that exercises the end-to-end path (it will fail until the pieces exist). The final task verifies it passes.
+
+When superpowers is present, the brainstorming step should produce a TDD-structured plan. When seeding manually, decompose the spec's acceptance criteria into red-green task pairs.
+
 ### Workflow
 
-1. If superpowers is present, use the [superpowers integration](#superpowers-integration) flow to author the plan. Otherwise, seed manually from the spec's "Implementation Approach" section.
-2. Create an implementation plan linked via an **origin ref** (e.g., `SPEC-003`). Create tasks with dependencies, each tagged with **spec tags** for originating specs.
+1. If superpowers is present, use the [superpowers integration](#superpowers-integration) flow to author the plan. Otherwise, seed manually from the spec's "Implementation Approach" section, structuring tasks as TDD cycles derived from acceptance criteria.
+2. Create an implementation plan linked via an **origin ref** (e.g., `SPEC-003`). Create tasks with dependencies, each tagged with **spec tags** for originating specs. Order test-writing tasks before their corresponding implementation tasks.
 3. When a task impacts additional specs, add spec tags and cross-plan dependencies.
 
 ### Closing the loop

@@ -46,7 +46,7 @@ execution-tracking: required
 
 ## Implementation Approach
 
-{{ implementation_approach | default("High-level plan that seeds the implementation plan (via execution-tracking).") }}
+{{ implementation_approach | default("High-level plan that seeds the implementation plan (via execution-tracking). Structure as TDD cycles: identify which acceptance criteria map to which test-then-implement pairs.") }}
 
 ## Lifecycle
 
