@@ -1,10 +1,10 @@
 ---
 name: swain-push
-description: Stage all changes, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream. Handles merge conflicts by preferring local changes for config/project files and upstream for scaffolding.
+description: Stage all changes, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream.
 user-invocable: true
 allowed-tools: Bash, Read, Edit
 metadata:
-  short-description: Stage, commit, and push with conflict resolution
+  short-description: Stage, commit, and push
   version: 1.0.0
   author: cristos
   license: MIT
@@ -95,53 +95,9 @@ git --no-pager pull --rebase
 git push          # or: git push -u origin HEAD (if no upstream)
 ```
 
-If `git pull --rebase` succeeds cleanly, continue to push. If it surfaces conflicts, go to **Conflict Resolution** below.
+If `git pull --rebase` succeeds cleanly, continue to push.
 
-## Conflict Resolution
-
-When a rebase conflict appears, classify each conflicting file and resolve it non-interactively:
-
-### Prefer **ours** (local project wins) for:
-- `docs/` — spec artifacts, stories, epics, ADRs
-- `.claude/` — skills, settings, memory
-- `CLAUDE.md`, `AGENTS.md` — project instructions
-- `.beads/` — issue tracker state
-- `ansible/`, `terraform*/` — project-specific IaC
-- `src/` — application source
-- Any file modified in the *current* commit being rebased
-
-```bash
-git checkout --ours -- <file>
-git add <file>
-```
-
-### Prefer **theirs** (upstream scaffolding wins) for:
-- `.agents/` scaffolding files brought in from swain upstream
-- `scripts/specwatch.sh`, `scripts/specgraph.sh` — shared utility scripts
-- Skeleton templates in `.claude/skills/*/references/`
-
-```bash
-git checkout --theirs -- <file>
-git add <file>
-```
-
-### Genuinely ambiguous conflicts
-
-If a file doesn't clearly fall into either bucket, **stop and show the user** the conflicting hunks (`git --no-pager diff`) and ask which side to keep before continuing.
-
-After resolving all conflicts in a given commit, continue the rebase. Multiple commits may conflict in sequence, so loop until the rebase completes — but cap at **10 iterations** to avoid runaway loops. If you hit the cap, abort the rebase (`git rebase --abort`) and ask the user to resolve manually.
-
-```bash
-git --no-pager rebase --continue
-# If another conflict appears, resolve it the same way and continue again.
-# Repeat until `rebase --continue` succeeds with no conflicts, up to 10 times.
-```
-
-Once the rebase finishes:
-
-```bash
-git push   # or: git push -u origin HEAD (if no upstream was set)
-```
+If it surfaces conflicts, abort the rebase (`git rebase --abort`), show the user the conflicting files, and ask how they'd like to proceed.
 
 ## Step 6 — Verify
 
