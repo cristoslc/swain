@@ -212,6 +212,29 @@ If bd is initialized and has tasks, present the results. If bd is not initialize
 
 When invoked from the swain-design skill's combined "what's next?" flow, this skill provides the **task layer** — concrete claimable work items — complementing the spec layer's artifact-level readiness view.
 
+## Artifact/bd reconciliation
+
+When specwatch detects mismatches between artifact status and bd item state (via `specwatch.sh bd-sync` or `specwatch.sh scan`), this skill is responsible for cleanup. The specwatch log (`.agents/specwatch.log`) contains `BD_SYNC` and `BD_ORPHAN` entries identifying the mismatches.
+
+### Mismatch types and resolution
+
+| Log entry | Meaning | Resolution |
+|-----------|---------|------------|
+| `BD_SYNC` artifact Implemented, bd open | Spec is done but tasks linger | Close open bd items: `bd close <id> --reason "Reconciled: artifact already Implemented" --json` |
+| `BD_SYNC` artifact Abandoned, bd open | Spec was killed but tasks linger | Abandon open bd items: `bd close <id> --reason "Abandoned: parent artifact Abandoned" --json` |
+| `BD_SYNC` all bd closed, artifact active | All work done but spec not transitioned | Invoke swain-design to transition the artifact forward (e.g., Approved → Implemented) |
+| `BD_ORPHAN` bd refs non-existent artifact | bd items reference an artifact ID not found in docs/ | Investigate: artifact may have been renamed/deleted. Close or re-tag the bd items |
+
+### Reconciliation workflow
+
+1. **Read the log:** `grep '^BD_SYNC\|^BD_ORPHAN' .agents/specwatch.log`
+2. **For each mismatch**, apply the resolution from the table above.
+3. **Re-run sync check:** `specwatch.sh bd-sync` to confirm all mismatches resolved.
+
+### Automated invocation
+
+Specwatch runs `bd-sync` as part of `specwatch.sh scan` and during watch-mode event processing (when bd is available). When mismatches are found, the output directs the user to invoke swain-do for reconciliation.
+
 ## Observer pattern expectations
 
 1. Maintain compact current-status view: `bd status` and `bd list --pretty`.

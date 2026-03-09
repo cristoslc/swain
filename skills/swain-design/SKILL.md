@@ -211,14 +211,28 @@ This rule is referenced as the **index refresh step** in the workflows below. Do
 
 ## Auditing artifacts
 
-Audits touch every artifact, so **always parallelize with sub-agents** — serial auditing is too slow and misses the cross-cutting checks that only make sense when run together. Spawn four agents in a single turn:
+Audits have two phases: a **pre-scan** that fixes structural problems, then **parallel audit agents** that inspect the corrected state.
+
+### Phase 1: Pre-scan (run first, before agents)
+
+Run `scripts/specwatch.sh scan` synchronously. This performs:
+1. **Stale reference detection** — broken markdown links and unresolvable frontmatter refs
+2. **Artifact/bd sync check** — mismatches between artifact status and bd item state (if bd is in use)
+
+Fix any issues surfaced by the scan before proceeding. For stale refs, update links or frontmatter. For bd sync mismatches, invoke swain-do to reconcile (close stale bd items or transition artifacts). Run `specwatch.sh phase-fix` to move any artifacts whose phase directory doesn't match their frontmatter status.
+
+Only proceed to Phase 2 once the pre-scan is clean (or all actionable issues are resolved).
+
+### Phase 2: Parallel audit agents
+
+Spawn five agents in a single turn:
 
 | Agent | Responsibility |
 |-------|---------------|
 | **Lifecycle auditor** | Check every artifact in `docs/` for valid status field, lifecycle table with hash stamps, and matching row in the appropriate `list-<type>.md` index. |
 | **Cross-reference checker** | Verify all `parent-*`, `depends-on`, `linked-*`, and `addresses` frontmatter values resolve to existing artifact files. Flag dangling references. |
 | **Naming & structure validator** | Confirm directory/file names follow `(TYPE-NNN)-Title` convention, templates have required frontmatter fields, and folder-type artifacts contain a primary `.md` file. |
-| **Phase/folder alignment** | Run `specwatch.sh phase-fix` to detect and move artifacts whose frontmatter `status:` doesn't match their phase subdirectory. Review the staged `git mv` renames and commit. |
+| **Phase/folder alignment** | Confirm `specwatch.sh phase-fix` from the pre-scan left no remaining mismatches. Flag any artifacts that could not be auto-moved. |
 | **Dependency coherence auditor** | Validate that `depends-on` edges are logically sound, not just syntactically valid. See checks below. |
 
 The dependency coherence auditor catches cases where the graph *exists* but is *wrong*. The cross-reference checker confirms targets resolve to real files; this agent checks whether those edges still make sense. Specific checks:
