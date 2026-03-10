@@ -1,0 +1,98 @@
+{
+  "metadata": {
+    "skill_name": "swain-help",
+    "skill_path": "/Users/cristos/Documents/code/swain/skills/swain-help",
+    "timestamp": "2026-03-10T03:01:00Z",
+    "evals_run": ["onboarding-post-init", "specific-question-bug-fix", "reference-artifacts"],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_name": "onboarding-post-init",
+      "configurations": [
+        {
+          "name": "with_skill",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time_seconds": 19.3,
+          "tokens": 12879
+        },
+        {
+          "name": "without_skill",
+          "pass_rate": 0.75,
+          "passed": 3,
+          "total": 4,
+          "time_seconds": 38.7,
+          "tokens": 13167
+        }
+      ]
+    },
+    {
+      "eval_name": "specific-question-bug-fix",
+      "configurations": [
+        {
+          "name": "with_skill",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time_seconds": 34.9,
+          "tokens": 20461
+        },
+        {
+          "name": "without_skill",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time_seconds": 62.3,
+          "tokens": 32626
+        }
+      ]
+    },
+    {
+      "eval_name": "reference-artifacts",
+      "configurations": [
+        {
+          "name": "with_skill",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time_seconds": 26.8,
+          "tokens": 15353
+        },
+        {
+          "name": "without_skill",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time_seconds": 61.6,
+          "tokens": 29026
+        }
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "mean_pass_rate": 1.0,
+      "mean_time_seconds": 27.0,
+      "mean_tokens": 16231
+    },
+    "without_skill": {
+      "mean_pass_rate": 0.917,
+      "mean_time_seconds": 54.2,
+      "mean_tokens": 24940
+    },
+    "delta": {
+      "pass_rate": "+0.083",
+      "time_seconds": "-27.2",
+      "tokens": "-8709"
+    }
+  },
+  "notes": [
+    "The with_skill version is consistently ~50% faster and uses ~35% fewer tokens",
+    "The onboarding baseline failed the not-overwhelming assertion (47 lines vs 20)",
+    "Bug question: both versions are accurate, but with_skill is more concise (63 vs 116 lines) and offers handoff",
+    "Artifact reference: both fully correct; with_skill is more compact (52 vs 76 lines)",
+    "Bug phases in quick-ref.md are wrong (Open/In Progress/Resolved) — should be Reported/Active/Fixed/Verified"
+  ]
+}

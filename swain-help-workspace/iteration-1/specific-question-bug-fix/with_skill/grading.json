@@ -1,0 +1,10 @@
+{
+  "eval_id": 1,
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "explains-bug-filing", "passed": true, "evidence": "Step 1 explains filing with swain-design, mentions BUG-NNN artifact in docs/bug/Reported/"},
+    {"text": "explains-tracking", "passed": true, "evidence": "Step 2-3 cover swain-do plan creation and bd task workflow"},
+    {"text": "gives-example-command", "passed": true, "evidence": "/swain file a bug: login fails when password contains special characters"},
+    {"text": "mentions-lifecycle", "passed": true, "evidence": "Reported → Active → Fixed → Verified + Declined/Abandoned on line 57"}
+  ]
+}

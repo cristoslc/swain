@@ -62,7 +62,7 @@ if [ ! -f "$ARTIFACT_PATH" ]; then
 fi
 
 # --- Python does all the heavy lifting ---
-python3 - "$ARTIFACT_PATH" "$DOCS_DIR" "$ADR_ADOPTED_DIR" "$ADR_RETIRED_DIR" "$ADR_SUPERSEDED_DIR" <<'PYEOF'
+uv run python3 - "$ARTIFACT_PATH" "$DOCS_DIR" "$ADR_ADOPTED_DIR" "$ADR_RETIRED_DIR" "$ADR_SUPERSEDED_DIR" <<'PYEOF'
 import os, re, sys, glob
 from datetime import datetime
 

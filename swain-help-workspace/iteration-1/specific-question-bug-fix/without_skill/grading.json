@@ -1,0 +1,10 @@
+{
+  "eval_id": 1,
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "explains-bug-filing", "passed": true, "evidence": "Detailed 5-step filing process with file paths and frontmatter fields"},
+    {"text": "explains-tracking", "passed": true, "evidence": "Full bd commands for plan creation, claiming, and closing tasks"},
+    {"text": "gives-example-command", "passed": true, "evidence": "/swain file a bug: login fails when password contains special characters + bd commands"},
+    {"text": "mentions-lifecycle", "passed": true, "evidence": "Full lifecycle diagram on lines 25-28"}
+  ]
+}

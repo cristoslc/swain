@@ -50,7 +50,7 @@ If both exist, superpowers is available. If either is missing, use the current d
 3. `writing-plans` saves a plan file to `docs/plans/YYYY-MM-DD-<feature-name>.md`.
 4. After the plan file is saved, invoke swain-do's plan ingestion:
    ```bash
-   python3 .claude/skills/swain-do/scripts/ingest-plan.py \
+   uv run python3 .claude/skills/swain-do/scripts/ingest-plan.py \
      docs/plans/<plan-file>.md <ARTIFACT-ID>
    ```
 5. This creates a bd epic with child tasks, sequential dependencies, and spec lineage tags.

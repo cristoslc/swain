@@ -38,7 +38,7 @@ die() {
 load_config() {
   if [ -f "$CONFIG_FILE" ]; then
     local val
-    val=$(python3 -c "
+    val=$(uv run python3 -c "
 import json, sys
 try:
     c = json.load(open('$CONFIG_FILE'))
@@ -135,9 +135,9 @@ scan_pool() {
   fi
 
   # Parse manifest for source entries and check freshness + consistency
-  if command -v python3 >/dev/null 2>&1; then
+  if command -v uv >/dev/null 2>&1; then
     local py_result
-    py_result=$(python3 << PYEOF
+    py_result=$(uv run --with pyyaml python3 << PYEOF
 import yaml, os, sys, hashlib
 from datetime import datetime, timezone
 
@@ -262,9 +262,9 @@ status_pool() {
 
   local refreshed="unknown"
   local tags=""
-  if [ -f "$manifest" ] && command -v python3 >/dev/null 2>&1; then
+  if [ -f "$manifest" ] && command -v uv >/dev/null 2>&1; then
     local py_out
-    py_out=$(python3 -c "
+    py_out=$(uv run --with pyyaml python3 -c "
 import yaml
 with open('$manifest') as f:
     m = yaml.safe_load(f) or {}

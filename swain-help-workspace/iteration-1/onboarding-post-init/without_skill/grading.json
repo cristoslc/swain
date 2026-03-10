@@ -1,0 +1,10 @@
+{
+  "eval_id": 0,
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "mentions-swain-command", "passed": true, "evidence": "\"Use /swain as your entry point when unsure\" on line 31"},
+    {"text": "mentions-plan-before-code", "passed": true, "evidence": "\"Before implementing any spec, create a plan first\" on line 23"},
+    {"text": "mentions-common-starting-points", "passed": true, "evidence": "Gives next steps (define vision, map artifacts, track work) but more procedural than conversational"},
+    {"text": "not-overwhelming", "passed": false, "evidence": "47 lines with a cheat sheet table — dense for an onboarding orientation"}
+  ]
+}

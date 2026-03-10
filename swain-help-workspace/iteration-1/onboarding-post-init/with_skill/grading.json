@@ -1,0 +1,10 @@
+{
+  "eval_id": 0,
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "mentions-swain-command", "passed": true, "evidence": "\"/swain is your entry point\" on line 7"},
+    {"text": "mentions-plan-before-code", "passed": true, "evidence": "\"Design before you build... plan before code workflow\" on line 9"},
+    {"text": "mentions-common-starting-points", "passed": true, "evidence": "5 concrete starting points listed on lines 14-18"},
+    {"text": "not-overwhelming", "passed": true, "evidence": "20 lines total — concise and welcoming"}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "eval_id": 0,
+  "eval_name": "onboarding-post-init",
+  "prompt": "I just ran swain init on my project, what now?",
+  "assertions": [
+    {"text": "mentions-swain-command: Response mentions /swain as the entry point", "type": "content_check"},
+    {"text": "mentions-plan-before-code: Explains the design-before-build / plan-before-code workflow", "type": "content_check"},
+    {"text": "mentions-common-starting-points: Gives concrete examples of what to do next", "type": "content_check"},
+    {"text": "not-overwhelming: Response is under 40 lines (concise orientation, not a manual)", "type": "length_check"}
+  ]
+}

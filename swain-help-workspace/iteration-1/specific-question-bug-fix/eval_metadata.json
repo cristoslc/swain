@@ -1,0 +1,11 @@
+{
+  "eval_id": 1,
+  "eval_name": "specific-question-bug-fix",
+  "prompt": "how do I file a bug and track the fix?",
+  "assertions": [
+    {"text": "explains-bug-filing: Tells user how to file a bug via swain", "type": "content_check"},
+    {"text": "explains-tracking: Mentions bd/swain-do for tracking the fix tasks", "type": "content_check"},
+    {"text": "gives-example-command: Includes a concrete /swain file a bug... example", "type": "content_check"},
+    {"text": "mentions-lifecycle: Shows the Bug lifecycle phases (Reported/Active/Fixed/Verified)", "type": "content_check"}
+  ]
+}

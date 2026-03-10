@@ -1,0 +1,10 @@
+{
+  "eval_id": 2,
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "lists-all-11-types", "passed": true, "evidence": "All 11 types listed across 4 tier tables"},
+    {"text": "shows-tiers", "passed": true, "evidence": "Implementation, Coordination, Research, Reference tiers with headers"},
+    {"text": "includes-id-patterns", "passed": true, "evidence": "STORY-NNN, SPEC-NNN, BUG-NNN, EPIC-NNN, SPIKE-NNN, VISION-NNN, etc."},
+    {"text": "includes-phases", "passed": true, "evidence": "Phases shown for Story, Spec, Bug, Epic, Spike in their respective tables"}
+  ]
+}

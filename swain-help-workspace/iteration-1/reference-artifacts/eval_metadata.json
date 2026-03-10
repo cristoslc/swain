@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "eval_name": "reference-artifacts",
+  "prompt": "show me what artifacts swain supports",
+  "assertions": [
+    {"text": "lists-all-11-types: All 11 artifact types are present in the response", "type": "content_check"},
+    {"text": "shows-tiers: Groups artifacts by tier (Implementation/Coordination/Research/Reference)", "type": "content_check"},
+    {"text": "includes-id-patterns: Shows the ID format (SPEC-NNN, STORY-NNN, etc.)", "type": "content_check"},
+    {"text": "includes-phases: Shows lifecycle phases for tracked artifacts", "type": "content_check"}
+  ]
+}

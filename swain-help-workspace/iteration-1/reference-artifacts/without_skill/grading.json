@@ -1,0 +1,10 @@
+{
+  "eval_id": 2,
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "lists-all-11-types", "passed": true, "evidence": "All 11 types in the overview table on lines 7-19"},
+    {"text": "shows-tiers", "passed": true, "evidence": "Four tiers in the Tracking Tiers table on lines 49-57"},
+    {"text": "includes-id-patterns", "passed": true, "evidence": "VISION-NNN through DESIGN-NNN in the overview table"},
+    {"text": "includes-phases", "passed": true, "evidence": "Lifecycle phases listed for every artifact in the overview table"}
+  ]
+}
