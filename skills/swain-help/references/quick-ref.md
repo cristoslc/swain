@@ -8,6 +8,7 @@
 | **swain-init** | `/swain init` | One-time project setup |
 | **swain-config** | `/swain-config` | Session-start governance (automatic) |
 | **swain-design** | `/swain-design` or `/swain` + artifact request | Create and manage documentation artifacts |
+| **swain-search** | `/swain-search` or `/swain` + research request | Collect and cache evidence pools |
 | **swain-do** | `/swain-do` or `/swain` + task request | Track tasks and implementation work |
 | **swain-push** | `/swain-push` or `/swain push` | Commit and push changes |
 | **swain-release** | `/swain-release` or `/swain release` | Version bump, changelog, git tag |

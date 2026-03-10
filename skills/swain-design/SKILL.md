@@ -2,7 +2,7 @@
 name: swain-design
 description: Create, validate, and transition documentation artifacts (Vision, Epic, Story, Spec, Spike, ADR, Persona, Runbook, Bug, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, user stories, ADR drafting, research spikes, persona definition, runbook creation, bug filing, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC/STORY/BUG; decomposes EPIC/VISION/JOURNEY into children first.
 license: UNLICENSED
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Skill
 metadata:
   short-description: Manage spec artifact creation and lifecycle
   version: 1.5.0
@@ -79,6 +79,48 @@ Phases listed in the artifact definition files are available waypoints, not mand
 - An Epic is "Complete" only when all child Agent Specs are "Implemented" and success criteria are met.
 - An Agent Spec is "Implemented" only when its implementation plan is closed (or all tasks are done in fallback mode) **and** its Verification table confirms all acceptance criteria pass (enforced by `spec-verify.sh`).
 - An ADR is "Superseded" only when the superseding ADR is "Adopted" and links back.
+
+## Evidence pool integration
+
+When research-heavy artifacts enter their active/research phase, check for existing evidence pools and offer to create or reuse one.
+
+### Research phase hook
+
+This hook fires during phase transitions for these artifact types:
+
+| Artifact | Trigger phase | When to check |
+|----------|--------------|---------------|
+| **Spike** | Planned → Active | Investigation is starting — evidence is most valuable here |
+| **ADR** | Draft → Proposed | Decision needs supporting evidence |
+| **Vision** | At creation | Market research and landscape analysis |
+| **Epic** | At creation or Proposed → Active | Scoping benefits from prior research |
+
+When the trigger fires:
+
+1. Scan `docs/evidence-pools/*/manifest.yaml` for pools whose tags overlap with the artifact's topic (infer tags from the artifact title, keywords, and linked artifacts).
+2. If matching pools exist, present them:
+   > Found N evidence pool(s) that may be relevant:
+   > - `websocket-vs-sse` (5 sources, refreshed 2026-03-01) — tags: real-time, websocket, sse
+   >
+   > Link an existing pool, create a new one, or skip?
+3. If no matches: "No existing evidence pools match this topic. Want to create one with swain-search?"
+4. If the user wants a pool, invoke the **swain-search** skill (via the Skill tool) to create or extend one.
+5. After the pool is committed, update the artifact's `evidence-pool` frontmatter field with `<pool-id>@<commit-hash>`.
+
+### Back-link maintenance
+
+When an artifact's `evidence-pool` frontmatter is set or changed:
+
+1. Read the pool's `manifest.yaml`
+2. Add or update the `referenced-by` entry for this artifact:
+   ```yaml
+   referenced-by:
+     - artifact: SPIKE-001
+       commit: abc1234
+   ```
+3. Write the updated manifest
+
+This keeps the pool's manifest in sync with which artifacts depend on it. Back-links enable evidencewatch to detect when a pool is no longer referenced and can be archived.
 
 ## Execution tracking handoff
 
