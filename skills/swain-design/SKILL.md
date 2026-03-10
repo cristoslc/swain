@@ -67,6 +67,7 @@ Phases listed in the artifact definition files are available waypoints, not mand
 2. **Move the artifact** to the new phase subdirectory using `git mv` (e.g., `git mv docs/epic/Proposed/(EPIC-001)-Foo/ docs/epic/Active/(EPIC-001)-Foo/`). Every artifact type uses phase subdirectories — see the artifact's definition file for the exact directory names.
 3. Update the artifact's status field in frontmatter to match the new phase.
 4. **ADR compliance check** — for transitions to active phases (Active, Approved, Ready, Implemented, Adopted), run `scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
+4a. **Verification gate (SPEC only)** — for `Testing → Implemented` transitions, run `scripts/spec-verify.sh <artifact-path>`. The script checks that every acceptance criterion has documented evidence in the Verification table. Address gaps before proceeding. See `spec-definition.md § Testing phase` for details.
 5. Commit the transition change (move + status update).
 6. Append a row to the artifact's lifecycle table with the commit hash from step 5.
 7. Commit the hash stamp as a **separate commit** — never amend. Two distinct commits keeps the stamped hash reachable in git history and avoids interactive-rebase pitfalls.
@@ -76,7 +77,7 @@ Phases listed in the artifact definition files are available waypoints, not mand
 ### Completion rules
 
 - An Epic is "Complete" only when all child Agent Specs are "Implemented" and success criteria are met.
-- An Agent Spec is "Implemented" only when its implementation plan is closed (or all tasks are done in fallback mode).
+- An Agent Spec is "Implemented" only when its implementation plan is closed (or all tasks are done in fallback mode) **and** its Verification table confirms all acceptance criteria pass (enforced by `spec-verify.sh`).
 - An ADR is "Superseded" only when the superseding ADR is "Adopted" and links back.
 
 ## Execution tracking handoff
@@ -181,6 +182,7 @@ Three scripts support artifact workflows. Each is in `scripts/` relative to this
 | `specwatch.sh` | `scan` | Stale reference detection + artifact/bd sync check. Run after every artifact operation. If `.agents/specwatch.log` reports issues, fix before committing. For log format and subcommands, read [references/specwatch-guide.md](references/specwatch-guide.md). |
 | `specgraph.sh` | `overview` | Dependency graph — hierarchy tree with status indicators. For subcommands and output interpretation, read [references/specgraph-guide.md](references/specgraph-guide.md). |
 | `adr-check.sh` | `<artifact-path>` | ADR compliance — checks artifact against Adopted ADRs for relevance, dead refs to Retired/Superseded ADRs, and staleness. Exit 0 = clean, exit 1 = findings. If findings, read [references/adr-check-guide.md](references/adr-check-guide.md) for interpretation and content-level review procedure. |
+| `spec-verify.sh` | `<artifact-path>` | Verification gate — checks a Spec's Verification table against its Acceptance Criteria. Gates `Testing → Implemented`. Exit 0 = all criteria covered, exit 1 = gaps or failures found, exit 2 = usage error. |
 
 ## Lifecycle table format
 
