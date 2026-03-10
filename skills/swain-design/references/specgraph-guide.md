@@ -16,6 +16,12 @@ Reference for `specgraph.sh` subcommands and output interpretation.
 | `mermaid` | Mermaid diagram to stdout |
 | `status` | Summary table by type and phase |
 
+## Options
+
+| Flag | Effect |
+|------|--------|
+| `--all` | Include finished artifacts (terminal states like Complete, Abandoned, etc.). By default `overview`, `status`, and `mermaid` hide them to reduce noise. |
+
 Run `blocks <ID>` before phase transitions to verify dependencies are resolved. Run `ready` to find unblocked work. Run `tree <ID>` for transitive dependency chains.
 
 ## Overview output
