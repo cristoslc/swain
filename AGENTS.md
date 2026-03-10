@@ -11,6 +11,7 @@
 | **swain-do** | Execution tracking — task management via bd (beads) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
 | **swain-push** | Commit and push — staging, conventional commits, conflict resolution |
+| **swain-help** | Contextual help — answers questions, quick reference, post-init onboarding |
 | **swain-update** | Self-updater — pulls latest swain skills, reconciles governance |
 
 ## Skill routing
