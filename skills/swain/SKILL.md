@@ -10,3 +10,4 @@ Invoke the Skill tool for exactly one match. Pass the user's full prompt as args
 | swain-release | release, version, changelog, tag |
 | swain-update | update/upgrade swain |
 | swain-config | session init, governance |
+| swain-init | init, onboard, setup, bootstrap (one-time project setup) |

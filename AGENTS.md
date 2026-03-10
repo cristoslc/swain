@@ -5,6 +5,7 @@
 | Skill | Purpose |
 |-------|---------|
 | **swain** | Meta-router — routes `/swain` prompts to the correct sub-skill |
+| **swain-init** | One-time project onboarding — CLAUDE.md migration, bd setup, governance |
 | **swain-config** | Session-start governance — ensures routing rules are installed |
 | **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Bug, Persona, Runbook, Journey |
 | **swain-do** | Execution tracking — task management via bd (beads) |
