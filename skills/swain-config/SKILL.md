@@ -5,7 +5,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Agent routing and swain configuration rules
-  version: 1.0.0
+  version: 1.1.0
   author: cristos
 ---
 
@@ -25,7 +25,7 @@ Ensure the host project's agent context file contains the swain governance rules
 2. Check whether governance rules are already present:
 
    ```bash
-   grep -l "swain governance" CLAUDE.md .cursor/rules/swain-governance.mdc 2>/dev/null
+   grep -l "swain governance" CLAUDE.md AGENTS.md .cursor/rules/swain-governance.mdc 2>/dev/null
    ```
 
    If any file matches, governance is already installed. Proceed to [Legacy cleanup](#legacy-cleanup), then stop.
@@ -50,7 +50,12 @@ When governance rules are not found, inject them into the appropriate context fi
 
 ### Claude Code
 
-Append the following block to `CLAUDE.md` in the project root. If `CLAUDE.md` does not exist, create it.
+Determine the target file for governance injection:
+
+1. If `CLAUDE.md` exists and its content is just `@AGENTS.md` (the include pattern set up by swain-init), inject into `AGENTS.md` instead.
+2. Otherwise, inject into `CLAUDE.md` (create it if it doesn't exist).
+
+Append the following block to the target file:
 
 ```markdown
 <!-- swain governance — do not edit this block manually -->
