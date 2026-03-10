@@ -40,6 +40,18 @@ swain-do: required
 
 {{ acceptance_criteria | default("Given/When/Then scenarios — concise and verifiable.") }}
 
+## Verification
+
+<!-- Populated when entering Testing phase. Maps each acceptance criterion
+     to its evidence: test name, manual check, or demo scenario.
+     Leave empty until Testing. -->
+
+| Criterion | Evidence | Result |
+|-----------|----------|--------|
+{%- for criterion in verification | default([]) %}
+| {{ criterion.name }} | {{ criterion.evidence }} | {{ criterion.result }} |
+{%- endfor %}
+
 ## Scope & Constraints
 
 {{ scope_constraints | default("Boundaries, non-goals, and token-budget awareness.") }}
