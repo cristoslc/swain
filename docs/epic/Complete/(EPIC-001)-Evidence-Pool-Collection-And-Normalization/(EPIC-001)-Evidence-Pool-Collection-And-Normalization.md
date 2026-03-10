@@ -1,10 +1,10 @@
 ---
 title: "Evidence Pool Collection and Normalization"
 artifact: EPIC-001
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-09
-last-updated: 2026-03-09
+last-updated: 2026-03-10
 parent-vision: ~
 success-criteria:
   - swain-search skill can collect sources from web, local files, and video/audio and normalize them into a consistent markdown format
@@ -62,9 +62,9 @@ docs/evidence-pools/<pool-id>/
 
 | Spec | Title | Status |
 |------|-------|--------|
-| SPEC-001 | swain-search skill (SKILL.md, normalization formats, manifest schema) | — |
-| SPEC-002 | evidencewatch script (size + freshness monitoring) | — |
-| SPEC-003 | swain-design integration (evidence pool hooks, frontmatter linking) | — |
+| SPEC-001 | swain-search skill (SKILL.md, normalization formats, manifest schema) | Implemented |
+| SPEC-002 | evidencewatch script (size + freshness monitoring) | Implemented |
+| SPEC-003 | swain-design integration (evidence pool hooks, frontmatter linking) | Implemented |
 
 ## Key Dependencies
 
@@ -74,4 +74,5 @@ None. This epic extends swain's existing artifact and skill infrastructure.
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-09 | — | Initial creation |
+| Proposed | 2026-03-09 | e79bf47 | Initial creation |
+| Complete | 2026-03-10 | — | All 3 child specs implemented |
