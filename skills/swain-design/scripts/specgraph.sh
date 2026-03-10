@@ -25,7 +25,7 @@ RESOLVED_RE="Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|
 
 usage() {
   cat <<'USAGE'
-Usage: specgraph.sh <command> [args]
+Usage: specgraph.sh <command> [args] [--all]
 
 Commands:
   build              Force-rebuild the dependency graph from frontmatter
@@ -37,6 +37,10 @@ Commands:
   mermaid            Mermaid diagram to stdout
   status             Summary table by type and phase
   overview           Hierarchy tree with status + execution tracking
+
+Options:
+  --all              Include finished artifacts (resolved/terminal states).
+                     By default, overview/status/mermaid hide them.
 USAGE
   exit 1
 }
@@ -301,14 +305,21 @@ do_next() {
 do_mermaid() {
   ensure_cache
   echo "graph TD"
-  # Node labels
-  jq -r '
+  # Node labels (filtered by visibility)
+  jq -r --argjson show_all "$SHOW_ALL" '
+    def is_resolved: test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined");
+    (.nodes | to_entries | map(select($show_all == 1 or (.value.status | is_resolved | not))) | map(.key)) as $visible |
     .nodes | to_entries[] |
+    select(.key | IN($visible[])) |
     "    \(.key)[\"\(.key): \(.value.title | gsub("\""; "#quot;"))\"]"
   ' "$CACHE_FILE"
-  # Edges
-  jq -r '
+  # Edges (only between visible nodes)
+  jq -r --argjson show_all "$SHOW_ALL" '
+    def is_resolved: test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined");
+    (.nodes | to_entries | map(select($show_all == 1 or (.value.status | is_resolved | not))) | map(.key)) as $visible |
     .edges[] |
+    select(.from | IN($visible[])) |
+    select(.to | IN($visible[])) |
     if .type == "depends-on" then
       "    \(.from) -->|depends-on| \(.to)"
     elif .type == "parent-vision" then
@@ -317,12 +328,14 @@ do_mermaid() {
       "    \(.from) -.->|child-of| \(.to)"
     else empty end
   ' "$CACHE_FILE"
-  # Style resolved nodes
-  jq -r '
-    .nodes | to_entries[] |
-    select(.value.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined")) |
-    "    style \(.key) fill:#90EE90"
-  ' "$CACHE_FILE"
+  # Style resolved nodes (only when --all is used)
+  if [ "$SHOW_ALL" -eq 1 ]; then
+    jq -r '
+      .nodes | to_entries[] |
+      select(.value.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined")) |
+      "    style \(.key) fill:#90EE90"
+    ' "$CACHE_FILE"
+  fi
 }
 
 # status — summary table
@@ -331,45 +344,61 @@ do_status() {
   echo "=== Artifact Status Summary ==="
   echo ""
   # Group by type, then by status within type
-  jq -r '
-    [.nodes | to_entries[] | {type: .value.type, status: .value.status, id: .key, title: .value.title}] |
-    group_by(.type) | .[] |
-    ("## " + .[0].type),
-    (. | sort_by(.id) | .[] | "  \(.id)\t\(.status)\t\(.title)"),
-    ""
+  jq -r --argjson show_all "$SHOW_ALL" '
+    def is_resolved: test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined");
+    [.nodes | to_entries[] |
+      select($show_all == 1 or (.value.status | is_resolved | not)) |
+      {type: .value.type, status: .value.status, id: .key, title: .value.title}] |
+    if length == 0 then "  (no active artifacts)\n"
+    else
+      group_by(.type) | .[] |
+      ("## " + .[0].type),
+      (. | sort_by(.id) | .[] | "  \(.id)\t\(.status)\t\(.title)"),
+      ""
+    end
   ' "$CACHE_FILE" | column -t -s $'\t'
+  if [ "$SHOW_ALL" -eq 0 ]; then
+    local hidden
+    hidden=$(jq '[.nodes | to_entries[] | select(.value.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined"))] | length' "$CACHE_FILE")
+    if [ "$hidden" -gt 0 ]; then
+      echo "($hidden finished artifact$([ "$hidden" -gt 1 ] && echo "s") hidden — use --all to show)"
+    fi
+  fi
 }
 
 # overview — combined hierarchy tree with status indicators, dependency info, and executive summary
 do_overview() {
   ensure_cache
 
-  jq -r '
+  jq -r --argjson show_all "$SHOW_ALL" '
     def is_resolved: test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined");
     def status_icon: if is_resolved then "[x]" else "[ ]" end;
+    # Filter: hide resolved artifacts unless --all is passed
+    def visible: if $show_all == 1 then true else (.status | is_resolved | not) end;
     # Note: titles are already cleaned of ID prefixes during cache build
 
     .nodes as $nodes |
     .edges as $edges |
 
     # Find all Vision nodes (top-level)
-    ($nodes | to_entries | map(select(.value.type == "VISION")) | sort_by(.key)) as $visions |
+    ($nodes | to_entries | map(select(.value.type == "VISION" and (.value | visible))) | sort_by(.key)) as $visions |
 
     # Find orphans (no parent-vision or parent-epic edge)
     ([$nodes | to_entries[] |
       .key as $id |
       select(
+        (.value | visible) and
         .value.type != "VISION" and
         ([$edges[] | select(.from == $id and (.type == "parent-vision" or .type == "parent-epic"))] | length == 0)
       )
     ] | sort_by(.key)) as $orphans |
 
-    # Helper: get children of a node by parent edge type
+    # Helper: get children of a node by parent edge type (filtered by visibility)
     def children_of($parent_id):
       [$edges[] | select(.to == $parent_id and (.type == "parent-vision" or .type == "parent-epic")) | .from] |
       unique | sort |
       map(. as $id | {id: $id, node: $nodes[$id]}) |
-      map(select(.node != null));
+      map(select(.node != null and (.node | visible)));
 
     # Helper: get depends-on for a node (unresolved only, skips missing refs)
     def unresolved_deps($id):
@@ -499,7 +528,10 @@ do_overview() {
       else
         "    (none)"
       end,
-      "  Counts: \($total_count) total -- \($resolved_count) resolved, \($ready | length) ready, \($blocked | length) blocked"
+      "  Counts: \($total_count) total -- \($resolved_count) resolved, \($ready | length) ready, \($blocked | length) blocked",
+      if $show_all == 0 and $resolved_count > 0 then
+        "  (\($resolved_count) finished artifact\(if $resolved_count > 1 then "s" else "" end) hidden — use --all to show)"
+      else empty end
     )
   ' "$CACHE_FILE"
 
@@ -518,6 +550,21 @@ do_overview() {
     echo "  (bd not installed — use swain-do skill to bootstrap)"
   fi
 }
+
+# --- Parse --all flag ---
+SHOW_ALL=0
+for arg in "$@"; do
+  if [ "$arg" = "--all" ]; then
+    SHOW_ALL=1
+    break
+  fi
+done
+# Strip --all from positional args
+ARGS=()
+for arg in "$@"; do
+  [ "$arg" != "--all" ] && ARGS+=("$arg")
+done
+set -- "${ARGS[@]}"
 
 # --- Main ---
 [ $# -lt 1 ] && usage
