@@ -454,8 +454,10 @@ PYEOF
     echo "specwatch: no stale references found."
   else
     local stale_count warn_count
-    stale_count=$(grep -c '^STALE' "$LOG_FILE" 2>/dev/null || echo 0)
-    warn_count=$(grep -c '^WARN' "$LOG_FILE" 2>/dev/null || echo 0)
+    stale_count=$(grep -c '^STALE' "$LOG_FILE" 2>/dev/null)
+    stale_count=${stale_count:-0}
+    warn_count=$(grep -c '^WARN' "$LOG_FILE" 2>/dev/null)
+    warn_count=${warn_count:-0}
     echo "specwatch: found ${stale_count} stale reference(s), ${warn_count} warning(s). See ${LOG_FILE}"
   fi
   return $found_stale
@@ -660,7 +662,8 @@ PYEOF
 
   # Count mismatches in log
   local sync_count
-  sync_count=$(grep -c '^BD_SYNC\|^BD_ORPHAN' "$LOG_FILE" 2>/dev/null || echo 0)
+  sync_count=$(grep -c '^BD_SYNC\|^BD_ORPHAN' "$LOG_FILE" 2>/dev/null)
+  sync_count=${sync_count:-0}
 
   if [ "$sync_count" -gt 0 ]; then
     echo "specwatch bd-sync: found ${sync_count} artifact/bd mismatch(es). See ${LOG_FILE}"
@@ -738,7 +741,8 @@ show_status() {
 
   if [ -f "$LOG_FILE" ]; then
     local count
-    count=$(grep -c '^STALE ' "$LOG_FILE" 2>/dev/null || echo 0)
+    count=$(grep -c '^STALE ' "$LOG_FILE" 2>/dev/null)
+    count=${count:-0}
     echo "  stale refs in log: $count"
   else
     echo "  log: clean"
@@ -999,7 +1003,8 @@ PYEOF
   done
 
   local total
-  total=$(echo "$results" | grep -c '^MISMATCH' || echo 0)
+  total=$(echo "$results" | grep -c '^MISMATCH')
+  total=${total:-0}
   echo "specwatch phase-fix: $total mismatch(es) found, moved artifacts to correct phase directories."
   echo "  Run 'git status' to review staged moves, then commit."
   echo ""
