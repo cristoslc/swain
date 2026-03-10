@@ -206,7 +206,11 @@ mkdir -p .agents
 
 This directory is used by swain-do for configuration and by swain-design scripts for logs.
 
-### Step 4.2 — Summary
+### Step 4.2 — Onboarding
+
+Invoke the **swain-help** skill in onboarding mode to give the user a guided orientation of what they just installed.
+
+### Step 4.3 — Summary
 
 Report what was done:
 
@@ -215,11 +219,6 @@ Report what was done:
 > - CLAUDE.md → `@AGENTS.md` include pattern: [done/skipped/already set up]
 > - bd (beads) installed and initialized: [done/skipped/already set up/failed]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
->
-> Next steps:
-> - Run `/swain-config` at session start (or it runs automatically)
-> - Use `/swain` to route requests to the right skill
-> - Commit the changes when ready
 
 ## Re-running init
 

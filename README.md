@@ -21,6 +21,7 @@ This installs all skills into your project's `.claude/skills/` directory.
 | **swain-do** | Execution tracking. Bootstraps and operates bd (beads) — a git-backed issue tracker — as the external task backend. Translates abstract operations (create plan, add task, set dependency) into concrete CLI commands. Handles TDD-structured implementation plans. |
 | **swain-release** | Release automation. Detects versioning context from git history, generates changelogs from conventional commits, bumps version files, and creates annotated tags. Works across any repo. |
 | **swain-push** | Commit and push. Stages changes, generates conventional-commit messages from diffs, handles merge conflicts with sensible defaults (local project wins over upstream scaffolding), and pushes. |
+| **swain-help** | Contextual help. Answers questions about swain skills, artifacts, and workflows. Provides a quick reference cheat sheet and onboarding orientation after project setup. |
 | **swain-update** | Self-updater. Pulls the latest swain skills via npx (git fallback) and reconciles governance rules. |
 
 ## Requirements
