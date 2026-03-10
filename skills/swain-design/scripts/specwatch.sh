@@ -140,7 +140,7 @@ scan_stale_refs() {
   local links_tmp
   links_tmp=$(mktemp /tmp/specwatch-links-XXXXXX)
 
-  python3 - "${md_files[@]}" > "$links_tmp" <<'PYEOF'
+  uv run python3 - "${md_files[@]}" > "$links_tmp" <<'PYEOF'
 import re, sys
 
 # Regex handles balanced parens: [text](path with (parens) inside)
@@ -211,7 +211,7 @@ PYEOF
         found_file="$(find "$DOCS_DIR" -name "*${artifact_id}*" -name "*.md" -not -name "list-*" 2>/dev/null | head -1)"
         if [ -n "$found_file" ]; then
           # Compute relative path from the source file's directory
-          suggested="$(python3 -c "import os; print(os.path.relpath('$found_file', '$dir'))" 2>/dev/null || echo "$found_file")"
+          suggested="$(uv run python3 -c "import os; print(os.path.relpath('$found_file', '$dir'))" 2>/dev/null || echo "$found_file")"
         fi
       fi
 
@@ -241,7 +241,7 @@ PYEOF
   local fm_tmp
   fm_tmp=$(mktemp /tmp/specwatch-fm-XXXXXX)
 
-  python3 - "$DOCS_DIR" > "$fm_tmp" <<'PYEOF'
+  uv run python3 - "$DOCS_DIR" > "$fm_tmp" <<'PYEOF'
 import os, re, sys, glob
 
 docs_dir = sys.argv[1]
@@ -497,7 +497,7 @@ scan_bd_sync() {
   }
 
   # Build artifact index and cross-reference with bd items
-  python3 - "$DOCS_DIR" "$bd_items_tmp" >> "$LOG_FILE" <<'PYEOF'
+  uv run python3 - "$DOCS_DIR" "$bd_items_tmp" >> "$LOG_FILE" <<'PYEOF'
 import json, os, re, sys
 
 docs_dir = sys.argv[1]
@@ -857,7 +857,7 @@ phase_fix() {
   # and compare against the directory structure.
   # Output format: action\tartifact_path\texpected_phase\tactual_phase\tstatus
   local results
-  results=$(python3 - "$DOCS_DIR" <<'PYEOF'
+  results=$(uv run python3 - "$DOCS_DIR" <<'PYEOF'
 import os, re, sys
 
 docs_dir = sys.argv[1]

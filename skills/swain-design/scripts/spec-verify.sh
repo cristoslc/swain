@@ -50,7 +50,7 @@ if [ ! -f "$ARTIFACT_PATH" ]; then
   exit 2
 fi
 
-python3 - "$ARTIFACT_PATH" <<'PYEOF'
+uv run python3 - "$ARTIFACT_PATH" <<'PYEOF'
 import re, sys
 
 artifact_path = sys.argv[1]

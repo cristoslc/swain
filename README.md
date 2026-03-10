@@ -28,7 +28,7 @@ This installs all skills into your project's `.claude/skills/` directory.
 ## Requirements
 
 - Node.js (for `npx skills`)
-- Python 3 (for swain-design and swain-do scripts)
+- [uv](https://docs.astral.sh/uv/) (manages Python execution for swain-design and swain-do scripts)
 - Git
 
 ## Companion

@@ -257,13 +257,13 @@ When a superpowers plan file exists (produced by the `writing-plans` skill), use
 
 ```bash
 # Parse and register in bd
-python3 scripts/ingest-plan.py <plan-file> <origin-ref>
+uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref>
 
 # Parse only (preview without creating bd tasks)
-python3 scripts/ingest-plan.py <plan-file> <origin-ref> --dry-run
+uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --dry-run
 
 # With additional labels
-python3 scripts/ingest-plan.py <plan-file> <origin-ref> --labels epic:EPIC-009
+uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --labels epic:EPIC-009
 ```
 
 ### What it does

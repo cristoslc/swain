@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run python3
 """Ingest a superpowers plan file into bd (beads) as an epic with child tasks.
 
 Parses the writing-plans format (### Task N: Title blocks) and registers

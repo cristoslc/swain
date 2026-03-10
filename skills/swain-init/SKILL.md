@@ -73,19 +73,38 @@ Tell the user:
 
 If merge: append CLAUDE.md content (minus any `<!-- swain governance -->` block) to AGENTS.md, replace CLAUDE.md with `@AGENTS.md`.
 
-## Phase 2: Install and initialize bd (beads)
+## Phase 2: Install dependencies and initialize bd (beads)
 
-Goal: ensure the project has a working bd installation and an initialized `.beads/` directory.
+Goal: ensure uv and bd are available, and the project has an initialized `.beads/` directory.
 
-### Step 2.1 — Check bd availability
+### Step 2.1 — Check uv availability
+
+```bash
+command -v uv
+```
+
+If uv is found, skip to Step 2.2.
+
+If missing, install:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+If installation fails, tell the user:
+> uv installation failed. You can install it manually (https://docs.astral.sh/uv/getting-started/installation/) — swain scripts require uv for Python execution.
+
+Then skip the rest of Phase 2 (don't block init on uv, but warn that scripts will not function without it).
+
+### Step 2.2 — Check bd availability
 
 ```bash
 command -v bd
 ```
 
-If bd is found, skip to Step 2.3.
+If bd is found, skip to Step 2.4.
 
-### Step 2.2 — Install bd
+### Step 2.3 — Install bd
 
 Detect platform and install:
 
@@ -99,7 +118,7 @@ If installation fails, tell the user:
 
 Then skip the rest of Phase 2 (don't block init on bd).
 
-### Step 2.3 — Initialize bd
+### Step 2.4 — Initialize bd
 
 Check for existing initialization:
 
@@ -107,7 +126,7 @@ Check for existing initialization:
 test -d .beads && echo "exists" || echo "missing"
 ```
 
-If `.beads/` exists, skip to Step 2.4.
+If `.beads/` exists, skip to Step 2.5.
 
 If missing:
 
@@ -117,7 +136,7 @@ If missing:
 4. Tell the user:
    > Initialized bd in `.beads/`. Cleaned bd's auto-generated AGENTS.md content — swain-do handles bd integration through its skill instructions instead.
 
-### Step 2.4 — Validate
+### Step 2.5 — Validate
 
 ```bash
 bd doctor --json
