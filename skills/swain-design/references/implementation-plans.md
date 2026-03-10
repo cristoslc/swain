@@ -23,7 +23,11 @@ When superpowers is present, the brainstorming step should produce a TDD-structu
 
 ## Closing the loop
 
-- Progress lives in the execution backend, not the spec doc. Transition the spec to "Implemented" once the plan completes.
+- Progress lives in the execution backend, not the spec doc.
+- When all plan tasks are complete, transition the Spec to **Testing** (not directly to Implemented). The Testing phase is where acceptance criteria are verified against evidence — see `spec-definition.md § Testing phase`.
+- In the Testing phase, populate the Spec's **Verification** table: map each acceptance criterion to its evidence (test name, file, demo) and record Pass/Fail/Skip.
+- Run `scripts/spec-verify.sh <artifact-path>` before transitioning from Testing → Implemented. The script confirms every criterion has evidence.
+- Only after verification passes, transition the Spec to **Implemented**.
 - Note cross-spec tasks in each affected artifact's lifecycle entry (e.g., "Implemented — shared serializer also covers SPEC-007").
 - If execution reveals the spec is unworkable, the swain-do skill's escalation protocol flows control back to the swain-design skill for spec updates before re-planning.
 
