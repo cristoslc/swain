@@ -12,3 +12,7 @@ node_modules/
 
 # Skill installation artifacts (consumer-side)
 skills-lock.json
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
