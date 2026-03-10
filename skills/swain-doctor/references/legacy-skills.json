@@ -1,0 +1,17 @@
+{
+  "_comment": "Maps old skill directory names to their current replacements. Used by swain-doctor and swain-update to clean up renamed skills. Only remove an old skill if its replacement exists AND the old skill passes the fingerprint check (see SKILL.md).",
+  "renamed": {
+    "governance": "swain-config",
+    "swain-config": "swain-doctor",
+    "spec-management": "swain-design",
+    "execution-tracking": "swain-do",
+    "release": "swain-release"
+  },
+  "fingerprints": [
+    "source: swain",
+    "author: cristos",
+    "swain governance",
+    "swain-design",
+    "swain-do"
+  ]
+}

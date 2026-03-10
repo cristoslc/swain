@@ -8,6 +8,7 @@ metadata:
   short-description: Contextual help and onboarding for swain
   version: 1.0.0
   author: cristos
+  source: swain
 ---
 
 # swain-help
@@ -40,7 +41,7 @@ Present this:
 >
 > 2. **Design before you build.** When you want to implement something, start with `/swain` to create a spec or story. Swain enforces a "plan before code" workflow — it creates tracked tasks before implementation begins.
 >
-> 3. **Governance is automatic.** `/swain-config` runs at session start to ensure routing rules are in place. You don't need to think about it.
+> 3. **Health checks are automatic.** `/swain-doctor` runs at session start to ensure routing rules are in place and `.beads/` is healthy. You don't need to think about it.
 >
 > **Common starting points:**
 > - "I want to plan a new feature" → creates an Epic or Story

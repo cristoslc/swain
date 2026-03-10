@@ -1,18 +1,19 @@
 ---
 name: swain-init
-description: "One-time project onboarding for swain. Migrates existing CLAUDE.md content to AGENTS.md (with the @AGENTS.md include pattern), installs and initializes bd (beads) for task tracking, cleans bd's auto-injected AGENTS.md content, and offers to add swain governance rules. Run once when adopting swain in a new project — use swain-config for ongoing per-session governance checks."
+description: "One-time project onboarding for swain. Migrates existing CLAUDE.md content to AGENTS.md (with the @AGENTS.md include pattern), installs and initializes bd (beads) for task tracking, cleans bd's auto-injected AGENTS.md content, and offers to add swain governance rules. Run once when adopting swain in a new project — use swain-doctor for ongoing per-session health checks."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: One-time swain project onboarding
-  version: 1.0.0
+  version: 1.1.0
   author: cristos
+  source: swain
 ---
 
 # Project Onboarding
 
-One-time setup for adopting swain in a project. This skill is **not idempotent** — it migrates files and installs tools. For per-session governance checks, use swain-config.
+One-time setup for adopting swain in a project. This skill is **not idempotent** — it migrates files and installs tools. For per-session health checks, use swain-doctor.
 
 Run all phases in order. If a phase detects its work is already done, skip it and move to the next.
 
@@ -184,7 +185,7 @@ Append the following to AGENTS.md:
 |-------|---------|
 | **swain** | Meta-router — routes `/swain` prompts to the correct sub-skill |
 | **swain-init** | One-time project onboarding — CLAUDE.md migration, bd setup, governance |
-| **swain-config** | Session-start governance — ensures routing rules are installed |
+| **swain-doctor** | Session-start health checks — governance, gitignore hygiene, legacy cleanup |
 | **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Bug, Persona, Runbook, Journey |
 | **swain-do** | Execution tracking — task management via bd (beads) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
@@ -225,11 +226,15 @@ mkdir -p .agents
 
 This directory is used by swain-do for configuration and by swain-design scripts for logs.
 
-### Step 4.2 — Onboarding
+### Step 4.2 — Run swain-doctor
+
+Invoke the **swain-doctor** skill. This validates `.beads/.gitignore` against the canonical reference (patching missing entries), cleans up any already-tracked runtime files via `git rm --cached`, removes legacy skill directories, and ensures governance is correctly installed. Running the doctor here catches issues from both fresh `bd init` runs and pre-existing `.beads/` directories.
+
+### Step 4.3 — Onboarding
 
 Invoke the **swain-help** skill in onboarding mode to give the user a guided orientation of what they just installed.
 
-### Step 4.3 — Summary
+### Step 4.4 — Summary
 
 Report what was done:
 
