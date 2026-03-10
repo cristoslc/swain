@@ -12,6 +12,7 @@ depends-on:
 {%- for dep in depends_on | default([]) %}
   - {{ dep }}
 {%- endfor %}
+evidence-pool: {{ evidence_pool | default("") }}
 ---
 
 # {{ title }}
