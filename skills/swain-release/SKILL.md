@@ -7,6 +7,7 @@ metadata:
   short-description: Version bump, changelog, and git tag
   version: 1.0.0
   author: cristos
+  source: swain
 ---
 
 # Release

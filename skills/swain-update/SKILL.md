@@ -1,13 +1,14 @@
 ---
 name: swain-update
-description: "Update swain skills to the latest version. Use when the user says 'update swain', 'upgrade swain', 'pull latest swain', or wants to refresh their swain skills installation. Runs the skills package manager (npx) with a git-clone fallback, then invokes swain-config to reconcile any governance changes."
+description: "Update swain skills to the latest version. Use when the user says 'update swain', 'upgrade swain', 'pull latest swain', or wants to refresh their swain skills installation. Runs the skills package manager (npx) with a git-clone fallback, then invokes swain-doctor to reconcile governance and validate project health."
 user-invocable: true
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Update swain skills to latest
-  version: 1.0.0
+  version: 1.1.0
   author: cristos
   license: MIT
+  source: swain
 ---
 
 # Update Swain
@@ -29,8 +30,10 @@ If no swain skill directories are found, inform the user this appears to be a fr
 Run the skills package manager to pull the latest swain skills:
 
 ```bash
-npx skills add cristoslc/swain
+npx skills add cristoslc/swain --all
 ```
+
+The `--all` flag (`--skill '*' --agent '*' -y`) ensures non-interactive execution by skipping confirmation prompts.
 
 If `npx` fails (command not found, network error, or non-zero exit), fall back to a direct git clone:
 
@@ -43,7 +46,7 @@ rm -rf "$tmp"
 
 ## Step 3 — Reconcile governance
 
-Invoke the **swain-config** skill. This checks whether `AGENTS.md`, context files, and governance rules need updating based on any changes in the new skill versions. The skill is idempotent, so running it after every update is always safe.
+Invoke the **swain-doctor** skill. This validates governance rules, cleans up legacy skill directories (including any renamed in this release), repairs `.beads/.gitignore`, and untracks any runtime files that leaked into git. The skill is idempotent, so running it after every update is always safe.
 
 ## Step 4 — Report
 

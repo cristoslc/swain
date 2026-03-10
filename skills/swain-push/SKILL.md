@@ -8,6 +8,7 @@ metadata:
   version: 1.0.0
   author: cristos
   license: MIT
+  source: swain
 ---
 
 Run through the following steps in order without pausing for confirmation unless a decision point is explicitly marked as requiring one.

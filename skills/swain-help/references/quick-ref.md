@@ -6,7 +6,7 @@
 |-------|-------------|-------------|
 | **swain** | `/swain <request>` | Routes to the right sub-skill |
 | **swain-init** | `/swain init` | One-time project setup |
-| **swain-config** | `/swain-config` | Session-start governance (automatic) |
+| **swain-doctor** | `/swain-doctor` | Session-start health checks (automatic) |
 | **swain-design** | `/swain-design` or `/swain` + artifact request | Create and manage documentation artifacts |
 | **swain-search** | `/swain-search` or `/swain` + research request | Collect and cache evidence pools |
 | **swain-do** | `/swain-do` or `/swain` + task request | Track tasks and implementation work |
@@ -129,7 +129,7 @@ The external, git-backed task tracker swain uses. Installed by swain-init, opera
 
 ### Governance block
 
-The `<!-- swain governance -->` block in AGENTS.md contains routing rules that make swain skills discoverable. Managed automatically by swain-config. Don't edit it manually — customize anything outside the markers.
+The `<!-- swain governance -->` block in AGENTS.md contains routing rules that make swain skills discoverable. Managed automatically by swain-doctor. Don't edit it manually — customize anything outside the markers.
 
 ### The @AGENTS.md pattern
 

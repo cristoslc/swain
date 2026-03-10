@@ -41,7 +41,7 @@
 
 ## Starting a new session
 
-1. **Governance check**: `/swain-config` runs automatically (or invoke manually)
+1. **Health check**: `/swain-doctor` runs automatically (or invoke manually)
 
 2. **See what's in progress**: `/swain show my tasks` or `bd status`
 

@@ -7,6 +7,7 @@ metadata:
   short-description: Manage spec artifact creation and lifecycle
   version: 1.5.0
   author: cristos
+  source: swain
 ---
 
 # Spec Management

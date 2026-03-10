@@ -8,6 +8,7 @@ metadata:
   short-description: Evidence pool collection and normalization
   version: 1.0.0
   author: cristos
+  source: swain
 ---
 
 # swain-search

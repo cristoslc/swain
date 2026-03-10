@@ -10,6 +10,6 @@ Invoke the Skill tool for exactly one match. Pass the user's full prompt as args
 | swain-push | commit, push, stage |
 | swain-release | release, version, changelog, tag |
 | swain-update | update/upgrade swain |
-| swain-config | session init, governance |
+| swain-doctor | session init, governance, doctor, health check, gitignore |
 | swain-help | help, how do I, what is, reference, cheat sheet, commands, overview |
 | swain-init | init, onboard, setup, bootstrap (one-time project setup) |
