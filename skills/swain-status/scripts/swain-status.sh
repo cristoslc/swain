@@ -158,7 +158,7 @@ collect_artifacts() {
       ([$edges[] | select(.to == $id and .type == "depends-on") | .from] |
         map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep].status | is_resolved | not))) |
         unique) as $unblocks |
-      {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, unblocks: $unblocks}
+      {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, description: .value.description, unblocks: $unblocks}
     ] | sort_by(-(.unblocks | length), .id)) as $ready |
 
     # Blocked
@@ -167,7 +167,7 @@ collect_artifacts() {
       ([$edges[] | select(.from == $id and .type == "depends-on") | .to] | unique) as $deps |
       ($deps | map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep].status | is_resolved | not)))) as $waiting |
       select(($waiting | length) > 0) |
-      {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, waiting: $waiting}
+      {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, description: .value.description, waiting: $waiting}
     ] | sort_by(.id)) as $blocked |
 
     # Epic progress: for each active epic, count child spec status
@@ -186,7 +186,7 @@ collect_artifacts() {
         file: .value.file,
         progress: { done: $done, total: $total },
         children: [$child_ids[] | . as $cid | $nodes[$cid] | select(. != null) |
-          {id: $cid, title: .title, status: .status, type: .type, file: .file}
+          {id: $cid, title: .title, status: .status, type: .type, file: .file, description: .description}
         ]
       }
     ] | sort_by(.id)) as $epics |
@@ -429,7 +429,10 @@ render_full() {
          end) + " \(art_link(.id; .file)): \(.title) [\(.status)]" +
         (if (.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined") | not)
          then " — \(next_step)"
-         else "" end)
+         else "" end),
+        (if .description and (.description | length > 0) then
+          "    _\(.description)_"
+        else empty end)
       ),
       ""
     '
@@ -467,6 +470,9 @@ render_full() {
       "## Recommended Next",
       "",
       "> **\(art_link(.id; .file)): \(.title)** [\(.status)]",
+      (if .description and (.description | length > 0) then
+        "> _\(.description)_"
+      else empty end),
       (if (.unblocks | length) > 0 then
         "> Unblocks \(.unblocks | length) item\(if (.unblocks | length) > 1 then "s" else "" end): \(.unblocks | join(", "))"
       else empty end),
@@ -503,7 +509,10 @@ render_full() {
           else "progress to next phase" end;
         .artifacts.ready[1:][] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
-        (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end)
+        (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
+        (if .description and (.description | length > 0) then
+          "  _\(.description)_"
+        else empty end)
       '
       echo ""
     fi
@@ -529,7 +538,10 @@ render_full() {
         . as $w |
         if ($ready_ids | index($w)) then "\($w) (actionable now)"
         else $w end
-      ) | join(", "))"'
+      ) | join(", "))",
+      (if .description and (.description | length > 0) then
+        "  _\(.description)_"
+      else empty end)'
     echo ""
   fi
 

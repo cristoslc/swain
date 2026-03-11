@@ -62,6 +62,22 @@ get_field() {
   printf '%s' "$val"
 }
 
+# Extract a one-line description for an artifact.
+# Priority: question (spikes) > description (frontmatter) > first body paragraph
+get_description() {
+  local file="$1"
+  local desc
+  # Try question field first (SPIKEs use this)
+  desc=$(get_field "$file" "question")
+  [ -n "$desc" ] && { printf '%s' "${desc:0:120}"; return; }
+  # Try description field
+  desc=$(get_field "$file" "description")
+  [ -n "$desc" ] && { printf '%s' "${desc:0:120}"; return; }
+  # Fall back to first non-heading, non-empty body line after frontmatter
+  desc=$(awk '/^---$/{n++; next} n>=2 && /^[^#\[\|>!-]/ && NF>0 {print; exit}' "$file") || true
+  printf '%s' "${desc:0:120}"
+}
+
 # Extract a YAML list field as newline-separated bare IDs (TYPE-NNN)
 # Always succeeds (returns empty if field not found or has no list items)
 get_list_field() {
@@ -113,6 +129,10 @@ do_build() {
     local atype
     atype=$(printf '%s' "$artifact" | sed 's/-[0-9]*//')
 
+    # Extract a one-line description for human context
+    local desc
+    desc=$(get_description "$file")
+
     # Build node JSON
     local node_json
     node_json=$(jq -n \
@@ -120,7 +140,8 @@ do_build() {
       --arg status "$status" \
       --arg type "$atype" \
       --arg file "$file_rel" \
-      '{title: $title, status: $status, type: $type, file: $file}')
+      --arg desc "$desc" \
+      '{title: $title, status: $status, type: $type, file: $file, description: $desc}')
 
     if [ $first_node -eq 1 ]; then
       nodes_json="\"$artifact\": $node_json"
