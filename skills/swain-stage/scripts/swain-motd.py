@@ -70,12 +70,11 @@ REPO_ROOT = get_repo_root()
 PROJECT_NAME = REPO_ROOT.name
 SETTINGS = get_settings(REPO_ROOT)
 
+_PROJECT_SLUG = str(REPO_ROOT).replace("/", "-")
 MEMORY_DIR = Path(
     os.environ.get(
         "SWAIN_MEMORY_DIR",
-        Path.home() / ".claude" / "projects"
-        / f"-Users-{os.environ.get('USER', 'unknown')}-Documents-code-{PROJECT_NAME}"
-        / "memory",
+        Path.home() / ".claude" / "projects" / _PROJECT_SLUG / "memory",
     )
 )
 AGENT_STATUS_FILE = MEMORY_DIR / "stage-status.json"
