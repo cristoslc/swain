@@ -106,6 +106,11 @@ Run `git --no-pager status` and `git --no-pager log --oneline -3` to verify the 
 
 ## Session bookmark
 
-After a successful push, update the session bookmark:
-- Note format: "Pushed {n} commits to {branch}" — e.g., "Pushed 3 commits to feature/search-skill"
-- Use the session.json in `~/.claude/projects/<project-slug>/memory/session.json`
+After a successful push, update the session bookmark via `swain-bookmark.sh`:
+
+```bash
+BOOKMARK="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
+bash "$BOOKMARK" "Pushed 3 commits to feature/search-skill"
+```
+
+- Note format: "Pushed {n} commits to {branch}"

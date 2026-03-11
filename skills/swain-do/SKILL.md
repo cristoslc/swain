@@ -244,11 +244,14 @@ Specwatch runs `bd-sync` as part of `specwatch.sh scan` and during watch-mode ev
 
 ## Session bookmark
 
-After completing any state-changing operation (creating, completing, or updating tasks), update the session bookmark so `swain-session` knows where the developer left off.
+After completing any state-changing operation (creating, completing, or updating tasks), update the session bookmark via `swain-bookmark.sh`:
 
-Write a concise note summarizing what changed to `session.json`:
-- Note format: "{action} {task-description}" — e.g., "Completed 'implement auth middleware', started 'write tests'"
-- Use the session.json in `~/.claude/projects/<project-slug>/memory/session.json`
+```bash
+BOOKMARK="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
+bash "$BOOKMARK" "Completed 'implement auth middleware', started 'write tests'"
+```
+
+- Note format: "{action} {task-description}"
 
 ## Plan ingestion (superpowers integration)
 
