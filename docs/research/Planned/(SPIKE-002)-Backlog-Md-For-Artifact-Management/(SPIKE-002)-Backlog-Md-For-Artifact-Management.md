@@ -1,7 +1,7 @@
 ---
 title: "Backlog.md for artifact management"
 artifact: SPIKE-002
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-10
 last-updated: 2026-03-11
@@ -167,4 +167,5 @@ This would be a substantial fork (~2k+ LOC changes) that diverges significantly 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-10 | 038f8db | Initial creation |
-| Active | 2026-03-11 | — | Investigation findings recorded |
+| Active | 2026-03-11 | b867bb7 | Investigation findings recorded |
+| Complete | 2026-03-11 | — | Verdict: REJECT — improve specgraph instead |

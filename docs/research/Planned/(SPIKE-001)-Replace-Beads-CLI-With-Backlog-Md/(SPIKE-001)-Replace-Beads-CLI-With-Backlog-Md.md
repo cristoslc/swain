@@ -1,7 +1,7 @@
 ---
 title: "Replace Beads CLI with Backlog.md"
 artifact: SPIKE-001
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-10
 last-updated: 2026-03-11
@@ -158,4 +158,5 @@ This eliminates the fragile bd CLI wrapping in swain-do and enables agent-native
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-10 | 038f8db | Initial creation |
-| Active | 2026-03-11 | — | Investigation findings recorded |
+| Active | 2026-03-11 | b867bb7 | Investigation findings recorded |
+| Complete | 2026-03-11 | — | Verdict: HYBRID — contribute upstream, reassess |
