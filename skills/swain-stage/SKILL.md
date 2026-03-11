@@ -143,8 +143,8 @@ Read from `swain.settings.json` (project) and `~/.config/swain/settings.json` (u
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `editor` | string | `vim` | Editor command for pane opening |
-| `fileBrowser` | string | `mc` | File browser command |
+| `editor` | string | `auto` | Editor command. `auto` detects: micro > helix > nano > vim |
+| `fileBrowser` | string | `auto` | File browser command. `auto` detects: yazi > nnn > ranger > mc |
 | `stage.defaultLayout` | string | `focus` | Layout applied by default |
 | `stage.motd.refreshInterval` | number | `5` | MOTD refresh interval in seconds (idle) |
 | `stage.motd.spinnerStyle` | string | `braille` | Spinner animation: `braille`, `dots`, or `bar` |

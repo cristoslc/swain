@@ -1,6 +1,6 @@
 {
-  "editor": "vim",
-  "fileBrowser": "mc",
+  "editor": "auto",
+  "fileBrowser": "auto",
   "terminal": {
     "tabNameFormat": "{project} @ {branch}"
   },
