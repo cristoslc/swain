@@ -1,7 +1,7 @@
 ---
 title: "swain-search Skill"
 artifact: SPEC-001
-status: Testing
+status: Implemented
 author: cristos
 created: 2026-03-09
 last-updated: 2026-03-11
@@ -115,16 +115,16 @@ When a capability isn't available, the skill degrades gracefully:
 
 ## Verification
 
-| # | Criterion | Evidence | Result |
-|---|-----------|----------|--------|
-| 1 | Web search query normalizes results into sources/ with manifest entries | SKILL.md § Create mode — web search workflow; references/manifest-schema.md defines URL, fetch-date, content-hash fields; references/normalization-formats.md § Web search result | Pass |
-| 2 | URL fetch strips boilerplate, produces clean markdown with frontmatter | SKILL.md § Create mode — URL source workflow; references/normalization-formats.md § Web page | Pass |
-| 3 | Video/audio URL transcribed with title, URL, duration, speaker labels | SKILL.md § Create mode — media source workflow; references/normalization-formats.md § Video/Audio | Pass |
-| 4 | Local file converted to markdown with original path in frontmatter | SKILL.md § Create mode — local file workflow; references/normalization-formats.md § Local file | Pass |
-| 5 | Existing pool extended with new sources, manifest appended, synthesis regenerated | SKILL.md § Extend mode — append workflow, synthesis regeneration step | Pass |
-| 6 | Refresh re-fetches stale sources, compares hashes, re-normalizes only changed | SKILL.md § Refresh mode — TTL check, hash comparison, selective re-normalization | Pass |
-| 7 | Synthesis contains structured distillation organized by theme | SKILL.md § Synthesis generation — thematic organization instructions | Pass |
-| 8 | Missing capability warns user and skips source type without failing | SKILL.md § Graceful degradation — capability detection, skip-and-warn behavior | Pass |
+| Criterion | Evidence | Result |
+|-----------|----------|--------|
+| Web search query normalizes results into sources/ with manifest entries | SKILL.md § Create mode — web search workflow; references/manifest-schema.md defines URL, fetch-date, content-hash fields; references/normalization-formats.md § Web search result | Pass |
+| URL fetch strips boilerplate, produces clean markdown with frontmatter | SKILL.md § Create mode — URL source workflow; references/normalization-formats.md § Web page | Pass |
+| Video/audio URL transcribed with title, URL, duration, speaker labels | SKILL.md § Create mode — media source workflow; references/normalization-formats.md § Video/Audio | Pass |
+| Local file converted to markdown with original path in frontmatter | SKILL.md § Create mode — local file workflow; references/normalization-formats.md § Local file | Pass |
+| Existing pool extended with new sources, manifest appended, synthesis regenerated | SKILL.md § Extend mode — append workflow, synthesis regeneration step | Pass |
+| Refresh re-fetches stale sources, compares hashes, re-normalizes only changed | SKILL.md § Refresh mode — TTL check, hash comparison, selective re-normalization | Pass |
+| Synthesis contains structured distillation organized by theme | SKILL.md § Synthesis generation — thematic organization instructions | Pass |
+| Missing capability warns user and skips source type without failing | SKILL.md § Graceful degradation — capability detection, skip-and-warn behavior | Pass |
 
 ## Lifecycle
 
@@ -133,3 +133,4 @@ When a capability isn't available, the skill degrades gracefully:
 | Draft | 2026-03-09 | — | Initial creation |
 | Approved | 2026-03-11 | a326a77 | Reviewed and approved conversationally |
 | Testing | 2026-03-11 | bf3e9f7 | All deliverables built; verification in progress |
+| Implemented | 2026-03-11 | — | All 8 acceptance criteria verified; all deliverables complete |
