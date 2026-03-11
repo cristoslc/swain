@@ -1,8 +1,24 @@
 # swain
 
-Agent governance, spec management, and execution tracking skills for AI coding agents.
+Agent skills for governance, spec management, and execution tracking — built on the [skills standard](https://github.com/anthropics/skills).
 
-Named for the boatswain's mate — the officer who maintains rigging and enforces standards.
+Named for the *swain* in boat**swain** — the officer who keeps the rigging tight and the standards enforced.
+
+## Why swain?
+
+AI coding agents are great at implementing things, but they lose context between sessions. You plan a feature, write half of it, come back tomorrow — and the agent has no idea what was decided, what's in progress, or what's blocked.
+
+Swain gives your project **persistent, structured state** that survives across agent sessions and works with any agent that supports the skills standard.
+
+| Without swain | With swain |
+|---------------|------------|
+| "What was I working on?" — dig through git log | `/swain-status` shows active work, blockers, and next steps |
+| Feature ideas live in your head or scattered notes | Artifacts on disk with explicit phases and dependencies |
+| Agent implements the wrong thing because context was lost | Specs define what to build; agents read them before coding |
+| You approve something verbally, next session nobody remembers | Phase transitions are committed — decisions are in git history |
+| Research findings evaporate after the session | Evidence pools cached as markdown, reusable across sessions |
+
+Swain is for **solo dev + AI agent** workflows. It's not a replacement for GitHub Issues or Jira — it's the layer that keeps your agent productive between sessions.
 
 ## Install
 
