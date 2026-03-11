@@ -118,7 +118,9 @@ Evidence: SPIKE-001 found that Backlog.md covers 70% of swain-do's term mapping 
 
 ### O-02: specgraph board command (addresses PP-03)
 
-Add a `specgraph board` command that renders artifacts in a terminal Kanban layout grouped by status. Could use a Textual TUI (like swain-motd) or simple column-based terminal output. The specgraph cache already has all the data needed.
+Add a `specgraph board` command that renders artifacts in a visual Kanban layout grouped by status. Must be a **web dashboard** (not a TUI) because swain runs inside AI coding agents (Claude Code, OpenCode, Codex, Gemini CLI) that own the terminal — a TUI would compete for stdin/stdout. The agent launches the dashboard via `open` or a local server; the developer views it in a browser tab.
+
+The specgraph cache already has all the data needed. A lightweight static HTML page reading the JSON cache would suffice for v1.
 
 Evidence: SPIKE-002 recommended this as the primary improvement over adopting Backlog.md for artifact management.
 
@@ -132,7 +134,11 @@ Add a view to swain-status that groups tasks by their parent spec and shows comp
 
 ### O-05: Unified project dashboard (addresses PP-02, PP-03, PP-05)
 
-A single Textual TUI (extending swain-motd) or web view that combines artifact landscape, task board, and spec-scoped progress into one dashboard. The developer opens one pane and sees everything. This is the convergence point of O-01 through O-04.
+A **web dashboard** that combines artifact landscape, task board, and spec-scoped progress into one view. The agent starts a local server (or generates a static HTML file from the specgraph/status cache) and opens it in the browser. The developer keeps it open in a browser tab alongside their terminal.
+
+**Key constraint:** Cannot be a TUI. Swain runs inside AI coding agents (Claude Code, OpenCode, Codex, Gemini CLI) that own the terminal. Any interactive UI must live outside the terminal — browser-based is the only viable path. The agent can launch it (`open http://localhost:PORT` or `open /tmp/swain-dashboard.html`), and the dashboard reads from the existing JSON caches (specgraph cache, status-cache.json, stage-status.json).
+
+This is the convergence point of O-01 through O-04.
 
 ## Lifecycle
 

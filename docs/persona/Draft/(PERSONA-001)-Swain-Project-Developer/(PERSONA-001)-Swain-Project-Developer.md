@@ -22,8 +22,8 @@ Solo Developer with AI Pair
 - **Role:** Independent software developer or small-team lead
 - **Technical proficiency:** High — comfortable with CLI tools, git workflows, and AI-assisted development
 - **Project type:** Side projects, personal tools, or early-stage products managed solo or with 1-2 collaborators
-- **AI usage:** Heavy — uses Claude Code as a pair programmer, delegates routine tasks to agents, expects tools to be agent-accessible
-- **Environment:** macOS, iTerm2/tmux, VS Code or Neovim, GitHub for hosting
+- **AI usage:** Heavy — uses Claude Code, OpenCode, Codex, or Gemini CLI as a pair programmer. Delegates routine tasks to agents, expects tools to be agent-accessible. May switch between coding agents across sessions.
+- **Environment:** macOS, terminal-based AI coding agent (owns stdin/stdout), browser for dashboards, GitHub for hosting
 
 ## Goals and Motivations
 
