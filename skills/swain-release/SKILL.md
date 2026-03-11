@@ -160,6 +160,11 @@ Don't push without asking — the user may want to review first, or they may hav
 
 ## Session bookmark
 
-After a successful release, update the session bookmark:
-- Note format: "Released {version}" — e.g., "Released v1.2.0"
-- Use the session.json in `~/.claude/projects/<project-slug>/memory/session.json`
+After a successful release, update the session bookmark via `swain-bookmark.sh`:
+
+```bash
+BOOKMARK="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
+bash "$BOOKMARK" "Released v1.2.0"
+```
+
+- Note format: "Released {version}"

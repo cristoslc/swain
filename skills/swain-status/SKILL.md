@@ -107,6 +107,18 @@ Read from `swain.settings.json` (project) and `~/.config/swain/settings.json` (u
 |-----|------|---------|-------------|
 | `status.cacheTTL` | number | `120` | Cache time-to-live in seconds |
 
+## Session bookmark
+
+After presenting the status output, update the session bookmark via `swain-bookmark.sh`:
+
+```bash
+BOOKMARK="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
+bash "$BOOKMARK" "Checked status — 2 specs awaiting review, EPIC-002 needs decomposition"
+```
+
+- Note format: "Checked status — {key highlight}"
+- Pick the single most actionable highlight from the output (decisions waiting, blocked items, or epic progress)
+
 ## Error handling
 
 - If specgraph is unavailable: skip artifact section, show other data
