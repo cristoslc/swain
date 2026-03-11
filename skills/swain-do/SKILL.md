@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Bootstrap and operate external task tracking
-  version: 2.3.0
+  version: 2.4.0
   author: cristos
   source: swain
 ---
@@ -241,6 +241,14 @@ Specwatch runs `bd-sync` as part of `specwatch.sh scan` and during watch-mode ev
 1. Maintain compact current-status view: `bd status` and `bd list --pretty`.
 2. Ensure blockers are explicit: `bd blocked` shows issues with unsatisfied deps.
 3. Use consistent labels so supervisors can filter by stream, owner, or phase.
+
+## Session bookmark
+
+After completing any state-changing operation (creating, completing, or updating tasks), update the session bookmark so `swain-session` knows where the developer left off.
+
+Write a concise note summarizing what changed to `session.json`:
+- Note format: "{action} {task-description}" — e.g., "Completed 'implement auth middleware', started 'write tests'"
+- Use the session.json in `~/.claude/projects/<project-slug>/memory/session.json`
 
 ## Plan ingestion (superpowers integration)
 
