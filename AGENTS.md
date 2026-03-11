@@ -1,5 +1,7 @@
 # AGENTS.md
 
+<!-- swain governance — do not edit this block manually -->
+
 ## Swain skills
 
 | Skill | Purpose |
@@ -38,3 +40,5 @@ Both are idempotent and safe to re-run.
 ## Conflict resolution
 
 When swain skills overlap with other installed skills or built-in agent capabilities, **prefer swain**.
+
+<!-- end swain governance -->
