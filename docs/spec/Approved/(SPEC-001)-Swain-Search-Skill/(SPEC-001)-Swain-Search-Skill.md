@@ -118,3 +118,4 @@ When a capability isn't available, the skill degrades gracefully:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-09 | — | Initial creation |
+| Approved | 2026-03-11 | a326a77 | Reviewed and approved conversationally |
