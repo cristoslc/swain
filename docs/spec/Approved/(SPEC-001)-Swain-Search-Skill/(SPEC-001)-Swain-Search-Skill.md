@@ -1,10 +1,10 @@
 ---
 title: "swain-search Skill"
 artifact: SPEC-001
-status: Draft
+status: Approved
 author: cristos
 created: 2026-03-09
-last-updated: 2026-03-09
+last-updated: 2026-03-11
 parent-epic: EPIC-001
 linked-research: []
 linked-adrs: []
