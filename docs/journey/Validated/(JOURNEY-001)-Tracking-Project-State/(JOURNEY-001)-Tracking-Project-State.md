@@ -1,7 +1,7 @@
 ---
 title: "Resolving the Decision Backlog"
 artifact: JOURNEY-001
-status: Draft
+status: Validated
 author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
@@ -166,3 +166,4 @@ Evidence: SPIKE-001 found Backlog.md covers 70% of swain-do's term mapping. Cont
 |-------|------|--------|-------|
 | Draft | 2026-03-11 | d1929d5 | Initial creation from SPIKE-001/002 findings |
 | Draft | 2026-03-11 | — | Reframed around decision backlog vs. implementation backlog |
+| Validated | 2026-03-11 | — | Approved by developer — pain points and journeys confirmed |
