@@ -253,7 +253,7 @@ cmd_pane() {
       echo "pane: file browser opened"
       ;;
     motd)
-      tmux split-window -v -l 12 "bash $SCRIPT_DIR/swain-motd.sh"
+      tmux split-window -v -l 12 "uv run $SCRIPT_DIR/swain-motd.py"
       tmux select-pane -t 0
       echo "pane: motd started"
       ;;
