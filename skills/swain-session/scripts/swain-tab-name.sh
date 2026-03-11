@@ -29,19 +29,20 @@ read_setting() {
 set_title() {
   local title="$1"
 
-  # tmux — set pane title and window name
   if [[ -n "$TMUX" ]]; then
-    printf '\033]2;%s\033\\' "$title"
+    # tmux — use server-side rename (works from subprocesses)
     tmux rename-window "$title" 2>/dev/null || true
+  elif [[ -t 1 ]]; then
+    # Only emit escape sequences if stdout is a real terminal
+    # (not piped through an agent subprocess)
+    if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
+      printf '\033]1;%s\007' "$title"
+    fi
+    printf '\033]0;%s\007' "$title"
+  else
+    # Not in tmux and stdout is not a terminal — skip escape sequences
+    :
   fi
-
-  # iTerm2 — tab title
-  if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
-    printf '\033]1;%s\007' "$title"
-  fi
-
-  # Generic terminal — window title (xterm-compatible)
-  printf '\033]0;%s\007' "$title"
 }
 
 reset_title() {

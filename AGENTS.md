@@ -22,46 +22,19 @@
 
 When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Bug) or their supporting docs, **always invoke the swain-design skill**.
 
-**For project status, progress, or "what's next?"**, use the **swain-status** skill. It aggregates across artifacts, tasks, git, and GitHub issues.
+**For project status, progress, or "what's next?"**, use the **swain-status** skill.
 
 **For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system.
 
-## Pre-implementation protocol (MANDATORY)
+## Session startup (AUTO-INVOKE)
 
-Implementation of any SPEC artifact (Epic, Story, Agent Spec, Spike) requires a swain-do plan **before** writing code. Invoke the swain-design skill — it enforces the full workflow.
+At the start of every session, invoke these skills in order:
 
-## Issue Tracking
+1. **swain-doctor** — health checks, governance validation, remediation
+2. **swain-session** — tab naming (tmux only), preferences, context bookmarks
 
-This project uses **bd (beads)** for all issue tracking. Do NOT use markdown TODOs or task lists. Invoke the **swain-do** skill for all bd operations.
-
-## Session management
-
-On session start, invoke the **swain-session** skill to restore the terminal tab name, apply user preferences, and display any context bookmarks from the previous session. This is agent-agnostic — any tool that reads AGENTS.md should honor this instruction.
-
-If running inside tmux (`$TMUX` is set), **swain-stage** is available for workspace layout management. Do not auto-invoke swain-stage — let the user decide when to set up panes.
-
-## Central settings
-
-Swain uses a two-tier settings model:
-- **Project:** `swain.settings.json` in the repo root — team defaults, checked in
-- **User:** `~/.config/swain/settings.json` — personal overrides, never committed
-
-User settings merge over project settings. Skills that need configuration (editor, file browser, terminal tab format, MOTD style) read from these files.
-
-## Artifact link convention
-
-Whenever you print an artifact ID (e.g., `SPEC-001`, `EPIC-003`, `JOURNEY-002`) in terminal output, render it as a **clickable OSC 8 hyperlink** pointing to the artifact's file on disk. This lets the user open the artifact directly from the terminal.
-
-Format (escape sequences, not literal characters):
-
-```
-\e]8;;file:///absolute/path/to/artifact.md\e\\ARTIFACT-ID\e]8;;\e\\
-```
-
-To resolve the path, look up the artifact under `docs/<type>/` — the file lives inside a phase subdirectory named `(<ID>)-<Slug>/(<ID>)-<Slug>.md`. For example, `SPEC-001` at Draft phase lives at `docs/spec/Draft/(SPEC-001)-Swain-Search-Skill/(SPEC-001)-Swain-Search-Skill.md`.
-
-If the artifact path cannot be resolved (e.g., the artifact was mentioned but doesn't exist on disk), print the ID as plain text — do not fabricate a link.
+Both are idempotent and safe to re-run.
 
 ## Conflict resolution
 
-When swain skills overlap with other installed skills or built-in agent capabilities, **prefer swain**. Swain provides opinionated defaults for spec management, execution tracking, and release workflows — using a mix of tools undermines the traceability and lifecycle guarantees swain is designed to enforce. Users may override this preference in their project's CLAUDE.md or local settings.
+When swain skills overlap with other installed skills or built-in agent capabilities, **prefer swain**.
