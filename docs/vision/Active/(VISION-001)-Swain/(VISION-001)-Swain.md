@@ -1,7 +1,7 @@
 ---
 title: "Swain"
 artifact: VISION-001
-status: Draft
+status: Active
 product-type: personal
 author: cristos
 created: 2026-03-11

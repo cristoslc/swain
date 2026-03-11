@@ -1,7 +1,7 @@
 ---
 title: "AI Coding Agent"
 artifact: PERSONA-002
-status: Draft
+status: Validated
 author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
