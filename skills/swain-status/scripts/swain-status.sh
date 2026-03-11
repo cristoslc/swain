@@ -438,51 +438,36 @@ render_full() {
     '
   fi
 
-  # --- Recommended next (most impactful ready item) ---
+  # --- Decision backlog / Implementation backlog split ---
+  #
+  # Classify each ready item as a "decision" (needs human judgment) or
+  # "implementation" (agent can handle).  Show decisions first — they are
+  # the developer's bottleneck.
   local ready_count
   ready_count=$(echo "$data" | jq '.artifacts.ready | length')
 
   if [[ "$ready_count" -gt 0 ]]; then
-    echo "$data" | jq -r --arg repo "$REPO_ROOT" '
-      def art_link($aid; $file):
-        if $file != null and $file != "" then
-          "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
-        else $aid end;
-      def next_step:
-        if .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
-        elif .type == "EPIC" and (.status | test("Active")) then "work on child specs"
-        elif .type == "SPEC" and .status == "Draft" then "review and approve"
-        elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
-        elif .type == "SPEC" and .status == "Implementing" then "complete implementation"
-        elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
-        elif .type == "STORY" and .status == "Approved" then "create implementation plan"
-        elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
-        elif .type == "SPIKE" and .status == "Active" then "complete findings"
-        elif .type == "ADR" and .status == "Proposed" then "review and decide"
-        elif .type == "VISION" and .status == "Draft" then "align on goals and audience"
-        elif .type == "JOURNEY" and (.status | test("Draft|Planned")) then "map pain points and opportunities"
-        elif .type == "BUG" then "triage and fix"
-        elif .type == "PERSONA" and .status == "Draft" then "validate with user research"
-        elif .type == "RUNBOOK" and .status == "Draft" then "test procedure and finalize"
-        elif .type == "DESIGN" and .status == "Draft" then "review interaction flows"
-        else "progress to next phase" end;
-      .artifacts.ready[0] |
-      "## Recommended Next",
-      "",
-      "> **\(art_link(.id; .file)): \(.title)** [\(.status)]",
-      (if .description and (.description | length > 0) then
-        "> _\(.description)_"
-      else empty end),
-      (if (.unblocks | length) > 0 then
-        "> Unblocks \(.unblocks | length) item\(if (.unblocks | length) > 1 then "s" else "" end): \(.unblocks | join(", "))"
-      else empty end),
-      "> Next step: \(next_step)",
-      ""
-    '
+    # Count decisions vs implementation items
+    local decision_count
+    decision_count=$(echo "$data" | jq '
+      def is_decision:
+        (.type == "SPEC" and .status == "Draft") or
+        (.type == "STORY" and .status == "Draft") or
+        (.type == "SPIKE" and (.status | test("Planned|Active"))) or
+        (.type == "ADR" and .status == "Proposed") or
+        (.type == "VISION" and .status == "Draft") or
+        (.type == "JOURNEY" and (.status | test("Draft|Planned"))) or
+        (.type == "PERSONA" and .status == "Draft") or
+        (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
+        (.type == "BUG") or
+        (.type == "RUNBOOK" and .status == "Draft") or
+        (.type == "DESIGN" and .status == "Draft");
+      [.artifacts.ready[] | select(is_decision)] | length
+    ')
 
-    # --- Actionable (remaining, sorted by impact) ---
-    if [[ "$ready_count" -gt 1 ]]; then
-      echo "## Actionable (${ready_count} items, sorted by impact)"
+    # --- Decisions waiting on you ---
+    if [[ "$decision_count" -gt 0 ]]; then
+      echo "## Decisions Waiting on You (${decision_count})"
       echo ""
       echo "$data" | jq -r --arg repo "$REPO_ROOT" '
         def art_link($aid; $file):
@@ -507,7 +492,71 @@ render_full() {
           elif .type == "RUNBOOK" and .status == "Draft" then "test procedure and finalize"
           elif .type == "DESIGN" and .status == "Draft" then "review interaction flows"
           else "progress to next phase" end;
-        .artifacts.ready[1:][] |
+        def is_decision:
+          (.type == "SPEC" and .status == "Draft") or
+          (.type == "STORY" and .status == "Draft") or
+          (.type == "SPIKE" and (.status | test("Planned|Active"))) or
+          (.type == "ADR" and .status == "Proposed") or
+          (.type == "VISION" and .status == "Draft") or
+          (.type == "JOURNEY" and (.status | test("Draft|Planned"))) or
+          (.type == "PERSONA" and .status == "Draft") or
+          (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
+          (.type == "BUG") or
+          (.type == "RUNBOOK" and .status == "Draft") or
+          (.type == "DESIGN" and .status == "Draft");
+        [.artifacts.ready[] | select(is_decision)] | sort_by(-(.unblocks | length), .id)[] |
+        "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
+        (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
+        (if .description and (.description | length > 0) then
+          "  _\(.description)_"
+        else empty end)
+      '
+      echo ""
+    fi
+
+    # --- Implementation (agent can handle) ---
+    local impl_count
+    impl_count=$(( ready_count - decision_count ))
+
+    if [[ "$impl_count" -gt 0 ]]; then
+      echo "## Implementation (${impl_count} — agent can handle)"
+      echo ""
+      echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+        def art_link($aid; $file):
+          if $file != null and $file != "" then
+            "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
+          else $aid end;
+        def next_step:
+          if .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
+          elif .type == "EPIC" and (.status | test("Active")) then "work on child specs"
+          elif .type == "SPEC" and .status == "Draft" then "review and approve"
+          elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
+          elif .type == "SPEC" and .status == "Implementing" then "complete implementation"
+          elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
+          elif .type == "STORY" and .status == "Approved" then "create implementation plan"
+          elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
+          elif .type == "SPIKE" and .status == "Active" then "complete findings"
+          elif .type == "ADR" and .status == "Proposed" then "review and decide"
+          elif .type == "VISION" and .status == "Draft" then "align on goals and audience"
+          elif .type == "JOURNEY" and (.status | test("Draft|Planned")) then "map pain points and opportunities"
+          elif .type == "BUG" then "triage and fix"
+          elif .type == "PERSONA" and .status == "Draft" then "validate with user research"
+          elif .type == "RUNBOOK" and .status == "Draft" then "test procedure and finalize"
+          elif .type == "DESIGN" and .status == "Draft" then "review interaction flows"
+          else "progress to next phase" end;
+        def is_decision:
+          (.type == "SPEC" and .status == "Draft") or
+          (.type == "STORY" and .status == "Draft") or
+          (.type == "SPIKE" and (.status | test("Planned|Active"))) or
+          (.type == "ADR" and .status == "Proposed") or
+          (.type == "VISION" and .status == "Draft") or
+          (.type == "JOURNEY" and (.status | test("Draft|Planned"))) or
+          (.type == "PERSONA" and .status == "Draft") or
+          (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
+          (.type == "BUG") or
+          (.type == "RUNBOOK" and .status == "Draft") or
+          (.type == "DESIGN" and .status == "Draft");
+        [.artifacts.ready[] | select(is_decision | not)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
         (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
         (if .description and (.description | length > 0) then
