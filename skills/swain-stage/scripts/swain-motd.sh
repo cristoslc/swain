@@ -5,6 +5,11 @@ set -e
 #
 # Runs in a loop, displaying project context and agent status.
 # Shows an animated spinner when the agent is working.
+#
+# Reads project data from swain-status cache (status-cache.json) when
+# available, falling back to direct git/bd queries when the cache is
+# absent or stale. Agent state (spinner/context) remains MOTD-owned
+# via stage-status.json for real-time responsiveness.
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 PROJECT_NAME="$(basename "$REPO_ROOT")"
@@ -13,7 +18,11 @@ SETTINGS_USER="${XDG_CONFIG_HOME:-$HOME/.config}/swain/settings.json"
 
 # Memory directory for stage status
 MEMORY_DIR="${SWAIN_MEMORY_DIR:-$HOME/.claude/projects/-Users-${USER}-Documents-code-$(basename "$REPO_ROOT")/memory}"
-STATUS_FILE="$MEMORY_DIR/stage-status.json"
+AGENT_STATUS_FILE="$MEMORY_DIR/stage-status.json"
+STATUS_CACHE="$MEMORY_DIR/status-cache.json"
+
+# Cache staleness threshold (seconds) — beyond this, fall back to direct queries
+CACHE_STALE_THRESHOLD=300
 
 # Spinner frames
 BRAILLE_FRAMES=("⣾" "⣽" "⣻" "⢿" "⡿" "⣟" "⣯" "⣷")
@@ -46,29 +55,100 @@ esac
 FRAME_COUNT=${#FRAMES[@]}
 frame_idx=0
 
+# --- Status cache reader ---
+# Returns true if status-cache.json exists and is fresh enough
+cache_is_usable() {
+  [[ -f "$STATUS_CACHE" ]] || return 1
+  local cache_age
+  if [[ "$(uname)" == "Darwin" ]]; then
+    cache_age=$(( $(date +%s) - $(stat -f %m "$STATUS_CACHE") ))
+  else
+    cache_age=$(( $(date +%s) - $(stat -c %Y "$STATUS_CACHE") ))
+  fi
+  [[ "$cache_age" -lt "$CACHE_STALE_THRESHOLD" ]]
+}
+
+# Read a value from the status cache
+cache_get() {
+  local query="$1" default="$2"
+  if cache_is_usable; then
+    local val
+    val=$(jq -r "$query // empty" "$STATUS_CACHE" 2>/dev/null) || true
+    echo "${val:-$default}"
+  else
+    echo "$default"
+  fi
+}
+
+# --- Data getters (cache-first with direct fallback) ---
+
 get_branch() {
-  git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "detached"
+  if cache_is_usable; then
+    cache_get '.git.branch' 'detached'
+  else
+    git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "detached"
+  fi
 }
 
 get_dirty_state() {
-  if git diff --quiet HEAD 2>/dev/null; then
-    echo "clean"
+  if cache_is_usable; then
+    local dirty changed
+    dirty=$(cache_get '.git.dirty' 'false')
+    if [[ "$dirty" == "true" ]]; then
+      changed=$(cache_get '.git.changedFiles' '0')
+      echo "${changed} changed"
+    else
+      echo "clean"
+    fi
   else
-    local count
-    count=$(git diff --name-only HEAD 2>/dev/null | wc -l | tr -d ' ')
-    echo "${count} changed"
+    if git diff --quiet HEAD 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+      echo "clean"
+    else
+      local count
+      count=$(git diff --name-only HEAD 2>/dev/null | wc -l | tr -d ' ')
+      echo "${count} changed"
+    fi
   fi
 }
 
 get_last_commit() {
-  local msg age
-  msg=$(git log -1 --pretty=format:'%s' 2>/dev/null | cut -c1-40)
-  age=$(git log -1 --pretty=format:'%cr' 2>/dev/null)
-  echo "${age:-unknown}: ${msg:-no commits}"
+  local msg age result
+  if cache_is_usable; then
+    age=$(cache_get '.git.lastCommit.age' 'unknown')
+    msg=$(cache_get '.git.lastCommit.message' 'no commits')
+  else
+    msg=$(git log -1 --pretty=format:'%s' 2>/dev/null || echo "no commits")
+    age=$(git log -1 --pretty=format:'%cr' 2>/dev/null || echo "unknown")
+  fi
+  # Truncate combined output to fit box (width - "last: " prefix = 34 chars)
+  result="${age}: ${msg}"
+  echo "${result:0:34}"
+}
+
+get_epic_line() {
+  if cache_is_usable; then
+    cache_get '
+      .artifacts.epics | to_entries |
+      if length > 0 then
+        (.[0].value) as $e |
+        "\($e.id) \($e.progress.done)/\($e.progress.total)"
+      else "no active epics" end
+    ' "no active epics"
+  else
+    echo "no cache"
+  fi
 }
 
 get_bd_task() {
-  if command -v bd &>/dev/null; then
+  if cache_is_usable; then
+    local task
+    task=$(cache_get '
+      if .tasks.inProgress | length > 0 then
+        .tasks.inProgress[0] | "\(.id) \(.title)" | .[0:40]
+      else "no active task" end
+    ' "no active task")
+    echo "$task"
+  elif command -v bd &>/dev/null; then
     local task
     task=$(bd list --status in_progress --format '#{id} {title}' 2>/dev/null | head -1)
     echo "${task:-no active task}"
@@ -77,12 +157,29 @@ get_bd_task() {
   fi
 }
 
+get_ready_count() {
+  if cache_is_usable; then
+    cache_get '.artifacts.counts.ready' '0'
+  else
+    echo "?"
+  fi
+}
+
+get_issue_count() {
+  if cache_is_usable; then
+    cache_get '.issues.assigned | length' '0'
+  else
+    echo "0"
+  fi
+}
+
+# --- Agent status (always from stage-status.json, real-time) ---
+
 get_agent_status() {
-  if [[ -f "$STATUS_FILE" ]]; then
-    local state context ts
-    state=$(jq -r '.state // "unknown"' "$STATUS_FILE" 2>/dev/null)
-    context=$(jq -r '.context // ""' "$STATUS_FILE" 2>/dev/null)
-    ts=$(jq -r '.timestamp // ""' "$STATUS_FILE" 2>/dev/null)
+  if [[ -f "$AGENT_STATUS_FILE" ]]; then
+    local state context
+    state=$(jq -r '.state // "unknown"' "$AGENT_STATUS_FILE" 2>/dev/null)
+    context=$(jq -r '.context // ""' "$AGENT_STATUS_FILE" 2>/dev/null)
 
     if [[ "$state" == "working" ]]; then
       echo "working|$context"
@@ -95,9 +192,9 @@ get_agent_status() {
 }
 
 get_touched_files() {
-  if [[ -f "$STATUS_FILE" ]]; then
+  if [[ -f "$AGENT_STATUS_FILE" ]]; then
     local count
-    count=$(jq -r '.touchedFiles | length // 0' "$STATUS_FILE" 2>/dev/null)
+    count=$(jq -r '.touchedFiles | length // 0' "$AGENT_STATUS_FILE" 2>/dev/null)
     echo "$count"
   else
     echo "0"
@@ -145,11 +242,15 @@ draw_bottom() {
 render() {
   local width=40
   local branch dirty last_commit bd_task agent_raw agent_state agent_ctx touched
+  local epic_line ready_count issue_count
 
   branch=$(get_branch)
   dirty=$(get_dirty_state)
   last_commit=$(get_last_commit)
   bd_task=$(get_bd_task)
+  epic_line=$(get_epic_line)
+  ready_count=$(get_ready_count)
+  issue_count=$(get_issue_count)
   agent_raw=$(get_agent_status)
   agent_state="${agent_raw%%|*}"
   agent_ctx="${agent_raw#*|}"
@@ -182,8 +283,14 @@ render() {
   fi
 
   draw_separator $width
+  draw_line "epic: $epic_line" $width
   draw_line "task: $bd_task" $width
+  draw_line "ready: $ready_count actionable" $width
   draw_line "last: $last_commit" $width
+
+  if [[ "$issue_count" -gt 0 ]]; then
+    draw_line "issues: $issue_count assigned" $width
+  fi
 
   if [[ "$touched" -gt 0 ]]; then
     draw_line "touched: $touched file(s)" $width
