@@ -127,17 +127,19 @@ From this lens: SPEC ceremony isn't the problem (agents fill it out). SPEC's man
 
 ### Recommendation
 
-**Go for Option B (modified): Make `parent-epic` optional on SPECs. Add an optional `type` frontmatter field.**
+**Go for Option B (extended): Unify all implementation work under SPEC.**
 
-1. Make `parent-epic` optional in the SPEC template and definition. A SPEC without a parent-epic is standalone work — an enhancement by nature.
-2. Add `type: feature | enhancement` as optional informational metadata on SPECs. Useful for status display grouping and issue tracker label mapping. Does not change lifecycle or workflow.
-3. Keep BUG as-is. Bugs have genuinely different structure (reproduction steps, expected/actual, severity) and a different lifecycle (Reported → Active → Fixed → Verified).
+1. Make `parent-epic` optional in the SPEC template and definition. A SPEC without a parent-epic is standalone work.
+2. Add `type: feature | enhancement | bug` frontmatter field to SPEC. Determines which optional sections are relevant (bug-typed SPECs include reproduction steps, severity, expected/actual behavior) and maps to external issue tracker labels.
+3. **Fold BUG into SPEC entirely.** Eliminate BUG as a standalone artifact type. Bugs become SPECs with `type: bug` — same lifecycle, same template (with conditional sections), same tooling. This reduces the artifact model from 11 types to 10.
 4. Use GitHub Issues as the lightweight intake funnel. Most enhancements live as issues until promoted to a SPEC when worth structuring.
+5. **Migration path** for existing swain consumers: swain-doctor detects `docs/bug/` artifacts and converts them to SPECs with `type: bug`, rewriting frontmatter and cross-references.
 
 **Why not the other options:**
-- **Option A (new ENHANCEMENT type)**: Type proliferation (12th type) with no lifecycle difference from SPEC. The agent fills out the same template regardless.
-- **Option C (BUG + kind)**: Semantic mismatch (BUG-NNN for enhancements). Migration cost for existing consumers with BUG artifacts.
-- **Option D (rename BUG → ISSUE)**: Requires doctor migration path for all swain consumers. Rename cost not justified when the simpler path works.
+- **Option A (new ENHANCEMENT type)**: Type proliferation with no lifecycle difference from SPEC. The agent fills out the same template regardless.
+- **Option B (original, keep BUG)**: BUG's lifecycle doesn't differ meaningfully enough from SPEC to justify a separate type. The agent fills out bug detail regardless — reproduction steps and severity can be SPEC sections.
+- **Option C (BUG + kind)**: Semantic mismatch (BUG-NNN for enhancements). Migration cost without the payoff of unification.
+- **Option D (rename BUG → ISSUE)**: Bigger rename for no additional benefit over folding into SPEC.
 
 ## Lifecycle
 
