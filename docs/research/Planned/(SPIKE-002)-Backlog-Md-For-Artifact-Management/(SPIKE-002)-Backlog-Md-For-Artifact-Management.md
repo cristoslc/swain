@@ -1,10 +1,10 @@
 ---
 title: "Backlog.md for artifact management"
 artifact: SPIKE-002
-status: Planned
+status: Active
 author: cristos
 created: 2026-03-10
-last-updated: 2026-03-10
+last-updated: 2026-03-11
 question: "Should swain-design use Backlog.md to manage artifact lifecycle instead of the current frontmatter-scanning + specgraph approach?"
 gate: Pre-MVP
 risks-addressed:
@@ -87,10 +87,84 @@ This gets the query/visualization benefits without forcing artifacts into a task
 
 ## Findings
 
-Results of the investigation (populated during Active phase).
+**Verdict: REJECT — fundamental impedance mismatch. Improve specgraph instead.**
+
+### Criterion 1: Rich content support — FAIL
+
+Backlog.md's task serializer strips or reformats content that doesn't fit its expected task structure. Investigation found:
+
+- **Custom frontmatter fields are dropped.** Backlog.md's `TaskSerializer` recognizes a fixed set of fields (`title`, `status`, `priority`, `labels`, `assignee`, `created`, `updated`, `dependencies`). Swain artifacts use type-specific fields (`question`, `gate`, `risks-addressed`, `evidence-pool`, `parent-epic`, `parent-vision`, `acceptance-criteria`, etc.) — these are silently discarded on write.
+- **Body content survives** read/write cycles if it's plain markdown, but structured sections (verification matrices, lifecycle tables with pipe formatting, mermaid diagrams) may have whitespace/formatting altered by the serializer's markdown normalization.
+- **Multi-page artifacts** (some swain specs exceed 500 lines) are technically storable but the tool's UX assumes task-sized content — `backlog task edit` opens the full file in an editor, `backlog board` truncates display.
+
+This is a fundamental mismatch: Backlog.md is designed for task cards (title + short description + metadata), not document artifacts (rich multi-section content with domain-specific frontmatter).
+
+### Criterion 2: Custom status workflows — FAIL
+
+Backlog.md's status model uses a single configurable list in `config.yml`:
+
+```yaml
+statuses:
+  - To Do
+  - In Progress
+  - Done
+```
+
+Custom statuses can be added to this list, but:
+- **One status list applies to all tasks.** There is no per-type status progression. A SPEC and a SPIKE would share the same status options.
+- Swain has 11 artifact types, each with a different lifecycle (e.g., Spec: Draft → Approved → Implementing → Implemented → Verified; Spike: Planned → Active → Complete; ADR: Proposed → Accepted/Declined/Superseded). A single status list would need to contain the union of all ~30 distinct statuses, making the Kanban board and filtering noisy and confusing.
+- **No transition validation.** Backlog.md allows any status → any status. Swain's phase progressions are directional (a Spec can't go from Implementing back to Draft without an explicit revert). There's no way to enforce this.
+
+### Criterion 3: Graph operations — PARTIAL PASS (but not worth it)
+
+Backlog.md's internal `TaskGraph` could theoretically support `ready`/`blocked` queries (see SPIKE-001 findings). However, reimplementing specgraph's full command set (`blocks`, `blocked-by`, `tree`, `overview`, `mermaid`) against Backlog.md's data format would require:
+- Custom CLI commands or MCP tools (not upstream-ready since they're artifact-specific, not task-specific)
+- A translation layer between swain's artifact model and Backlog.md's task model
+- Maintaining parity between two graph implementations
+
+This is more work than improving specgraph directly, with no net benefit.
+
+### Criterion 4: Hybrid model feasibility — POSSIBLE but unjustified
+
+A metadata overlay (Backlog.md as index, artifacts as standalone files) is technically feasible:
+- Backlog.md task files could contain only metadata (status, labels, dependencies) with a `content-file:` field pointing to the real artifact
+- A sync script would keep frontmatter and Backlog.md entries aligned
+
+However, this adds a second source of truth and a synchronization burden. The risks it addresses (specgraph rebuild cost, fragile frontmatter parsing) are better solved by improving specgraph directly.
+
+### Criterion 5: specwatch equivalent — FAIL
+
+Backlog.md has no validation command for cross-references. It doesn't track which tasks reference other tasks in their body content — only explicit `dependencies:` metadata. Building a specwatch equivalent on top of Backlog.md would require the same file-scanning approach that specgraph already uses.
+
+### Criterion 6: Migration path — PASS (but moot)
+
+A migration script is feasible: scan `docs/` artifacts, extract frontmatter, create Backlog.md task files. But since the verdict is reject, migration is not needed.
+
+### Recommendation
+
+**Do not adopt Backlog.md for artifact management.** The impedance mismatch is fundamental — Backlog.md manages tasks (small, uniform, metadata-centric), while swain manages document artifacts (large, type-diverse, content-centric).
+
+**Instead, improve specgraph:**
+
+1. **Replace regex-based YAML extraction with a proper parser.** Use Python's `yaml` module or `yq` instead of `sed`/`grep` regex. This addresses the "fragile frontmatter parsing" risk.
+2. **Add `specgraph board` command.** Render a terminal Kanban view of artifacts by status, similar to Backlog.md's `backlog board`. This addresses the "no visual board" risk.
+3. **Eliminate `git mv` for phase transitions.** Status changes should update frontmatter in-place. The phase subdirectory convention (`Draft/`, `Active/`, etc.) can be kept as an organizational hint but shouldn't be the source of truth — frontmatter `status:` already is.
+4. **Add incremental rebuild.** Track file mtimes and only re-extract frontmatter for changed files, instead of scanning all `.md` files. This addresses the rebuild cost risk.
+5. **Add `description` field to nodes** (already implemented in this session).
+
+### Fork viability assessment
+
+Forking Backlog.md to make it artifact-aware would require:
+- Extending the serializer to preserve arbitrary frontmatter fields
+- Adding per-type status workflow configuration
+- Modifying the board/browser UI to handle multi-page content
+- Adding graph query commands
+
+This would be a substantial fork (~2k+ LOC changes) that diverges significantly from upstream's task-management focus. Maintenance burden would be high and upstream merge potential low. **Not recommended.**
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-10 | 038f8db | Initial creation |
+| Active | 2026-03-11 | — | Investigation findings recorded |

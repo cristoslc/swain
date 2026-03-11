@@ -1,10 +1,10 @@
 ---
 title: "Replace Beads CLI with Backlog.md"
 artifact: SPIKE-001
-status: Planned
+status: Active
 author: cristos
 created: 2026-03-10
-last-updated: 2026-03-10
+last-updated: 2026-03-11
 question: "Should swain-do replace bd (beads) CLI with Backlog.md as the task tracking backend?"
 gate: Pre-MVP
 risks-addressed:
@@ -79,10 +79,83 @@ If Backlog.md cannot handle dependency tracking (criterion 2), consider:
 
 ## Findings
 
-Results of the investigation (populated during Active phase).
+**Verdict: HYBRID — contribute upstream, reassess after.**
+
+### Criterion 1: Term mapping coverage — PARTIAL PASS (70%)
+
+Backlog.md covers the core CRUD operations well:
+
+| swain-do term | Backlog.md equivalent | Status |
+|---|---|---|
+| implementation plan | `backlog task create` with labels | OK |
+| task | `backlog task create` | OK |
+| origin ref | `backlog task create --metadata origin:SPEC-001` | OK (via metadata) |
+| spec tag | `backlog task create --label spec:SPEC-003` | OK |
+| dependency | **No CLI command** | FAIL |
+| ready work | **No CLI command** | FAIL |
+| claim | `backlog task edit --status "In Progress"` | OK |
+| complete | `backlog task edit --status "Done"` | OK |
+| abandon | `backlog task edit --status "Cancelled"` | OK (custom status) |
+| escalate | No equivalent | FAIL |
+
+The core gap is dependency tracking — there's no `backlog dep add`, `backlog ready`, or `backlog blocked` command.
+
+### Criterion 2: Dependency tracking — FAIL (but algorithms exist internally)
+
+Backlog.md's TypeScript source contains `computeSequences()` which implements Kahn's algorithm for topological sorting — the same algorithm needed for `ready` and `blocked` queries. However, this is only used internally for the board's sequence numbering. There are no CLI commands exposing dependency operations.
+
+The task file format supports a `dependencies` metadata field, and the internal `TaskGraph` class can resolve them. The gap is purely at the CLI/MCP surface — the engine can do it, the interface doesn't expose it.
+
+**Upstream contribution feasibility:** The codebase is TypeScript/Bun, MIT-licensed, with 25 contributors and active maintenance. Adding `backlog ready` and `backlog blocked` commands would require:
+- Exposing `TaskGraph.getReadyTasks()` via CLI (~50 LOC)
+- Adding a `--blocked` filter to `backlog task list` (~30 LOC)
+- Adding `backlog dep add/remove` commands (~100 LOC)
+
+This is a tractable contribution.
+
+### Criterion 3: Spec lineage tagging — PASS
+
+Labels and metadata fields are free-form strings. `backlog task create --label "spec:SPEC-003" --metadata "origin:EPIC-001"` works. Querying by label: `backlog task list --label "spec:SPEC-003"` returns matching tasks. This is equivalent to bd's `--external-ref` and `--labels` functionality.
+
+### Criterion 4: bd doctor equivalent — PARTIAL PASS
+
+Backlog.md has `backlog doctor` which validates task file integrity (YAML frontmatter parsing, required fields, orphaned references). It does not auto-fix issues — it reports them. This is weaker than `bd doctor --fix` but sufficient for diagnostics. swain-doctor could wrap the output and apply fixes.
+
+### Criterion 5: Migration path — PASS
+
+bd tasks can be exported via `bd list --format` and recreated as Backlog.md markdown files. A migration script would:
+1. `bd list --format json` to dump all tasks
+2. For each task, create a `.md` file in `backlog/tasks/` with the appropriate frontmatter
+3. Map bd statuses to Backlog.md statuses
+4. Translate `bd dep` relationships into `dependencies:` metadata
+
+The .beads/ directory and Dolt database can be deleted after migration.
+
+### Criterion 6: MCP integration value — PASS (significant)
+
+Backlog.md's MCP server (`backlog mcp start`) provides:
+- `task_create`, `task_edit`, `task_list`, `task_search` tools
+- Direct Claude Code integration without CLI wrapping
+- Structured JSON responses (no stdout parsing)
+- Real-time board updates via SSE
+
+This eliminates the fragile bd CLI wrapping in swain-do and enables agent-native task operations.
+
+### Recommendation
+
+**Do not replace bd today.** The dependency tracking gap (criterion 2) blocks a clean swap — swain-do relies heavily on `ready` and `blocked` queries for execution prioritization.
+
+**Next steps:**
+1. Contribute `ready`/`blocked`/`dep` commands to Backlog.md upstream (estimated: 1-2 days for a PR)
+2. If accepted, build swain-do backend adapter for Backlog.md
+3. If rejected or stalled, evaluate forking — the MIT license and TypeScript codebase make this low-risk
+4. Retain bd as fallback until Backlog.md backend is proven
+
+**Fork viability:** The codebase is ~8k LOC TypeScript/Bun, well-structured with clear separation between storage, CLI, and MCP layers. Forking to add dependency commands is straightforward. The risk is maintenance burden of a fork vs. upstream acceptance.
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-10 | 038f8db | Initial creation |
+| Active | 2026-03-11 | — | Investigation findings recorded |
