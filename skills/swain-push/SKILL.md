@@ -5,7 +5,7 @@ user-invocable: true
 allowed-tools: Bash, Read, Edit
 metadata:
   short-description: Stage, commit, and push
-  version: 1.0.0
+  version: 1.1.0
   author: cristos
   license: MIT
   source: swain
@@ -103,3 +103,9 @@ If it surfaces conflicts, abort the rebase (`git rebase --abort`), show the user
 ## Step 6 — Verify
 
 Run `git --no-pager status` and `git --no-pager log --oneline -3` to verify the push landed and show the user the final state. Do not prompt for confirmation — just report the result.
+
+## Session bookmark
+
+After a successful push, update the session bookmark:
+- Note format: "Pushed {n} commits to {branch}" — e.g., "Pushed 3 commits to feature/search-skill"
+- Use the session.json in `~/.claude/projects/<project-slug>/memory/session.json`

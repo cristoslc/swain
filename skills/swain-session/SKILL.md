@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session state and identity management
-  version: 1.0.0
+  version: 1.1.0
   author: cristos
   source: swain
 ---
@@ -111,6 +111,39 @@ User says "session info" or "what's my session":
 ### Set preference
 User says "set preference X to Y":
 - Update `preferences` in session.json
+
+## Post-operation bookmark (auto-update protocol)
+
+Other swain skills update the session bookmark after completing operations. This gives the developer a "where I left off" marker without requiring manual bookmarking.
+
+### When to update
+
+A skill should update the bookmark when it completes a **state-changing operation** — artifact transitions, task updates, commits, releases. Read-only operations (status, discover, help) should NOT update the bookmark.
+
+### How to update
+
+After completing operations, write to session.json's `bookmark` field:
+
+```bash
+SESSION_FILE="$(find ~/.claude/projects/ -path '*/memory/session.json' -print -quit 2>/dev/null)"
+if [ -n "$SESSION_FILE" ] && command -v jq >/dev/null 2>&1; then
+  jq --arg note "$BOOKMARK_NOTE" --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    '.bookmark = {note: $note, timestamp: $ts}' "$SESSION_FILE" > "$SESSION_FILE.tmp" \
+    && mv "$SESSION_FILE.tmp" "$SESSION_FILE"
+fi
+```
+
+Or equivalently, use the Edit tool to update the JSON directly.
+
+### Bookmark content
+
+The note should be a concise summary of what was done, e.g.:
+- "Transitioned SPEC-001 to Approved, created SPEC-002 draft"
+- "Completed task 'implement auth middleware', started 'write tests'"
+- "Pushed 3 commits to feature/search-skill"
+- "Released v1.2.0"
+
+Include `files` array only when specific files are central to the work (not for every operation).
 
 ## Settings
 
