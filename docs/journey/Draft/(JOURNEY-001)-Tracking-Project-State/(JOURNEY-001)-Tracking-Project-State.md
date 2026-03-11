@@ -1,5 +1,5 @@
 ---
-title: "Tracking Project State"
+title: "Resolving the Decision Backlog"
 artifact: JOURNEY-001
 status: Draft
 author: cristos
@@ -11,137 +11,158 @@ linked-personas:
 depends-on: []
 ---
 
-# Tracking Project State
+# Resolving the Decision Backlog
 
 ## Persona
 
-**PERSONA-001: Swain Project Developer** — A solo developer using swain + Claude Code to manage a multi-stream project. Wants to orient quickly at session start, track progress mid-session, and not lose context between sessions.
+**PERSONA-001: Swain Project Developer** — A solo developer working with AI coding agents (Claude Code, OpenCode, Codex, Gemini CLI). The developer makes decisions; the agents implement. When decisions stall, agents stall.
 
 ## Goal
 
-Understand the current state of the project — what's done, what's in progress, what's blocked, and what to work on next — without running multiple commands, parsing raw CLI output, or maintaining a mental model across sessions.
+Quickly find and resolve items that only the developer can act on — spec approvals, spike verdicts, ADR decisions, blocked-item triage, priority calls — so the agents' implementation backlog keeps moving.
+
+## The Two Backlogs
+
+Swain projects have two distinct backlogs with different owners:
+
+**Decision backlog** (developer-owned): Items that require human judgment and cannot be delegated to an agent. These are the bottleneck — every unresolved decision item is a potential blocker for one or more implementation items.
+
+- Specs in Draft needing approval
+- SPIKEs with findings needing a go/no-go verdict
+- ADRs proposed needing acceptance or rejection
+- Blocked artifacts where the blocker requires a judgment call (not just implementation)
+- GitHub issues needing triage and prioritization
+- Architecture questions the agent surfaced mid-implementation
+
+**Implementation backlog** (agent-owned): Items the agent can execute autonomously once decisions are made.
+
+- Approved specs ready for task decomposition
+- Tasks ready to be picked up
+- In-progress tasks
+- Tasks blocked on other tasks (not on decisions)
+
+The developer's throughput on the decision backlog determines the project's overall velocity. An agent can implement a spec in minutes, but that spec may sit in Draft for days waiting for the developer to review and approve it.
 
 ## Steps / Stages
 
-### 1. Session Start — "Where was I?"
+### 1. Session Start — "What decisions are waiting on me?"
 
-The developer opens a new terminal session (or resumes a tmux workspace). They need to know: what branch am I on, what was I working on, what changed since last session?
+The developer opens a session. They need to know: what piled up since last time? Not "what's the project state" broadly, but specifically "what can only I resolve?"
 
-Today: run `/status`, read text output, check git log, hope the session bookmark exists.
+Today: `/status` shows all artifacts by actionability, but doesn't distinguish between "you need to decide on this" (approve a spec) and "the agent can handle this" (implement an approved spec). The developer must mentally classify each item.
 
-### 2. Task Triage — "What should I work on?"
+### 2. Decision Triage — "Which decision matters most?"
 
-With context restored, the developer needs to decide what to pick up. This means seeing: which tasks are in progress, which are blocked, which are ready, and which has the highest impact.
+Multiple items need decisions. The developer needs to know: which decision unblocks the most downstream work? Approving SPEC-001 might unblock 3 tasks; accepting ADR-002 might unblock nothing yet.
 
-Today: `bd list` gives a flat text dump. No visual board, no priority sorting, no indication of which task unblocks the most work. The developer either asks the agent or makes a gut call.
+Today: swain-status shows unblock counts, but doesn't separate decision items from implementation items. The "Recommended Next" may suggest something the agent could handle autonomously, burying the decision item that's actually blocking progress.
 
-### 3. Check Implementation Plan — "How far along is this spec?"
+### 3. Make the Decision — "I need context to decide"
 
-While working on a feature, the developer wants to see the implementation plan — what tasks were decomposed from the spec, how many are done, what's left.
+To approve a spec or render a spike verdict, the developer needs the artifact content, its dependencies, what it unblocks, and any agent notes or investigation findings.
 
-Today: `bd list --labels spec:SPEC-NNN` returns matching tasks if bd is running. No visual progress bar, no tree view, no connection back to the spec document. If bd has crashed or the Dolt server is down, this returns an error.
+Today: the developer clicks an OSC 8 link to open the artifact file, reads it, then tells the agent the decision. The artifact is readable but the decision context is scattered — unblock info is in `/status` output, agent findings may be in a different session's context, and the spec content is in the file.
 
-### 4. Check Artifact Landscape — "What's the big picture?"
+### 4. Communicate the Decision — "Now what?"
 
-The developer wants to see all artifacts — epics, specs, spikes, ADRs — and their statuses at a glance. Which specs are approved and ready for implementation? Which spikes are still open?
+After deciding (approve, reject, revise), the developer needs to tell the agent and have the system update. Phase transitions, task creation, and downstream unblocking should cascade.
 
-Today: `specgraph overview` gives a text tree. `specgraph status` gives a table. Both are CLI-only, no interactive board, no drag-and-drop transitions. Output has clickable links (OSC 8) but no visual structure beyond indentation.
+Today: the developer tells the agent in conversation ("approve SPEC-001, move it to Approved"). The agent runs swain-design to transition the artifact. This works but is entirely conversational — if the developer makes 5 decisions in a row, that's 5 back-and-forth exchanges.
 
-### 5. Mid-Session Check — "Am I making progress?"
+### 5. Check Impact — "Did that unblock things?"
 
-After working for an hour, the developer glances at the MOTD panel or asks for status. They want confirmation that forward progress is happening — files touched, tasks completed, artifact statuses moved.
+After resolving a decision, the developer wants confirmation: what moved? Did approving SPEC-001 make tasks ready? Did the spike verdict close a dependency chain?
 
-Today: swain-motd shows a compact panel with branch, epic progress, and task info. But it depends on the status cache, which may be stale, and it doesn't show task-level progress.
+Today: run `/status` again and compare mentally to previous output. No diff view, no "here's what changed since your last decision."
 
-### 6. Session End — "Save my place"
+### 6. Resume or Delegate — "What's left for me vs. the agent?"
 
-Before stepping away, the developer wants to bookmark their current context — what they were working on, what files are relevant, what's unfinished — so the next session starts with context.
+After clearing some decisions, the developer wants to know: is there more for me, or can I hand off to the agent and step away?
 
-Today: `/session bookmark` exists but is manual. No automatic detection of "you were working on X." The MOTD panel doesn't persist session-end state.
+Today: no clear separation. The developer must scan the full status output and mentally filter for decision items vs. implementation items.
 
 ```mermaid
 journey
-    title Tracking Project State
+    title Resolving the Decision Backlog
     section Session Start
-        Open terminal / tmux: 3: Developer
-        Run /status or read MOTD: 3: Developer, Agent
-        Parse text output mentally: 2: Developer
-        Check git log for context: 2: Developer
-    section Task Triage
-        Ask "what should I work on?": 3: Developer
-        Run bd list for task state: 1: Developer
-        Diagnose bd/Dolt errors: 1: Developer
-        Pick a task by gut feel: 2: Developer
-    section Implementation Plan
-        Query tasks by spec label: 2: Developer
-        No visual plan view: 1: Developer
-        Count done/remaining manually: 1: Developer
-    section Artifact Landscape
-        Run specgraph overview: 3: Developer
-        Read text-only tree output: 2: Developer
-        No board view for statuses: 1: Developer
-    section Mid-Session Check
-        Glance at MOTD panel: 4: Developer
-        Stale cache shows old data: 2: Developer
-    section Session End
-        Manually bookmark context: 2: Developer
-        Hope next session restores it: 2: Developer
+        Open session: 3: Developer
+        Run /status: 3: Developer, Agent
+        Scan for decisions vs. tasks: 2: Developer
+        Identify what only I can do: 1: Developer
+    section Decision Triage
+        See unblock counts: 3: Developer
+        Distinguish decisions from tasks: 1: Developer
+        Pick highest-impact decision: 2: Developer
+    section Make the Decision
+        Open artifact file: 3: Developer
+        Read content and context: 3: Developer
+        Gather scattered decision context: 2: Developer
+        Render judgment: 4: Developer
+    section Communicate the Decision
+        Tell agent the verdict: 3: Developer
+        Agent transitions artifact: 4: Agent
+        Repeat for each decision: 2: Developer
+    section Check Impact
+        Run /status again: 3: Developer
+        Mentally diff with before: 1: Developer
+        Confirm downstream unblocking: 2: Developer
+    section Resume or Delegate
+        Scan remaining items: 2: Developer
+        Filter decisions from tasks: 1: Developer
+        Hand off to agent or continue: 3: Developer
 ```
 
 ## Pain Points
 
-> **PP-01:** bd operational fragility. The Dolt database server crashes, leaves stale pid/lock files, and produces CLI errors. swain-doctor compensates but the underlying tool is unreliable. Every `bd list` is a coin flip.
+> **PP-01:** No decision/implementation backlog separation. Status output mixes items the developer must decide on with items the agent can implement. The developer must mentally classify every item on every status check. The most important question — "what's waiting on *me*?" — has no direct answer.
 
-> **PP-02:** No visual board for tasks. Implementation plans exist as flat text lists. There's no Kanban board, no progress bars, no way to see task structure at a glance. Developers parse `bd list` output mentally or ask the agent to summarize.
+> **PP-02:** Decision context is scattered. To make a decision (approve a spec, render a spike verdict), the developer needs: the artifact content, what it unblocks, related agent findings, and dependency state. These live in different places — the artifact file, status output, prior conversation context, and specgraph cache.
 
-> **PP-03:** No visual board for artifacts. Specs, epics, spikes, and ADRs are only visible through `specgraph` CLI commands. No interactive board, no drag-and-drop phase transitions, no at-a-glance landscape view.
+> **PP-03:** Decisions are communicated one-at-a-time in conversation. Each decision requires a conversational round-trip with the agent. Batch decisions (approve these 3 specs, reject this ADR) require multiple exchanges. No "decision queue" UI where the developer can resolve items in sequence.
 
-> **PP-04:** Context loss across sessions. Session bookmarks are manual and optional. No automatic "you were working on X" detection. Each new session starts cold — the developer must reconstruct context from status output and git log.
+> **PP-04:** No decision impact feedback. After making a decision, the developer can't immediately see what changed. Did approving SPEC-001 unblock tasks? Did the spike verdict close a dependency chain? Requires re-running `/status` and mentally diffing.
 
-> **PP-05:** Implementation plan opacity. After a spec is decomposed into tasks, there's no visual way to see progress against the plan. "How far along is SPEC-003?" requires running a filtered `bd list` and counting manually.
+> **PP-05:** bd fragility blocks decision flow. Even when the developer knows what to decide, the tooling may not cooperate. bd crashes, Dolt errors, and stale state mean that acting on a decision (create tasks from an approved spec) may fail for infrastructure reasons unrelated to the decision itself.
 
 | ID | Pain Point | Score | Stage | Root Cause | Opportunity |
 |----|-----------|-------|-------|------------|-------------|
-| JOURNEY-001.PP-01 | bd operational fragility | 1 | Task Triage | Dolt server complexity, .beads directory maintenance | Replace bd backend (SPIKE-001 hybrid approach) or simplify to markdown-native storage |
-| JOURNEY-001.PP-02 | No visual board for tasks | 1 | Implementation Plan | bd has no UI; swain-do wraps CLI only | Adopt Backlog.md (with dependency contrib) for task board + MCP; or build `bd board` |
-| JOURNEY-001.PP-03 | No visual board for artifacts | 1 | Artifact Landscape | specgraph is CLI-only output | Build `specgraph board` terminal Kanban; or web dashboard reading specgraph cache |
-| JOURNEY-001.PP-04 | Context loss across sessions | 2 | Session Start, Session End | Manual bookmarking, no automatic context detection | Auto-bookmark on session end; agent reads bookmark + recent git on session start |
-| JOURNEY-001.PP-05 | Implementation plan opacity | 1 | Implementation Plan | No spec→task progress view | Add spec-scoped progress view to swain-status; visual plan in board view |
+| JOURNEY-001.PP-01 | No decision/implementation separation | 1 | Session Start, Decision Triage, Resume | Status output doesn't classify items by owner (developer vs. agent) | Add decision backlog view to /status; web dashboard with decision queue |
+| JOURNEY-001.PP-02 | Decision context is scattered | 2 | Make the Decision | Artifact content, unblock info, and agent findings live in different places | Decision detail view that aggregates artifact + dependencies + impact in one place |
+| JOURNEY-001.PP-03 | One-at-a-time decision communication | 2 | Communicate the Decision | Conversational interface is serial; no batch decision UI | Web dashboard with approve/reject actions; or `/decide` batch command |
+| JOURNEY-001.PP-04 | No decision impact feedback | 1 | Check Impact | No diff between pre- and post-decision state | Show "decision impact" summary after each transition; changelog in status |
+| JOURNEY-001.PP-05 | bd fragility blocks decision flow | 1 | Communicate the Decision | Dolt server complexity, .beads maintenance | Replace bd backend (SPIKE-001); markdown-native task storage |
 
 ## Opportunities
 
-### O-01: Markdown-native task backend (addresses PP-01, PP-02)
+### O-01: Decision backlog view in /status (addresses PP-01)
 
-Replace bd's Dolt database with a markdown-file-based backend (Backlog.md with contributed dependency commands, or a simpler custom solution). Eliminates .beads directory, server management, and CLI errors. Enables visual board via Backlog.md's `backlog board` / `backlog browser`.
+Add a dedicated "Decisions waiting on you" section to swain-status that filters artifacts to those requiring human judgment: Draft specs (need approval), Planned spikes (need activation or verdict), Proposed ADRs (need acceptance), and items blocked on non-implementation decisions. Sort by downstream impact (unblock count). This is the developer's primary entry point — answer "what's waiting on me?" before showing anything else.
 
-Evidence: SPIKE-001 found that Backlog.md covers 70% of swain-do's term mapping and has the internal algorithms for dependency tracking. Contributing `ready`/`blocked` commands upstream is a tractable ~180 LOC PR.
+Implementation: classify artifacts by whether their next phase transition requires human judgment (decision item) or can be delegated to an agent (implementation item). The `next_step` function in swain-status already maps (type, status) to actions — extend it to also classify owner (developer vs. agent).
 
-### O-02: specgraph board command (addresses PP-03)
+### O-02: Decision detail aggregation (addresses PP-02)
 
-Add a `specgraph board` command that renders artifacts in a visual Kanban layout grouped by status. Must be a **web dashboard** (not a TUI) because swain runs inside AI coding agents (Claude Code, OpenCode, Codex, Gemini CLI) that own the terminal — a TUI would compete for stdin/stdout. The agent launches the dashboard via `open` or a local server; the developer views it in a browser tab.
+When the developer focuses on a decision item, present all context in one view: the artifact content (or a summary), what it unblocks (with those items' descriptions), related findings (spike evidence, agent notes), and the specific decision being asked for (approve/reject/revise). This could be a section in `/status ARTIFACT-ID` or a page in the web dashboard.
 
-The specgraph cache already has all the data needed. A lightweight static HTML page reading the JSON cache would suffice for v1.
+### O-03: Web dashboard with decision queue (addresses PP-01, PP-03, PP-04)
 
-Evidence: SPIKE-002 recommended this as the primary improvement over adopting Backlog.md for artifact management.
+A browser-based dashboard that shows the decision backlog as a queue. The developer works through items: read context, click approve/reject/revise, see impact, move to next. Batch operations supported. The dashboard reads specgraph cache and status-cache.json, and writes decisions back via the agent's MCP interface or a lightweight API.
 
-### O-03: Automatic session context (addresses PP-04)
+**Key constraint:** Cannot be a TUI — swain runs inside AI coding agents that own the terminal. The agent launches the dashboard (`open http://localhost:PORT`), and the developer interacts in the browser.
 
-Detect what the developer was working on (touched files, active branch, in-progress tasks) and auto-save on session end. On session start, surface this as "last session you were working on X" in the MOTD panel and `/status` output.
+### O-04: Decision impact feedback (addresses PP-04)
 
-### O-04: Spec-scoped progress view (addresses PP-05)
+After each decision (artifact phase transition), show a brief "impact summary": what unblocked, what moved to ready, what new decisions were created. Could be inline in the agent's response ("Approved SPEC-001. This unblocked 3 tasks and made SPEC-002 actionable.") or as a diff section in `/status`.
 
-Add a view to swain-status that groups tasks by their parent spec and shows completion progress. Example: "SPEC-003: swain-design Integration — 3/7 tasks done (2 in progress, 2 blocked)". Could be a section in `/status` output or a dedicated `/plan SPEC-003` command.
+### O-05: Markdown-native task backend (addresses PP-05)
 
-### O-05: Unified project dashboard (addresses PP-02, PP-03, PP-05)
+Replace bd's Dolt database with markdown-file storage (Backlog.md with contributed dependency commands, or a simpler custom solution). Eliminates .beads directory, server management, and CLI errors. Ensures that acting on decisions is never blocked by infrastructure failures.
 
-A **web dashboard** that combines artifact landscape, task board, and spec-scoped progress into one view. The agent starts a local server (or generates a static HTML file from the specgraph/status cache) and opens it in the browser. The developer keeps it open in a browser tab alongside their terminal.
-
-**Key constraint:** Cannot be a TUI. Swain runs inside AI coding agents (Claude Code, OpenCode, Codex, Gemini CLI) that own the terminal. Any interactive UI must live outside the terminal — browser-based is the only viable path. The agent can launch it (`open http://localhost:PORT` or `open /tmp/swain-dashboard.html`), and the dashboard reads from the existing JSON caches (specgraph cache, status-cache.json, stage-status.json).
-
-This is the convergence point of O-01 through O-04.
+Evidence: SPIKE-001 found Backlog.md covers 70% of swain-do's term mapping. Contributing `ready`/`blocked` commands upstream is ~180 LOC.
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Draft | 2026-03-11 | — | Initial creation from SPIKE-001/002 findings |
+| Draft | 2026-03-11 | d1929d5 | Initial creation from SPIKE-001/002 findings |
+| Draft | 2026-03-11 | — | Reframed around decision backlog vs. implementation backlog |
