@@ -146,7 +146,7 @@ collect_artifacts() {
     # All unresolved
     [$nodes | to_entries[] | select(.value.status | is_resolved | not)] as $unresolved |
 
-    # Ready: unresolved with no unresolved deps
+    # Ready: unresolved with no unresolved deps, enriched with unblock info
     ([$unresolved[] |
       .key as $id |
       ([$edges[] | select(.from == $id and .type == "depends-on") | .to] | unique) as $deps |
@@ -154,8 +154,12 @@ collect_artifacts() {
         ($deps | length == 0) or
         ($deps | all(. as $dep | $nodes[$dep] == null or ($nodes[$dep].status | is_resolved)))
       ) |
-      {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file}
-    ] | sort_by(.id)) as $ready |
+      # What unresolved items depend on this one?
+      ([$edges[] | select(.to == $id and .type == "depends-on") | .from] |
+        map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep].status | is_resolved | not))) |
+        unique) as $unblocks |
+      {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, unblocks: $unblocks}
+    ] | sort_by(-(.unblocks | length), .id)) as $ready |
 
     # Blocked
     ([$unresolved[] |
@@ -396,36 +400,113 @@ render_full() {
         if $file != null and $file != "" then
           "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
         else $aid end;
+      def next_step:
+        if .type == "SPEC" and .status == "Draft" then "review and approve"
+        elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
+        elif .type == "SPEC" and .status == "Implementing" then "complete implementation"
+        elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
+        elif .type == "STORY" and .status == "Approved" then "create implementation plan"
+        elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
+        elif .type == "SPIKE" and .status == "Active" then "complete findings"
+        elif .type == "BUG" then "triage and fix"
+        else "progress to next phase" end;
       .artifacts.epics | to_entries[] |
       .value as $e |
       "### \(art_link($e.id; $e.file)): \($e.title) [\($e.status)]",
       "",
-      "Progress: **\($e.progress.done)/\($e.progress.total)** specs resolved",
+      (if $e.progress.total == 0 then
+        "Progress: **needs decomposition into specs**"
+      elif $e.progress.done == $e.progress.total then
+        "Progress: **all \($e.progress.total) specs resolved** — ready for completion"
+      else
+        "Progress: **\($e.progress.done)/\($e.progress.total)** specs resolved (\($e.progress.total - $e.progress.done) remaining)"
+      end),
       "",
       ($e.children | sort_by(.status) | .[] |
         (if (.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined"))
          then "  - [x]"
          else "  - [ ]"
-         end) + " \(art_link(.id; .file)): \(.title) [\(.status)]"
+         end) + " \(art_link(.id; .file)): \(.title) [\(.status)]" +
+        (if (.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined") | not)
+         then " — \(next_step)"
+         else "" end)
       ),
       ""
     '
   fi
 
-  # --- Ready (actionable) ---
+  # --- Recommended next (most impactful ready item) ---
   local ready_count
   ready_count=$(echo "$data" | jq '.artifacts.ready | length')
 
   if [[ "$ready_count" -gt 0 ]]; then
-    echo "## Actionable Now"
-    echo ""
     echo "$data" | jq -r --arg repo "$REPO_ROOT" '
       def art_link($aid; $file):
         if $file != null and $file != "" then
           "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
         else $aid end;
-      .artifacts.ready[] | "- \(art_link(.id; .file)): \(.title) [\(.status)]"'
-    echo ""
+      def next_step:
+        if .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
+        elif .type == "EPIC" and (.status | test("Active")) then "work on child specs"
+        elif .type == "SPEC" and .status == "Draft" then "review and approve"
+        elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
+        elif .type == "SPEC" and .status == "Implementing" then "complete implementation"
+        elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
+        elif .type == "STORY" and .status == "Approved" then "create implementation plan"
+        elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
+        elif .type == "SPIKE" and .status == "Active" then "complete findings"
+        elif .type == "ADR" and .status == "Proposed" then "review and decide"
+        elif .type == "VISION" and .status == "Draft" then "align on goals and audience"
+        elif .type == "JOURNEY" and (.status | test("Draft|Planned")) then "map pain points and opportunities"
+        elif .type == "BUG" then "triage and fix"
+        elif .type == "PERSONA" and .status == "Draft" then "validate with user research"
+        elif .type == "RUNBOOK" and .status == "Draft" then "test procedure and finalize"
+        elif .type == "DESIGN" and .status == "Draft" then "review interaction flows"
+        else "progress to next phase" end;
+      .artifacts.ready[0] |
+      "## Recommended Next",
+      "",
+      "> **\(art_link(.id; .file)): \(.title)** [\(.status)]",
+      (if (.unblocks | length) > 0 then
+        "> Unblocks \(.unblocks | length) item\(if (.unblocks | length) > 1 then "s" else "" end): \(.unblocks | join(", "))"
+      else empty end),
+      "> Next step: \(next_step)",
+      ""
+    '
+
+    # --- Actionable (remaining, sorted by impact) ---
+    if [[ "$ready_count" -gt 1 ]]; then
+      echo "## Actionable (${ready_count} items, sorted by impact)"
+      echo ""
+      echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+        def art_link($aid; $file):
+          if $file != null and $file != "" then
+            "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
+          else $aid end;
+        def next_step:
+          if .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
+          elif .type == "EPIC" and (.status | test("Active")) then "work on child specs"
+          elif .type == "SPEC" and .status == "Draft" then "review and approve"
+          elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
+          elif .type == "SPEC" and .status == "Implementing" then "complete implementation"
+          elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
+          elif .type == "STORY" and .status == "Approved" then "create implementation plan"
+          elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
+          elif .type == "SPIKE" and .status == "Active" then "complete findings"
+          elif .type == "ADR" and .status == "Proposed" then "review and decide"
+          elif .type == "VISION" and .status == "Draft" then "align on goals and audience"
+          elif .type == "JOURNEY" and (.status | test("Draft|Planned")) then "map pain points and opportunities"
+          elif .type == "BUG" then "triage and fix"
+          elif .type == "PERSONA" and .status == "Draft" then "validate with user research"
+          elif .type == "RUNBOOK" and .status == "Draft" then "test procedure and finalize"
+          elif .type == "DESIGN" and .status == "Draft" then "review interaction flows"
+          else "progress to next phase" end;
+        .artifacts.ready[1:][] |
+        "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
+        (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end)
+      '
+      echo ""
+    fi
   fi
 
   # --- Blocked ---
@@ -440,8 +521,15 @@ render_full() {
         if $file != null and $file != "" then
           "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
         else $aid end;
+      # Build a lookup of ready item IDs for unblock hints
+      ([.artifacts.ready[].id] | unique) as $ready_ids |
       .artifacts.blocked[] |
-      "- \(art_link(.id; .file)): \(.title) [\(.status)]  <- waiting on: \(.waiting | join(", "))"'
+      "- \(art_link(.id; .file)): \(.title) [\(.status)]" +
+      "  <- waiting on: \(.waiting | map(
+        . as $w |
+        if ($ready_ids | index($w)) then "\($w) (actionable now)"
+        else $w end
+      ) | join(", "))"'
     echo ""
   fi
 
