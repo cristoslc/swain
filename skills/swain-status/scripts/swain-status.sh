@@ -24,8 +24,9 @@ PROJECT_NAME="$(basename "$REPO_ROOT")"
 SETTINGS_PROJECT="$REPO_ROOT/swain.settings.json"
 SETTINGS_USER="${XDG_CONFIG_HOME:-$HOME/.config}/swain/settings.json"
 
-# Memory directory (Claude Code convention)
-MEMORY_DIR="${SWAIN_MEMORY_DIR:-$HOME/.claude/projects/-Users-${USER}-Documents-code-${PROJECT_NAME}/memory}"
+# Memory directory (Claude Code convention — slug derived from repo path)
+_PROJECT_SLUG=$(echo "$REPO_ROOT" | tr '/' '-')
+MEMORY_DIR="${SWAIN_MEMORY_DIR:-$HOME/.claude/projects/${_PROJECT_SLUG}/memory}"
 CACHE_FILE="$MEMORY_DIR/status-cache.json"
 SESSION_FILE="$MEMORY_DIR/session.json"
 

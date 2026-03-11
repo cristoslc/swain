@@ -1,19 +1,21 @@
 ---
 name: swain-doctor
-description: "ALWAYS invoke this skill at the START of every session before doing any other work. Validates project health: ensures governance rules are installed, cleans up legacy skill directories, and repairs .beads/.gitignore to prevent runtime files from leaking into git. Idempotent — safe to run every session."
+description: "ALWAYS invoke this skill at the START of every session before doing any other work. Validates project health: governance rules, tool availability, memory directory, settings files, script permissions, .agents directory, and .beads/.gitignore hygiene. Remediates issues across all swain skills. Idempotent — safe to run every session."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session-start health checks and repair
-  version: 1.0.0
+  version: 2.0.0
   author: cristos
   source: swain
 ---
 
 # Doctor
 
-Session-start health checks for swain projects. This skill is idempotent — run it every session; it only writes when repairs are needed.
+Session-start health checks for swain projects. Validates and repairs health across **all** swain skills — governance, tools, directories, settings, scripts, caches, and runtime state. Idempotent — run it every session; it only writes when repairs are needed.
+
+Run checks in the order listed below. Collect all findings into a summary table at the end.
 
 ## Session-start governance check
 
@@ -214,3 +216,240 @@ If files are found:
 ## Governance content reference
 
 The canonical governance rules are embedded in the [Governance injection](#governance-injection) section above. If the upstream rules change in a future swain release, update the embedded blocks and bump the skill version. Consumers who want the updated rules can delete the `<!-- swain governance -->` block from their context file and re-run this skill.
+
+## Tool availability
+
+Check for required and optional external tools. Report results as a table. **Never install tools automatically** — only inform the user what's missing and how to install it.
+
+### Required tools
+
+These tools are needed by multiple skills. If missing, warn the user.
+
+| Tool | Check | Used by | Install hint (macOS) |
+|------|-------|---------|---------------------|
+| `git` | `command -v git` | All skills | Xcode Command Line Tools |
+| `jq` | `command -v jq` | swain-status, swain-stage, swain-session, swain-do | `brew install jq` |
+
+### Optional tools
+
+These tools enable specific features. If missing, note which features are degraded.
+
+| Tool | Check | Used by | Degradation | Install hint (macOS) |
+|------|-------|---------|-------------|---------------------|
+| `bd` | `command -v bd` | swain-do, swain-status (tasks) | Task tracking falls back to text ledger; status skips task section | `brew install beads` |
+| `uv` | `command -v uv` | swain-stage (MOTD TUI), swain-do (plan ingestion) | MOTD falls back to bash script; plan ingestion unavailable | `brew install uv` |
+| `gh` | `command -v gh` | swain-status (GitHub issues), swain-release | Status skips issues section; release can't create GitHub releases | `brew install gh` |
+| `tmux` | `command -v tmux` | swain-stage | Workspace layouts unavailable (only relevant if user wants tmux features) | `brew install tmux` |
+| `fswatch` | `command -v fswatch` | swain-design (specwatch live mode) | Live artifact watching unavailable; on-demand `specwatch.sh scan` still works | `brew install fswatch` |
+
+### Reporting format
+
+After checking all tools, output a summary:
+
+```
+Tool availability:
+  git .............. ok
+  jq ............... ok
+  bd ............... ok
+  uv ............... ok
+  gh ............... ok
+  tmux ............. ok (in tmux session: yes)
+  fswatch .......... MISSING — live specwatch unavailable. Install: brew install fswatch
+```
+
+Only flag items that need attention. If all required tools are present, the check is silent except for missing optional tools that meaningfully degrade the experience.
+
+## Memory directory
+
+The Claude Code memory directory stores `status-cache.json`, `session.json`, and `stage-status.json`. Skills that write to this directory will fail silently or error if it doesn't exist.
+
+### Step 1 — Compute the correct path
+
+The directory slug is derived from the **full absolute repo path**, not just the project name:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+_PROJECT_SLUG=$(echo "$REPO_ROOT" | tr '/' '-')
+MEMORY_DIR="$HOME/.claude/projects/${_PROJECT_SLUG}/memory"
+```
+
+### Step 2 — Create if missing
+
+```bash
+if [[ ! -d "$MEMORY_DIR" ]]; then
+  mkdir -p "$MEMORY_DIR"
+fi
+```
+
+If created, tell the user:
+> Created memory directory at `$MEMORY_DIR`. This is where swain-status, swain-session, and swain-stage store their caches.
+
+If it already exists, this step is silent.
+
+### Step 3 — Validate existing cache files
+
+If the memory directory exists, check that any existing JSON files in it are valid:
+
+```bash
+for f in "$MEMORY_DIR"/*.json; do
+  [[ -f "$f" ]] || continue
+  if ! jq empty "$f" 2>/dev/null; then
+    echo "warning: $f is corrupt JSON — removing"
+    rm "$f"
+  fi
+done
+```
+
+Report any files that were removed due to corruption. This prevents skills from reading garbage data.
+
+**Requires:** `jq` (skip this step if jq is not available — warn instead).
+
+## Settings validation
+
+Swain uses a two-tier settings model. Malformed JSON in either file causes silent failures across multiple skills (swain-stage, swain-session, swain-status).
+
+### Check project settings
+
+If `swain.settings.json` exists in the repo root:
+
+```bash
+jq empty swain.settings.json 2>/dev/null
+```
+
+If this fails, warn:
+> `swain.settings.json` contains invalid JSON. Skills will fall back to defaults. Fix the file or delete it to use defaults.
+
+### Check user settings
+
+If `${XDG_CONFIG_HOME:-$HOME/.config}/swain/settings.json` exists:
+
+```bash
+jq empty "${XDG_CONFIG_HOME:-$HOME/.config}/swain/settings.json" 2>/dev/null
+```
+
+If this fails, warn:
+> User settings file contains invalid JSON. Skills will fall back to project defaults. Fix the file or delete it.
+
+**Requires:** `jq` (skip these checks if jq is not available).
+
+## Script permissions
+
+All shell and Python scripts in `skills/*/scripts/` must be executable. Skills invoke these via `bash scripts/foo.sh`, which works regardless, but `uv run scripts/foo.py` and direct execution require the executable bit.
+
+### Check and repair
+
+```bash
+find skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x
+```
+
+If any files are found without the executable bit:
+
+```bash
+chmod +x <files...>
+```
+
+Tell the user:
+> Fixed executable permissions on N script(s).
+
+If all scripts are already executable, this step is silent.
+
+## .agents directory
+
+The `.agents/` directory stores per-project configuration for swain skills:
+- `execution-tracking.vars.json` — swain-do first-run config
+- `specwatch.log` — swain-design stale reference log
+- `evidencewatch.log` — swain-search pool refresh log
+
+### Check and create
+
+```bash
+if [[ ! -d ".agents" ]]; then
+  mkdir -p ".agents"
+fi
+```
+
+If created, tell the user:
+> Created `.agents/` directory for skill configuration storage.
+
+If it already exists, this step is silent.
+
+## Status cache bootstrap
+
+If the memory directory exists but `status-cache.json` does not, and the status script is available, seed an initial cache so that swain-stage MOTD and other consumers have data on first use.
+
+```bash
+STATUS_SCRIPT="skills/swain-status/scripts/swain-status.sh"
+if [[ -f "$STATUS_SCRIPT" && ! -f "$MEMORY_DIR/status-cache.json" ]]; then
+  bash "$STATUS_SCRIPT" --json > /dev/null 2>&1 || true
+fi
+```
+
+If the cache was created, tell the user:
+> Seeded initial status cache. The MOTD and status dashboard now have data.
+
+If the script is not available or the cache already exists, this step is silent. If the script fails, ignore — the cache will be created on the next `swain-status` invocation.
+
+## bd health (extended .beads checks)
+
+This extends the existing [Beads gitignore hygiene](#beads-gitignore-hygiene) section. **Skip entirely if `.beads/` does not exist.**
+
+### bd doctor
+
+If `bd` is available and `.beads/` exists, run the bd built-in health check:
+
+```bash
+bd doctor --json 2>/dev/null
+```
+
+If the exit code is non-zero, attempt automatic repair:
+
+```bash
+bd doctor --fix 2>/dev/null
+```
+
+Report the result to the user. If `--fix` resolves all issues, note it. If issues persist, list them and suggest the user investigate.
+
+### Stale runtime files
+
+Check for runtime files that may have been left behind by a crashed bd process:
+
+```bash
+for f in .beads/bd.sock .beads/bd.sock.startlock .beads/dolt-server.pid .beads/dolt-server.lock .beads/.sync.lock; do
+  if [[ -f "$f" ]]; then
+    echo "stale: $f"
+  fi
+done
+```
+
+If stale files are found, warn:
+> Found stale bd runtime files. If bd is not currently running (`pgrep -f "bd serve"` shows nothing), these can be safely removed. Remove them? (list the files)
+
+**Do not auto-delete** — ask the user first, since a bd process might actually be running.
+
+## Summary report
+
+After all checks complete, output a concise summary table:
+
+```
+swain-doctor summary:
+  Governance ......... ok
+  Legacy cleanup ..... ok (nothing to clean)
+  .beads/.gitignore .. ok
+  Tools .............. ok (1 optional missing: fswatch)
+  Memory directory ... ok
+  Settings ........... ok
+  Script permissions . ok
+  .agents directory .. ok
+  Status cache ....... seeded
+  bd health .......... ok
+
+3 checks performed repairs. 0 issues remain.
+```
+
+Use these status values:
+- **ok** — nothing to do
+- **repaired** — issue found and fixed automatically
+- **warning** — issue found, user action recommended (give specifics)
+- **skipped** — check could not run (e.g., jq missing for JSON validation)
+
+If any checks have warnings, list them below the table with remediation steps.

@@ -19,8 +19,9 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 SETTINGS_PROJECT="$REPO_ROOT/swain.settings.json"
 SETTINGS_USER="${XDG_CONFIG_HOME:-$HOME/.config}/swain/settings.json"
 
-# Memory directory for stage status (Claude Code project memory)
-MEMORY_DIR="${SWAIN_MEMORY_DIR:-$HOME/.claude/projects/-Users-${USER}-Documents-code-$(basename "$REPO_ROOT")/memory}"
+# Memory directory for stage status (Claude Code project memory — slug derived from repo path)
+_PROJECT_SLUG=$(echo "$REPO_ROOT" | tr '/' '-')
+MEMORY_DIR="${SWAIN_MEMORY_DIR:-$HOME/.claude/projects/${_PROJECT_SLUG}/memory}"
 
 read_setting() {
   local key="$1"
@@ -173,7 +174,7 @@ cmd_layout() {
 
   # Check for user override in settings
   local override
-  override=$(jq -r ".stage.layouts.\"$name\" // empty" "$SETTINGS_PROJECT" 2>/dev/null)
+  override=$(jq -r ".stage.layouts.\"$name\" // empty" "$SETTINGS_PROJECT" 2>/dev/null || true)
   if [[ -n "$override" ]]; then
     layout_file=$(mktemp)
     echo "$override" > "$layout_file"
