@@ -1,0 +1,17 @@
+{
+  "name": "focus",
+  "description": "Agent-only with MOTD status bar at bottom",
+  "panes": [
+    {
+      "position": "main",
+      "type": "agent",
+      "comment": "Main pane — the agent session (already running)"
+    },
+    {
+      "position": "bottom",
+      "size": "12",
+      "type": "motd",
+      "command": "bash {scriptDir}/swain-motd.sh"
+    }
+  ]
+}
