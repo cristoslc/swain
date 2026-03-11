@@ -16,3 +16,7 @@ skills-lock.json
 # Dolt database files (added by bd init)
 .dolt/
 *.db
+
+# Installed skills
+.claude/skills
+.agents/skills
