@@ -391,10 +391,14 @@ render_full() {
   if [[ "$epic_count" -gt 0 ]]; then
     echo "## Active Epics"
     echo ""
-    echo "$data" | jq -r '
+    echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+      def art_link($aid; $file):
+        if $file != null and $file != "" then
+          "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
+        else $aid end;
       .artifacts.epics | to_entries[] |
       .value as $e |
-      "### \($e.id): \($e.title) [\($e.status)]",
+      "### \(art_link($e.id; $e.file)): \($e.title) [\($e.status)]",
       "",
       "Progress: **\($e.progress.done)/\($e.progress.total)** specs resolved",
       "",
@@ -402,7 +406,7 @@ render_full() {
         (if (.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined"))
          then "  - [x]"
          else "  - [ ]"
-         end) + " \(.id): \(.title) [\(.status)]"
+         end) + " \(art_link(.id; .file)): \(.title) [\(.status)]"
       ),
       ""
     '
@@ -415,7 +419,12 @@ render_full() {
   if [[ "$ready_count" -gt 0 ]]; then
     echo "## Actionable Now"
     echo ""
-    echo "$data" | jq -r '.artifacts.ready[] | "- \(.id): \(.title) [\(.status)]  \(.file // "")"'
+    echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+      def art_link($aid; $file):
+        if $file != null and $file != "" then
+          "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
+        else $aid end;
+      .artifacts.ready[] | "- \(art_link(.id; .file)): \(.title) [\(.status)]"'
     echo ""
   fi
 
@@ -426,8 +435,13 @@ render_full() {
   if [[ "$blocked_count" -gt 0 ]]; then
     echo "## Blocked"
     echo ""
-    echo "$data" | jq -r '.artifacts.blocked[] |
-      "- \(.id): \(.title) [\(.status)]  <- waiting on: \(.waiting | join(", "))"'
+    echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+      def art_link($aid; $file):
+        if $file != null and $file != "" then
+          "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
+        else $aid end;
+      .artifacts.blocked[] |
+      "- \(art_link(.id; .file)): \(.title) [\(.status)]  <- waiting on: \(.waiting | join(", "))"'
     echo ""
   fi
 

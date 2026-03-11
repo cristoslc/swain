@@ -82,6 +82,14 @@ STATUS_CACHE = MEMORY_DIR / "status-cache.json"
 
 CACHE_STALE_SECONDS = 300  # 5 minutes
 
+
+def art_link(aid: str, file: str | None = None) -> str:
+    """Wrap an artifact ID in Rich link markup for clickable terminal links."""
+    if file:
+        url = f"file://{REPO_ROOT}/{file}"
+        return f"[link={url}]{aid}[/link]"
+    return aid
+
 SPINNER_STYLES = {
     "braille": ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"],
     "dots": ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
@@ -216,7 +224,8 @@ def collect_data() -> dict:
         if epics:
             first = next(iter(epics.values()))
             p = first.get("progress", {})
-            epic = f"{first.get('id', '?')} {p.get('done', 0)}/{p.get('total', 0)}"
+            eid = art_link(first.get("id", "?"), first.get("file"))
+            epic = f"{eid} {p.get('done', 0)}/{p.get('total', 0)}"
         else:
             epic = "no active epics"
 
