@@ -34,7 +34,7 @@ Apply a named layout. Available presets are in `references/layouts/`:
 
 | Layout | Description |
 |--------|-------------|
-| **focus** | Agent pane + MOTD status bar at bottom |
+| **focus** | Agent pane + MOTD top-right + file browser bottom-right |
 | **review** | Agent + editor (changed files) + MOTD |
 | **browse** | Agent + file browser + MOTD |
 

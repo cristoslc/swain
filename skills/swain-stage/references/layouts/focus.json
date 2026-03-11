@@ -1,6 +1,6 @@
 {
   "name": "focus",
-  "description": "Agent-only with MOTD status bar at bottom",
+  "description": "Agent with MOTD top-right and file browser bottom-right",
   "panes": [
     {
       "position": "main",
@@ -8,10 +8,16 @@
       "comment": "Main pane — the agent session (already running)"
     },
     {
-      "position": "bottom",
+      "position": "right",
+      "size": "35%",
+      "type": "browser",
+      "command": "{fileBrowser} {repoRoot}"
+    },
+    {
+      "position": "top",
       "size": "12",
       "type": "motd",
-      "command": "bash {scriptDir}/swain-motd.sh"
+      "command": "uv run {scriptDir}/swain-motd.py"
     }
   ]
 }
