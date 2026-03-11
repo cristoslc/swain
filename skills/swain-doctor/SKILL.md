@@ -69,31 +69,13 @@ Determine the target file:
 1. If `CLAUDE.md` exists and its content is just `@AGENTS.md` (the include pattern set up by swain-init), inject into `AGENTS.md` instead.
 2. Otherwise, inject into `CLAUDE.md` (create it if it doesn't exist).
 
-Append the following block to the target file:
-
-```markdown
-<!-- swain governance — do not edit this block manually -->
-
-## Skill routing
-
-When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Bug) or their supporting docs (architecture overviews, competitive analyses, journey maps), **always invoke the swain-design skill**. This includes requests like "write a spec", "let's plan the next feature", "create an ADR for this decision", "move the spike to Active", "add a user story", "create a runbook", "file a bug", or "update the architecture overview." The skill contains the artifact types, lifecycle phases, folder structure conventions, relationship rules, and validation procedures — do not improvise artifact creation outside the skill.
-
-**For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system. This applies whether tasks originate from swain-design (implementation plans) or from standalone work. The swain-do skill bootstraps and operates the external task backend — it will install the CLI if missing, manage fallback if installation fails, and translate abstract operations (create plan, add task, set dependency) into concrete commands. Do not use built-in agent todos when this skill is available.
-
-## Pre-implementation protocol (MANDATORY)
-
-Implementation of any SPEC artifact (Epic, Story, Agent Spec, Spike) requires a swain-do plan **before** writing code. Invoke the swain-design skill — it enforces the full workflow.
-
-## Issue Tracking
-
-This project uses **bd (beads)** for all issue tracking. Do NOT use markdown TODOs or task lists. Invoke the **swain-do** skill for all bd operations — it provides the full command reference and workflow.
-
-<!-- end swain governance -->
-```
+Read the canonical governance content from `references/AGENTS.content.md` (relative to this skill's directory) and append it to the target file.
 
 ### Cursor
 
 Write the governance rules to `.cursor/rules/swain-governance.mdc`. Create the directory if needed.
+
+Prepend Cursor MDC frontmatter to the canonical content from `references/AGENTS.content.md`:
 
 ```markdown
 ---
@@ -101,25 +83,9 @@ description: "swain governance — skill routing, pre-implementation protocol, i
 globs:
 alwaysApply: true
 ---
-
-<!-- swain governance — do not edit this block manually -->
-
-## Skill routing
-
-When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Bug) or their supporting docs (architecture overviews, competitive analyses, journey maps), **always invoke the swain-design skill**. This includes requests like "write a spec", "let's plan the next feature", "create an ADR for this decision", "move the spike to Active", "add a user story", "create a runbook", "file a bug", or "update the architecture overview." The skill contains the artifact types, lifecycle phases, folder structure conventions, relationship rules, and validation procedures — do not improvise artifact creation outside the skill.
-
-**For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system. This applies whether tasks originate from swain-design (implementation plans) or from standalone work. The swain-do skill bootstraps and operates the external task backend — it will install the CLI if missing, manage fallback if installation fails, and translate abstract operations (create plan, add task, set dependency) into concrete commands. Do not use built-in agent todos when this skill is available.
-
-## Pre-implementation protocol (MANDATORY)
-
-Implementation of any SPEC artifact (Epic, Story, Agent Spec, Spike) requires a swain-do plan **before** writing code. Invoke the swain-design skill — it enforces the full workflow.
-
-## Issue Tracking
-
-This project uses **bd (beads)** for all issue tracking. Do NOT use markdown TODOs or task lists. Invoke the **swain-do** skill for all bd operations — it provides the full command reference and workflow.
-
-<!-- end swain governance -->
 ```
+
+Then append the full contents of `references/AGENTS.content.md` after the frontmatter.
 
 ### After injection
 
@@ -215,7 +181,7 @@ If files are found:
 
 ## Governance content reference
 
-The canonical governance rules are embedded in the [Governance injection](#governance-injection) section above. If the upstream rules change in a future swain release, update the embedded blocks and bump the skill version. Consumers who want the updated rules can delete the `<!-- swain governance -->` block from their context file and re-run this skill.
+The canonical governance rules live in `references/AGENTS.content.md` (relative to this skill's directory). Both swain-doctor and swain-init read from this single source of truth. If the upstream rules change in a future swain release, update that file and bump the skill version. Consumers who want the updated rules can delete the `<!-- swain governance -->` block from their context file and re-run this skill.
 
 ## Tool availability
 
