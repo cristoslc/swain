@@ -21,7 +21,8 @@ Tmux workspace manager for swain. Creates pane layouts, manages an animated MOTD
 
 All scripts live in this skill's `scripts/` directory:
 - `swain-stage.sh` — main tmux layout and pane manager
-- `swain-motd.sh` — MOTD status panel loop with spinner animation
+- `swain-motd.py` — MOTD status panel (Textual TUI, runs via `uv run`)
+- `swain-motd.sh` — legacy bash MOTD (kept as fallback if uv/Textual unavailable)
 
 Resolve the script directory from this skill's install path.
 
@@ -72,7 +73,7 @@ The MOTD pane shows a dynamic status panel with:
 - Assigned GitHub issue count
 - Count of touched files
 
-The MOTD reads project data from `status-cache.json` (written by swain-status) when available, falling back to direct git/bd queries when the cache is absent or stale (>5 min). Agent state (spinner, context) is always read from `stage-status.json` for real-time responsiveness.
+The MOTD is a Textual TUI app (`swain-motd.py`) launched via `uv run`. It reads project data from `status-cache.json` (written by swain-status) when available, falling back to direct git/bd queries when the cache is absent or stale (>5 min). Agent state (spinner, context) is always read from `stage-status.json` for real-time responsiveness. Textual handles Unicode width correctly, provides proper box drawing with rounded corners, and supports color theming.
 
 Control the MOTD:
 
