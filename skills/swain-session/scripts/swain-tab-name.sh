@@ -33,10 +33,10 @@ set_title() {
     # tmux — rename the tmux window tab
     tmux rename-window "$title" 2>/dev/null || true
     # Propagate window name to the outer terminal (iTerm tab title).
-    # set-titles tells tmux to set the terminal's title; set-titles-string
-    # controls the format. This works via the tmux server — no tty needed.
+    # set-titles-string uses #W (window name) so each window keeps its
+    # own title — we only set the format once, rename-window does the rest.
     tmux set-option -g set-titles on 2>/dev/null || true
-    tmux set-option -g set-titles-string "$title" 2>/dev/null || true
+    tmux set-option -g set-titles-string "#W" 2>/dev/null || true
   elif [[ -t 1 ]]; then
     # Only emit escape sequences if stdout is a real terminal
     # (not piped through an agent subprocess)
@@ -54,7 +54,7 @@ reset_title() {
   # Restore default title behavior
   if [[ -n "$TMUX" ]]; then
     tmux set-window-option automatic-rename on 2>/dev/null || true
-    tmux set-option -g set-titles-string "#W — #S" 2>/dev/null || true
+    tmux set-option -g set-titles-string "#W" 2>/dev/null || true
   fi
   printf '\033]0;%s\007' "${SHELL##*/}"
 }
