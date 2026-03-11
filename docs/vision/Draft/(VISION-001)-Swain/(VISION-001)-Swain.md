@@ -91,4 +91,4 @@ Direction-tier artifacts inform the operator's decisions. Implementation-tier ar
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Draft | 2026-03-11 | — | Initial creation from SPIKE-003 philosophical reframe |
+| Draft | 2026-03-11 | 7aadee8 | Initial creation from SPIKE-003 philosophical reframe |

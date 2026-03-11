@@ -144,5 +144,5 @@ From this lens: SPEC ceremony isn't the problem (agents fill it out). SPEC's man
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-11 | a950529 | Initial creation under EPIC-002 |
-| Active | 2026-03-11 | — | Investigation began |
-| Complete | 2026-03-11 | — | Decision: standalone SPECs with optional type field (Option B modified) |
+| Active | 2026-03-11 | 7aadee8 | Investigation began |
+| Complete | 2026-03-11 | 7aadee8 | Decision: standalone SPECs with optional type field (Option B modified) |
