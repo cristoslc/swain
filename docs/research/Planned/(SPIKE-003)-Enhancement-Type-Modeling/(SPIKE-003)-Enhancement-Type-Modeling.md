@@ -77,4 +77,4 @@ _Populated during Active phase._
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Planned | 2026-03-11 | — | Initial creation under EPIC-002 |
+| Planned | 2026-03-11 | a950529 | Initial creation under EPIC-002 |

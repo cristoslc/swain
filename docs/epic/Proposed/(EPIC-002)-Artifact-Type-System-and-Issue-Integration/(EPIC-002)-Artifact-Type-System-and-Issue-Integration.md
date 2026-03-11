@@ -54,4 +54,4 @@ Extend swain-design's artifact model in two directions:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-11 | — | Initial creation |
+| Proposed | 2026-03-11 | a950529 | Initial creation |
