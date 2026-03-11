@@ -166,7 +166,7 @@ Under the same parent Epic, Stories define user-facing requirements and Specs de
 
 ## Status overview
 
-When the user asks for status, progress, or "what's next?", run `scripts/specgraph.sh overview` and present the output verbatim. This shows both swain-design and swain-do layers. For other graph queries, read [references/specgraph-guide.md](references/specgraph-guide.md).
+For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates specgraph + bd + git + GitHub issues). For artifact-specific graph queries (blocks, tree, ready, mermaid), use `scripts/specgraph.sh` directly — see [references/specgraph-guide.md](references/specgraph-guide.md).
 
 ## Auditing artifacts
 
