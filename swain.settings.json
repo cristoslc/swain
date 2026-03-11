@@ -1,0 +1,14 @@
+{
+  "editor": "vim",
+  "fileBrowser": "mc",
+  "terminal": {
+    "tabNameFormat": "{project} @ {branch}"
+  },
+  "stage": {
+    "motd": {
+      "refreshInterval": 5,
+      "spinnerStyle": "braille"
+    },
+    "defaultLayout": "focus"
+  }
+}

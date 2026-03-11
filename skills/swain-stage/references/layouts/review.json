@@ -1,0 +1,23 @@
+{
+  "name": "review",
+  "description": "Editor with changed files in side pane, MOTD at bottom-right",
+  "panes": [
+    {
+      "position": "main",
+      "type": "agent",
+      "comment": "Main pane — the agent session (already running)"
+    },
+    {
+      "position": "right",
+      "size": "40%",
+      "type": "editor",
+      "command": "{editor} $(git diff --name-only HEAD 2>/dev/null | head -20)"
+    },
+    {
+      "position": "bottom",
+      "size": "12",
+      "type": "motd",
+      "command": "bash {scriptDir}/swain-motd.sh"
+    }
+  ]
+}

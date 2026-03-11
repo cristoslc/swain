@@ -13,6 +13,8 @@
 | **swain-release** | Release automation — changelog, version bump, git tag |
 | **swain-push** | Commit and push — staging, conventional commits, conflict resolution |
 | **swain-help** | Contextual help — answers questions, quick reference, post-init onboarding |
+| **swain-session** | Session management — tab naming, preferences, context bookmarks |
+| **swain-stage** | Tmux workspace — layout presets, pane management, animated MOTD status panel |
 | **swain-update** | Self-updater — pulls latest swain skills, reconciles governance |
 
 ## Skill routing
@@ -28,6 +30,20 @@ Implementation of any SPEC artifact (Epic, Story, Agent Spec, Spike) requires a 
 ## Issue Tracking
 
 This project uses **bd (beads)** for all issue tracking. Do NOT use markdown TODOs or task lists. Invoke the **swain-do** skill for all bd operations.
+
+## Session management
+
+On session start, invoke the **swain-session** skill to restore the terminal tab name, apply user preferences, and display any context bookmarks from the previous session. This is agent-agnostic — any tool that reads AGENTS.md should honor this instruction.
+
+If running inside tmux (`$TMUX` is set), **swain-stage** is available for workspace layout management. Do not auto-invoke swain-stage — let the user decide when to set up panes.
+
+## Central settings
+
+Swain uses a two-tier settings model:
+- **Project:** `swain.settings.json` in the repo root — team defaults, checked in
+- **User:** `~/.config/swain/settings.json` — personal overrides, never committed
+
+User settings merge over project settings. Skills that need configuration (editor, file browser, terminal tab format, MOTD style) read from these files.
 
 ## Conflict resolution
 
