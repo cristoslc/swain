@@ -42,12 +42,126 @@ require_tmux() {
   fi
 }
 
+## Tool preference lists — first entry is recommended, rest are fallbacks
+EDITOR_PREFS=(micro helix nano vim vi)
+BROWSER_PREFS=(yazi nnn ranger mc)
+
+detect_pkg_manager() {
+  if command -v brew &>/dev/null; then echo "brew"
+  elif command -v apt &>/dev/null; then echo "apt"
+  elif command -v snap &>/dev/null; then echo "snap"
+  elif command -v cargo &>/dev/null; then echo "cargo"
+  elif command -v pip &>/dev/null; then echo "pip"
+  else echo "curl"
+  fi
+}
+
+# Returns install command for a tool on the detected package manager.
+# Uses a function instead of associative arrays for bash 3 compatibility (macOS).
+install_hint() {
+  local tool="$1"
+  local pm="$2"
+  case "${tool}:${pm}" in
+    micro:brew)  echo "brew install micro" ;;
+    micro:apt)   echo "apt install micro" ;;
+    micro:snap)  echo "snap install micro" ;;
+    micro:curl)  echo "curl https://getmic.ro | bash" ;;
+    helix:brew)  echo "brew install helix" ;;
+    helix:apt)   echo "add-apt-repository ppa:maveonair/helix-editor && apt install helix" ;;
+    yazi:brew)   echo "brew install yazi" ;;
+    yazi:cargo)  echo "cargo install --locked yazi-fm" ;;
+    nnn:brew)    echo "brew install nnn" ;;
+    nnn:apt)     echo "apt install nnn" ;;
+    ranger:brew) echo "brew install ranger" ;;
+    ranger:pip)  echo "pip install ranger-fm" ;;
+    mc:brew)     echo "brew install mc" ;;
+    mc:apt)      echo "apt install mc" ;;
+    *)           echo "" ;;
+  esac
+}
+
+# Resolve a tool from a preference list.
+# If the configured value is missing, offer to install it.
+# If "auto", walk the list and suggest the recommended (first) entry.
+# Returns the resolved command on stdout.
+# Prints install suggestions to stderr so they're visible but don't pollute stdout.
+resolve_tool() {
+  local setting="$1"
+  local setting_key="$2"
+  shift 2
+  local prefs=("$@")
+  local recommended="${prefs[0]}"
+  local pkg_mgr
+
+  # Explicit setting (not "auto")
+  if [[ "$setting" != "auto" ]]; then
+    if command -v "$setting" &>/dev/null; then
+      echo "$setting"
+      return
+    fi
+    # Configured tool is missing — suggest install
+    pkg_mgr=$(detect_pkg_manager)
+    local hint
+    hint=$(install_hint "$setting" "$pkg_mgr")
+    echo >&2 ""
+    echo >&2 "  swain-stage: '$setting' is configured but not installed."
+    if [[ -n "$hint" ]]; then
+      echo >&2 "  Install it with:  $hint"
+    else
+      echo >&2 "  Install '$setting' using your package manager."
+    fi
+    echo >&2 "  Falling back to auto-detection..."
+    echo >&2 ""
+  fi
+
+  # Auto-detection: walk the preference list
+  for cmd in "${prefs[@]}"; do
+    if command -v "$cmd" &>/dev/null; then
+      # If we found something but it's not the recommended tool, suggest upgrading
+      if [[ "$cmd" != "$recommended" ]]; then
+        pkg_mgr=$(detect_pkg_manager)
+        local hint
+        hint=$(install_hint "$recommended" "$pkg_mgr")
+        echo >&2 ""
+        echo >&2 "  swain-stage: using '$cmd' (recommended: '$recommended')."
+        if [[ -n "$hint" ]]; then
+          echo >&2 "  Install the recommended tool:  $hint"
+        fi
+        echo >&2 "  Or set your preference in swain.settings.json:  \"$setting_key\": \"$cmd\""
+        echo >&2 ""
+      fi
+      echo "$cmd"
+      return
+    fi
+  done
+
+  # Nothing found at all — suggest installing the recommended tool
+  pkg_mgr=$(detect_pkg_manager)
+  local hint
+  hint=$(install_hint "$recommended" "$pkg_mgr")
+  echo >&2 ""
+  echo >&2 "  swain-stage: no supported tool found (tried: ${prefs[*]})."
+  if [[ -n "$hint" ]]; then
+    echo >&2 "  Install the recommended tool:  $hint"
+  else
+    echo >&2 "  Install '$recommended' using your package manager."
+  fi
+  echo >&2 ""
+
+  # Return empty — callers should handle gracefully
+  return 1
+}
+
 get_editor() {
-  read_setting '.editor' "${EDITOR:-vim}"
+  local setting
+  setting=$(read_setting '.editor' 'auto')
+  resolve_tool "$setting" "editor" "${EDITOR_PREFS[@]}" || echo "${EDITOR:-vi}"
 }
 
 get_file_browser() {
-  read_setting '.fileBrowser' "mc"
+  local setting
+  setting=$(read_setting '.fileBrowser' 'auto')
+  resolve_tool "$setting" "fileBrowser" "${BROWSER_PREFS[@]}" || echo "ls"
 }
 
 # --- Subcommands ---
