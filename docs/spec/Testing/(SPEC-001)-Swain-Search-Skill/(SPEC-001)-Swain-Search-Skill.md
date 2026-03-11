@@ -132,4 +132,4 @@ When a capability isn't available, the skill degrades gracefully:
 |-------|------|--------|-------|
 | Draft | 2026-03-09 | — | Initial creation |
 | Approved | 2026-03-11 | a326a77 | Reviewed and approved conversationally |
-| Testing | 2026-03-11 | — | All deliverables built; verification in progress |
+| Testing | 2026-03-11 | bf3e9f7 | All deliverables built; verification in progress |
