@@ -1,5 +1,11 @@
 # Personas
 
+## Draft
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| PERSONA-002 | AI Coding Agent | 2026-03-11 | — |
+
 ## Validated
 
 | Artifact | Title | Last Updated | Commit |
