@@ -17,11 +17,17 @@ Cross-cutting project status dashboard. Aggregates data from artifact lifecycle 
 
 ## When invoked
 
-Run the status script and present its output verbatim (it contains OSC 8 terminal hyperlinks for clickable file paths and GitHub URLs):
+Locate and run the status script. The script path is relative to this skill's directory — resolve from the skill's install location:
 
 ```bash
-bash scripts/swain-status.sh --refresh
+# Find the script relative to this skill's directory
+SKILL_DIR="$(find . .claude .agents -path '*/swain-status/scripts/swain-status.sh' -print -quit 2>/dev/null)"
+bash "$SKILL_DIR" --refresh
 ```
+
+If the path search fails, glob for `**/swain-status/scripts/swain-status.sh`.
+
+Present the script output verbatim — it contains OSC 8 terminal hyperlinks for clickable file paths and GitHub URLs.
 
 The script collects from five data sources:
 
@@ -33,16 +39,17 @@ The script collects from five data sources:
 
 ## Output structure
 
-The output is ordered by actionability, not by data source:
+The output is ordered by actionability, not by data source. It synthesizes data into decision support — not just raw listings.
 
 1. **Session bookmark** — if one exists, show it first ("where you left off")
 2. **Pipeline** — branch, dirty state, last commit
-3. **Active Epics** — each epic with progress ratio (e.g., 4/7 specs resolved) and child spec status
-4. **Actionable Now** — unblocked artifacts ready for work, with clickable file links
-5. **Blocked** — artifacts waiting on dependencies
-6. **Tasks** — in-progress and recently completed bd tasks
-7. **GitHub Issues** — assigned issues first, then open issues, with clickable links
-8. **Artifact counts** — summary footer
+3. **Active Epics** — each epic with contextual progress (e.g., "3/7 specs resolved (4 remaining)" or "needs decomposition into specs"), child items annotated with next-step hints
+4. **Recommended Next** — the single most impactful item to work on, with unblock count and concrete next step
+5. **Actionable** — remaining unblocked items sorted by impact (unblock count descending), each with a next-step hint
+6. **Blocked** — artifacts waiting on dependencies, with "(actionable now)" annotations where the blocker is in the ready list
+7. **Tasks** — in-progress and recently completed bd tasks
+8. **GitHub Issues** — assigned issues first, then open issues, with clickable links
+9. **Artifact counts** — summary footer
 
 ## Clickable links
 
