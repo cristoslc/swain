@@ -4,6 +4,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| EPIC-004 | Superpowers Integration Assessment | 2026-03-12 | — |
 
 ## Active
 
