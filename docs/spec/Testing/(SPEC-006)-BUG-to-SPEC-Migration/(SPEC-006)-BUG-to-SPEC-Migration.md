@@ -83,3 +83,4 @@ When SPEC-004 eliminates the BUG artifact type, existing repos may have BUG arti
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-12 | — | Initial creation |
+| Testing | 2026-03-12 | 93798e9 | Verification table populated, all criteria pass |
