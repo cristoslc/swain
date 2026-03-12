@@ -52,10 +52,10 @@ When superpowers (obra/superpowers) is installed, route implementation through i
 **Detection:** Check whether the `brainstorming` and `writing-plans` skills exist:
 
 ```bash
-ls .claude/skills/brainstorming/SKILL.md .claude/skills/writing-plans/SKILL.md 2>/dev/null
+ls .claude/skills/brainstorming/SKILL.md .agents/skills/brainstorming/SKILL.md .claude/skills/writing-plans/SKILL.md .agents/skills/writing-plans/SKILL.md 2>/dev/null
 ```
 
-If both exist, superpowers is available. If either is missing, use the current direct-to-swain-do flow.
+If at least one path exists for each skill, superpowers is available. If neither location has both skills, use the current direct-to-swain-do flow.
 
 **Routing when superpowers IS present:**
 
