@@ -12,7 +12,7 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPEC-002 | evidencewatch Script | 2026-03-11 | — |
-| SPEC-004 | Unified SPEC Type System | 2026-03-12 | — |
+| SPEC-004 | Unified SPEC Type System | 2026-03-12 | b566127 |
 | SPEC-003 | swain-design Integration | 2026-03-11 | — |
 
 ## Implemented

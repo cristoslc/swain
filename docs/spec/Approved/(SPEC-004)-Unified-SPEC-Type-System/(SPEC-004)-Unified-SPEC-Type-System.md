@@ -72,4 +72,4 @@ SPECs currently require `parent-epic`, forcing organizational overhead for stand
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-12 | — | Initial creation |
-| Approved | 2026-03-12 | — | Design validated during EPIC-002 + SPIKE-003 |
+| Approved | 2026-03-12 | b566127 | Design validated during EPIC-002 + SPIKE-003 |
