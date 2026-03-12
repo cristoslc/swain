@@ -1,24 +1,10 @@
 # swain
 
-Agent skills for governance, spec management, and execution tracking — built on the [skills standard](https://github.com/anthropics/skills).
+Persistent project state for solo developers working with AI coding agents.
 
-Named for the *swain* in boat**swain** — the officer who keeps the rigging tight and the standards enforced.
+AI agents lose context between sessions. You plan a feature, implement half of it, come back tomorrow — and the agent doesn't know what was decided, what's blocked, or what to do next. Swain keeps structured state on disk so your agent can pick up where you left off.
 
-## Why swain?
-
-AI coding agents are great at implementing things, but they lose context between sessions. You plan a feature, write half of it, come back tomorrow — and the agent has no idea what was decided, what's in progress, or what's blocked.
-
-Swain gives your project **persistent, structured state** that survives across agent sessions and works with any agent that supports the skills standard.
-
-| Without swain | With swain |
-|---------------|------------|
-| "What was I working on?" — dig through git log | `/swain-status` shows active work, blockers, and next steps |
-| Feature ideas live in your head or scattered notes | Artifacts on disk with explicit phases and dependencies |
-| Agent implements the wrong thing because context was lost | Specs define what to build; agents read them before coding |
-| You approve something verbally, next session nobody remembers | Phase transitions are committed — decisions are in git history |
-| Research findings evaporate after the session | Evidence pools cached as markdown, reusable across sessions |
-
-Swain is for **solo dev + AI agent** workflows. It's not a replacement for GitHub Issues or Jira — it's the layer that keeps your agent productive between sessions.
+Named for the *swain* in boat**swain** — the officer who keeps the rigging tight.
 
 ## Install
 
@@ -26,53 +12,76 @@ Swain is for **solo dev + AI agent** workflows. It's not a replacement for GitHu
 npx skills add cristoslc/swain
 ```
 
-This installs all skills into your project's `.claude/skills/` directory.
+The installer detects which agent platforms you have (Claude Code, Cursor, Codex, etc.) and installs skills only for those platforms. Built on the [skills standard](https://github.com/anthropics/skills).
+
+After installing, run `/swain-init` in your first session to set up governance rules and task tracking.
+
+## What a session looks like
+
+Two skills auto-run at the start of every session:
+
+1. **swain-doctor** checks project health — governance rules, file permissions, stale config — and repairs what it finds.
+2. **swain-session** restores your context bookmark from last time: where you left off, what was in progress.
+
+Then you ask what's going on:
+
+```
+/swain-status
+```
+
+This shows active epics with progress, decisions waiting on you, implementation-ready items, blocked work, tasks, and GitHub issues — all in one view with clickable links.
+
+From there, the core loop is:
+
+- **Design** (`/swain-design`) — create and evolve artifacts: Visions, Epics, Specs, Spikes, ADRs, Stories, Bugs, and more. Each has a lifecycle tracked in git (Draft → Approved → Implemented).
+- **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies.
+- **Ship** (`/swain-push`, `/swain-release`) — commit with conventional messages, cut versioned releases.
+
+Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions are commits. Everything is inspectable, diffable, and version-controlled.
 
 ## Skills
 
-| Skill | Description |
+| Skill | What it does |
 |-------|-------------|
-| **swain-doctor** | Session-start health checks. Validates governance rules, repairs `.beads/.gitignore`, cleans up legacy skill directories, and untracks runtime files that leaked into git. Idempotent — runs every session, only writes when repairs are needed. |
-| **swain-design** | Artifact lifecycle management. Create, validate, and transition documentation artifacts (Vision, Epic, Story, Spec, ADR, Spike, Bug, Persona, Runbook, Journey) through their lifecycle phases. Includes dependency graphing, stale reference detection, and audit tooling. |
-| **swain-search** | Evidence pool collection. Collects sources from the web, local files, and media, normalizes them to markdown, and caches them in reusable evidence pools. Artifacts reference pools with commit-hash pinning for reproducibility. |
-| **swain-do** | Execution tracking. Bootstraps and operates bd (beads) — a git-backed issue tracker — as the external task backend. Translates abstract operations (create plan, add task, set dependency) into concrete CLI commands. Handles TDD-structured implementation plans. |
-| **swain-release** | Release automation. Detects versioning context from git history, generates changelogs from conventional commits, bumps version files, and creates annotated tags. Works across any repo. |
-| **swain-push** | Commit and push. Stages changes, generates conventional-commit messages from diffs, handles merge conflicts with sensible defaults (local project wins over upstream scaffolding), and pushes. |
-| **swain-help** | Contextual help. Answers questions about swain skills, artifacts, and workflows. Provides a quick reference cheat sheet and onboarding orientation after project setup. |
-| **swain-session** | Session management. Restores terminal tab name, user preferences, and context bookmarks on session start. Auto-invoked via AGENTS.md. Agent-agnostic. |
-| **swain-stage** | Tmux workspace manager. Layout presets (focus, review, browse), pane management, and an animated MOTD status panel showing project state and agent activity. Requires tmux. |
-| **swain-update** | Self-updater. Pulls the latest swain skills via npx (git fallback) and invokes swain-doctor to reconcile governance and project health. |
+| **swain-init** | One-time project setup — governance rules, task tracking, AGENTS.md |
+| **swain-doctor** | Session-start health checks — auto-repairs config, permissions, stale state |
+| **swain-session** | Context bookmarks and preferences across sessions |
+| **swain-status** | Dashboard — active work, blockers, next steps, GitHub issues |
+| **swain-design** | Artifact lifecycle — Vision, Epic, Spec, Spike, ADR, Story, Bug, Persona, Runbook, Journey, Design |
+| **swain-search** | Evidence pools — collect and cache research sources as reusable markdown |
+| **swain-do** | Task tracking — implementation plans, dependencies, progress |
+| **swain-push** | Commit and push with conventional commit messages |
+| **swain-release** | Changelog, version bump, git tag |
+| **swain-stage** | Tmux workspace layouts and animated status panel |
+| **swain-keys** | Per-project SSH keys for git signing and auth |
+| **swain-update** | Pull latest skills, reconcile config |
+| **swain-help** | Quick reference and onboarding guidance |
+
+All skills are invoked via `/swain-<name>` or by describing what you want — the `swain` meta-router figures out which skill to load.
 
 ## Configuration
 
-Swain uses a two-tier settings model:
+Two-tier settings model — project defaults (checked in) and personal overrides (never committed):
 
-- **Project:** `swain.settings.json` in the repo root — team defaults, checked in
-- **User:** `~/.config/swain/settings.json` — personal overrides, never committed
-
-```json
-{
-  "editor": "auto",
-  "fileBrowser": "auto",
-  "terminal": { "tabNameFormat": "{project} @ {branch}" },
-  "stage": {
-    "motd": { "refreshInterval": 5, "spinnerStyle": "braille" },
-    "defaultLayout": "focus"
-  }
-}
-```
+- **Project:** `swain.settings.json` in the repo root
+- **User:** `~/.config/swain/settings.json`
 
 ## Requirements
 
-- Node.js (for `npx skills`)
-- [uv](https://docs.astral.sh/uv/) (manages Python execution for swain-design and swain-do scripts)
-- Git
-- [jq](https://jqlang.github.io/jq/) (for settings and status file parsing)
-- **Optional:** tmux (for swain-stage workspace management)
+- **Git** and **Node.js** (for `npx skills` installer)
+- **jq** — status and settings parsing
+
+Optional:
+
+- **bd** ([beads](https://beads.dev)) — task tracking backend, installed automatically by swain-do on first use
+- **uv** — Python runner for design and status scripts
+- **gh** — GitHub CLI for issue integration and releases
+- **tmux** — workspace layouts (swain-stage only)
+- **fswatch** — live artifact file watching
 
 ## Companion
 
-[obra/superpowers](https://github.com/obra/superpowers) is a recommended companion install for plan authoring (brainstorming, writing-plans). Not a dependency — swain works without it.
+[obra/superpowers](https://github.com/obra/superpowers) is a recommended companion for plan authoring. Not a dependency.
 
 ## License
 
