@@ -88,3 +88,4 @@ Work items that originate as GitHub Issues have no path into swain's artifact wo
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-12 | — | Initial creation |
+| Testing | 2026-03-12 | 03652b8 | Verification table populated, all criteria pass |
