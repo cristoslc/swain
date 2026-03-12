@@ -1,7 +1,7 @@
 ---
 title: "GitHub Issues Integration"
 artifact: SPEC-005
-status: Approved
+status: Testing
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
@@ -59,6 +59,13 @@ Work items that originate as GitHub Issues have no path into swain's artifact wo
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| 1. Issue promotion creates SPEC with source-issue | `issue-integration.sh promote` fetches issue JSON with `source_issue` field; `spec-template.md.template` includes `source-issue` frontmatter field; SKILL.md documents the promote workflow | Pass |
+| 2. Transition to Testing posts comment | `issue-integration.sh transition-comment` calls `gh issue comment` with transition message | Pass |
+| 3. Transition to Implemented closes issue | `issue-integration.sh transition-close` calls `gh issue close` with closing comment | Pass |
+| 4. Transition to Abandoned comments but does not close | SKILL.md transition hooks table specifies comment-only for Abandoned; `transition-comment` posts comment without closing | Pass |
+| 5. swain-status shows linked issues | `swain-status.sh` `collect_linked_issues` scans artifacts via `issue-integration.sh scan`; `render_full` displays Linked Issues section with issue number, title, and state | Pass |
+| 6. Missing gh CLI shows clear error | `issue-integration.sh check` returns `{"available":false,"error":"gh CLI not found..."}` with install instructions; non-zero exit code | Pass |
+| 7. Backend extensible without modifying core | `parse_source_issue` dispatches on URL prefix; new backends add prefix handler + promote/comment/close functions; SKILL.md documents the convention | Pass |
 
 ## Scope & Constraints
 

@@ -25,6 +25,7 @@ addresses:
   - {{ pp }}
 {%- endfor %}
 evidence-pool: {{ evidence_pool | default("") }}
+source-issue: {{ source_issue | default("") }}
 swain-do: required
 ---
 
