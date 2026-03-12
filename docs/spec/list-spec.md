@@ -18,7 +18,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-004 | Unified SPEC Type System | 2026-03-12 | — |
+| SPEC-004 | Unified SPEC Type System | 2026-03-12 | 5bbc966 |
 
 ## Implemented
 
