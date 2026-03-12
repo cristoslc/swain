@@ -59,9 +59,9 @@ SPIKE-003 investigated five options for enhancement tracking. Finding: the agent
 ## Child Specs
 
 - ~~SPIKE-003: Enhancement Type Modeling~~ **Complete** — decision captured above
-- SPEC-NNN: Unified SPEC Type System (optional parent-epic, type field, fold BUG into SPEC) — TBD
-- SPEC-NNN: GitHub Issues Integration (bidirectional sync, backend abstraction) — TBD
-- SPEC-NNN: swain-doctor Migration (BUG→SPEC conversion, audit, remediation for existing users) — TBD
+- SPEC-004: Unified SPEC Type System (optional parent-epic, type field, fold BUG into SPEC) — **Draft**
+- SPEC-005: GitHub Issues Integration (bidirectional sync, backend abstraction) — **Draft**
+- SPEC-006: BUG-to-SPEC Migration (swain-doctor automated conversion) — **Draft**
 
 ## Initial Implementation Plan
 
