@@ -38,7 +38,9 @@ Run checks in the order listed below. Collect all findings into a summary table 
 
 ## Legacy skill cleanup
 
-Clean up skill directories that have been superseded by renames. Read the legacy mapping from `references/legacy-skills.json` in this skill's directory.
+Clean up skill directories that have been superseded by renames or retired entirely. Read the legacy mapping from `references/legacy-skills.json` in this skill's directory.
+
+### Renamed skills
 
 For each entry in the `renamed` map:
 
@@ -55,6 +57,22 @@ For each entry in the `renamed` map:
    ```
    Tell the user:
    > Removed legacy skill `.claude/skills/<old-name>/` (replaced by `<new-name>`).
+
+### Retired skills
+
+For each entry in the `retired` map (pre-swain skills absorbed into the ecosystem):
+
+1. Check whether `.claude/skills/<old-name>/` exists.
+2. If it does NOT exist, skip (nothing to clean).
+3. If it exists, **fingerprint check**: same as for renamed skills — read `.claude/skills/<old-name>/SKILL.md` and check whether its content matches ANY fingerprint in `legacy-skills.json`.
+4. If no fingerprint matches, **skip and warn**:
+   > Skipping cleanup of `.claude/skills/<old-name>/` — it does not appear to be a known pre-swain skill (no fingerprint match). Delete manually if stale.
+5. If fingerprint matches, **delete the old directory**:
+   ```bash
+   rm -rf .claude/skills/<old-name>
+   ```
+   Tell the user:
+   > Removed retired pre-swain skill `.claude/skills/<old-name>/` (functionality now in `<absorbed-by>`).
 
 After processing all entries, check whether the governance block in the context file references old skill names. If the governance block (between `<!-- swain governance -->` and `<!-- end swain governance -->`) contains any old-name from the `renamed` map, delete the entire block (inclusive of markers) and proceed to [Governance injection](#governance-injection) to re-inject a fresh copy with current names.
 
