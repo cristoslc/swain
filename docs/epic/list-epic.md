@@ -10,7 +10,7 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-002 | Artifact Type System & Issue Integration | 2026-03-11 | b9d0f65 |
-| EPIC-003 | README Rewrite for New User Onboarding | 2026-03-11 | — |
+| EPIC-003 | README Rewrite for New User Onboarding | 2026-03-11 | ff1dae7 |
 
 ## Complete
 
