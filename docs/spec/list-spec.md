@@ -7,16 +7,11 @@
 | SPEC-002 | evidencewatch Script | 2026-03-11 | — |
 | SPEC-003 | swain-design Integration | 2026-03-11 | — |
 
-## Testing
-
-| Artifact | Title | Last Updated | Commit |
-|----------|-------|-------------|--------|
-| SPEC-008 | Superpowers Integration | 2026-03-12 | — |
-
 ## Implemented
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPEC-008 | Superpowers Integration | 2026-03-12 | — |
 | SPEC-006 | BUG-to-SPEC Migration | 2026-03-12 | 3a1ed03 |
 | SPEC-005 | GitHub Issues Integration | 2026-03-12 | ee9c9c7 |
 | SPEC-004 | Unified SPEC Type System | 2026-03-12 | 5cd9d24 |
