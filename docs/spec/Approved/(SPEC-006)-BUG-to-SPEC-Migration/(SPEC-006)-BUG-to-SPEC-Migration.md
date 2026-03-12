@@ -45,8 +45,8 @@ When SPEC-004 eliminates the BUG artifact type, existing repos may have BUG arti
 
 ## Acceptance Criteria
 
-1. **Given** a repo with `docs/bug/Active/(BUG-001)-Foo/`, **when** swain-doctor runs, **then** the artifact is moved to `docs/spec/<Phase>/(SPEC-NNN)-Foo/` with `type: bug` and the next available SPEC number
-2. **Given** another artifact references `BUG-001` in its frontmatter, **when** migration runs, **then** the reference is rewritten to the new `SPEC-NNN`
+1. **Given** a repo with `docs/bug/Active/(BUG-NNN)-Foo/`, **when** swain-doctor runs, **then** the artifact is moved to `docs/spec/<Phase>/(SPEC-NNN)-Foo/` with `type: bug` and the next available SPEC number
+2. **Given** another artifact references `BUG-NNN` in its frontmatter, **when** migration runs, **then** the reference is rewritten to the new `SPEC-NNN`
 3. **Given** a BUG artifact with a lifecycle table, **when** migrated, **then** the lifecycle table is preserved and a `Migrated` row is appended with the migration commit hash
 4. **Given** a repo with no `docs/bug/` directory, **when** swain-doctor runs, **then** the migration check is a silent no-op
 5. **Given** migration has already run, **when** swain-doctor runs again, **then** no changes are made (idempotent)
