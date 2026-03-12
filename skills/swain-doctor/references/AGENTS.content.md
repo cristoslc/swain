@@ -1,5 +1,11 @@
 <!-- swain governance — do not edit this block manually -->
 
+## Swain
+
+Swain provides **decision support for the operator** and **alignment support for you (the agent)**. Artifacts on disk — specs, epics, spikes, ADRs — encode what was decided, what to build, and what constraints apply. Read them before acting. When they're ambiguous, ask the operator rather than guessing.
+
+Your job is to stay aligned with the artifacts. The operator's job is to make decisions and evolve them. Swain surfaces what needs attention so the operator can decide, and gives you structured context so you can execute without re-asking.
+
 ## Swain skills
 
 | Skill | Purpose |
@@ -16,6 +22,7 @@
 | **swain-help** | Contextual help — answers questions, quick reference, post-init onboarding |
 | **swain-session** | Session management — tab naming, preferences, context bookmarks |
 | **swain-stage** | Tmux workspace — layout presets, pane management, animated MOTD status panel |
+| **swain-keys** | SSH key provisioning — per-project signing keys, GitHub registration, host aliases |
 | **swain-update** | Self-updater — pulls latest swain skills, reconciles governance |
 
 ## Skill routing
