@@ -1,7 +1,7 @@
 ---
 title: "Unified SPEC Type System"
 artifact: SPEC-004
-status: Approved
+status: Testing
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
@@ -52,6 +52,13 @@ SPECs currently require `parent-epic`, forcing organizational overhead for stand
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| Empty parent-epic tolerated by specwatch | specwatch scan returns clean with SPEC-005/006 having no parent-epic issues | Pass |
+| type:bug template includes bug sections | spec-template.md.template contains conditional Reproduction Steps, Severity, Expected/Actual sections | Pass |
+| type:feature omits bug sections | Jinja2 conditional only renders bug sections when type=="bug" | Pass |
+| Standalone SPECs in specgraph overview | specgraph overview shows "(Unparented)" group with EPIC-002, EPIC-004 | Pass |
+| BUG definition and template deleted | Files no longer exist in skills/swain-design/references/ | Pass |
+| BUG absent from SKILL.md | No BUG in artifact table, relationship model, or tracking tiers | Pass |
+| BUG absent from AGENTS.md | No BUG references in artifact listings | Pass |
 
 ## Scope & Constraints
 
@@ -73,3 +80,4 @@ SPECs currently require `parent-epic`, forcing organizational overhead for stand
 |-------|------|--------|-------|
 | Draft | 2026-03-12 | — | Initial creation |
 | Approved | 2026-03-12 | b566127 | Design validated during EPIC-002 + SPIKE-003 |
+| Testing | 2026-03-12 | — | All tasks complete, verification populated |
