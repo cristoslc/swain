@@ -1,7 +1,7 @@
 ---
 title: "GitHub Issues Integration"
 artifact: SPEC-005
-status: Testing
+status: Implemented
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
