@@ -119,4 +119,4 @@ Dolt handles ~300 writes/sec max with serialized writes. Our 18-issue database i
 |-------|------|--------|-------|
 | Planned | 2026-03-12 | — | Initial creation |
 | Active | 2026-03-12 | — | Investigation starting |
-| Complete | 2026-03-12 | — | Transition to Complete |
+| Complete | 2026-03-12 | 4831536 | Transition to Complete |
