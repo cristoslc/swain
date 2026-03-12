@@ -67,4 +67,4 @@ Or this may be a single SPEC if the scope stays contained to one file.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-11 | — | Initial creation |
-| Active | 2026-03-11 | — | Scope is one file; implementing directly |
+| Active | 2026-03-11 | ff1dae7 | Scope is one file; implementing directly |
