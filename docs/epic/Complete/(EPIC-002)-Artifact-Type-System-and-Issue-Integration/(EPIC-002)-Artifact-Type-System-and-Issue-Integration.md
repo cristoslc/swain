@@ -108,3 +108,4 @@ This epic touches a wide surface area. Rough ordering:
 |-------|------|--------|-------|
 | Proposed | 2026-03-11 | a950529 | Initial creation |
 | Active | 2026-03-11 | b9d0f65 | SPIKE-003 complete; begin decomposition into child SPECs |
+| Complete | 2026-03-12 | 00a885a | All child SPECs implemented: SPEC-004, SPEC-005, SPEC-006 |
