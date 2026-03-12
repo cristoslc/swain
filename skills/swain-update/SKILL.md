@@ -5,7 +5,7 @@ user-invocable: true
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Update swain skills to latest
-  version: 1.2.0
+  version: 1.3.0
   author: cristos
   license: MIT
   source: swain
@@ -73,15 +73,54 @@ If no modified files are found, skip and continue.
 
 The reference clone from this step can be reused as the fallback source in Step 3.
 
-## Step 3 — Update via npx
+## Step 3 — Detect installed agent platforms
 
-Run the skills package manager to pull the latest swain skills:
+Before installing, detect which agent platforms are present on the system. This avoids creating dotfolder stubs for every supported platform (see [GitHub issue #21](https://github.com/cristoslc/swain/issues/21)).
+
+Read the agent-to-directory mapping from `references/agent-platforms.json` in this skill's directory. For each entry in the `agents` map, expand the path (replace `~` with `$HOME`, evaluate env var defaults) and check whether the directory exists:
 
 ```bash
-npx skills add cristoslc/swain --all
+detected_agents=()
+# claude-code is always included (we're running inside it)
+detected_agents+=("claude-code")
+
+# Check each platform's config directory
+[[ -d "${HOME}/.cursor" ]] && detected_agents+=("cursor")
+[[ -d "${HOME}/.codeium/windsurf" ]] && detected_agents+=("windsurf")
+[[ -d "${CODEX_HOME:-${HOME}/.codex}" ]] && detected_agents+=("codex")
+[[ -d "${HOME}/.cline" ]] && detected_agents+=("cline")
+[[ -d "${HOME}/.continue" ]] && detected_agents+=("continue")
+[[ -d "${HOME}/.augment" ]] && detected_agents+=("augment")
+[[ -d "${XDG_CONFIG_HOME:-${HOME}/.config}/goose" ]] && detected_agents+=("goose")
+[[ -d "${HOME}/.roo" ]] && detected_agents+=("roo")
+[[ -d "${HOME}/.gemini" ]] && detected_agents+=("gemini-cli")
+[[ -d "${HOME}/.copilot" ]] && detected_agents+=("github-copilot")
+[[ -d "${XDG_CONFIG_HOME:-${HOME}/.config}/amp" ]] && detected_agents+=("amp")
+[[ -d "${XDG_CONFIG_HOME:-${HOME}/.config}/opencode" ]] && detected_agents+=("opencode")
+[[ -d "${HOME}/.kiro" ]] && detected_agents+=("kiro")
 ```
 
-The `--all` flag (`--skill '*' --agent '*' -y`) ensures non-interactive execution by skipping confirmation prompts.
+Build the `-a` flags from detected agents:
+
+```bash
+agent_flags=""
+for agent in "${detected_agents[@]}"; do
+  agent_flags="$agent_flags -a $agent"
+done
+```
+
+Tell the user which platforms were detected:
+> Detected N agent platform(s): claude-code, codex, gemini-cli, ...
+
+## Step 4 — Update via npx
+
+Run the skills package manager with only the detected agents:
+
+```bash
+npx skills add cristoslc/swain $agent_flags -s '*' -y
+```
+
+This installs all skills (`-s '*'`) for only the detected platforms, skipping confirmation (`-y`). No dotfolder stubs are created for platforms that aren't installed.
 
 If `npx` fails (command not found, network error, or non-zero exit), fall back to a direct git clone:
 
@@ -92,11 +131,11 @@ cp -r "$tmp/swain/skills/"* .claude/skills/
 rm -rf "$tmp"
 ```
 
-## Step 4 — Reconcile governance
+## Step 5 — Reconcile governance
 
 Invoke the **swain-doctor** skill. This validates governance rules, cleans up legacy skill directories (including any renamed in this release), repairs `.beads/.gitignore`, and untracks any runtime files that leaked into git. The skill is idempotent, so running it after every update is always safe.
 
-## Step 5 — Restore guidance
+## Step 6 — Restore guidance
 
 If files were backed up in Step 2:
 
@@ -106,7 +145,7 @@ If files were backed up in Step 2:
    - **Patched scripts**: Show the diff between the backup and the new version. If the upstream version includes the fix, confirm the patch is no longer needed. If not, offer to re-apply the patch.
 3. Remind the user: "To avoid this in future, store customizations in `.agents/config/` or `swain.settings.json` — these survive updates."
 
-## Step 6 — Report
+## Step 7 — Report
 
 List the installed swain skill directories and extract each skill's version from its `SKILL.md` frontmatter:
 
