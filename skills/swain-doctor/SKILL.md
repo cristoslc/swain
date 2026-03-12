@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session-start health checks and repair
-  version: 2.1.0
+  version: 2.2.0
   author: cristos
   source: swain
 ---
@@ -78,11 +78,51 @@ After processing all entries, check whether the governance block in the context 
 
 ## Platform dotfolder cleanup
 
-The `npx skills add --all` command creates dotfolder stubs (e.g., `.windsurf/`, `.goose/`) for every supported agent platform, even when those platforms are not installed. These directories only contain symlinks back to `.agents/skills/` and clutter the working tree. See [GitHub issue #21](https://github.com/cristoslc/swain/issues/21).
+The `npx skills add --all` command (or older versions of swain-update without autodetect) creates dotfolder stubs (e.g., `.windsurf/`, `.cursor/`) for agent platforms that are not installed. These directories only contain symlinks back to `.agents/skills/` and clutter the working tree. See [GitHub issue #21](https://github.com/cristoslc/swain/issues/21).
 
-Read the list of known platform dotfolders from `references/platform-dotfolders.json` in this skill's directory.
+Read the platform data from `references/platform-dotfolders.json` in this skill's directory. Each entry in the `platforms` array has a `project_dotfolder` name and one or both detection strategies: `command` (CLI binary name) and `detection` (HOME config directory path). Entries with collision-prone command names (e.g., `cmd`, `cortex`, `mux`, `pi`) omit `command` and rely on HOME detection only.
 
-For each entry in the `dotfolders` array:
+### Step 1 — Autodetect installed platforms
+
+Iterate over the `platforms` array. For each entry, a platform is considered **installed** if either check succeeds:
+
+1. If the entry has a `command` field → run `command -v <command> &>/dev/null`.
+2. If the entry has a `detection` field → expand the path (replace `~` with `$HOME`, evaluate env var defaults like `${CODEX_HOME:-~/.codex}`) and check whether the directory exists.
+
+Always consider `.claude` installed (current platform — never a cleanup candidate).
+
+**Requires:** `jq` (for reading the JSON). If `jq` is not available, skip this section and warn.
+
+```bash
+installed_dotfolders=(".claude")
+while IFS= read -r entry; do
+  dotfolder=$(echo "$entry" | jq -r '.project_dotfolder')
+  cmd=$(echo "$entry" | jq -r '.command // empty')
+  det=$(echo "$entry" | jq -r '.detection // empty')
+
+  found=false
+  if [[ -n "$cmd" ]] && command -v "$cmd" &>/dev/null; then
+    found=true
+  fi
+  if [[ -n "$det" ]] && ! $found; then
+    det_expanded=$(echo "$det" | sed "s|~|$HOME|g")
+    det_expanded=$(eval echo "$det_expanded" 2>/dev/null)
+    [[ -d "$det_expanded" ]] && found=true
+  fi
+
+  $found && installed_dotfolders+=("$dotfolder")
+done < <(jq -c '.platforms[]' "SKILL_DIR/references/platform-dotfolders.json")
+```
+
+*(Replace `SKILL_DIR` with the actual path to this skill's directory.)*
+
+### Step 2 — Build cleanup candidates
+
+Every entry in `platforms` whose `project_dotfolder` is NOT in the `installed_dotfolders` list is a cleanup candidate.
+
+### Step 3 — Remove installer stubs
+
+For each candidate dotfolder:
 
 1. Check whether the directory exists in the project root.
 2. If it does NOT exist, skip.

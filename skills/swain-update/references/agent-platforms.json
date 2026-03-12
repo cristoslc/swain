@@ -1,20 +1,20 @@
 {
-  "_comment": "Maps skills CLI agent identifiers to their home-directory detection paths. Used by swain-update to autodetect installed platforms before running `npx skills add`. Paths starting with ~ are expanded at runtime. Paths starting with $ use env var with fallback.",
-  "agents": {
-    "claude-code":     "~/.claude",
-    "cursor":          "~/.cursor",
-    "windsurf":        "~/.codeium/windsurf",
-    "codex":           "${CODEX_HOME:-~/.codex}",
-    "cline":           "~/.cline",
-    "continue":        "~/.continue",
-    "augment":         "~/.augment",
-    "goose":           "${XDG_CONFIG_HOME:-~/.config}/goose",
-    "roo":             "~/.roo",
-    "gemini-cli":      "~/.gemini",
-    "github-copilot":  "~/.copilot",
-    "amp":             "${XDG_CONFIG_HOME:-~/.config}/amp",
-    "opencode":        "${XDG_CONFIG_HOME:-~/.config}/opencode",
-    "kiro":            "~/.kiro"
-  },
+  "_comment": "Maps skills CLI agent identifiers to detection strategies. Used by swain-update to autodetect installed platforms before running `npx skills add`. Each entry has `detection` (HOME config dir) and optionally `command` (CLI binary). Collision-prone commands (cmd, cortex, mux, pi, vibe) are omitted. A platform is detected if either check succeeds.",
+  "agents": [
+    { "name": "claude-code",    "command": "claude",     "detection": "~/.claude" },
+    { "name": "cursor",         "command": "cursor",     "detection": "~/.cursor" },
+    { "name": "windsurf",       "command": "windsurf",   "detection": "~/.codeium/windsurf" },
+    { "name": "codex",          "command": "codex",      "detection": "${CODEX_HOME:-~/.codex}" },
+    { "name": "cline",                                   "detection": "~/.cline" },
+    { "name": "continue",                                "detection": "~/.continue" },
+    { "name": "augment",                                 "detection": "~/.augment" },
+    { "name": "goose",          "command": "goose",      "detection": "${XDG_CONFIG_HOME:-~/.config}/goose" },
+    { "name": "roo",                                     "detection": "~/.roo" },
+    { "name": "gemini-cli",     "command": "gemini",     "detection": "~/.gemini" },
+    { "name": "github-copilot",                          "detection": "~/.copilot" },
+    { "name": "amp",            "command": "amp",        "detection": "${XDG_CONFIG_HOME:-~/.config}/amp" },
+    { "name": "opencode",       "command": "opencode",   "detection": "${XDG_CONFIG_HOME:-~/.config}/opencode" },
+    { "name": "kiro",                                    "detection": "~/.kiro" }
+  ],
   "always_include": ["claude-code"]
 }
