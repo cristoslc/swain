@@ -1,7 +1,7 @@
 ---
 title: "Superpowers Integration Assessment"
 artifact: EPIC-004
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
@@ -42,8 +42,9 @@ The key questions are:
 
 ## Child Specs
 
-- SPIKE-004: Superpowers–Swain Skill Mapping (research)
-- ADR to be created based on SPIKE-004 findings
+- SPIKE-004: Superpowers–Swain Skill Mapping (research) — Complete
+- ADR-001: Coexist with Superpowers via Layered Integration
+- SPEC-008: Superpowers Integration within Swain
 
 ## Key Dependencies
 
