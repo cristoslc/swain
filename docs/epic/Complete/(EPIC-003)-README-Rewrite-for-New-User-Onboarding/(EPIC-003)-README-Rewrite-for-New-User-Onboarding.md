@@ -1,7 +1,7 @@
 ---
 title: "README Rewrite for New User Onboarding"
 artifact: EPIC-003
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
@@ -68,3 +68,4 @@ Or this may be a single SPEC if the scope stays contained to one file.
 |-------|------|--------|-------|
 | Proposed | 2026-03-11 | — | Initial creation |
 | Active | 2026-03-11 | ff1dae7 | Scope is one file; implementing directly |
+| Complete | 2026-03-12 | <will-stamp> | All success criteria met; README rewritten |
