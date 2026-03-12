@@ -1,10 +1,10 @@
 ---
 title: "Artifact Type System & Issue Integration"
 artifact: EPIC-002
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-11
-last-updated: 2026-03-11
+last-updated: 2026-03-12
 parent-vision:
   - VISION-001
 success-criteria:
@@ -59,9 +59,9 @@ SPIKE-003 investigated five options for enhancement tracking. Finding: the agent
 ## Child Specs
 
 - ~~SPIKE-003: Enhancement Type Modeling~~ **Complete** — decision captured above
-- SPEC-004: Unified SPEC Type System (optional parent-epic, type field, fold BUG into SPEC) — **Draft**
-- SPEC-005: GitHub Issues Integration (bidirectional sync, backend abstraction) — **Draft**
-- SPEC-006: BUG-to-SPEC Migration (swain-doctor automated conversion) — **Draft**
+- ~~SPEC-004: Unified SPEC Type System~~ **Implemented** — optional parent-epic, type field, BUG folded into SPEC
+- ~~SPEC-005: GitHub Issues Integration~~ **Implemented** — source-issue field, gh CLI backend, transition hooks, swain-status display
+- ~~SPEC-006: BUG-to-SPEC Migration~~ **Implemented** — migrate-bugs.sh, BUG-001 → SPEC-007, docs/bug/ removed
 
 ## Initial Implementation Plan
 
