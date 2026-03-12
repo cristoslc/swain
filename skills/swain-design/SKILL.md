@@ -59,10 +59,10 @@ When superpowers (obra/superpowers) is installed alongside swain, certain artifa
 Check whether superpowers skills exist:
 
 ```bash
-ls .claude/skills/brainstorming/SKILL.md .claude/skills/writing-plans/SKILL.md 2>/dev/null
+ls .claude/skills/brainstorming/SKILL.md .agents/skills/brainstorming/SKILL.md .claude/skills/writing-plans/SKILL.md .agents/skills/writing-plans/SKILL.md 2>/dev/null
 ```
 
-If both exist, superpowers is available. Cache the result for the session — don't re-check on every operation.
+If at least one path exists for each skill, superpowers is available. Cache the result for the session — don't re-check on every operation.
 
 ### Brainstorming routing
 
@@ -105,7 +105,7 @@ Phases listed in the artifact definition files are available waypoints, not mand
 3. Update the artifact's status field in frontmatter to match the new phase.
 4. **ADR compliance check** — for transitions to active phases (Active, Approved, Ready, Implemented, Adopted), run `scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
 4a. **Verification gate (SPEC only)** — for `Testing → Implemented` transitions, run `scripts/spec-verify.sh <artifact-path>`. The script checks that every acceptance criterion has documented evidence in the Verification table. Address gaps before proceeding. See `spec-definition.md § Testing phase` for details.
-4b. **Code review gate (SPEC only)** — for `Testing → Implemented` transitions, when superpowers' code review skills are available (`ls .claude/skills/requesting-code-review/SKILL.md .claude/skills/receiving-code-review/SKILL.md 2>/dev/null`), request both a spec compliance review (checking implementation against acceptance criteria) and a code quality review. If superpowers review skills are not available, this step is skipped — it is not a hard gate.
+4b. **Code review gate (SPEC only)** — for `Testing → Implemented` transitions, when superpowers' code review skills are available (`ls .claude/skills/requesting-code-review/SKILL.md .agents/skills/requesting-code-review/SKILL.md .claude/skills/receiving-code-review/SKILL.md .agents/skills/receiving-code-review/SKILL.md 2>/dev/null`), request both a spec compliance review (checking implementation against acceptance criteria) and a code quality review. If superpowers review skills are not available, this step is skipped — it is not a hard gate.
 5. Commit the transition change (move + status update).
 6. Append a row to the artifact's lifecycle table with the commit hash from step 5.
 7. Commit the hash stamp as a **separate commit** — never amend. Two distinct commits keeps the stamped hash reachable in git history and avoids interactive-rebase pitfalls.

@@ -360,11 +360,11 @@ superpowers installed?
 **Detection:** Check whether superpowers' execution skills exist:
 
 ```bash
-ls .claude/skills/subagent-driven-development/SKILL.md \
-   .claude/skills/using-git-worktrees/SKILL.md 2>/dev/null
+ls .claude/skills/subagent-driven-development/SKILL.md .agents/skills/subagent-driven-development/SKILL.md \
+   .claude/skills/using-git-worktrees/SKILL.md .agents/skills/using-git-worktrees/SKILL.md 2>/dev/null
 ```
 
-If both exist, subagent-driven development is available.
+If at least one path exists for each skill, subagent-driven development is available.
 
 ### Worktree-artifact mapping
 
