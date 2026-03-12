@@ -1,10 +1,10 @@
 ---
 title: "evidencewatch Script"
 artifact: SPEC-002
-status: Draft
+status: Approved
 author: cristos
 created: 2026-03-09
-last-updated: 2026-03-09
+last-updated: 2026-03-11
 parent-epic: EPIC-001
 linked-research: []
 linked-adrs: []
@@ -56,3 +56,4 @@ Defaults (overridable via `.agents/evidencewatch.vars.json`):
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-09 | — | Initial creation |
+| Approved | 2026-03-11 | — | Approved for implementation |
