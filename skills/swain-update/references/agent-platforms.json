@@ -1,0 +1,20 @@
+{
+  "_comment": "Maps skills CLI agent identifiers to their home-directory detection paths. Used by swain-update to autodetect installed platforms before running `npx skills add`. Paths starting with ~ are expanded at runtime. Paths starting with $ use env var with fallback.",
+  "agents": {
+    "claude-code":     "~/.claude",
+    "cursor":          "~/.cursor",
+    "windsurf":        "~/.codeium/windsurf",
+    "codex":           "${CODEX_HOME:-~/.codex}",
+    "cline":           "~/.cline",
+    "continue":        "~/.continue",
+    "augment":         "~/.augment",
+    "goose":           "${XDG_CONFIG_HOME:-~/.config}/goose",
+    "roo":             "~/.roo",
+    "gemini-cli":      "~/.gemini",
+    "github-copilot":  "~/.copilot",
+    "amp":             "${XDG_CONFIG_HOME:-~/.config}/amp",
+    "opencode":        "${XDG_CONFIG_HOME:-~/.config}/opencode",
+    "kiro":            "~/.kiro"
+  },
+  "always_include": ["claude-code"]
+}
