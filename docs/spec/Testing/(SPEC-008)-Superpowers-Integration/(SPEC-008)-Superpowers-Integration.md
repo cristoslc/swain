@@ -1,7 +1,7 @@
 ---
 title: "Superpowers Integration"
 artifact: SPEC-008
-status: Approved
+status: Testing
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
@@ -61,10 +61,18 @@ Nine integration points, each modifying swain skill behavior when superpowers is
 
 ## Verification
 
-<!-- Populated when entering Testing phase -->
-
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Vision brainstorming routing | swain-design SKILL.md § Superpowers integration → Brainstorming routing table: Vision = "Yes — full Socratic" | Pass |
+| AC2: Story/Spike no brainstorming | swain-design SKILL.md § Brainstorming routing table: Story = "No", Spike = "No" | Pass |
+| AC3: SPEC omits Implementation Approach | swain-design SKILL.md § Thin SPEC format + spec-template.md.template Jinja2 comment | Pass |
+| AC4: ingest-plan.py creates bd tasks | swain-do SKILL.md § Plan ingestion + scripts/ingest-plan.py (pre-existing, verified complete) | Pass |
+| AC5: Subagent dispatch preferred | swain-do SKILL.md § Execution strategy → Strategy selection decision tree | Pass |
+| AC6: Anti-rationalization tables | swain-do SKILL.md § TDD enforcement → Anti-rationalization table (5 rows) | Pass |
+| AC7: Worktree-artifact mapping | swain-do SKILL.md § Execution strategy → Worktree-artifact mapping | Pass |
+| AC8: Code review gate | swain-design SKILL.md § Phase transitions step 4b | Pass |
+| AC9: Preflight skips doctor | swain-doctor/scripts/swain-preflight.sh + AGENTS.md § Session startup | Pass |
+| AC10: Completion verification for all tasks | swain-do SKILL.md § Completion verification | Pass |
 
 ## Scope & Constraints
 
