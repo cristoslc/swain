@@ -1,0 +1,5 @@
+{
+  "use_dolt": false,
+  "auto_prime": true,
+  "fallback_format": "jsonl"
+}
