@@ -15,6 +15,20 @@ Implementation plans follow **test-driven development** as the default methodolo
 
 When superpowers is present, the brainstorming step should produce a TDD-structured plan. When seeding manually, decompose the spec's acceptance criteria into red-green task pairs.
 
+### Anti-rationalization safeguards
+
+When creating or reviewing implementation plans, watch for these rationalizations that undermine TDD:
+
+| Rationalization | Correction |
+|----------------|-----------|
+| "Tests after code — I know what I'm building" | Tests written after confirm the implementation, not the specification. Write the failing test first. |
+| "Too simple to test" | If it's simple, the test is simple too. Every behavioral change gets a test. |
+| "Refactor first, then test" | Refactoring without tests removes the safety net. RED first, then refactor under green. |
+| "Integration tests cover it" | Integration tests don't isolate failures. Unit tests for logic, integration tests for wiring. |
+| "Need to see the code to know what to test" | Unclear testability means unclear spec — escalate to swain-design for acceptance criteria clarification. |
+
+These safeguards apply to both manually-seeded plans and superpowers-generated plans. Review the plan against this table before starting execution.
+
 ## Workflow
 
 1. If superpowers is present, use the [superpowers integration](#superpowers-integration) flow to author the plan. Otherwise, seed manually from the spec's "Implementation Approach" section, structuring tasks as TDD cycles derived from acceptance criteria.

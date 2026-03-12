@@ -17,6 +17,14 @@ Session-start health checks for swain projects. Validates and repairs health acr
 
 Run checks in the order listed below. Collect all findings into a summary table at the end.
 
+## Preflight integration
+
+A lightweight shell script (`scripts/swain-preflight.sh`) performs quick checks before invoking the full doctor. If preflight exits 0, swain-doctor is skipped for the session. If it exits 1, swain-doctor runs normally.
+
+The preflight checks are a subset of this skill's checks — governance files, .agents directory, .beads health, script permissions. It runs as pure bash with zero agent tokens. See AGENTS.md § Session startup for the invocation flow.
+
+When invoked directly by the user (not via the auto-invoke flow), swain-doctor always runs regardless of preflight status.
+
 ## Session-start governance check
 
 1. Detect the agent platform and locate the context file:

@@ -110,6 +110,56 @@ To express abandonment, use `bd close <id> --reason "Abandoned: ..."` — see [E
 7. **Never use `bd edit`** — it opens `$EDITOR` (vim/nano) which blocks agents. Use `bd update` with inline flags instead.
 8. **Prefix abandonment reasons with `Abandoned:`** when closing incomplete tasks — this convention makes abandoned work queryable (`bd search "Abandoned:"`) so nothing silently disappears.
 
+## TDD enforcement
+
+Implementation tasks follow strict RED-GREEN-REFACTOR methodology with anti-rationalization safeguards. These rules apply regardless of whether superpowers is installed — they are baked into swain-do's methodology.
+
+### Anti-rationalization table
+
+When creating implementation plans, every task that involves writing code must follow this discipline:
+
+| Rationalization | Why it's wrong | Rule |
+|----------------|---------------|------|
+| "I'll write the test after the code since I know what I'm building" | Tests written after confirm what was built, not what was specified. They miss edge cases the spec intended. | Write the failing test FIRST. The test is derived from the acceptance criterion, not the implementation. |
+| "This is too simple to need a test" | Simplicity today becomes complexity tomorrow. Untested code is unverified code. | Every behavioral change gets a test. If it's truly simple, the test is also simple. |
+| "I'll refactor first to make testing easier" | Refactoring without tests means refactoring without a safety net. | RED first. Write the test against the current interface, then refactor under test coverage. |
+| "The integration test covers this" | Integration tests are slow and don't isolate failures. A unit test failing tells you exactly what broke. | Unit tests for logic, integration tests for wiring. Both are needed. |
+| "I need to see the implementation to know what to test" | This means the spec is unclear, not that you should skip TDD. | If you can't write the test, the acceptance criterion needs clarification — escalate to swain-design. |
+
+### Task ordering
+
+1. **Test first.** For each functional unit, create a test task before its implementation task. The test task writes a failing test derived from the artifact's acceptance criteria.
+2. **Small cycles.** Prefer many small red-green pairs over a single "write all tests" → "write all code" split.
+3. **Refactor explicitly.** Include a refactor task after green when the implementation warrants cleanup.
+4. **Integration tests bookend the plan.** Start with a skeleton integration test (it will fail). The final task verifies it passes.
+
+## Completion verification
+
+No task may be claimed as complete without fresh verification evidence. This applies universally — not just to SPEC acceptance criteria, but to any bd task.
+
+### What counts as evidence
+
+| Task type | Acceptable evidence |
+|-----------|-------------------|
+| Code implementation | Test passes, manual verification output, screenshot |
+| Documentation | Content review, link check, rendered preview |
+| Configuration | Applied and tested in target environment |
+| Research | Findings documented with sources |
+
+### Enforcement
+
+When closing a task with `bd close`, the `--reason` must include what was verified:
+
+```bash
+# Good — includes evidence
+bd close <id> --reason "JWT middleware added; test_jwt_validation passes" --json
+
+# Bad — no evidence
+bd close <id> --reason "Done" --json
+```
+
+If a task is closed without evidence, it should be reopened and completed properly. The verification discipline prevents "completion drift" where tasks are marked done based on intent rather than observed behavior.
+
 ## Spec lineage tagging
 
 When creating tasks that implement a spec artifact:
@@ -291,6 +341,45 @@ uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --labels epic:EPI
 - The plan file doesn't follow superpowers format — fall back to manual task breakdown
 - You need non-sequential dependencies — use the script, then adjust deps manually with `bd dep add`
 - The plan is very short (1-2 tasks) — manual creation is faster
+
+## Execution strategy
+
+When dispatching implementation work, swain-do selects the execution strategy based on environment and task characteristics.
+
+### Strategy selection
+
+```
+superpowers installed?
+├── YES → prefer subagent-driven development
+│         ├── Complex task (multi-file, >5 min) → dispatch subagent with worktree
+│         ├── Simple task (<5 min, single file) → serial execution (subagent overhead not worth it)
+│         └── Research task → dispatch parallel investigation agents
+└── NO  → bd-tracked serial execution (current default)
+```
+
+**Detection:** Check whether superpowers' execution skills exist:
+
+```bash
+ls .claude/skills/subagent-driven-development/SKILL.md \
+   .claude/skills/using-git-worktrees/SKILL.md 2>/dev/null
+```
+
+If both exist, subagent-driven development is available.
+
+### Worktree-artifact mapping
+
+When a spec is implemented via a git worktree (superpowers' `using-git-worktrees` skill), swain-do records the mapping in the bd epic's notes:
+
+```bash
+bd update <epic-id> --append-notes "Worktree: branch <branch-name> implements <SPEC-ID>"
+```
+
+This enables:
+- Status queries to show which worktrees are active for which specs
+- Cleanup checks after spec completion (orphaned worktrees)
+- Traceability between the spec artifact and its implementation branch
+
+When the spec transitions to Implemented, verify the worktree has been cleaned up or merged.
 
 ## Fallback
 

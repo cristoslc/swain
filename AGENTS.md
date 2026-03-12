@@ -37,12 +37,15 @@ When the user wants to create, plan, write, update, transition, or review any do
 
 ## Session startup (AUTO-INVOKE)
 
-At the start of every session, invoke these skills in order:
+At the start of every session, run preflight then conditionally invoke skills:
 
-1. **swain-doctor** — health checks, governance validation, remediation
-2. **swain-session** — tab naming (tmux only), preferences, context bookmarks
+1. **Preflight check** — run `bash .claude/skills/swain-doctor/scripts/swain-preflight.sh`
+   - Exit 0 → skip swain-doctor, proceed to step 3
+   - Exit 1 → invoke **swain-doctor** for full health checks and remediation, then proceed to step 3
+2. **swain-doctor** — (conditional) only runs when preflight detects issues
+3. **swain-session** — tab naming (tmux only), preferences, context bookmarks
 
-Both are idempotent and safe to re-run.
+Preflight is a lightweight shell script that checks governance files, .agents directory, .beads health, and script permissions. It produces zero agent tokens when everything is clean. See ADR-001 and SPEC-008 for the design rationale.
 
 ## Conflict resolution
 

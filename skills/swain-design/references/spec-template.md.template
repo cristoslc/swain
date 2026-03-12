@@ -76,6 +76,10 @@ swain-do: required
 
 {{ scope_constraints | default("Boundaries, non-goals, and token-budget awareness.") }}
 
+{#- When superpowers is detected, omit this section entirely.
+    SPECs become thin contracts — the execution plan is generated
+    by superpowers' writing-plans skill at implementation time.
+    See SKILL.md § Superpowers integration → Thin SPEC format. -#}
 ## Implementation Approach
 
 {{ implementation_approach | default("High-level plan that seeds the implementation plan (via swain-do). Structure as TDD cycles: identify which acceptance criteria map to which test-then-implement pairs.") }}
