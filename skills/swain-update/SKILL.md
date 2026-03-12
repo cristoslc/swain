@@ -5,7 +5,7 @@ user-invocable: true
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Update swain skills to latest
-  version: 1.3.0
+  version: 1.4.0
   author: cristos
   license: MIT
   source: swain
@@ -77,28 +77,40 @@ The reference clone from this step can be reused as the fallback source in Step 
 
 Before installing, detect which agent platforms are present on the system. This avoids creating dotfolder stubs for every supported platform (see [GitHub issue #21](https://github.com/cristoslc/swain/issues/21)).
 
-Read the agent-to-directory mapping from `references/agent-platforms.json` in this skill's directory. For each entry in the `agents` map, expand the path (replace `~` with `$HOME`, evaluate env var defaults) and check whether the directory exists:
+Read the agent platform data from `references/agent-platforms.json` in this skill's directory. Each entry in the `agents` array has a `name` (skills CLI identifier), an optional `command` (CLI binary), and a `detection` path (HOME config directory). A platform is detected if either check succeeds. Entries in `always_include` are added unconditionally.
 
 ```bash
 detected_agents=()
-# claude-code is always included (we're running inside it)
-detected_agents+=("claude-code")
 
-# Check each platform's config directory
-[[ -d "${HOME}/.cursor" ]] && detected_agents+=("cursor")
-[[ -d "${HOME}/.codeium/windsurf" ]] && detected_agents+=("windsurf")
-[[ -d "${CODEX_HOME:-${HOME}/.codex}" ]] && detected_agents+=("codex")
-[[ -d "${HOME}/.cline" ]] && detected_agents+=("cline")
-[[ -d "${HOME}/.continue" ]] && detected_agents+=("continue")
-[[ -d "${HOME}/.augment" ]] && detected_agents+=("augment")
-[[ -d "${XDG_CONFIG_HOME:-${HOME}/.config}/goose" ]] && detected_agents+=("goose")
-[[ -d "${HOME}/.roo" ]] && detected_agents+=("roo")
-[[ -d "${HOME}/.gemini" ]] && detected_agents+=("gemini-cli")
-[[ -d "${HOME}/.copilot" ]] && detected_agents+=("github-copilot")
-[[ -d "${XDG_CONFIG_HOME:-${HOME}/.config}/amp" ]] && detected_agents+=("amp")
-[[ -d "${XDG_CONFIG_HOME:-${HOME}/.config}/opencode" ]] && detected_agents+=("opencode")
-[[ -d "${HOME}/.kiro" ]] && detected_agents+=("kiro")
+# Always-include platforms (we're running inside claude-code)
+for name in $(jq -r '.always_include[]' "SKILL_DIR/references/agent-platforms.json"); do
+  detected_agents+=("$name")
+done
+
+# Detect remaining platforms via command -v or HOME dotfolder
+while IFS= read -r entry; do
+  name=$(echo "$entry" | jq -r '.name')
+  cmd=$(echo "$entry" | jq -r '.command // empty')
+  det=$(echo "$entry" | jq -r '.detection // empty')
+
+  # Skip always-include (already added)
+  for ai in "${detected_agents[@]}"; do [[ "$ai" == "$name" ]] && continue 2; done
+
+  found=false
+  if [[ -n "$cmd" ]] && command -v "$cmd" &>/dev/null; then
+    found=true
+  fi
+  if [[ -n "$det" ]] && ! $found; then
+    det_expanded=$(echo "$det" | sed "s|~|$HOME|g")
+    det_expanded=$(eval echo "$det_expanded" 2>/dev/null)
+    [[ -d "$det_expanded" ]] && found=true
+  fi
+
+  $found && detected_agents+=("$name")
+done < <(jq -c '.agents[]' "SKILL_DIR/references/agent-platforms.json")
 ```
+
+*(Replace `SKILL_DIR` with the actual path to this skill's directory.)*
 
 Build the `-a` flags from detected agents:
 
