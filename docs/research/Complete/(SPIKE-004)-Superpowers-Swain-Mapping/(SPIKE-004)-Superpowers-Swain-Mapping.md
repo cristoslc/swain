@@ -1,7 +1,7 @@
 ---
 title: "Superpowers–Swain Skill Mapping"
 artifact: SPIKE-004
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
@@ -287,3 +287,4 @@ Adopt superpowers' verification-before-completion pattern to cover any task, not
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-12 | — | Created directly in Active — research conducted in this session |
+| Complete | 2026-03-12 | e94bb4b | Research findings complete; Option 1 (swain owns structure, superpowers owns conversation) chosen |
