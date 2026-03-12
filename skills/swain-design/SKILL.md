@@ -1,6 +1,6 @@
 ---
 name: swain-design
-description: Create, validate, and transition documentation artifacts (Vision, Epic, Story, Spec, Spike, ADR, Persona, Runbook, Bug, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, user stories, ADR drafting, research spikes, persona definition, runbook creation, bug filing, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC/STORY/BUG; decomposes EPIC/VISION/JOURNEY into children first.
+description: Create, validate, and transition documentation artifacts (Vision, Epic, Story, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, user stories, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC/STORY; decomposes EPIC/VISION/JOURNEY into children first.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Skill
 metadata:
@@ -24,12 +24,11 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 | User Journey (JOURNEY-NNN) | End-to-end user workflow with pain points that drive epics and specs. | [definition](references/journey-definition.md) | [template](references/journey-template.md.template) |
 | Epic (EPIC-NNN) | Large deliverable under a vision — groups related specs and stories with success criteria. | [definition](references/epic-definition.md) | [template](references/epic-template.md.template) |
 | User Story (STORY-NNN) | User-facing requirement under an epic, written as "As a... I want... So that..." | [definition](references/story-definition.md) | [template](references/story-template.md.template) |
-| Agent Spec (SPEC-NNN) | Technical implementation specification under an epic with acceptance criteria. | [definition](references/spec-definition.md) | [template](references/spec-template.md.template) |
+| Agent Spec (SPEC-NNN) | Technical implementation specification with acceptance criteria. Supports `type: feature \| enhancement \| bug`. Parent epic is optional. | [definition](references/spec-definition.md) | [template](references/spec-template.md.template) |
 | Research Spike (SPIKE-NNN) | Time-boxed investigation with a specific question and completion gate. | [definition](references/spike-definition.md) | [template](references/spike-template.md.template) |
 | Persona (PERSONA-NNN) | Archetypal user profile that informs journeys and stories. | [definition](references/persona-definition.md) | [template](references/persona-template.md.template) |
 | ADR (ADR-NNN) | Single architectural decision — context, choice, alternatives, and consequences (Nygard format). | [definition](references/adr-definition.md) | [template](references/adr-template.md.template) |
 | Runbook (RUNBOOK-NNN) | Step-by-step operational procedure (agentic or manual) with a defined trigger. | [definition](references/runbook-definition.md) | [template](references/runbook-template.md.template) |
-| Bug (BUG-NNN) | Defect report with severity, affected artifacts, and reproduction steps. | [definition](references/bug-definition.md) | [template](references/bug-template.md.template) |
 | Design (DESIGN-NNN) | UI/UX interaction design — wireframes, flows, and state diagrams for user-facing surfaces. | [definition](references/design-definition.md) | [template](references/design-template.md.template) |
 
 ## Creating artifacts
@@ -129,7 +128,7 @@ Artifact types fall into four tracking tiers based on their relationship to impl
 
 | Tier | Artifacts | Rule |
 |------|-----------|------|
-| **Implementation** | SPEC, STORY, BUG | Execution-tracking **must** be invoked when the artifact comes up for implementation — create a tracked plan before writing code |
+| **Implementation** | SPEC, STORY | Execution-tracking **must** be invoked when the artifact comes up for implementation — create a tracked plan before writing code |
 | **Coordination** | EPIC, VISION, JOURNEY | Swain-design decomposes into implementable children first; swain-do runs on the children, not the container |
 | **Research** | SPIKE | Execution-tracking is optional but recommended for complex spikes with multiple investigation threads |
 | **Reference** | ADR, PERSONA, RUNBOOK, DESIGN | No execution tracking expected |
@@ -137,7 +136,7 @@ Artifact types fall into four tracking tiers based on their relationship to impl
 ### The `swain-do` frontmatter field
 
 Artifacts that need swain-do carry `swain-do: required` in their frontmatter. This field is:
-- **Always present** on SPEC, STORY, and BUG artifacts (injected by their templates)
+- **Always present** on SPEC and STORY artifacts (injected by their templates)
 - **Added per-instance** on SPIKE artifacts when swain-design assesses the spike is complex enough to warrant tracked research
 - **Never present** on EPIC, VISION, JOURNEY, ADR, PERSONA, RUNBOOK, or DESIGN artifacts — orchestration for those types lives in the skill, not the artifact
 
@@ -149,7 +148,7 @@ The trigger is intent, not phase transition alone. An artifact comes up for impl
 
 - "Let's implement SPEC-003" → invoke swain-do
 - "Move SPEC-003 to Approved" → phase transition only, no tracking yet
-- "Fix BUG-001" → invoke swain-do
+- "Fix SPEC-007 (type: bug)" → invoke swain-do
 - "Let's work on EPIC-008" → decompose into SPECs/STORYs first, then track the children
 
 ### Coordination artifact decomposition
@@ -202,16 +201,11 @@ erDiagram
     SPEC ||--o| IMPL_PLAN : "seeds"
     RUNBOOK }o--o{ EPIC : "validates"
     RUNBOOK }o--o{ SPEC : "validates"
-    BUG }o--o{ SPEC : "affected-artifacts"
-    BUG }o--o{ EPIC : "affected-artifacts"
-    BUG ||--o| IMPL_PLAN : "fix-ref"
     SPIKE }o--o{ ADR : "linked-research"
     SPIKE }o--o{ EPIC : "linked-research"
-    SPIKE }o--o{ BUG : "linked-research"
     DESIGN }o--o{ EPIC : "linked-designs"
     DESIGN }o--o{ STORY : "linked-designs"
     DESIGN }o--o{ SPEC : "linked-designs"
-    DESIGN }o--o{ BUG : "linked-designs"
 ```
 
 **Key:** Solid lines (`||--o{`) = mandatory hierarchy. Diamond lines (`}o--o{`) = informational cross-references. SPIKE can attach to any artifact type, not just SPEC. Any artifact can declare `depends-on:` blocking dependencies on any other artifact. Per-type frontmatter fields are defined in each type's template.

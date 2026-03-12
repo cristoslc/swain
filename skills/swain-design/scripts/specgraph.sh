@@ -468,8 +468,8 @@ do_overview() {
         end
       else "" end;
 
-    # Cross-cutting artifacts (ADR, PERSONA, RUNBOOK, BUG, SPIKE without parent)
-    def is_cross_cutting: .type | test("ADR|PERSONA|RUNBOOK|BUG|SPIKE");
+    # Cross-cutting artifacts (ADR, PERSONA, RUNBOOK, SPIKE without parent)
+    def is_cross_cutting: .type | test("ADR|PERSONA|RUNBOOK|SPIKE");
 
     # ── Hierarchy Tree ──
     "── Hierarchy ──",
