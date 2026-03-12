@@ -270,6 +270,43 @@ collect_issues() {
     '{open: $open, assigned: $assigned, available: true}'
 }
 
+collect_linked_issues() {
+  local ISSUE_SCRIPT="$SCRIPT_DIR/../../swain-design/scripts/issue-integration.sh"
+
+  if [[ ! -f "$ISSUE_SCRIPT" ]]; then
+    echo '[]'
+    return
+  fi
+
+  local linked
+  linked=$(bash "$ISSUE_SCRIPT" scan 2>/dev/null) || linked="[]"
+
+  # Enrich with live GitHub issue data if gh is available
+  if command -v gh &>/dev/null && [[ "$linked" != "[]" ]]; then
+    echo "$linked" | jq -c '.[]' | while IFS= read -r entry; do
+      local si
+      si=$(echo "$entry" | jq -r '.source_issue')
+
+      # Parse github:<owner>/<repo>#<number>
+      if [[ "$si" =~ ^github:([^/]+)/([^#]+)#([0-9]+)$ ]]; then
+        local owner="${BASH_REMATCH[1]}" repo="${BASH_REMATCH[2]}" number="${BASH_REMATCH[3]}"
+        local issue_state issue_title
+        issue_state=$(gh issue view "$number" --repo "${owner}/${repo}" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+        issue_title=$(gh issue view "$number" --repo "${owner}/${repo}" --json title --jq '.title' 2>/dev/null || echo "")
+        echo "$entry" | jq \
+          --arg issue_state "$issue_state" \
+          --arg issue_title "$issue_title" \
+          --argjson issue_number "$number" \
+          '. + {issue_state: $issue_state, issue_title: $issue_title, issue_number: $issue_number}'
+      else
+        echo "$entry"
+      fi
+    done | jq -s '.'
+  else
+    echo "$linked"
+  fi
+}
+
 collect_session() {
   if [[ -f "$SESSION_FILE" ]]; then
     jq '{
@@ -292,6 +329,7 @@ build_cache() {
   artifact_data=$(collect_artifacts)
   task_data=$(collect_tasks)
   issue_data=$(collect_issues)
+  linked_issue_data=$(collect_linked_issues)
   session_data=$(collect_session)
 
   local timestamp
@@ -306,6 +344,7 @@ build_cache() {
     --argjson tasks "$task_data" \
     --argjson issues "$issue_data" \
     --argjson session "$session_data" \
+    --argjson linked "$linked_issue_data" \
     '{
       timestamp: $ts,
       repo: $repo,
@@ -314,6 +353,7 @@ build_cache() {
       artifacts: $artifacts,
       tasks: $tasks,
       issues: $issues,
+      linkedIssues: $linked,
       session: $session
     }' > "$CACHE_FILE"
 }
@@ -665,6 +705,30 @@ render_full() {
       done < <(echo "$data" | jq -c '.issues.open[] | select(.number)' | head -5)
       echo ""
     fi
+  fi
+
+  # --- Linked Issues (source-issue artifacts) ---
+  local linked_count
+  linked_count=$(echo "$data" | jq '.linkedIssues | length')
+
+  if [[ "$linked_count" -gt 0 ]]; then
+    echo "## Linked Issues"
+    echo ""
+    echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+      def art_link($aid; $file):
+        if $file != null and $file != "" then
+          "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
+        else $aid end;
+      .linkedIssues[] |
+      "- \(art_link(.artifact; .file)): \(.title) [\(.status)]" +
+      (if .issue_number then
+        " — linked to #\(.issue_number)" +
+        (if .issue_state then " (\(.issue_state | ascii_downcase))" else "" end)
+      else
+        " — \(.source_issue)"
+      end)
+    '
+    echo ""
   fi
 
   # --- Artifact counts footer ---
