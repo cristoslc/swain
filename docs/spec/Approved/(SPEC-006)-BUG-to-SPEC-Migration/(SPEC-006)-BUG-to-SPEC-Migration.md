@@ -1,7 +1,7 @@
 ---
 title: "BUG-to-SPEC Migration"
 artifact: SPEC-006
-status: Draft
+status: Approved
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
