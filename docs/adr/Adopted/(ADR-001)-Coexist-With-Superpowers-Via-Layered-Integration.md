@@ -73,4 +73,4 @@ Key integration decisions:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Adopted | 2026-03-12 | — | Decision made during SPIKE-004 research; skipped Draft/Proposed |
+| Adopted | 2026-03-12 | 834c356 | Decision made during SPIKE-004 research; skipped Draft/Proposed |
