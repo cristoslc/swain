@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session-start health checks and repair
-  version: 2.0.0
+  version: 2.1.0
   author: cristos
   source: swain
 ---
@@ -75,6 +75,39 @@ For each entry in the `retired` map (pre-swain skills absorbed into the ecosyste
    > Removed retired pre-swain skill `.claude/skills/<old-name>/` (functionality now in `<absorbed-by>`).
 
 After processing all entries, check whether the governance block in the context file references old skill names. If the governance block (between `<!-- swain governance -->` and `<!-- end swain governance -->`) contains any old-name from the `renamed` map, delete the entire block (inclusive of markers) and proceed to [Governance injection](#governance-injection) to re-inject a fresh copy with current names.
+
+## Platform dotfolder cleanup
+
+The `npx skills add --all` command creates dotfolder stubs (e.g., `.windsurf/`, `.goose/`) for every supported agent platform, even when those platforms are not installed. These directories only contain symlinks back to `.agents/skills/` and clutter the working tree. See [GitHub issue #21](https://github.com/cristoslc/swain/issues/21).
+
+Read the list of known platform dotfolders from `references/platform-dotfolders.json` in this skill's directory.
+
+For each entry in the `dotfolders` array:
+
+1. Check whether the directory exists in the project root.
+2. If it does NOT exist, skip.
+3. If it exists, **verify it is installer-generated** — the directory should contain only a `skills/` subdirectory (possibly with symlinks or further subdirectories). Check:
+
+   ```bash
+   # Count top-level entries (excluding . and ..)
+   entries=$(ls -A "<dotfolder>" 2>/dev/null | wc -l)
+   # Check if the only entry is "skills"
+   if [[ "$entries" -le 1 ]] && [[ -d "<dotfolder>/skills" || "$entries" -eq 0 ]]; then
+     # Safe to remove — installer-generated stub
+   fi
+   ```
+
+   - If the directory is empty OR contains only a `skills/` subdirectory → **remove it**:
+     ```bash
+     rm -rf <dotfolder>
+     ```
+   - If the directory contains other files or directories besides `skills/` → **skip and warn**:
+     > Skipping `<dotfolder>` — contains user content beyond installer symlinks. Remove manually if unused.
+
+4. After processing all entries, report:
+   > Removed N platform dotfolder(s) created by `npx skills add` (installer stubs for unused agent platforms).
+
+   If none were found, this step is silent.
 
 ## Governance injection
 
@@ -418,6 +451,7 @@ After all checks complete, output a concise summary table:
 swain-doctor summary:
   Governance ......... ok
   Legacy cleanup ..... ok (nothing to clean)
+  Platform dotfolders  ok (nothing to clean)
   .beads/.gitignore .. ok
   Tools .............. ok (1 optional missing: fswatch)
   Memory directory ... ok

@@ -1,0 +1,33 @@
+{
+  "_comment": "Platform dotfolders auto-created by `npx skills add --all`. These are symlink stubs for agent platforms not in use. swain-doctor removes them if they only contain installer-generated content (a skills/ dir with symlinks). See GitHub issue #21.",
+  "dotfolders": [
+    ".adal",
+    ".agent",
+    ".augment",
+    ".codebuddy",
+    ".commandcode",
+    ".continue",
+    ".cortex",
+    ".crush",
+    ".factory",
+    ".goose",
+    ".iflow",
+    ".junie",
+    ".kilocode",
+    ".kiro",
+    ".kode",
+    ".mcpjam",
+    ".mux",
+    ".neovate",
+    ".openhands",
+    ".pi",
+    ".pochi",
+    ".qoder",
+    ".qwen",
+    ".roo",
+    ".trae",
+    ".vibe",
+    ".windsurf",
+    ".zencoder"
+  ]
+}
