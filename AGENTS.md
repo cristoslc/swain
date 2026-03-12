@@ -18,6 +18,7 @@
 | **swain-help** | Contextual help — answers questions, quick reference, post-init onboarding |
 | **swain-session** | Session management — tab naming, preferences, context bookmarks |
 | **swain-stage** | Tmux workspace — layout presets, pane management, animated MOTD status panel |
+| **swain-keys** | SSH key provisioning — per-project signing keys, GitHub registration, host aliases |
 | **swain-update** | Self-updater — pulls latest swain skills, reconciles governance |
 
 ## Skill routing
