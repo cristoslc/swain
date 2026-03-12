@@ -11,10 +11,10 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-004 | Superpowers–Swain Skill Mapping | 2026-03-12 | — |
 
 ## Complete
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPIKE-003 | Enhancement Type Modeling | 2026-03-11 | 7aadee8 |
+| SPIKE-004 | Superpowers–Swain Skill Mapping | 2026-03-12 | e94bb4b |
