@@ -1,7 +1,7 @@
 ---
 title: "Unified SPEC Type System"
 artifact: SPEC-004
-status: Draft
+status: Approved
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
@@ -72,3 +72,4 @@ SPECs currently require `parent-epic`, forcing organizational overhead for stand
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-12 | — | Initial creation |
+| Approved | 2026-03-12 | — | Design validated during EPIC-002 + SPIKE-003 |
