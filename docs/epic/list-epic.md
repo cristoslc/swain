@@ -17,4 +17,4 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-001 | Evidence Pool Collection And Normalization | 2026-03-11 | — |
-| EPIC-003 | README Rewrite for New User Onboarding | 2026-03-12 | <will-stamp> |
+| EPIC-003 | README Rewrite for New User Onboarding | 2026-03-12 | d165af2 |
