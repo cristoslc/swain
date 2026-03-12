@@ -7,11 +7,18 @@
     "execution-tracking": "swain-do",
     "release": "swain-release"
   },
+  "retired": {
+    "update-agents-core": "swain-update",
+    "skill-manager": "swain-update",
+    "remote-skill-manager": "swain-update"
+  },
   "fingerprints": [
     "source: swain",
     "author: cristos",
     "swain governance",
     "swain-design",
-    "swain-do"
+    "swain-do",
+    "agents-core",
+    "skill-manager"
   ]
 }
