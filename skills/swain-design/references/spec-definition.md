@@ -27,6 +27,8 @@ Follow **spec-driven development** principles: an Agent Spec is a behavior contr
   - Primary file: `(SPEC-NNN)-<Title>.md` — the spec document itself.
   - Supporting docs live alongside it in the same folder.
 - Should be scoped to something a team (or agent) can ship and validate independently.
+- **Type field:** `type: feature | enhancement | bug` (default: `feature`). Informational metadata — does not affect lifecycle phases. When `type: bug`, the template includes additional sections: Reproduction Steps, Severity, and Expected vs. Actual Behavior.
+- **Parent-epic is optional:** SPECs can exist standalone (no parent epic) for small features, enhancements, or bugs that don't warrant epic-level coordination. Standalone SPECs appear under "Unparented" in specgraph.
 - **Tracking requirement:** All Specs carry `swain-do: required` in frontmatter. When a Spec comes up for implementation, invoke the swain-do skill to create a tracked plan before writing code (see SKILL.md § Execution tracking handoff).
 
 ## Testing phase

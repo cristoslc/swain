@@ -15,7 +15,7 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | **swain** | Meta-router — routes `/swain` prompts to the correct sub-skill |
 | **swain-init** | One-time project onboarding — CLAUDE.md migration, bd setup, governance |
 | **swain-doctor** | Session-start health checks — governance, gitignore hygiene, legacy cleanup |
-| **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Bug, Persona, Runbook, Journey |
+| **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect, normalize, and cache research sources |
 | **swain-do** | Execution tracking — task management via bd (beads) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
@@ -29,7 +29,7 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 
 ## Skill routing
 
-When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Bug) or their supporting docs, **always invoke the swain-design skill**.
+When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Design) or their supporting docs, **always invoke the swain-design skill**.
 
 **For project status, progress, or "what's next?"**, use the **swain-status** skill.
 

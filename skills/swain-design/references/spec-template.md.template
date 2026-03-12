@@ -6,7 +6,8 @@ status: {{ status | default("Draft") }}
 author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
-parent-epic: EPIC-{{ parent_epic_number }}
+type: {{ type | default("feature") }}
+parent-epic: {{ parent_epic | default("") }}
 linked-research:
 {%- for ref in linked_research | default([]) %}
   - {{ ref }}
@@ -40,6 +41,23 @@ swain-do: required
 ## Acceptance Criteria
 
 {{ acceptance_criteria | default("Given/When/Then scenarios — concise and verifiable.") }}
+
+{%- if type == "bug" %}
+
+## Reproduction Steps
+
+{{ reproduction_steps | default("Steps to reproduce the defect.") }}
+
+## Severity
+
+{{ severity | default("critical | high | medium | low") }}
+
+## Expected vs. Actual Behavior
+
+**Expected:** {{ expected_behavior | default("What should happen.") }}
+
+**Actual:** {{ actual_behavior | default("What happens instead.") }}
+{%- endif %}
 
 ## Verification
 
