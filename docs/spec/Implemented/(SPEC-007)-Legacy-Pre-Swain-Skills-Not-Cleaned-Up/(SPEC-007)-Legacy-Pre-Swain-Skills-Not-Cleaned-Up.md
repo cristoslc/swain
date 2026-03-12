@@ -1,15 +1,13 @@
 ---
 title: "Legacy pre-swain skills not cleaned up by swain-doctor"
-artifact: BUG-001
-status: Resolved
+artifact: SPEC-007
+type: bug
+status: Implemented
 author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
-severity: low
 affected-artifacts:
   - swain-doctor
-discovered-in: "Manual observation — pre-swain skill directories linger in .claude/skills/ after swain adoption"
-fix-ref: "342ae82"
 depends-on: []
 swain-do: required
 ---
@@ -68,3 +66,4 @@ Update swain-doctor's legacy cleanup to process `retired` entries: same fingerpr
 |-------|------|--------|-------|
 | Reported | 2026-03-11 | 342ae82 | Initial report |
 | Fixed | 2026-03-11 | 342ae82 | Added retired map to legacy-skills.json, updated doctor cleanup logic |
+| Migrated | 2026-03-12 | — | Migrated from BUG-001 to SPEC-007 (SPEC-006) |

@@ -15,3 +15,4 @@
 | SPEC-005 | GitHub Issues Integration | 2026-03-12 | ee9c9c7 |
 | SPEC-004 | Unified SPEC Type System | 2026-03-12 | 5cd9d24 |
 | SPEC-001 | swain-search Skill | 2026-03-11 | 7ffa299 |
+| SPEC-007 | Legacy pre-swain skills not cleaned up by swain-doctor | 2026-03-12 | — |
