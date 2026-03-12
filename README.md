@@ -1,8 +1,13 @@
 # swain
 
-Persistent project state for solo developers working with AI coding agents.
+**Decision support for the operator. Alignment support for the agent.**
 
-AI agents lose context between sessions. You plan a feature, implement half of it, come back tomorrow — and the agent doesn't know what was decided, what's blocked, or what to do next. Swain keeps structured state on disk so your agent can pick up where you left off.
+Swain is a skill suite for solo developers who work with AI coding agents. It serves two audiences in every session:
+
+- **You (the operator)** get a decision-support layer — what's active, what's blocked, what needs your judgment, and what the agent can handle autonomously. You make the calls; swain surfaces the right information at the right time.
+- **Your agent** gets an alignment layer — structured artifacts on disk that say what was decided, what to build, what constraints apply, and where it left off. The agent reads these instead of guessing or asking you to repeat context.
+
+Both layers are the same data: markdown files in git. Swain just presents them differently depending on who's looking.
 
 Named for the *swain* in boat**swain** — the officer who keeps the rigging tight.
 
