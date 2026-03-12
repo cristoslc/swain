@@ -1,10 +1,10 @@
 ---
 title: "swain-design Integration"
 artifact: SPEC-003
-status: Draft
+status: Approved
 author: cristos
 created: 2026-03-09
-last-updated: 2026-03-09
+last-updated: 2026-03-12
 parent-epic: EPIC-001
 linked-research: []
 linked-adrs: []
@@ -54,3 +54,4 @@ When an artifact adds `evidence-pool: <pool-id>@<hash>` to its frontmatter, the 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-09 | — | Initial creation |
+| Approved | 2026-03-12 | — | Approved for implementation |

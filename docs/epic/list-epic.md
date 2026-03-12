@@ -4,6 +4,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| EPIC-003 | Spec Lifecycle Revision | 2026-03-12 | — |
 
 ## Active
 
