@@ -1,7 +1,7 @@
 ---
 title: "BUG-to-SPEC Migration"
 artifact: SPEC-006
-status: Approved
+status: Testing
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
@@ -56,6 +56,12 @@ When SPEC-004 eliminates the BUG artifact type, existing repos may have BUG arti
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| 1. BUG artifact migrated to SPEC with type:bug | `migrate-bugs.sh` moved BUG-001 to SPEC-007 with `type: bug`, correct phase mapping (Resolved→Implemented) | Pass |
+| 2. Cross-references rewritten | `migrate-bugs.sh` scans all .md files for BUG-NNN references and rewrites to SPEC-NNN | Pass |
+| 3. Lifecycle table preserved with Migrated row | SPEC-007 retains original lifecycle rows plus `Migrated` entry with commit hash | Pass |
+| 4. No docs/bug/ = silent no-op | Script checks `[ -d docs/bug ]` and exits 0 immediately if absent | Pass |
+| 5. Idempotent on second run | After migration, docs/bug/ is removed, so re-run exits immediately at step 4 | Pass |
+| 6. No stale BUG references after specwatch | `specwatch.sh scan` finds no BUG- references after migration completes | Pass |
 
 ## Scope & Constraints
 
