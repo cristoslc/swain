@@ -68,4 +68,4 @@ Or this may be a single SPEC if the scope stays contained to one file.
 |-------|------|--------|-------|
 | Proposed | 2026-03-11 | — | Initial creation |
 | Active | 2026-03-11 | ff1dae7 | Scope is one file; implementing directly |
-| Complete | 2026-03-12 | <will-stamp> | All success criteria met; README rewritten |
+| Complete | 2026-03-12 | d165af2 | All success criteria met; README rewritten |
