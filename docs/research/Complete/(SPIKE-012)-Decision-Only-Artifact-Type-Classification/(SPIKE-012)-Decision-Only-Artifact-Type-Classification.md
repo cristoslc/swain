@@ -5,7 +5,7 @@ status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
-question: "Which artifact types are decision-only across their entire lifecycle, what does 'no meaningful implementation phase' mean for each, and what is the correct swain-status treatment at each phase?"
+question: "Which artifact types can the agent fully transition through their lifecycle without human decision-making, and what is the correct swain-status treatment at each phase?"
 gate: Pre-SPEC-010-implementation
 risks-addressed:
   - Misclassifying a type as decision-only when some of its phases are legitimately agent-implementable
@@ -21,7 +21,7 @@ evidence-pool: ""
 
 ## Question
 
-Which artifact types are decision-only across their entire lifecycle, what does "no meaningful implementation phase" mean for each, and what is the correct swain-status treatment at each phase?
+Which artifact types can the agent fully transition through their lifecycle without human decision-making, and what is the correct swain-status treatment at each phase?
 
 ## Go / No-Go Criteria
 
@@ -41,18 +41,20 @@ Read every artifact type definition in `skills/swain-design/references/*-definit
 
 ### Type-Level Classification
 
+The classification is based on whether the agent can fully transition the artifact through its lifecycle phases without needing human decision-making at each gate.
+
 | Artifact Type | Classification | Rationale |
 |---------------|----------------|-----------|
-| **VISION** | decision-only | Strategic positioning, audience, success metrics — fundamentally human decisions at every phase |
-| **JOURNEY** | decision-only | End-to-end user workflow narrative, pain point identification — discovery/research, never implemented directly |
-| **PERSONA** | decision-only | User archetype definition and validation through research — reference artifact, no implementation |
-| **ADR** | decision-only | Records a decision already made with context and consequences — implementation happens in downstream SPECs |
-| **EPIC** | implementation-capable | Coordinates child SPECs/STORYs; Active/Testing phases have agent work in flight |
-| **SPEC** | implementation-capable | Core implementation unit; carries `swain-do: required`; Testing phase is agent verification |
-| **STORY** | implementation-capable | User-facing requirement; carries `swain-do: required`; Ready phase triggers agent implementation |
-| **SPIKE** | implementation-capable | Time-boxed investigation; Active phase is agent-driven research/prototyping |
-| **RUNBOOK** | implementation-capable | Executable procedures (agentic or manual); Draft and Active phases involve agent authoring/execution |
-| **DESIGN** | implementation-capable | Wireframes, flows, diagrams; Draft phase involves agent-assisted creation |
+| **EPIC** | agent-autonomous | Agent coordinates child specs, tracks progress, transitions phases based on child completion |
+| **SPEC** | agent-autonomous | Core implementation unit; agent writes code, runs tests, verifies acceptance criteria |
+| **STORY** | agent-autonomous | User-facing requirement; agent implements, tests, and completes |
+| **RUNBOOK** | agent-autonomous | Executable procedures; agent authors, tests, and activates |
+| **SPIKE** | sometimes autonomous | Agent can drive research/prototyping in Active phase, but go/no-go verdict may need human judgment depending on the spike |
+| **VISION** | needs human | Strategic positioning, audience, success metrics — fundamentally human decisions at every phase |
+| **JOURNEY** | needs human | End-to-end user workflow narrative, pain point identification — requires human creative direction |
+| **PERSONA** | needs human | User archetype definition — requires human insight and validation |
+| **ADR** | needs human | Records a decision already made — the decision itself is human; implementation happens in downstream SPECs |
+| **DESIGN** | needs human | Wireframes, flows, interaction patterns — requires human creative direction, same as JOURNEY |
 
 ### Per-Phase Bucket Mapping
 
@@ -84,22 +86,24 @@ This table defines where each artifact type + phase combination should appear in
 | SPIKE | Complete | Omit | — |
 | RUNBOOK | Draft | Implementation | author and test procedure |
 | RUNBOOK | Active | Implementation | execute and record results |
-| DESIGN | Draft | Implementation | create wireframes and flows |
-| DESIGN | Approved | Omit | — |
+| DESIGN | Draft | Decisions | create wireframes and flows |
+| DESIGN | Review | Decisions | review design with user |
+| DESIGN | Approved | Decisions | validate design direction |
+| DESIGN | Active | Omit | — |
 | BUG | any | Decisions | triage and fix |
 
 **Terminal phases** (Abandoned, Archived, Retired, Superseded, Deprecated, Complete, Implemented, Validated for Persona/Journey) are always **Omit** — no action needed.
 
 ### Verdict: GO
 
-A definitive classification was produced. No types are ambiguous — every phase maps cleanly to a single bucket. The key insight: four types (VISION, JOURNEY, PERSONA, ADR) are decision-only at _every_ phase. The remaining six have at least one implementation-capable phase, but some of their phases are still decision-only (e.g., SPEC Draft is a decision, SPEC Testing is implementation).
+A definitive classification was produced. The key insight: five types (VISION, JOURNEY, PERSONA, ADR, DESIGN) need human decision-making at every lifecycle phase — the agent cannot autonomously transition them. Four types (EPIC, SPEC, STORY, RUNBOOK) are agent-autonomous. SPIKE is sometimes autonomous depending on the investigation's complexity.
 
 ### Implementation Recommendation for SPEC-010
 
 Replace the current `is_decision` function (which checks type+status combinations) with a two-level lookup:
 
-1. **Type-level guard:** If type is in `{VISION, JOURNEY, PERSONA, ADR}`, always route to Decisions (or Omit for terminal phases). Never route to Implementation.
-2. **Phase-level guard:** For implementation-capable types, use the per-phase bucket mapping above.
+1. **Type-level guard:** If type is in `{VISION, JOURNEY, PERSONA, ADR, DESIGN}`, always route to Decisions (or Omit for terminal phases). Never route to Implementation.
+2. **Phase-level guard:** For agent-autonomous types, use the per-phase bucket mapping above. For SPIKE, route Planned to Decisions (human decides when to start) and Active to Implementation.
 
 This eliminates the "fall-through to Implementation" bug — decision-only types can never escape to the wrong bucket regardless of phase.
 

@@ -507,11 +507,11 @@ render_full() {
 
   if [[ "$ready_count" -gt 0 ]]; then
     # Count decisions vs implementation items
-    # Classification from SPIKE-012: VISION, JOURNEY, PERSONA, ADR are decision-only
+    # Classification from SPIKE-012: VISION, JOURNEY, PERSONA, ADR, DESIGN need human decisions
     # at every phase. Other types use per-phase bucket mapping.
     local decision_count
     decision_count=$(echo "$data" | jq '
-      def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR");
+      def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR|DESIGN");
       def is_decision:
         is_decision_only_type or
         (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
@@ -554,7 +554,7 @@ render_full() {
           elif .type == "DESIGN" then "create wireframes and flows"
           elif .type == "BUG" then "triage and fix"
           else "progress to next phase" end;
-        def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR");
+        def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR|DESIGN");
         def is_decision:
           is_decision_only_type or
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
@@ -607,7 +607,7 @@ render_full() {
           elif .type == "DESIGN" then "create wireframes and flows"
           elif .type == "BUG" then "triage and fix"
           else "progress to next phase" end;
-        def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR");
+        def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR|DESIGN");
         def is_decision:
           is_decision_only_type or
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
