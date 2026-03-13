@@ -7,11 +7,8 @@
 | SPEC-010 | Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status | 2026-03-13 | — |
 | SPEC-011 | Automated Retrospectives | 2026-03-13 | 1170623 |
 | SPEC-013 | Fetch/Pull-First Sync Behavior | 2026-03-13 | — |
-| SPEC-018 | Update Artifact Definitions and Templates | 2026-03-13 | — |
-| SPEC-019 | Update Tooling Scripts for Normalized Lifecycle | 2026-03-13 | — |
 | SPEC-020 | Migrate Existing Artifacts to New Phase Directories | 2026-03-13 | — |
 | SPEC-021 | swain-doctor Lifecycle Migration Detection | 2026-03-13 | — |
-| SPEC-022 | Remove STORY Artifact Type | 2026-03-13 | — |
 
 ## Approved
 
@@ -22,6 +19,9 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPEC-018 | Update Artifact Definitions and Templates | 2026-03-13 | — |
+| SPEC-019 | Update Tooling Scripts for Normalized Lifecycle | 2026-03-13 | — |
+| SPEC-022 | Remove STORY Artifact Type | 2026-03-13 | — |
 | SPEC-009 | Normalize Artifact Frontmatter Relationships | 2026-03-13 | b10fea5 |
 | SPEC-017 | Deduplicate Cross-Skill Boilerplate | 2026-03-13 | 5d66e53 |
 | SPEC-016 | Compress Skill Runtime Instructions | 2026-03-13 | 5dd9e42 |

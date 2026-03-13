@@ -1,7 +1,7 @@
 ---
 title: "Update Artifact Definitions and Templates"
 artifact: SPEC-018
-status: Draft
+status: Complete
 type: enhancement
 author: cristos
 created: 2026-03-13
@@ -10,6 +10,9 @@ parent-epic: EPIC-008
 linked-artifacts:
   - ADR-003
 depends-on-artifacts: []
+implementation-commits:
+  - 50b7e38
+  - 00f11b2
 addresses: []
 evidence-pool: ""
 source-issue: ""
