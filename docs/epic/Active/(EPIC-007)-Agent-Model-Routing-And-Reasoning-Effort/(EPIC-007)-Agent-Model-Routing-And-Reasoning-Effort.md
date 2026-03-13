@@ -1,10 +1,11 @@
 ---
 title: "Agent Model Routing and Reasoning Effort Steering"
 artifact: EPIC-007
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
+implementation-commits: 889d4af
 parent-vision: VISION-001
 success-criteria:
   - Each swain skill invocation specifies an appropriate model tier (heavy/analysis/lightweight) and reasoning effort level
@@ -47,7 +48,7 @@ Out of scope:
 
 - SPIKE-013: Model Selection Mechanisms Across Agent Runtimes (Complete)
 - SPIKE-014: Swain Skill Cognitive Load Classification (Complete)
-- SPEC-026: Model Tier Annotations and Routing (implementation of spike findings)
+- SPEC-026: Model Tier Annotations and Routing (Complete)
 
 ## Key Dependencies
 
@@ -60,3 +61,4 @@ Out of scope:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
+| Active | 2026-03-13 | PENDING | SPEC-026 complete; remaining criteria (active routing, skill-creator usage) need future specs |

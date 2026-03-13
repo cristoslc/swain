@@ -5,13 +5,13 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
-| EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | — |
 | EPIC-011 | MOTD Panel Improvements | 2026-03-13 | ea0d165 |
 
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | PENDING |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | 41fb131 |
 
 ## Superseded
