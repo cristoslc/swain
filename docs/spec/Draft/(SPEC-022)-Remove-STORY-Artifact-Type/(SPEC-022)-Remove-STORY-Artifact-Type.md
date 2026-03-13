@@ -1,12 +1,14 @@
 ---
 title: "Remove STORY Artifact Type"
 artifact: SPEC-022
-status: Draft
+status: Complete
 type: enhancement
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
 parent-epic: EPIC-008
+implementation-commits:
+  - 00f11b2
 linked-artifacts:
   - ADR-003
   - SPEC-004

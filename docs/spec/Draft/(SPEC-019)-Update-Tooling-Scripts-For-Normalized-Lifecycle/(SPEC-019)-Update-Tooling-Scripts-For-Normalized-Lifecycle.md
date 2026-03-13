@@ -1,7 +1,7 @@
 ---
 title: "Update Tooling Scripts for Normalized Lifecycle"
 artifact: SPEC-019
-status: Draft
+status: Complete
 type: enhancement
 author: cristos
 created: 2026-03-13
@@ -11,6 +11,8 @@ linked-artifacts:
   - ADR-003
 depends-on-artifacts:
   - SPEC-018
+implementation-commits:
+  - 8991172
 addresses: []
 evidence-pool: ""
 source-issue: ""
