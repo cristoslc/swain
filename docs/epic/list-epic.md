@@ -12,7 +12,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | PENDING |
+| EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | 41fb131 |
 
 ## Superseded
 

@@ -95,4 +95,4 @@ In `swain.settings.json`:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 091bdf5 | Initial creation |
-| Complete | 2026-03-13 | PENDING | Implementation verified — skill, workflow, settings, router |
+| Complete | 2026-03-13 | 41fb131 | Implementation verified — skill, workflow, settings, router |
