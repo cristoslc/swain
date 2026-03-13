@@ -1,7 +1,7 @@
 ---
 title: "End-to-End Sync Workflow"
 artifact: EPIC-012
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
@@ -79,3 +79,4 @@ Replace swain-push with swain-sync — a comprehensive sync skill that handles t
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 34f2d62 | Initial creation; supersedes EPIC-009 |
+| Active | 2026-03-13 | PENDING | SPEC-013 completed |
