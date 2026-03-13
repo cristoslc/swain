@@ -5,6 +5,7 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
+| EPIC-006 | Skill Context Footprint Reduction | 2026-03-13 | — |
 
 ## Active
 
