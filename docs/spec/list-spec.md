@@ -26,7 +26,7 @@
 | SPEC-009 | Normalize Artifact Frontmatter Relationships | 2026-03-13 | b10fea5 |
 | SPEC-010 | Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status | 2026-03-13 | — |
 | SPEC-012 | Yazi System Default File Opening | 2026-03-13 | 9015bf1 |
-| SPEC-013 | Fetch/Pull-First Sync Behavior | 2026-03-13 | PENDING |
+| SPEC-013 | Fetch/Pull-First Sync Behavior | 2026-03-13 | 96acb43 |
 | SPEC-014 | swain-keys 1Password SSH Program Override | 2026-03-13 | 4a0e453 |
 | SPEC-015 | Externalize Skill Reference Content | 2026-03-13 | da6cb61 |
 | SPEC-016 | Compress Skill Runtime Instructions | 2026-03-13 | 5dd9e42 |
