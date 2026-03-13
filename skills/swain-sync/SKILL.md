@@ -76,6 +76,27 @@ git add -A
 git reset HEAD -- <secret-file-1> <secret-file-2> ...
 ```
 
+## Step 3.5 — Gitignore check
+
+Before committing, verify `.gitignore` hygiene. This step is advisory — it warns but never blocks the commit.
+
+1. **Check existence:** If no `.gitignore` file exists in the repo root, warn:
+   > WARN: No `.gitignore` file found. Consider creating one to avoid tracking build artifacts, secrets, and OS files.
+
+2. **Check common patterns:** If `.gitignore` exists, check whether these commonly ignored patterns are present (exact match or substring):
+   - `.env`
+   - `node_modules/`
+   - `__pycache__/`
+   - `.DS_Store`
+   - `*.pyc`
+
+   For each missing pattern, collect it. If any are missing, warn:
+   > WARN: `.gitignore` is missing common patterns: `.env`, `node_modules/`. Consider adding them.
+
+   If all patterns are present (or none are relevant to the repo), this step is silent.
+
+3. Continue to Step 4 regardless of warnings.
+
 ## Step 4 — Generate a commit message
 
 Read the staged diff (`git --no-pager diff --cached`) and write a commit message that:
