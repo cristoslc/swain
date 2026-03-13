@@ -30,4 +30,4 @@
 | EPIC-004 | Superpowers Integration Assessment | 2026-03-12 | 775306f |
 | EPIC-006 | Skill Context Footprint Reduction | 2026-03-13 | dbcb557 |
 | EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | e9084d2 |
-| EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | PENDING |
+| EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | 0e54e5e |
