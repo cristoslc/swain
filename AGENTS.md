@@ -13,11 +13,11 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | Skill | Purpose |
 |-------|---------|
 | **swain** | Meta-router — routes `/swain` prompts to the correct sub-skill |
-| **swain-init** | One-time project onboarding — CLAUDE.md migration, bd setup, governance |
-| **swain-doctor** | Session-start health checks — governance, gitignore hygiene, legacy cleanup |
+| **swain-init** | One-time project onboarding — CLAUDE.md migration, tk verification, governance |
+| **swain-doctor** | Session-start health checks — governance, .tickets/ validation, legacy cleanup |
 | **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect, normalize, and cache research sources |
-| **swain-do** | Execution tracking — task management via bd (beads) |
+| **swain-do** | Execution tracking — task management via tk (ticket) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
 | **swain-push** | Commit and push — staging, conventional commits, conflict resolution |
 | **swain-status** | Project status dashboard — active epics, progress, next steps, GitHub issues, session context |
@@ -45,7 +45,18 @@ At the start of every session, run preflight then conditionally invoke skills:
 2. **swain-doctor** — (conditional) only runs when preflight detects issues
 3. **swain-session** — tab naming (tmux only), preferences, context bookmarks
 
-Preflight is a lightweight shell script that checks governance files, .agents directory, .beads health, and script permissions. It produces zero agent tokens when everything is clean. See ADR-001 and SPEC-008 for the design rationale.
+Preflight is a lightweight shell script that checks governance files, .agents directory, .tickets/ health, and script permissions. It produces zero agent tokens when everything is clean. See ADR-001 and SPEC-008 for the design rationale.
+
+## Migration paths
+
+**Every breaking change must include a migration path.** When replacing a tool, changing a data format, or removing a capability:
+
+1. Provide a migration script or command that converts old data to new format
+2. Document the breaking change and migration steps in release notes
+3. Have swain-doctor detect stale artifacts from the old system and offer cleanup guidance
+4. Use a major version bump to signal the breaking change
+
+This applies to tooling swaps (e.g., bd → tk), storage format changes, artifact schema changes, and skill API changes. Users must never be left with orphaned data and no path forward.
 
 ## Conflict resolution
 
@@ -53,44 +64,49 @@ When swain skills overlap with other installed skills or built-in agent capabili
 
 <!-- end swain governance -->
 
-<!-- BEGIN BEADS INTEGRATION -->
-## Issue Tracking with bd (beads)
+## Issue Tracking with tk (ticket)
 
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+**IMPORTANT**: This project uses **tk (ticket)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
 
-### Why bd?
+### Why tk?
 
-- Dependency-aware: Track blockers and relationships between issues
-- Git-friendly: Dolt-powered version control with native sync
-- Agent-optimized: JSON output, ready work detection, discovered-from links
-- Prevents duplicate tracking systems and confusion
+- Dependency-aware: Full dependency graph with `tk ready`, `tk blocked`, cycle detection
+- Git-native: File-per-task markdown in `.tickets/` — human-readable, diffable, zero runtime
+- Agent-optimized: `ticket-query` plugin for JSON output, atomic `tk claim` for multi-agent safety
+- Vendored: Single bash script at `skills/swain-do/bin/tk` — no external install needed
 
 ### Quick Start
+
+```bash
+# Set up PATH (run once per session)
+TK_BIN="$(cd skills/swain-do/bin && pwd)"
+export PATH="$TK_BIN:$PATH"
+```
 
 **Check for ready work:**
 
 ```bash
-bd ready --json
+tk ready
 ```
 
 **Create new issues:**
 
 ```bash
-bd create "Issue title" --description="Detailed context" -t bug|feature|task -p 0-4 --json
-bd create "Issue title" --description="What this issue is about" -p 1 --deps discovered-from:bd-123 --json
+tk create "Issue title" -d "Detailed context" -t bug|feature|task -p 0-4
+tk create "Issue title" -d "What this issue is about" -p 1 --tags spec:SPEC-003
 ```
 
 **Claim and update:**
 
 ```bash
-bd update <id> --claim --json
-bd update bd-42 --priority 1 --json
+tk claim <id>
 ```
 
 **Complete work:**
 
 ```bash
-bd close bd-42 --reason "Completed" --json
+tk add-note <id> "Completed: reason and evidence"
+tk close <id>
 ```
 
 ### Issue Types
@@ -111,32 +127,22 @@ bd close bd-42 --reason "Completed" --json
 
 ### Workflow for AI Agents
 
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task atomically**: `bd update <id> --claim`
+1. **Check ready work**: `tk ready` shows unblocked issues
+2. **Claim your task atomically**: `tk claim <id>`
 3. **Work on it**: Implement, test, document
 4. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
-
-### Auto-Sync
-
-bd automatically syncs via Dolt:
-
-- Each write auto-commits to Dolt history
-- Use `bd dolt push`/`bd dolt pull` for remote sync
-- No manual export/import needed!
+   - `tk create "Found bug" -d "Details about what was found" -p 1`
+   - `tk dep <new-id> <parent-id>`
+5. **Complete**: `tk add-note <id> "Done: evidence"` then `tk close <id>`
 
 ### Important Rules
 
-- ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag for programmatic use
-- ✅ Link discovered work with `discovered-from` dependencies
-- ✅ Check `bd ready` before asking "what should I work on?"
-- ❌ Do NOT create markdown TODO lists
-- ❌ Do NOT use external issue trackers
-- ❌ Do NOT duplicate tracking systems
-
-For more details, see README.md and docs/QUICKSTART.md.
+- Use tk for ALL task tracking
+- Use `ticket-query` for JSON/programmatic output
+- Check `tk ready` before asking "what should I work on?"
+- Do NOT create markdown TODO lists
+- Do NOT use external issue trackers
+- Do NOT duplicate tracking systems
 
 ## Landing the Plane (Session Completion)
 
@@ -150,7 +156,6 @@ For more details, see README.md and docs/QUICKSTART.md.
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull --rebase
-   bd dolt push
    git push
    git status  # MUST show "up to date with origin"
    ```
@@ -163,5 +168,3 @@ For more details, see README.md and docs/QUICKSTART.md.
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
-
-<!-- END BEADS INTEGRATION -->

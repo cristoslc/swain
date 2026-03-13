@@ -41,7 +41,7 @@ Present this:
 >
 > 2. **Design before you build.** When you want to implement something, start with `/swain` to create a spec or story. Swain enforces a "plan before code" workflow — it creates tracked tasks before implementation begins.
 >
-> 3. **Health checks are automatic.** `/swain-doctor` runs at session start to ensure routing rules are in place and `.beads/` is healthy. You don't need to think about it.
+> 3. **Health checks are automatic.** `/swain-doctor` runs at session start to ensure routing rules are in place and `.tickets/` is healthy. You don't need to think about it.
 >
 > **Common starting points:**
 > - "I want to plan a new feature" → creates an Epic or Story
@@ -64,7 +64,7 @@ Answer the user's specific question using your knowledge of swain. If you need d
 | Commands and invocations | `references/quick-ref.md` — Commands section |
 | Step-by-step walkthroughs | `references/workflows.md` |
 | Artifact definitions and templates | `../swain-design/references/<type>-definition.md` |
-| bd (beads) CLI reference | `../swain-do/references/bd-cheatsheet.md` |
+| tk (ticket) CLI reference | `../swain-do/references/tk-cheatsheet.md` |
 | Troubleshooting | `../swain-design/references/troubleshooting.md` |
 
 Guidelines for answering:

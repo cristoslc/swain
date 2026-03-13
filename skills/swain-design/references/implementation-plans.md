@@ -67,13 +67,13 @@ If at least one path exists for each skill, superpowers is available. If neither
    uv run python3 .claude/skills/swain-do/scripts/ingest-plan.py \
      docs/plans/<plan-file>.md <ARTIFACT-ID>
    ```
-5. This creates a bd epic with child tasks, sequential dependencies, and spec lineage tags.
+5. This creates a tk epic with child tasks, sequential dependencies, and spec lineage tags.
 
 **Routing when superpowers is NOT present:**
 
 Use the current flow — invoke swain-do directly for ad-hoc task breakdown.
 
-**If the user rejects the brainstorming design:** Stop cleanly. No plan file is produced, no bd tasks are created. The user can either retry brainstorming or fall back to the direct flow.
+**If the user rejects the brainstorming design:** Stop cleanly. No plan file is produced, no tk tasks are created. The user can either retry brainstorming or fall back to the direct flow.
 
 **Superpowers is a recommended companion, not a hard dependency.** Never install it automatically or block implementation if it's missing.
 

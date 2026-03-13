@@ -145,7 +145,7 @@ rm -rf "$tmp"
 
 ## Step 5 — Reconcile governance
 
-Invoke the **swain-doctor** skill. This validates governance rules, cleans up legacy skill directories (including any renamed in this release), repairs `.beads/.gitignore`, and untracks any runtime files that leaked into git. The skill is idempotent, so running it after every update is always safe.
+Invoke the **swain-doctor** skill. This validates governance rules, cleans up legacy skill directories (including any renamed in this release), validates `.tickets/`, and untracks any runtime files that leaked into git. The skill is idempotent, so running it after every update is always safe.
 
 ## Step 6 — Restore guidance
 

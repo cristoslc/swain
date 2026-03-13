@@ -78,7 +78,7 @@ Two-tier settings model — project defaults (checked in) and personal overrides
 
 Optional:
 
-- **bd** ([beads](https://beads.dev)) — task tracking backend, installed automatically by swain-do on first use
+- **tk** (ticket) — task tracking backend, vendored with swain
 - **uv** — Python runner for design and status scripts
 - **gh** — GitHub CLI for issue integration and releases
 - **tmux** — workspace layouts (swain-stage only)

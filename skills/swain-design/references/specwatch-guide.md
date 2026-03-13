@@ -8,7 +8,7 @@ Reference for `specwatch.sh` subcommands, log format, and watch mode.
 |---------|-------------|
 | `scan` | Run a full stale-reference scan (no watcher needed) |
 | `watch` | Start background filesystem watcher (requires `fswatch`) |
-| `bd-sync` | Check artifact/bd sync state (open bd items for implemented specs, etc.) |
+| `tk-sync` | Check artifact/tk sync state (open tk items for implemented specs, etc.) |
 | `phase-fix` | Move artifacts whose phase directory doesn't match frontmatter status |
 | `stop` | Stop a running watcher |
 | `status` | Show watcher status and log summary |

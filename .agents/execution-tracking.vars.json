@@ -1,5 +1,4 @@
 {
-  "use_dolt": false,
-  "auto_prime": true,
+  "tk_path": "skills/swain-do/bin/tk",
   "fallback_format": "jsonl"
 }

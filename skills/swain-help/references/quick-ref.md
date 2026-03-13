@@ -19,7 +19,7 @@
 
 Swain manages 11 artifact types, organized by tier.
 
-### Implementation tier (tracked via bd)
+### Implementation tier (tracked via tk)
 
 | Type | ID Pattern | Phases | When to use |
 |------|-----------|--------|-------------|
@@ -111,21 +111,20 @@ These require a tracked plan (via swain-do) before implementation begins.
 
 ### The "plan before code" rule
 
-When a SPEC, STORY, or BUG comes up for implementation, swain requires a tracked plan (via bd) before code is written. This ensures work is visible and manageable across sessions. Swain-design enforces this automatically — when you transition an artifact to its implementation phase, it triggers swain-do to create the plan.
+When a SPEC, STORY, or BUG comes up for implementation, swain requires a tracked plan (via tk) before code is written. This ensures work is visible and manageable across sessions. Swain-design enforces this automatically — when you transition an artifact to its implementation phase, it triggers swain-do to create the plan.
 
-### bd (beads)
+### tk (ticket)
 
-The external, git-backed task tracker swain uses. Installed by swain-init, operated by swain-do. Key commands:
+The vendored, git-backed task tracker swain uses. Verified by swain-init, operated by swain-do. Key commands:
 
 | Command | What it does |
 |---------|-------------|
-| `bd ready --json` | Show next task to work on (blocker-aware) |
-| `bd create "title" -t task --json` | Create a task |
-| `bd update <id> --claim --json` | Claim work |
-| `bd close <id>` | Mark complete |
-| `bd status` | Overview of all work |
-| `bd list --pretty` | Detailed task list |
-| `bd blocked` | Show blocked tasks |
+| `tk ready` | Show next task to work on (blocker-aware) |
+| `tk create "title" -t task` | Create a task |
+| `tk claim <id>` | Claim work |
+| `tk close <id>` | Mark complete |
+| `tk ready` | Overview of ready work |
+| `tk blocked` | Show blocked tasks |
 
 ### Governance block
 
@@ -141,7 +140,7 @@ CLAUDE.md contains just `@AGENTS.md`, which includes the full AGENTS.md file. Th
 <project>/
 ├── CLAUDE.md              # Contains: @AGENTS.md
 ├── AGENTS.md              # Project instructions + governance block
-├── .beads/                # bd database (git-tracked)
+├── .tickets/              # tk database (git-tracked)
 ├── .agents/               # Swain config and logs
 └── docs/
     ├── vision/            # VISION artifacts

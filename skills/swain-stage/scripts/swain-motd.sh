@@ -7,7 +7,7 @@ set -e
 # Shows an animated spinner when the agent is working.
 #
 # Reads project data from swain-status cache (status-cache.json) when
-# available, falling back to direct git/bd queries when the cache is
+# available, falling back to direct git/ticket queries when the cache is
 # absent or stale. Agent state (spinner/context) remains MOTD-owned
 # via stage-status.json for real-time responsiveness.
 
@@ -139,7 +139,7 @@ get_epic_line() {
   fi
 }
 
-get_bd_task() {
+get_task() {
   if cache_is_usable; then
     local task
     task=$(cache_get '
@@ -148,12 +148,26 @@ get_bd_task() {
       else "no active task" end
     ' "no active task")
     echo "$task"
-  elif command -v bd &>/dev/null; then
-    local task
-    task=$(bd list --status in_progress --format '#{id} {title}' 2>/dev/null | head -1)
-    echo "${task:-no active task}"
   else
-    echo "bd not available"
+    # Fall back to ticket-query directly
+    local tq_bin="" tickets_dir=""
+    local skill_bin="$REPO_ROOT/skills/swain-do/bin/ticket-query"
+    if [[ -x "$skill_bin" ]]; then
+      tq_bin="$skill_bin"
+    elif command -v ticket-query &>/dev/null; then
+      tq_bin="ticket-query"
+    fi
+    if [[ -d "$REPO_ROOT/.tickets" ]]; then
+      tickets_dir="$REPO_ROOT/.tickets"
+    fi
+
+    if [[ -n "$tq_bin" ]] && [[ -n "$tickets_dir" ]]; then
+      local task
+      task=$(TICKETS_DIR="$tickets_dir" "$tq_bin" '.status == "in_progress"' 2>/dev/null | jq -r '"\(.id) \(.title)"' 2>/dev/null | head -1)
+      echo "${task:-no active task}"
+    else
+      echo "no task tracking"
+    fi
   fi
 }
 
@@ -241,13 +255,13 @@ draw_bottom() {
 
 render() {
   local width=40
-  local branch dirty last_commit bd_task agent_raw agent_state agent_ctx touched
+  local branch dirty last_commit current_task agent_raw agent_state agent_ctx touched
   local epic_line ready_count issue_count
 
   branch=$(get_branch)
   dirty=$(get_dirty_state)
   last_commit=$(get_last_commit)
-  bd_task=$(get_bd_task)
+  current_task=$(get_task)
   epic_line=$(get_epic_line)
   ready_count=$(get_ready_count)
   issue_count=$(get_issue_count)
@@ -284,7 +298,7 @@ render() {
 
   draw_separator $width
   draw_line "epic: $epic_line" $width
-  draw_line "task: $bd_task" $width
+  draw_line "task: $current_task" $width
   draw_line "ready: $ready_count actionable" $width
   draw_line "last: $last_commit" $width
 

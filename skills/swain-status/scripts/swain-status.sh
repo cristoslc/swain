@@ -3,7 +3,7 @@ set -euo pipefail
 
 # swain-status.sh — Cross-cutting project status aggregator
 #
-# Collects data from specgraph, bd, git, GitHub, and session state.
+# Collects data from specgraph, tk (tickets), git, GitHub, and session state.
 # Writes a structured JSON cache and outputs rich terminal text.
 #
 # Usage:
@@ -210,7 +210,21 @@ collect_artifacts() {
 }
 
 collect_tasks() {
-  if ! command -v bd &>/dev/null; then
+  # Locate .tickets directory and ticket-query
+  local tickets_dir=""
+  if [[ -d "$REPO_ROOT/.tickets" ]]; then
+    tickets_dir="$REPO_ROOT/.tickets"
+  fi
+
+  local tq_bin=""
+  local skill_bin="$REPO_ROOT/skills/swain-do/bin/ticket-query"
+  if [[ -x "$skill_bin" ]]; then
+    tq_bin="$skill_bin"
+  elif command -v ticket-query &>/dev/null; then
+    tq_bin="ticket-query"
+  fi
+
+  if [[ -z "$tickets_dir" ]] || [[ -z "$tq_bin" ]]; then
     echo '{"inProgress":[],"recentlyCompleted":[],"total":0,"available":false}'
     return
   fi
@@ -218,7 +232,7 @@ collect_tasks() {
   local in_progress recent total raw
 
   # In-progress tasks
-  raw=$(bd list --status in_progress --format '{"id":"#{id}","title":"{title}"}' 2>/dev/null) || true
+  raw=$(TICKETS_DIR="$tickets_dir" "$tq_bin" '.status == "in_progress"' 2>/dev/null | jq -c '{id: .id, title: .title}' 2>/dev/null) || true
   if [[ -n "$raw" ]]; then
     in_progress=$(echo "$raw" | jq -s '.' 2>/dev/null || echo "[]")
   else
@@ -226,7 +240,7 @@ collect_tasks() {
   fi
 
   # Recently completed (last 5)
-  raw=$(bd list --status done --format '{"id":"#{id}","title":"{title}"}' 2>/dev/null | head -5) || true
+  raw=$(TICKETS_DIR="$tickets_dir" "$tq_bin" '.status == "closed"' 2>/dev/null | jq -c '{id: .id, title: .title}' 2>/dev/null | head -5) || true
   if [[ -n "$raw" ]]; then
     recent=$(echo "$raw" | jq -s '.' 2>/dev/null || echo "[]")
   else
@@ -234,7 +248,7 @@ collect_tasks() {
   fi
 
   # Total count
-  total=$(bd list --format '#{id}' 2>/dev/null | wc -l | tr -d ' ') || true
+  total=$(TICKETS_DIR="$tickets_dir" "$tq_bin" 2>/dev/null | wc -l | tr -d ' ') || true
   total="${total:-0}"
 
   jq -n \
@@ -634,7 +648,7 @@ render_full() {
     echo ""
   fi
 
-  # --- Tasks (bd) ---
+  # --- Tasks (tk) ---
   local tasks_available
   tasks_available=$(echo "$data" | jq -r '.tasks.available')
 

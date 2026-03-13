@@ -1,12 +1,12 @@
 ---
 name: swain-init
-description: "One-time project onboarding for swain. Migrates existing CLAUDE.md content to AGENTS.md (with the @AGENTS.md include pattern), installs and initializes bd (beads) for task tracking, cleans bd's auto-injected AGENTS.md content, and offers to add swain governance rules. Run once when adopting swain in a new project — use swain-doctor for ongoing per-session health checks."
+description: "One-time project onboarding for swain. Migrates existing CLAUDE.md content to AGENTS.md (with the @AGENTS.md include pattern), verifies vendored tk (ticket) for task tracking, and offers to add swain governance rules. Run once when adopting swain in a new project — use swain-doctor for ongoing per-session health checks."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: One-time swain project onboarding
-  version: 1.1.0
+  version: 2.0.0
   author: cristos
   source: swain
 ---
@@ -74,9 +74,9 @@ Tell the user:
 
 If merge: append CLAUDE.md content (minus any `<!-- swain governance -->` block) to AGENTS.md, replace CLAUDE.md with `@AGENTS.md`.
 
-## Phase 2: Install dependencies and initialize bd (beads)
+## Phase 2: Verify dependencies
 
-Goal: ensure uv and bd are available, and the project has an initialized `.beads/` directory.
+Goal: ensure uv is available and the vendored tk script is accessible.
 
 ### Step 2.1 — Check uv availability
 
@@ -97,53 +97,49 @@ If installation fails, tell the user:
 
 Then skip the rest of Phase 2 (don't block init on uv, but warn that scripts will not function without it).
 
-### Step 2.2 — Check bd availability
+### Step 2.2 — Verify vendored tk
+
+tk (ticket) is vendored in the swain skill tree — no external installation is needed.
 
 ```bash
-command -v bd
+TK_PATH="$(find . .claude .agents -path '*/swain-do/bin/tk' -print -quit 2>/dev/null)"
+test -x "$TK_PATH" && echo "tk found at $TK_PATH" || echo "tk not found"
 ```
 
-If bd is found, skip to Step 2.4.
-
-### Step 2.3 — Install bd
-
-Detect platform and install:
-
-| Platform | Command |
-|----------|---------|
-| macOS | `brew install beads` |
-| Linux | `cargo install beads` |
-
-If installation fails, tell the user:
-> bd (beads) installation failed. You can install it manually later — swain-do will retry on first use and fall back to a text ledger if needed.
-
-Then skip the rest of Phase 2 (don't block init on bd).
-
-### Step 2.4 — Initialize bd
-
-Check for existing initialization:
+If found, verify it runs:
 
 ```bash
-test -d .beads && echo "exists" || echo "missing"
+"$TK_PATH" help >/dev/null 2>&1 && echo "tk works" || echo "tk broken"
 ```
 
-If `.beads/` exists, skip to Step 2.5.
+If tk is not found or broken, tell the user:
+> The vendored tk script was not found at `skills/swain-do/bin/tk`. This usually means the swain-do skill was not fully installed. Try running `/swain update` to reinstall skills.
 
-If missing:
+### Step 2.3 — Migrate from beads (if applicable)
 
-1. **Snapshot AGENTS.md** — save its current content in memory (bd init may modify it).
-2. Run `bd init`.
-3. **Restore AGENTS.md** — overwrite AGENTS.md with the pre-init snapshot. This removes whatever bd injected. swain-do manages bd integration through its own skill instructions, not through AGENTS.md content from `bd init`.
-4. Tell the user:
-   > Initialized bd in `.beads/`. Cleaned bd's auto-generated AGENTS.md content — swain-do handles bd integration through its skill instructions instead.
-
-### Step 2.5 — Validate
+Check if this project has existing beads data:
 
 ```bash
-bd doctor --json
+test -d .beads && echo "beads found" || echo "no beads"
 ```
 
-If errors, try `bd doctor --fix`. Report results.
+If `.beads/` exists:
+
+1. Check for backup data: `ls .beads/backup/issues.jsonl 2>/dev/null`
+2. If backup exists, offer migration:
+   > Found existing `.beads/` data. Migrate tasks to tk?
+   > This will convert `.beads/backup/issues.jsonl` to `.tickets/` markdown files.
+3. If user agrees, run migration:
+   ```bash
+   TK_BIN="$(cd "$(dirname "$TK_PATH")" && pwd)"
+   export PATH="$TK_BIN:$PATH"
+   cp .beads/backup/issues.jsonl .beads/issues.jsonl 2>/dev/null  # migrate-beads expects this location
+   ticket-migrate-beads
+   ```
+4. Verify: `ls .tickets/*.md 2>/dev/null | wc -l`
+5. Tell the user the results and that `.beads/` can be removed after verification.
+
+If `.beads/` does not exist, skip this step. tk creates `.tickets/` on first `tk create`.
 
 ## Phase 3: Swain governance
 
@@ -163,7 +159,7 @@ Ask the user:
 
 > Ready to add swain governance rules to AGENTS.md. These rules:
 > - Route artifact requests (specs, stories, ADRs, etc.) to swain-design
-> - Route task tracking to swain-do (using bd)
+> - Route task tracking to swain-do (using tk)
 > - Enforce the pre-implementation protocol (plan before code)
 > - Prefer swain skills over built-in alternatives
 >
@@ -196,7 +192,7 @@ This directory is used by swain-do for configuration and by swain-design scripts
 
 ### Step 4.2 — Run swain-doctor
 
-Invoke the **swain-doctor** skill. This validates `.beads/.gitignore` against the canonical reference (patching missing entries), cleans up any already-tracked runtime files via `git rm --cached`, removes legacy skill directories, and ensures governance is correctly installed. Running the doctor here catches issues from both fresh `bd init` runs and pre-existing `.beads/` directories.
+Invoke the **swain-doctor** skill. This validates `.tickets/` health, checks stale locks, removes legacy skill directories, and ensures governance is correctly installed.
 
 ### Step 4.3 — Onboarding
 
@@ -209,7 +205,8 @@ Report what was done:
 > **swain init complete.**
 >
 > - CLAUDE.md → `@AGENTS.md` include pattern: [done/skipped/already set up]
-> - bd (beads) installed and initialized: [done/skipped/already set up/failed]
+> - tk (ticket) verified: [done/not found]
+> - Beads migration: [done/skipped/no beads found]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
 
 ## Re-running init

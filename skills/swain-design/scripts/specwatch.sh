@@ -35,7 +35,7 @@ Usage: specwatch.sh <command> [args]
 Commands:
   watch              Start background filesystem watcher (default)
   scan               Run a full stale-reference scan (no watcher)
-  bd-sync            Check artifact/bd sync state (open bd items for implemented specs, etc.)
+  tk-sync            Check artifact/tk sync state (open tk items for implemented specs, etc.)
   phase-fix          Move artifacts whose phase directory doesn't match frontmatter status
   stop               Stop a running watcher
   status             Show watcher status (running/stopped, log summary)
@@ -463,20 +463,21 @@ PYEOF
   return $found_stale
 }
 
-# --- BD sync checker ---
-# Cross-references artifact phase/status with bd item state.
-# Detects: open bd items for Implemented/Abandoned artifacts,
-#          all-closed bd items for still-active artifacts.
-# Requires: bd CLI available and .beads/ initialized.
+# --- TK sync checker ---
+# Cross-references artifact phase/status with tk item state.
+# Detects: open tk items for Implemented/Abandoned artifacts,
+#          all-closed tk items for still-active artifacts.
+# Requires: vendored ticket-query plugin and .tickets/ initialized.
 
-scan_bd_sync() {
-  # Check if bd is available and initialized
-  if ! command -v bd >/dev/null 2>&1; then
-    echo "specwatch bd-sync: bd not installed, skipping."
+scan_tk_sync() {
+  # Locate vendored ticket-query plugin
+  local TICKET_QUERY="$REPO_ROOT/skills/swain-do/bin/ticket-query"
+  if [ ! -x "$TICKET_QUERY" ]; then
+    echo "specwatch tk-sync: ticket-query not found at $TICKET_QUERY, skipping."
     return 0
   fi
-  if [ ! -d "$REPO_ROOT/.beads" ]; then
-    echo "specwatch bd-sync: no .beads/ directory, skipping."
+  if [ ! -d "$REPO_ROOT/.tickets" ]; then
+    echo "specwatch tk-sync: no .tickets/ directory, skipping."
     return 0
   fi
 
@@ -487,27 +488,27 @@ scan_bd_sync() {
     log_header
   fi
 
-  # Get all bd items as JSON (epics and tasks with external-refs and labels)
-  local bd_items_tmp
-  bd_items_tmp=$(mktemp /tmp/specwatch-bd-XXXXXX)
-  bd list --all --json > "$bd_items_tmp" 2>/dev/null || {
-    echo "specwatch bd-sync: bd list failed, skipping."
-    rm -f "$bd_items_tmp"
+  # Get all tk items as JSON (via vendored ticket-query plugin)
+  local tk_items_tmp
+  tk_items_tmp=$(mktemp /tmp/specwatch-tk-XXXXXX)
+  "$TICKET_QUERY" > "$tk_items_tmp" 2>/dev/null || {
+    echo "specwatch tk-sync: ticket-query failed, skipping."
+    rm -f "$tk_items_tmp"
     return 0
   }
 
-  # Build artifact index and cross-reference with bd items
-  uv run python3 - "$DOCS_DIR" "$bd_items_tmp" >> "$LOG_FILE" <<'PYEOF'
+  # Build artifact index and cross-reference with tk items
+  uv run python3 - "$DOCS_DIR" "$tk_items_tmp" >> "$LOG_FILE" <<'PYEOF'
 import json, os, re, sys
 
 docs_dir = sys.argv[1]
-bd_items_file = sys.argv[2]
+tk_items_file = sys.argv[2]
 
 # Terminal artifact statuses (implementation is done or artifact is dead)
 IMPLEMENTED_STATUSES = {'Implemented', 'Complete', 'Done'}
 ABANDONED_STATUSES = {'Abandoned', 'Rejected'}
 TERMINAL_STATUSES = IMPLEMENTED_STATUSES | ABANDONED_STATUSES
-# Active statuses where open bd items are expected
+# Active statuses where open tk items are expected
 ACTIVE_STATUSES = {'Draft', 'Proposed', 'Active', 'Approved', 'Validated',
                    'Adopted', 'Implementing', 'Review', 'Testing'}
 
@@ -545,100 +546,100 @@ for root, dirs, files in os.walk(docs_dir):
             rel = os.path.relpath(fp, os.path.dirname(docs_dir))
             artifact_index[aid] = (rel, astatus)
 
-# Load bd items
+# Load tk items
 try:
-    with open(bd_items_file) as f:
-        bd_items = json.load(f)
+    with open(tk_items_file) as f:
+        tk_items = json.load(f)
 except (json.JSONDecodeError, OSError):
-    bd_items = []
+    tk_items = []
 
-if not isinstance(bd_items, list):
-    bd_items = []
+if not isinstance(tk_items, list):
+    tk_items = []
 
-# Group bd items by artifact ID (via external_ref and spec: labels)
+# Group tk items by artifact ID (via external-ref and spec: tags)
 # artifact_id -> {'open': [...], 'closed': [...]}
-artifact_bd_map = {}
+artifact_tk_map = {}
 
-for item in bd_items:
+for item in tk_items:
     item_id = item.get('id', '?')
     item_status = item.get('status', '')
     item_title = item.get('title', '')
     is_open = item_status in ('open', 'in_progress', 'blocked')
 
-    # Check external_ref
-    ext_ref = item.get('external_ref', '') or ''
+    # Check external-ref (tk uses hyphenated field name)
+    ext_ref = item.get('external-ref', '') or item.get('external_ref', '') or ''
     if ext_ref:
-        artifact_bd_map.setdefault(ext_ref, {'open': [], 'closed': []})
+        artifact_tk_map.setdefault(ext_ref, {'open': [], 'closed': []})
         bucket = 'open' if is_open else 'closed'
-        artifact_bd_map[ext_ref][bucket].append({
+        artifact_tk_map[ext_ref][bucket].append({
             'id': item_id, 'status': item_status, 'title': item_title
         })
 
-    # Check spec: labels
-    labels = item.get('labels', []) or []
-    for label in labels:
-        if isinstance(label, str) and label.startswith('spec:'):
-            spec_id = label[5:]  # strip "spec:" prefix
-            artifact_bd_map.setdefault(spec_id, {'open': [], 'closed': []})
+    # Check spec: tags (tk uses 'tags' instead of 'labels')
+    tags = item.get('tags', []) or item.get('labels', []) or []
+    for tag in tags:
+        if isinstance(tag, str) and tag.startswith('spec:'):
+            spec_id = tag[5:]  # strip "spec:" prefix
+            artifact_tk_map.setdefault(spec_id, {'open': [], 'closed': []})
             bucket = 'open' if is_open else 'closed'
-            artifact_bd_map[spec_id][bucket].append({
+            artifact_tk_map[spec_id][bucket].append({
                 'id': item_id, 'status': item_status, 'title': item_title
             })
 
 # Detect mismatches
 mismatches = []
 
-for artifact_id, bd_state in artifact_bd_map.items():
+for artifact_id, tk_state in artifact_tk_map.items():
     if artifact_id not in artifact_index:
-        # bd references an artifact that doesn't exist in docs/
-        if bd_state['open']:
-            open_ids = ', '.join(i['id'] for i in bd_state['open'])
+        # tk references an artifact that doesn't exist in docs/
+        if tk_state['open']:
+            open_ids = ', '.join(i['id'] for i in tk_state['open'])
             mismatches.append({
-                'type': 'BD_ORPHAN',
+                'type': 'TK_ORPHAN',
                 'artifact': artifact_id,
-                'issue': f"bd has open items ({open_ids}) referencing non-existent artifact",
-                'bd_items': bd_state['open']
+                'issue': f"tk has open items ({open_ids}) referencing non-existent artifact",
+                'tk_items': tk_state['open']
             })
         continue
 
     rel_path, art_status = artifact_index[artifact_id]
 
-    # Case 1: Artifact is Implemented/Complete but bd still has open items
-    if art_status in IMPLEMENTED_STATUSES and bd_state['open']:
-        open_ids = ', '.join(i['id'] for i in bd_state['open'])
+    # Case 1: Artifact is Implemented/Complete but tk still has open items
+    if art_status in IMPLEMENTED_STATUSES and tk_state['open']:
+        open_ids = ', '.join(i['id'] for i in tk_state['open'])
         mismatches.append({
-            'type': 'BD_SYNC',
+            'type': 'TK_SYNC',
             'artifact': artifact_id,
             'artifact_path': rel_path,
             'artifact_status': art_status,
-            'issue': f"artifact is {art_status} but bd has open items: {open_ids}",
-            'bd_items': bd_state['open']
+            'issue': f"artifact is {art_status} but tk has open items: {open_ids}",
+            'tk_items': tk_state['open']
         })
 
-    # Case 2: Artifact is Abandoned/Rejected but bd still has open items
-    elif art_status in ABANDONED_STATUSES and bd_state['open']:
-        open_ids = ', '.join(i['id'] for i in bd_state['open'])
+    # Case 2: Artifact is Abandoned/Rejected but tk still has open items
+    elif art_status in ABANDONED_STATUSES and tk_state['open']:
+        open_ids = ', '.join(i['id'] for i in tk_state['open'])
         mismatches.append({
-            'type': 'BD_SYNC',
+            'type': 'TK_SYNC',
             'artifact': artifact_id,
             'artifact_path': rel_path,
             'artifact_status': art_status,
-            'issue': f"artifact is {art_status} but bd has open items: {open_ids}",
-            'bd_items': bd_state['open']
+            'issue': f"artifact is {art_status} but tk has open items: {open_ids}",
+            'tk_items': tk_state['open']
         })
 
-    # Case 3: All bd items closed but artifact is still active (not terminal)
+    # Case 3: All tk items closed but artifact is still active (not terminal)
     elif (art_status in ACTIVE_STATUSES
-          and bd_state['closed'] and not bd_state['open']
-          and len(bd_state['closed']) > 0):
-        closed_count = len(bd_state['closed'])
+          and tk_state['closed'] and not tk_state['open']
+          and len(tk_state['closed']) > 0):
+        closed_count = len(tk_state['closed'])
         mismatches.append({
-            'type': 'BD_SYNC',
+            'type': 'TK_SYNC',
             'artifact': artifact_id,
             'artifact_path': rel_path,
             'artifact_status': art_status,
-            'issue': f"all {closed_count} bd item(s) are closed but artifact is still {art_status}",
-            'bd_items': bd_state['closed']
+            'issue': f"all {closed_count} tk item(s) are closed but artifact is still {art_status}",
+            'tk_items': tk_state['closed']
         })
 
 # Output structured log entries
@@ -648,29 +649,29 @@ for m in mismatches:
     issue = m['issue']
     art_path = m.get('artifact_path', 'N/A')
     art_status = m.get('artifact_status', 'N/A')
-    items = m.get('bd_items', [])
+    items = m.get('tk_items', [])
 
     print(f"{mtype} {art_path} ({artifact})")
     print(f"  artifact-status: {art_status}")
     print(f"  issue: {issue}")
     for item in items[:5]:  # cap at 5 items per entry
-        print(f"  bd-item: {item['id']} [{item['status']}] {item['title']}")
+        print(f"  tk-item: {item['id']} [{item['status']}] {item['title']}")
     print()
 PYEOF
 
-  rm -f "$bd_items_tmp"
+  rm -f "$tk_items_tmp"
 
   # Count mismatches in log
   local sync_count
-  sync_count=$(grep -c '^BD_SYNC\|^BD_ORPHAN' "$LOG_FILE" 2>/dev/null)
+  sync_count=$(grep -c '^TK_SYNC\|^TK_ORPHAN' "$LOG_FILE" 2>/dev/null)
   sync_count=${sync_count:-0}
 
   if [ "$sync_count" -gt 0 ]; then
-    echo "specwatch bd-sync: found ${sync_count} artifact/bd mismatch(es). See ${LOG_FILE}"
+    echo "specwatch tk-sync: found ${sync_count} artifact/tk mismatch(es). See ${LOG_FILE}"
     echo "  Invoke swain-do to reconcile (close stale items or transition artifacts)."
     return 1
   else
-    echo "specwatch bd-sync: artifacts and bd items are in sync."
+    echo "specwatch tk-sync: artifacts and tk items are in sync."
     return 0
   fi
 }
@@ -1032,14 +1033,14 @@ case "$cmd" in
   scan)
     scan_stale_refs "full" || scan_result=$?
     scan_result="${scan_result:-0}"
-    scan_bd_sync || bd_result=$?
-    bd_result="${bd_result:-0}"
+    scan_tk_sync || tk_result=$?
+    tk_result="${tk_result:-0}"
     # Exit non-zero if either found issues
-    exit $(( scan_result > 0 || bd_result > 0 ? 1 : 0 ))
+    exit $(( scan_result > 0 || tk_result > 0 ? 1 : 0 ))
     ;;
-  bd-sync)
+  tk-sync)
     log_header
-    scan_bd_sync
+    scan_tk_sync
     ;;
   phase-fix)
     phase_fix

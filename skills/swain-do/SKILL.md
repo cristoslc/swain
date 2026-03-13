@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Bootstrap and operate external task tracking
-  version: 2.4.0
+  version: 3.0.0
   author: cristos
   source: swain
 ---
@@ -14,7 +14,7 @@ metadata:
 
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
-**Before first use:** Read [references/bd-cheatsheet.md](references/bd-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
+**Before first use:** Read [references/tk-cheatsheet.md](references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
 
 ## Artifact handoff protocol
 
@@ -31,19 +31,19 @@ If invoked directly on a coordination-tier artifact (EPIC, VISION, JOURNEY) with
 
 ## Term mapping
 
-Other skills use these abstract terms. This skill maps them to the current backend (`bd`):
+Other skills use these abstract terms. This skill maps them to the current backend (`tk`):
 
-| Abstract term | Meaning | bd command |
+| Abstract term | Meaning | tk command |
 |---------------|---------|------------|
-| **implementation plan** | Top-level container grouping all tasks for a spec artifact | `bd create "Title" -t epic --external-ref <SPEC-ID> --json` |
-| **task** | An individual unit of work within a plan | `bd create "Title" -t task --parent <epic-id> --json` |
+| **implementation plan** | Top-level container grouping all tasks for a spec artifact | `tk create "Title" -t epic --external-ref <SPEC-ID>` |
+| **task** | An individual unit of work within a plan | `tk create "Title" -t task --parent <epic-id>` |
 | **origin ref** | Immutable link from a plan to the spec that seeded it | `--external-ref <ID>` flag on epic creation |
-| **spec tag** | Mutable label linking a task to every spec it affects | `--labels spec:<ID>` on create, `--add-label spec:<ID>` on update |
-| **dependency** | Ordering constraint between tasks | `bd dep add <child> <parent>` (child depends on parent) |
-| **ready work** | Unblocked tasks available for pickup | `bd ready --json` (NOT `bd list --ready`) |
-| **claim** | Atomically take ownership of a task | `bd update <id> --claim --json` |
-| **complete** | Mark a task as done | `bd close <id> --reason "..."` |
-| **abandon** | Close a task that will not be completed | `bd close <id> --reason "Abandoned: <why>" --json` |
+| **spec tag** | Mutable tag linking a task to every spec it affects | `--tags spec:<ID>` on create |
+| **dependency** | Ordering constraint between tasks | `tk dep <child> <parent>` (child depends on parent) |
+| **ready work** | Unblocked tasks available for pickup | `tk ready` |
+| **claim** | Atomically take ownership of a task | `tk claim <id>` |
+| **complete** | Mark a task as done | `tk add-note <id> "reason"` then `tk close <id>` |
+| **abandon** | Close a task that will not be completed | `tk add-note <id> "Abandoned: <why>"` then `tk close <id>` |
 | **escalate** | Abandon + invoke swain-design to update upstream artifacts | Abandon, then invoke swain-design skill |
 
 ## Configuration
@@ -56,16 +56,14 @@ If `.agents/execution-tracking.vars.json` does not exist, create it by asking th
 
 | Key | Type | Default | Question |
 |-----|------|---------|----------|
-| `use_dolt` | boolean | `false` | "Should bd use Dolt for remote sync? (Requires a running Dolt server)" |
-| `auto_prime` | boolean | `true` | "Run `bd prime` automatically on bootstrap to load workflow context?" |
-| `fallback_format` | `"jsonl"` \| `"markdown"` | `"jsonl"` | "If bd is unavailable, use JSONL or Markdown for the fallback ledger?" |
+| `tk_path` | string | `"skills/swain-do/bin/tk"` | "Path to the vendored tk script (relative to project root)" |
+| `fallback_format` | `"jsonl"` \| `"markdown"` | `"jsonl"` | "If tk is unavailable, use JSONL or Markdown for the fallback ledger?" |
 
 Write the file as pretty-printed JSON:
 
 ```json
 {
-  "use_dolt": false,
-  "auto_prime": true,
+  "tk_path": "skills/swain-do/bin/tk",
   "fallback_format": "jsonl"
 }
 ```
@@ -74,41 +72,37 @@ On subsequent runs, read the file and apply its values — don't re-ask.
 
 ### Applying config
 
-- **`use_dolt`**: When `false`, skip all `bd dolt *` commands (start, stop, push, pull). When `true`, run `bd dolt start` during bootstrap and `bd dolt push` at session end.
-- **`auto_prime`**: When `true`, run `bd prime` at bootstrap step 7. When `false`, skip it.
+- **`tk_path`**: Resolve this path relative to the project root to find the vendored tk script. Add its directory to PATH for plugin resolution.
 - **`fallback_format`**: Controls the format used by the [Fallback](#fallback) section.
 
 ## Bootstrap workflow
 
 1. **Load config:** Read `.agents/execution-tracking.vars.json`. If missing, run [first-run setup](#first-run-setup) above.
-2. **Check availability:** `command -v bd`
-3. **If missing, install:**
-   - macOS: `brew install beads`
-   - Linux: `cargo install beads`
-   - If install fails, go to [Fallback](#fallback).
-4. **Check for existing database:** look for `.beads/` directory.
-5. **If no `.beads/`, initialize:** `bd init`.
-6. **Validate:** `bd doctor --json`. If errors, try `bd doctor --fix`.
-7. **If `use_dolt` is `true`:** start the Dolt server with `bd dolt start`.
-8. **If `git status` shows modified `.beads/dolt-*.pid` or `.beads/dolt-server.activity`:** these are ephemeral runtime files that were tracked by mistake. See `.beads/README.md` § "Remediation: Untrack Ephemeral Runtime Files" for the fix.
-9. **If `auto_prime` is `true`:** `bd prime` for dynamic workflow context.
+2. **Resolve tk:** The vendored tk script lives at the configured `tk_path` (default: `skills/swain-do/bin/tk`). Verify it exists and is executable.
+3. **Set up PATH:** Export `PATH` with tk's directory prepended so plugins (`ticket-query`, `ticket-migrate-beads`) are found:
+   ```bash
+   TK_BIN="$(cd "$(dirname "$tk_path")" && pwd)"
+   export PATH="$TK_BIN:$PATH"
+   ```
+4. **Check for existing data:** look for `.tickets/` directory.
+5. **If no `.tickets/`, first use:** tk creates `.tickets/` automatically on first `tk create`.
+6. **Verify:** `tk ready` should run without error.
 
 ## Statuses
 
-bd accepts exactly four status values: `open`, `in_progress`, `blocked`, `closed`. It rejects aliases like `todo` or `done`. See the cheatsheet for the full status table and valid values.
+tk accepts exactly three status values: `open`, `in_progress`, `closed`. Use the `status` command to set arbitrary statuses, but the dependency graph (`ready`, `blocked`) only evaluates these three.
 
-To express abandonment, use `bd close <id> --reason "Abandoned: ..."` — see [Escalation](#escalation).
+To express abandonment, use `tk add-note <id> "Abandoned: ..."` then `tk close <id>` — see [Escalation](#escalation).
 
 ## Operating rules
 
-1. **Always use `--json`** on create/update/close — bd's human-readable output varies between versions, but JSON is stable and machine-parseable. Capture issue IDs from the JSON response so subsequent commands can reference them reliably.
-2. **Always include `--description`** when creating issues — a title alone loses the "why" behind a task. Future agents (or your future self) picking up this work need enough context to act without re-researching.
-3. Create/update tasks at the start of work, after each major milestone, and before final response — this keeps the external tracker useful as a live dashboard rather than a post-hoc record.
-4. Keep task titles short and action-oriented — they appear in `bd ready` output, tree views, and notifications where space is limited.
-5. Store handoff notes in task notes (`--notes` or `--append-notes`) rather than ephemeral chat context — chat history is lost between sessions, but task notes persist and are visible to any agent or observer.
-6. Include references to related artifact IDs in labels (e.g., `spec:SPEC-003`) — this makes it possible to query all work touching a given spec with `bd list -l spec:SPEC-003`.
-7. **Never use `bd edit`** — it opens `$EDITOR` (vim/nano) which blocks agents. Use `bd update` with inline flags instead.
-8. **Prefix abandonment reasons with `Abandoned:`** when closing incomplete tasks — this convention makes abandoned work queryable (`bd search "Abandoned:"`) so nothing silently disappears.
+1. **Always include `--description`** (or `-d`) when creating issues — a title alone loses the "why" behind a task. Future agents (or your future self) picking up this work need enough context to act without re-researching.
+2. Create/update tasks at the start of work, after each major milestone, and before final response — this keeps the tracker useful as a live dashboard rather than a post-hoc record.
+3. Keep task titles short and action-oriented — they appear in `tk ready` output, tree views, and notifications where space is limited.
+4. Store handoff notes using `tk add-note <id> "context"` rather than ephemeral chat context — chat history is lost between sessions, but task notes persist and are visible to any agent or observer.
+5. Include references to related artifact IDs in tags (e.g., `spec:SPEC-003`) — this enables querying all work touching a given spec.
+6. **Prefix abandonment reasons with `Abandoned:`** when closing incomplete tasks — this convention makes abandoned work findable so nothing silently disappears.
+7. **Use `ticket-query` for structured output** — when you need JSON for programmatic use, pipe through `ticket-query` (available in the vendored `bin/` directory) instead of parsing human-readable output. Example: `ticket-query '.status == "open"'`
 
 ## TDD enforcement
 
@@ -135,7 +129,7 @@ When creating implementation plans, every task that involves writing code must f
 
 ## Completion verification
 
-No task may be claimed as complete without fresh verification evidence. This applies universally — not just to SPEC acceptance criteria, but to any bd task.
+No task may be claimed as complete without fresh verification evidence. This applies universally — not just to SPEC acceptance criteria, but to any tk task.
 
 ### What counts as evidence
 
@@ -148,14 +142,15 @@ No task may be claimed as complete without fresh verification evidence. This app
 
 ### Enforcement
 
-When closing a task with `bd close`, the `--reason` must include what was verified:
+When closing a task, add a note with evidence before closing:
 
 ```bash
 # Good — includes evidence
-bd close <id> --reason "JWT middleware added; test_jwt_validation passes" --json
+tk add-note <id> "JWT middleware added; test_jwt_validation passes"
+tk close <id>
 
 # Bad — no evidence
-bd close <id> --reason "Done" --json
+tk close <id>
 ```
 
 If a task is closed without evidence, it should be reopened and completed properly. The verification discipline prevents "completion drift" where tasks are marked done based on intent rather than observed behavior.
@@ -166,20 +161,17 @@ When creating tasks that implement a spec artifact:
 
 ```bash
 # Create epic with immutable origin ref
-bd create "Implement auth" -t epic --external-ref SPEC-003 --json
+tk create "Implement auth" -t epic --external-ref SPEC-003
 
-# Create child tasks with spec label
-bd create "Add JWT middleware" -t task \
-  --parent <epic-id> --labels spec:SPEC-003 --json
+# Create child tasks with spec tag
+tk create "Add JWT middleware" -t task \
+  --parent <epic-id> --tags spec:SPEC-003
 
-# Add cross-spec impact later
-bd update <task-id> --add-label spec:SPEC-007
-
-# Query all work for a spec
-bd list -l spec:SPEC-003
+# Query all work for a spec (via ticket-query)
+ticket-query '.tags and (.tags | contains("spec:SPEC-003"))'
 
 # Bidirectional link between tasks in different plans
-bd dep relate <task-a> <task-b>
+tk link <task-a> <task-b>
 ```
 
 ## Escalation
@@ -199,23 +191,25 @@ When work cannot proceed as designed, use this protocol to abandon tasks and flo
 
 ```bash
 # Single task
-bd close <id> --reason "Abandoned: <why>" --json
+tk add-note <id> "Abandoned: <why>"
+tk close <id>
 
-# Batch — close all open tasks under an epic
-for id in $(bd list --parent <epic-id> --status=open --json | jq -r '.[].id'); do
-  bd close "$id" --reason "Abandoned: <why>" --json
+# Batch — close all open tasks under an epic (use ticket-query to find them)
+for id in $(ticket-query '.parent == "<epic-id>" and .status == "open"' | jq -r '.id'); do
+  tk add-note "$id" "Abandoned: <why>"
+  tk close "$id"
 done
 
 # Preserve in-progress notes before closing
-bd update <id> --append-notes "Abandoning: <context about partial work>"
-bd close <id> --reason "Abandoned: <why>" --json
+tk add-note <id> "Abandoning: <context about partial work>"
+tk close <id>
 ```
 
 ### Escalation workflow
 
 1. **Record the blocker.** Append notes to the plan epic explaining why work cannot proceed:
    ```bash
-   bd update <epic-id> --append-notes "Blocked: <description of blocker>"
+   tk add-note <epic-id> "Blocked: <description of blocker>"
    ```
 
 2. **Invoke swain-design.** Choose the appropriate scope:
@@ -225,23 +219,23 @@ bd close <id> --reason "Abandoned: <why>" --json
 
 3. **Seed replacement plan** from the updated spec. Create a new implementation plan linked to the same (or new) SPEC via origin ref:
    ```bash
-   bd create "Implement <updated approach>" -t epic --external-ref <SPEC-ID> --json
+   tk create "Implement <updated approach>" -t epic --external-ref <SPEC-ID>
    ```
 
 4. **Link lineage.** Preserve traceability between abandoned and replacement work:
-   - Use the same `spec:<SPEC-ID>` labels on new tasks.
-   - Reference abandoned task IDs in the new epic's description or notes:
+   - Use the same `spec:<SPEC-ID>` tags on new tasks.
+   - Reference abandoned task IDs in the new epic's notes:
      ```bash
-     bd update <new-epic-id> --append-notes "Replaces abandoned tasks: <old-id-1>, <old-id-2>"
+     tk add-note <new-epic-id> "Replaces abandoned tasks: <old-id-1>, <old-id-2>"
      ```
 
 ### Cross-spec escalation
 
-When abandoned tasks carry multiple `spec:` labels, each referenced spec may need upstream changes. Check every spec label on the abandoned tasks and invoke swain-design for each affected spec before re-planning.
+When abandoned tasks carry multiple `spec:` tags, each referenced spec may need upstream changes. Check every spec tag on the abandoned tasks and invoke swain-design for each affected spec before re-planning.
 
 ```bash
-# List spec labels on an abandoned task
-bd show <id> --json | jq -r '.labels[]' | grep '^spec:'
+# List spec tags on a task
+tk show <id>  # tags are visible in the YAML frontmatter
 ```
 
 ## "What's next?" flow
@@ -249,48 +243,48 @@ bd show <id> --json | jq -r '.labels[]' | grep '^spec:'
 When asked what to work on next, show ready work from the execution backend:
 
 ```bash
-# Check for bd availability and initialization
-command -v bd && [ -d .beads ]
+# Check for tk availability and initialization
+[ -d .tickets ]
 
 # Show unblocked tasks (blocker-aware)
-bd ready --json
+tk ready
 
 # If there are in-progress tasks, show those too
-bd list --status=in_progress --json
+ticket-query '.status == "in_progress"'
 ```
 
-If bd is initialized and has tasks, present the results. If bd is not initialized or has no tasks, report that and defer to the swain-design skill's `specgraph.sh next` for artifact-level guidance.
+If `.tickets/` exists and has tasks, present the results. If `.tickets/` doesn't exist or has no tasks, report that and defer to the swain-design skill's `specgraph.sh next` for artifact-level guidance.
 
 When invoked from the swain-design skill's combined "what's next?" flow, this skill provides the **task layer** — concrete claimable work items — complementing the spec layer's artifact-level readiness view.
 
-## Artifact/bd reconciliation
+## Artifact/tk reconciliation
 
-When specwatch detects mismatches between artifact status and bd item state (via `specwatch.sh bd-sync` or `specwatch.sh scan`), this skill is responsible for cleanup. The specwatch log (`.agents/specwatch.log`) contains `BD_SYNC` and `BD_ORPHAN` entries identifying the mismatches.
+When specwatch detects mismatches between artifact status and tk item state (via `specwatch.sh tk-sync` or `specwatch.sh scan`), this skill is responsible for cleanup. The specwatch log (`.agents/specwatch.log`) contains `TK_SYNC` and `TK_ORPHAN` entries identifying the mismatches.
 
 ### Mismatch types and resolution
 
 | Log entry | Meaning | Resolution |
 |-----------|---------|------------|
-| `BD_SYNC` artifact Implemented, bd open | Spec is done but tasks linger | Close open bd items: `bd close <id> --reason "Reconciled: artifact already Implemented" --json` |
-| `BD_SYNC` artifact Abandoned, bd open | Spec was killed but tasks linger | Abandon open bd items: `bd close <id> --reason "Abandoned: parent artifact Abandoned" --json` |
-| `BD_SYNC` all bd closed, artifact active | All work done but spec not transitioned | Invoke swain-design to transition the artifact forward (e.g., Approved → Implemented) |
-| `BD_ORPHAN` bd refs non-existent artifact | bd items reference an artifact ID not found in docs/ | Investigate: artifact may have been renamed/deleted. Close or re-tag the bd items |
+| `TK_SYNC` artifact Implemented, tk open | Spec is done but tasks linger | Close open tk items: `tk add-note <id> "Reconciled: artifact already Implemented"` then `tk close <id>` |
+| `TK_SYNC` artifact Abandoned, tk open | Spec was killed but tasks linger | Abandon open tk items: `tk add-note <id> "Abandoned: parent artifact Abandoned"` then `tk close <id>` |
+| `TK_SYNC` all tk closed, artifact active | All work done but spec not transitioned | Invoke swain-design to transition the artifact forward (e.g., Approved → Implemented) |
+| `TK_ORPHAN` tk refs non-existent artifact | tk items reference an artifact ID not found in docs/ | Investigate: artifact may have been renamed/deleted. Close or re-tag the tk items |
 
 ### Reconciliation workflow
 
-1. **Read the log:** `grep '^BD_SYNC\|^BD_ORPHAN' .agents/specwatch.log`
+1. **Read the log:** `grep '^TK_SYNC\|^TK_ORPHAN' .agents/specwatch.log`
 2. **For each mismatch**, apply the resolution from the table above.
-3. **Re-run sync check:** `specwatch.sh bd-sync` to confirm all mismatches resolved.
+3. **Re-run sync check:** `specwatch.sh tk-sync` to confirm all mismatches resolved.
 
 ### Automated invocation
 
-Specwatch runs `bd-sync` as part of `specwatch.sh scan` and during watch-mode event processing (when bd is available). When mismatches are found, the output directs the user to invoke swain-do for reconciliation.
+Specwatch runs `tk-sync` as part of `specwatch.sh scan` and during watch-mode event processing (when tk is available). When mismatches are found, the output directs the user to invoke swain-do for reconciliation.
 
 ## Observer pattern expectations
 
-1. Maintain compact current-status view: `bd status` and `bd list --pretty`.
-2. Ensure blockers are explicit: `bd blocked` shows issues with unsatisfied deps.
-3. Use consistent labels so supervisors can filter by stream, owner, or phase.
+1. Maintain compact current-status view: `tk ready` and `tk blocked`.
+2. Ensure blockers are explicit: `tk blocked` shows issues with unsatisfied deps.
+3. Use consistent tags so supervisors can filter by stream, owner, or phase.
 
 ## Session bookmark
 
@@ -305,7 +299,7 @@ bash "$BOOKMARK" "Completed 'implement auth middleware', started 'write tests'"
 
 ## Plan ingestion (superpowers integration)
 
-When a superpowers plan file exists (produced by the `writing-plans` skill), use the ingestion script instead of manually decomposing tasks. The script parses the plan's `### Task N:` blocks and registers them in bd with full spec lineage.
+When a superpowers plan file exists (produced by the `writing-plans` skill), use the ingestion script instead of manually decomposing tasks. The script parses the plan's `### Task N:` blocks and registers them in tk with full spec lineage.
 
 **Script location:** `scripts/ingest-plan.py` (relative to this skill)
 
@@ -318,28 +312,28 @@ When a superpowers plan file exists (produced by the `writing-plans` skill), use
 ### Usage
 
 ```bash
-# Parse and register in bd
+# Parse and register in tk
 uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref>
 
-# Parse only (preview without creating bd tasks)
+# Parse only (preview without creating tk tasks)
 uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --dry-run
 
-# With additional labels
-uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --labels epic:EPIC-009
+# With additional tags
+uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --tags epic:EPIC-009
 ```
 
 ### What it does
 
 1. Parses the plan header (title, goal, architecture, tech stack)
 2. Splits on `### Task N:` boundaries
-3. Creates a bd epic with `--external-ref <origin-ref>`
-4. Creates child tasks with `--labels spec:<origin-ref>` and full task body as description
+3. Creates a tk epic with `--external-ref <origin-ref>`
+4. Creates child tasks with `--tags spec:<origin-ref>` and full task body as description
 5. Wires sequential dependencies (Task N+1 depends on Task N)
 
 ### When NOT to use
 
 - The plan file doesn't follow superpowers format — fall back to manual task breakdown
-- You need non-sequential dependencies — use the script, then adjust deps manually with `bd dep add`
+- You need non-sequential dependencies — use the script, then adjust deps manually with `tk dep`
 - The plan is very short (1-2 tasks) — manual creation is faster
 
 ## Execution strategy
@@ -354,7 +348,7 @@ superpowers installed?
 │         ├── Complex task (multi-file, >5 min) → dispatch subagent with worktree
 │         ├── Simple task (<5 min, single file) → serial execution (subagent overhead not worth it)
 │         └── Research task → dispatch parallel investigation agents
-└── NO  → bd-tracked serial execution (current default)
+└── NO  → tk-tracked serial execution (current default)
 ```
 
 **Detection:** Check whether superpowers' execution skills exist:
@@ -368,10 +362,10 @@ If at least one path exists for each skill, subagent-driven development is avail
 
 ### Worktree-artifact mapping
 
-When a spec is implemented via a git worktree (superpowers' `using-git-worktrees` skill), swain-do records the mapping in the bd epic's notes:
+When a spec is implemented via a git worktree (superpowers' `using-git-worktrees` skill), swain-do records the mapping in the tk epic's notes:
 
 ```bash
-bd update <epic-id> --append-notes "Worktree: branch <branch-name> implements <SPEC-ID>"
+tk add-note <epic-id> "Worktree: branch <branch-name> implements <SPEC-ID>"
 ```
 
 This enables:
@@ -383,9 +377,8 @@ When the spec transitions to Implemented, verify the worktree has been cleaned u
 
 ## Fallback
 
-If `bd` cannot be installed or is unavailable:
+If `tk` cannot be found or is unavailable:
 
 1. Log the failure reason.
 2. Fall back to a neutral text task ledger (JSONL or Markdown checklist) in the working directory.
 3. Use the same status model (`open`, `in_progress`, `blocked`, `closed`) and keep updates externally visible.
-

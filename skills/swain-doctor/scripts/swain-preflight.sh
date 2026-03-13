@@ -29,22 +29,31 @@ if [[ ! -d .agents ]]; then
   issues+=(".agents directory missing")
 fi
 
-# 4. .beads/.gitignore is healthy (if .beads exists)
-if [[ -d .beads ]] && [[ ! -f .beads/.gitignore ]]; then
-  issues+=(".beads/.gitignore missing")
-fi
-
-# 5. No stale bd runtime files
-if [[ -d .beads ]]; then
-  for f in .beads/bd.sock .beads/bd.sock.startlock .beads/dolt-server.lock .beads/.sync.lock; do
-    if [[ -f "$f" ]]; then
-      issues+=("stale bd runtime file: $f")
+# 4. .tickets/ directory is valid (if it exists)
+if [[ -d .tickets ]]; then
+  for f in .tickets/*.md; do
+    [[ -f "$f" ]] || continue
+    if ! head -1 "$f" | grep -q '^---$'; then
+      issues+=("invalid ticket frontmatter: $f")
       break
     fi
   done
 fi
 
-# 6. Script permissions (spot check)
+# 5. No stale .beads/ directory (needs auto-migration)
+if [[ -d .beads ]]; then
+  issues+=("stale .beads/ directory needs migration to .tickets/")
+fi
+
+# 6. No stale tk lock files (older than 1 hour)
+if [[ -d .tickets/.locks ]]; then
+  stale_locks=$(find .tickets/.locks -type f -mmin +60 2>/dev/null | head -1)
+  if [[ -n "$stale_locks" ]]; then
+    issues+=("stale tk lock files in .tickets/.locks/")
+  fi
+fi
+
+# 7. Script permissions (spot check)
 if find .claude/skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null | grep -q .; then
   issues+=("scripts missing executable permission")
 fi

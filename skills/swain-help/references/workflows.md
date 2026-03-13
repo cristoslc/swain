@@ -43,14 +43,14 @@
 
 1. **Health check**: `/swain-doctor` runs automatically (or invoke manually)
 
-2. **See what's in progress**: `/swain show my tasks` or `bd status`
+2. **See what's in progress**: `/swain show my tasks` or `tk ready`
 
 3. **Pick up work**: `/swain what should I work on?`
 
 ## Adopting swain in an existing project
 
 1. **Run init**: `/swain init`
-   - Migrates CLAUDE.md, installs bd, adds governance rules
+   - Migrates CLAUDE.md, verifies tk, adds governance rules
 
 2. **Orientation**: Swain-help walks you through what's available
 
