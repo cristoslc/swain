@@ -89,4 +89,4 @@ After migration, regenerate all `list-<type>.md` index files with correct phase 
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Draft | 2026-03-13 | | Initial creation |
+| Draft | 2026-03-13 | 232369c | Initial creation |

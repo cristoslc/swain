@@ -89,4 +89,4 @@ Update `references/relationship-model.md` ER diagram to remove STORY, BUG. Updat
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Draft | 2026-03-13 | | Initial creation |
+| Draft | 2026-03-13 | 232369c | Initial creation |

@@ -81,4 +81,4 @@ specgraph.sh, specwatch.sh, swain-status.sh, and spec-verify.sh all hard-code pe
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Draft | 2026-03-13 | | Initial creation |
+| Draft | 2026-03-13 | 232369c | Initial creation |
