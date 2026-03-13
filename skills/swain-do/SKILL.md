@@ -46,47 +46,9 @@ Other skills use these abstract terms. This skill maps them to the current backe
 | **abandon** | Close a task that will not be completed | `tk add-note <id> "Abandoned: <why>"` then `tk close <id>` |
 | **escalate** | Abandon + invoke swain-design to update upstream artifacts | Abandon, then invoke swain-design skill |
 
-## Configuration
+## Configuration and bootstrap
 
-The skill stores persistent project-level configuration in `.agents/execution-tracking.vars.json`. This file is created on first run and checked on every subsequent invocation.
-
-### First-run setup
-
-If `.agents/execution-tracking.vars.json` does not exist, create it by asking the user the questions below (use sensible defaults if the user says "just use defaults"):
-
-| Key | Type | Default | Question |
-|-----|------|---------|----------|
-| `tk_path` | string | `"skills/swain-do/bin/tk"` | "Path to the vendored tk script (relative to project root)" |
-| `fallback_format` | `"jsonl"` \| `"markdown"` | `"jsonl"` | "If tk is unavailable, use JSONL or Markdown for the fallback ledger?" |
-
-Write the file as pretty-printed JSON:
-
-```json
-{
-  "tk_path": "skills/swain-do/bin/tk",
-  "fallback_format": "jsonl"
-}
-```
-
-On subsequent runs, read the file and apply its values — don't re-ask.
-
-### Applying config
-
-- **`tk_path`**: Resolve this path relative to the project root to find the vendored tk script. Add its directory to PATH for plugin resolution.
-- **`fallback_format`**: Controls the format used by the [Fallback](#fallback) section.
-
-## Bootstrap workflow
-
-1. **Load config:** Read `.agents/execution-tracking.vars.json`. If missing, run [first-run setup](#first-run-setup) above.
-2. **Resolve tk:** The vendored tk script lives at the configured `tk_path` (default: `skills/swain-do/bin/tk`). Verify it exists and is executable.
-3. **Set up PATH:** Export `PATH` with tk's directory prepended so plugins (`ticket-query`, `ticket-migrate-beads`) are found:
-   ```bash
-   TK_BIN="$(cd "$(dirname "$tk_path")" && pwd)"
-   export PATH="$TK_BIN:$PATH"
-   ```
-4. **Check for existing data:** look for `.tickets/` directory.
-5. **If no `.tickets/`, first use:** tk creates `.tickets/` automatically on first `tk create`.
-6. **Verify:** `tk ready` should run without error.
+Config stored in `.agents/execution-tracking.vars.json` (created on first run). Read [references/configuration.md](references/configuration.md) for first-run setup questions, config keys, and the 6-step bootstrap workflow.
 
 ## Statuses
 
@@ -106,274 +68,35 @@ To express abandonment, use `tk add-note <id> "Abandoned: ..."` then `tk close <
 
 ## TDD enforcement
 
-Implementation tasks follow strict RED-GREEN-REFACTOR methodology with anti-rationalization safeguards. These rules apply regardless of whether superpowers is installed — they are baked into swain-do's methodology.
-
-### Anti-rationalization table
-
-When creating implementation plans, every task that involves writing code must follow this discipline:
-
-| Rationalization | Why it's wrong | Rule |
-|----------------|---------------|------|
-| "I'll write the test after the code since I know what I'm building" | Tests written after confirm what was built, not what was specified. They miss edge cases the spec intended. | Write the failing test FIRST. The test is derived from the acceptance criterion, not the implementation. |
-| "This is too simple to need a test" | Simplicity today becomes complexity tomorrow. Untested code is unverified code. | Every behavioral change gets a test. If it's truly simple, the test is also simple. |
-| "I'll refactor first to make testing easier" | Refactoring without tests means refactoring without a safety net. | RED first. Write the test against the current interface, then refactor under test coverage. |
-| "The integration test covers this" | Integration tests are slow and don't isolate failures. A unit test failing tells you exactly what broke. | Unit tests for logic, integration tests for wiring. Both are needed. |
-| "I need to see the implementation to know what to test" | This means the spec is unclear, not that you should skip TDD. | If you can't write the test, the acceptance criterion needs clarification — escalate to swain-design. |
-
-### Task ordering
-
-1. **Test first.** For each functional unit, create a test task before its implementation task. The test task writes a failing test derived from the artifact's acceptance criteria.
-2. **Small cycles.** Prefer many small red-green pairs over a single "write all tests" → "write all code" split.
-3. **Refactor explicitly.** Include a refactor task after green when the implementation warrants cleanup.
-4. **Integration tests bookend the plan.** Start with a skeleton integration test (it will fail). The final task verifies it passes.
-
-## Completion verification
-
-No task may be claimed as complete without fresh verification evidence. This applies universally — not just to SPEC acceptance criteria, but to any tk task.
-
-### What counts as evidence
-
-| Task type | Acceptable evidence |
-|-----------|-------------------|
-| Code implementation | Test passes, manual verification output, screenshot |
-| Documentation | Content review, link check, rendered preview |
-| Configuration | Applied and tested in target environment |
-| Research | Findings documented with sources |
-
-### Enforcement
-
-When closing a task, add a note with evidence before closing:
-
-```bash
-# Good — includes evidence
-tk add-note <id> "JWT middleware added; test_jwt_validation passes"
-tk close <id>
-
-# Bad — no evidence
-tk close <id>
-```
-
-If a task is closed without evidence, it should be reopened and completed properly. The verification discipline prevents "completion drift" where tasks are marked done based on intent rather than observed behavior.
+Strict RED-GREEN-REFACTOR with anti-rationalization safeguards and completion verification. Read [references/tdd-enforcement.md](references/tdd-enforcement.md) for the anti-rationalization table, task ordering rules, and evidence requirements.
 
 ## Spec lineage tagging
 
-When creating tasks that implement a spec artifact:
-
-```bash
-# Create epic with immutable origin ref
-tk create "Implement auth" -t epic --external-ref SPEC-003
-
-# Create child tasks with spec tag
-tk create "Add JWT middleware" -t task \
-  --parent <epic-id> --tags spec:SPEC-003
-
-# Query all work for a spec (via ticket-query)
-ticket-query '.tags and (.tags | contains("spec:SPEC-003"))'
-
-# Bidirectional link between tasks in different plans
-tk link <task-a> <task-b>
-```
+Use `--external-ref SPEC-NNN` on plan epics (immutable origin) and `--tags spec:SPEC-NNN` on child tasks (mutable). Query: `ticket-query '.tags and (.tags | contains("spec:SPEC-003"))'`. Cross-plan links: `tk link <task-a> <task-b>`.
 
 ## Escalation
 
-When work cannot proceed as designed, use this protocol to abandon tasks and flow control back to swain-design for upstream changes before re-planning.
-
-### Triage table
-
-| Scope | Situation | Action |
-|-------|-----------|--------|
-| Single task | Alternative approach exists | Abandon task, create replacement under same plan |
-| Single task | Spec assumption is wrong | Abandon task, invoke swain-design to update SPEC, create replacement task |
-| Multiple tasks | Direction change needed | Abandon affected tasks, create ADR + update SPEC via swain-design, seed new tasks |
-| Entire plan | Fundamental rethink required | Abandon all tasks, abandon SPEC (and possibly EPIC) via swain-design, create new SPEC if needed |
-
-### Abandoning tasks
-
-```bash
-# Single task
-tk add-note <id> "Abandoned: <why>"
-tk close <id>
-
-# Batch — close all open tasks under an epic (use ticket-query to find them)
-for id in $(ticket-query '.parent == "<epic-id>" and .status == "open"' | jq -r '.id'); do
-  tk add-note "$id" "Abandoned: <why>"
-  tk close "$id"
-done
-
-# Preserve in-progress notes before closing
-tk add-note <id> "Abandoning: <context about partial work>"
-tk close <id>
-```
-
-### Escalation workflow
-
-1. **Record the blocker.** Append notes to the plan epic explaining why work cannot proceed:
-   ```bash
-   tk add-note <epic-id> "Blocked: <description of blocker>"
-   ```
-
-2. **Invoke swain-design.** Choose the appropriate scope:
-   - **Spec tweak** — update the SPEC's assumptions or requirements, then return here.
-   - **Design pivot** — create an ADR documenting the decision change, update affected SPECs, then return here.
-   - **Full abandon** — transition the SPEC (and possibly EPIC) to Abandoned phase via swain-design.
-
-3. **Seed replacement plan** from the updated spec. Create a new implementation plan linked to the same (or new) SPEC via origin ref:
-   ```bash
-   tk create "Implement <updated approach>" -t epic --external-ref <SPEC-ID>
-   ```
-
-4. **Link lineage.** Preserve traceability between abandoned and replacement work:
-   - Use the same `spec:<SPEC-ID>` tags on new tasks.
-   - Reference abandoned task IDs in the new epic's notes:
-     ```bash
-     tk add-note <new-epic-id> "Replaces abandoned tasks: <old-id-1>, <old-id-2>"
-     ```
-
-### Cross-spec escalation
-
-When abandoned tasks carry multiple `spec:` tags, each referenced spec may need upstream changes. Check every spec tag on the abandoned tasks and invoke swain-design for each affected spec before re-planning.
-
-```bash
-# List spec tags on a task
-tk show <id>  # tags are visible in the YAML frontmatter
-```
+When work cannot proceed as designed, abandon tasks and escalate to swain-design. Read [references/escalation.md](references/escalation.md) for the triage table, abandonment commands, escalation workflow, and cross-spec handling.
 
 ## "What's next?" flow
 
-When asked what to work on next, show ready work from the execution backend:
-
-```bash
-# Check for tk availability and initialization
-[ -d .tickets ]
-
-# Show unblocked tasks (blocker-aware)
-tk ready
-
-# If there are in-progress tasks, show those too
-ticket-query '.status == "in_progress"'
-```
-
-If `.tickets/` exists and has tasks, present the results. If `.tickets/` doesn't exist or has no tasks, report that and defer to the swain-design skill's `specgraph.sh next` for artifact-level guidance.
-
-When invoked from the swain-design skill's combined "what's next?" flow, this skill provides the **task layer** — concrete claimable work items — complementing the spec layer's artifact-level readiness view.
+Run `tk ready` for unblocked tasks and `ticket-query '.status == "in_progress"'` for in-flight work. If `.tickets/` is empty or missing, defer to `specgraph.sh next` for artifact-level guidance.
 
 ## Artifact/tk reconciliation
 
-When specwatch detects mismatches between artifact status and tk item state (via `specwatch.sh tk-sync` or `specwatch.sh scan`), this skill is responsible for cleanup. The specwatch log (`.agents/specwatch.log`) contains `TK_SYNC` and `TK_ORPHAN` entries identifying the mismatches.
-
-### Mismatch types and resolution
-
-| Log entry | Meaning | Resolution |
-|-----------|---------|------------|
-| `TK_SYNC` artifact Implemented, tk open | Spec is done but tasks linger | Close open tk items: `tk add-note <id> "Reconciled: artifact already Implemented"` then `tk close <id>` |
-| `TK_SYNC` artifact Abandoned, tk open | Spec was killed but tasks linger | Abandon open tk items: `tk add-note <id> "Abandoned: parent artifact Abandoned"` then `tk close <id>` |
-| `TK_SYNC` all tk closed, artifact active | All work done but spec not transitioned | Invoke swain-design to transition the artifact forward (e.g., Approved → Implemented) |
-| `TK_ORPHAN` tk refs non-existent artifact | tk items reference an artifact ID not found in docs/ | Investigate: artifact may have been renamed/deleted. Close or re-tag the tk items |
-
-### Reconciliation workflow
-
-1. **Read the log:** `grep '^TK_SYNC\|^TK_ORPHAN' .agents/specwatch.log`
-2. **For each mismatch**, apply the resolution from the table above.
-3. **Re-run sync check:** `specwatch.sh tk-sync` to confirm all mismatches resolved.
-
-### Automated invocation
-
-Specwatch runs `tk-sync` as part of `specwatch.sh scan` and during watch-mode event processing (when tk is available). When mismatches are found, the output directs the user to invoke swain-do for reconciliation.
-
-## Observer pattern expectations
-
-1. Maintain compact current-status view: `tk ready` and `tk blocked`.
-2. Ensure blockers are explicit: `tk blocked` shows issues with unsatisfied deps.
-3. Use consistent tags so supervisors can filter by stream, owner, or phase.
+When specwatch detects mismatches (`TK_SYNC`, `TK_ORPHAN` in `.agents/specwatch.log`), read [references/reconciliation.md](references/reconciliation.md) for the mismatch types, resolution commands, and reconciliation workflow.
 
 ## Session bookmark
 
-After completing any state-changing operation (creating, completing, or updating tasks), update the session bookmark via `swain-bookmark.sh`:
-
-```bash
-BOOKMARK="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
-bash "$BOOKMARK" "Completed 'implement auth middleware', started 'write tests'"
-```
-
-- Note format: "{action} {task-description}"
+After state-changing operations, update the bookmark: `bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "<action> <task-description>"`
 
 ## Plan ingestion (superpowers integration)
 
-When a superpowers plan file exists (produced by the `writing-plans` skill), use the ingestion script instead of manually decomposing tasks. The script parses the plan's `### Task N:` blocks and registers them in tk with full spec lineage.
-
-The ingest helper lives at `skills/swain-do/scripts/ingest-plan.py`.
-
-### When to use
-
-- A superpowers plan file exists at `docs/plans/YYYY-MM-DD-<name>.md`
-- The plan follows the `writing-plans` format (header + `### Task N:` blocks)
-- You have an origin-ref artifact ID to link the plan to
-
-### Usage
-
-```bash
-# Parse and register in tk
-uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref>
-
-# Parse only (preview without creating tk tasks)
-uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref> --dry-run
-
-# With additional tags
-uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref> --tags epic:EPIC-009
-```
-
-### What it does
-
-1. Parses the plan header (title, goal, architecture, tech stack)
-2. Splits on `### Task N:` boundaries
-3. Creates a tk epic with `--external-ref <origin-ref>`
-4. Creates child tasks with `--tags spec:<origin-ref>` and full task body as description
-5. Wires sequential dependencies (Task N+1 depends on Task N)
-
-### When NOT to use
-
-- The plan file doesn't follow superpowers format — fall back to manual task breakdown
-- You need non-sequential dependencies — use the script, then adjust deps manually with `tk dep`
-- The plan is very short (1-2 tasks) — manual creation is faster
+When a superpowers plan file exists, use the ingestion script (`skills/swain-do/scripts/ingest-plan.py`) instead of manual task decomposition. Read [references/plan-ingestion.md](references/plan-ingestion.md) for usage, format requirements, and when NOT to use it.
 
 ## Execution strategy
 
-When dispatching implementation work, swain-do selects the execution strategy based on environment and task characteristics.
-
-### Strategy selection
-
-```
-superpowers installed?
-├── YES → prefer subagent-driven development
-│         ├── Complex task (multi-file, >5 min) → dispatch subagent with worktree
-│         ├── Simple task (<5 min, single file) → serial execution (subagent overhead not worth it)
-│         └── Research task → dispatch parallel investigation agents
-└── NO  → tk-tracked serial execution (current default)
-```
-
-**Detection:** Check whether superpowers' execution skills exist:
-
-```bash
-ls .claude/skills/subagent-driven-development/SKILL.md .agents/skills/subagent-driven-development/SKILL.md \
-   .claude/skills/using-git-worktrees/SKILL.md .agents/skills/using-git-worktrees/SKILL.md 2>/dev/null
-```
-
-If at least one path exists for each skill, subagent-driven development is available.
-
-### Worktree-artifact mapping
-
-When a spec is implemented via a git worktree (superpowers' `using-git-worktrees` skill), swain-do records the mapping in the tk epic's notes:
-
-```bash
-tk add-note <epic-id> "Worktree: branch <branch-name> implements <SPEC-ID>"
-```
-
-This enables:
-- Status queries to show which worktrees are active for which specs
-- Cleanup checks after spec completion (orphaned worktrees)
-- Traceability between the spec artifact and its implementation branch
-
-When the spec transitions to Implemented, verify the worktree has been cleaned up or merged.
+Selects serial vs. subagent-driven execution based on superpowers availability and task complexity. Read [references/execution-strategy.md](references/execution-strategy.md) for the decision tree, detection commands, and worktree-artifact mapping.
 
 ## Fallback
 

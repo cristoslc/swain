@@ -1,0 +1,31 @@
+# Phase Transitions
+
+## Phase skipping
+
+Phases listed in the artifact definition files are available waypoints, not mandatory gates. An artifact may skip intermediate phases and land directly on a later phase in the sequence. This is normal in single-user workflows where drafting and review happen conversationally in the same session.
+
+- The lifecycle table records only the phases the artifact actually occupied — one row per state it landed on, not rows for states it skipped past.
+- Skipping is forward-only: an artifact cannot skip backward in its phase sequence.
+- **Abandoned** is a universal end-of-life phase available from any state, including Draft. It signals the artifact was intentionally not pursued. Use it instead of deleting artifacts — the record of what was considered and why it was dropped is valuable.
+- Other end-of-life transitions (Sunset, Retired, Superseded, Archived, Deprecated) require the artifact to have been in an active state first — you cannot skip directly from Draft to Retired.
+
+## Workflow
+
+1. Validate the target phase is reachable from the current phase (same or later in the sequence; intermediate phases may be skipped).
+2. **Move the artifact** to the new phase subdirectory using `git mv` (e.g., `git mv docs/epic/Proposed/(EPIC-001)-Foo/ docs/epic/Active/(EPIC-001)-Foo/`). Every artifact type uses phase subdirectories — see the artifact's definition file for the exact directory names.
+3. Update the artifact's status field in frontmatter to match the new phase.
+4. **ADR compliance check** — for transitions to active phases (Active, Approved, Ready, Implemented, Adopted), run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
+4c. **Alignment check** — for transitions to active phases (Active, Approved, Ready, Adopted), run `skills/swain-design/scripts/specgraph.sh scope <artifact-id>` and assess per [alignment-checking.md](alignment-checking.md). Skip for backward-looking transitions (Testing, Implemented, Complete) unless content changed since last check. Skip for terminal-phase transitions (Abandoned, Retired, Superseded).
+4a. **Verification gate (SPEC only)** — for `Testing → Implemented` transitions, run `skills/swain-design/scripts/spec-verify.sh <artifact-path>`. Address gaps before proceeding.
+4b. **Code review gate (SPEC only)** — for `Testing → Implemented`, if superpowers code review skills are installed, request spec compliance + code quality reviews (see [superpowers-integration.md](superpowers-integration.md)). Not a hard gate.
+5. Commit the transition change (move + status update).
+6. Append a row to the artifact's lifecycle table with the commit hash from step 5.
+7. Commit the hash stamp as a **separate commit** — never amend. Two distinct commits keeps the stamped hash reachable in git history and avoids interactive-rebase pitfalls.
+8. **Post-operation scan** — run `skills/swain-design/scripts/specwatch.sh scan`. Fix any stale references.
+9. **Index refresh step** — move the artifact's row to the new phase table (see [index-maintenance.md](index-maintenance.md)).
+
+## Completion rules
+
+- An Epic is "Complete" only when all child Agent Specs are "Implemented" and success criteria are met.
+- An Agent Spec is "Implemented" only when its implementation plan is closed (or all tasks are done in fallback mode) **and** its Verification table confirms all acceptance criteria pass (enforced by `spec-verify.sh`).
+- An ADR is "Superseded" only when the superseding ADR is "Adopted" and links back.
