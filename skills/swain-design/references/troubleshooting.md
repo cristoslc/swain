@@ -6,9 +6,9 @@ Error paths and recovery procedures for swain-design operations.
 
 ### Parent artifact doesn't exist
 
-**Symptom:** Creating a SPEC, STORY, or EPIC that references a parent (`parent-epic`, `parent-vision`) that can't be found in `docs/`.
+**Symptom:** Creating a SPEC or EPIC that references a parent (`parent-epic`, `parent-vision`) that can't be found in `docs/`.
 
-**Action:** Stop creation. Report the missing parent with its expected ID and path. Ask whether to (a) create the parent first, or (b) proceed without the parent reference and fix it later. Option (b) leaves the artifact in a Draft state with a `TODO` comment in the parent field — this will be caught by the cross-reference auditor.
+**Action:** Stop creation. Report the missing parent with its expected ID and path. Ask whether to (a) create the parent first, or (b) proceed without the parent reference and fix it later. Option (b) leaves the artifact in a Proposed state with a `TODO` comment in the parent field — this will be caught by the cross-reference auditor.
 
 ### Next number collision
 

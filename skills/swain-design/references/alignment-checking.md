@@ -33,12 +33,6 @@ Things that merely do not contradict each other but are otherwise semantically d
 - Do the acceptance criteria contribute to the Epic's success criteria?
 - Is the SPEC's `type` (feature/enhancement/bug) consistent with the Epic's current phase?
 
-### Epic - STORY
-
-- Does the user story align with the Epic's goal?
-- Does the persona match the Vision's target audience?
-- Is the story's scope appropriate for the Epic's boundaries?
-
 ### Vision - Journey
 
 - Does the Journey's user goal connect to the Vision's audience and value proposition?
@@ -46,7 +40,7 @@ Things that merely do not contradict each other but are otherwise semantically d
 
 ### Journey pain point - addressing artifacts
 
-- Does the addressing artifact (SPEC/STORY/EPIC) actually resolve the described friction?
+- Does the addressing artifact (SPEC/EPIC) actually resolve the described friction?
 - Is the pain point's severity consistent with the addressing artifact's priority?
 
 ### ADR - SPEC/Epic
@@ -61,7 +55,7 @@ Things that merely do not contradict each other but are otherwise semantically d
 
 ### Architecture overview - ADRs
 
-- Do Adopted ADRs match what the architecture overview describes?
+- Do Active ADRs match what the architecture overview describes?
 - Has the overview been updated to reflect recent ADR decisions?
 
 ### Sibling SPECs under same Epic
@@ -74,10 +68,10 @@ Things that merely do not contradict each other but are otherwise semantically d
 
 ### MISALIGNED (blocking)
 
-Active contradiction between artifacts. The artifact's stated goal or approach directly conflicts with its parent's goal, an Adopted ADR's decision, or a sibling's acceptance criteria.
+Active contradiction between artifacts. The artifact's stated goal or approach directly conflicts with its parent's goal, an Active ADR's decision, or a sibling's acceptance criteria.
 
 **Examples:**
-- A SPEC implementing an approach that an Adopted ADR explicitly rejected
+- A SPEC implementing an approach that an Active ADR explicitly rejected
 - An Epic whose goal undermines its parent Vision's value proposition
 - Sibling SPECs with contradictory acceptance criteria
 

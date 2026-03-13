@@ -516,7 +516,6 @@ render_full() {
         is_decision_only_type or
         (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
         (.type == "SPEC" and (.status | test("Draft|Review"))) or
-        (.type == "STORY" and .status == "Draft") or
         (.type == "SPIKE" and .status == "Planned");
       [.artifacts.ready[] | select(is_decision)] | length
     ')
@@ -544,8 +543,6 @@ render_full() {
           elif .type == "SPEC" and .status == "Review" then "complete review"
           elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
           elif .type == "SPEC" and .status == "Testing" then "complete verification"
-          elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
-          elif .type == "STORY" then "create implementation plan"
           elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
           elif .type == "SPIKE" then "complete investigation"
           elif .type == "RUNBOOK" and .status == "Draft" then "author and test procedure"
@@ -557,7 +554,7 @@ render_full() {
           is_decision_only_type or
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
           (.type == "SPEC" and (.status | test("Draft|Review"))) or
-          (.type == "STORY" and .status == "Draft") or
+          false or
           (.type == "SPIKE" and .status == "Planned");
         [.artifacts.ready[] | select(is_decision)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
@@ -595,8 +592,6 @@ render_full() {
           elif .type == "SPEC" and .status == "Review" then "complete review"
           elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
           elif .type == "SPEC" and .status == "Testing" then "complete verification"
-          elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
-          elif .type == "STORY" then "create implementation plan"
           elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
           elif .type == "SPIKE" then "complete investigation"
           elif .type == "RUNBOOK" and .status == "Draft" then "author and test procedure"
@@ -608,7 +603,7 @@ render_full() {
           is_decision_only_type or
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
           (.type == "SPEC" and (.status | test("Draft|Review"))) or
-          (.type == "STORY" and .status == "Draft") or
+          false or
           (.type == "SPIKE" and .status == "Planned");
         [.artifacts.ready[] | select(is_decision | not)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +

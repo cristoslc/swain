@@ -38,11 +38,11 @@ These safeguards apply to both manually-seeded plans and superpowers-generated p
 ## Closing the loop
 
 - Progress lives in the execution backend, not the spec doc.
-- When all plan tasks are complete, transition the Spec to **Testing** (not directly to Implemented). The Testing phase is where acceptance criteria are verified against evidence — see `spec-definition.md § Testing phase`.
-- In the Testing phase, populate the Spec's **Verification** table: map each acceptance criterion to its evidence (test name, file, demo) and record Pass/Fail/Skip.
-- Run `scripts/spec-verify.sh <artifact-path>` before transitioning from Testing → Implemented. The script confirms every criterion has evidence.
-- Only after verification passes, transition the Spec to **Implemented**.
-- Note cross-spec tasks in each affected artifact's lifecycle entry (e.g., "Implemented — shared serializer also covers SPEC-007").
+- When all plan tasks are complete, transition the Spec to **Needs Manual Test** (not directly to Complete). The Needs Manual Test phase is where acceptance criteria are verified against evidence — see `spec-definition.md § Needs Manual Test phase`.
+- In the Needs Manual Test phase, populate the Spec's **Verification** table: map each acceptance criterion to its evidence (test name, file, demo) and record Pass/Fail/Skip.
+- Run `scripts/spec-verify.sh <artifact-path>` before transitioning from Needs Manual Test → Complete. The script confirms every criterion has evidence.
+- Only after verification passes, transition the Spec to **Complete**.
+- Note cross-spec tasks in each affected artifact's lifecycle entry (e.g., "Complete — shared serializer also covers SPEC-007").
 - If execution reveals the spec is unworkable, the swain-do skill's escalation protocol flows control back to the swain-design skill for spec updates before re-planning.
 
 ## Superpowers integration

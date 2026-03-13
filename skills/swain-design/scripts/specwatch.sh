@@ -967,7 +967,7 @@ PYEOF
       artifact_item="$DOCS_DIR/${parts[0]}/${parts[1]}/${parts[2]}"
       item_name="${parts[2]}"
     elif [ "${#parts[@]}" -eq 3 ]; then
-      # e.g., story/Draft/(STORY-001)-Foo.md — move the file
+      # e.g., adr/Proposed/(ADR-001)-Foo.md — move the file
       #    or adr/Draft/(ADR-001)-Foo.md
       if [ -d "$DOCS_DIR/${parts[0]}/${parts[1]}/${parts[2]%%.*}" ] 2>/dev/null; then
         # Actually a folder artifact where the .md name matches the folder

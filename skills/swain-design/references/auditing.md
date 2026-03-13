@@ -31,8 +31,8 @@ Spawn seven agents in a single turn:
 The dependency coherence auditor catches cases where the graph *exists* but is *wrong*. The cross-reference checker confirms targets resolve to real files; this agent checks whether those edges still make sense. Specific checks:
 
 1. **Dead-end dependencies** — `depends-on` targets an Abandoned or Rejected artifact. The dependency can never be satisfied; flag it for removal or replacement.
-2. **Orphaned satisfied dependencies** — `depends-on` targets a Complete/Implemented artifact but the dependent is still in Draft/Proposed. The blocker is resolved — is the dependent actually stalled for a different reason, or should it advance?
-3. **Phase-inversion** — A dependent artifact is in a *later* lifecycle phase than something it supposedly depends on (e.g., an Implemented spec that `depends-on` a Draft spike). This suggests the edge was never cleaned up or was added in error.
+2. **Orphaned satisfied dependencies** — `depends-on` targets a Complete artifact but the dependent is still in Proposed. The blocker is resolved — is the dependent actually stalled for a different reason, or should it advance?
+3. **Phase-inversion** — A dependent artifact is in a *later* lifecycle phase than something it supposedly depends on (e.g., a Complete spec that `depends-on` a Proposed spike). This suggests the edge was never cleaned up or was added in error.
 4. **Content-drift** — Read both artifacts and assess whether the dependency relationship still holds given what each artifact actually describes. Artifacts evolve; an edge that made sense at creation time may no longer reflect reality. Flag edges where the content of the two artifacts has no apparent logical connection.
 5. **Missing implicit dependencies** — Scan artifact bodies for references to other artifact IDs (e.g., "as decided in ADR-001" or "builds on SPIKE-003") that are *not* declared in `depends-on` or `linked-*` frontmatter. These are shadow dependencies that should be formalized or explicitly noted as informational.
 

@@ -36,21 +36,21 @@ The `overview` command renders a hierarchy tree showing every artifact with its 
 ```
   ✓ VISION-001: Personal Agent Patterns [Active]
   ├── → EPIC-007: Spec Management System [Active]
-  │   ├── ✓ SPEC-001: Artifact Lifecycle [Implemented]
-  │   ├── ✓ SPEC-002: Dependency Graph [Implemented]
-  │   └── → SPEC-003: Cross-reference Validation [Draft]
+  │   ├── ✓ SPEC-001: Artifact Lifecycle [Complete]
+  │   ├── ✓ SPEC-002: Dependency Graph [Complete]
+  │   └── → SPEC-003: Cross-reference Validation [Proposed]
   │         ↳ blocked by: SPIKE-002
   └── → EPIC-008: Execution Tracking [Proposed]
 
 ── Cross-cutting ──
-  ├── → ADR-001: Graph Storage Format [Adopted]
-  └── → PERSONA-001: Solo Developer [Validated]
+  ├── → ADR-001: Graph Storage Format [Active]
+  └── → PERSONA-001: Solo Developer [Active]
 
 ── Execution Tracking ──
   (tk status output here)
 ```
 
-**Status indicators:** `✓` = resolved (Complete/Implemented/Adopted/etc.), `→` = active/in-progress. Blocked dependencies show inline with `↳ blocked by:`. Cross-cutting artifacts (ADR, Persona, Runbook, Bug, Spike) appear in their own section. The swain-do tail calls `tk ready` automatically.
+**Status indicators:** `✓` = resolved (Complete/Active/etc.), `→` = active/in-progress. Blocked dependencies show inline with `↳ blocked by:`. Cross-cutting artifacts (ADR, Persona, Runbook, Bug, Spike) appear in their own section. The swain-do tail calls `tk ready` automatically.
 
 **Display rule:** Present the `specgraph.sh overview` output verbatim — do not summarize, paraphrase, or reformat the tree. The script's output is already designed for human consumption. You may add a brief note after the output only if the user asked a specific question (e.g., "what should I work on next?").
 
@@ -62,9 +62,9 @@ The graph captures all frontmatter relationship fields as typed edges:
 |-----------|--------|--------|---------|
 | `depends-on-artifacts` | Any (except SPIKE) | Any | Blocking dependency |
 | `parent-vision` | EPIC, JOURNEY | VISION | Hierarchy (child → parent) |
-| `parent-epic` | SPEC, STORY, EPIC | EPIC | Hierarchy (child → parent) |
+| `parent-epic` | SPEC, EPIC | EPIC | Hierarchy (child → parent) |
 | `linked-artifacts` | Any | Any | Unified cross-reference (replaces per-type linked-* fields) |
-| `addresses` | SPEC, STORY, EPIC | JOURNEY.PP-NN | Pain point being addressed |
+| `addresses` | SPEC, EPIC | JOURNEY.PP-NN | Pain point being addressed |
 | `validates` | RUNBOOK | EPIC, SPEC | Operational validation |
 | `superseded-by` | ADR, DESIGN | ADR, DESIGN | Replacement link |
 | `evidence-pool` | Any | Pool ID | Research evidence pool |
@@ -77,9 +77,9 @@ The graph captures all frontmatter relationship fields as typed edges:
 The `neighbors <ID>` command shows all directly connected artifacts with direction, edge type, and artifact metadata:
 
 ```
-outgoing  depends-on    SPEC-004  [Implemented]  Unified SPEC Type System
+outgoing  depends-on    SPEC-004  [Complete]  Unified SPEC Type System
 outgoing  parent-epic   EPIC-002  [Complete]     Artifact Type System
-incoming  linked-artifacts  ADR-001   [Adopted]      Graph Storage Format
+incoming  linked-artifacts  ADR-001   [Active]      Graph Storage Format
 ```
 
 ## Scope output
@@ -92,8 +92,8 @@ CHAIN:
   VISION-001  [Active]  Swain
 
 SIBLING:
-  SPEC-004  [Implemented]  Unified SPEC Type System
-  SPEC-006  [Implemented]  BUG-to-SPEC Migration
+  SPEC-004  [Complete]  Unified SPEC Type System
+  SPEC-006  [Complete]  BUG-to-SPEC Migration
 
 LATERAL:
   JOURNEY-001.PP-01  (addresses)
@@ -117,7 +117,7 @@ The `impact <ID>` command shows everything that references an artifact:
 
 ```
 DIRECT:
-  SPEC-008  [Implemented]  Superpowers Integration
+  SPEC-008  [Complete]  Superpowers Integration
 
 AFFECTED CHAINS:
   SPEC-008 → EPIC-004
