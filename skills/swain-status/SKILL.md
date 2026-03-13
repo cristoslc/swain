@@ -87,15 +87,7 @@ Read from `swain.settings.json` (project) and `~/.config/swain/settings.json` (u
 
 ## Session bookmark
 
-After presenting the status output, update the session bookmark via `swain-bookmark.sh`:
-
-```bash
-BOOKMARK="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
-bash "$BOOKMARK" "Checked status — 2 specs awaiting review, EPIC-002 needs decomposition"
-```
-
-- Note format: "Checked status — {key highlight}"
-- Pick the single most actionable highlight from the output (decisions waiting, blocked items, or epic progress)
+After presenting status, update the bookmark with the most actionable highlight: `bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "Checked status — {key highlight}"`
 
 ## Error handling
 
