@@ -81,16 +81,15 @@ step_add_key_to_github() {
   local pub_key
   pub_key="$(cat "$pub_key_path")"
 
-  # Check if key already registered
-  local existing
+  # Check if THIS key is already registered for THIS type
+  local existing fingerprint
   existing="$(gh ssh-key list 2>/dev/null || true)"
-  if echo "$existing" | grep -qF "$(awk '{print $2}' "$pub_key_path")"; then
-    # Key fingerprint is present — check if this specific type is registered
-    # gh ssh-key list shows: TITLE  TYPE  FINGERPRINT  CREATED
-    if echo "$existing" | grep -q "$key_type"; then
-      skip "Key already registered on GitHub for $key_type"
-      return 0
-    fi
+  fingerprint="$(awk '{print $2}' "$pub_key_path")"
+  # gh ssh-key list format: TITLE  KEY_TYPE  FINGERPRINT  CREATED  ID  TYPE
+  # We need to check that a line contains BOTH this key's fingerprint AND the target type
+  if echo "$existing" | grep -F "$fingerprint" | grep -q "$key_type"; then
+    skip "Key already registered on GitHub for $key_type"
+    return 0
   fi
 
   info "Adding key to GitHub for $key_type (title: $key_title)..."
