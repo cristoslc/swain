@@ -148,16 +148,17 @@ collect_artifacts() {
   fi
 
   jq '
-    def is_resolved: test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined");
+    def is_status_resolved: test("Complete|Retired|Superseded|Abandoned|Implemented|Adopted|Validated|Archived|Sunset|Deprecated|Verified|Declined");
+    def is_resolved: (.status | is_status_resolved) or ((.type | test("VISION|JOURNEY|PERSONA|ADR|RUNBOOK|DESIGN")) and .status == "Active");
     # A dependency is satisfied once its target moves past initial planning phases.
-    # Only Draft, Planned, Proposed, and Review are "not yet satisfied."
-    def is_dep_satisfied: test("Draft|Planned|Proposed|Review") | not;
+    # Only Proposed (and legacy Draft/Planned/Review) are "not yet satisfied."
+    def is_dep_satisfied: test("Proposed|Draft|Planned|Review") | not;
 
     .nodes as $nodes |
     .edges as $edges |
 
     # All unresolved
-    [$nodes | to_entries[] | select(.value.status | is_resolved | not)] as $unresolved |
+    [$nodes | to_entries[] | select(.value | is_resolved | not)] as $unresolved |
 
     # Ready: unresolved with all deps satisfied, enriched with unblock info
     # VISION-to-VISION deps are informational, not blocking (#28)
@@ -175,12 +176,12 @@ collect_artifacts() {
       ) |
       # What unresolved items depend on this one?
       ([$edges[] | select(.to == $id and .type == "depends-on") | .from] |
-        map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep].status | is_resolved | not))) |
+        map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep] | is_resolved | not))) |
         unique) as $unblocks |
       {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, description: .value.description, unblocks: $unblocks}
     ] | sort_by(-(.unblocks | length), .id)) as $ready |
 
-    # Blocked: deps not yet satisfied (still in Draft/Planned/Proposed/Review)
+    # Blocked: deps not yet satisfied (still in Proposed or legacy Draft/Planned/Review)
     # VISION-to-VISION deps are informational, not blocking (#28)
     ([$unresolved[] |
       .key as $id |
@@ -198,7 +199,7 @@ collect_artifacts() {
 
     # Epic progress: for each active epic, count child spec status
     ([$nodes | to_entries[] |
-      select(.value.type == "EPIC" and (.value.status | is_resolved | not)) |
+      select(.value.type == "EPIC" and (.value | is_resolved | not)) |
       .key as $epic_id |
       # Find children (specs/stories parented to this epic)
       ([$edges[] | select(.to == $epic_id and .type == "parent-epic") | .from]) as $child_ids |
@@ -515,8 +516,8 @@ render_full() {
       def is_decision:
         is_decision_only_type or
         (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
-        (.type == "SPEC" and (.status | test("Draft|Review"))) or
-        (.type == "SPIKE" and .status == "Planned");
+        (.type == "SPEC" and (.status | test("Proposed|Draft|Review"))) or
+        (.type == "SPIKE" and (.status | test("Proposed|Planned")));
       [.artifacts.ready[] | select(is_decision)] | length
     ')
 
@@ -530,22 +531,21 @@ render_full() {
             "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
           else $aid end;
         def next_step:
-          if .type == "VISION" and .status == "Draft" then "align on goals and audience"
+          if .type == "VISION" and (.status | test("Proposed|Draft")) then "align on goals and audience"
           elif .type == "VISION" then "decompose into epics"
           elif .type == "JOURNEY" then "map pain points and opportunities"
           elif .type == "PERSONA" then "validate with user research"
-          elif .type == "ADR" and .status == "Draft" then "form recommendation"
+          elif .type == "ADR" and (.status | test("Proposed|Draft")) then "form recommendation"
           elif .type == "ADR" then "review and decide"
           elif .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
           elif .type == "EPIC" and .status == "Active" then "work on child specs"
-          elif .type == "EPIC" and .status == "Testing" then "verify acceptance criteria"
-          elif .type == "SPEC" and .status == "Draft" then "review and approve"
-          elif .type == "SPEC" and .status == "Review" then "complete review"
-          elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
-          elif .type == "SPEC" and .status == "Testing" then "complete verification"
-          elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
+          elif .type == "SPEC" and (.status | test("Proposed|Draft")) then "review and approve"
+          elif .type == "SPEC" and (.status | test("Ready|Approved")) then "create implementation plan"
+          elif .type == "SPEC" and (.status | test("In Progress")) then "implement and test"
+          elif .type == "SPEC" and (.status | test("Needs Manual Test|Testing")) then "complete verification"
+          elif .type == "SPIKE" and (.status | test("Proposed|Planned")) then "begin investigation"
           elif .type == "SPIKE" then "complete investigation"
-          elif .type == "RUNBOOK" and .status == "Draft" then "author and test procedure"
+          elif .type == "RUNBOOK" and (.status | test("Proposed|Draft")) then "author and test procedure"
           elif .type == "RUNBOOK" then "execute and record results"
           elif .type == "DESIGN" then "create wireframes and flows"
           else "progress to next phase" end;
@@ -553,9 +553,8 @@ render_full() {
         def is_decision:
           is_decision_only_type or
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
-          (.type == "SPEC" and (.status | test("Draft|Review"))) or
-          false or
-          (.type == "SPIKE" and .status == "Planned");
+          (.type == "SPEC" and (.status | test("Proposed|Draft|Review"))) or
+          (.type == "SPIKE" and (.status | test("Proposed|Planned")));
         [.artifacts.ready[] | select(is_decision)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
         (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
@@ -579,22 +578,21 @@ render_full() {
             "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
           else $aid end;
         def next_step:
-          if .type == "VISION" and .status == "Draft" then "align on goals and audience"
+          if .type == "VISION" and (.status | test("Proposed|Draft")) then "align on goals and audience"
           elif .type == "VISION" then "decompose into epics"
           elif .type == "JOURNEY" then "map pain points and opportunities"
           elif .type == "PERSONA" then "validate with user research"
-          elif .type == "ADR" and .status == "Draft" then "form recommendation"
+          elif .type == "ADR" and (.status | test("Proposed|Draft")) then "form recommendation"
           elif .type == "ADR" then "review and decide"
           elif .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
           elif .type == "EPIC" and .status == "Active" then "work on child specs"
-          elif .type == "EPIC" and .status == "Testing" then "verify acceptance criteria"
-          elif .type == "SPEC" and .status == "Draft" then "review and approve"
-          elif .type == "SPEC" and .status == "Review" then "complete review"
-          elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
-          elif .type == "SPEC" and .status == "Testing" then "complete verification"
-          elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
+          elif .type == "SPEC" and (.status | test("Proposed|Draft")) then "review and approve"
+          elif .type == "SPEC" and (.status | test("Ready|Approved")) then "create implementation plan"
+          elif .type == "SPEC" and (.status | test("In Progress")) then "implement and test"
+          elif .type == "SPEC" and (.status | test("Needs Manual Test|Testing")) then "complete verification"
+          elif .type == "SPIKE" and (.status | test("Proposed|Planned")) then "begin investigation"
           elif .type == "SPIKE" then "complete investigation"
-          elif .type == "RUNBOOK" and .status == "Draft" then "author and test procedure"
+          elif .type == "RUNBOOK" and (.status | test("Proposed|Draft")) then "author and test procedure"
           elif .type == "RUNBOOK" then "execute and record results"
           elif .type == "DESIGN" then "create wireframes and flows"
           else "progress to next phase" end;
@@ -602,9 +600,8 @@ render_full() {
         def is_decision:
           is_decision_only_type or
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
-          (.type == "SPEC" and (.status | test("Draft|Review"))) or
-          false or
-          (.type == "SPIKE" and .status == "Planned");
+          (.type == "SPEC" and (.status | test("Proposed|Draft|Review"))) or
+          (.type == "SPIKE" and (.status | test("Proposed|Planned")));
         [.artifacts.ready[] | select(is_decision | not)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
         (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
