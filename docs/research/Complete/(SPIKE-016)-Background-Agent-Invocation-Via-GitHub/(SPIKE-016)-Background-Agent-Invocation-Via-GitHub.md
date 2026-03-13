@@ -290,3 +290,4 @@ Build a GitHub App that subscribes to `issues.opened` / `issues.labeled` events,
 |-------|------|--------|-------|
 | Planned | 2026-03-13 | 6a5e1ac | Initial creation |
 | Active | 2026-03-13 | — | Web research: 6 mechanisms evaluated, GO recommendation |
+| Complete | 2026-03-13 | 3e54fe2 | GO: claude-code-action@v1 recommended |
