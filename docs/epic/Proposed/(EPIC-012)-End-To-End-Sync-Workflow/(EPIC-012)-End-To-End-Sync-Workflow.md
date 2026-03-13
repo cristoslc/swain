@@ -77,4 +77,4 @@ Replace swain-push with swain-sync — a comprehensive sync skill that handles t
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-13 | — | Initial creation; supersedes EPIC-009 |
+| Proposed | 2026-03-13 | 34f2d62 | Initial creation; supersedes EPIC-009 |
