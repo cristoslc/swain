@@ -150,12 +150,18 @@ collect_artifacts() {
     [$nodes | to_entries[] | select(.value.status | is_resolved | not)] as $unresolved |
 
     # Ready: unresolved with all deps satisfied, enriched with unblock info
+    # VISION-to-VISION deps are informational, not blocking (#28)
     ([$unresolved[] |
       .key as $id |
+      .value.type as $self_type |
       ([$edges[] | select(.from == $id and .type == "depends-on") | .to] | unique) as $deps |
       select(
         ($deps | length == 0) or
-        ($deps | all(. as $dep | $nodes[$dep] == null or ($nodes[$dep].status | is_dep_satisfied)))
+        ($deps | all(. as $dep |
+          $nodes[$dep] == null or
+          ($nodes[$dep].status | is_dep_satisfied) or
+          ($self_type == "VISION" and $nodes[$dep].type == "VISION")
+        ))
       ) |
       # What unresolved items depend on this one?
       ([$edges[] | select(.to == $id and .type == "depends-on") | .from] |
@@ -165,10 +171,17 @@ collect_artifacts() {
     ] | sort_by(-(.unblocks | length), .id)) as $ready |
 
     # Blocked: deps not yet satisfied (still in Draft/Planned/Proposed/Review)
+    # VISION-to-VISION deps are informational, not blocking (#28)
     ([$unresolved[] |
       .key as $id |
+      .value.type as $self_type |
       ([$edges[] | select(.from == $id and .type == "depends-on") | .to] | unique) as $deps |
-      ($deps | map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep].status | is_dep_satisfied | not)))) as $waiting |
+      ($deps | map(select(. as $dep |
+        $nodes[$dep] != null and
+        ($nodes[$dep].status | is_dep_satisfied | not) and
+        # Skip VISION-to-VISION blocking
+        (($self_type == "VISION" and $nodes[$dep].type == "VISION") | not)
+      ))) as $waiting |
       select(($waiting | length) > 0) |
       {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, description: .value.description, waiting: $waiting}
     ] | sort_by(.id)) as $blocked |
