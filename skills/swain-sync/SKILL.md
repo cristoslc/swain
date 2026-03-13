@@ -5,7 +5,7 @@ user-invocable: true
 allowed-tools: Bash, Read, Edit
 metadata:
   short-description: Fetch, stage, commit, and push
-  version: 1.0.0
+  version: 1.1.0
   author: cristos
   license: MIT
   source: swain
@@ -101,6 +101,19 @@ CLOUDFLARE_API_TOKEN — no other provider credentials are validated.
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
 
+## Step 4.5 — Pre-commit hook check
+
+Check if pre-commit hooks are configured:
+
+```bash
+test -f .pre-commit-config.yaml && command -v pre-commit >/dev/null 2>&1 && echo "hooks-configured" || echo "no-hooks"
+```
+
+If `no-hooks`, emit a one-time warning (do not repeat if the same session already warned):
+> WARN: No pre-commit hooks configured. Run `/swain-init` to set up security scanning.
+
+Continue to Step 5 regardless — hooks are recommended but not required.
+
 ## Step 5 — Commit
 
 ```bash
@@ -111,6 +124,19 @@ EOF
 ```
 
 Use a heredoc so multi-line messages survive the shell without escaping issues.
+
+**IMPORTANT:** Never use `--no-verify`. If pre-commit hooks are installed, they MUST run. There is no bypass.
+
+If the commit fails because a pre-commit hook rejected it:
+
+1. Parse the output to identify which hook(s) failed and what was found
+2. Present findings clearly:
+   > Pre-commit hook failed:
+   >   gitleaks: 2 findings (describe what was flagged)
+   >
+   > Fix the findings and run `/swain-sync` again.
+   > Suppress false positives: add to `.gitleaksignore`
+3. **Stop execution** — do not push. Do not retry automatically.
 
 ## Step 6 — Push
 
