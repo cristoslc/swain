@@ -80,6 +80,41 @@ Memory directory, settings validation, script permissions, .agents directory, an
 
 Verify vendored tk is executable at `skills/swain-do/bin/tk` and check for stale lock files. **Skip if `.tickets/` does not exist.** See [references/tickets-validation.md](references/tickets-validation.md) for details.
 
+## Lifecycle directory migration
+
+Detect old phase directories from before ADR-003's three-track normalization. Old directory names: `Draft/`, `Planned/`, `Review/`, `Approved/`, `Testing/`, `Implemented/`, `Adopted/`, `Deprecated/`, `Archived/`, `Sunset/`, `Validated/`.
+
+### Detection
+
+```bash
+OLD_PHASES="Draft Planned Review Approved Testing Implemented Adopted Deprecated Archived Sunset Validated"
+for dir in docs/*/; do
+  for phase in $OLD_PHASES; do
+    if [[ -d "${dir}${phase}" ]]; then
+      # Check for non-empty (ignore hidden files)
+      if find "${dir}${phase}" -maxdepth 1 -not -name '.*' -print -quit 2>/dev/null | grep -q .; then
+        echo "  Old directory: ${dir}${phase}"
+      fi
+    fi
+  done
+done
+```
+
+### Remediation
+
+1. List each old directory and its artifact count.
+2. Explain: "ADR-003 normalized artifact lifecycle phases into three tracks. Old phase directories need migration."
+3. Check for the migration script: `skills/swain-design/scripts/migrate-lifecycle-dirs.py`
+   - If available: offer to run `uv run python3 skills/swain-design/scripts/migrate-lifecycle-dirs.py --dry-run` first, then the real migration.
+   - If unavailable: provide manual `git mv` instructions using the phase mapping from ADR-003.
+4. After migration, clean up empty old directories.
+
+### Status values
+
+- **ok** — no old directories found
+- **repaired** — migration script ran successfully
+- **warning** — old directories found, user chose not to migrate now
+
 ## Summary report
 
 After all checks complete, output a concise summary table:

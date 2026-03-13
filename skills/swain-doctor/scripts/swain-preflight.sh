@@ -53,7 +53,23 @@ if [[ -d .tickets/.locks ]]; then
   fi
 fi
 
-# 7. Script permissions (spot check)
+# 7. Old lifecycle phase directories (ADR-003 migration)
+OLD_PHASES="Draft Planned Review Approved Testing Implemented Adopted Deprecated Archived Sunset Validated"
+for dir in docs/*/; do
+  [[ -d "$dir" ]] || continue
+  for phase in $OLD_PHASES; do
+    phase_dir="${dir}${phase}"
+    if [[ -d "$phase_dir" ]]; then
+      # Only flag non-empty directories (ignore .DS_Store and hidden files)
+      if find "$phase_dir" -maxdepth 1 -not -name '.*' -not -name "$phase" -print -quit 2>/dev/null | grep -q .; then
+        issues+=("old lifecycle directory: $phase_dir (run migrate-lifecycle-dirs.py)")
+        break 2
+      fi
+    fi
+  done
+done
+
+# 8. Script permissions (spot check)
 if find .claude/skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null | grep -q .; then
   issues+=("scripts missing executable permission")
 fi
