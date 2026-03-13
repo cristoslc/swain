@@ -89,13 +89,11 @@ Proposed → Active → (Retired | Superseded)
 
 ## Child Specs
 
-To be decomposed. Expected children:
-
-1. **SPEC: Update artifact definitions and templates** — rewrite the 9 definition files and templates with new lifecycle phases
-2. **SPEC: Update tooling scripts** — specgraph, specwatch, swain-status, spec-verify for new phase names
-3. **SPEC: Migrate existing artifacts** — git mv all artifacts to new phase subdirectories, update frontmatter
-4. **SPEC: swain-doctor migration detection** — detect old phase dirs, offer automated migration
-5. **SPEC: Remove STORY type** — delete definition, template, list file, update cross-references
+1. **SPEC-018: Update Artifact Definitions and Templates** — rewrite the 9 definition files and templates with new lifecycle phases
+2. **SPEC-019: Update Tooling Scripts for Normalized Lifecycle** — specgraph, specwatch, swain-status, spec-verify for new phase names (depends on SPEC-018)
+3. **SPEC-020: Migrate Existing Artifacts to New Phase Directories** — git mv all artifacts to new phase subdirectories, update frontmatter (depends on SPEC-018, SPEC-019)
+4. **SPEC-021: swain-doctor Lifecycle Migration Detection** — detect old phase dirs, offer automated migration (depends on SPEC-020)
+5. **SPEC-022: Remove STORY Artifact Type** — delete definition, template, list file, update cross-references (parallel with SPEC-018)
 
 ## Key Dependencies
 
