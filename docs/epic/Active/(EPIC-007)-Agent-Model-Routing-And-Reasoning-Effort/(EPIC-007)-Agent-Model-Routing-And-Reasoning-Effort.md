@@ -61,4 +61,4 @@ Out of scope:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
-| Active | 2026-03-13 | PENDING | SPEC-026 complete; remaining criteria (active routing, skill-creator usage) need future specs |
+| Active | 2026-03-13 | 4159c38 | SPEC-026 complete; remaining criteria (active routing, skill-creator usage) need future specs |
