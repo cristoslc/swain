@@ -36,9 +36,13 @@ Out of scope:
 
 ## Child Specs
 
-To be defined after spikes complete:
-- SPIKE-010: Skill Context Footprint Audit
-- SPIKE-011: Skill Loading and Compression Strategies
+- SPEC-015: Externalize Skill Reference Content (Strategy A — primary lever, 48-55% reduction)
+- SPEC-016: Compress Skill Runtime Instructions (Strategy B — 15-25% additional, depends on SPEC-015)
+- SPEC-017: Deduplicate Cross-Skill Boilerplate (Strategy D — ~1,000 tokens recovered)
+
+Supporting research (complete):
+- SPIKE-010: Skill Context Footprint Audit (GO)
+- SPIKE-011: Skill Loading and Compression Strategies (GO)
 
 ## Key Dependencies
 
