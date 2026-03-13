@@ -4,7 +4,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-009 | Normalize Artifact Frontmatter Relationships | 2026-03-13 | — |
 | SPEC-010 | Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status | 2026-03-13 | — |
 | SPEC-011 | Automated Retrospectives | 2026-03-13 | 1170623 |
 | SPEC-013 | Fetch/Pull-First Sync Behavior | 2026-03-13 | — |
@@ -18,6 +17,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPEC-009 | Normalize Artifact Frontmatter Relationships | 2026-03-13 | b10fea5 |
 | SPEC-017 | Deduplicate Cross-Skill Boilerplate | 2026-03-13 | 5d66e53 |
 | SPEC-016 | Compress Skill Runtime Instructions | 2026-03-13 | 5dd9e42 |
 | SPEC-015 | Externalize Skill Reference Content | 2026-03-13 | da6cb61 |
