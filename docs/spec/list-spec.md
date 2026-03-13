@@ -5,6 +5,7 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPEC-009 | Normalize Artifact Frontmatter Relationships | 2026-03-13 | — |
+| SPEC-010 | Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status | 2026-03-13 | — |
 
 ## Approved
 
