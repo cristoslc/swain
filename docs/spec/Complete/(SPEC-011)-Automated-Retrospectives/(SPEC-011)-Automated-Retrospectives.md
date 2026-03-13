@@ -1,7 +1,7 @@
 ---
 title: "Automated Retrospectives"
 artifact: SPEC-011
-status: Proposed
+status: Complete
 type: feature
 author: cristos
 created: 2026-03-13
@@ -55,6 +55,15 @@ Cross-cutting — touches swain-do (EPIC completion hook), swain-design (artifac
 - **Given** a retro conversation completes, **when** the agent distills learnings, **then** both memory files and a retro doc in `docs/swain-retro/` are produced
 - **Given** retro docs exist from prior sessions, **when** a new retro runs, **then** the agent can reference patterns from previous retros
 
+## Verification
+
+| Criterion | Evidence | Result |
+|-----------|----------|--------|
+| EPIC completion hook | `skills/swain-design/references/phase-transitions.md` EPIC completion hook section invokes swain-retro | PASS |
+| Manual invocation | `skills/swain-retro/SKILL.md` handles `/swain-retro` with context gathering (Step 1) and reflection prompts (Step 2) | PASS |
+| Memory + retro doc output | `skills/swain-retro/SKILL.md` Step 3 (memory distillation) + Step 4 (retro doc creation in `docs/swain-retro/`) | PASS |
+| Prior retro reference | `skills/swain-retro/SKILL.md` "Referencing prior retros" section scans `docs/swain-retro/` for recurring themes | PASS |
+
 ## Scope & Constraints
 
 - The reflecting agent prompts the user — it does not auto-generate retro content without user input
@@ -67,3 +76,4 @@ Cross-cutting — touches swain-do (EPIC completion hook), swain-design (artifac
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | 1170623 | Initial creation from GitHub #20 decision |
+| Complete | 2026-03-13 | PENDING | Skill implemented, router registered, EPIC completion hook added |
