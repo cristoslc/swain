@@ -42,13 +42,13 @@ fi
 map_phase() {
   local bug_phase="$1"
   case "$bug_phase" in
-    Reported) echo "Draft" ;;
-    Triaged)  echo "Draft" ;;
-    Active)   echo "Approved" ;;
-    Verified) echo "Testing" ;;
-    Resolved) echo "Implemented" ;;
+    Reported) echo "Proposed" ;;
+    Triaged)  echo "Proposed" ;;
+    Active)   echo "Ready" ;;
+    Verified) echo "NeedsManualTest" ;;
+    Resolved) echo "Complete" ;;
     Abandoned) echo "Abandoned" ;;
-    *)        echo "Draft" ;;
+    *)        echo "Proposed" ;;
   esac
 }
 
@@ -393,9 +393,9 @@ echo "Migration details:"
 printf "%b" "$migration_report"
 echo ""
 echo "Phase mapping applied:"
-echo "  Reported  -> Draft"
-echo "  Triaged   -> Draft"
-echo "  Active    -> Approved"
-echo "  Verified  -> Testing"
-echo "  Resolved  -> Implemented"
+echo "  Reported  -> Proposed"
+echo "  Triaged   -> Proposed"
+echo "  Active    -> Ready"
+echo "  Verified  -> NeedsManualTest"
+echo "  Resolved  -> Complete"
 echo "  Abandoned -> Abandoned"
