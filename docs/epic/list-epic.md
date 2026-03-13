@@ -9,6 +9,7 @@
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | — |
 | EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | — |
 | EPIC-009 | Secrets Leakage Prevention | 2026-03-13 | — |
+| EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | — |
 
 ## Active
 
