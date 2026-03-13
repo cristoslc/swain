@@ -57,3 +57,4 @@ Defaults (overridable via `.agents/evidencewatch.vars.json`):
 |-------|------|--------|-------|
 | Draft | 2026-03-09 | — | Initial creation |
 | Approved | 2026-03-11 | — | Approved for implementation |
+| Implemented | 2026-03-13 | 93f39f5 | Transitioned — evidencewatch.sh fully implements all 7 AC |
