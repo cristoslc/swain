@@ -1,7 +1,7 @@
 ---
 title: "swain-keys 1Password SSH Program Override"
 artifact: SPEC-014
-status: Draft
+status: Implemented
 type: bug
 author: cristos
 created: 2026-03-13
