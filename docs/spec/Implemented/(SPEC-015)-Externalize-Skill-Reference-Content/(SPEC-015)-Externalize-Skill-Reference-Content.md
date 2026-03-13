@@ -1,7 +1,7 @@
 ---
 title: "Externalize Skill Reference Content"
 artifact: SPEC-015
-status: Draft
+status: Implemented
 type: enhancement
 author: cristos
 created: 2026-03-13
