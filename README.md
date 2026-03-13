@@ -46,7 +46,7 @@ From there, the core loop is:
 
 - **Design** (`/swain-design`) — create and evolve artifacts: Visions, Epics, Specs, Spikes, ADRs, Stories, Bugs, and more. Each has a lifecycle tracked in git (Draft → Approved → Implemented).
 - **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies.
-- **Ship** (`/swain-push`, `/swain-release`) — commit with conventional messages, cut versioned releases.
+- **Ship** (`/swain-sync`, `/swain-release`) — fetch, rebase, commit with conventional messages, cut versioned releases.
 
 Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions are commits. Everything is inspectable, diffable, and version-controlled.
 
@@ -61,7 +61,8 @@ Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions 
 | **swain-design** | Artifact lifecycle — Vision, Epic, Spec, Spike, ADR, Story, Bug, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect and cache research sources as reusable markdown |
 | **swain-do** | Task tracking — implementation plans, dependencies, progress |
-| **swain-push** | Commit and push with conventional commit messages |
+| **swain-sync** | Fetch, rebase, commit, and push with conventional commit messages |
+| **swain-push** | Deprecated alias for swain-sync |
 | **swain-release** | Changelog, version bump, git tag |
 | **swain-stage** | Tmux workspace layouts and animated status panel |
 | **swain-keys** | Per-project SSH keys for git signing and auth |

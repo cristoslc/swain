@@ -17,7 +17,8 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | **swain-search** | Evidence pools — collect, normalize, and cache research sources |
 | **swain-do** | Execution tracking — task management via tk (ticket) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
-| **swain-push** | Commit and push — staging, conventional commits, conflict resolution |
+| **swain-sync** | Fetch, rebase, commit, and push — staging, conventional commits, conflict resolution |
+| **swain-push** | Deprecated alias for swain-sync |
 | **swain-status** | Project status dashboard — active epics, progress, next steps, GitHub issues, session context |
 | **swain-help** | Contextual help — answers questions, quick reference, post-init onboarding |
 | **swain-session** | Session management — tab naming, preferences, context bookmarks |
