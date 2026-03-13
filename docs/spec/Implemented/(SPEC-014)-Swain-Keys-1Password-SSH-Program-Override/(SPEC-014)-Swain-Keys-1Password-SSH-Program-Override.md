@@ -50,3 +50,4 @@ During `step_configure_git_signing`, swain-keys checks if `gpg.ssh.program` reso
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | — | Initial creation from GitHub #37 |
+| Implemented | 2026-03-13 | 4a0e453 | Transitioned — 1Password SSH program override in swain-keys |
