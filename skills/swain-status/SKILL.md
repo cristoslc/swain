@@ -27,7 +27,9 @@ bash "$SKILL_DIR" --refresh
 
 If the path search fails, glob for `**/swain-status/scripts/swain-status.sh`.
 
-Present the script output verbatim — it contains OSC 8 terminal hyperlinks for clickable file paths and GitHub URLs.
+The script's terminal output uses OSC 8 hyperlinks for clickable artifact links. Let the terminal output scroll by — it is reference data, not the primary output.
+
+**After the script runs, present a structured agent summary** following the template in `references/agent-summary-template.md`. The agent summary is what the user reads for decision-making. It must use tables (not bullet lists) so the user can scan and compare at a glance.
 
 The script collects from five data sources:
 
@@ -36,30 +38,6 @@ The script collects from five data sources:
 3. **Git** — branch, working tree state, recent commits
 4. **GitHub** — open issues, issues assigned to the user
 5. **Session** — bookmarks and context from swain-session
-
-## Output structure
-
-The output is ordered by actionability, not by data source. It synthesizes data into decision support — not just raw listings.
-
-1. **Session bookmark** — if one exists, show it first ("where you left off")
-2. **Pipeline** — branch, dirty state, last commit
-3. **Active Epics** — a table with columns: Epic (linked ID + title), Status, Purpose (truncated description), and Readiness (e.g., "needs decomposition", "0/1 specs resolved (1 remaining)")
-4. **Decisions Waiting on You** — items requiring human judgment (spec approvals, spike verdicts, ADR decisions, triage), sorted by downstream impact. These are the developer's bottleneck.
-5. **Implementation** — items the agent can handle autonomously (approved specs, implementing tasks), sorted by impact. Only shown when implementation-ready items exist.
-6. **Blocked** — artifacts waiting on dependencies, with descriptions and "(actionable now)" annotations where the blocker is in the ready list
-7. **Tasks** — in-progress and recently completed tk tasks
-8. **GitHub Issues** — assigned issues first, then open issues, with clickable links
-9. **Artifact counts** — summary footer
-
-## Clickable links
-
-The script emits OSC 8 hyperlinks that work in iTerm2 and other modern terminals:
-
-- **File paths** → `file:///path/to/doc` — opens in default application
-- **GitHub issue URLs** → `https://github.com/owner/repo/issues/N` — opens in browser
-- **Artifact IDs** → linked to their source file on disk
-
-Present the script output directly — do not reformat or strip escape sequences.
 
 ## Compact mode (MOTD integration)
 
