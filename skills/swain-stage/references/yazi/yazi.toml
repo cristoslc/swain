@@ -11,4 +11,5 @@ prepend_rules = [
   { mime = "application/{json,ndjson}", use = "swain-open" },
   { mime = "*/javascript", use = "swain-open" },
   { mime = "inode/empty", use = "swain-open" },
+  { mime = "*/*", use = "swain-open" },
 ]
