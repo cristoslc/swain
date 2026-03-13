@@ -43,7 +43,7 @@ The output is ordered by actionability, not by data source. It synthesizes data 
 
 1. **Session bookmark** — if one exists, show it first ("where you left off")
 2. **Pipeline** — branch, dirty state, last commit
-3. **Active Epics** — each epic with contextual progress (e.g., "3/7 specs resolved (4 remaining)" or "needs decomposition into specs"), child items annotated with next-step hints and descriptions
+3. **Active Epics** — a table with columns: Epic (linked ID + title), Status, Purpose (truncated description), and Readiness (e.g., "needs decomposition", "0/1 specs resolved (1 remaining)")
 4. **Decisions Waiting on You** — items requiring human judgment (spec approvals, spike verdicts, ADR decisions, triage), sorted by downstream impact. These are the developer's bottleneck.
 5. **Implementation** — items the agent can handle autonomously (approved specs, implementing tasks), sorted by impact. Only shown when implementation-ready items exist.
 6. **Blocked** — artifacts waiting on dependencies, with descriptions and "(actionable now)" annotations where the blocker is in the ready list
