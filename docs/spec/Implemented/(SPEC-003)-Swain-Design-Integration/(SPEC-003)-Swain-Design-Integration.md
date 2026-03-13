@@ -55,3 +55,4 @@ When an artifact adds `evidence-pool: <pool-id>@<hash>` to its frontmatter, the 
 |-------|------|--------|-------|
 | Draft | 2026-03-09 | — | Initial creation |
 | Approved | 2026-03-11 | — | Approved for implementation |
+| Implemented | 2026-03-13 | 5fd2e44 | Transitioned — evidence-pool field, research hook, back-links |
