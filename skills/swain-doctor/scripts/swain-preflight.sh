@@ -69,7 +69,12 @@ for dir in docs/*/; do
   done
 done
 
-# 8. Script permissions (spot check)
+# 8. Commit signing configured
+if [[ "$(git config --local commit.gpgsign 2>/dev/null)" != "true" ]]; then
+  issues+=("commit signing not configured (run swain-keys --provision)")
+fi
+
+# 9. Script permissions (spot check)
 if find .claude/skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null | grep -q .; then
   issues+=("scripts missing executable permission")
 fi
