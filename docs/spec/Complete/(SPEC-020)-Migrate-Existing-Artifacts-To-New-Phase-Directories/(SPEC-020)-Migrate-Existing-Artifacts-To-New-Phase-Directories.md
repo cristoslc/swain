@@ -12,7 +12,7 @@ linked-artifacts:
 depends-on-artifacts:
   - SPEC-018
   - SPEC-019
-implementation-commits: []
+implementation-commits: [2da897b]
 addresses: []
 evidence-pool: ""
 source-issue: ""
@@ -91,3 +91,4 @@ After migration, regenerate all `list-<type>.md` index files with correct phase 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | 232369c | Initial creation |
+| Complete | 2026-03-13 | a59fdd3 | Implementation verified |

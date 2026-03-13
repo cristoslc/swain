@@ -33,6 +33,6 @@
 | SPEC-017 | Deduplicate Cross-Skill Boilerplate | 2026-03-13 | 5d66e53 |
 | SPEC-018 | Update Artifact Definitions and Templates | 2026-03-13 | c2859a2 |
 | SPEC-019 | Update Tooling Scripts for Normalized Lifecycle | 2026-03-13 | c2859a2 |
-| SPEC-020 | Migrate Existing Artifacts to New Phase Directories | 2026-03-13 | — |
-| SPEC-021 | swain-doctor Lifecycle Migration Detection | 2026-03-13 | — |
+| SPEC-020 | Migrate Existing Artifacts to New Phase Directories | 2026-03-13 | a59fdd3 |
+| SPEC-021 | swain-doctor Lifecycle Migration Detection | 2026-03-13 | a59fdd3 |
 | SPEC-022 | Remove STORY Artifact Type | 2026-03-13 | c2859a2 |
