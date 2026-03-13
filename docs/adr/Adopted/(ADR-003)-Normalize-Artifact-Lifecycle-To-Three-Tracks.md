@@ -91,4 +91,4 @@ Available from any phase on any type:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Adopted | 2026-03-13 | — | Decision made during GitHub #25 triage; captured as EPIC-008 |
+| Adopted | 2026-03-13 | 3d440c3 | Decision made during GitHub #25 triage; captured as EPIC-008 |
