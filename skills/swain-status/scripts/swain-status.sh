@@ -517,8 +517,7 @@ render_full() {
         (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
         (.type == "SPEC" and (.status | test("Draft|Review"))) or
         (.type == "STORY" and .status == "Draft") or
-        (.type == "SPIKE" and .status == "Planned") or
-        (.type == "BUG");
+        (.type == "SPIKE" and .status == "Planned");
       [.artifacts.ready[] | select(is_decision)] | length
     ')
 
@@ -552,7 +551,6 @@ render_full() {
           elif .type == "RUNBOOK" and .status == "Draft" then "author and test procedure"
           elif .type == "RUNBOOK" then "execute and record results"
           elif .type == "DESIGN" then "create wireframes and flows"
-          elif .type == "BUG" then "triage and fix"
           else "progress to next phase" end;
         def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR|DESIGN");
         def is_decision:
@@ -560,8 +558,7 @@ render_full() {
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
           (.type == "SPEC" and (.status | test("Draft|Review"))) or
           (.type == "STORY" and .status == "Draft") or
-          (.type == "SPIKE" and .status == "Planned") or
-          (.type == "BUG");
+          (.type == "SPIKE" and .status == "Planned");
         [.artifacts.ready[] | select(is_decision)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
         (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
@@ -605,7 +602,6 @@ render_full() {
           elif .type == "RUNBOOK" and .status == "Draft" then "author and test procedure"
           elif .type == "RUNBOOK" then "execute and record results"
           elif .type == "DESIGN" then "create wireframes and flows"
-          elif .type == "BUG" then "triage and fix"
           else "progress to next phase" end;
         def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR|DESIGN");
         def is_decision:
@@ -613,8 +609,7 @@ render_full() {
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
           (.type == "SPEC" and (.status | test("Draft|Review"))) or
           (.type == "STORY" and .status == "Draft") or
-          (.type == "SPIKE" and .status == "Planned") or
-          (.type == "BUG");
+          (.type == "SPIKE" and .status == "Planned");
         [.artifacts.ready[] | select(is_decision | not)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
         (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
