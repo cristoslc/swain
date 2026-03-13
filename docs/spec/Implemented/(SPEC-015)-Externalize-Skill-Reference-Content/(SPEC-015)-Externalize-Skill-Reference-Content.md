@@ -73,3 +73,4 @@ After this change, SKILL.md files for swain-design, swain-doctor, and swain-do a
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | — | Initial creation from EPIC-006 decomposition |
+| Implemented | 2026-03-13 | da6cb61 | Transitioned — all 3 skills externalized to reference files |
