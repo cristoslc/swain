@@ -1,5 +1,11 @@
 # Agent Specs
 
+## Draft
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| SPEC-009 | Normalize Artifact Frontmatter Relationships | 2026-03-13 | — |
+
 ## Approved
 
 | Artifact | Title | Last Updated | Commit |
