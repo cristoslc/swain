@@ -48,4 +48,4 @@ After this fix, opening any file in yazi uses the system default application (`o
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Draft | 2026-03-13 | — | Initial creation from GitHub #15 |
+| Draft | 2026-03-13 | 0304590 | Initial creation from GitHub #15 |
