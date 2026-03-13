@@ -13,6 +13,7 @@
 | **swain-sync** | `/swain-sync` or `/swain sync` | Fetch, rebase, commit, and push changes |
 | **swain-release** | `/swain-release` or `/swain release` | Version bump, changelog, git tag |
 | **swain-update** | `/swain-update` or `/swain update` | Update swain to latest version |
+| **swain-dispatch** | `/swain dispatch SPEC-NNN` | Dispatch artifacts to background agents via GitHub |
 | **swain-help** | `/swain help` or `/swain-help` | This help system |
 
 ## Artifacts

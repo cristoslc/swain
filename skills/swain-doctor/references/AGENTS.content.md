@@ -13,7 +13,7 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | **swain** | Meta-router — routes `/swain` prompts to the correct sub-skill |
 | **swain-init** | One-time project onboarding — CLAUDE.md migration, tk verification, governance |
 | **swain-doctor** | Session-start health checks — governance, .tickets/ validation, legacy cleanup |
-| **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Bug, Persona, Runbook, Journey |
+| **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect, normalize, and cache research sources |
 | **swain-do** | Execution tracking — task management via tk (ticket) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
@@ -24,11 +24,12 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | **swain-session** | Session management — tab naming, preferences, context bookmarks |
 | **swain-stage** | Tmux workspace — layout presets, pane management, animated MOTD status panel |
 | **swain-keys** | SSH key provisioning — per-project signing keys, GitHub registration, host aliases |
+| **swain-dispatch** | Agent dispatch — offload artifacts to background agents via GitHub Issues |
 | **swain-update** | Self-updater — pulls latest swain skills, reconciles governance |
 
 ## Skill routing
 
-When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Bug) or their supporting docs, **always invoke the swain-design skill**.
+When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Design) or their supporting docs, **always invoke the swain-design skill**.
 
 **For project status, progress, or "what's next?"**, use the **swain-status** skill.
 
@@ -36,12 +37,26 @@ When the user wants to create, plan, write, update, transition, or review any do
 
 ## Session startup (AUTO-INVOKE)
 
-At the start of every session, invoke these skills in order:
+At the start of every session, run preflight then conditionally invoke skills:
 
-1. **swain-doctor** — health checks, governance validation, remediation
-2. **swain-session** — tab naming (tmux only), preferences, context bookmarks
+1. **Preflight check** — run `bash .claude/skills/swain-doctor/scripts/swain-preflight.sh`
+   - Exit 0 → skip swain-doctor, proceed to step 3
+   - Exit 1 → invoke **swain-doctor** for full health checks and remediation, then proceed to step 3
+2. **swain-doctor** — (conditional) only runs when preflight detects issues
+3. **swain-session** — tab naming (tmux only), preferences, context bookmarks
 
-Both are idempotent and safe to re-run.
+Preflight is a lightweight shell script that checks governance files, .agents directory, .tickets/ health, and script permissions. It produces zero agent tokens when everything is clean. See ADR-001 and SPEC-008 for the design rationale.
+
+## Migration paths
+
+**Every breaking change must include a migration path.** When replacing a tool, changing a data format, or removing a capability:
+
+1. Provide a migration script or command that converts old data to new format
+2. Document the breaking change and migration steps in release notes
+3. Have swain-doctor detect stale artifacts from the old system and offer cleanup guidance
+4. Use a major version bump to signal the breaking change
+
+This applies to tooling swaps (e.g., bd → tk), storage format changes, artifact schema changes, and skill API changes. Users must never be left with orphaned data and no path forward.
 
 ## Conflict resolution
 

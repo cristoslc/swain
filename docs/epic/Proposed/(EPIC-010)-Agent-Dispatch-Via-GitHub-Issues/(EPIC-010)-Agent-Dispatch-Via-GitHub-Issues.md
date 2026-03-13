@@ -43,10 +43,10 @@ Create a `swain-dispatch` skill that pushes swain-design artifacts to GitHub Iss
 
 ## Child Specs
 
-- SPIKE-016: Background Agent Invocation Via GitHub (research)
-- SPEC: swain-dispatch skill implementation (depends on SPIKE-016)
-- SPEC: swain-design dispatch candidacy tagging
-- SPEC: Model routing / complexity assessment for dispatch
+- SPIKE-016: Background Agent Invocation Via GitHub (Complete)
+- SPEC-025: swain-dispatch Skill (Proposed — core dispatch implementation)
+- SPEC: swain-design dispatch candidacy tagging (future)
+- SPEC: Model routing / complexity assessment for dispatch (future, overlaps EPIC-007)
 
 ## Key Dependencies
 

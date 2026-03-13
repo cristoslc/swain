@@ -1,0 +1,29 @@
+name: Claude Agent Dispatch
+
+on:
+  repository_dispatch:
+    types: [agent-dispatch]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  dispatch:
+    if: |
+      (github.event_name == 'repository_dispatch') ||
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --model ${{ github.event.client_payload.model || 'claude-sonnet-4-6' }}
+            --max-turns ${{ github.event.client_payload.max_turns || '15' }}
