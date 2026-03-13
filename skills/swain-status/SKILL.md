@@ -10,6 +10,7 @@ metadata:
   author: cristos
   source: swain
 ---
+<!-- swain-model-hint: sonnet, effort: low -->
 
 # Status
 

@@ -10,6 +10,8 @@ metadata:
   source: swain
 ---
 
+<!-- swain-model-hint: opus, effort: high — default for artifact creation; see per-section overrides below -->
+
 # Spec Management
 
 This skill defines the canonical artifact types, phases, and hierarchy. Detailed definitions and templates live in `skills/swain-design/references/`. If the host repo has an AGENTS.md, keep its artifact sections in sync with the skill's reference data.
@@ -54,6 +56,7 @@ When an operation fails (missing parent, number collision, script error, etc.), 
 
 When superpowers is installed, read [references/superpowers-integration.md](references/superpowers-integration.md) for brainstorming routing, thin SPEC format, and code review gate details. All integration is optional — swain functions fully without superpowers.
 
+<!-- swain-model-hint: sonnet, effort: low — transitions are procedural -->
 ## Phase transitions
 
 Phases are waypoints, not mandatory gates — artifacts may skip forward. Read [references/phase-transitions.md](references/phase-transitions.md) for phase skipping rules, the transition workflow (validate → move → commit → hash stamp), verification/review gates, and completion rules.
@@ -70,10 +73,12 @@ When implementation begins on a SPEC, invoke swain-do. Read [references/executio
 
 SPECs link to GitHub Issues via the `source-issue` frontmatter field. During phase transitions on linked SPECs, post comments or close the issue. Read [references/github-issues-integration.md](references/github-issues-integration.md) for promotion workflow, transition hooks, and backend abstraction.
 
+<!-- swain-model-hint: sonnet, effort: low — status queries are data aggregation -->
 ## Status overview
 
 For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates specgraph + tk + git + GitHub issues). For artifact-specific graph queries (blocks, tree, ready, mermaid), use `skills/swain-design/scripts/specgraph.sh` directly — see [skills/swain-design/references/specgraph-guide.md](skills/swain-design/references/specgraph-guide.md).
 
+<!-- swain-model-hint: opus, effort: high — audits require deep cross-artifact analysis -->
 ## Auditing artifacts
 
 When the user requests an audit, read [references/auditing.md](references/auditing.md) for the full two-phase procedure (pre-scan + parallel audit agents including ADR compliance).

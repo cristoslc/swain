@@ -39,3 +39,4 @@
 | SPEC-024 | Pre-Commit Verification in swain-sync | 2026-03-13 | 62662e6 |
 | SPEC-011 | Automated Retrospectives | 2026-03-13 | 02c3960 |
 | SPEC-025 | swain-dispatch Skill | 2026-03-13 | 091bdf5 |
+| SPEC-026 | Model Tier Annotations and Routing | 2026-03-13 | PENDING |

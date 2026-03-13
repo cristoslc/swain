@@ -10,6 +10,7 @@ metadata:
   author: cristos
   source: swain
 ---
+<!-- swain-model-hint: opus, effort: high -->
 
 # swain-search
 

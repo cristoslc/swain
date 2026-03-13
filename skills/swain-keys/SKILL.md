@@ -10,6 +10,7 @@ metadata:
   license: MIT
   source: swain
 ---
+<!-- swain-model-hint: haiku, effort: low -->
 
 # swain-keys
 

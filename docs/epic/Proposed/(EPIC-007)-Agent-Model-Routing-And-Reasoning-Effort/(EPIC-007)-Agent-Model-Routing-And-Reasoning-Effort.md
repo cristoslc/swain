@@ -45,9 +45,9 @@ Out of scope:
 
 ## Child Specs
 
-To be defined after spikes complete:
-- SPIKE-013: Model Selection Mechanisms Across Agent Runtimes
-- SPIKE-014: Swain Skill Cognitive Load Classification
+- SPIKE-013: Model Selection Mechanisms Across Agent Runtimes (Complete)
+- SPIKE-014: Swain Skill Cognitive Load Classification (Complete)
+- SPEC-026: Model Tier Annotations and Routing (implementation of spike findings)
 
 ## Key Dependencies
 
