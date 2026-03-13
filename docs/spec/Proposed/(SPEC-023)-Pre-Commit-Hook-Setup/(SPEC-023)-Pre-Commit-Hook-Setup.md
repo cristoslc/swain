@@ -84,4 +84,4 @@ Or by editing `swain.settings.json` directly and re-running `/swain-init`.
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-13 | PENDING | Initial creation |
+| Proposed | 2026-03-13 | 8ec761d | Initial creation |
