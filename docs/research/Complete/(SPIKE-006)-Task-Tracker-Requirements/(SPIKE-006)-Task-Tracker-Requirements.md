@@ -1,10 +1,10 @@
 ---
 title: "Task Tracker Requirements and Alternatives"
 artifact: SPIKE-006
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-12
-last-updated: 2026-03-12
+last-updated: 2026-03-13
 question: "What task tracking backend should swain-do use, given the requirements learned from SPIKE-001, SPIKE-002, and SPIKE-005?"
 gate: Pre-MVP
 risks-addressed:
