@@ -62,12 +62,11 @@ Replace swain-push with swain-sync — a comprehensive sync skill that handles t
 
 ## Child Specs
 
-- SPIKE-015: Pre-Commit Security Scanner Landscape (reattached from EPIC-009)
-- SPIKE-017: Sync Workflow Best Practices (research additional workflow habits)
-- SPEC-013: Fetch/Pull-First Sync Behavior (core behavioral change + rename)
-- SPEC: swain-init pre-commit hook setup (depends on SPIKE-015)
-- SPEC: swain-sync pre-commit verification (depends on SPIKE-015)
-- SPEC: swain-push deprecation alias and migration path
+- SPIKE-015: Pre-Commit Security Scanner Landscape (Complete)
+- SPIKE-017: Sync Workflow Best Practices (Complete)
+- SPEC-013: Fetch/Pull-First Sync Behavior (Complete — core rename + fetch-first)
+- SPEC-023: Pre-Commit Hook Setup in swain-init (Proposed — depends on SPIKE-015)
+- SPEC-024: Pre-Commit Verification in swain-sync (Proposed — depends on SPEC-023)
 
 ## Key Dependencies
 

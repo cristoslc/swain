@@ -5,6 +5,8 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPEC-011 | Automated Retrospectives | 2026-03-13 | 1170623 |
+| SPEC-023 | Pre-Commit Hook Setup in swain-init | 2026-03-13 | PENDING |
+| SPEC-024 | Pre-Commit Verification in swain-sync | 2026-03-13 | PENDING |
 
 ## Ready
 
