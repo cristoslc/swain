@@ -12,7 +12,7 @@ swain-do: required
 addresses: []
 linked-artifacts: []
 depends-on-artifacts: []
-implementation-commits: PENDING
+implementation-commits: 3d3a4c0
 ---
 
 # Session JSON Per-Project Storage
@@ -64,4 +64,4 @@ Out of scope:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Complete | 2026-03-13 | PENDING | Bug fix — direct to Complete per phase skipping |
+| Complete | 2026-03-13 | 3d3a4c0 | Bug fix — direct to Complete per phase skipping |
