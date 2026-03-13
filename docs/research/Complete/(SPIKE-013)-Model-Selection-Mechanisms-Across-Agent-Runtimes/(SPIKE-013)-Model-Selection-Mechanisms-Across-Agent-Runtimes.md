@@ -1,7 +1,7 @@
 ---
 title: "Model Selection Mechanisms Across Agent Runtimes"
 artifact: SPIKE-013
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
