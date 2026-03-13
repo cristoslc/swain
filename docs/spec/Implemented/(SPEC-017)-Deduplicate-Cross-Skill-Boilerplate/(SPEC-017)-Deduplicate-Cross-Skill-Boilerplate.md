@@ -65,3 +65,4 @@ Move detection logic to a shared script or reference file. Each skill reads the 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | — | Initial creation from EPIC-006 decomposition |
+| Implemented | 2026-03-13 | 5d66e53 | All three deduplication criteria pass |
