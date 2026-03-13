@@ -8,6 +8,7 @@
 | EPIC-006 | Skill Context Footprint Reduction | 2026-03-13 | — |
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | — |
 | EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | — |
+| EPIC-009 | Secrets Leakage Prevention | 2026-03-13 | — |
 
 ## Active
 
