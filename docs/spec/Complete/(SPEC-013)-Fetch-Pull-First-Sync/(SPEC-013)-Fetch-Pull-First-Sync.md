@@ -1,11 +1,13 @@
 ---
 title: "Fetch/Pull-First Sync Behavior"
 artifact: SPEC-013
-status: Proposed
+status: Complete
 type: enhancement
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
+implementation-commits:
+  - b2bed7b
 parent-epic: EPIC-012
 addresses: []
 evidence-pool: ""
@@ -66,3 +68,4 @@ A thin skill that:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | 34f2d62 | Initial creation |
+| Complete | 2026-03-13 | PENDING | swain-sync skill created, swain-push deprecated, all refs updated |

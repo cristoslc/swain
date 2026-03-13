@@ -8,12 +8,12 @@
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | — |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | — |
 | EPIC-011 | MOTD Panel Improvements | 2026-03-13 | ea0d165 |
-| EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | — |
 
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | PENDING |
 
 ## Superseded
 
