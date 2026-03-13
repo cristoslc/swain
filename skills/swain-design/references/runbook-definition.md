@@ -2,13 +2,17 @@
 
 **Template:** [runbook-template.md.template](runbook-template.md.template)
 
+**Lifecycle track: Standing**
+
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft
-    Draft --> Active
-    Active --> Archived
-    Archived --> [*]
-    Draft --> Abandoned
+    [*] --> Proposed
+    Proposed --> Active
+    Active --> Retired
+    Active --> Superseded
+    Retired --> [*]
+    Superseded --> [*]
+    Proposed --> Abandoned
     Active --> Abandoned
     Abandoned --> [*]
 ```
@@ -25,12 +29,12 @@ Trigger types:
 - `on-change` — Run when a specific file, config, or artifact changes.
 - `scheduled` — Run on a recurring cadence (e.g., weekly recovery drill).
 
-- **Folder structure:** `docs/runbook/<Phase>/(RUNBOOK-NNN)-<Title>/` — the Runbook folder lives inside a subdirectory matching its current lifecycle phase. Phase subdirectories: `Draft/`, `Active/`, `Archived/`.
+- **Folder structure:** `docs/runbook/<Phase>/(RUNBOOK-NNN)-<Title>/` — the Runbook folder lives inside a subdirectory matching its current lifecycle phase. Phase subdirectories: `Proposed/`, `Active/`, `Retired/`, `Superseded/`.
   - Example: `docs/runbook/Active/(RUNBOOK-001)-Smoke-Test-Suite/`
-  - When transitioning phases, **move the folder** to the new phase directory (e.g., `git mv docs/runbook/Draft/(RUNBOOK-001)-Foo/ docs/runbook/Active/(RUNBOOK-001)-Foo/`).
+  - When transitioning phases, **move the folder** to the new phase directory (e.g., `git mv docs/runbook/Proposed/(RUNBOOK-001)-Foo/ docs/runbook/Active/(RUNBOOK-001)-Foo/`).
   - Primary file: `(RUNBOOK-NNN)-<Title>.md` — the runbook definition.
   - Supporting files: fixtures, expected screenshots, seed data, helper scripts.
 - Each step has a numbered **Action** and **Expected Outcome**. Agentic runbooks may include tool hints (e.g., `[playwright]`, `[bash]`).
 - A **Run Log** is an append-only table at the bottom of the runbook recording each execution: date, executor, result (Pass/Fail), duration, and notes.
-- A Runbook is "Active" when its steps have been validated and it is safe to execute. "Archived" when the procedure is no longer relevant (e.g., the feature it validates was removed).
+- A Runbook is "Active" when its steps have been validated and it is safe to execute. "Retired" when the procedure is no longer relevant (e.g., the feature it validates was removed).
 - Runbooks are cross-cutting: they link to validated artifacts via `validates:` but are not owned by any single one. An optional `parent-epic:` field provides hierarchy when applicable.

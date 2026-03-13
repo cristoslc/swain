@@ -2,13 +2,17 @@
 
 **Template:** [vision-template.md.template](vision-template.md.template)
 
+**Lifecycle track: Standing**
+
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft
-    Draft --> Active
-    Active --> Sunset
-    Sunset --> [*]
-    Draft --> Abandoned
+    [*] --> Proposed
+    Proposed --> Active
+    Active --> Retired
+    Active --> Superseded
+    Retired --> [*]
+    Superseded --> [*]
+    Proposed --> Abandoned
     Active --> Abandoned
     Abandoned --> [*]
 ```
@@ -47,9 +51,9 @@ Personal products don't need to scale, don't need competitive moats, and don't n
 - **Build-vs-buy decision** — which tier of the priority stack did we land on, and why?
 - **Maintenance budget** — how much ongoing effort is acceptable? (This constrains architectural choices downstream.)
 
-- **Folder structure:** `docs/vision/<Phase>/(VISION-NNN)-<Title>/` — the Vision folder lives inside a subdirectory matching its current lifecycle phase. Phase subdirectories: `Draft/`, `Active/`, `Sunset/`.
+- **Folder structure:** `docs/vision/<Phase>/(VISION-NNN)-<Title>/` — the Vision folder lives inside a subdirectory matching its current lifecycle phase. Phase subdirectories: `Proposed/`, `Active/`, `Retired/`, `Superseded/`.
   - Example: `docs/vision/Active/(VISION-001)-Personal-Agent-Platform/`
-  - When transitioning phases, **move the folder** to the new phase directory (e.g., `git mv docs/vision/Draft/(VISION-001)-Foo/ docs/vision/Active/(VISION-001)-Foo/`).
+  - When transitioning phases, **move the folder** to the new phase directory (e.g., `git mv docs/vision/Proposed/(VISION-001)-Foo/ docs/vision/Active/(VISION-001)-Foo/`).
   - Primary file: `(VISION-NNN)-<Title>.md` — the vision document itself.
   - Supporting docs live alongside it in the same folder. These are NOT numbered artifacts — they are informal reference material owned by the Vision.
     - **Expected:** Every Vision SHOULD include an `architecture-overview.md` and a `roadmap.md`. These are the primary supporting docs that give the Vision operational substance.

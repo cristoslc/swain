@@ -2,7 +2,7 @@
 ---
 title: "{{ title }}"
 artifact: PERSONA-{{ number }}
-status: {{ status | default("Draft") }}
+status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}

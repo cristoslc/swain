@@ -1,6 +1,6 @@
 ---
 name: swain-design
-description: Create, validate, and transition documentation artifacts (Vision, Epic, Story, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, user stories, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC/STORY; decomposes EPIC/VISION/JOURNEY into children first.
+description: Create, validate, and transition documentation artifacts (Vision, Epic, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC; decomposes EPIC/VISION/JOURNEY into children first.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Skill
 metadata:
@@ -22,11 +22,10 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 |------|-----------|-----------|----------|
 | Product Vision (VISION-NNN) | Top-level product direction — goals, audience, and success metrics for a competitive or personal product. | [definition](references/vision-definition.md) | [template](references/vision-template.md.template) |
 | User Journey (JOURNEY-NNN) | End-to-end user workflow with pain points that drive epics and specs. | [definition](references/journey-definition.md) | [template](references/journey-template.md.template) |
-| Epic (EPIC-NNN) | Large deliverable under a vision — groups related specs and stories with success criteria. | [definition](references/epic-definition.md) | [template](references/epic-template.md.template) |
-| User Story (STORY-NNN) | User-facing requirement under an epic, written as "As a... I want... So that..." | [definition](references/story-definition.md) | [template](references/story-template.md.template) |
+| Epic (EPIC-NNN) | Large deliverable under a vision — groups related specs with success criteria. | [definition](references/epic-definition.md) | [template](references/epic-template.md.template) |
 | Agent Spec (SPEC-NNN) | Technical implementation specification with acceptance criteria. Supports `type: feature \| enhancement \| bug`. Parent epic is optional. | [definition](references/spec-definition.md) | [template](references/spec-template.md.template) |
 | Research Spike (SPIKE-NNN) | Time-boxed investigation with a specific question and completion gate. | [definition](references/spike-definition.md) | [template](references/spike-template.md.template) |
-| Persona (PERSONA-NNN) | Archetypal user profile that informs journeys and stories. | [definition](references/persona-definition.md) | [template](references/persona-template.md.template) |
+| Persona (PERSONA-NNN) | Archetypal user profile that informs journeys and specs. | [definition](references/persona-definition.md) | [template](references/persona-template.md.template) |
 | ADR (ADR-NNN) | Single architectural decision — context, choice, alternatives, and consequences (Nygard format). | [definition](references/adr-definition.md) | [template](references/adr-template.md.template) |
 | Runbook (RUNBOOK-NNN) | Step-by-step operational procedure (agentic or manual) with a defined trigger. | [definition](references/runbook-definition.md) | [template](references/runbook-template.md.template) |
 | Design (DESIGN-NNN) | UI/UX interaction design — wireframes, flows, and state diagrams for user-facing surfaces. | [definition](references/design-definition.md) | [template](references/design-template.md.template) |
@@ -42,9 +41,9 @@ When an operation fails (missing parent, number collision, script error, etc.), 
 1. Scan `docs/<type>/` (recursively, across all phase subdirectories) to determine the next available number for the prefix.
 2. **For VISION artifacts:** Before drafting, ask the user whether this is a **competitive product** or a **personal product**. The answer determines which template sections to include and shapes the entire downstream decomposition. See the vision definition for details on each product type.
 3. Read the artifact's definition file and template from the lookup table above.
-4. Create the artifact in the correct phase subdirectory (usually the first phase — e.g., `docs/epic/Proposed/`, `docs/spec/Draft/`). Create the phase directory with `mkdir -p` if it doesn't exist yet. See the definition file for the exact directory structure.
+4. Create the artifact in the correct phase subdirectory (usually the first phase — `Proposed/` for all types). Create the phase directory with `mkdir -p` if it doesn't exist yet. See the definition file for the exact directory structure.
 5. Populate frontmatter with the required fields for the type (see the template).
-6. Initialize the lifecycle table with the appropriate phase and current date. This is usually the first phase (Draft, Planned, etc.), but an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
+6. Initialize the lifecycle table with the appropriate phase and current date. This is usually `Proposed`, but an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
 7. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
 8. **ADR compliance check** — run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before proceeding.
 8a. **Alignment check** — run `skills/swain-design/scripts/specgraph.sh scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
@@ -61,11 +60,11 @@ Phases are waypoints, not mandatory gates — artifacts may skip forward. Read [
 
 ## Evidence pool integration
 
-During research phase transitions (Spike → Active, ADR → Proposed, Vision/Epic creation), check for existing evidence pools and offer to link or create one. Read [references/evidence-pool-integration.md](references/evidence-pool-integration.md) for the full hook, pool scanning, and back-link maintenance procedures.
+During research phase transitions (Spike Proposed → Active, ADR Proposed → Active, Vision/Epic creation), check for existing evidence pools and offer to link or create one. Read [references/evidence-pool-integration.md](references/evidence-pool-integration.md) for the full hook, pool scanning, and back-link maintenance procedures.
 
 ## Execution tracking handoff
 
-When implementation begins on a SPEC/STORY, invoke swain-do. Read [references/execution-tracking-handoff.md](references/execution-tracking-handoff.md) for the four-tier tracking model, `swain-do: required` frontmatter field, intent triggers, coordination artifact decomposition, and STORY/SPEC coordination.
+When implementation begins on a SPEC, invoke swain-do. Read [references/execution-tracking-handoff.md](references/execution-tracking-handoff.md) for the four-tier tracking model, `swain-do: required` frontmatter field, intent triggers, and coordination artifact decomposition.
 
 ## GitHub Issues integration
 

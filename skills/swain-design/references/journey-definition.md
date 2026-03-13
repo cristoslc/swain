@@ -2,25 +2,29 @@
 
 **Template:** [journey-template.md.template](journey-template.md.template)
 
+**Lifecycle track: Standing**
+
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft
-    Draft --> Validated
-    Draft --> Abandoned
-    Validated --> Archived
-    Validated --> Abandoned
-    Archived --> [*]
+    [*] --> Proposed
+    Proposed --> Active
+    Active --> Retired
+    Active --> Superseded
+    Retired --> [*]
+    Superseded --> [*]
+    Proposed --> Abandoned
+    Active --> Abandoned
     Abandoned --> [*]
 ```
 
 Maps an end-to-end user experience across features and touchpoints. Journeys describe *how a user accomplishes a goal* and surface pain points and opportunities that inform which Epics to create.
 
-- **Folder structure:** `docs/journey/<Phase>/(JOURNEY-NNN)-<Title>/` — the Journey folder lives inside a subdirectory matching its current lifecycle phase. Phase subdirectories: `Draft/`, `Validated/`, `Archived/`.
-  - Example: `docs/journey/Draft/(JOURNEY-001)-First-Time-Setup/`
-  - When transitioning phases, **move the folder** to the new phase directory (e.g., `git mv docs/journey/Draft/(JOURNEY-001)-Foo/ docs/journey/Validated/(JOURNEY-001)-Foo/`).
+- **Folder structure:** `docs/journey/<Phase>/(JOURNEY-NNN)-<Title>/` — the Journey folder lives inside a subdirectory matching its current lifecycle phase. Phase subdirectories: `Proposed/`, `Active/`, `Retired/`, `Superseded/`.
+  - Example: `docs/journey/Proposed/(JOURNEY-001)-First-Time-Setup/`
+  - When transitioning phases, **move the folder** to the new phase directory (e.g., `git mv docs/journey/Proposed/(JOURNEY-001)-Foo/ docs/journey/Active/(JOURNEY-001)-Foo/`).
   - Primary file: `(JOURNEY-NNN)-<Title>.md` — the journey narrative.
   - Supporting docs: flow charts, interview notes, extended research.
-- A Journey is "Validated" when its steps and pain points have been confirmed through user research, stakeholder review, or prototype testing.
+- A Journey is "Active" when its steps and pain points have been confirmed through review or prototype testing.
 - Journeys are *discovery artifacts* — they inform Epic and Agent Spec creation but are not directly implemented. They do NOT contain acceptance criteria or task breakdowns.
 
 ## Mermaid journey diagram
@@ -111,4 +115,4 @@ The `PP-NN` label in the callout MUST match a row in the Pain Points Summary tab
 
 - When creating a journey, draft the narrative first, then build the diagram from it. The diagram is a *derived visualization*, not the source of truth — the narrative is.
 - When updating a journey (adding stages, revising pain points), update **both** the narrative and the diagram in the same commit.
-- When transitioning a journey to Validated, confirm that satisfaction scores reflect validated research findings, not initial assumptions. Adjust scores as user feedback dictates.
+- When transitioning a journey to Active, confirm that satisfaction scores reflect validated research findings, not initial assumptions. Adjust scores as user feedback dictates.
