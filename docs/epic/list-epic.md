@@ -10,6 +10,7 @@
 | EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | — |
 | EPIC-009 | Secrets Leakage Prevention | 2026-03-13 | — |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | — |
+| EPIC-011 | MOTD Panel Improvements | 2026-03-13 | — |
 
 ## Active
 
