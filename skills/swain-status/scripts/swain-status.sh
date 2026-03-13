@@ -139,6 +139,9 @@ collect_artifacts() {
 
   jq '
     def is_resolved: test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined");
+    # A dependency is satisfied once its target moves past initial planning phases.
+    # Only Draft, Planned, Proposed, and Review are "not yet satisfied."
+    def is_dep_satisfied: test("Draft|Planned|Proposed|Review") | not;
 
     .nodes as $nodes |
     .edges as $edges |
@@ -146,13 +149,13 @@ collect_artifacts() {
     # All unresolved
     [$nodes | to_entries[] | select(.value.status | is_resolved | not)] as $unresolved |
 
-    # Ready: unresolved with no unresolved deps, enriched with unblock info
+    # Ready: unresolved with all deps satisfied, enriched with unblock info
     ([$unresolved[] |
       .key as $id |
       ([$edges[] | select(.from == $id and .type == "depends-on") | .to] | unique) as $deps |
       select(
         ($deps | length == 0) or
-        ($deps | all(. as $dep | $nodes[$dep] == null or ($nodes[$dep].status | is_resolved)))
+        ($deps | all(. as $dep | $nodes[$dep] == null or ($nodes[$dep].status | is_dep_satisfied)))
       ) |
       # What unresolved items depend on this one?
       ([$edges[] | select(.to == $id and .type == "depends-on") | .from] |
@@ -161,11 +164,11 @@ collect_artifacts() {
       {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, description: .value.description, unblocks: $unblocks}
     ] | sort_by(-(.unblocks | length), .id)) as $ready |
 
-    # Blocked
+    # Blocked: deps not yet satisfied (still in Draft/Planned/Proposed/Review)
     ([$unresolved[] |
       .key as $id |
       ([$edges[] | select(.from == $id and .type == "depends-on") | .to] | unique) as $deps |
-      ($deps | map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep].status | is_resolved | not)))) as $waiting |
+      ($deps | map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep].status | is_dep_satisfied | not)))) as $waiting |
       select(($waiting | length) > 0) |
       {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, description: .value.description, waiting: $waiting}
     ] | sort_by(.id)) as $blocked |
