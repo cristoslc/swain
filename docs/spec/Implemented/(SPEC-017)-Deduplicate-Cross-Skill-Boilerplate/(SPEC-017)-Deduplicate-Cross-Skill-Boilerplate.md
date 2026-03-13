@@ -1,7 +1,7 @@
 ---
 title: "Deduplicate Cross-Skill Boilerplate"
 artifact: SPEC-017
-status: Draft
+status: Implemented
 type: enhancement
 author: cristos
 created: 2026-03-13
