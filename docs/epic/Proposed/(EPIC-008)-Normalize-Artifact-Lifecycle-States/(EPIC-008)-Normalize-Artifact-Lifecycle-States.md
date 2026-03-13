@@ -104,3 +104,4 @@ None — this is a foundational change that other work should wait on or coordin
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 9a96b36 | Initial creation from GitHub #25 decision |
+| Proposed | 2026-03-13 | 232369c | Decomposed into child specs SPEC-018 through SPEC-022 |
