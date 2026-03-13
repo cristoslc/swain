@@ -184,6 +184,7 @@ collect_artifacts() {
         title: .value.title,
         status: .value.status,
         file: .value.file,
+        description: .value.description,
         progress: { done: $done, total: $total },
         children: [$child_ids[] | . as $cid | $nodes[$cid] | select(. != null) |
           {id: $cid, title: .title, status: .status, type: .type, file: .file, description: .description}
@@ -454,42 +455,20 @@ render_full() {
         if $file != null and $file != "" then
           "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
         else $aid end;
-      def next_step:
-        if .type == "SPEC" and .status == "Draft" then "review and approve"
-        elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
-        elif .type == "SPEC" and .status == "Implementing" then "complete implementation"
-        elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
-        elif .type == "STORY" and .status == "Approved" then "create implementation plan"
-        elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
-        elif .type == "SPIKE" and .status == "Active" then "complete findings"
-        elif .type == "BUG" then "triage and fix"
-        else "progress to next phase" end;
-      .artifacts.epics | to_entries[] |
-      .value as $e |
-      "### \(art_link($e.id; $e.file)): \($e.title) [\($e.status)]",
-      "",
-      (if $e.progress.total == 0 then
-        "Progress: **needs decomposition into specs**"
-      elif $e.progress.done == $e.progress.total then
-        "Progress: **all \($e.progress.total) specs resolved** — ready for completion"
-      else
-        "Progress: **\($e.progress.done)/\($e.progress.total)** specs resolved (\($e.progress.total - $e.progress.done) remaining)"
-      end),
-      "",
-      ($e.children | sort_by(.status) | .[] |
-        (if (.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined"))
-         then "  - [x]"
-         else "  - [ ]"
-         end) + " \(art_link(.id; .file)): \(.title) [\(.status)]" +
-        (if (.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined") | not)
-         then " — \(next_step)"
-         else "" end),
-        (if .description and (.description | length > 0) then
-          "    _\(.description)_"
-        else empty end)
-      ),
-      ""
+      def readiness($e):
+        if $e.progress.total == 0 then "needs decomposition"
+        elif $e.progress.done == $e.progress.total then "all \($e.progress.total) specs resolved"
+        else "\($e.progress.done)/\($e.progress.total) specs resolved (\($e.progress.total - $e.progress.done) remaining)"
+        end;
+      "| Epic | Status | Purpose | Readiness |",
+      "|------|--------|---------|-----------|",
+      (.artifacts.epics | to_entries[] |
+        .value as $e |
+        (($e.description // "") | if length > 70 then .[0:70] + "…" else . end) as $purpose |
+        "| \(art_link($e.id; $e.file)): \($e.title) | \($e.status) | \($purpose) | \(readiness($e)) |"
+      )
     '
+    echo ""
   fi
 
   # --- Decision backlog / Implementation backlog split ---
