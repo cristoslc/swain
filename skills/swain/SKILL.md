@@ -19,3 +19,4 @@ Invoke the Skill tool for exactly one match. Pass the user's full prompt as args
 | swain-keys | SSH keys, signing, provision keys, configure signing, key setup |
 | swain-stage | tmux, panes, layout, workspace, motd, review pane, file browser pane |
 | swain-dispatch | dispatch, background agent, offload, send to agent, run in background |
+| swain-retro | retro, retrospective, reflect, what did we learn, learnings |

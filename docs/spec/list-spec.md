@@ -4,7 +4,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-011 | Automated Retrospectives | 2026-03-13 | 1170623 |
 
 ## Ready
 
@@ -38,4 +37,5 @@
 | SPEC-022 | Remove STORY Artifact Type | 2026-03-13 | c2859a2 |
 | SPEC-023 | Pre-Commit Hook Setup in swain-init | 2026-03-13 | 62662e6 |
 | SPEC-024 | Pre-Commit Verification in swain-sync | 2026-03-13 | 62662e6 |
+| SPEC-011 | Automated Retrospectives | 2026-03-13 | PENDING |
 | SPEC-025 | swain-dispatch Skill | 2026-03-13 | 091bdf5 |

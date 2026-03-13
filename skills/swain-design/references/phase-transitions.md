@@ -29,3 +29,7 @@ Phases listed in the artifact definition files are available waypoints, not mand
 - An Epic is "Complete" only when all child Agent Specs are "Complete" and success criteria are met.
 - An Agent Spec is "Complete" only when its implementation plan is closed (or all tasks are done in fallback mode) **and** its Verification table confirms all acceptance criteria pass (enforced by `spec-verify.sh`).
 - An ADR is "Superseded" only when the superseding ADR is "Active" and links back.
+
+## EPIC completion hook
+
+When an EPIC transitions to Complete, invoke the **swain-retro** skill with the EPIC ID to capture retrospective learnings. This is best-effort — if swain-retro is not available or the user declines, the transition still succeeds.

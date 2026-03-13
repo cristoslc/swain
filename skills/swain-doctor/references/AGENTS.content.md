@@ -25,6 +25,7 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | **swain-stage** | Tmux workspace — layout presets, pane management, animated MOTD status panel |
 | **swain-keys** | SSH key provisioning — per-project signing keys, GitHub registration, host aliases |
 | **swain-dispatch** | Agent dispatch — offload artifacts to background agents via GitHub Issues |
+| **swain-retro** | Automated retrospectives — learnings capture at EPIC completion and on demand |
 | **swain-update** | Self-updater — pulls latest swain skills, reconciles governance |
 
 ## Skill routing
