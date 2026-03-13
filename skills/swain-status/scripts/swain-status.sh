@@ -481,20 +481,18 @@ render_full() {
 
   if [[ "$ready_count" -gt 0 ]]; then
     # Count decisions vs implementation items
+    # Classification from SPIKE-012: VISION, JOURNEY, PERSONA, ADR are decision-only
+    # at every phase. Other types use per-phase bucket mapping.
     local decision_count
     decision_count=$(echo "$data" | jq '
+      def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR");
       def is_decision:
-        (.type == "SPEC" and .status == "Draft") or
-        (.type == "STORY" and .status == "Draft") or
-        (.type == "SPIKE" and (.status | test("Planned|Active"))) or
-        (.type == "ADR" and .status == "Proposed") or
-        (.type == "VISION" and .status == "Draft") or
-        (.type == "JOURNEY" and (.status | test("Draft|Planned"))) or
-        (.type == "PERSONA" and .status == "Draft") or
+        is_decision_only_type or
         (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
-        (.type == "BUG") or
-        (.type == "RUNBOOK" and .status == "Draft") or
-        (.type == "DESIGN" and .status == "Draft");
+        (.type == "SPEC" and (.status | test("Draft|Review"))) or
+        (.type == "STORY" and .status == "Draft") or
+        (.type == "SPIKE" and .status == "Planned") or
+        (.type == "BUG");
       [.artifacts.ready[] | select(is_decision)] | length
     ')
 
@@ -508,35 +506,36 @@ render_full() {
             "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
           else $aid end;
         def next_step:
-          if .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
-          elif .type == "EPIC" and (.status | test("Active")) then "work on child specs"
+          if .type == "VISION" and .status == "Draft" then "align on goals and audience"
+          elif .type == "VISION" then "decompose into epics"
+          elif .type == "JOURNEY" then "map pain points and opportunities"
+          elif .type == "PERSONA" then "validate with user research"
+          elif .type == "ADR" and .status == "Draft" then "form recommendation"
+          elif .type == "ADR" then "review and decide"
+          elif .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
+          elif .type == "EPIC" and .status == "Active" then "work on child specs"
+          elif .type == "EPIC" and .status == "Testing" then "verify acceptance criteria"
           elif .type == "SPEC" and .status == "Draft" then "review and approve"
+          elif .type == "SPEC" and .status == "Review" then "complete review"
           elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
-          elif .type == "SPEC" and .status == "Implementing" then "complete implementation"
+          elif .type == "SPEC" and .status == "Testing" then "complete verification"
           elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
-          elif .type == "STORY" and .status == "Approved" then "create implementation plan"
+          elif .type == "STORY" then "create implementation plan"
           elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
-          elif .type == "SPIKE" and .status == "Active" then "complete findings"
-          elif .type == "ADR" and .status == "Proposed" then "review and decide"
-          elif .type == "VISION" and .status == "Draft" then "align on goals and audience"
-          elif .type == "JOURNEY" and (.status | test("Draft|Planned")) then "map pain points and opportunities"
+          elif .type == "SPIKE" then "complete investigation"
+          elif .type == "RUNBOOK" and .status == "Draft" then "author and test procedure"
+          elif .type == "RUNBOOK" then "execute and record results"
+          elif .type == "DESIGN" then "create wireframes and flows"
           elif .type == "BUG" then "triage and fix"
-          elif .type == "PERSONA" and .status == "Draft" then "validate with user research"
-          elif .type == "RUNBOOK" and .status == "Draft" then "test procedure and finalize"
-          elif .type == "DESIGN" and .status == "Draft" then "review interaction flows"
           else "progress to next phase" end;
+        def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR");
         def is_decision:
-          (.type == "SPEC" and .status == "Draft") or
-          (.type == "STORY" and .status == "Draft") or
-          (.type == "SPIKE" and (.status | test("Planned|Active"))) or
-          (.type == "ADR" and .status == "Proposed") or
-          (.type == "VISION" and .status == "Draft") or
-          (.type == "JOURNEY" and (.status | test("Draft|Planned"))) or
-          (.type == "PERSONA" and .status == "Draft") or
+          is_decision_only_type or
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
-          (.type == "BUG") or
-          (.type == "RUNBOOK" and .status == "Draft") or
-          (.type == "DESIGN" and .status == "Draft");
+          (.type == "SPEC" and (.status | test("Draft|Review"))) or
+          (.type == "STORY" and .status == "Draft") or
+          (.type == "SPIKE" and .status == "Planned") or
+          (.type == "BUG");
         [.artifacts.ready[] | select(is_decision)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
         (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
@@ -560,35 +559,36 @@ render_full() {
             "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
           else $aid end;
         def next_step:
-          if .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
-          elif .type == "EPIC" and (.status | test("Active")) then "work on child specs"
+          if .type == "VISION" and .status == "Draft" then "align on goals and audience"
+          elif .type == "VISION" then "decompose into epics"
+          elif .type == "JOURNEY" then "map pain points and opportunities"
+          elif .type == "PERSONA" then "validate with user research"
+          elif .type == "ADR" and .status == "Draft" then "form recommendation"
+          elif .type == "ADR" then "review and decide"
+          elif .type == "EPIC" and (.status | test("Proposed|Planned")) then "activate and decompose into specs"
+          elif .type == "EPIC" and .status == "Active" then "work on child specs"
+          elif .type == "EPIC" and .status == "Testing" then "verify acceptance criteria"
           elif .type == "SPEC" and .status == "Draft" then "review and approve"
+          elif .type == "SPEC" and .status == "Review" then "complete review"
           elif .type == "SPEC" and .status == "Approved" then "create implementation plan"
-          elif .type == "SPEC" and .status == "Implementing" then "complete implementation"
+          elif .type == "SPEC" and .status == "Testing" then "complete verification"
           elif .type == "STORY" and .status == "Draft" then "refine acceptance criteria"
-          elif .type == "STORY" and .status == "Approved" then "create implementation plan"
+          elif .type == "STORY" then "create implementation plan"
           elif .type == "SPIKE" and .status == "Planned" then "begin investigation"
-          elif .type == "SPIKE" and .status == "Active" then "complete findings"
-          elif .type == "ADR" and .status == "Proposed" then "review and decide"
-          elif .type == "VISION" and .status == "Draft" then "align on goals and audience"
-          elif .type == "JOURNEY" and (.status | test("Draft|Planned")) then "map pain points and opportunities"
+          elif .type == "SPIKE" then "complete investigation"
+          elif .type == "RUNBOOK" and .status == "Draft" then "author and test procedure"
+          elif .type == "RUNBOOK" then "execute and record results"
+          elif .type == "DESIGN" then "create wireframes and flows"
           elif .type == "BUG" then "triage and fix"
-          elif .type == "PERSONA" and .status == "Draft" then "validate with user research"
-          elif .type == "RUNBOOK" and .status == "Draft" then "test procedure and finalize"
-          elif .type == "DESIGN" and .status == "Draft" then "review interaction flows"
           else "progress to next phase" end;
+        def is_decision_only_type: .type | test("VISION|JOURNEY|PERSONA|ADR");
         def is_decision:
-          (.type == "SPEC" and .status == "Draft") or
-          (.type == "STORY" and .status == "Draft") or
-          (.type == "SPIKE" and (.status | test("Planned|Active"))) or
-          (.type == "ADR" and .status == "Proposed") or
-          (.type == "VISION" and .status == "Draft") or
-          (.type == "JOURNEY" and (.status | test("Draft|Planned"))) or
-          (.type == "PERSONA" and .status == "Draft") or
+          is_decision_only_type or
           (.type == "EPIC" and (.status | test("Proposed|Planned"))) or
-          (.type == "BUG") or
-          (.type == "RUNBOOK" and .status == "Draft") or
-          (.type == "DESIGN" and .status == "Draft");
+          (.type == "SPEC" and (.status | test("Draft|Review"))) or
+          (.type == "STORY" and .status == "Draft") or
+          (.type == "SPIKE" and .status == "Planned") or
+          (.type == "BUG");
         [.artifacts.ready[] | select(is_decision | not)] | sort_by(-(.unblocks | length), .id)[] |
         "- \(art_link(.id; .file)): \(.title) [\(.status)] — \(next_step)" +
         (if (.unblocks | length) > 0 then " (unblocks \(.unblocks | length))" else "" end),
