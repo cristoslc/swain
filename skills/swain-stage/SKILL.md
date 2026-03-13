@@ -75,6 +75,8 @@ The MOTD pane shows a dynamic status panel with:
 
 The MOTD is a Textual TUI app (`swain-motd.py`) launched via `uv run`. It reads project data from `status-cache.json` (written by swain-status) when available, falling back to direct git/tk queries when the cache is absent or stale (>5 min). Agent state (spinner, context) is always read from `stage-status.json` for real-time responsiveness. Textual handles Unicode width correctly, provides proper box drawing with rounded corners, and supports color theming.
 
+**Reactive status via hooks:** `stage-status-hook.sh` is configured as a Claude Code hook (PostToolUse, Stop, SubagentStart, SubagentStop) in `.claude/settings.json`. It writes `stage-status.json` automatically so the MOTD spinner reflects real agent activity without manual `motd update` calls.
+
 Control the MOTD:
 
 ```bash
