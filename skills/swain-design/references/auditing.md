@@ -14,7 +14,7 @@ Only proceed to Phase 2 once the pre-scan is clean (or all actionable issues are
 
 ## Phase 2: Parallel audit agents
 
-Spawn six agents in a single turn:
+Spawn seven agents in a single turn:
 
 | Agent | Responsibility |
 |-------|---------------|
@@ -24,6 +24,7 @@ Spawn six agents in a single turn:
 | **Phase/folder alignment** | Confirm `specwatch.sh phase-fix` from the pre-scan left no remaining mismatches. Flag any artifacts that could not be auto-moved. |
 | **Dependency coherence auditor** | Validate that `depends-on` edges are logically sound, not just syntactically valid. See checks below. |
 | **ADR compliance auditor** | Run `scripts/adr-check.sh` against every non-ADR artifact in `docs/`. Collect all RELEVANT, DEAD_REF, and stale findings into a single table. For each RELEVANT finding, read both documents and assess content-level compliance (see [adr-check-guide.md](adr-check-guide.md)). |
+| **Alignment auditor** | For each active Vision, run `specgraph.sh scope` on every descendant and check semantic alignment per [alignment-checking.md](alignment-checking.md). See checks below. |
 
 ### Dependency coherence auditor
 
@@ -36,6 +37,20 @@ The dependency coherence auditor catches cases where the graph *exists* but is *
 5. **Missing implicit dependencies** — Scan artifact bodies for references to other artifact IDs (e.g., "as decided in ADR-001" or "builds on SPIKE-003") that are *not* declared in `depends-on` or `linked-*` frontmatter. These are shadow dependencies that should be formalized or explicitly noted as informational.
 
 For checks 4 and 5, the agent must actually read artifact content — frontmatter alone is not sufficient. Present findings as a table with: source artifact, target artifact, check type, evidence (quote or summary), and recommended action (remove edge, add edge, update frontmatter, or investigate).
+
+### Alignment auditor
+
+The alignment auditor checks that artifacts are semantically oriented toward the same goal. It requires reading artifact content — frontmatter alone is not sufficient. Procedure:
+
+1. Run `specgraph.sh overview --all` to identify all active Visions.
+2. For each active Vision, use `specgraph.sh scope` on every non-terminal descendant (Epics, SPECs, Stories under that Vision).
+3. For each artifact, assess alignment per [alignment-checking.md](alignment-checking.md):
+   - Read the Vision's goal (the "North Star")
+   - Read the artifact content
+   - Check each relationship level (Vision↔Epic, Epic↔SPEC, etc.)
+4. Report findings with severity (MISALIGNED, SCOPE_LEAK, GOAL_DRIFT, STALE_ALIGNMENT, IMPLICIT_CONFLICT).
+
+Present findings as a table with: source artifact, related artifact, finding type, evidence (quote or summary), and recommended action. Apply the noise reduction rules from alignment-checking.md — only report findings that would change what a developer decides.
 
 ### Reporting
 

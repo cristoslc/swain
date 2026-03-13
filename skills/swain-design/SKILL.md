@@ -47,6 +47,7 @@ When an operation fails (missing parent, number collision, script error, etc.), 
 6. Initialize the lifecycle table with the appropriate phase and current date. This is usually the first phase (Draft, Planned, etc.), but an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
 7. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
 8. **ADR compliance check** — run `scripts/adr-check.sh <artifact-path>`. Review any findings with the user before proceeding.
+8a. **Alignment check** — run `scripts/specgraph.sh scope <artifact-id>` and assess per [references/alignment-checking.md](references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
 9. **Post-operation scan** — run `scripts/specwatch.sh scan`. Fix any stale references before committing.
 10. **Index refresh step** — update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
 
@@ -104,6 +105,7 @@ Phases listed in the artifact definition files are available waypoints, not mand
 2. **Move the artifact** to the new phase subdirectory using `git mv` (e.g., `git mv docs/epic/Proposed/(EPIC-001)-Foo/ docs/epic/Active/(EPIC-001)-Foo/`). Every artifact type uses phase subdirectories — see the artifact's definition file for the exact directory names.
 3. Update the artifact's status field in frontmatter to match the new phase.
 4. **ADR compliance check** — for transitions to active phases (Active, Approved, Ready, Implemented, Adopted), run `scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
+4c. **Alignment check** — for transitions to active phases (Active, Approved, Ready, Adopted), run `scripts/specgraph.sh scope <artifact-id>` and assess per [references/alignment-checking.md](references/alignment-checking.md). Skip for backward-looking transitions (Testing, Implemented, Complete) unless content changed since last check. Skip for terminal-phase transitions (Abandoned, Retired, Superseded).
 4a. **Verification gate (SPEC only)** — for `Testing → Implemented` transitions, run `scripts/spec-verify.sh <artifact-path>`. The script checks that every acceptance criterion has documented evidence in the Verification table. Address gaps before proceeding. See `spec-definition.md § Testing phase` for details.
 4b. **Code review gate (SPEC only)** — for `Testing → Implemented` transitions, when superpowers' code review skills are available (`ls .claude/skills/requesting-code-review/SKILL.md .agents/skills/requesting-code-review/SKILL.md .claude/skills/receiving-code-review/SKILL.md .agents/skills/receiving-code-review/SKILL.md 2>/dev/null`), request both a spec compliance review (checking implementation against acceptance criteria) and a code quality review. If superpowers review skills are not available, this step is skipped — it is not a hard gate.
 5. Commit the transition change (move + status update).
@@ -291,7 +293,7 @@ Scripts support artifact workflows. Each is in `scripts/` relative to this skill
 | Script | Default command | Purpose |
 |--------|----------------|---------|
 | `specwatch.sh` | `scan` | Stale reference detection + artifact/tk sync check. Run after every artifact operation. If `.agents/specwatch.log` reports issues, fix before committing. For log format and subcommands, read [references/specwatch-guide.md](references/specwatch-guide.md). |
-| `specgraph.sh` | `overview` | Dependency graph — hierarchy tree with status indicators. For subcommands and output interpretation, read [references/specgraph-guide.md](references/specgraph-guide.md). |
+| `specgraph.sh` | `overview` | Knowledge graph — hierarchy tree, alignment scope, impact analysis. Subcommands: `overview`, `scope`, `impact`, `neighbors`, `edges`, `blocks`, `blocked-by`, `tree`, `ready`, `next`, `mermaid`, `status`. For full reference, read [references/specgraph-guide.md](references/specgraph-guide.md). |
 | `adr-check.sh` | `<artifact-path>` | ADR compliance — checks artifact against Adopted ADRs for relevance, dead refs to Retired/Superseded ADRs, and staleness. Exit 0 = clean, exit 1 = findings. If findings, read [references/adr-check-guide.md](references/adr-check-guide.md) for interpretation and content-level review procedure. |
 | `spec-verify.sh` | `<artifact-path>` | Verification gate — checks a Spec's Verification table against its Acceptance Criteria. Gates `Testing → Implemented`. Exit 0 = all criteria covered, exit 1 = gaps or failures found, exit 2 = usage error. |
 | `issue-integration.sh` | `check` | GitHub Issues integration — promote issues to SPECs, post transition comments, auto-close on Implemented. Backend-abstracted via URL prefix dispatch. |
