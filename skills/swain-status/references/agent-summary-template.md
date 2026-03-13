@@ -65,10 +65,27 @@ Only if there are blocked items not already shown in the epic tree.
 
 ## Section 5: Tasks & Issues
 
-Brief summary of in-progress tk tasks and assigned GitHub issues.
-Omit if empty. Keep it compact — these are context, not the decision point.
+Brief summary of in-progress tk tasks. Omit if empty.
 
-## Section 6: Follow-up
+## Section 6: Open GitHub Issues
+
+Table of open GitHub issues. These are external signals — bugs, feature requests,
+or process gaps reported outside the artifact system.
+
+```
+| Issue | Title | Labels |
+|-------|-------|--------|
+| #NNN | Issue title (~60 chars) | bug, enhancement, ... or — |
+```
+
+Rules:
+- Show all open issues from the status data (up to 10)
+- If the user has assigned issues, show those first with a bold **Assigned** prefix
+- Labels help the user triage — include them if present, `—` if none
+- If an issue is linked to an artifact (visible in the Linked Issues section), note the artifact ID in parentheses after the title
+- Omit this section if there are no open issues
+
+## Section 7: Follow-up
 
 1-2 actionable suggestions. See the follow-up table in SKILL.md.
 Pick suggestions based on what has the most downstream impact.
@@ -102,7 +119,17 @@ Pick suggestions based on what has the most downstream impact.
 
 ## Tasks & Issues
 
-No tasks in progress. 5 open GitHub issues (#36, #29, #28, #27, #26).
+No tasks in progress.
+
+## Open GitHub Issues
+
+| Issue | Title | Labels |
+|-------|-------|--------|
+| #36 | MOTD: show uncommitted file count, explore clickable commit | enhancement |
+| #29 | Decision-only artifacts shown as implementable in status | bug |
+| #28 | VISION-to-VISION deps should not block status | bug |
+| #27 | swain-search: normalize YouTube transcripts to markdown | enhancement |
+| #26 | Spike conclusions not surfaced in final pass | enhancement |
 
 ---
 

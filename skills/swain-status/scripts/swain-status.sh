@@ -204,7 +204,7 @@ collect_artifacts() {
       # Find children (specs/stories parented to this epic)
       ([$edges[] | select(.to == $epic_id and .type == "parent-epic") | .from]) as $child_ids |
       ($child_ids | map(. as $cid | $nodes[$cid]) | map(select(. != null))) as $children |
-      ($children | map(select(.status | is_resolved)) | length) as $done |
+      ($children | map(select(is_resolved)) | length) as $done |
       ($children | length) as $total |
       {
         id: $epic_id,
@@ -221,7 +221,7 @@ collect_artifacts() {
 
     # Counts
     ([$nodes | to_entries[]] | length) as $total |
-    ([$nodes | to_entries[] | select(.value.status | is_resolved)] | length) as $resolved |
+    ([$nodes | to_entries[] | select(.value | is_resolved)] | length) as $resolved |
 
     {
       ready: $ready,
