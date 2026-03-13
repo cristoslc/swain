@@ -184,18 +184,14 @@ art_fm, art_body = parse_frontmatter(artifact_path)
 art_id = extract_artifact_id(art_fm)
 art_last_updated = art_fm.get('last-updated', art_fm.get('created', ''))
 art_parent_epic = art_fm.get('parent-epic', '')
-art_linked_adrs = set(extract_list(art_fm, 'linked-adrs'))
-art_linked_epics = set(extract_list(art_fm, 'linked-epics'))
-art_linked_specs = set(extract_list(art_fm, 'linked-specs'))
-art_depends_on = set(extract_list(art_fm, 'depends-on'))
-art_linked_research = set(extract_list(art_fm, 'linked-research'))
+art_linked = set(extract_list(art_fm, 'linked-artifacts'))
+art_depends_on = set(extract_list(art_fm, 'depends-on-artifacts'))
 art_type = art_id.split('-')[0] if '-' in art_id else ''
 
 # All ADR refs the artifact mentions (frontmatter + body)
 art_all_adr_refs = set()
-art_all_adr_refs.update(art_linked_adrs)
+art_all_adr_refs.update(r for r in art_linked if r.startswith('ADR-'))
 art_all_adr_refs.update(r for r in art_depends_on if r.startswith('ADR-'))
-art_all_adr_refs.update(r for r in art_linked_research if r.startswith('ADR-'))
 art_all_adr_refs.update(extract_adr_refs_from_body(art_body))
 
 # --- Sibling resolution (for non-ADR artifacts under an epic) ---
@@ -232,23 +228,18 @@ for adr_path in adopted_files:
     if adr_id == art_id:
         continue
 
-    adr_linked_epics = set(extract_list(adr_fm, 'linked-epics'))
-    adr_linked_specs = set(extract_list(adr_fm, 'linked-specs'))
-    adr_depends_on = set(extract_list(adr_fm, 'depends-on'))
+    adr_linked = set(extract_list(adr_fm, 'linked-artifacts'))
+    adr_depends_on = set(extract_list(adr_fm, 'depends-on-artifacts'))
     decision_summary = get_decision_summary(adr_body)
 
     reasons = []
 
     if art_type == 'ADR':
         # ADR-on-ADR checks
-        # Overlapping epics
-        overlap_epics = art_linked_epics & adr_linked_epics
-        if overlap_epics:
-            reasons.append(f"shared linked-epics: {', '.join(sorted(overlap_epics))}")
-        # Overlapping specs
-        overlap_specs = art_linked_specs & adr_linked_specs
-        if overlap_specs:
-            reasons.append(f"shared linked-specs: {', '.join(sorted(overlap_specs))}")
+        # Overlapping linked artifacts
+        overlap_linked = art_linked & adr_linked
+        if overlap_linked:
+            reasons.append(f"shared linked-artifacts: {', '.join(sorted(overlap_linked))}")
         # Direct dependency
         if adr_id in art_depends_on:
             reasons.append(f"artifact depends-on {adr_id}")
@@ -257,13 +248,13 @@ for adr_path in adopted_files:
     else:
         # Non-ADR artifact checks
         # Direct linkage to this artifact
-        if art_id in adr_linked_epics or art_id in adr_linked_specs:
+        if art_id in adr_linked:
             reasons.append(f"directly linked via frontmatter")
         # Parent epic linkage
-        if art_parent_epic and art_parent_epic in adr_linked_epics:
+        if art_parent_epic and art_parent_epic in adr_linked:
             reasons.append(f"linked to parent epic {art_parent_epic}")
         # Sibling spec linkage
-        overlap_siblings = sibling_specs & adr_linked_specs
+        overlap_siblings = sibling_specs & adr_linked
         if overlap_siblings:
             reasons.append(f"linked to sibling specs: {', '.join(sorted(overlap_siblings))}")
 

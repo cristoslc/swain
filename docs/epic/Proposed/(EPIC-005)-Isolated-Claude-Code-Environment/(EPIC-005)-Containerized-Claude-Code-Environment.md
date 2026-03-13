@@ -12,9 +12,10 @@ success-criteria:
   - Agent state (.claude/, .agents/, .tickets/) persists across environment restarts via filesystem binding
   - Credentials (API keys, git auth) are forwarded without baking them into the image
   - Environment cleanup is automatic — no orphaned instances or volumes accumulate
-depends-on: []
 addresses: []
 evidence-pool:
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Isolated Claude Code Environment

@@ -11,9 +11,8 @@ risks-addressed:
   - bd/dolt runtime overhead is disproportionate to workload (5,450 server restarts for 18 issues)
   - Backlog.md lacks dependency tracking at the CLI surface
   - No evaluated alternative covers all swain-do requirements
-depends-on: []
 evidence-pool: ""
-linked-research:
+linked-artifacts:
   - SPIKE-001
   - SPIKE-002
   - SPIKE-005

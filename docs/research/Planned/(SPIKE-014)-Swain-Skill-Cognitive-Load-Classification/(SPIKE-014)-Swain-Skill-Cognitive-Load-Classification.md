@@ -11,7 +11,6 @@ risks-addressed:
   - Over-classifying lightweight work as heavy increases cost and latency unnecessarily
   - Under-classifying heavy work as analysis degrades output quality on the most important decisions
   - Some skills contain mixed-tier operations — classification must be at the operation level, not just skill level
-depends-on: []
 linked-artifacts:
   - EPIC-007
   - SPIKE-013

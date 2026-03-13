@@ -11,7 +11,6 @@ risks-addressed:
   - Lazy-loading reference content may cause agents to miss information they need
   - Splitting SKILL.md may break skill routing or invocation mechanics
   - Some content looks like documentation but is actually behavioral — removing it changes agent behavior silently
-depends-on: []
 linked-artifacts:
   - EPIC-006
   - SPIKE-010

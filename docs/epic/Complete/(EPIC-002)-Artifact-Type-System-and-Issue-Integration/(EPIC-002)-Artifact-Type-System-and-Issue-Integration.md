@@ -13,10 +13,11 @@ success-criteria:
   - External issue tracker work items (starting with GitHub Issues) can be pulled into the swain workflow with bidirectional status sync
   - Issue integration is backend-agnostic — designed for future support of Jira, Linear, etc. via CLI tools, MCPs, or scripts
   - Existing swain consumers have a clean migration path via swain-doctor
-depends-on: []
 addresses:
   - JOURNEY-001.PP-01
 evidence-pool: ""
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Artifact Type System & Issue Integration

@@ -7,15 +7,14 @@ created: 2026-03-12
 last-updated: 2026-03-12
 type: feature
 parent-epic: EPIC-004
-linked-research:
-  - SPIKE-004
-linked-adrs:
-  - ADR-001
-depends-on: []
 addresses: []
 evidence-pool:
 source-issue:
 swain-do: required
+linked-artifacts:
+  - SPIKE-004
+  - ADR-001
+depends-on-artifacts: []
 ---
 
 # SPEC-008: Superpowers Integration

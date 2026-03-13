@@ -10,9 +10,10 @@ success-criteria:
   - swain-do loads in ≤5% of a standard context window (down from 10-13%)
   - No existing skill functionality is removed — only redundant, verbose, or misplaced content
   - All skills that exceed a size budget are flagged by swain-doctor
-depends-on: []
 addresses: []
 evidence-pool: ""
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Skill Context Footprint Reduction

@@ -14,9 +14,10 @@ success-criteria:
   - Installation instructions cover autodetected multi-platform support (not just Claude Code)
   - The README includes a concrete walkthrough showing the first-session experience (doctor → status → design → do cycle)
   - No stale references to removed features, old skill names, or deprecated workflows
-depends-on: []
 addresses: []
 evidence-pool: ""
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # README Rewrite for New User Onboarding

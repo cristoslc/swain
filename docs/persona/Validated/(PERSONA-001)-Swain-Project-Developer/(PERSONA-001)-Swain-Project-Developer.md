@@ -5,10 +5,9 @@ status: Validated
 author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
-linked-journeys:
+linked-artifacts:
   - JOURNEY-001
-linked-stories: []
-depends-on: []
+depends-on-artifacts: []
 ---
 
 # Swain Project Developer

@@ -60,24 +60,17 @@ The graph captures all frontmatter relationship fields as typed edges:
 
 | Edge type | Source | Target | Purpose |
 |-----------|--------|--------|---------|
-| `depends-on` | Any | Any | Blocking dependency |
+| `depends-on-artifacts` | Any (except SPIKE) | Any | Blocking dependency |
 | `parent-vision` | EPIC, JOURNEY | VISION | Hierarchy (child → parent) |
 | `parent-epic` | SPEC, STORY, EPIC | EPIC | Hierarchy (child → parent) |
-| `linked-adrs` | SPEC, EPIC, DESIGN | ADR | Architectural decision link |
-| `linked-specs` | ADR, DESIGN | SPEC | Specification link |
-| `linked-epics` | ADR, DESIGN | EPIC | Epic link |
-| `linked-research` | SPEC, ADR, SPIKE, EPIC | SPIKE | Research dependency |
-| `linked-personas` | JOURNEY | PERSONA | Persona reference |
-| `linked-journeys` | PERSONA | JOURNEY | Journey reference |
-| `linked-stories` | PERSONA, DESIGN | STORY | Story reference |
-| `linked-designs` | EPIC, STORY, SPEC | DESIGN | Design reference |
+| `linked-artifacts` | Any | Any | Unified cross-reference (replaces per-type linked-* fields) |
 | `addresses` | SPEC, STORY, EPIC | JOURNEY.PP-NN | Pain point being addressed |
 | `validates` | RUNBOOK | EPIC, SPEC | Operational validation |
 | `superseded-by` | ADR, DESIGN | ADR, DESIGN | Replacement link |
 | `evidence-pool` | Any | Pool ID | Research evidence pool |
 | `source-issue` | SPEC | GitHub ref | External issue tracker link |
 
-`depends-on` is the only edge type that gates `ready` and `next`. All other types are informational relationships used by `scope`, `impact`, `neighbors`, and `mermaid --all-edges`.
+`depends-on-artifacts` is the only edge type that gates `ready` and `next`. All other types are informational relationships used by `scope`, `impact`, `neighbors`, and `mermaid --all-edges`.
 
 ## Neighbors output
 
@@ -86,7 +79,7 @@ The `neighbors <ID>` command shows all directly connected artifacts with directi
 ```
 outgoing  depends-on    SPEC-004  [Implemented]  Unified SPEC Type System
 outgoing  parent-epic   EPIC-002  [Complete]     Artifact Type System
-incoming  linked-adrs   ADR-001   [Adopted]      Graph Storage Format
+incoming  linked-artifacts  ADR-001   [Adopted]      Graph Storage Format
 ```
 
 ## Scope output

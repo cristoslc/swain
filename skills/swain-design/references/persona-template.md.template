@@ -6,16 +6,12 @@ status: {{ status | default("Draft") }}
 author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
-linked-journeys:
-{%- for journey in linked_journeys | default([]) %}
-  - JOURNEY-{{ journey }}
+linked-artifacts:
+{%- for artifact in linked_artifacts | default([]) %}
+  - {{ artifact }}
 {%- endfor %}
-linked-stories:
-{%- for story in linked_stories | default([]) %}
-  - STORY-{{ story }}
-{%- endfor %}
-depends-on:
-{%- for dep in depends_on | default([]) %}
+depends-on-artifacts:
+{%- for dep in depends_on_artifacts | default([]) %}
   - {{ dep }}
 {%- endfor %}
 ---

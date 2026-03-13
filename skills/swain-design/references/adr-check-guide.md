@@ -27,6 +27,6 @@ For each RELEVANT finding:
 ## Updating linkage
 
 If the script surfaces a relevant ADR not already cross-referenced, add it:
-- `linked-adrs` for types that have it (SPEC, DESIGN)
-- `depends-on` for ADR-on-ADR relationships
-- A body mention ("per ADR-NNN") for types without a `linked-adrs` field (STORY, BUG, JOURNEY, PERSONA, RUNBOOK)
+- `linked-artifacts` for any artifact type
+- `depends-on-artifacts` for blocking ADR-on-ADR relationships
+- A body mention ("per ADR-NNN") as supplementary context

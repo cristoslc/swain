@@ -7,13 +7,12 @@ created: 2026-03-13
 last-updated: 2026-03-13
 type: feature
 parent-epic: ""
-linked-research: []
-linked-adrs: []
-depends-on: []
 addresses: []
 evidence-pool: ""
 source-issue: ""
 swain-do: required
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Normalize Artifact Frontmatter Relationships

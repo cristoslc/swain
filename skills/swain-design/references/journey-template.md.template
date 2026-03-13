@@ -7,12 +7,12 @@ author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 parent-vision: VISION-{{ parent_vision_number }}
-linked-personas:
-{%- for persona in linked_personas %}
-  - PERSONA-{{ persona }}
+linked-artifacts:
+{%- for artifact in linked_artifacts | default([]) %}
+  - {{ artifact }}
 {%- endfor %}
-depends-on:
-{%- for dep in depends_on | default([]) %}
+depends-on-artifacts:
+{%- for dep in depends_on_artifacts | default([]) %}
   - {{ dep }}
 {%- endfor %}
 ---

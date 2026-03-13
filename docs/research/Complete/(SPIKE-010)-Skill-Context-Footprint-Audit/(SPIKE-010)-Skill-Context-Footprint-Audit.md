@@ -10,7 +10,6 @@ gate: Pre-EPIC-006-specs
 risks-addressed:
   - Optimizing the wrong skills first — audit ensures effort targets highest-impact areas
   - Content that looks redundant may actually be load-bearing for agent behavior
-depends-on: []
 linked-artifacts:
   - EPIC-006
 evidence-pool: ""

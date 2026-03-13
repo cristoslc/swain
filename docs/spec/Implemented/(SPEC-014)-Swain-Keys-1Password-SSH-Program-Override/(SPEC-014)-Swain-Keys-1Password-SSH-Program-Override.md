@@ -7,13 +7,12 @@ author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
 parent-epic:
-linked-research: []
-linked-adrs: []
-depends-on: []
 addresses: []
 evidence-pool: ""
 source-issue: "github:cristoslc/swain#37"
 swain-do: required
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # swain-keys 1Password SSH Program Override

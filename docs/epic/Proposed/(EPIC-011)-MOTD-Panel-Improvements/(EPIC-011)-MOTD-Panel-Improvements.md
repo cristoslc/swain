@@ -11,9 +11,10 @@ success-criteria:
   - Agent status updates automatically via Claude Code hooks (no manual motd update calls)
   - MOTD shows staged vs unstaged file counts prominently
   - Interactive commit button in Textual TUI triggers swain-push
-depends-on: []
 addresses: []
 evidence-pool: ""
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # MOTD Panel Improvements

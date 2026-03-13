@@ -5,12 +5,11 @@ status: Adopted
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
-linked-epics:
-  - EPIC-004
-linked-specs:
-  - SPEC-008
-depends-on: []
 evidence-pool:
+linked-artifacts:
+  - EPIC-004
+  - SPEC-008
+depends-on-artifacts: []
 ---
 
 # ADR-001: Coexist with Superpowers via Layered Integration

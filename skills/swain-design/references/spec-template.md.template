@@ -8,16 +8,12 @@ created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 type: {{ type | default("feature") }}
 parent-epic: {{ parent_epic | default("") }}
-linked-research:
-{%- for ref in linked_research | default([]) %}
-  - {{ ref }}
+linked-artifacts:
+{%- for artifact in linked_artifacts | default([]) %}
+  - {{ artifact }}
 {%- endfor %}
-linked-adrs:
-{%- for adr in linked_adrs | default([]) %}
-  - {{ adr }}
-{%- endfor %}
-depends-on:
-{%- for dep in depends_on | default([]) %}
+depends-on-artifacts:
+{%- for dep in depends_on_artifacts | default([]) %}
   - {{ dep }}
 {%- endfor %}
 addresses:

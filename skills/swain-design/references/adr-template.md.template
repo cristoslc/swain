@@ -6,16 +6,12 @@ status: {{ status | default("Draft") }}
 author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
-linked-epics:
-{%- for epic in linked_epics | default([]) %}
-  - EPIC-{{ epic }}
+linked-artifacts:
+{%- for artifact in linked_artifacts | default([]) %}
+  - {{ artifact }}
 {%- endfor %}
-linked-specs:
-{%- for spec in linked_specs | default([]) %}
-  - SPEC-{{ spec }}
-{%- endfor %}
-depends-on:
-{%- for dep in depends_on | default([]) %}
+depends-on-artifacts:
+{%- for dep in depends_on_artifacts | default([]) %}
   - {{ dep }}
 {%- endfor %}
 evidence-pool: {{ evidence_pool | default("") }}

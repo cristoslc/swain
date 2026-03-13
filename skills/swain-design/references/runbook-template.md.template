@@ -13,8 +13,8 @@ validates:
   - {{ v }}
 {%- endfor %}
 parent-epic: {{ parent_epic | default("") }}
-depends-on:
-{%- for dep in depends_on | default([]) %}
+depends-on-artifacts:
+{%- for dep in depends_on_artifacts | default([]) %}
   - {{ dep }}
 {%- endfor %}
 ---

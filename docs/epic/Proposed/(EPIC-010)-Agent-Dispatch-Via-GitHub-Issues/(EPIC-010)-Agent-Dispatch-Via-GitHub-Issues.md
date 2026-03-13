@@ -12,11 +12,12 @@ success-criteria:
   - Agent backend is configurable (Claude via @claude, potentially others)
   - Model routing decision: Opus vs Sonnet based on task complexity assessment
   - swain-design can tag artifacts as good candidates for dispatch
-depends-on:
-  - SPIKE-016
 addresses: []
 evidence-pool: ""
 source-issue: "github:cristoslc/swain#18"
+linked-artifacts: []
+depends-on-artifacts:
+  - SPIKE-016
 ---
 
 # Agent Dispatch Via GitHub Issues

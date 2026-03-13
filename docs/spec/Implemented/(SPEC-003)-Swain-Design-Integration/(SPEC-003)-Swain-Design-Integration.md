@@ -6,12 +6,11 @@ author: cristos
 created: 2026-03-09
 last-updated: 2026-03-11
 parent-epic: EPIC-001
-linked-research: []
-linked-adrs: []
-depends-on:
-  - SPEC-001
 addresses: []
 swain-do: required
+linked-artifacts: []
+depends-on-artifacts:
+  - SPEC-001
 ---
 
 # swain-design Integration

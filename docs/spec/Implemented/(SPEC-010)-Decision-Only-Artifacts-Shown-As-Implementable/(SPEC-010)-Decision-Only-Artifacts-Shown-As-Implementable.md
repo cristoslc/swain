@@ -7,15 +7,14 @@ created: 2026-03-13
 last-updated: 2026-03-13
 type: bug
 parent-epic:
-linked-research:
-  - SPIKE-012
-linked-adrs: []
-depends-on:
-  - SPIKE-012
 addresses: []
 evidence-pool: ""
 source-issue: github:cristoslc/swain#29
 swain-do: required
+linked-artifacts:
+  - SPIKE-012
+depends-on-artifacts:
+  - SPIKE-012
 ---
 
 # Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status

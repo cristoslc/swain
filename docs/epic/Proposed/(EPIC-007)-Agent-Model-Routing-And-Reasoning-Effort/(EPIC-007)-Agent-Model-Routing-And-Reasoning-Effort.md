@@ -12,10 +12,11 @@ success-criteria:
   - Fallback instructions are present for Codex, OpenCode, Cursor, Copilot, and Gemini CLI runtimes
   - skill-creator is used to apply model steering instructions to skill files
   - Consumers running unsupported runtimes receive a graceful no-op (no errors, best-effort behavior)
-depends-on:
-  - EPIC-006
 addresses: []
 evidence-pool: ""
+linked-artifacts: []
+depends-on-artifacts:
+  - EPIC-006
 ---
 
 # Agent Model Routing and Reasoning Effort Steering

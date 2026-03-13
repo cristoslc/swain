@@ -10,8 +10,8 @@ gate: Pre-MVP
 risks-addressed:
   - bd write latency degrades agent flow when dolt auto-commits accumulate
   - dolt GC or compaction may stall during long sessions
-depends-on: []
 evidence-pool: ""
+linked-artifacts: []
 ---
 
 # Dolt Backend Performance in Beads

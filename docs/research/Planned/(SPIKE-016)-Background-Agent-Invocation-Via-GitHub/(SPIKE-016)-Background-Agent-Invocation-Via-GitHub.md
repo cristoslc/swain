@@ -10,7 +10,6 @@ gate: Pre-EPIC-010-specs
 risks-addressed:
   - Building a dispatch system without understanding the invocation mechanics
   - Assuming @claude works a certain way without testing
-depends-on: []
 linked-artifacts:
   - EPIC-010
 evidence-pool: ""

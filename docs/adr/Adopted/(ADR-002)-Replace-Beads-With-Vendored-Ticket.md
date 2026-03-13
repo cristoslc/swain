@@ -5,15 +5,13 @@ status: Adopted
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
-linked-epics: []
-linked-specs: []
-depends-on: []
 evidence-pool: ""
-linked-research:
+linked-artifacts:
   - SPIKE-001
   - SPIKE-002
   - SPIKE-005
   - SPIKE-006
+depends-on-artifacts: []
 ---
 
 # Replace Beads with Vendored Ticket
