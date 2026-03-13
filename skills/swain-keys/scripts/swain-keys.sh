@@ -194,6 +194,16 @@ step_configure_git_signing() {
 
   info "Configuring local git signing..."
 
+  # Detect if gpg.ssh.program resolves to 1Password's op-ssh-sign (may be
+  # set in an included config file, not just --global).  File-based keys
+  # cannot be used by op-ssh-sign, so override locally with ssh-keygen.
+  local current_ssh_program
+  current_ssh_program="$(git config gpg.ssh.program 2>/dev/null || true)"
+  if [[ "$current_ssh_program" == *"op-ssh-sign"* ]]; then
+    info "Detected 1Password ssh signing program ($current_ssh_program), overriding with ssh-keygen"
+    git config --local gpg.ssh.program ssh-keygen
+  fi
+
   git config --local gpg.format ssh
   git config --local user.signingkey "$key_path"
   git config --local gpg.ssh.allowedSignersFile "$signers_path"
