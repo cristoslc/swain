@@ -87,4 +87,4 @@ Or by editing `swain.settings.json` directly and re-running `/swain-init`.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 8ec761d | Initial creation |
-| Complete | 2026-03-13 | PENDING | Phase 3 added to swain-init, scanner settings in swain.settings.json |
+| Complete | 2026-03-13 | 62662e6 | Phase 3 added to swain-init, scanner settings in swain.settings.json |
