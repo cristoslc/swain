@@ -1,7 +1,7 @@
 ---
 title: "Compress Skill Runtime Instructions"
 artifact: SPEC-016
-status: Draft
+status: Implemented
 type: enhancement
 author: cristos
 created: 2026-03-13
