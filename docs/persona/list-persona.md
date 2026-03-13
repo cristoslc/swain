@@ -1,6 +1,6 @@
 # Personas
 
-## Validated
+## Active
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
