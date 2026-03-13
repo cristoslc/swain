@@ -353,3 +353,4 @@ This pattern works because AGENTS.md is read by the broadest set of runtimes, an
 |-------|------|--------|-------|
 | Planned | 2026-03-13 | -- | Initial creation |
 | Active | 2026-03-13 | -- | Research conducted across all 7 runtimes |
+| Complete | 2026-03-13 | 2eae5a0 | GO: advisory prose blocks safe across all runtimes |
