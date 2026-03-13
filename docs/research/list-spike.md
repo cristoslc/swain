@@ -9,6 +9,8 @@
 | SPIKE-010 | Skill Context Footprint Audit | 2026-03-13 | — |
 | SPIKE-011 | Skill Loading and Compression Strategies | 2026-03-13 | — |
 | SPIKE-012 | Decision-Only Artifact Type Classification | 2026-03-13 | — |
+| SPIKE-013 | Model Selection Mechanisms Across Agent Runtimes | 2026-03-13 | — |
+| SPIKE-014 | Swain Skill Cognitive Load Classification | 2026-03-13 | — |
 
 ## Active
 
