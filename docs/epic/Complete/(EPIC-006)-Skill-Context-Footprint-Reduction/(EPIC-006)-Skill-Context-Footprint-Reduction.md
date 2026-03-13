@@ -1,7 +1,7 @@
 ---
 title: "Skill Context Footprint Reduction"
 artifact: EPIC-006
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13

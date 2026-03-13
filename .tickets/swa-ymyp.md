@@ -1,6 +1,6 @@
 ---
 id: swa-ymyp
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-13T04:26:27Z
@@ -26,3 +26,7 @@ Scope: spike-template.md.template, spec-template.md.template, adr-template.md.te
 **2026-03-13T04:29:00Z**
 
 Linked to SPEC-009: Normalize Artifact Frontmatter Relationships
+
+**2026-03-13T14:22:15Z**
+
+Completed: SPEC-009 implemented — 46 artifacts migrated, 10 templates updated, specgraph/specwatch/adr-check scripts updated, stale shell script removed. Commit 6c4c11f.
