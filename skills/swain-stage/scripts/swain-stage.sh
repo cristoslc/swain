@@ -57,6 +57,11 @@ detect_pkg_manager() {
   fi
 }
 
+# Select the first pane (respects pane-base-index setting)
+select_first_pane() {
+  tmux select-pane -t "$(tmux list-panes -F '#{pane_index}' | head -1)"
+}
+
 # Returns install command for a tool on the detected package manager.
 # Uses a function instead of associative arrays for bash 3 compatibility (macOS).
 install_hint() {
@@ -233,7 +238,7 @@ cmd_layout() {
   done
 
   # Return focus to the first (main) pane
-  tmux select-pane -t 0
+  select_first_pane
 
   echo "layout: $name applied"
 }
@@ -253,7 +258,7 @@ cmd_pane() {
       else
         tmux split-window -h -l 40% "$editor ${files[*]}"
       fi
-      tmux select-pane -t 0
+      select_first_pane
       echo "pane: editor opened"
       ;;
     browser)
@@ -261,17 +266,17 @@ cmd_pane() {
       local browser
       browser=$(get_file_browser_command)
       tmux split-window -h -l 40% "$browser $dir"
-      tmux select-pane -t 0
+      select_first_pane
       echo "pane: file browser opened"
       ;;
     motd)
       tmux split-window -v -l 12 "uv run $SCRIPT_DIR/swain-motd.py"
-      tmux select-pane -t 0
+      select_first_pane
       echo "pane: motd started"
       ;;
     shell)
       tmux split-window -h -l 40%
-      tmux select-pane -t 0
+      select_first_pane
       echo "pane: shell opened"
       ;;
     *)
@@ -364,7 +369,7 @@ cmd_close() {
       ;;
   esac
 
-  tmux select-pane -t 0
+  select_first_pane
   echo "closed: $position pane"
 }
 
