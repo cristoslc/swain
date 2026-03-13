@@ -1,7 +1,7 @@
 ---
 title: "Secrets Leakage Prevention"
 artifact: EPIC-009
-status: Proposed
+status: Superseded
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
@@ -60,3 +60,4 @@ Prevent secrets and credentials from being accidentally committed to repositorie
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 7b39e3e | Initial creation from GitHub #24 decision |
+| Superseded | 2026-03-13 | — | Superseded by EPIC-012 (End-to-End Sync Workflow) |

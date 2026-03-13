@@ -12,7 +12,7 @@ risks-addressed:
   - Incomplete coverage with a single scanner
 depends-on: []
 linked-artifacts:
-  - EPIC-009
+  - EPIC-012
 evidence-pool: ""
 ---
 

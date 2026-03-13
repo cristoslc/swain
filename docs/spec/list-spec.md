@@ -8,6 +8,7 @@
 | SPEC-010 | Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status | 2026-03-13 | — |
 | SPEC-011 | Automated Retrospectives | 2026-03-13 | 1170623 |
 | SPEC-012 | Yazi System Default File Opening | 2026-03-13 | 0304590 |
+| SPEC-013 | Fetch/Pull-First Sync Behavior | 2026-03-13 | — |
 
 ## Approved
 
