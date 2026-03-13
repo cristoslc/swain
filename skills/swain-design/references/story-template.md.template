@@ -13,8 +13,8 @@ related:
   - JOURNEY-{{ journey }}
 {%- endfor %}
 {%- endif %}
-depends-on:
-{%- for dep in depends_on | default([]) %}
+depends-on-artifacts:
+{%- for dep in depends_on_artifacts | default([]) %}
   - {{ dep }}
 {%- endfor %}
 addresses:

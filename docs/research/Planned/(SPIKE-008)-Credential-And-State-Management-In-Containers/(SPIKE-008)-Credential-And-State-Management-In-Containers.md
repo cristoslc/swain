@@ -12,9 +12,8 @@ risks-addressed:
   - Git commit signing (SSH keys) may not transfer cleanly into isolated environments
   - Agent state directories (.claude/, .agents/, .tickets/) need to survive environment restarts
   - gh CLI auth tokens live in host-specific paths that differ inside the environment
-depends-on:
-  - SPIKE-009
 evidence-pool:
+linked-artifacts: []
 ---
 
 # Credential and State Management in Isolated Environments

@@ -10,7 +10,6 @@ gate: Pre-MVP
 risks-addressed:
   - Secrets accidentally committed to repositories
   - Incomplete coverage with a single scanner
-depends-on: []
 linked-artifacts:
   - EPIC-012
 evidence-pool: ""

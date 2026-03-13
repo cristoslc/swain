@@ -12,10 +12,11 @@ success-criteria:
   - Existing pre-commit configurations are preserved (swain discusses changes with user)
   - Scanner list is configurable via swain.settings.json
   - Clear error messages when scanners detect secrets, with remediation guidance
-depends-on: []
 addresses: []
 evidence-pool: ""
 source-issue: "github:cristoslc/swain#24"
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Secrets Leakage Prevention

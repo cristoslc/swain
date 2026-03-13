@@ -6,11 +6,10 @@ author: cristos
 created: 2026-03-09
 last-updated: 2026-03-11
 parent-epic: EPIC-001
-linked-research: []
-linked-adrs: []
-depends-on: []
 addresses: []
 swain-do: required
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # swain-search Skill

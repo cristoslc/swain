@@ -10,9 +10,10 @@ success-criteria:
   - SPIKE-004 research complete with clear mapping between swain and superpowers skill surfaces
   - Decision documented (ADR) on whether to retire swain, integrate superpowers, or coexist
   - If coexistence chosen — integration spec written for superpowers skill adoption within swain
-depends-on: []
 addresses: []
 evidence-pool:
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Superpowers Integration Assessment

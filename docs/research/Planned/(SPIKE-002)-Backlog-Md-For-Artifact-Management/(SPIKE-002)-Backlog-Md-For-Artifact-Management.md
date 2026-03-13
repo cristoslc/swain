@@ -13,9 +13,8 @@ risks-addressed:
   - Phase transitions require git mv of directories
   - Separate index files (list-*.md) that drift from source of truth
   - No visual board for artifact status
-depends-on:
-  - SPIKE-001
 evidence-pool: ""
+linked-artifacts: []
 ---
 
 # Backlog.md for artifact management

@@ -6,14 +6,13 @@ author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
 parent-epic: EPIC-002
-linked-research:
-  - SPIKE-003
-linked-adrs: []
-depends-on:
-  - SPEC-004
 addresses: []
 evidence-pool:
 swain-do: required
+linked-artifacts:
+  - SPIKE-003
+depends-on-artifacts:
+  - SPEC-004
 ---
 
 # BUG-to-SPEC Migration

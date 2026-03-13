@@ -6,14 +6,13 @@ author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
 parent-epic: EPIC-002
-linked-research: []
-linked-adrs: []
-depends-on:
-  - SPEC-004
 addresses:
   - JOURNEY-001.PP-01
 evidence-pool:
 swain-do: required
+linked-artifacts: []
+depends-on-artifacts:
+  - SPEC-004
 ---
 
 # GitHub Issues Integration

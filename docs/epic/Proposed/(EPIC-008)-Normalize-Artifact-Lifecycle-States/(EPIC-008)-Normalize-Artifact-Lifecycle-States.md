@@ -15,12 +15,12 @@ success-criteria:
   - swain-status, swain-do, specgraph, specwatch updated for new phases
   - swain-doctor detects old phase directories and offers migration
   - Existing artifacts migrated to new phase names with git history preserved
-linked-adrs:
-  - ADR-003
-depends-on: []
 addresses: []
 evidence-pool: ""
 source-issue: "github:cristoslc/swain#25"
+linked-artifacts:
+  - ADR-003
+depends-on-artifacts: []
 ---
 
 # Normalize Artifact Lifecycle States

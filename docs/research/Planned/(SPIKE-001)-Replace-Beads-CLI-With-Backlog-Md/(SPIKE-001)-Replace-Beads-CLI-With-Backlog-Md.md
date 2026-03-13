@@ -13,8 +13,8 @@ risks-addressed:
   - .beads/.gitignore hygiene burden (swain-doctor dedicates an entire section to this)
   - No web UI for task visualization
   - No native MCP server support in bd
-depends-on: []
 evidence-pool: ""
+linked-artifacts: []
 ---
 
 # Replace Beads CLI with Backlog.md

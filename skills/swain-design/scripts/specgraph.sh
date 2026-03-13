@@ -182,7 +182,7 @@ do_build() {
     while IFS= read -r dep; do
       [ -z "$dep" ] && continue
       add_edge "$artifact" "$dep" "depends-on"
-    done <<< "$(get_list_field "$file" "depends-on")"
+    done <<< "$(get_list_field "$file" "depends-on-artifacts")"
 
     # parent-vision edges (scalar or list format)
     local pv
@@ -206,9 +206,7 @@ do_build() {
 
     # List-type relationship edges
     local list_field
-    for list_field in linked-adrs linked-specs linked-epics linked-research \
-                      linked-personas linked-journeys linked-stories linked-designs \
-                      validates; do
+    for list_field in linked-artifacts validates; do
       while IFS= read -r ref; do
         [ -z "$ref" ] && continue
         add_edge "$artifact" "$ref" "$list_field"

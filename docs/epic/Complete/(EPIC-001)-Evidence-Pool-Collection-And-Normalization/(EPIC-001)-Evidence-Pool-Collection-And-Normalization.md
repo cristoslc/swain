@@ -12,8 +12,9 @@ success-criteria:
   - Multiple artifacts can reference the same pool via evidence-pool frontmatter with commit-hash pinning
   - evidencewatch script detects oversized and stale pools with configurable thresholds
   - swain-design invokes swain-search when spikes enter Active or during ADR research
-depends-on: []
 addresses: []
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Evidence Pool Collection and Normalization

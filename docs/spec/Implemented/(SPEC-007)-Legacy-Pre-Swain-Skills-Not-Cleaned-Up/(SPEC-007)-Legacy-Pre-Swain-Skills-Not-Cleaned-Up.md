@@ -8,8 +8,9 @@ created: 2026-03-11
 last-updated: 2026-03-11
 affected-artifacts:
   - swain-doctor
-depends-on: []
 swain-do: required
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Legacy pre-swain skills not cleaned up by swain-doctor

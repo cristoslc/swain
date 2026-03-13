@@ -15,10 +15,11 @@ success-criteria:
   - Scanner list configurable via swain.settings.json
   - Migration path documented and enforced by swain-doctor
   - History cleanliness enforced (rebase strategy, clean commits)
-depends-on: []
 addresses: []
 evidence-pool: ""
 source-issue: "github:cristoslc/swain#24"
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # End-to-End Sync Workflow

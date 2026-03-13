@@ -10,7 +10,6 @@ gate: Pre-EPIC-012-specs
 risks-addressed:
   - Missing workflow habits that other tools enforce by default
   - Over-engineering the sync workflow with rarely useful checks
-depends-on: []
 linked-artifacts:
   - EPIC-012
 evidence-pool: ""

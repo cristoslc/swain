@@ -10,7 +10,6 @@ gate: Pre-SPEC-010-implementation
 risks-addressed:
   - Misclassifying a type as decision-only when some of its phases are legitimately agent-implementable
   - Hiding artifacts that do need attention from the operator (over-filtering)
-depends-on: []
 linked-artifacts:
   - SPEC-010
   - EPIC-006

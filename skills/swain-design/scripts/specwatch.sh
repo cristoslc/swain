@@ -249,9 +249,7 @@ docs_dir = sys.argv[1]
 # Fields that contain artifact ID references (single-value or list)
 SINGLE_REF_FIELDS = ['parent-vision', 'parent-epic', 'superseded-by', 'fix-ref']
 LIST_REF_FIELDS = [
-    'depends-on', 'linked-epics', 'linked-specs', 'linked-stories',
-    'linked-adrs', 'linked-research', 'linked-personas', 'linked-journeys',
-    'linked-designs', 'linked-bugs', 'addresses', 'validates',
+    'depends-on-artifacts', 'linked-artifacts', 'addresses', 'validates',
     'affected-artifacts'
 ]
 ALL_REF_FIELDS = SINGLE_REF_FIELDS + LIST_REF_FIELDS

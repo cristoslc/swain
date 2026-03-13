@@ -6,8 +6,9 @@ product-type: personal
 author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
-depends-on: []
 evidence-pool: ""
+linked-artifacts: []
+depends-on-artifacts: []
 ---
 
 # Swain

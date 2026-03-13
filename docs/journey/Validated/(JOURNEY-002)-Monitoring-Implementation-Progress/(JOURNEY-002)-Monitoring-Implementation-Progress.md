@@ -6,9 +6,9 @@ author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
 parent-vision: []
-linked-personas:
+linked-artifacts:
   - PERSONA-001
-depends-on: []
+depends-on-artifacts: []
 ---
 
 # Monitoring Implementation Progress

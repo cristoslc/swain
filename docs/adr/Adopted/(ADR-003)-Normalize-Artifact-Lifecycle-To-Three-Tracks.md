@@ -5,11 +5,10 @@ status: Adopted
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
-linked-epics:
-  - EPIC-008
-linked-specs: []
-depends-on: []
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-008
+depends-on-artifacts: []
 ---
 
 # Normalize Artifact Lifecycle to Three Tracks

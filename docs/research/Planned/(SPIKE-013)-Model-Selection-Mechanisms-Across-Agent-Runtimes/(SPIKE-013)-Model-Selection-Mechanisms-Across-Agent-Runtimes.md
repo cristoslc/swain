@@ -11,7 +11,6 @@ risks-addressed:
   - Runtime-specific annotations may conflict or cause errors in runtimes that don't understand them
   - Some runtimes may have no model selection mechanism — fallback must be a safe no-op
   - Reasoning effort APIs (extended-thinking, budget tokens) differ across providers and may not map cleanly
-depends-on: []
 linked-artifacts:
   - EPIC-007
 evidence-pool: ""

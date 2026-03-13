@@ -7,15 +7,14 @@ author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
 parent-epic: EPIC-006
-linked-research:
-  - SPIKE-010
-  - SPIKE-011
-linked-adrs: []
-depends-on: []
 addresses: []
 evidence-pool: ""
 source-issue: ""
 swain-do: required
+linked-artifacts:
+  - SPIKE-010
+  - SPIKE-011
+depends-on-artifacts: []
 ---
 
 # Deduplicate Cross-Skill Boilerplate
