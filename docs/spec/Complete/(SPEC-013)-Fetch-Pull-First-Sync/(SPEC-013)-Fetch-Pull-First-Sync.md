@@ -68,4 +68,4 @@ A thin skill that:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | 34f2d62 | Initial creation |
-| Complete | 2026-03-13 | PENDING | swain-sync skill created, swain-push deprecated, all refs updated |
+| Complete | 2026-03-13 | 96acb43 | swain-sync skill created, swain-push deprecated, all refs updated |

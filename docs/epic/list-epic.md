@@ -13,7 +13,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | PENDING |
+| EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | 96acb43 |
 
 ## Superseded
 
