@@ -1,7 +1,7 @@
 ---
 title: "Agent Dispatch Via GitHub Issues"
 artifact: EPIC-010
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
@@ -44,7 +44,7 @@ Create a `swain-dispatch` skill that pushes swain-design artifacts to GitHub Iss
 ## Child Specs
 
 - SPIKE-016: Background Agent Invocation Via GitHub (Complete)
-- SPEC-025: swain-dispatch Skill (Proposed — core dispatch implementation)
+- SPEC-025: swain-dispatch Skill (Complete — core dispatch implementation)
 - SPEC: swain-design dispatch candidacy tagging (future)
 - SPEC: Model routing / complexity assessment for dispatch (future, overlaps EPIC-007)
 
@@ -58,3 +58,4 @@ Create a `swain-dispatch` skill that pushes swain-design artifacts to GitHub Iss
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 6a5e1ac | Initial creation from GitHub #18 decision |
+| Active | 2026-03-13 | PENDING | SPEC-025 implemented, SPIKE-016 complete |
