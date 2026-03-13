@@ -78,3 +78,4 @@ After this spec is implemented:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | — | Initial creation |
+| Implemented | 2026-03-13 | 4081ccd | All acceptance criteria pass; SPIKE-012 classification applied |
