@@ -9,6 +9,10 @@
 | SPEC-011 | Automated Retrospectives | 2026-03-13 | 1170623 |
 | SPEC-012 | Yazi System Default File Opening | 2026-03-13 | 0304590 |
 | SPEC-013 | Fetch/Pull-First Sync Behavior | 2026-03-13 | — |
+| SPEC-014 | swain-keys 1Password SSH Program Override | 2026-03-13 | — |
+| SPEC-015 | Externalize Skill Reference Content | 2026-03-13 | — |
+| SPEC-016 | Compress Skill Runtime Instructions | 2026-03-13 | — |
+| SPEC-017 | Deduplicate Cross-Skill Boilerplate | 2026-03-13 | — |
 
 ## Approved
 
