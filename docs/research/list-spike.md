@@ -7,7 +7,6 @@
 | SPIKE-007 | Container Image and Runtime Requirements | 2026-03-12 | — |
 | SPIKE-008 | Credential and State Management in Isolated Environments | 2026-03-12 | — |
 | SPIKE-016 | Background Agent Invocation Via GitHub | 2026-03-13 | — |
-| SPIKE-017 | Sync Workflow Best Practices | 2026-03-13 | — |
 
 ## Active
 
@@ -31,3 +30,4 @@
 | SPIKE-014 | Swain Skill Cognitive Load Classification | 2026-03-13 | 471ba87 |
 | SPIKE-013 | Model Selection Mechanisms Across Agent Runtimes | 2026-03-13 | 2eae5a0 |
 | SPIKE-015 | Pre-Commit Security Scanner Landscape | 2026-03-13 | 474f2be |
+| SPIKE-017 | Sync Workflow Best Practices | 2026-03-13 | ef4d358 |
