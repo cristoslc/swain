@@ -318,6 +318,14 @@ render() {
 # Handle SIGTERM/SIGINT gracefully
 trap 'echo ""; exit 0' TERM INT
 
+# Refresh status cache on startup if stale (#12)
+if ! cache_is_usable; then
+  STATUS_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-status/scripts/swain-status.sh' -print -quit 2>/dev/null)"
+  if [[ -n "$STATUS_SCRIPT" ]]; then
+    bash "$STATUS_SCRIPT" --refresh >/dev/null 2>&1 &
+  fi
+fi
+
 # Fast refresh (0.2s) when agent is working, slow refresh otherwise
 while true; do
   render
