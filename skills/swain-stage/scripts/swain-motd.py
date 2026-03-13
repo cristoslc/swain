@@ -150,24 +150,32 @@ def git_branch() -> str:
 
 def git_dirty() -> str:
     try:
-        r = subprocess.run(
-            ["git", "diff", "--quiet", "HEAD"],
-            capture_output=True,
-        )
-        if r.returncode == 0:
-            # Also check staged
-            r2 = subprocess.run(
-                ["git", "diff", "--cached", "--quiet"],
-                capture_output=True,
-            )
-            if r2.returncode == 0:
-                return "clean"
-        count_r = subprocess.run(
-            ["git", "diff", "--name-only", "HEAD"],
+        staged_r = subprocess.run(
+            ["git", "diff", "--cached", "--name-only"],
             capture_output=True, text=True,
         )
-        count = len([l for l in count_r.stdout.strip().split("\n") if l])
-        return f"{count} changed"
+        staged = len([l for l in staged_r.stdout.strip().split("\n") if l])
+        unstaged_r = subprocess.run(
+            ["git", "diff", "--name-only"],
+            capture_output=True, text=True,
+        )
+        unstaged = len([l for l in unstaged_r.stdout.strip().split("\n") if l])
+        untracked_r = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard"],
+            capture_output=True, text=True,
+        )
+        untracked = len([l for l in untracked_r.stdout.strip().split("\n") if l])
+        total = staged + unstaged + untracked
+        if total == 0:
+            return "clean"
+        parts = []
+        if staged:
+            parts.append(f"{staged} staged")
+        if unstaged:
+            parts.append(f"{unstaged} modified")
+        if untracked:
+            parts.append(f"{untracked} new")
+        return ", ".join(parts)
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "?"
 
