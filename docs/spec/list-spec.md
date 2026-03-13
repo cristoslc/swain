@@ -19,9 +19,9 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-018 | Update Artifact Definitions and Templates | 2026-03-13 | — |
-| SPEC-019 | Update Tooling Scripts for Normalized Lifecycle | 2026-03-13 | — |
-| SPEC-022 | Remove STORY Artifact Type | 2026-03-13 | — |
+| SPEC-018 | Update Artifact Definitions and Templates | 2026-03-13 | c2859a2 |
+| SPEC-019 | Update Tooling Scripts for Normalized Lifecycle | 2026-03-13 | c2859a2 |
+| SPEC-022 | Remove STORY Artifact Type | 2026-03-13 | c2859a2 |
 | SPEC-009 | Normalize Artifact Frontmatter Relationships | 2026-03-13 | b10fea5 |
 | SPEC-017 | Deduplicate Cross-Skill Boilerplate | 2026-03-13 | 5d66e53 |
 | SPEC-016 | Compress Skill Runtime Instructions | 2026-03-13 | 5dd9e42 |
