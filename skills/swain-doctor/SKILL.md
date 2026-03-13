@@ -19,7 +19,7 @@ Run checks in the order listed below. Collect all findings into a summary table 
 
 ## Preflight integration
 
-A lightweight shell script (`scripts/swain-preflight.sh`) performs quick checks before invoking the full doctor. If preflight exits 0, swain-doctor is skipped for the session. If it exits 1, swain-doctor runs normally.
+A lightweight shell script (`skills/swain-doctor/scripts/swain-preflight.sh`) performs quick checks before invoking the full doctor. If preflight exits 0, swain-doctor is skipped for the session. If it exits 1, swain-doctor runs normally.
 
 The preflight checks are a subset of this skill's checks — governance files, .agents directory, .tickets health, script permissions. It runs as pure bash with zero agent tokens. See AGENTS.md § Session startup for the invocation flow.
 
@@ -46,7 +46,7 @@ When invoked directly by the user (not via the auto-invoke flow), swain-doctor a
 
 ## Legacy skill cleanup
 
-Clean up skill directories that have been superseded by renames or retired entirely. Read the legacy mapping from `references/legacy-skills.json` in this skill's directory.
+Clean up skill directories that have been superseded by renames or retired entirely. Read the legacy mapping from `skills/swain-doctor/references/legacy-skills.json`.
 
 ### Renamed skills
 
@@ -88,7 +88,7 @@ After processing all entries, check whether the governance block in the context 
 
 The `npx skills add --all` command (or older versions of swain-update without autodetect) creates dotfolder stubs (e.g., `.windsurf/`, `.cursor/`) for agent platforms that are not installed. These directories only contain symlinks back to `.agents/skills/` and clutter the working tree. See [GitHub issue #21](https://github.com/cristoslc/swain/issues/21).
 
-Read the platform data from `references/platform-dotfolders.json` in this skill's directory. Each entry in the `platforms` array has a `project_dotfolder` name and one or both detection strategies: `command` (CLI binary name) and `detection` (HOME config directory path). Entries with collision-prone command names (e.g., `cmd`, `cortex`, `mux`, `pi`) omit `command` and rely on HOME detection only.
+Read the platform data from `skills/swain-doctor/references/platform-dotfolders.json`. Each entry in the `platforms` array has a `project_dotfolder` name and one or both detection strategies: `command` (CLI binary name) and `detection` (HOME config directory path). Entries with collision-prone command names (e.g., `cmd`, `cortex`, `mux`, `pi`) omit `command` and rely on HOME detection only.
 
 ### Step 1 — Autodetect installed platforms
 
@@ -168,13 +168,13 @@ Determine the target file:
 1. If `CLAUDE.md` exists and its content is just `@AGENTS.md` (the include pattern set up by swain-init), inject into `AGENTS.md` instead.
 2. Otherwise, inject into `CLAUDE.md` (create it if it doesn't exist).
 
-Read the canonical governance content from `references/AGENTS.content.md` (relative to this skill's directory) and append it to the target file.
+Read the canonical governance content from `skills/swain-doctor/references/AGENTS.content.md` and append it to the target file.
 
 ### Cursor
 
 Write the governance rules to `.cursor/rules/swain-governance.mdc`. Create the directory if needed.
 
-Prepend Cursor MDC frontmatter to the canonical content from `references/AGENTS.content.md`:
+Prepend Cursor MDC frontmatter to the canonical content from `skills/swain-doctor/references/AGENTS.content.md`:
 
 ```markdown
 ---
@@ -184,7 +184,7 @@ alwaysApply: true
 ---
 ```
 
-Then append the full contents of `references/AGENTS.content.md` after the frontmatter.
+Then append the full contents of `skills/swain-doctor/references/AGENTS.content.md` after the frontmatter.
 
 ### After injection
 
@@ -301,7 +301,7 @@ Perform the migration automatically:
 
 ## Governance content reference
 
-The canonical governance rules live in `references/AGENTS.content.md` (relative to this skill's directory). Both swain-doctor and swain-init read from this single source of truth. If the upstream rules change in a future swain release, update that file and bump the skill version. Consumers who want the updated rules can delete the `<!-- swain governance -->` block from their context file and re-run this skill.
+The canonical governance rules live in `skills/swain-doctor/references/AGENTS.content.md`. Both swain-doctor and swain-init read from this single source of truth. If the upstream rules change in a future swain release, update that file and bump the skill version. Consumers who want the updated rules can delete the `<!-- swain governance -->` block from their context file and re-run this skill.
 
 ## Tool availability
 
@@ -420,7 +420,7 @@ If this fails, warn:
 
 ## Script permissions
 
-All shell and Python scripts in `skills/*/scripts/` must be executable. Skills invoke these via `bash scripts/foo.sh`, which works regardless, but `uv run scripts/foo.py` and direct execution require the executable bit.
+All shell and Python scripts in `skills/*/scripts/` must be executable. Skills invoke these via `bash skills/<skill>/scripts/foo.sh`, which works regardless, but `uv run skills/<skill>/scripts/foo.py` and direct execution require the executable bit.
 
 ### Check and repair
 

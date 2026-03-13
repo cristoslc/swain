@@ -60,12 +60,12 @@ Answer the user's specific question using your knowledge of swain. If you need d
 
 | Topic | Where to look |
 |-------|---------------|
-| Artifact types, phases, relationships | `references/quick-ref.md` — Artifacts section |
-| Commands and invocations | `references/quick-ref.md` — Commands section |
-| Step-by-step walkthroughs | `references/workflows.md` |
-| Artifact definitions and templates | `../swain-design/references/<type>-definition.md` |
-| tk (ticket) CLI reference | `../swain-do/references/tk-cheatsheet.md` |
-| Troubleshooting | `../swain-design/references/troubleshooting.md` |
+| Artifact types, phases, relationships | `skills/swain-help/references/quick-ref.md` — Artifacts section |
+| Commands and invocations | `skills/swain-help/references/quick-ref.md` — Commands section |
+| Step-by-step walkthroughs | `skills/swain-help/references/workflows.md` |
+| Artifact definitions and templates | `skills/swain-design/references/<type>-definition.md` |
+| tk (ticket) CLI reference | `skills/swain-do/references/tk-cheatsheet.md` |
+| Troubleshooting | `skills/swain-design/references/troubleshooting.md` |
 
 Guidelines for answering:
 
@@ -76,6 +76,6 @@ Guidelines for answering:
 
 ## Reference mode
 
-When the user wants an overview or cheat sheet, read `references/quick-ref.md` and present the relevant section. If they want "everything", present the full quick reference but note it's dense.
+When the user wants an overview or cheat sheet, read `skills/swain-help/references/quick-ref.md` and present the relevant section. If they want "everything", present the full quick reference but note it's dense.
 
-For workflow walkthroughs, read `references/workflows.md`.
+For workflow walkthroughs, read `skills/swain-help/references/workflows.md`.

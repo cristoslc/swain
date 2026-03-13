@@ -14,7 +14,7 @@ metadata:
 
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
-**Before first use:** Read [references/tk-cheatsheet.md](references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
+**Before first use:** Read [skills/swain-do/references/tk-cheatsheet.md](skills/swain-do/references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
 
 ## Artifact handoff protocol
 
@@ -301,7 +301,7 @@ bash "$BOOKMARK" "Completed 'implement auth middleware', started 'write tests'"
 
 When a superpowers plan file exists (produced by the `writing-plans` skill), use the ingestion script instead of manually decomposing tasks. The script parses the plan's `### Task N:` blocks and registers them in tk with full spec lineage.
 
-**Script location:** `scripts/ingest-plan.py` (relative to this skill)
+The ingest helper lives at `skills/swain-do/scripts/ingest-plan.py`.
 
 ### When to use
 
@@ -313,13 +313,13 @@ When a superpowers plan file exists (produced by the `writing-plans` skill), use
 
 ```bash
 # Parse and register in tk
-uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref>
+uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref>
 
 # Parse only (preview without creating tk tasks)
-uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --dry-run
+uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref> --dry-run
 
 # With additional tags
-uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --tags epic:EPIC-009
+uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref> --tags epic:EPIC-009
 ```
 
 ### What it does

@@ -92,7 +92,7 @@ When invoked explicitly by the user, support these operations:
 ### Set tab name
 User says something like "set tab name to X" or "rename tab":
 ```bash
-bash scripts/swain-tab-name.sh "Custom Name"
+bash skills/swain-session/scripts/swain-tab-name.sh "Custom Name"
 ```
 
 ### Bookmark context
@@ -122,7 +122,7 @@ A skill should update the bookmark when it completes a **state-changing operatio
 
 ### How to update
 
-Use the `swain-bookmark.sh` script (in this skill's `scripts/` directory):
+Use `skills/swain-session/scripts/swain-bookmark.sh`:
 
 ```bash
 # Find the script

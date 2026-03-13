@@ -165,6 +165,17 @@ get_file_browser() {
   resolve_tool "$setting" "fileBrowser" "${BROWSER_PREFS[@]}" || echo "ls"
 }
 
+get_file_browser_command() {
+  local browser
+  browser=$(get_file_browser)
+
+  if [[ "$browser" == "yazi" ]]; then
+    printf 'env XDG_CONFIG_HOME=%q %q' "$SKILL_DIR/references" "$browser"
+  else
+    printf '%q' "$browser"
+  fi
+}
+
 # --- Subcommands ---
 
 cmd_layout() {
@@ -202,7 +213,7 @@ cmd_layout() {
 
     # Resolve placeholders in command
     command="${command//\{editor\}/$(get_editor)}"
-    command="${command//\{fileBrowser\}/$(get_file_browser)}"
+    command="${command//\{fileBrowser\}/$(get_file_browser_command)}"
     command="${command//\{scriptDir\}/$SCRIPT_DIR}"
     command="${command//\{repoRoot\}/$REPO_ROOT}"
 
@@ -248,7 +259,7 @@ cmd_pane() {
     browser)
       local dir="${1:-$REPO_ROOT}"
       local browser
-      browser=$(get_file_browser)
+      browser=$(get_file_browser_command)
       tmux split-window -h -l 40% "$browser $dir"
       tmux select-pane -t 0
       echo "pane: file browser opened"

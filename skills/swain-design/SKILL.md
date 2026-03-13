@@ -12,7 +12,7 @@ metadata:
 
 # Spec Management
 
-This skill defines the canonical artifact types, phases, and hierarchy. Detailed definitions and templates live in `references/`. If the host repo has an AGENTS.md, keep its artifact sections in sync with the skill's reference data.
+This skill defines the canonical artifact types, phases, and hierarchy. Detailed definitions and templates live in `skills/swain-design/references/`. If the host repo has an AGENTS.md, keep its artifact sections in sync with the skill's reference data.
 
 ## Artifact type definitions
 
@@ -46,9 +46,9 @@ When an operation fails (missing parent, number collision, script error, etc.), 
 5. Populate frontmatter with the required fields for the type (see the template).
 6. Initialize the lifecycle table with the appropriate phase and current date. This is usually the first phase (Draft, Planned, etc.), but an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
 7. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
-8. **ADR compliance check** — run `scripts/adr-check.sh <artifact-path>`. Review any findings with the user before proceeding.
-8a. **Alignment check** — run `scripts/specgraph.sh scope <artifact-id>` and assess per [references/alignment-checking.md](references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
-9. **Post-operation scan** — run `scripts/specwatch.sh scan`. Fix any stale references before committing.
+8. **ADR compliance check** — run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before proceeding.
+8a. **Alignment check** — run `skills/swain-design/scripts/specgraph.sh scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
+9. **Post-operation scan** — run `skills/swain-design/scripts/specwatch.sh scan`. Fix any stale references before committing.
 10. **Index refresh step** — update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
 
 ## Superpowers integration
@@ -104,14 +104,14 @@ Phases listed in the artifact definition files are available waypoints, not mand
 1. Validate the target phase is reachable from the current phase (same or later in the sequence; intermediate phases may be skipped).
 2. **Move the artifact** to the new phase subdirectory using `git mv` (e.g., `git mv docs/epic/Proposed/(EPIC-001)-Foo/ docs/epic/Active/(EPIC-001)-Foo/`). Every artifact type uses phase subdirectories — see the artifact's definition file for the exact directory names.
 3. Update the artifact's status field in frontmatter to match the new phase.
-4. **ADR compliance check** — for transitions to active phases (Active, Approved, Ready, Implemented, Adopted), run `scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
-4c. **Alignment check** — for transitions to active phases (Active, Approved, Ready, Adopted), run `scripts/specgraph.sh scope <artifact-id>` and assess per [references/alignment-checking.md](references/alignment-checking.md). Skip for backward-looking transitions (Testing, Implemented, Complete) unless content changed since last check. Skip for terminal-phase transitions (Abandoned, Retired, Superseded).
-4a. **Verification gate (SPEC only)** — for `Testing → Implemented` transitions, run `scripts/spec-verify.sh <artifact-path>`. The script checks that every acceptance criterion has documented evidence in the Verification table. Address gaps before proceeding. See `spec-definition.md § Testing phase` for details.
+4. **ADR compliance check** — for transitions to active phases (Active, Approved, Ready, Implemented, Adopted), run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
+4c. **Alignment check** — for transitions to active phases (Active, Approved, Ready, Adopted), run `skills/swain-design/scripts/specgraph.sh scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Skip for backward-looking transitions (Testing, Implemented, Complete) unless content changed since last check. Skip for terminal-phase transitions (Abandoned, Retired, Superseded).
+4a. **Verification gate (SPEC only)** — for `Testing → Implemented` transitions, run `skills/swain-design/scripts/spec-verify.sh <artifact-path>`. The script checks that every acceptance criterion has documented evidence in the Verification table. Address gaps before proceeding. See `skills/swain-design/references/spec-definition.md § Testing phase` for details.
 4b. **Code review gate (SPEC only)** — for `Testing → Implemented` transitions, when superpowers' code review skills are available (`ls .claude/skills/requesting-code-review/SKILL.md .agents/skills/requesting-code-review/SKILL.md .claude/skills/receiving-code-review/SKILL.md .agents/skills/receiving-code-review/SKILL.md 2>/dev/null`), request both a spec compliance review (checking implementation against acceptance criteria) and a code quality review. If superpowers review skills are not available, this step is skipped — it is not a hard gate.
 5. Commit the transition change (move + status update).
 6. Append a row to the artifact's lifecycle table with the commit hash from step 5.
 7. Commit the hash stamp as a **separate commit** — never amend. Two distinct commits keeps the stamped hash reachable in git history and avoids interactive-rebase pitfalls.
-8. **Post-operation scan** — run `scripts/specwatch.sh scan`. Fix any stale references.
+8. **Post-operation scan** — run `skills/swain-design/scripts/specwatch.sh scan`. Fix any stale references.
 9. **Index refresh step** — move the artifact's row to the new phase table (see [Index maintenance](#index-maintenance)).
 
 ### Completion rules
@@ -182,6 +182,11 @@ Artifacts that need swain-do carry `swain-do: required` in their frontmatter. Th
 
 When an agent reads an artifact with `swain-do: required`, it should invoke the swain-do skill before beginning implementation work.
 
+When implementation begins on a SPEC, swain-design should keep the lifecycle state aligned with the real work:
+- If the SPEC is not already Active, transition it to Active before handing off implementation tracking.
+- If that SPEC has a parent EPIC and the EPIC is not already Active, transition the parent EPIC to Active as well.
+- Treat both transitions as idempotent: if either artifact is already Active, leave it unchanged.
+
 ### What "comes up for implementation" means
 
 The trigger is intent, not phase transition alone. An artifact comes up for implementation when the user or workflow indicates they want to start building — not merely when its status changes.
@@ -211,8 +216,8 @@ SPECs can be linked to GitHub Issues via the `source-issue` frontmatter field. T
 
 When the user wants to turn a GitHub issue into a SPEC:
 
-1. Run `scripts/issue-integration.sh check` to verify `gh` CLI availability.
-2. Run `scripts/issue-integration.sh promote <issue-url-or-ref>` to fetch issue data as JSON.
+1. Run `skills/swain-design/scripts/issue-integration.sh check` to verify `gh` CLI availability.
+2. Run `skills/swain-design/scripts/issue-integration.sh promote <issue-url-or-ref>` to fetch issue data as JSON.
 3. Create a new SPEC using the standard creation workflow, populating:
    - `source-issue: github:<owner>/<repo>#<number>` in frontmatter
    - Problem Statement from the issue body
@@ -241,7 +246,7 @@ The `source-issue` value uses URL-prefix dispatch: `github:` routes to the GitHu
 
 ## Status overview
 
-For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates specgraph + tk + git + GitHub issues). For artifact-specific graph queries (blocks, tree, ready, mermaid), use `scripts/specgraph.sh` directly — see [references/specgraph-guide.md](references/specgraph-guide.md).
+For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates specgraph + tk + git + GitHub issues). For artifact-specific graph queries (blocks, tree, ready, mermaid), use `skills/swain-design/scripts/specgraph.sh` directly — see [skills/swain-design/references/specgraph-guide.md](skills/swain-design/references/specgraph-guide.md).
 
 ## Auditing artifacts
 
@@ -288,7 +293,7 @@ erDiagram
 
 ## Tooling
 
-Scripts support artifact workflows. Each is in `scripts/` relative to this skill.
+Scripts support artifact workflows. Each lives under `skills/swain-design/scripts/`.
 
 | Script | Default command | Purpose |
 |--------|----------------|---------|

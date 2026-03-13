@@ -1,0 +1,8 @@
+[filetype]
+rules = [
+  { mime = "image/*", fg = "yellow" },
+  { mime = "{audio,video}/*", fg = "magenta" },
+  { mime = "inode/empty", fg = "lightcyan" },
+  { url = "*", is = "orphan", fg = "lightred" },
+  { url = "*/", fg = "lightcyan" },
+]
