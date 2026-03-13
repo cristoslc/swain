@@ -28,6 +28,6 @@
 | SPIKE-005 | Dolt Backend Performance in Beads | 2026-03-12 | 4831536 |
 | SPIKE-006 | Task Tracker Requirements and Alternatives | 2026-03-13 | ad0f05f |
 | SPIKE-009 | Isolation Mechanism Selection | 2026-03-13 | 8ab71ab |
-| SPIKE-010 | Skill Context Footprint Audit | 2026-03-13 | — |
-| SPIKE-011 | Skill Loading and Compression Strategies | 2026-03-13 | — |
+| SPIKE-010 | Skill Context Footprint Audit | 2026-03-13 | 459bdc7 |
+| SPIKE-011 | Skill Loading and Compression Strategies | 2026-03-13 | 459bdc7 |
 | SPIKE-012 | Decision-Only Artifact Type Classification | 2026-03-13 | 8433c14 |
