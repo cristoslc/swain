@@ -583,16 +583,16 @@ do_overview() {
   # Execution tracking integration
   echo ""
   echo "── Execution Tracking ──"
-  if command -v bd >/dev/null 2>&1; then
-    local bd_status
-    bd_status=$(bd status 2>/dev/null) || true
-    if [ -n "$bd_status" ]; then
-      echo "$bd_status" | sed 's/^/  /'
+  if command -v tk >/dev/null 2>&1; then
+    local tk_status
+    tk_status=$(tk ready 2>/dev/null) || true
+    if [ -n "$tk_status" ]; then
+      echo "$tk_status" | sed 's/^/  /'
     else
       echo "  (no active plans)"
     fi
   else
-    echo "  (bd not installed — use swain-do skill to bootstrap)"
+    echo "  (tk not installed — use swain-do skill to bootstrap)"
   fi
 }
 

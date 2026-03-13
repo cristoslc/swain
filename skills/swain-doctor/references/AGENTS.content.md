@@ -11,11 +11,11 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | Skill | Purpose |
 |-------|---------|
 | **swain** | Meta-router — routes `/swain` prompts to the correct sub-skill |
-| **swain-init** | One-time project onboarding — CLAUDE.md migration, bd setup, governance |
-| **swain-doctor** | Session-start health checks — governance, gitignore hygiene, legacy cleanup |
+| **swain-init** | One-time project onboarding — CLAUDE.md migration, tk verification, governance |
+| **swain-doctor** | Session-start health checks — governance, .tickets/ validation, legacy cleanup |
 | **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Bug, Persona, Runbook, Journey |
 | **swain-search** | Evidence pools — collect, normalize, and cache research sources |
-| **swain-do** | Execution tracking — task management via bd (beads) |
+| **swain-do** | Execution tracking — task management via tk (ticket) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
 | **swain-push** | Commit and push — staging, conventional commits, conflict resolution |
 | **swain-status** | Project status dashboard — active epics, progress, next steps, GitHub issues, session context |

@@ -67,13 +67,13 @@ The MOTD pane shows a dynamic status panel with:
 - Animated spinner when the agent is working (braille, dots, or bar style)
 - Current agent context (what it's doing)
 - Active epic with progress ratio (from swain-status cache)
-- Active bd task
+- Active tk task
 - Ready (actionable) artifact count
 - Last commit info
 - Assigned GitHub issue count
 - Count of touched files
 
-The MOTD is a Textual TUI app (`swain-motd.py`) launched via `uv run`. It reads project data from `status-cache.json` (written by swain-status) when available, falling back to direct git/bd queries when the cache is absent or stale (>5 min). Agent state (spinner, context) is always read from `stage-status.json` for real-time responsiveness. Textual handles Unicode width correctly, provides proper box drawing with rounded corners, and supports color theming.
+The MOTD is a Textual TUI app (`swain-motd.py`) launched via `uv run`. It reads project data from `status-cache.json` (written by swain-status) when available, falling back to direct git/tk queries when the cache is absent or stale (>5 min). Agent state (spinner, context) is always read from `stage-status.json` for real-time responsiveness. Textual handles Unicode width correctly, provides proper box drawing with rounded corners, and supports color theming.
 
 Control the MOTD:
 

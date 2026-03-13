@@ -1,6 +1,6 @@
 ---
 name: swain-doctor
-description: "ALWAYS invoke this skill at the START of every session before doing any other work. Validates project health: governance rules, tool availability, memory directory, settings files, script permissions, .agents directory, and .beads/.gitignore hygiene. Remediates issues across all swain skills. Idempotent — safe to run every session."
+description: "ALWAYS invoke this skill at the START of every session before doing any other work. Validates project health: governance rules, tool availability, memory directory, settings files, script permissions, .agents directory, and .tickets/ validation. Auto-migrates stale .beads/ directories to .tickets/ and removes them. Remediates issues across all swain skills. Idempotent — safe to run every session."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
@@ -13,7 +13,7 @@ metadata:
 
 # Doctor
 
-Session-start health checks for swain projects. Validates and repairs health across **all** swain skills — governance, tools, directories, settings, scripts, caches, and runtime state. Idempotent — run it every session; it only writes when repairs are needed.
+Session-start health checks for swain projects. Validates and repairs health across **all** swain skills — governance, tools, directories, settings, scripts, caches, and runtime state. Auto-migrates stale `.beads/` directories to `.tickets/` and removes them. Idempotent — run it every session; it only writes when repairs are needed.
 
 Run checks in the order listed below. Collect all findings into a summary table at the end.
 
@@ -21,7 +21,7 @@ Run checks in the order listed below. Collect all findings into a summary table 
 
 A lightweight shell script (`scripts/swain-preflight.sh`) performs quick checks before invoking the full doctor. If preflight exits 0, swain-doctor is skipped for the session. If it exits 1, swain-doctor runs normally.
 
-The preflight checks are a subset of this skill's checks — governance files, .agents directory, .beads health, script permissions. It runs as pure bash with zero agent tokens. See AGENTS.md § Session startup for the invocation flow.
+The preflight checks are a subset of this skill's checks — governance files, .agents directory, .tickets health, script permissions. It runs as pure bash with zero agent tokens. See AGENTS.md § Session startup for the invocation flow.
 
 When invoked directly by the user (not via the auto-invoke flow), swain-doctor always runs regardless of preflight status.
 
@@ -192,91 +192,112 @@ Tell the user:
 
 > Governance rules installed in `<file>`. These ensure swain-design, swain-do, and swain-release skills are routable. You can customize the rules — just keep the `<!-- swain governance -->` markers so this skill can detect them on future sessions.
 
-## Beads gitignore hygiene
+## Tickets directory validation
 
-This section runs every session, after governance checks. It is idempotent. **Skip entirely if `.beads/` does not exist** (the project has not initialized bd yet).
+This section runs every session, after governance checks. It is idempotent. **Skip entirely if `.tickets/` does not exist** (the project has not initialized tk yet).
 
-### Step 1 — Validate .beads/.gitignore
+### Step 1 — Validate ticket YAML frontmatter
 
-The following are the canonical ignore patterns. This list is kept in sync with `references/.beads-gitignore` in this skill's directory.
-
-**Canonical patterns** (non-comment, non-blank lines):
-
-```
-dolt/
-dolt-access.lock
-bd.sock
-bd.sock.startlock
-sync-state.json
-last-touched
-.local_version
-redirect
-.sync.lock
-export-state/
-ephemeral.sqlite3
-ephemeral.sqlite3-journal
-ephemeral.sqlite3-wal
-ephemeral.sqlite3-shm
-dolt-server.pid
-dolt-server.log
-dolt-server.lock
-dolt-server.port
-dolt-server.activity
-dolt-monitor.pid
-backup/
-*.db
-*.db?*
-*.db-journal
-*.db-wal
-*.db-shm
-db.sqlite
-bd.db
-.beads-credential-key
-```
-
-1. If `.beads/.gitignore` does not exist, create it from the reference file (`references/.beads-gitignore`) and skip to Step 2.
-
-2. Read `.beads/.gitignore`. For each canonical pattern above, check whether it appears as a non-comment line in the file.
-
-3. Collect any missing patterns. If none are missing, this step is silent — move to Step 2.
-
-4. If patterns are missing, append them to `.beads/.gitignore`:
-
-   ```
-
-   # --- swain-managed entries (do not remove) ---
-   <missing patterns, one per line>
-   ```
-
-5. Tell the user:
-   > Patched `.beads/.gitignore` with N missing entries. These entries prevent runtime and database files from being tracked by git.
-
-### Step 2 — Clean tracked runtime files
-
-After ensuring the gitignore is correct, check whether git is still tracking files that should now be ignored:
+Scan all `.md` files in `.tickets/` and verify that each has valid YAML frontmatter (delimited by `---`). Use a lightweight check:
 
 ```bash
-cd "$(git rev-parse --show-toplevel)" && git ls-files --cached .beads/ | while IFS= read -r f; do
-  if git check-ignore -q "$f" 2>/dev/null; then
-    echo "$f"
+for f in .tickets/*.md; do
+  [ -f "$f" ] || continue
+  # Check that file starts with --- and has a closing ---
+  if ! head -1 "$f" | grep -q '^---$'; then
+    echo "invalid: $f (missing frontmatter open)"
+  elif ! sed -n '2,/^---$/p' "$f" | tail -1 | grep -q '^---$'; then
+    echo "invalid: $f (missing frontmatter close)"
   fi
 done
 ```
 
-This lists files that are both tracked (in the index) and matched by the current gitignore rules.
+If any files have invalid frontmatter, warn:
+> Found N ticket(s) with invalid YAML frontmatter. tk may not be able to read these. Fix the frontmatter delimiters (`---`) in the listed files.
 
-If no files are found, this step is silent.
+If all files are valid, this step is silent.
 
-If files are found:
+### Step 2 — Detect stale lock files
 
-1. Remove them from the index (this untracks them without deleting from disk):
+Check for stale lock files that may have been left behind by a crashed tk process:
 
+```bash
+if [ -d .tickets/.locks ]; then
+  find .tickets/.locks -type f -mmin +60 2>/dev/null
+fi
+```
+
+If stale lock files are found (older than 1 hour), warn:
+> Found stale tk lock files in `.tickets/.locks/`. If tk is not currently running, these can be safely removed:
+> ```bash
+> rm -rf .tickets/.locks/*
+> ```
+
+**Do not auto-delete** -- ask the user first, since a tk process might actually be running.
+
+## Stale .beads/ migration and cleanup
+
+This section runs every session, after tickets validation. It detects leftover `.beads/` directories from the bd-to-tk migration and **performs the migration automatically**.
+
+If `.beads/` does NOT exist, skip this section (report "ok (not present)").
+
+If `.beads/` exists:
+
+### Case 1: `.tickets/` already exists (migration previously completed)
+
+The data has already been migrated. Clean up the stale directory:
+
+```bash
+rm -rf .beads/
+```
+
+Report:
+> Removed stale `.beads/` directory — migration to `.tickets/` was already complete.
+
+### Case 2: `.tickets/` does NOT exist (migration needed)
+
+Perform the migration automatically:
+
+1. **Locate the migration script:**
    ```bash
-   git rm --cached <file1> <file2> ...
+   MIGRATE="$(find . .claude .agents skills -path '*/swain-do/bin/ticket-migrate-beads' -print -quit 2>/dev/null)"
    ```
 
-2. Tell the user:
-   > Untracked N file(s) from git that are now covered by `.beads/.gitignore`. These files still exist on disk but will no longer be committed. You should commit this change.
+2. **Locate backup data** (the migration script reads `.beads/issues.jsonl`):
+   ```bash
+   # Prefer the JSONL backup if it exists
+   if [ -f .beads/backup/issues.jsonl ]; then
+     cp .beads/backup/issues.jsonl .beads/issues.jsonl
+   fi
+   ```
+
+3. **Run the migration** (requires `jq`):
+   ```bash
+   TK_BIN="$(cd "$(dirname "$MIGRATE")" && pwd)"
+   export PATH="$TK_BIN:$PATH"
+   ticket-migrate-beads
+   ```
+
+4. **Verify** the migration produced tickets:
+   ```bash
+   ls .tickets/*.md 2>/dev/null | wc -l
+   ```
+
+5. **If migration succeeded** (ticket count > 0): remove `.beads/`:
+   ```bash
+   rm -rf .beads/
+   ```
+   Report:
+   > Migrated N tickets from `.beads/` to `.tickets/` and removed the stale `.beads/` directory.
+
+6. **If migration failed** (no tickets produced, or script not found, or jq missing): warn but do not delete:
+   > Found `.beads/` directory but automatic migration failed. To migrate manually:
+   > ```bash
+   > TK_BIN="$(cd skills/swain-do/bin && pwd)" && export PATH="$TK_BIN:$PATH"
+   > cp .beads/backup/issues.jsonl .beads/issues.jsonl
+   > ticket-migrate-beads
+   > ```
+   > After verifying `.tickets/` data, remove `.beads/` with `rm -rf .beads/`.
 
 ## Governance content reference
 
@@ -301,7 +322,7 @@ These tools enable specific features. If missing, note which features are degrad
 
 | Tool | Check | Used by | Degradation | Install hint (macOS) |
 |------|-------|---------|-------------|---------------------|
-| `bd` | `command -v bd` | swain-do, swain-status (tasks) | Task tracking falls back to text ledger; status skips task section | `brew install beads` |
+| `tk` | `[ -x skills/swain-do/bin/tk ]` | swain-do, swain-status (tasks) | Task tracking unavailable; status skips task section | Vendored at `skills/swain-do/bin/tk` -- reinstall swain if missing |
 | `uv` | `command -v uv` | swain-stage (MOTD TUI), swain-do (plan ingestion) | MOTD falls back to bash script; plan ingestion unavailable | `brew install uv` |
 | `gh` | `command -v gh` | swain-status (GitHub issues), swain-release | Status skips issues section; release can't create GitHub releases | `brew install gh` |
 | `tmux` | `command -v tmux` | swain-stage | Workspace layouts unavailable (only relevant if user wants tmux features) | `brew install tmux` |
@@ -315,7 +336,7 @@ After checking all tools, output a summary:
 Tool availability:
   git .............. ok
   jq ............... ok
-  bd ............... ok
+  tk ............... ok (vendored)
   uv ............... ok
   gh ............... ok
   tmux ............. ok (in tmux session: yes)
@@ -454,42 +475,38 @@ If the cache was created, tell the user:
 
 If the script is not available or the cache already exists, this step is silent. If the script fails, ignore — the cache will be created on the next `swain-status` invocation.
 
-## bd health (extended .beads checks)
+## tk health (extended .tickets checks)
 
-This extends the existing [Beads gitignore hygiene](#beads-gitignore-hygiene) section. **Skip entirely if `.beads/` does not exist.**
+This extends the existing [Tickets directory validation](#tickets-directory-validation) section. **Skip entirely if `.tickets/` does not exist.**
 
-### bd doctor
+### Vendored tk availability
 
-If `bd` is available and `.beads/` exists, run the bd built-in health check:
-
-```bash
-bd doctor --json 2>/dev/null
-```
-
-If the exit code is non-zero, attempt automatic repair:
+Verify that the vendored tk script exists and is executable:
 
 ```bash
-bd doctor --fix 2>/dev/null
+TK_BIN="skills/swain-do/bin/tk"
+if [ ! -x "$TK_BIN" ]; then
+  echo "warning: vendored tk not found or not executable at $TK_BIN"
+fi
 ```
 
-Report the result to the user. If `--fix` resolves all issues, note it. If issues persist, list them and suggest the user investigate.
+If missing, warn:
+> The vendored tk script is missing at `skills/swain-do/bin/tk`. Task tracking will not work. Reinstall swain skills to restore it.
 
-### Stale runtime files
+### Stale lock files
 
-Check for runtime files that may have been left behind by a crashed bd process:
+Check for lock files that may have been left behind by a crashed tk process:
 
 ```bash
-for f in .beads/bd.sock .beads/bd.sock.startlock .beads/dolt-server.pid .beads/dolt-server.lock .beads/.sync.lock; do
-  if [[ -f "$f" ]]; then
-    echo "stale: $f"
-  fi
-done
+if [ -d .tickets/.locks ]; then
+  find .tickets/.locks -type f -mmin +60 2>/dev/null
+fi
 ```
 
-If stale files are found, warn:
-> Found stale bd runtime files. If bd is not currently running (`pgrep -f "bd serve"` shows nothing), these can be safely removed. Remove them? (list the files)
+If stale lock files are found (older than 1 hour), warn:
+> Found stale tk lock files in `.tickets/.locks/`. If tk is not currently running, these can be safely removed. Remove them? (list the files)
 
-**Do not auto-delete** — ask the user first, since a bd process might actually be running.
+**Do not auto-delete** -- ask the user first, since a tk process might actually be running.
 
 ## Summary report
 
@@ -500,14 +517,15 @@ swain-doctor summary:
   Governance ......... ok
   Legacy cleanup ..... ok (nothing to clean)
   Platform dotfolders  ok (nothing to clean)
-  .beads/.gitignore .. ok
+  .tickets/ .......... ok
+  Stale .beads/ ...... ok (not present)
   Tools .............. ok (1 optional missing: fswatch)
   Memory directory ... ok
   Settings ........... ok
   Script permissions . ok
   .agents directory .. ok
   Status cache ....... seeded
-  bd health .......... ok
+  tk health .......... ok
 
 3 checks performed repairs. 0 issues remain.
 ```

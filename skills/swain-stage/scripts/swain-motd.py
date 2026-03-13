@@ -183,20 +183,31 @@ def git_last_commit() -> str:
         return "no commits"
 
 
-def get_bd_task_direct() -> str:
+def get_task_direct() -> str:
+    """Query .tickets/ via ticket-query for in-progress tasks."""
+    tickets_dir = REPO_ROOT / ".tickets"
+    if not tickets_dir.is_dir():
+        return "no active task"
+
+    # Locate ticket-query: vendored path first, then PATH
+    skill_bin = REPO_ROOT / "skills" / "swain-do" / "bin" / "ticket-query"
+    tq_cmd = str(skill_bin) if skill_bin.is_file() else "ticket-query"
+
     try:
         r = subprocess.run(
-            ["bd", "list", "--status", "in_progress", "--format", "#{id} {title}"],
+            [tq_cmd, '.status == "in_progress"'],
             capture_output=True, text=True, timeout=5,
+            env={**os.environ, "TICKETS_DIR": str(tickets_dir)},
         )
-        # Filter out noise — bd may print "No issues found." or similar on stderr/stdout
-        lines = [
-            l for l in r.stdout.strip().split("\n")
-            if l.strip() and not l.strip().startswith("No ")
-        ]
+        lines = [l.strip() for l in r.stdout.strip().split("\n") if l.strip()]
         if lines:
-            return lines[0][:40]
-    except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError):
+            import json as _json
+            ticket = _json.loads(lines[0])
+            tid = ticket.get("id", "")
+            title = ticket.get("title", "")
+            return f"{tid} {title}"[:40]
+    except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError,
+            ValueError, KeyError):
         pass
     return "no active task"
 
@@ -246,7 +257,7 @@ def collect_data() -> dict:
         dirty = git_dirty()
         last = git_last_commit()[:36]
         epic = "no cache"
-        task = get_bd_task_direct()
+        task = get_task_direct()
         ready = "?"
         issues = 0
 

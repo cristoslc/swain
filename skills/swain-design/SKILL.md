@@ -239,7 +239,7 @@ The `source-issue` value uses URL-prefix dispatch: `github:` routes to the GitHu
 
 ## Status overview
 
-For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates specgraph + bd + git + GitHub issues). For artifact-specific graph queries (blocks, tree, ready, mermaid), use `scripts/specgraph.sh` directly — see [references/specgraph-guide.md](references/specgraph-guide.md).
+For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates specgraph + tk + git + GitHub issues). For artifact-specific graph queries (blocks, tree, ready, mermaid), use `scripts/specgraph.sh` directly — see [references/specgraph-guide.md](references/specgraph-guide.md).
 
 ## Auditing artifacts
 
@@ -290,7 +290,7 @@ Scripts support artifact workflows. Each is in `scripts/` relative to this skill
 
 | Script | Default command | Purpose |
 |--------|----------------|---------|
-| `specwatch.sh` | `scan` | Stale reference detection + artifact/bd sync check. Run after every artifact operation. If `.agents/specwatch.log` reports issues, fix before committing. For log format and subcommands, read [references/specwatch-guide.md](references/specwatch-guide.md). |
+| `specwatch.sh` | `scan` | Stale reference detection + artifact/tk sync check. Run after every artifact operation. If `.agents/specwatch.log` reports issues, fix before committing. For log format and subcommands, read [references/specwatch-guide.md](references/specwatch-guide.md). |
 | `specgraph.sh` | `overview` | Dependency graph — hierarchy tree with status indicators. For subcommands and output interpretation, read [references/specgraph-guide.md](references/specgraph-guide.md). |
 | `adr-check.sh` | `<artifact-path>` | ADR compliance — checks artifact against Adopted ADRs for relevance, dead refs to Retired/Superseded ADRs, and staleness. Exit 0 = clean, exit 1 = findings. If findings, read [references/adr-check-guide.md](references/adr-check-guide.md) for interpretation and content-level review procedure. |
 | `spec-verify.sh` | `<artifact-path>` | Verification gate — checks a Spec's Verification table against its Acceptance Criteria. Gates `Testing → Implemented`. Exit 0 = all criteria covered, exit 1 = gaps or failures found, exit 2 = usage error. |

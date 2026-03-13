@@ -6,9 +6,9 @@ Audits have two phases: a **pre-scan** that fixes structural problems, then **pa
 
 Run `scripts/specwatch.sh scan` synchronously. This performs:
 1. **Stale reference detection** — broken markdown links and unresolvable frontmatter refs
-2. **Artifact/bd sync check** — mismatches between artifact status and bd item state (if bd is in use)
+2. **Artifact/tk sync check** — mismatches between artifact status and tk item state (if tk is in use)
 
-Fix any issues surfaced by the scan before proceeding. For stale refs, update links or frontmatter. For bd sync mismatches, invoke swain-do to reconcile (close stale bd items or transition artifacts). Run `specwatch.sh phase-fix` to move any artifacts whose phase directory doesn't match their frontmatter status.
+Fix any issues surfaced by the scan before proceeding. For stale refs, update links or frontmatter. For tk sync mismatches, invoke swain-do to reconcile (close stale tk items or transition artifacts). Run `specwatch.sh phase-fix` to move any artifacts whose phase directory doesn't match their frontmatter status.
 
 Only proceed to Phase 2 once the pre-scan is clean (or all actionable issues are resolved).
 
