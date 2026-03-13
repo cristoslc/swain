@@ -47,10 +47,12 @@ If this fails (e.g., not in a git repo), set a fallback title of "swain".
 Read the session state file. The file location is:
 
 ```
-~/.claude/projects/<project-path-slug>/memory/session.json
+<project-root>/.agents/session.json
 ```
 
-Where `<project-path-slug>` is the Claude Code memory directory for the current project.
+This keeps session state per-project, version-controlled, and visible to collaborators.
+
+**Migration:** If `.agents/session.json` does not exist but the old global location (`~/.claude/projects/<project-path-slug>/memory/session.json`) does, copy it to `.agents/session.json` on first access.
 
 The session.json schema:
 

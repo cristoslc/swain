@@ -95,5 +95,5 @@ After presenting status, update the bookmark with the most actionable highlight:
 - If specgraph is unavailable: skip artifact section, show other data
 - If tk is unavailable: skip task section
 - If gh CLI is unavailable or no GitHub remote: skip issues section
-- If session.json doesn't exist: skip bookmark
+- If `.agents/session.json` doesn't exist: skip bookmark
 - Never fail hard — show whatever data is available
