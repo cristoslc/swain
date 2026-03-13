@@ -41,4 +41,4 @@
 | SPEC-025 | swain-dispatch Skill | 2026-03-13 | 091bdf5 |
 | SPEC-026 | Model Tier Annotations and Routing | 2026-03-13 | 889d4af |
 | SPEC-027 | Session JSON Per-Project Storage | 2026-03-13 | 3d3a4c0 |
-| SPEC-028 | swain-sync Gitignore Checks | 2026-03-13 | PENDING |
+| SPEC-028 | swain-sync Gitignore Checks | 2026-03-13 | dc8d80e |

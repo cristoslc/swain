@@ -12,7 +12,7 @@ swain-do: required
 addresses: []
 linked-artifacts: []
 depends-on-artifacts: []
-implementation-commits: PENDING
+implementation-commits: dc8d80e
 ---
 
 # swain-sync Gitignore Checks
@@ -56,4 +56,4 @@ Out of scope:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Complete | 2026-03-13 | PENDING | Enhancement — direct to Complete |
+| Complete | 2026-03-13 | dc8d80e | Enhancement — direct to Complete |
