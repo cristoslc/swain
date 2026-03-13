@@ -105,3 +105,5 @@ None — this is a foundational change that other work should wait on or coordin
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 9a96b36 | Initial creation from GitHub #25 decision |
 | Proposed | 2026-03-13 | 232369c | Decomposed into child specs SPEC-018 through SPEC-022 |
+| Active | 2026-03-13 | 2da897b | 3/5 child specs complete, migration in progress |
+| Complete | 2026-03-13 | e9084d2 | All 5 child specs resolved |
