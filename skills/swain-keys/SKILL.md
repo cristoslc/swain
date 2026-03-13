@@ -82,12 +82,7 @@ When called from swain-init, run `--provision` directly without the status-first
 
 ## Session bookmark
 
-After provisioning, update the session bookmark:
-
-```bash
-BOOKMARK="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
-bash "$BOOKMARK" "Provisioned SSH keys for <project> — signing and auth configured"
-```
+After provisioning, update the bookmark: `bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "Provisioned SSH keys for {project}"`
 
 ## Error handling
 
