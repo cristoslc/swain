@@ -78,3 +78,4 @@ Out of scope:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | — | Initial creation |
+| Implemented | 2026-03-13 | b10fea5 | Frontmatter migration complete |
