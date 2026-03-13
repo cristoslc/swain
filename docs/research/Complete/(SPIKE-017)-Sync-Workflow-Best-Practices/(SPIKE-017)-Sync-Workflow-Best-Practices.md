@@ -96,3 +96,4 @@ Defaults are shown above — all habits enabled, conservative thresholds.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-13 | 34f2d62 | Initial creation |
+| Complete | 2026-03-13 | ef4d358 | GO: 4 sync habits recommended |
