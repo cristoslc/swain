@@ -23,8 +23,8 @@ During phase transitions on SPECs with a `source-issue` field, post notification
 
 | Transition target | Action | Script command |
 |-------------------|--------|---------------|
-| Testing | Post comment | `issue-integration.sh transition-comment <source-issue> <artifact-id> Testing` |
-| Implemented | Close issue | `issue-integration.sh transition-close <source-issue> <artifact-id>` |
+| Needs Manual Test | Post comment | `issue-integration.sh transition-comment <source-issue> <artifact-id> Needs Manual Test` |
+| Complete | Close issue | `issue-integration.sh transition-close <source-issue> <artifact-id>` |
 | Abandoned | Post comment (do NOT close) | `issue-integration.sh transition-comment <source-issue> <artifact-id> Abandoned` |
 | Other phases | Post comment | `issue-integration.sh transition-comment <source-issue> <artifact-id> <phase>` |
 

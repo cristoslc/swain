@@ -6,9 +6,9 @@ Reference for interpreting `adr-check.sh` output and performing content-level re
 
 The script outputs structured findings:
 
-- **`RELEVANT`** — An Adopted ADR's scope overlaps the artifact. Read the ADR's Decision section and verify the artifact's content doesn't contradict it. Common violations: proposing an approach rejected in "Alternatives Considered," ignoring constraints from "Consequences," or (ADR-on-ADR) contradicting an Adopted decision without explicitly superseding it.
+- **`RELEVANT`** — An Active ADR's scope overlaps the artifact. Read the ADR's Decision section and verify the artifact's content doesn't contradict it. Common violations: proposing an approach rejected in "Alternatives Considered," ignoring constraints from "Consequences," or (ADR-on-ADR) contradicting an Active decision without explicitly superseding it.
 - **`DEAD_REF`** — The artifact references a Retired or Superseded ADR. If superseded, review against the replacement. If retired with no replacement, assess whether the artifact's design still holds.
-- **`stale` flag on RELEVANT** — The ADR was adopted after the artifact was last updated. The artifact may need revision to align with the newer decision.
+- **`stale` flag on RELEVANT** — The ADR became Active after the artifact was last updated. The artifact may need revision to align with the newer decision.
 
 Content-level review (does the artifact actually comply?) requires reading both documents — the script identifies *which* ADRs to check, the agent applies judgment.
 
@@ -22,7 +22,7 @@ For each RELEVANT finding:
    - Approaches that were explicitly rejected in the ADR's "Alternatives Considered"
    - Constraints or trade-offs from "Consequences" that the artifact ignores
    - Scope duplication — artifact covers ground already decided by the ADR without referencing it
-   - *(ADR-on-ADR)* Contradictions with an existing Adopted ADR that aren't framed as explicit supersession
+   - *(ADR-on-ADR)* Contradictions with an existing Active ADR that aren't framed as explicit supersession
 
 ## Updating linkage
 
