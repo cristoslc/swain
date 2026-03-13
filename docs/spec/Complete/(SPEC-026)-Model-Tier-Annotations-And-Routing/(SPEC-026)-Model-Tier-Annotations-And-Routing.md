@@ -90,5 +90,5 @@ swain-doctor checks that every SKILL.md contains at least one `<!-- swain-model-
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-13 | PENDING | Initial creation from SPIKE-013/014 findings |
-| Complete | 2026-03-13 | PENDING | All 17 skills annotated, AGENTS.md routing section added |
+| Proposed | 2026-03-13 | 889d4af | Initial creation from SPIKE-013/014 findings |
+| Complete | 2026-03-13 | 889d4af | All 17 skills annotated, AGENTS.md routing section added |
