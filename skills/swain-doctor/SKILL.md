@@ -86,76 +86,7 @@ After processing all entries, check whether the governance block in the context 
 
 ## Platform dotfolder cleanup
 
-The `npx skills add --all` command (or older versions of swain-update without autodetect) creates dotfolder stubs (e.g., `.windsurf/`, `.cursor/`) for agent platforms that are not installed. These directories only contain symlinks back to `.agents/skills/` and clutter the working tree. See [GitHub issue #21](https://github.com/cristoslc/swain/issues/21).
-
-Read the platform data from `skills/swain-doctor/references/platform-dotfolders.json`. Each entry in the `platforms` array has a `project_dotfolder` name and one or both detection strategies: `command` (CLI binary name) and `detection` (HOME config directory path). Entries with collision-prone command names (e.g., `cmd`, `cortex`, `mux`, `pi`) omit `command` and rely on HOME detection only.
-
-### Step 1 — Autodetect installed platforms
-
-Iterate over the `platforms` array. For each entry, a platform is considered **installed** if either check succeeds:
-
-1. If the entry has a `command` field → run `command -v <command> &>/dev/null`.
-2. If the entry has a `detection` field → expand the path (replace `~` with `$HOME`, evaluate env var defaults like `${CODEX_HOME:-~/.codex}`) and check whether the directory exists.
-
-Always consider `.claude` installed (current platform — never a cleanup candidate).
-
-**Requires:** `jq` (for reading the JSON). If `jq` is not available, skip this section and warn.
-
-```bash
-installed_dotfolders=(".claude")
-while IFS= read -r entry; do
-  dotfolder=$(echo "$entry" | jq -r '.project_dotfolder')
-  cmd=$(echo "$entry" | jq -r '.command // empty')
-  det=$(echo "$entry" | jq -r '.detection // empty')
-
-  found=false
-  if [[ -n "$cmd" ]] && command -v "$cmd" &>/dev/null; then
-    found=true
-  fi
-  if [[ -n "$det" ]] && ! $found; then
-    det_expanded=$(echo "$det" | sed "s|~|$HOME|g")
-    det_expanded=$(eval echo "$det_expanded" 2>/dev/null)
-    [[ -d "$det_expanded" ]] && found=true
-  fi
-
-  $found && installed_dotfolders+=("$dotfolder")
-done < <(jq -c '.platforms[]' "SKILL_DIR/references/platform-dotfolders.json")
-```
-
-*(Replace `SKILL_DIR` with the actual path to this skill's directory.)*
-
-### Step 2 — Build cleanup candidates
-
-Every entry in `platforms` whose `project_dotfolder` is NOT in the `installed_dotfolders` list is a cleanup candidate.
-
-### Step 3 — Remove installer stubs
-
-For each candidate dotfolder:
-
-1. Check whether the directory exists in the project root.
-2. If it does NOT exist, skip.
-3. If it exists, **verify it is installer-generated** — the directory should contain only a `skills/` subdirectory (possibly with symlinks or further subdirectories). Check:
-
-   ```bash
-   # Count top-level entries (excluding . and ..)
-   entries=$(ls -A "<dotfolder>" 2>/dev/null | wc -l)
-   # Check if the only entry is "skills"
-   if [[ "$entries" -le 1 ]] && [[ -d "<dotfolder>/skills" || "$entries" -eq 0 ]]; then
-     # Safe to remove — installer-generated stub
-   fi
-   ```
-
-   - If the directory is empty OR contains only a `skills/` subdirectory → **remove it**:
-     ```bash
-     rm -rf <dotfolder>
-     ```
-   - If the directory contains other files or directories besides `skills/` → **skip and warn**:
-     > Skipping `<dotfolder>` — contains user content beyond installer symlinks. Remove manually if unused.
-
-4. After processing all entries, report:
-   > Removed N platform dotfolder(s) created by `npx skills add` (installer stubs for unused agent platforms).
-
-   If none were found, this step is silent.
+Remove dotfolder stubs (`.windsurf/`, `.cursor/`, etc.) for agent platforms that are not installed. Read [references/platform-cleanup.md](references/platform-cleanup.md) for the detection and cleanup procedure. Requires `jq`.
 
 ## Governance injection
 
@@ -194,110 +125,11 @@ Tell the user:
 
 ## Tickets directory validation
 
-This section runs every session, after governance checks. It is idempotent. **Skip entirely if `.tickets/` does not exist** (the project has not initialized tk yet).
-
-### Step 1 — Validate ticket YAML frontmatter
-
-Scan all `.md` files in `.tickets/` and verify that each has valid YAML frontmatter (delimited by `---`). Use a lightweight check:
-
-```bash
-for f in .tickets/*.md; do
-  [ -f "$f" ] || continue
-  # Check that file starts with --- and has a closing ---
-  if ! head -1 "$f" | grep -q '^---$'; then
-    echo "invalid: $f (missing frontmatter open)"
-  elif ! sed -n '2,/^---$/p' "$f" | tail -1 | grep -q '^---$'; then
-    echo "invalid: $f (missing frontmatter close)"
-  fi
-done
-```
-
-If any files have invalid frontmatter, warn:
-> Found N ticket(s) with invalid YAML frontmatter. tk may not be able to read these. Fix the frontmatter delimiters (`---`) in the listed files.
-
-If all files are valid, this step is silent.
-
-### Step 2 — Detect stale lock files
-
-Check for stale lock files that may have been left behind by a crashed tk process:
-
-```bash
-if [ -d .tickets/.locks ]; then
-  find .tickets/.locks -type f -mmin +60 2>/dev/null
-fi
-```
-
-If stale lock files are found (older than 1 hour), warn:
-> Found stale tk lock files in `.tickets/.locks/`. If tk is not currently running, these can be safely removed:
-> ```bash
-> rm -rf .tickets/.locks/*
-> ```
-
-**Do not auto-delete** -- ask the user first, since a tk process might actually be running.
+Validates `.tickets/` health — YAML frontmatter, stale locks. **Skip if `.tickets/` does not exist.** Read [references/tickets-validation.md](references/tickets-validation.md) for the full procedure.
 
 ## Stale .beads/ migration and cleanup
 
-This section runs every session, after tickets validation. It detects leftover `.beads/` directories from the bd-to-tk migration and **performs the migration automatically**.
-
-If `.beads/` does NOT exist, skip this section (report "ok (not present)").
-
-If `.beads/` exists:
-
-### Case 1: `.tickets/` already exists (migration previously completed)
-
-The data has already been migrated. Clean up the stale directory:
-
-```bash
-rm -rf .beads/
-```
-
-Report:
-> Removed stale `.beads/` directory — migration to `.tickets/` was already complete.
-
-### Case 2: `.tickets/` does NOT exist (migration needed)
-
-Perform the migration automatically:
-
-1. **Locate the migration script:**
-   ```bash
-   MIGRATE="$(find . .claude .agents skills -path '*/swain-do/bin/ticket-migrate-beads' -print -quit 2>/dev/null)"
-   ```
-
-2. **Locate backup data** (the migration script reads `.beads/issues.jsonl`):
-   ```bash
-   # Prefer the JSONL backup if it exists
-   if [ -f .beads/backup/issues.jsonl ]; then
-     cp .beads/backup/issues.jsonl .beads/issues.jsonl
-   fi
-   ```
-
-3. **Run the migration** (requires `jq`):
-   ```bash
-   TK_BIN="$(cd "$(dirname "$MIGRATE")" && pwd)"
-   export PATH="$TK_BIN:$PATH"
-   ticket-migrate-beads
-   ```
-
-4. **Verify** the migration produced tickets:
-   ```bash
-   ls .tickets/*.md 2>/dev/null | wc -l
-   ```
-
-5. **If migration succeeded** (ticket count > 0): remove `.beads/`:
-   ```bash
-   rm -rf .beads/
-   ```
-   Report:
-   > Migrated N tickets from `.beads/` to `.tickets/` and removed the stale `.beads/` directory.
-
-6. **If migration failed** (no tickets produced, or script not found, or jq missing): warn but do not delete:
-   > Found `.beads/` directory but automatic migration failed. To migrate manually:
-   > ```bash
-   > TK_BIN="$(cd skills/swain-do/bin && pwd)" && export PATH="$TK_BIN:$PATH"
-   > cp .beads/backup/issues.jsonl .beads/issues.jsonl
-   > ticket-migrate-beads
-   > ```
-   > After verifying `.tickets/` data, remove `.beads/` with `rm -rf .beads/`.
+Auto-migrates `.beads/` → `.tickets/` if present. Skip if `.beads/` does not exist. Read [references/beads-migration.md](references/beads-migration.md) for the migration procedure.
 
 ## Governance content reference
 
@@ -477,36 +309,7 @@ If the script is not available or the cache already exists, this step is silent.
 
 ## tk health (extended .tickets checks)
 
-This extends the existing [Tickets directory validation](#tickets-directory-validation) section. **Skip entirely if `.tickets/` does not exist.**
-
-### Vendored tk availability
-
-Verify that the vendored tk script exists and is executable:
-
-```bash
-TK_BIN="skills/swain-do/bin/tk"
-if [ ! -x "$TK_BIN" ]; then
-  echo "warning: vendored tk not found or not executable at $TK_BIN"
-fi
-```
-
-If missing, warn:
-> The vendored tk script is missing at `skills/swain-do/bin/tk`. Task tracking will not work. Reinstall swain skills to restore it.
-
-### Stale lock files
-
-Check for lock files that may have been left behind by a crashed tk process:
-
-```bash
-if [ -d .tickets/.locks ]; then
-  find .tickets/.locks -type f -mmin +60 2>/dev/null
-fi
-```
-
-If stale lock files are found (older than 1 hour), warn:
-> Found stale tk lock files in `.tickets/.locks/`. If tk is not currently running, these can be safely removed. Remove them? (list the files)
-
-**Do not auto-delete** -- ask the user first, since a tk process might actually be running.
+Verify vendored tk is executable at `skills/swain-do/bin/tk` and check for stale lock files. **Skip if `.tickets/` does not exist.** See [references/tickets-validation.md](references/tickets-validation.md) for details.
 
 ## Summary report
 
