@@ -49,3 +49,4 @@ After this fix, opening any file in yazi uses the system default application (`o
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | 0304590 | Initial creation from GitHub #15 |
+| Implemented | 2026-03-13 | 9015bf1 | Transitioned — catch-all opener rule in yazi.toml |
