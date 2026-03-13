@@ -764,29 +764,32 @@ do_scope() {
     else "  (no vision found)" end)
   ' "$CACHE_FILE"
 
-  # Check for architecture-overview.md near the vision
-  local vision_file
-  vision_file=$(jq -r --arg id "$id" '
+  # Check for architecture-overview.md at epic and vision levels
+  # Walk parent chain: show epic-level first, then vision-level
+  local chain_files
+  chain_files=$(jq -r --arg id "$id" '
     .edges as $edges |
     .nodes as $nodes |
     def walk_parents($current):
       ([$edges[] | select(.from == $current and (.type == "parent-epic" or .type == "parent-vision")) | .to] | .[0]) as $parent |
-      if $parent == null then
-        (if $nodes[$current] != null and $nodes[$current].type == "VISION" then $current else null end)
-      else walk_parents($parent)
+      if $parent == null then []
+      else [$current] + walk_parents($parent)
       end;
-    walk_parents($id) as $vision |
-    if $vision != null and $nodes[$vision] != null then $nodes[$vision].file // ""
-    else "" end
+    # Include the start node itself if it is an EPIC or VISION
+    (if $nodes[$id] != null and ($nodes[$id].type | test("EPIC|VISION")) then [$id] else [] end
+     + walk_parents($id)) |
+    map(select($nodes[.] != null) | $nodes[.].file) |
+    map(select(. != null and . != "")) | .[]
   ' "$CACHE_FILE")
 
-  if [ -n "$vision_file" ]; then
-    local vision_dir
-    vision_dir=$(dirname "$REPO_ROOT/$vision_file")
-    if [ -f "$vision_dir/architecture-overview.md" ]; then
-      echo "  architecture: ${vision_dir#"$REPO_ROOT/"}/architecture-overview.md"
+  while IFS= read -r parent_file; do
+    [ -z "$parent_file" ] && continue
+    local parent_dir
+    parent_dir=$(dirname "$REPO_ROOT/$parent_file")
+    if [ -f "$parent_dir/architecture-overview.md" ]; then
+      echo "  architecture: ${parent_dir#"$REPO_ROOT/"}/architecture-overview.md"
     fi
-  fi
+  done <<< "$chain_files"
 }
 
 # impact <ID> — everything that references this artifact transitively

@@ -1,5 +1,11 @@
 # ADRs
 
+## Proposed
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| ADR-004 | Rewrite Specgraph in Python | 2026-03-13 | — |
+
 ## Active
 
 | Artifact | Title | Last Updated | Commit |

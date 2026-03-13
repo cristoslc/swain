@@ -6,6 +6,7 @@
 |----------|-------|-------------|--------|
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
 | EPIC-011 | MOTD Panel Improvements | 2026-03-13 | ea0d165 |
+| EPIC-013 | Specgraph Python Rewrite | 2026-03-13 | — |
 
 ## Active
 

@@ -1,0 +1,155 @@
+"""Graph building and cache I/O for specgraph."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Optional
+
+from .parser import (
+    ArtifactFrontmatter,
+    extract_list_ids,
+    extract_scalar_id,
+    parse_artifact,
+)
+
+
+def _is_valid_ref(val: str) -> bool:
+    """Check if a value is a valid reference (not a YAML null/empty placeholder)."""
+    return val not in ("", "~", "null", "[]", "--", '""', "''")
+
+
+def repo_hash(repo_root: str) -> str:
+    """Compute the cache filename hash from the repo root path.
+
+    Matches bash: printf '%s' "$REPO_ROOT" | shasum -a 256 | cut -c1-12
+    """
+    return hashlib.sha256(repo_root.encode()).hexdigest()[:12]
+
+
+def cache_path(repo_root: str) -> Path:
+    """Return the cache file path for a given repo root."""
+    h = repo_hash(repo_root)
+    return Path(f"/tmp/agents-specgraph-{h}.json")
+
+
+def _find_artifact_files(docs_dir: Path) -> list[Path]:
+    """Find all markdown files in docs/ that could be artifacts."""
+    files = []
+    for md in sorted(docs_dir.rglob("*.md")):
+        if md.name in ("README.md",) or md.name.startswith("list-"):
+            continue
+        files.append(md)
+    return files
+
+
+def build_graph(
+    repo_root: Path,
+) -> dict[str, Any]:
+    """Build the artifact dependency graph from frontmatter.
+
+    Returns a dict with keys: generated, repo, nodes, edges.
+    """
+    docs_dir = repo_root / "docs"
+    nodes: dict[str, dict] = {}
+    edges: list[dict] = []
+
+    def add_edge(from_id: str, to_val: str, edge_type: str) -> None:
+        if not _is_valid_ref(to_val):
+            return
+        edges.append({"from": from_id, "to": to_val, "type": edge_type})
+
+    for filepath in _find_artifact_files(docs_dir):
+        artifact = parse_artifact(filepath, repo_root)
+        if artifact is None:
+            continue
+
+        aid = artifact.artifact
+        nodes[aid] = {
+            "title": artifact.title,
+            "status": artifact.status,
+            "type": artifact.type,
+            "file": artifact.file,
+            "description": artifact.description,
+        }
+
+        fields = artifact.raw_fields
+
+        # depends-on edges
+        for dep in extract_list_ids(fields, "depends-on-artifacts"):
+            add_edge(aid, dep, "depends-on")
+
+        # parent-vision (scalar or list)
+        pv = extract_scalar_id(fields, "parent-vision")
+        if pv is None:
+            pvs = extract_list_ids(fields, "parent-vision")
+            pv = pvs[0] if pvs else None
+        if pv:
+            add_edge(aid, pv, "parent-vision")
+
+        # parent-epic (scalar or list)
+        pe = extract_scalar_id(fields, "parent-epic")
+        if pe is None:
+            pes = extract_list_ids(fields, "parent-epic")
+            pe = pes[0] if pes else None
+        if pe:
+            add_edge(aid, pe, "parent-epic")
+
+        # List-type relationship edges
+        for list_field in ("linked-artifacts", "validates"):
+            for ref in extract_list_ids(fields, list_field):
+                add_edge(aid, ref, list_field)
+
+        # addresses (preserves full format like JOURNEY-NNN.PP-NN)
+        addresses = fields.get("addresses", [])
+        if isinstance(addresses, list):
+            for addr in addresses:
+                addr_str = str(addr).strip()
+                if addr_str and _is_valid_ref(addr_str):
+                    add_edge(aid, addr_str, "addresses")
+
+        # Scalar relationship edges
+        for scalar_field in ("superseded-by", "evidence-pool", "source-issue"):
+            val = fields.get(scalar_field, "")
+            if isinstance(val, str) and val and _is_valid_ref(val):
+                add_edge(aid, val, scalar_field)
+
+    generated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    return {
+        "generated": generated,
+        "repo": str(repo_root),
+        "nodes": nodes,
+        "edges": edges,
+    }
+
+
+def needs_rebuild(cache_file: Path, docs_dir: Path) -> bool:
+    """Check if the cache needs rebuilding (any docs/*.md newer than cache)."""
+    if not cache_file.exists():
+        return True
+    cache_mtime = cache_file.stat().st_mtime
+    for md in docs_dir.rglob("*.md"):
+        if md.stat().st_mtime > cache_mtime:
+            return True
+    return False
+
+
+def write_cache(data: dict, cache_file: Path) -> None:
+    """Write graph data to the cache file atomically."""
+    tmp = cache_file.with_suffix(".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+    tmp.rename(cache_file)
+
+
+def read_cache(cache_file: Path) -> Optional[dict]:
+    """Read graph data from the cache file."""
+    if not cache_file.exists():
+        return None
+    with open(cache_file, encoding="utf-8") as f:
+        return json.load(f)
