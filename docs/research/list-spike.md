@@ -16,7 +16,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-006 | Task Tracker Requirements and Alternatives | 2026-03-12 | — |
 
 ## Complete
 
@@ -27,4 +26,5 @@
 | SPIKE-003 | Enhancement Type Modeling | 2026-03-11 | 7aadee8 |
 | SPIKE-004 | Superpowers–Swain Skill Mapping | 2026-03-12 | e94bb4b |
 | SPIKE-005 | Dolt Backend Performance in Beads | 2026-03-12 | 4831536 |
+| SPIKE-006 | Task Tracker Requirements and Alternatives | 2026-03-13 | ad0f05f |
 | SPIKE-009 | Isolation Mechanism Selection | 2026-03-13 | 8ab71ab |
