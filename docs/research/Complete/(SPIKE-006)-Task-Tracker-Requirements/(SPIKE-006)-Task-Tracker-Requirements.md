@@ -183,3 +183,4 @@ If no external tool fits: build a minimal SQLite-backed CLI (`swain-task`) purpo
 |-------|------|--------|-------|
 | Planned | 2026-03-12 | — | Initial creation |
 | Active | 2026-03-12 | — | Investigation starting |
+| Complete | 2026-03-13 | ad0f05f | Findings captured, ADR-002 adopted ticket (tk) |
