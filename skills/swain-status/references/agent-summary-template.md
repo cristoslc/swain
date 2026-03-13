@@ -15,7 +15,7 @@ Use `└` to indent children under their parent epic.
 | Artifact | Purpose | Readiness |
 |----------|---------|-----------|
 | **EPIC-NNN**: Title | Truncated description (~60 chars) | Needs decomposition / N/M specs resolved / Blocked on X |
-| └ SPEC-NNN: Title | Truncated description | Draft — review and approve / Approved — implementation ready / Blocked on Y |
+| └ SPEC-NNN: Title | Truncated description | Proposed — review and approve / Ready — implementation ready / Blocked on Y |
 | └ SPEC-NNN: Title | Truncated description | Status — next action |
 | **EPIC-NNN**: Title | Truncated description | ... |
 ```
@@ -36,7 +36,7 @@ Table of all unresolved spikes.
 ```
 | Spike | Question | Status | Unblocks |
 |-------|----------|--------|----------|
-| SPIKE-NNN | Core research question from description | Planned / Active | SPEC-NNN, ... or — |
+| SPIKE-NNN | Core research question from description | Proposed / Active | SPEC-NNN, ... or — |
 ```
 
 Rules:
@@ -46,7 +46,7 @@ Rules:
 
 ## Section 3: Drafts Needing Review
 
-Artifacts in Draft or Proposed status that need human review/approval.
+Artifacts in Proposed status that need human review/approval.
 **Exclude** items already shown in the epic tree or spike table — no duplication.
 
 ```
@@ -82,7 +82,7 @@ Pick suggestions based on what has the most downstream impact.
 |----------|---------|-----------|
 | **EPIC-005**: Isolated Claude Code Environment | One-command workflow for isolated, ephemeral Claude Code | Needs decomposition into specs |
 | **EPIC-006**: Skill Context Footprint Reduction | Reduce disproportionate context consumption by swain skills | 0/1 specs resolved (1 remaining) |
-| └ SPEC-010: Decision-Only Artifacts Bug | Misclassifies decision-only artifacts as implementable | Draft — blocked on SPIKE-012 |
+| └ SPEC-010: Decision-Only Artifacts Bug | Misclassifies decision-only artifacts as implementable | Proposed — blocked on SPIKE-012 |
 | **EPIC-007**: Model Routing & Reasoning Effort | Route skills to appropriate models and effort levels | Blocked on EPIC-006 |
 
 ## Research
@@ -90,15 +90,15 @@ Pick suggestions based on what has the most downstream impact.
 | Spike | Question | Status | Unblocks |
 |-------|----------|--------|----------|
 | SPIKE-006 | What task tracking backend should swain-do use? | Active | — |
-| SPIKE-012 | Which artifact types are decision-only across their lifecycle? | Planned | SPEC-010 |
-| SPIKE-010 | Which skills consume the most context and where's the waste? | Planned | — |
-| SPIKE-011 | What strategies can reduce skill content loaded into context? | Planned | — |
-| SPIKE-013 | How do agent runtimes expose model selection and effort controls? | Planned | — |
-| SPIKE-014 | Which skill operations belong to which cognitive load tier? | Planned | — |
+| SPIKE-012 | Which artifact types are decision-only across their lifecycle? | Proposed | SPEC-010 |
+| SPIKE-010 | Which skills consume the most context and where's the waste? | Proposed | — |
+| SPIKE-011 | What strategies can reduce skill content loaded into context? | Proposed | — |
+| SPIKE-013 | How do agent runtimes expose model selection and effort controls? | Proposed | — |
+| SPIKE-014 | Which skill operations belong to which cognitive load tier? | Proposed | — |
 
 ## Drafts Needing Review
 
-- **SPEC-009**: Normalize Artifact Frontmatter Relationships [Draft] — review and approve
+- **SPEC-009**: Normalize Artifact Frontmatter Relationships [Proposed] — review and approve
 
 ## Tasks & Issues
 

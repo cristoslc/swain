@@ -20,7 +20,7 @@ stateDiagram-v2
 A design artifact captures the interaction layer of a feature or system: screens, states, flows, wireframes, happy/sad paths, and UI decisions. Designs sit between Journeys (experience narratives) and Stories/Specs (implementation). They answer "what does the user see and do?" — not "how does the system work?" (Spec) or "what is the user's experience narrative?" (Journey).
 
 - **Folder structure:** `docs/design/<Phase>/(DESIGN-NNN)-<Title>/` — always foldered because a single design may contain multiple document types (screen wireframes, flow diagrams, interactive mockup links, annotated screenshots).
-  - Example: `docs/design/Approved/(DESIGN-003)-Skill-Installation-Flow/`
+  - Example: `docs/design/Active/(DESIGN-003)-Skill-Installation-Flow/`
   - When transitioning phases, **move the folder** to the new phase directory (e.g., `git mv docs/design/Proposed/(DESIGN-003)-Foo/ docs/design/Active/(DESIGN-003)-Foo/`).
   - Phase subdirectories: `Proposed/`, `Active/`, `Retired/`, `Superseded/`.
   - Primary file: `(DESIGN-NNN)-<Title>.md` — the design overview and entry point.
