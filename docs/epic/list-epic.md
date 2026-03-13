@@ -4,6 +4,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
 
 ## Active
 

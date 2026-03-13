@@ -1,0 +1,57 @@
+---
+title: "Isolated Claude Code Environment"
+artifact: EPIC-005
+status: Proposed
+author: cristos
+created: 2026-03-12
+last-updated: 2026-03-12
+parent-vision:
+success-criteria:
+  - A single command in the project root launches Claude Code inside an isolated ephemeral environment
+  - The environment has full read/write access to the project directory via filesystem binding
+  - Agent state (.claude/, .agents/, .tickets/) persists across environment restarts via filesystem binding
+  - Credentials (API keys, git auth) are forwarded without baking them into the image
+  - Environment cleanup is automatic — no orphaned instances or volumes accumulate
+depends-on: []
+addresses: []
+evidence-pool:
+---
+
+# Isolated Claude Code Environment
+
+## Goal / Objective
+
+Provide a one-command workflow to run Claude Code inside an isolated, ephemeral environment instead of directly on the host. This keeps the agent's runtime environment — package installations, tool executions, and side effects — separated from the host system, while preserving full access to the project tree and persistent state through filesystem binding.
+
+The isolation mechanism (Docker container, microVM, or other) is an open question to be resolved by research spikes before implementation.
+
+## Scope Boundaries
+
+**In scope:**
+- Launcher script or Makefile target in the project root (e.g., `./claude-isolated` or `make claude`)
+- Image or VM selection for running Claude Code CLI
+- Filesystem binding for project files, agent state, and credential forwarding
+- Ephemeral lifecycle (auto-remove on exit)
+- Documentation for setup and usage
+
+**Out of scope:**
+- Multi-instance orchestration (docker-compose, k8s)
+- CI/CD integration — this is for local interactive use
+- Custom Claude Code builds or forks
+- GPU passthrough or model hosting inside the environment
+
+## Child Specs
+
+- *(To be created after spikes complete)*
+
+## Key Dependencies
+
+- Isolation runtime installed on host (Docker already available; microVM TBD by SPIKE-009)
+- Claude Code CLI available as an installable package (npm/npx)
+- Valid Anthropic API key or OAuth credentials on host
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| Proposed | 2026-03-12 | — | Initial creation |
