@@ -1,10 +1,12 @@
 ---
 title: "Pre-Commit Verification in swain-sync"
 artifact: SPEC-024
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
+implementation-commits:
+  - c70bfb0
 type: feature
 parent-epic: EPIC-012
 linked-artifacts:
@@ -81,3 +83,4 @@ WARN: No pre-commit hooks configured. Run /swain-init to set up security scannin
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 8ec761d | Initial creation |
+| Complete | 2026-03-13 | PENDING | Step 4.5 and hook failure handling added to swain-sync |
