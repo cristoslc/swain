@@ -1,7 +1,7 @@
 ---
 title: "Background Agent Invocation Via GitHub"
 artifact: SPIKE-016
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
