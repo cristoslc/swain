@@ -90,8 +90,6 @@ This table defines where each artifact type + phase combination should appear in
 | DESIGN | Review | Decisions | review design with user |
 | DESIGN | Approved | Decisions | validate design direction |
 | DESIGN | Active | Omit | — |
-| BUG | any | Decisions | triage and fix |
-
 **Terminal phases** (Abandoned, Archived, Retired, Superseded, Deprecated, Complete, Implemented, Validated for Persona/Journey) are always **Omit** — no action needed.
 
 ### Verdict: GO
@@ -109,7 +107,7 @@ This eliminates the "fall-through to Implementation" bug — decision-only types
 
 ### Edge Cases
 
-- **BUG** type specs: Always Decisions (triage requires human judgment even though fix is agent work). The agent implements after triage, but the decision to fix and how to scope is human.
+- **SPEC type:bug**: Uses SPEC lifecycle. Triage (Draft/Review) is Decisions; implementation (Approved onward) is Implementation — same as any SPEC. BUG as a standalone type was removed per SPEC-004 and SPEC-006.
 - **SPIKE Complete**: Omit, not Decisions. The findings are already written; no operator action is pending. If the operator needs to make a go/no-go call, that happens via the downstream artifact (ADR, SPEC), not the spike itself.
 - **VISION Active**: Decisions with hint "decompose into epics" — not Implementation, even though epics may be in flight. The Vision itself is not being implemented.
 
