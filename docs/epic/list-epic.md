@@ -11,7 +11,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | PENDING |
+| EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | 4159c38 |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | 41fb131 |
 
 ## Superseded
