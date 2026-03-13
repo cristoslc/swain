@@ -1,7 +1,7 @@
 ---
 title: "Migrate Existing Artifacts to New Phase Directories"
 artifact: SPEC-020
-status: Proposed
+status: Complete
 type: enhancement
 author: cristos
 created: 2026-03-13
@@ -12,6 +12,7 @@ linked-artifacts:
 depends-on-artifacts:
   - SPEC-018
   - SPEC-019
+implementation-commits: []
 addresses: []
 evidence-pool: ""
 source-issue: ""

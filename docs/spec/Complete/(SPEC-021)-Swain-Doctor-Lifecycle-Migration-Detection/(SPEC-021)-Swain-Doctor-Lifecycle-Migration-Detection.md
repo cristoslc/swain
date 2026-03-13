@@ -1,7 +1,7 @@
 ---
 title: "swain-doctor Lifecycle Migration Detection"
 artifact: SPEC-021
-status: Proposed
+status: Complete
 type: enhancement
 author: cristos
 created: 2026-03-13
@@ -11,6 +11,7 @@ linked-artifacts:
   - ADR-003
 depends-on-artifacts:
   - SPEC-020
+implementation-commits: []
 addresses: []
 evidence-pool: ""
 source-issue: ""
