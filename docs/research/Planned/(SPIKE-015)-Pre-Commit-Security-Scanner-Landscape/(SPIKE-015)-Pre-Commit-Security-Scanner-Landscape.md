@@ -37,4 +37,4 @@ If no additional scanners add meaningful coverage, simplify the architecture: ha
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Planned | 2026-03-13 | — | Initial creation |
+| Planned | 2026-03-13 | 7b39e3e | Initial creation |
