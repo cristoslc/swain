@@ -1,10 +1,11 @@
 ---
 title: "swain-dispatch Skill"
 artifact: SPEC-025
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
+implementation-commits: 091bdf5
 type: feature
 parent-epic: EPIC-010
 linked-artifacts:
@@ -76,6 +77,11 @@ In `swain.settings.json`:
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| Issue creation + dispatch event | `skills/swain-dispatch/SKILL.md` implements gh issue create + gh api dispatches workflow | PASS |
+| Workflow triggers on repository_dispatch | `.github/workflows/agent-dispatch.yml` with `repository_dispatch: types: [agent-dispatch]` | PASS |
+| @claude fallback trigger | `.github/workflows/agent-dispatch.yml` with `issue_comment` trigger + contains check | PASS |
+| Settings-driven config | `swain.settings.json` dispatch section; workflow reads `client_payload.model` and `client_payload.max_turns` | PASS |
+| Error handling for missing gh | `skills/swain-dispatch/SKILL.md` Step 1 checks gh auth status and reports setup instructions | PASS |
 
 ## Scope & Constraints
 
@@ -88,4 +94,5 @@ In `swain.settings.json`:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-13 | PENDING | Initial creation |
+| Proposed | 2026-03-13 | 091bdf5 | Initial creation |
+| Complete | 2026-03-13 | PENDING | Implementation verified — skill, workflow, settings, router |
