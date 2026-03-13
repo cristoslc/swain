@@ -53,10 +53,20 @@ read_setting() {
 }
 
 # --- OSC 8 hyperlink helpers ---
+# Only emit OSC 8 sequences when stdout is a terminal.
+# When piped (e.g., captured by an agent), emit plain text to avoid
+# corrupted escape sequences in non-terminal rendering (#36).
+_USE_OSC8=false
+[[ -t 1 ]] && _USE_OSC8=true
+
 # Usage: link "URL" "display text"
 link() {
   local url="$1" text="$2"
-  printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$url" "$text"
+  if [[ "$_USE_OSC8" == true ]]; then
+    printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$url" "$text"
+  else
+    printf '%s' "$text"
+  fi
 }
 
 file_link() {
@@ -466,7 +476,7 @@ render_full() {
   if [[ "$epic_count" -gt 0 ]]; then
     echo "## Active Epics"
     echo ""
-    echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+    echo "$data" | jq -r --arg repo "$REPO_ROOT" --arg osc8 "$_USE_OSC8" '
       def art_link($aid; $file):
         if $file != null and $file != "" then
           "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
@@ -516,9 +526,9 @@ render_full() {
     if [[ "$decision_count" -gt 0 ]]; then
       echo "## Decisions Waiting on You (${decision_count})"
       echo ""
-      echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+      echo "$data" | jq -r --arg repo "$REPO_ROOT" --arg osc8 "$_USE_OSC8" '
         def art_link($aid; $file):
-          if $file != null and $file != "" then
+          if $file != null and $file != "" and $osc8 == "true" then
             "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
           else $aid end;
         def next_step:
@@ -569,9 +579,9 @@ render_full() {
     if [[ "$impl_count" -gt 0 ]]; then
       echo "## Implementation (${impl_count} — agent can handle)"
       echo ""
-      echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+      echo "$data" | jq -r --arg repo "$REPO_ROOT" --arg osc8 "$_USE_OSC8" '
         def art_link($aid; $file):
-          if $file != null and $file != "" then
+          if $file != null and $file != "" and $osc8 == "true" then
             "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
           else $aid end;
         def next_step:
@@ -623,7 +633,7 @@ render_full() {
   if [[ "$blocked_count" -gt 0 ]]; then
     echo "## Blocked"
     echo ""
-    echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+    echo "$data" | jq -r --arg repo "$REPO_ROOT" --arg osc8 "$_USE_OSC8" '
       def art_link($aid; $file):
         if $file != null and $file != "" then
           "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
@@ -723,7 +733,7 @@ render_full() {
   if [[ "$linked_count" -gt 0 ]]; then
     echo "## Linked Issues"
     echo ""
-    echo "$data" | jq -r --arg repo "$REPO_ROOT" '
+    echo "$data" | jq -r --arg repo "$REPO_ROOT" --arg osc8 "$_USE_OSC8" '
       def art_link($aid; $file):
         if $file != null and $file != "" then
           "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
