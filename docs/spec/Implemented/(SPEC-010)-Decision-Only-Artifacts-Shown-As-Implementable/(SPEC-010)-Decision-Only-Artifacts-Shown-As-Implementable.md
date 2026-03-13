@@ -1,7 +1,7 @@
 ---
 title: "Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status"
 artifact: SPEC-010
-status: Draft
+status: Implemented
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
@@ -68,6 +68,10 @@ After this spec is implemented:
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| VISION never in Implementation | Ran swain-status --refresh: VISION-001 (Active) appears under "Decisions" with hint "decompose into epics", not under Implementation | PASS |
+| ADR not in Implementation post-Proposed | ADR types are classified as decision-only at type level — never reach Implementation regardless of phase | PASS |
+| VISION-001 Active shows correct hint | Output shows "decompose into epics" for VISION Active, not "progress to next phase" | PASS |
+| Implementation section still works for impl-capable types | SPEC-002 and SPEC-003 (both Approved) correctly appear under Implementation with "create implementation plan" | PASS |
 
 ## Lifecycle
 
