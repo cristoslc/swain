@@ -259,10 +259,14 @@ TERMINAL_STATUSES = {'Abandoned', 'Rejected', 'Superseded'}
 
 # Phase ordering for mismatch detection (higher = more advanced)
 PHASE_ORDER = {
-    'Draft': 0, 'Proposed': 1, 'Active': 2, 'Approved': 2,
-    'Validated': 2, 'Adopted': 2, 'Implementing': 3,
-    'Implemented': 4, 'Complete': 5, 'Done': 5,
-    'Retired': 6, 'Archived': 6, 'Superseded': 6,
+    'Proposed': 0, 'Draft': 0,  # Draft is legacy alias
+    'Ready': 1, 'Approved': 1,  # Approved is legacy alias
+    'Active': 2, 'Adopted': 2, 'Validated': 2,  # Adopted/Validated are legacy
+    'In Progress': 3, 'Implementing': 3,  # Implementing is legacy
+    'Needs Manual Test': 4, 'Testing': 4,  # Testing is legacy
+    'Complete': 5, 'Implemented': 5, 'Done': 5,  # Implemented/Done are legacy
+    'Retired': 6, 'Archived': 6,  # Archived is legacy
+    'Superseded': 6,
     'Abandoned': -1, 'Rejected': -1
 }
 
@@ -410,7 +414,7 @@ for root, dirs, files in os.walk(docs_dir):
                         src_order = PHASE_ORDER.get(source_status, -99)
                         tgt_order = PHASE_ORDER.get(target_status, -99)
                         # Flag if source is significantly more advanced than target
-                        # (e.g., source is Implemented but target is still Draft)
+                        # (e.g., source is Complete but target is still Proposed)
                         if src_order >= 3 and tgt_order <= 0 and tgt_order != -1:
                             print(f"WARN\t{rel_source}\t{line_num}\t{field}\t{target_id}\t{rel_target}\tsource is {source_status} but target is still {target_status}")
                 else:
@@ -463,7 +467,7 @@ PYEOF
 
 # --- TK sync checker ---
 # Cross-references artifact phase/status with tk item state.
-# Detects: open tk items for Implemented/Abandoned artifacts,
+# Detects: open tk items for Complete/Abandoned artifacts,
 #          all-closed tk items for still-active artifacts.
 # Requires: vendored ticket-query plugin and .tickets/ initialized.
 
@@ -507,8 +511,9 @@ IMPLEMENTED_STATUSES = {'Implemented', 'Complete', 'Done'}
 ABANDONED_STATUSES = {'Abandoned', 'Rejected'}
 TERMINAL_STATUSES = IMPLEMENTED_STATUSES | ABANDONED_STATUSES
 # Active statuses where open tk items are expected
-ACTIVE_STATUSES = {'Draft', 'Proposed', 'Active', 'Approved', 'Validated',
-                   'Adopted', 'Implementing', 'Review', 'Testing'}
+ACTIVE_STATUSES = {'Proposed', 'Draft', 'Active', 'Ready', 'Approved',
+                   'Validated', 'Adopted', 'In Progress', 'Implementing',
+                   'Needs Manual Test', 'Testing', 'Review'}
 
 def extract_frontmatter(filepath):
     """Return (artifact_id, status) from YAML frontmatter."""
@@ -602,7 +607,7 @@ for artifact_id, tk_state in artifact_tk_map.items():
 
     rel_path, art_status = artifact_index[artifact_id]
 
-    # Case 1: Artifact is Implemented/Complete but tk still has open items
+    # Case 1: Artifact is Complete but tk still has open items
     if art_status in IMPLEMENTED_STATUSES and tk_state['open']:
         open_ids = ', '.join(i['id'] for i in tk_state['open'])
         mismatches.append({
@@ -968,7 +973,7 @@ PYEOF
       item_name="${parts[2]}"
     elif [ "${#parts[@]}" -eq 3 ]; then
       # e.g., adr/Proposed/(ADR-001)-Foo.md — move the file
-      #    or adr/Draft/(ADR-001)-Foo.md
+      #    or adr/Proposed/(ADR-001)-Foo.md
       if [ -d "$DOCS_DIR/${parts[0]}/${parts[1]}/${parts[2]%%.*}" ] 2>/dev/null; then
         # Actually a folder artifact where the .md name matches the folder
         artifact_item="$DOCS_DIR/${parts[0]}/${parts[1]}/${parts[2]%%.*}"

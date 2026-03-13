@@ -1,6 +1,6 @@
 #!/bin/bash
 # spec-verify.sh — Verify a Spec's acceptance criteria have documented evidence.
-# Gates the Testing → Implemented transition by checking the Verification table.
+# Gates the Needs Manual Test → Complete transition by checking the Verification table.
 #
 # Output goes to stdout in a structured format. Exit 0 = all criteria covered,
 # exit 1 = gaps found, exit 2 = usage error.
@@ -22,10 +22,10 @@ Output format:
 
   FAIL <criterion-summary>
     evidence: <what was tested>
-    action: fix failing criterion before transitioning to Implemented
+    action: fix failing criterion before transitioning to Complete
 
   EMPTY_TABLE
-    action: populate Verification table before transitioning to Implemented
+    action: populate Verification table before transitioning to Complete
 
 Summary line:
   OK SPEC-NNN: N/N criteria verified
@@ -73,7 +73,7 @@ if not art_id:
     print("Error: not a SPEC artifact or missing artifact ID in frontmatter", file=sys.stderr)
     sys.exit(2)
 
-# --- Check artifact is in Testing phase ---
+# --- Check artifact is in Needs Manual Test phase ---
 
 status = ""
 if fm_match:
@@ -83,8 +83,8 @@ if fm_match:
             status = m.group(1).strip()
             break
 
-if status and status != "Testing":
-    print(f"Warning: {art_id} is in phase '{status}', not 'Testing'", file=sys.stderr)
+if status and status != "Needs Manual Test":
+    print(f"Warning: {art_id} is in phase '{status}', not 'Needs Manual Test'", file=sys.stderr)
 
 # --- Extract Acceptance Criteria section ---
 
@@ -139,7 +139,7 @@ table_lines = [l for l in ver_text.split('\n') if l.strip().startswith('|')]
 # Need at least header + separator + 1 data row
 if len(table_lines) < 3:
     print(f"EMPTY_TABLE")
-    print(f"  action: populate Verification table before transitioning to Implemented")
+    print(f"  action: populate Verification table before transitioning to Complete")
     print()
     print(f"GAPS {art_id}: 0/{len(criteria)} criteria verified, {len(criteria)} gaps")
     sys.exit(1)
@@ -158,7 +158,7 @@ for row in table_lines[2:]:
 
 if not ver_rows:
     print(f"EMPTY_TABLE")
-    print(f"  action: populate Verification table before transitioning to Implemented")
+    print(f"  action: populate Verification table before transitioning to Complete")
     print()
     print(f"GAPS {art_id}: 0/{len(criteria)} criteria verified, {len(criteria)} gaps")
     sys.exit(1)
@@ -209,7 +209,7 @@ for f in findings:
     elif f['type'] == 'FAIL':
         print(f"FAIL {f['criterion']}")
         print(f"  evidence: {f['evidence']}")
-        print(f"  action: fix failing criterion before transitioning to Implemented")
+        print(f"  action: fix failing criterion before transitioning to Complete")
         print()
     elif f['type'] == 'COUNT_MISMATCH':
         print(f"COUNT_MISMATCH verification rows ({f['ver_count']}) < acceptance criteria ({f['ac_count']})")
