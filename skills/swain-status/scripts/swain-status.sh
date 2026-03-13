@@ -396,7 +396,7 @@ build_cache() {
       issues: $issues,
       linkedIssues: $linked,
       session: $session
-    }' > "$CACHE_FILE"
+    }' > "${CACHE_FILE}.tmp" && mv "${CACHE_FILE}.tmp" "$CACHE_FILE"
 }
 
 cache_is_fresh() {
