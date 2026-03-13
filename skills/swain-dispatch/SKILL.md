@@ -18,23 +18,71 @@ Dispatches swain-design artifacts to background agents via GitHub Issues. The ag
 
 ## Prerequisites
 
-Before first use, verify:
+Three things must be in place before dispatch works:
+
+1. **Claude GitHub App** — installed on the repo from https://github.com/apps/claude (grants Contents, Issues, Pull Requests read/write)
+2. **Workflow file** — `.github/workflows/claude.yml` (or `agent-dispatch.yml`) with the `claude-code-action` step
+3. **`ANTHROPIC_API_KEY` repo secret** — API key (not Max/Pro subscription; per-token billing required)
+
+## Step 0 — Preflight check
+
+Run this before every dispatch. If any check fails, stop and show the setup instructions.
 
 ```bash
-gh auth status
-gh api repos/{owner}/{repo}/actions/secrets --jq '.secrets[].name' 2>/dev/null | grep -q ANTHROPIC_API_KEY
+# 1. Check gh auth
+gh auth status 2>/dev/null || { echo "FAIL: gh not authenticated"; exit 1; }
+
+# 2. Check workflow file
+WORKFLOW_FILE=""
+for f in .github/workflows/claude.yml .github/workflows/agent-dispatch.yml; do
+  [[ -f "$f" ]] && WORKFLOW_FILE="$f" && break
+done
+
+# 3. Check API key secret
+OWNER_REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+HAS_KEY=$(gh api "repos/${OWNER_REPO}/actions/secrets" --jq '.secrets[].name' 2>/dev/null | grep -c ANTHROPIC_API_KEY || true)
 ```
 
-If `ANTHROPIC_API_KEY` is not set as a repo secret, tell the user:
-> Dispatch requires `ANTHROPIC_API_KEY` as a GitHub Actions secret.
-> Run: `gh secret set ANTHROPIC_API_KEY`
+**If workflow file is missing**, show:
+> **Dispatch setup required.** No workflow file found.
+>
+> Create `.github/workflows/claude.yml`:
+> ```yaml
+> name: Claude Code
+>
+> on:
+>   issue_comment:
+>     types: [created]
+>   pull_request_review_comment:
+>     types: [created]
+>   issues:
+>     types: [opened, assigned]
+>
+> jobs:
+>   claude:
+>     if: |
+>       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+>       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+>       (github.event_name == 'issues' && contains(github.event.issue.body, '@claude'))
+>     runs-on: ubuntu-latest
+>     permissions:
+>       contents: write
+>       issues: write
+>       pull-requests: write
+>     steps:
+>       - uses: anthropics/claude-code-action@v1
+>         with:
+>           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+> ```
+>
+> Then commit and push before retrying dispatch.
 
-Also verify the workflow file exists:
-```bash
-test -f .github/workflows/agent-dispatch.yml && echo "workflow exists" || echo "workflow missing"
-```
-
-If missing, tell the user to run `/swain-init` or create the workflow manually.
+**If API key secret is missing**, show:
+> **Missing `ANTHROPIC_API_KEY` repo secret.**
+>
+> Set it with: `gh secret set ANTHROPIC_API_KEY --repo {owner}/{repo}`
+>
+> Note: This must be an API key (per-token billing), not a Max/Pro subscription token.
 
 ## Dispatch workflow
 
@@ -128,3 +176,18 @@ gh issue list --label agent-dispatch --state open --json number,title,updatedAt
 ```
 
 Show open dispatch issues with their last update time.
+
+## Trigger timing
+
+The Claude Code Action workflow fires on different GitHub events depending on how `@claude` is mentioned:
+
+| Mention location | Event | When it fires |
+|------------------|-------|--------------|
+| Issue body at creation | `issues.opened` | Immediately when issue is created |
+| Comment on existing issue | `issue_comment.created` | When the comment is posted |
+
+**Gotcha:** If the workflow file didn't exist when the issue was created, the `issues.opened` event was missed. In that case, add a follow-up comment containing `@claude` to trigger via `issue_comment.created` instead.
+
+The default dispatch workflow (Step 4 + Step 5) uses `repository_dispatch` which is independent of `@claude` mentions. The timing gotcha only applies when:
+- Using manual dispatch (Step 5 skipped)
+- The workflow relies on `issues.opened` or `issue_comment.created` events
