@@ -11,7 +11,7 @@ linked-artifacts:
   - ADR-003
 depends-on-artifacts:
   - SPEC-020
-implementation-commits: []
+implementation-commits: [a59fdd3]
 addresses: []
 evidence-pool: ""
 source-issue: ""
@@ -64,3 +64,4 @@ When stale directories are detected:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Draft | 2026-03-13 | 232369c | Initial creation |
+| Complete | 2026-03-13 | a59fdd3 | Implementation verified |
