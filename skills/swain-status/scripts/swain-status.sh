@@ -28,7 +28,7 @@ SETTINGS_USER="${XDG_CONFIG_HOME:-$HOME/.config}/swain/settings.json"
 _PROJECT_SLUG=$(echo "$REPO_ROOT" | tr '/' '-')
 MEMORY_DIR="${SWAIN_MEMORY_DIR:-$HOME/.claude/projects/${_PROJECT_SLUG}/memory}"
 CACHE_FILE="$MEMORY_DIR/status-cache.json"
-SESSION_FILE="$MEMORY_DIR/session.json"
+SESSION_FILE="$REPO_ROOT/.agents/session.json"
 
 # GitHub remote
 GH_REMOTE_URL="$(git remote get-url origin 2>/dev/null || echo "")"

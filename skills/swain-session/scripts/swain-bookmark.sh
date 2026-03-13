@@ -8,22 +8,28 @@ set -euo pipefail
 #   swain-bookmark.sh "note text" --files file1.md file2.md
 #   swain-bookmark.sh --clear
 #
-# Locates session.json in the Claude Code memory directory and updates
-# the bookmark field atomically. Fails silently if jq is unavailable
-# or session.json cannot be found — bookmarking is a convenience, not a gate.
+# Locates session.json at .agents/session.json (per-project) and updates
+# the bookmark field atomically. Migrates from old global Claude memory location
+# on first access. Fails silently if jq is unavailable — bookmarking is a convenience, not a gate.
 
 # --- Locate session.json ---
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || REPO_ROOT="$PWD"
-PROJECT_SLUG=$(echo "$REPO_ROOT" | tr '/' '-')
-SESSION_FILE="${SWAIN_SESSION_FILE:-$HOME/.claude/projects/${PROJECT_SLUG}/memory/session.json}"
+SESSION_FILE="${SWAIN_SESSION_FILE:-$REPO_ROOT/.agents/session.json}"
 
+# Migrate from old global location if new file doesn't exist
 if [[ ! -f "$SESSION_FILE" ]]; then
-  # Try find as fallback
-  SESSION_FILE="$(find ~/.claude/projects/ -path '*/memory/session.json' -print -quit 2>/dev/null)" || true
+  _OLD_SLUG=$(echo "$REPO_ROOT" | tr '/' '-')
+  _OLD_FILE="$HOME/.claude/projects/${_OLD_SLUG}/memory/session.json"
+  if [[ -f "$_OLD_FILE" ]]; then
+    mkdir -p "$(dirname "$SESSION_FILE")"
+    cp "$_OLD_FILE" "$SESSION_FILE"
+  fi
 fi
 
-if [[ -z "$SESSION_FILE" || ! -f "$SESSION_FILE" ]]; then
-  exit 0  # No session file — nothing to update
+# Create with defaults if still missing
+if [[ ! -f "$SESSION_FILE" ]]; then
+  mkdir -p "$(dirname "$SESSION_FILE")"
+  echo '{}' > "$SESSION_FILE"
 fi
 
 if ! command -v jq &>/dev/null; then
