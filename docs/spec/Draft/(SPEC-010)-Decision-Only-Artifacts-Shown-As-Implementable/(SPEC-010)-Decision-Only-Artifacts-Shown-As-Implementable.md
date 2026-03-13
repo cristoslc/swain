@@ -6,7 +6,7 @@ author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
 type: bug
-parent-epic: EPIC-006
+parent-epic:
 linked-research:
   - SPIKE-012
 linked-adrs: []
