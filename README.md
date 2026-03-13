@@ -34,6 +34,12 @@ Then you ask what's going on:
 /swain-status
 ```
 
+or
+
+```
+/swain where are we at in this project?
+```
+
 This shows active epics with progress, decisions waiting on you, implementation-ready items, blocked work, tasks, and GitHub issues — all in one view with clickable links.
 
 From there, the core loop is:
