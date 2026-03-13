@@ -10,6 +10,7 @@ metadata:
   license: MIT
   source: swain
 ---
+<!-- swain-model-hint: sonnet, effort: low -->
 
 Run through the following steps in order without pausing for confirmation unless a decision point is explicitly marked as requiring one.
 

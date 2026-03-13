@@ -11,6 +11,8 @@ metadata:
   source: swain
 ---
 
+<!-- swain-model-hint: sonnet, effort: medium — default for conceptual explanations; see per-section overrides below -->
+
 # swain-help
 
 Contextual help for the swain skill ecosystem.
@@ -74,6 +76,7 @@ Guidelines for answering:
 - **Hand off when appropriate.** If the user's question is really a request to *do* something (e.g., "how do I create a spec?" followed by "ok do it"), invoke the relevant skill directly via the Skill tool. Explain what you're doing: "I'll hand this off to swain-design."
 - **Admit gaps.** If something isn't covered, say so rather than inventing swain features.
 
+<!-- swain-model-hint: haiku, effort: low — reference lookups are simple file reads -->
 ## Reference mode
 
 When the user wants an overview or cheat sheet, read `skills/swain-help/references/quick-ref.md` and present the relevant section. If they want "everything", present the full quick reference but note it's dense.

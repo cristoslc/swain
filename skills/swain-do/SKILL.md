@@ -10,6 +10,8 @@ metadata:
   source: swain
 ---
 
+<!-- swain-model-hint: sonnet, effort: low — default for task management; see per-section overrides below -->
+
 # Execution Tracking
 
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
@@ -66,6 +68,7 @@ To express abandonment, use `tk add-note <id> "Abandoned: ..."` then `tk close <
 6. **Prefix abandonment reasons with `Abandoned:`** when closing incomplete tasks — this convention makes abandoned work findable so nothing silently disappears.
 7. **Use `ticket-query` for structured output** — when you need JSON for programmatic use, pipe through `ticket-query` (available in the vendored `bin/` directory) instead of parsing human-readable output. Example: `ticket-query '.status == "open"'`
 
+<!-- swain-model-hint: opus, effort: high — plan creation and code implementation require deep reasoning -->
 ## TDD enforcement
 
 Strict RED-GREEN-REFACTOR with anti-rationalization safeguards and completion verification. Read [references/tdd-enforcement.md](references/tdd-enforcement.md) for the anti-rationalization table, task ordering rules, and evidence requirements.

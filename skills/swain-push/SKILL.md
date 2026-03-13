@@ -10,6 +10,7 @@ metadata:
   license: MIT
   source: swain
 ---
+<!-- swain-model-hint: sonnet, effort: low -->
 
 **Deprecation notice:** `swain-push` is now an alias for `swain-sync`. Use `/swain sync` or `/swain-sync` instead.
 

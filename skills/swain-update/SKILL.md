@@ -10,6 +10,7 @@ metadata:
   license: MIT
   source: swain
 ---
+<!-- swain-model-hint: sonnet, effort: low -->
 
 # Update Swain
 

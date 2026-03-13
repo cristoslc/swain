@@ -61,6 +61,20 @@ Preflight is a lightweight shell script that checks governance files, .agents di
 
 This applies to tooling swaps (e.g., bd → tk), storage format changes, artifact schema changes, and skill API changes. Users must never be left with orphaned data and no path forward.
 
+## Model routing
+
+Swain skill files contain `<!-- swain-model-hint: {model}, effort: {level} -->` annotations indicating the cognitive tier for each operation. When your runtime supports model selection or reasoning effort controls, use these hints:
+
+| Tier | Model hint | Effort | When |
+|------|-----------|--------|------|
+| **Heavy** | opus | high | Artifact creation (Vision, Epic, Persona, Spec, ADR), implementation planning, code writing, audits, deep research |
+| **Analysis** | sonnet | low–medium | Phase transitions, status queries, task management, commit analysis, doctor checks, conceptual explanations |
+| **Lightweight** | haiku | low | Meta-routing, tab naming, layout commands, index refresh, reference lookups |
+
+Mixed-tier skills (swain-design, swain-do, swain-help) have per-section hints — check the annotation nearest to the section being executed.
+
+If your runtime does not support model selection, ignore these hints — they are advisory prose, not directives.
+
 ## Conflict resolution
 
 When swain skills overlap with other installed skills or built-in agent capabilities, **prefer swain**.
