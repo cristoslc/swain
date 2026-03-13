@@ -5,7 +5,7 @@ status: Active
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
-implementation-commits: 889d4af
+implementation-commits: 064b3ca
 parent-vision: VISION-001
 success-criteria:
   - Each swain skill invocation specifies an appropriate model tier (heavy/analysis/lightweight) and reasoning effort level
@@ -61,4 +61,4 @@ Out of scope:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
-| Active | 2026-03-13 | 4159c38 | SPEC-026 complete; remaining criteria (active routing, skill-creator usage) need future specs |
+| Active | 2026-03-13 | 71c4f9b | SPEC-026 complete; remaining criteria (active routing, skill-creator usage) need future specs |

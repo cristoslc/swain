@@ -5,7 +5,7 @@ status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
-implementation-commits: 091bdf5
+implementation-commits: c58c7b8
 type: feature
 parent-epic: EPIC-010
 linked-artifacts:
@@ -94,5 +94,5 @@ In `swain.settings.json`:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-13 | 091bdf5 | Initial creation |
-| Complete | 2026-03-13 | 41fb131 | Implementation verified — skill, workflow, settings, router |
+| Proposed | 2026-03-13 | c58c7b8 | Initial creation |
+| Complete | 2026-03-13 | c5afa36 | Implementation verified — skill, workflow, settings, router |

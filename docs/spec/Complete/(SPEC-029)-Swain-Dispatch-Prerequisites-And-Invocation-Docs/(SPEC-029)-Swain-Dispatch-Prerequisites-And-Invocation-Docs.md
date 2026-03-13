@@ -13,7 +13,7 @@ addresses: []
 linked-artifacts:
   - SPEC-025
 depends-on-artifacts: []
-implementation-commits: 78c1ca6
+implementation-commits: f5d1aad
 ---
 
 # swain-dispatch Prerequisites and Invocation Docs
@@ -46,4 +46,4 @@ Source: [GitHub Issue #41](https://github.com/cristoslc/swain/issues/41)
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Complete | 2026-03-13 | 78c1ca6 | Enhancement — direct to Complete |
+| Complete | 2026-03-13 | f5d1aad | Enhancement — direct to Complete |

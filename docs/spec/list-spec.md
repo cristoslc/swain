@@ -37,9 +37,9 @@
 | SPEC-022 | Remove STORY Artifact Type | 2026-03-13 | c2859a2 |
 | SPEC-023 | Pre-Commit Hook Setup in swain-init | 2026-03-13 | 62662e6 |
 | SPEC-024 | Pre-Commit Verification in swain-sync | 2026-03-13 | 62662e6 |
-| SPEC-011 | Automated Retrospectives | 2026-03-13 | 02c3960 |
-| SPEC-025 | swain-dispatch Skill | 2026-03-13 | 091bdf5 |
-| SPEC-026 | Model Tier Annotations and Routing | 2026-03-13 | 889d4af |
-| SPEC-027 | Session JSON Per-Project Storage | 2026-03-13 | 3d3a4c0 |
-| SPEC-028 | swain-sync Gitignore Checks | 2026-03-13 | dc8d80e |
-| SPEC-029 | swain-dispatch Prerequisites and Invocation Docs | 2026-03-13 | 78c1ca6 |
+| SPEC-011 | Automated Retrospectives | 2026-03-13 | ae2deeb |
+| SPEC-025 | swain-dispatch Skill | 2026-03-13 | c58c7b8 |
+| SPEC-026 | Model Tier Annotations and Routing | 2026-03-13 | 064b3ca |
+| SPEC-027 | Session JSON Per-Project Storage | 2026-03-13 | 4020504 |
+| SPEC-028 | swain-sync Gitignore Checks | 2026-03-13 | 1912844 |
+| SPEC-029 | swain-dispatch Prerequisites and Invocation Docs | 2026-03-13 | f5d1aad |
