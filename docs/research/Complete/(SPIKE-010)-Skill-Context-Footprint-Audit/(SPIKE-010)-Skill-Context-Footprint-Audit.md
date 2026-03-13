@@ -86,4 +86,4 @@ swain-design is the gold standard — 22 reference files, SKILL.md uses "read [r
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-13 | — | Initial creation |
-| Complete | 2026-03-13 | — | GO — 5 waste patterns identified, ~4k-4.5k tokens recoverable |
+| Complete | 2026-03-13 | 459bdc7 | GO — 5 waste patterns identified, ~4k-4.5k tokens recoverable |
