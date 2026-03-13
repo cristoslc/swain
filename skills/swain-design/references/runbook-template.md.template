@@ -2,7 +2,7 @@
 ---
 title: "{{ title }}"
 artifact: RUNBOOK-{{ number }}
-status: {{ status | default("Draft") }}
+status: {{ status | default("Proposed") }}
 mode: {{ mode | default("manual") }}
 trigger: {{ trigger | default("on-demand") }}
 author: {{ author }}

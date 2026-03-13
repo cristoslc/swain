@@ -8,8 +8,8 @@ This hook fires during phase transitions for these artifact types:
 
 | Artifact | Trigger phase | When to check |
 |----------|--------------|---------------|
-| **Spike** | Planned → Active | Investigation is starting — evidence is most valuable here |
-| **ADR** | Draft → Proposed | Decision needs supporting evidence |
+| **Spike** | Proposed → Active | Investigation is starting — evidence is most valuable here |
+| **ADR** | At creation or Proposed → Active | Decision needs supporting evidence |
 | **Vision** | At creation | Market research and landscape analysis |
 | **Epic** | At creation or Proposed → Active | Scoping benefits from prior research |
 

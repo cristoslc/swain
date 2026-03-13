@@ -2,7 +2,7 @@
 ---
 title: "{{ title }}"
 artifact: SPIKE-{{ number }}
-status: {{ status | default("Planned") }}
+status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
