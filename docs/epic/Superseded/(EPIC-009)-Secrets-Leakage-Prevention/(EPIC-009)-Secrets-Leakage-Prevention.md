@@ -60,4 +60,4 @@ Prevent secrets and credentials from being accidentally committed to repositorie
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 7b39e3e | Initial creation from GitHub #24 decision |
-| Superseded | 2026-03-13 | — | Superseded by EPIC-012 (End-to-End Sync Workflow) |
+| Superseded | 2026-03-13 | 34f2d62 | Superseded by EPIC-012 (End-to-End Sync Workflow) |
