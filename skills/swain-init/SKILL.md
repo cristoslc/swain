@@ -169,7 +169,7 @@ If no, skip to Phase 4.
 
 ### Step 3.3 — Inject governance
 
-Read the canonical governance content from the **swain-doctor** skill's `references/AGENTS.content.md` file. Locate it by searching for the file relative to the installed skills directory:
+Read the canonical governance content from `skills/swain-doctor/references/AGENTS.content.md`. Locate it by searching for the file relative to the installed skills directory:
 
 ```bash
 find .claude/skills .agents/skills skills -path '*/swain-doctor/references/AGENTS.content.md' -print -quit 2>/dev/null

@@ -17,10 +17,10 @@ Cross-cutting project status dashboard. Aggregates data from artifact lifecycle 
 
 ## When invoked
 
-Locate and run the status script. The script path is relative to this skill's directory — resolve from the skill's install location:
+Locate and run the status script from `skills/swain-status/scripts/swain-status.sh`:
 
 ```bash
-# Find the script relative to this skill's directory
+# Find the script from the project root or installed skills directories
 SKILL_DIR="$(find . .claude .agents -path '*/swain-status/scripts/swain-status.sh' -print -quit 2>/dev/null)"
 bash "$SKILL_DIR" --refresh
 ```
@@ -66,7 +66,7 @@ Present the script output directly — do not reformat or strip escape sequences
 The script supports `--compact` for consumption by swain-stage's MOTD panel:
 
 ```bash
-bash scripts/swain-status.sh --compact
+bash skills/swain-status/scripts/swain-status.sh --compact
 ```
 
 This outputs 4-5 lines suitable for the MOTD box: branch, active epic progress, current task, ready count, assigned issue count.

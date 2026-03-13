@@ -45,7 +45,7 @@ If invoked from swain-design (e.g., spike entering Active), the artifact context
 
 ### Step 2 — Collect and normalize
 
-For each source, use the appropriate capability. Read `references/normalization-formats.md` for the exact markdown structure per source type.
+For each source, use the appropriate capability. Read `skills/swain-search/references/normalization-formats.md` for the exact markdown structure per source type.
 
 **Web search queries:**
 1. Use a web search capability to find relevant results
@@ -77,7 +77,7 @@ Each normalized source file goes to `sources/NNN-<slug>.md` with sequential numb
 
 ### Step 3 — Generate manifest
 
-Create `manifest.yaml` following the schema in `references/manifest-schema.md`. Include:
+Create `manifest.yaml` following the schema in `skills/swain-search/references/manifest-schema.md`. Include:
 - Pool metadata (id, created date, tags)
 - Default freshness TTL per source type
 - One entry per source with provenance (URL/path, fetch date, content hash, type)
