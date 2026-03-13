@@ -1,6 +1,6 @@
 # User Journeys
 
-## Validated
+## Active
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|

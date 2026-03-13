@@ -6,7 +6,6 @@
 |----------|-------|-------------|--------|
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | — |
-| EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | — |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | — |
 | EPIC-011 | MOTD Panel Improvements | 2026-03-13 | ea0d165 |
 | EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | — |
@@ -15,6 +14,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | — |
 
 ## Superseded
 

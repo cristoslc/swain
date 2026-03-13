@@ -1,6 +1,6 @@
 # ADRs
 
-## Adopted
+## Active
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
