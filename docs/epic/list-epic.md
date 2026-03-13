@@ -5,7 +5,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
-| EPIC-006 | Skill Context Footprint Reduction | 2026-03-13 | — |
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | — |
 | EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | — |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | — |
@@ -31,3 +30,4 @@
 | EPIC-002 | Artifact Type System & Issue Integration | 2026-03-12 | 00a885a |
 | EPIC-003 | README Rewrite for New User Onboarding | 2026-03-12 | d165af2 |
 | EPIC-004 | Superpowers Integration Assessment | 2026-03-12 | 775306f |
+| EPIC-006 | Skill Context Footprint Reduction | 2026-03-13 | dbcb557 |
