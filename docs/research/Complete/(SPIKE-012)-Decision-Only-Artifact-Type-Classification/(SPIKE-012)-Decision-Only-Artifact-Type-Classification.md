@@ -127,3 +127,5 @@ This eliminates the "fall-through to Implementation" bug — decision-only types
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-13 | — | Initial creation |
+| Active | 2026-03-13 | 8433c14 | Investigation conducted |
+| Complete | 2026-03-13 | 8433c14 | GO verdict — definitive classification produced |
