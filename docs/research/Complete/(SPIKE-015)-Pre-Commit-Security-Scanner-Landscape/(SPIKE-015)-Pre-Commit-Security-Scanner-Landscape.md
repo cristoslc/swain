@@ -268,3 +268,4 @@ This abstraction is justified because we have 3 confirmed scanners with distinct
 |-------|------|--------|-------|
 | Planned | 2026-03-13 | 7b39e3e | Initial creation |
 | Active | 2026-03-13 | — | Research conducted: 10 tools evaluated across 3 domains |
+| Complete | 2026-03-13 | 474f2be | GO: 3 scanners fill gitleaks gaps |
