@@ -31,6 +31,7 @@ set_title() {
 
   if [[ -n "$TMUX" ]]; then
     # tmux — rename the tmux window tab
+    tmux set-window-option automatic-rename off 2>/dev/null || true
     tmux rename-window "$title" 2>/dev/null || true
     # Propagate window name to the outer terminal (iTerm tab title).
     # set-titles-string uses #W (window name) so each window keeps its
