@@ -58,4 +58,4 @@ Create a `swain-dispatch` skill that pushes swain-design artifacts to GitHub Iss
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 6a5e1ac | Initial creation from GitHub #18 decision |
-| Active | 2026-03-13 | PENDING | SPEC-025 implemented, SPIKE-016 complete |
+| Active | 2026-03-13 | 41fb131 | SPEC-025 implemented, SPIKE-016 complete |
