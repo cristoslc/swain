@@ -12,6 +12,12 @@
       "osv-scanner": { "enabled": false }
     }
   },
+  "dispatch": {
+    "model": "claude-sonnet-4-6",
+    "maxTurns": 15,
+    "labels": ["agent-dispatch", "swain"],
+    "autoTrigger": true
+  },
   "stage": {
     "motd": {
       "refreshInterval": 5,
