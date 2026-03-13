@@ -10,7 +10,7 @@
 | **swain-design** | `/swain-design` or `/swain` + artifact request | Create and manage documentation artifacts |
 | **swain-search** | `/swain-search` or `/swain` + research request | Collect and cache evidence pools |
 | **swain-do** | `/swain-do` or `/swain` + task request | Track tasks and implementation work |
-| **swain-push** | `/swain-push` or `/swain push` | Commit and push changes |
+| **swain-sync** | `/swain-sync` or `/swain sync` | Fetch, rebase, commit, and push changes |
 | **swain-release** | `/swain-release` or `/swain release` | Version bump, changelog, git tag |
 | **swain-update** | `/swain-update` or `/swain update` | Update swain to latest version |
 | **swain-help** | `/swain help` or `/swain-help` | This help system |
@@ -93,7 +93,7 @@ These require a tracked plan (via swain-do) before implementation begins.
 ### Releasing and committing
 
 ```
-/swain push
+/swain sync
 /swain release
 /swain bump version
 ```
