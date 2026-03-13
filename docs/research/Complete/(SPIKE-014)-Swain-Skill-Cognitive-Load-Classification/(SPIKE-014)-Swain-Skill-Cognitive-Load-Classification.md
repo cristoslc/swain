@@ -124,3 +124,4 @@ Tier-routing saves ~55% vs all-Opus while preserving quality where it matters. T
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-13 | — | Initial creation |
+| Complete | 2026-03-13 | 471ba87 | NO-GO: 3 mixed-tier skills need per-operation routing |
