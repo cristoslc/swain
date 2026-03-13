@@ -7,10 +7,7 @@
 | SPEC-009 | Normalize Artifact Frontmatter Relationships | 2026-03-13 | — |
 | SPEC-010 | Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status | 2026-03-13 | — |
 | SPEC-011 | Automated Retrospectives | 2026-03-13 | 1170623 |
-| SPEC-012 | Yazi System Default File Opening | 2026-03-13 | 0304590 |
 | SPEC-013 | Fetch/Pull-First Sync Behavior | 2026-03-13 | — |
-| SPEC-014 | swain-keys 1Password SSH Program Override | 2026-03-13 | — |
-| SPEC-015 | Externalize Skill Reference Content | 2026-03-13 | — |
 | SPEC-016 | Compress Skill Runtime Instructions | 2026-03-13 | — |
 | SPEC-017 | Deduplicate Cross-Skill Boilerplate | 2026-03-13 | — |
 
@@ -18,13 +15,16 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-002 | evidencewatch Script | 2026-03-11 | — |
-| SPEC-003 | swain-design Integration | 2026-03-11 | — |
 
 ## Implemented
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPEC-015 | Externalize Skill Reference Content | 2026-03-13 | da6cb61 |
+| SPEC-014 | swain-keys 1Password SSH Program Override | 2026-03-13 | 4a0e453 |
+| SPEC-012 | Yazi System Default File Opening | 2026-03-13 | 9015bf1 |
+| SPEC-003 | swain-design Integration | 2026-03-13 | 5fd2e44 |
+| SPEC-002 | evidencewatch Script | 2026-03-13 | 93f39f5 |
 | SPEC-008 | Superpowers Integration | 2026-03-12 | 7095850 |
 | SPEC-006 | BUG-to-SPEC Migration | 2026-03-12 | 3a1ed03 |
 | SPEC-005 | GitHub Issues Integration | 2026-03-12 | ee9c9c7 |
