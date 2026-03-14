@@ -71,13 +71,15 @@ class TestBlocks:
             "SPEC-030 is resolved (Complete) — should not appear in blocks output"
         )
 
-    def test_blocks_blocked_artifact_shows_unresolved_deps(self):
-        """An artifact with unresolved deps should show them."""
+    def test_blocks_all_resolved_deps_returns_empty(self):
+        """An artifact whose only dep is resolved should return empty."""
         result = run_specgraph(["blocks", "EPIC-014"])
-        # EPIC-014 depends on SPIKE-018 (unresolved)
-        # Should have at least one unresolved dep
+        # EPIC-014 depends on SPIKE-018 (Complete/resolved)
+        # Python filters resolved deps → output should be empty
         lines = [l for l in result.strip().split("\n") if l.strip()]
-        assert len(lines) > 0, "EPIC-014 has unresolved deps — blocks should return them"
+        assert len(lines) == 0, (
+            f"EPIC-014's only dep (SPIKE-018) is resolved — blocks should return empty, got: {lines}"
+        )
 
     def test_blocks_output_format_is_one_id_per_line(self):
         """Each line should be a bare artifact ID (no tabs, no brackets)."""
@@ -98,11 +100,14 @@ class TestBlocks:
 class TestBlockedBy:
     """blocked-by <ID>: unresolved artifacts that depend on this one."""
 
-    def test_blocked_by_spec030_includes_spec031(self):
-        """SPEC-031 depends on SPEC-030, so SPEC-030 is blocked-by SPEC-031."""
+    def test_blocked_by_spec030_returns_empty_when_all_resolved(self):
+        """SPEC-031 depends on SPEC-030, but SPEC-031 is now Complete (resolved).
+        blocked-by SPEC-030 should return empty — no unresolved dependents remain."""
         result = run_specgraph(["blocked-by", "SPEC-030"])
         lines = [l.strip() for l in result.strip().split("\n") if l.strip()]
-        assert "SPEC-031" in lines, f"SPEC-031 should be in blocked-by SPEC-030, got: {lines}"
+        assert "SPEC-031" not in lines, (
+            "SPEC-031 is resolved (Complete) — should not appear in blocked-by output"
+        )
 
     def test_blocked_by_filters_resolved_sources(self):
         """Resolved artifacts that depend on SPEC-030 should be excluded."""
@@ -141,11 +146,13 @@ class TestTree:
             "SPEC-030 is resolved (Complete) — should not appear in tree output"
         )
 
-    def test_tree_blocked_artifact_includes_unresolved_transitive_deps(self):
-        """EPIC-014 is blocked by SPIKE-018. Tree should include unresolved transitive deps."""
+    def test_tree_all_resolved_deps_returns_empty(self):
+        """EPIC-014 depends on SPIKE-018 (Complete). Tree returns empty when all deps resolved."""
         result = run_specgraph(["tree", "EPIC-014"])
         lines = [l.strip() for l in result.strip().split("\n") if l.strip()]
-        assert len(lines) > 0, "EPIC-014 has transitive deps — tree should return them"
+        assert len(lines) == 0, (
+            f"EPIC-014's only dep (SPIKE-018) is resolved — tree should return empty, got: {lines}"
+        )
 
     def test_tree_does_not_include_start_node(self):
         """The artifact itself should not appear in the tree output."""
@@ -439,11 +446,13 @@ class TestMermaid:
         assert len(matches) > 0, f"mermaid should contain ID[\"Title\"] nodes"
 
     def test_mermaid_edge_format(self):
-        """Edges should use 'FROM --> TO' format."""
-        result = run_specgraph(["mermaid"])
+        """Edges should use 'FROM --> TO' format when present."""
+        result = run_specgraph(["--all", "mermaid"])
         edge_pattern = re.compile(r"^  [A-Z]+-\d+ --> [A-Z]+-\d+$", re.MULTILINE)
         matches = edge_pattern.findall(result)
-        assert len(matches) > 0, f"mermaid should contain 'FROM --> TO' edges"
+        assert len(matches) > 0, (
+            "mermaid --all should contain 'FROM --> TO' edges (the full graph has many edges)"
+        )
 
     def test_mermaid_only_shows_unresolved_by_default(self):
         """By default, resolved artifacts should not appear in mermaid output."""
@@ -480,10 +489,12 @@ class TestStatus:
             "status output should contain '--- TYPE ---' headers"
         )
 
-    def test_status_has_spec_section(self):
-        """Should have a SPEC section."""
-        result = run_specgraph(["status"])
-        assert "--- SPEC ---" in result
+    def test_status_has_spec_section_with_all_flag(self):
+        """Should have a SPEC section when showing resolved artifacts."""
+        result = run_specgraph(["--all", "status"])
+        assert "--- SPEC ---" in result, (
+            "status --all should show a SPEC section (many resolved SPECs exist)"
+        )
 
     def test_status_has_epic_section(self):
         """Should have an EPIC section."""
@@ -563,19 +574,23 @@ class TestOverview:
         result = run_specgraph(["overview"])
         assert "=== Execution Tracking" in result
 
-    def test_overview_includes_active_artifacts(self):
-        """Active artifacts like SPEC-031 should appear."""
+    def test_overview_includes_unresolved_artifacts(self):
+        """Unresolved artifacts should appear in overview."""
         result = run_specgraph(["overview"])
-        assert "SPEC-031" in result, "SPEC-031 (Active) should appear in overview"
+        assert "EPIC-005" in result, "EPIC-005 (Active, unresolved) should appear in overview"
+        # SPEC-031 is Complete — should NOT appear in default overview (resolved artifacts hidden)
+        assert "SPEC-031" not in result, (
+            "SPEC-031 is Complete (resolved) — should not appear in default overview"
+        )
 
-    def test_overview_blocked_artifact_shows_blocked_by(self):
-        """Artifacts with unresolved deps should show [blocked by: ...] annotation."""
+    def test_overview_unblocked_artifact_has_no_blocked_by(self):
+        """Artifacts with all deps resolved should not show blocked-by annotation."""
         result = run_specgraph(["overview"])
-        # EPIC-014 is blocked by SPIKE-018
-        if "EPIC-014" in result:
-            epic014_line = next(
-                (l for l in result.split("\n") if "EPIC-014" in l), ""
+        # EPIC-005 has no deps — should have no blocked-by annotation
+        if "EPIC-005" in result:
+            epic005_line = next(
+                (l for l in result.split("\n") if "EPIC-005" in l), ""
             )
-            assert "blocked by" in epic014_line, (
-                f"EPIC-014 should show blocked-by annotation: {epic014_line!r}"
+            assert "blocked by" not in epic005_line, (
+                f"EPIC-005 should NOT show blocked-by (no deps): {epic005_line!r}"
             )
