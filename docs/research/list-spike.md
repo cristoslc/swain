@@ -9,7 +9,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-018 | Artifact Authoring Latency and Ceremony Audit | 2026-03-14 | 1f59fe2 |
 
 ## Complete
 
@@ -32,3 +31,4 @@
 | SPIKE-015 | Pre-Commit Security Scanner Landscape | 2026-03-13 | 474f2be |
 | SPIKE-016 | Background Agent Invocation Via GitHub | 2026-03-13 | 3e54fe2 |
 | SPIKE-017 | Sync Workflow Best Practices | 2026-03-13 | ef4d358 |
+| SPIKE-018 | Artifact Authoring Latency and Ceremony Audit | 2026-03-14 | — |
