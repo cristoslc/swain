@@ -5,10 +5,13 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "complete EPIC-005 (Isolated Claude Code Environment) — SPEC-048 Tier1 sandbox and SPEC-049 Tier2 Docker runner delivered",
+    "note": "created EPIC-016 SPIKE-019",
     "files": [
-      "docs/epic/Complete/(EPIC-005)-Isolated-Claude-Code-Environment/(EPIC-005)-Containerized-Claude-Code-Environment.md"
+      "docs/epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md",
+      "docs/research/Proposed/(SPIKE-019)-Worktree-Session-Bookmark-Design/(SPIKE-019)-Worktree-Session-Bookmark-Design.md",
+      "docs/epic/list-epic.md",
+      "docs/research/list-spike.md"
     ],
-    "timestamp": "2026-03-14T07:14:40Z"
+    "timestamp": "2026-03-14T16:34:48Z"
   }
 }

@@ -19,6 +19,12 @@
 | EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | 9bc896b |
 | EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | 30116841a602a022632075525db90283f2c85e6b |
 
+## Proposed
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| EPIC-016 | Worktree-Aware Session Bookmarks | 2026-03-14 | — |
+
 ## Superseded
 
 | Artifact | Title | Last Updated | Commit |

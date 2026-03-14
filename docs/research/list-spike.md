@@ -4,6 +4,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPIKE-019 | Worktree Session Bookmark Design | 2026-03-14 | — |
 
 ## Active
 
