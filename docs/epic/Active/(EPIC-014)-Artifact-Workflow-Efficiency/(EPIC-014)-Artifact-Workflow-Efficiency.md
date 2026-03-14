@@ -42,6 +42,7 @@ Out of scope:
 
 - SPEC-045: Fast-path authoring mode — tier detection and selective ceremony skipping
 - SPEC-046: Inline lifecycle hash stamping — fold stamp into transition commit for trivial artifacts
+- SPEC-047: Lazy index refresh — skip per-artifact list-*.md updates; batch rebuild at session end
 
 ## Key Dependencies
 
