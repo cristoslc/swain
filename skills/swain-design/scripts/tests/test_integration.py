@@ -51,7 +51,7 @@ def run_specgraph(args: list[str]) -> str:
         ["python3", str(SPECGRAPH)] + args,
         capture_output=True,
         text=True,
-        cwd=str(SCRIPTS_DIR.parent.parent.parent.parent),  # repo root
+        cwd=str(SCRIPTS_DIR.parent.parent.parent),  # repo root
     )
     return result.stdout
 
