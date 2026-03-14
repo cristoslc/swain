@@ -5,7 +5,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
-| EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | — |
 
 ## Active
 
@@ -14,6 +13,7 @@
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | 71c4f9b |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | c5afa36 |
 | EPIC-011 | MOTD Panel Improvements | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 |
+| EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | 6f26e1bf8ca11faad9d98ae8a57390c65b571d6c |
 | EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | dacbf2c |
 
 ## Superseded
