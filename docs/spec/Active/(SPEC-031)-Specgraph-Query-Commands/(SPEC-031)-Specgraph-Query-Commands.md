@@ -1,7 +1,7 @@
 ---
 title: "Specgraph Query Commands"
 artifact: SPEC-031
-status: Complete
+status: Active
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-14
@@ -90,4 +90,5 @@ All subcommands read from the specgraph cache (auto-rebuilding if stale) and wri
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
-| Complete | 2026-03-14 | 6eb4eea | All 13 query subcommands shipped in specgraph.py. 118 tests passing. |
+| Complete | 2026-03-14 | 6eb4eea | All 13 query subcommands shipped in specgraph.py. 118 tests passing. (incorrect stamp — see Active row) |
+| Active | 2026-03-14 | — | Reverted from Complete — query subcommands not yet implemented in Python |
