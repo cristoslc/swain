@@ -192,4 +192,4 @@ Semgrep CE       →  prompt injection in code   (2/3, LGPL-2.1, offline)
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation; prior art in SPIKE-015 for secret/dependency scanning |
 | Active | 2026-03-14 | -- | Investigation begins |
-| Complete | 2026-03-14 | -- | Hybrid verdict: BUILD orchestration wrapper over BUY scanners; novel context-file heuristic scanner defined |
+| Complete | 2026-03-14 | 631d356 | Hybrid verdict: BUILD orchestration wrapper over BUY scanners; novel context-file heuristic scanner defined |
