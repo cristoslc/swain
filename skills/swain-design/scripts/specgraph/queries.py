@@ -516,3 +516,159 @@ def status_cmd(nodes: dict, edges: list[dict], show_all: bool = False) -> str:
         lines.append(f"({hidden_count} resolved artifact{'s' if hidden_count != 1 else ''} hidden)")
 
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Ready and Next
+# ---------------------------------------------------------------------------
+
+
+def _compute_ready_set(nodes: dict, edges: list[dict]) -> set[str]:
+    """Return the set of artifact IDs that are ready.
+
+    An artifact is ready if:
+    - It is not resolved
+    - All of its depends-on targets are resolved (or it has no depends-on edges)
+    """
+    ready: set[str] = set()
+    for artifact_id in nodes:
+        if _node_is_resolved(artifact_id, nodes):
+            continue
+        # Check all depends-on edges from this artifact
+        is_ready = True
+        for edge in edges:
+            if edge.get("from") != artifact_id:
+                continue
+            if edge.get("type") != "depends-on":
+                continue
+            target = edge.get("to", "")
+            if not target:
+                continue
+            if not _node_is_resolved(target, nodes):
+                is_ready = False
+                break
+        if is_ready:
+            ready.add(artifact_id)
+    return ready
+
+
+def ready(
+    nodes: dict,
+    edges: list[dict],
+    repo_root: str = "",
+    show_links: bool = False,
+) -> str:
+    """Return a formatted list of ready artifacts.
+
+    Ready = unresolved nodes whose all depends-on targets are resolved.
+    Output format per line: {display_id}  {status}  {title}
+    Sorted by artifact ID. Returns empty string if nothing is ready.
+    """
+    ready_set = _compute_ready_set(nodes, edges)
+    if not ready_set:
+        return ""
+
+    lines: list[str] = []
+    for artifact_id in sorted(ready_set):
+        node = nodes[artifact_id]
+        display_id = _format_id(artifact_id, nodes, repo_root, show_links)
+        status = node.get("status", "")
+        title = node.get("title", "")
+        lines.append(f"{display_id}  {status}  {title}")
+
+    return "\n".join(lines)
+
+
+def next_cmd(
+    nodes: dict,
+    edges: list[dict],
+    repo_root: str = "",
+    show_links: bool = False,
+) -> str:
+    """Compute ready set and show what each ready item would unblock, plus blocked items.
+
+    Format:
+    READY:
+      ARTIFACT-001  In Progress  Title
+        -> would unblock: ARTIFACT-002, ARTIFACT-003
+
+    BLOCKED:
+      ARTIFACT-004  In Progress  Title  (needs: EPIC-001, ARTIFACT-005)
+    """
+    ready_set = _compute_ready_set(nodes, edges)
+
+    lines: list[str] = []
+
+    # --- READY section ---
+    lines.append("READY:")
+    if not ready_set:
+        lines.append("  (none)")
+    else:
+        for artifact_id in sorted(ready_set):
+            node = nodes[artifact_id]
+            display_id = _format_id(artifact_id, nodes, repo_root, show_links)
+            status = node.get("status", "")
+            title = node.get("title", "")
+            lines.append(f"  {display_id}  {status}  {title}")
+
+            # Compute "would unblock": non-ready, non-resolved artifacts that would
+            # enter ready_set if this artifact were resolved
+            would_unblock: list[str] = []
+            for candidate_id in nodes:
+                if candidate_id in ready_set:
+                    continue
+                if _node_is_resolved(candidate_id, nodes):
+                    continue
+                # Collect all unresolved depends-on targets for this candidate
+                unresolved_deps: list[str] = []
+                for edge in edges:
+                    if edge.get("from") != candidate_id:
+                        continue
+                    if edge.get("type") != "depends-on":
+                        continue
+                    target = edge.get("to", "")
+                    if not target:
+                        continue
+                    if not _node_is_resolved(target, nodes):
+                        unresolved_deps.append(target)
+                # If artifact_id is the only unresolved dep, resolving it would unblock candidate
+                if unresolved_deps == [artifact_id]:
+                    would_unblock.append(candidate_id)
+
+            if would_unblock:
+                unblock_str = ", ".join(sorted(would_unblock))
+                lines.append(f"    -> would unblock: {unblock_str}")
+
+    # --- BLOCKED section ---
+    lines.append("")
+    lines.append("BLOCKED:")
+
+    blocked_ids = [
+        artifact_id for artifact_id in nodes
+        if not _node_is_resolved(artifact_id, nodes) and artifact_id not in ready_set
+    ]
+
+    if not blocked_ids:
+        lines.append("  (none)")
+    else:
+        for artifact_id in sorted(blocked_ids):
+            node = nodes[artifact_id]
+            display_id = _format_id(artifact_id, nodes, repo_root, show_links)
+            status = node.get("status", "")
+            title = node.get("title", "")
+            # Collect unresolved deps
+            unresolved_deps: list[str] = []
+            for edge in edges:
+                if edge.get("from") != artifact_id:
+                    continue
+                if edge.get("type") != "depends-on":
+                    continue
+                target = edge.get("to", "")
+                if not target:
+                    continue
+                if not _node_is_resolved(target, nodes):
+                    unresolved_deps.append(target)
+            needs_str = ", ".join(sorted(unresolved_deps))
+            lines.append(f"  {display_id}  {status}  {title}  (needs: {needs_str})")
+
+    return "\n".join(lines)

@@ -9,7 +9,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors, scope, impact, mermaid_cmd, status_cmd
+from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors, scope, impact, mermaid_cmd, status_cmd, ready, next_cmd
 
 
 # ---------------------------------------------------------------------------
@@ -812,3 +812,176 @@ class TestStatus:
         result = status_cmd(MERMAID_NODES, MERMAID_EDGES)
         # Should have some kind of section header or type label for SPEC
         assert "SPEC" in result
+
+
+# ---------------------------------------------------------------------------
+# TestReady
+# ---------------------------------------------------------------------------
+#
+# Ready state analysis for shared NODES/EDGES fixture:
+#   SPEC-001: depends-on SPEC-002 (unresolved) → NOT ready
+#   SPEC-002: depends-on EPIC-001 (unresolved) → NOT ready
+#   SPEC-003: resolved (Complete) → skip
+#   EPIC-001: depends-on EPIC-002 (resolved) and ADR-001 (resolved ADR Active) → READY
+#   EPIC-002: resolved (Complete) → skip
+#   ADR-001: resolved (standing type + Active) → skip
+#   SPIKE-001: no depends-on edges → READY
+#
+# ready_set = {"EPIC-001", "SPIKE-001"}
+
+
+class TestReady:
+    """Test ready() — unresolved nodes whose all depends-on targets are resolved."""
+
+    def test_ready_returns_nodes_with_all_deps_resolved(self):
+        """ready() includes EPIC-001 and SPIKE-001 (all deps resolved or no deps)."""
+        result = ready(NODES, EDGES)
+        assert "EPIC-001" in result
+        assert "SPIKE-001" in result
+
+    def test_ready_excludes_nodes_with_unresolved_deps(self):
+        """ready() does NOT include SPEC-001 (depends on unresolved SPEC-002)."""
+        result = ready(NODES, EDGES)
+        lines = result.strip().split("\n") if result.strip() else []
+        ids_in_output = [line.split("  ")[0] for line in lines]
+        assert "SPEC-001" not in ids_in_output
+        assert "SPEC-002" not in ids_in_output
+
+    def test_ready_excludes_resolved_nodes(self):
+        """ready() does NOT include SPEC-003, EPIC-002, or ADR-001 (all resolved)."""
+        result = ready(NODES, EDGES)
+        lines = result.strip().split("\n") if result.strip() else []
+        ids_in_output = [line.split("  ")[0] for line in lines]
+        assert "SPEC-003" not in ids_in_output
+        assert "EPIC-002" not in ids_in_output
+        assert "ADR-001" not in ids_in_output
+
+    def test_ready_output_includes_status_and_title(self):
+        """ready() output lines contain status and title for EPIC-001."""
+        result = ready(NODES, EDGES)
+        epic_line = next((l for l in result.split("\n") if l.startswith("EPIC-001")), None)
+        assert epic_line is not None, "EPIC-001 not found in ready output"
+        assert "Active" in epic_line
+        assert "Epic 1" in epic_line
+
+    def test_ready_output_sorted(self):
+        """ready() output is sorted alphabetically — EPIC-001 before SPIKE-001."""
+        result = ready(NODES, EDGES)
+        lines = [l for l in result.strip().split("\n") if l]
+        ids = [line.split("  ")[0] for line in lines]
+        assert ids == sorted(ids), f"Output not sorted: {ids}"
+        # Specifically EPIC-001 before SPIKE-001
+        assert ids.index("EPIC-001") < ids.index("SPIKE-001")
+
+    def test_ready_empty_nodes(self):
+        """ready() on empty nodes returns empty string."""
+        result = ready({}, [])
+        assert result == ""
+
+    def test_ready_no_deps_node_is_ready(self):
+        """ready() includes SPIKE-001 which has no depends-on edges."""
+        result = ready(NODES, EDGES)
+        assert "SPIKE-001" in result
+
+    def test_ready_all_resolved_returns_empty(self):
+        """ready() returns empty string when all nodes are resolved."""
+        resolved_nodes = {
+            "SPEC-003": {"title": "Done", "status": "Complete", "type": "SPEC", "file": "", "description": ""},
+            "EPIC-002": {"title": "Done Epic", "status": "Complete", "type": "EPIC", "file": "", "description": ""},
+        }
+        result = ready(resolved_nodes, [])
+        assert result == ""
+
+
+# ---------------------------------------------------------------------------
+# TestNext
+# ---------------------------------------------------------------------------
+#
+# next_cmd analysis for shared NODES/EDGES fixture:
+#   READY: EPIC-001, SPIKE-001
+#   EPIC-001 would unblock SPEC-002 (SPEC-002 depends only on EPIC-001, which is unresolved)
+#   SPIKE-001 would unblock nothing
+#   BLOCKED: SPEC-001 (needs SPEC-002), SPEC-002 (needs EPIC-001)
+
+
+class TestNext:
+    """Test next_cmd() — ready set + would-unblock + blocked items."""
+
+    def test_next_ready_section_header(self):
+        """next_cmd output contains 'READY:' header."""
+        result = next_cmd(NODES, EDGES)
+        assert "READY:" in result
+
+    def test_next_blocked_section_header(self):
+        """next_cmd output contains 'BLOCKED:' header."""
+        result = next_cmd(NODES, EDGES)
+        assert "BLOCKED:" in result
+
+    def test_next_ready_items_appear(self):
+        """next_cmd READY section lists EPIC-001 and SPIKE-001."""
+        result = next_cmd(NODES, EDGES)
+        # Find content between READY: and BLOCKED:
+        ready_section = result.split("BLOCKED:")[0]
+        assert "EPIC-001" in ready_section
+        assert "SPIKE-001" in ready_section
+
+    def test_next_would_unblock(self):
+        """next_cmd shows EPIC-001 would unblock SPEC-002."""
+        result = next_cmd(NODES, EDGES)
+        # The would-unblock line should appear after EPIC-001 in the READY section
+        lines = result.split("\n")
+        epic_idx = next(
+            (i for i, l in enumerate(lines) if "EPIC-001" in l and "would unblock" not in l),
+            None,
+        )
+        assert epic_idx is not None, "EPIC-001 not found in output"
+        # Look within a few lines for the would-unblock annotation
+        context = "\n".join(lines[epic_idx:epic_idx + 3])
+        assert "would unblock" in context
+        assert "SPEC-002" in context
+
+    def test_next_blocked_items_with_needs(self):
+        """next_cmd BLOCKED section shows SPEC-002 needs EPIC-001."""
+        result = next_cmd(NODES, EDGES)
+        blocked_section = result.split("BLOCKED:")[-1]
+        assert "SPEC-002" in blocked_section
+        # The needs annotation should appear on SPEC-002's line.
+        # Each blocked line starts with "  ARTIFACT-ID  ..." — find the line
+        # that starts with SPEC-002 (after stripping leading whitespace).
+        spec002_line = next(
+            (l for l in blocked_section.split("\n") if l.lstrip().startswith("SPEC-002")),
+            None,
+        )
+        assert spec002_line is not None, "SPEC-002 not found in BLOCKED section"
+        assert "needs:" in spec002_line
+        assert "EPIC-001" in spec002_line
+
+    def test_next_none_placeholder_empty_case(self):
+        """next_cmd shows '(none)' in READY section when all nodes are resolved."""
+        resolved_nodes = {
+            "SPEC-003": {"title": "Done", "status": "Complete", "type": "SPEC", "file": "", "description": ""},
+        }
+        result = next_cmd(resolved_nodes, [])
+        assert "READY:" in result
+        assert "(none)" in result
+
+    def test_next_blocked_none_placeholder(self):
+        """next_cmd shows '(none)' in BLOCKED section when nothing is blocked."""
+        # Only a ready node with no dependents
+        simple_nodes = {
+            "SPIKE-001": {"title": "Spike 1", "status": "In Progress", "type": "SPIKE", "file": "", "description": ""},
+        }
+        result = next_cmd(simple_nodes, [])
+        blocked_section = result.split("BLOCKED:")[-1]
+        assert "(none)" in blocked_section
+
+    def test_next_spec001_in_blocked(self):
+        """next_cmd shows SPEC-001 in BLOCKED section (needs SPEC-002)."""
+        result = next_cmd(NODES, EDGES)
+        blocked_section = result.split("BLOCKED:")[-1]
+        spec001_line = next(
+            (l for l in blocked_section.split("\n") if "SPEC-001" in l), None
+        )
+        assert spec001_line is not None
+        assert "needs:" in spec001_line
+        assert "SPEC-002" in spec001_line
