@@ -1,6 +1,6 @@
 ---
 id: swa-rdlc
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-13T23:27:02Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-031]
 
 Write failing tests for neighbors(id). Must produce TSV: direction, edge_type, id, status, title. Both incoming and outgoing edges. Sort by direction+type+id.
 
+
+## Notes
+
+**2026-03-14T04:08:19Z**
+
+Completed: implemented in 6eb4eea (specgraph Python rewrite). All 118 tests pass.

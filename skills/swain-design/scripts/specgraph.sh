@@ -302,19 +302,19 @@ do_ready() {
     .repo as $repo |
     .nodes as $nodes |
     .edges as $edges |
+    def is_status_resolved: test("Complete|Retired|Superseded|Abandoned|Implemented|Adopted|Validated|Archived|Sunset|Deprecated|Verified|Declined");
+    def is_resolved: (.status | is_status_resolved) or ((.type | test("VISION|JOURNEY|PERSONA|ADR|RUNBOOK|DESIGN")) and .status == "Active");
     def art_link($aid; $file):
       if $file != null and $file != "" then
         "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
       else $aid end;
     [.nodes | to_entries[] |
-      select(
-        (.value.status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined") | not)
-      ) |
+      select(.value | is_resolved | not) |
       .key as $id |
       ([$edges[] | select(.from == $id and .type == "depends-on") | .to] | unique) as $deps |
       select(
         ($deps | length == 0) or
-        ($deps | all(. as $dep | $nodes[$dep] != null and ($nodes[$dep].status | test("Complete|Implemented|Adopted|Validated|Archived|Retired|Superseded|Abandoned|Sunset|Deprecated|Verified|Declined"))))
+        ($deps | all(. as $dep | $nodes[$dep] != null and ($nodes[$dep] | is_resolved)))
       ) |
       "  \(art_link(.key; .value.file))  (\(.value.status))  \(.value.title)"
     ] | .[]
