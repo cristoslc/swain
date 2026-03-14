@@ -8,7 +8,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from specgraph.xref import scan_body
+from specgraph.xref import collect_frontmatter_ids, scan_body
 
 
 class TestScanBodyBasic:
@@ -100,3 +100,129 @@ class TestScanBodyMixed:
         assert result == {"EPIC-005", "SPIKE-007"}
         assert "SPEC-010" not in result
         assert "SPEC-999" not in result
+
+
+class TestCollectFrontmatterIdsListFields:
+    """Test extraction from list-type frontmatter fields."""
+
+    def test_depends_on_artifacts(self):
+        """IDs in depends-on-artifacts list are returned."""
+        fm = {"depends-on-artifacts": ["SPEC-010", "SPIKE-007"]}
+        assert collect_frontmatter_ids(fm) == {"SPEC-010", "SPIKE-007"}
+
+    def test_linked_artifacts(self):
+        """IDs in linked-artifacts list are returned."""
+        fm = {"linked-artifacts": ["EPIC-003", "SPEC-011"]}
+        assert collect_frontmatter_ids(fm) == {"EPIC-003", "SPEC-011"}
+
+    def test_validates(self):
+        """IDs in validates list are returned."""
+        fm = {"validates": ["SPEC-020", "SPEC-021"]}
+        assert collect_frontmatter_ids(fm) == {"SPEC-020", "SPEC-021"}
+
+
+class TestCollectFrontmatterIdsAddresses:
+    """Test extraction from the addresses field, including sub-path stripping."""
+
+    def test_addresses_strips_sub_path(self):
+        """Items in addresses with dot sub-path return only the base ID."""
+        fm = {"addresses": ["JOURNEY-001.PP-03", "JOURNEY-002.O-01"]}
+        assert collect_frontmatter_ids(fm) == {"JOURNEY-001", "JOURNEY-002"}
+
+    def test_addresses_plain_id(self):
+        """Items in addresses without sub-path are returned as-is."""
+        fm = {"addresses": ["JOURNEY-003"]}
+        assert collect_frontmatter_ids(fm) == {"JOURNEY-003"}
+
+
+class TestCollectFrontmatterIdsScalarFields:
+    """Test extraction from scalar (string) frontmatter fields."""
+
+    def test_parent_epic(self):
+        """parent-epic scalar string is returned as a single-element set."""
+        fm = {"parent-epic": "EPIC-005"}
+        assert collect_frontmatter_ids(fm) == {"EPIC-005"}
+
+    def test_parent_vision(self):
+        """parent-vision scalar string is returned."""
+        fm = {"parent-vision": "VISION-001"}
+        assert collect_frontmatter_ids(fm) == {"VISION-001"}
+
+    def test_superseded_by(self):
+        """superseded-by scalar string is returned."""
+        fm = {"superseded-by": "SPEC-030"}
+        assert collect_frontmatter_ids(fm) == {"SPEC-030"}
+
+
+class TestCollectFrontmatterIdsExcludedFields:
+    """Test that non-artifact fields are ignored."""
+
+    def test_source_issue_excluded(self):
+        """source-issue value is not returned."""
+        fm = {"source-issue": "github:foo#12"}
+        assert collect_frontmatter_ids(fm) == set()
+
+    def test_evidence_pool_excluded(self):
+        """evidence-pool value is not returned."""
+        fm = {"evidence-pool": "ep-001"}
+        assert collect_frontmatter_ids(fm) == set()
+
+    def test_both_excluded_fields_together(self):
+        """Both excluded fields together yield an empty set."""
+        fm = {"source-issue": "github:foo#12", "evidence-pool": "ep-001"}
+        assert collect_frontmatter_ids(fm) == set()
+
+
+class TestCollectFrontmatterIdsEdgeCases:
+    """Test empty, null, and missing values."""
+
+    def test_empty_scalar_skipped(self):
+        """Empty string scalar yields no ID."""
+        fm = {"parent-epic": ""}
+        assert collect_frontmatter_ids(fm) == set()
+
+    def test_empty_list_skipped(self):
+        """Empty list yields no IDs."""
+        fm = {"depends-on-artifacts": []}
+        assert collect_frontmatter_ids(fm) == set()
+
+    def test_null_scalar_skipped(self):
+        """None scalar yields no ID."""
+        fm = {"parent-epic": None}
+        assert collect_frontmatter_ids(fm) == set()
+
+    def test_empty_frontmatter(self):
+        """Empty dict yields empty set."""
+        assert collect_frontmatter_ids({}) == set()
+
+    def test_mixed_empty_and_populated(self):
+        """Empty string and empty list alongside populated field."""
+        fm = {
+            "parent-epic": "",
+            "depends-on-artifacts": [],
+            "parent-vision": "VISION-002",
+        }
+        assert collect_frontmatter_ids(fm) == {"VISION-002"}
+
+
+class TestCollectFrontmatterIdsMixed:
+    """Integration-style tests combining multiple field types."""
+
+    def test_multiple_field_types_union(self):
+        """IDs from list fields, scalar fields, and addresses are unioned."""
+        fm = {
+            "depends-on-artifacts": ["SPEC-010", "SPIKE-007"],
+            "parent-epic": "EPIC-005",
+            "addresses": ["JOURNEY-001.PP-03"],
+            "source-issue": "github:foo#12",
+        }
+        result = collect_frontmatter_ids(fm)
+        assert result == {"SPEC-010", "SPIKE-007", "EPIC-005", "JOURNEY-001"}
+
+    def test_deduplication_across_fields(self):
+        """Same ID in multiple fields appears only once."""
+        fm = {
+            "depends-on-artifacts": ["SPEC-010"],
+            "linked-artifacts": ["SPEC-010"],
+        }
+        assert collect_frontmatter_ids(fm) == {"SPEC-010"}
