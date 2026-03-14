@@ -1,6 +1,6 @@
 ---
 id: swa-u4k5
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-13T23:27:17Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-031]
 
 Write failing tests for mermaid and status commands. mermaid: graph TD output, node labels, edges filtered by visibility (--all flag) and edge type (--all-edges flag). Style resolved nodes green. status: summary table grouped by type then status, hidden count when not --all.
 
+
+## Notes
+
+**2026-03-14T04:08:19Z**
+
+Completed: implemented in 6eb4eea (specgraph Python rewrite). All 118 tests pass.

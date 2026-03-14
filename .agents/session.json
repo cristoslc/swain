@@ -5,10 +5,7 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Drafted SPEC-036 swain-status decision support",
-    "files": [
-      "docs/spec/Proposed/(SPEC-036)-Swain-Status-Decision-Support/(SPEC-036)-Swain-Status-Decision-Support.md"
-    ],
-    "timestamp": "2026-03-14T03:24:24Z"
+    "note": "Merged SPEC-036 and pushed to main",
+    "timestamp": "2026-03-14T03:45:07Z"
   }
 }
