@@ -168,3 +168,4 @@ See ADR-005 for the full workflow rationale.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation |
+| Ready | 2026-03-14 | d4a991c | Approved for implementation |
