@@ -99,4 +99,4 @@ All subcommands read from the specgraph cache (auto-rebuilding if stale) and wri
 | Proposed | 2026-03-13 | — | Initial creation |
 | Complete | 2026-03-14 | 6eb4eea | All 13 query subcommands shipped in specgraph.py. 118 tests passing. (incorrect stamp — see Active row) |
 | Active | 2026-03-14 | — | Reverted from Complete — query subcommands not yet implemented in Python |
-| Complete | 2026-03-14 | — | All 12 query subcommands implemented in Python; 341 tests passing; integrated with CLI dispatch |
+| Complete | 2026-03-14 | 88a9d04 | All 12 query subcommands implemented in Python; 341 tests passing; integrated with CLI dispatch |
