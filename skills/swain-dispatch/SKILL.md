@@ -71,6 +71,8 @@ HAS_KEY=$(gh api "repos/${OWNER_REPO}/actions/secrets" --jq '.secrets[].name' 2>
 >       pull-requests: write
 >       id-token: write
 >     steps:
+>       - uses: actions/checkout@v4
+>
 >       - uses: anthropics/claude-code-action@v1
 >         with:
 >           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
