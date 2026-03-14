@@ -96,3 +96,4 @@ This is advisory, not enforced — any diagram satisfies the requirement.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
+| Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |

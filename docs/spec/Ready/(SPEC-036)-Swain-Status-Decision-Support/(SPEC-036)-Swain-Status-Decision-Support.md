@@ -142,3 +142,4 @@ No test infrastructure changes needed — verification is by manual review of a 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | 8e30b25 | Initial creation; motivated by operator feedback: "state-snapshotted, not decision-supported" |
+| Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |

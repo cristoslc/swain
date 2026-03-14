@@ -76,3 +76,4 @@ medium
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | | Initial creation — bug report |
+| Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |

@@ -101,3 +101,4 @@ The audit's **Naming & structure validator** agent gains an additional check: ev
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | | Initial creation |
+| Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
