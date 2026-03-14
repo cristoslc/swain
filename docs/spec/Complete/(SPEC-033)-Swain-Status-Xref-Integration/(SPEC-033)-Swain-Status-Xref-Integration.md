@@ -109,4 +109,4 @@ When xref gaps exist, add to the follow-up suggestions:
 | Proposed | 2026-03-13 | — | Initial creation |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
 | Active | 2026-03-14 | acf66cf | Implementation started — specgraph path update and xref template |
-| Complete | 2026-03-14 | — | xref integration verified — 67 gaps surfaced, compact mode shows count, bug in missing_reciprocal rendering fixed |
+| Complete | 2026-03-14 | c51ed6d | xref integration verified — 67 gaps surfaced, compact mode shows count, bug in missing_reciprocal rendering fixed |
