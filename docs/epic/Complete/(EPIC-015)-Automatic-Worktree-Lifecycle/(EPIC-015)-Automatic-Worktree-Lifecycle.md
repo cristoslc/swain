@@ -2,7 +2,7 @@
 title: "Automatic Worktree Lifecycle"
 artifact: EPIC-015
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -41,9 +41,9 @@ The governing architectural decisions are recorded in ADR-005.
 
 | Spec | Title | Status |
 |------|-------|--------|
-| SPEC-039 | swain-sync: worktree-aware execution | Proposed |
-| SPEC-043 | swain-do: automatic worktree creation at dispatch | Proposed |
-| SPEC-044 | swain-doctor: stale worktree detection | Proposed |
+| SPEC-039 | swain-sync: worktree-aware execution | Complete |
+| SPEC-043 | swain-do: automatic worktree creation at dispatch | Complete |
+| SPEC-044 | swain-doctor: stale worktree detection | Complete |
 
 ## Key Dependencies
 
@@ -57,3 +57,4 @@ The governing architectural decisions are recorded in ADR-005.
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation; three child specs identified |
 | Active | 2026-03-14 | dacbf2c | Transition to Active |
+| Complete | 2026-03-14 | -- | All 3 child SPECs Complete: SPEC-039, SPEC-043, SPEC-044 |
