@@ -100,9 +100,23 @@ get_dirty_state() {
       echo "clean"
       return
     fi
+    # Use cached per-category counts (populated by swain-status collect_git)
+    staged=$(cache_get '.git.staged' '0')
+    modified=$(cache_get '.git.modified' '0')
+    untracked=$(cache_get '.git.untracked' '0')
+    [[ $staged -gt 0 ]] && parts+=("${staged} staged")
+    [[ $modified -gt 0 ]] && parts+=("${modified} modified")
+    [[ $untracked -gt 0 ]] && parts+=("${untracked} new")
+    if [[ ${#parts[@]} -eq 0 ]]; then
+      echo "clean"
+    else
+      local IFS=", "
+      echo "${parts[*]}"
+    fi
+    return
   fi
 
-  # Use git status --porcelain for accurate per-category counts
+  # No usable cache — fall back to direct git query
   local porcelain
   porcelain=$(git status --porcelain 2>/dev/null) || { echo "?"; return; }
 

@@ -5,7 +5,7 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "EPIC-013 Complete — specgraph.py ships all 12 query subcommands",
-    "timestamp": "2026-03-14T05:51:27Z"
+    "note": "Checked status — complete SPIKE-018 to unblock EPIC-014",
+    "timestamp": "2026-03-14T06:04:13Z"
   }
 }

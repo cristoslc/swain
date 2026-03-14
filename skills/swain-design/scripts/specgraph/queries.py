@@ -302,22 +302,28 @@ def scope(
     sections.extend(_format_id(lid, nodes, repo_root, show_links) for lid in lateral_ids)
 
     # --- 4. Architecture overview ---
+    # Walk the full parent chain (epic-level first, then vision-level), checking each
+    # ancestor's folder for an architecture-overview.md. Include the artifact itself
+    # if it is an EPIC or VISION type. Show all levels found (Epic before Vision).
     sections.append("=== Architecture Overview ===")
-    vision_id = _find_vision_ancestor(artifact_id, nodes, edges)
-    if vision_id is None and nodes.get(artifact_id, {}).get("type", "").upper() == "VISION":
-        vision_id = artifact_id
+    arch_ancestor_ids: list[str] = []
+    node_type = nodes.get(artifact_id, {}).get("type", "").upper()
+    if node_type in ("EPIC", "VISION"):
+        arch_ancestor_ids.append(artifact_id)
+    arch_ancestor_ids.extend(_walk_parent_chain(artifact_id, edges))
 
-    arch_path: str | None = None
-    if vision_id and repo_root:
-        vision_file = nodes.get(vision_id, {}).get("file", "")
-        if vision_file:
-            vision_dir = os.path.dirname(os.path.join(repo_root, vision_file))
-            candidate = os.path.join(vision_dir, "architecture-overview.md")
+    arch_paths: list[str] = []
+    if repo_root:
+        for ancestor_id in arch_ancestor_ids:
+            ancestor_file = nodes.get(ancestor_id, {}).get("file", "")
+            if not ancestor_file:
+                continue
+            ancestor_dir = os.path.dirname(os.path.join(repo_root, ancestor_file))
+            candidate = os.path.join(ancestor_dir, "architecture-overview.md")
             if os.path.isfile(candidate):
-                arch_path = candidate
+                arch_paths.append(candidate)
 
-    if arch_path:
-        sections.append(arch_path)
+    sections.extend(arch_paths)
 
     return "\n".join(sections)
 

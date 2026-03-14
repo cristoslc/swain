@@ -1,9 +1,28 @@
 #!/usr/bin/env bash
 # tk-plugin: Output tickets as JSON, optionally filtered with jq
-# tk-plugin-version: 1.0.0
+# tk-plugin-version: 1.1.0
 set -euo pipefail
 
 filter="${1:-}"
+
+# Auto-detect TICKETS_DIR if not already set (walk up from $PWD, same logic as tk)
+if [[ -z "${TICKETS_DIR:-}" ]]; then
+  _dir="$PWD"
+  while [[ "$_dir" != "/" ]]; do
+    if [[ -d "$_dir/.tickets" ]]; then
+      TICKETS_DIR="$_dir/.tickets"
+      break
+    fi
+    _dir=$(dirname "$_dir")
+  done
+  if [[ -z "${TICKETS_DIR:-}" ]]; then
+    [[ -d "/.tickets" ]] && TICKETS_DIR="/.tickets"
+  fi
+  if [[ -z "${TICKETS_DIR:-}" ]]; then
+    echo "ticket-query: no .tickets directory found (searched from $PWD up)" >&2
+    exit 1
+  fi
+fi
 
 # Generate all JSON in one awk pass
 json_output=$(awk '
