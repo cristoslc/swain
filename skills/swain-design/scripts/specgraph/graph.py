@@ -13,8 +13,10 @@ from .parser import (
     ArtifactFrontmatter,
     extract_list_ids,
     extract_scalar_id,
+    get_body,
     parse_artifact,
 )
+from .xref import compute_xref
 
 
 def _is_valid_ref(val: str) -> bool:
@@ -61,6 +63,8 @@ def build_graph(
         if not _is_valid_ref(to_val):
             return
         edges.append({"from": from_id, "to": to_val, "type": edge_type})
+
+    artifact_dicts: list[dict] = []
 
     for filepath in _find_artifact_files(docs_dir):
         artifact = parse_artifact(filepath, repo_root)
@@ -117,6 +121,18 @@ def build_graph(
             if isinstance(val, str) and val and _is_valid_ref(val):
                 add_edge(aid, val, scalar_field)
 
+        # Collect artifact dict for xref computation
+        content = filepath.read_text(encoding="utf-8")
+        body = get_body(content)
+        artifact_dicts.append({
+            "id": aid,
+            "file": artifact.file,
+            "body": body,
+            "frontmatter": fields,
+        })
+
+    xref = compute_xref(artifact_dicts, edges)
+
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     return {
@@ -124,6 +140,7 @@ def build_graph(
         "repo": str(repo_root),
         "nodes": nodes,
         "edges": edges,
+        "xref": xref,
     }
 
 
