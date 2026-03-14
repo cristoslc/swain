@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -52,6 +53,42 @@ def cmd_build(args: argparse.Namespace, repo_root: Path) -> None:
     print(f"  Edges: {len(data['edges'])}")
 
 
+def cmd_xref(args: argparse.Namespace, repo_root: Path) -> None:
+    """Show cross-reference validation results."""
+    data = _ensure_cache(repo_root)
+    xref = data.get("xref") or []
+
+    if getattr(args, "json", False):
+        print(json.dumps(xref, indent=2))
+        return
+
+    # Human-readable output
+    has_gaps = any(
+        entry.get("body_not_in_frontmatter") or entry.get("frontmatter_not_in_body")
+        for entry in xref
+    )
+    has_reciprocal = any(entry.get("missing_reciprocal") for entry in xref)
+
+    if has_gaps:
+        print("=== Cross-Reference Gaps ===")
+        for entry in xref:
+            if entry.get("body_not_in_frontmatter") or entry.get("frontmatter_not_in_body"):
+                print(f"  {entry['artifact']}  ({entry.get('file', '')})")
+                if entry.get("body_not_in_frontmatter"):
+                    print(f"    body not in frontmatter: {', '.join(entry['body_not_in_frontmatter'])}")
+                if entry.get("frontmatter_not_in_body"):
+                    print(f"    frontmatter not in body: {', '.join(entry['frontmatter_not_in_body'])}")
+
+    if has_reciprocal:
+        print("=== Missing Reciprocal Edges ===")
+        for entry in xref:
+            for gap in entry.get("missing_reciprocal", []):
+                print(
+                    f"  {entry['artifact']} missing {gap['expected_field']} back-link"
+                    f" from {gap['from']} ({gap['edge_type']})"
+                )
+
+
 def main(argv: list[str] | None = None) -> None:
     """Main entry point for the specgraph CLI."""
     parser = argparse.ArgumentParser(
@@ -73,6 +110,10 @@ def main(argv: list[str] | None = None) -> None:
 
     # build
     subparsers.add_parser("build", help="Force-rebuild the dependency graph")
+
+    # xref
+    xref_parser = subparsers.add_parser("xref", help="Show cross-reference validation results")
+    xref_parser.add_argument("--json", action="store_true", help="Output raw JSON")
 
     # Placeholder subcommands — will be implemented in SPEC-031
     for cmd in (
@@ -100,6 +141,8 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.command == "build":
         cmd_build(args, repo_root)
+    elif args.command == "xref":
+        cmd_xref(args, repo_root)
     else:
         # Ensure cache is fresh for all commands
         _ensure_cache(repo_root)
