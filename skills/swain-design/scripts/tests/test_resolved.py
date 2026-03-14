@@ -95,3 +95,48 @@ class TestIsResolved:
     )
     def test_retired_always_resolved(self, atype):
         assert is_resolved(atype, "Retired") is True
+
+
+class TestIsResolvedWithTrack:
+    """Test is_resolved with explicit track= parameter (SPEC-038)."""
+
+    def test_standing_active_is_resolved(self):
+        """Standing-track Active artifacts are resolved."""
+        assert is_resolved("SPEC", "Active", track="standing") is True
+
+    def test_standing_proposed_not_resolved(self):
+        """Standing-track Proposed is not yet resolved."""
+        assert is_resolved("SPEC", "Proposed", track="standing") is False
+
+    def test_implementable_active_not_resolved(self):
+        """Implementable-track Active artifacts are NOT resolved."""
+        assert is_resolved("SPEC", "Active", track="implementable") is False
+
+    def test_implementable_complete_is_resolved(self):
+        """Implementable-track Complete is resolved."""
+        assert is_resolved("SPEC", "Complete", track="implementable") is True
+
+    def test_container_active_not_resolved(self):
+        """Container-track Active artifacts are NOT resolved."""
+        assert is_resolved("EPIC", "Active", track="container") is False
+
+    def test_container_complete_is_resolved(self):
+        """Container-track Complete is resolved."""
+        assert is_resolved("EPIC", "Complete", track="container") is True
+
+    def test_standing_complete_terminal_is_resolved(self):
+        """Terminal statuses are resolved for any track, including standing."""
+        assert is_resolved("ADR", "Complete", track="standing") is True
+
+    def test_abandoned_is_resolved_for_any_track(self):
+        """Abandoned is a universal terminal — resolved regardless of track."""
+        assert is_resolved("SPEC", "Abandoned", track="implementable") is True
+        assert is_resolved("ADR", "Abandoned", track="standing") is True
+        assert is_resolved("EPIC", "Abandoned", track="container") is True
+
+    def test_track_none_falls_back_to_type_inference(self):
+        """track=None triggers type-based inference (backward compat)."""
+        # VISION is in _STANDING_TYPES, so Active should resolve
+        assert is_resolved("VISION", "Active", track=None) is True
+        # SPEC is implementable by inference, so Active should NOT resolve
+        assert is_resolved("SPEC", "Active", track=None) is False
