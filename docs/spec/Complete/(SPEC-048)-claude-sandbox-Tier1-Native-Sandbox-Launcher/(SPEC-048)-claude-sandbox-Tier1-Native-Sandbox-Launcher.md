@@ -93,4 +93,4 @@ Optional `swain.settings.json` stanza:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | cded412 | Created from EPIC-005 decomposition; SPIKE-009 GO recommendation |
-| Complete | 2026-03-14 | -- | scripts/claude-sandbox POSIX sh launcher written; platform detection, credential forwarding, jq-optional config reading |
+| Complete | 2026-03-14 | 0eb40a8 | scripts/claude-sandbox POSIX sh launcher written; platform detection, credential forwarding, jq-optional config reading |
