@@ -9,6 +9,7 @@
 | SPEC-032 | Cross-Reference Validation and Bidirectional Edge Enforcement | 2026-03-13 | — |
 | SPEC-033 | swain-status xref Integration | 2026-03-13 | — |
 | SPEC-034 | Architecture Overview Enhancements | 2026-03-13 | — |
+| SPEC-035 | ticket-query TICKETS_DIR Unbound Variable | 2026-03-14 | — |
 
 ## Ready
 
