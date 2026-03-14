@@ -1,10 +1,11 @@
 ---
 title: "Artifact Authoring Latency and Ceremony Audit"
 artifact: SPIKE-018
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
+
 question: "Which steps in the swain-design authoring workflow contribute the most latency and token cost, and which can be safely skipped or deferred for low-complexity artifacts?"
 gate: Pre-EPIC-014
 risks-addressed:
