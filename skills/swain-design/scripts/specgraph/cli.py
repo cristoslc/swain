@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from . import graph
+from . import queries
 
 
 def _get_repo_root() -> Path:
@@ -140,19 +141,16 @@ def main(argv: list[str] | None = None) -> None:
     xref_parser = subparsers.add_parser("xref", help="Show cross-reference validation results")
     xref_parser.add_argument("--json", action="store_true", help="Output raw JSON")
 
-    # Placeholder subcommands — will be implemented in SPEC-031
-    for cmd in (
-        "blocks",
-        "blocked-by",
-        "tree",
-        "neighbors",
-        "scope",
-        "impact",
-        "edges",
-    ):
+    # Commands requiring a mandatory ID
+    for cmd in ("blocks", "blocked-by", "tree", "neighbors", "scope", "impact"):
         sp = subparsers.add_parser(cmd)
-        sp.add_argument("id", nargs="?", default=None)
+        sp.add_argument("id", help="Artifact ID (e.g. SPEC-001)")
 
+    # edges: optional ID
+    sp = subparsers.add_parser("edges")
+    sp.add_argument("id", nargs="?", default=None, help="Filter by artifact ID (optional)")
+
+    # Commands with no ID argument
     for cmd in ("ready", "next", "mermaid", "status", "overview"):
         subparsers.add_parser(cmd)
 
@@ -169,10 +167,37 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "xref":
         cmd_xref(args, repo_root)
     else:
-        # Ensure cache is fresh for all commands
-        _ensure_cache(repo_root)
-        print(
-            f"Command '{args.command}' not yet implemented — see SPEC-031",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        data = _ensure_cache(repo_root)
+        nodes = data.get("nodes", {})
+        edges = data.get("edges", [])
+        show_links = sys.stdout.isatty()
+        repo_root_str = str(repo_root)
+        show_all = args.all
+
+        if args.command == "blocks":
+            print(queries.blocks(args.id, nodes, edges, repo_root_str, show_links))
+        elif args.command == "blocked-by":
+            print(queries.blocked_by(args.id, nodes, edges, repo_root_str, show_links))
+        elif args.command == "tree":
+            print(queries.tree(args.id, nodes, edges, repo_root_str, show_links))
+        elif args.command == "neighbors":
+            print(queries.neighbors(args.id, nodes, edges, repo_root_str, show_links))
+        elif args.command == "scope":
+            print(queries.scope(args.id, nodes, edges, repo_root_str, show_links))
+        elif args.command == "impact":
+            print(queries.impact(args.id, nodes, edges, repo_root_str, show_links))
+        elif args.command == "edges":
+            print(queries.edges_cmd(args.id, nodes, edges))
+        elif args.command == "ready":
+            print(queries.ready(nodes, edges, repo_root_str, show_links))
+        elif args.command == "next":
+            print(queries.next_cmd(nodes, edges, repo_root_str, show_links))
+        elif args.command == "mermaid":
+            print(queries.mermaid_cmd(nodes, edges, show_all, args.all_edges))
+        elif args.command == "status":
+            print(queries.status_cmd(nodes, edges, show_all))
+        elif args.command == "overview":
+            print(queries.overview(nodes, edges, show_all, repo_root_str, show_links))
+        else:
+            print(f"Unknown command: {args.command}", file=sys.stderr)
+            sys.exit(1)
