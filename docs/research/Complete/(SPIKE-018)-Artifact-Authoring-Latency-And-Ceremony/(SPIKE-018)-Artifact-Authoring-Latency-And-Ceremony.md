@@ -111,4 +111,4 @@ Estimated fast-path cost: ~2500 tokens, ~7 tool calls, ~6s wall-clock (70% reduc
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation |
 | Active | 2026-03-14 | 2f5cd7a | Investigation begins |
-| Complete | 2026-03-14 | -- | GO decision — fast-path defined; two-commit stamp and index update are top savings |
+| Complete | 2026-03-14 | 1087f03f5fb39861aa3a88a15942fbac07b11773 | GO decision — fast-path defined; two-commit stamp and index update are top savings |
