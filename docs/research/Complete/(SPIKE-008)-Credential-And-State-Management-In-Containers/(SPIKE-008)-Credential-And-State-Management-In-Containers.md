@@ -1,7 +1,7 @@
 ---
 title: "Credential and State Management in Isolated Environments"
 artifact: SPIKE-008
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-14
@@ -17,6 +17,10 @@ linked-artifacts: []
 ---
 
 # Credential and State Management in Isolated Environments
+
+## Summary
+
+**Go** (No-Go condition did not trigger). swain-keys file-based per-project signing keys eliminate the need for SSH agent socket forwarding; `ANTHROPIC_API_KEY` and `GH_TOKEN` (via `gh auth token`) are plain env vars; all remaining credentials are file bind-mounts. Use the filesystem binding map from §2 as the canonical reference for EPIC-005 container implementation.
 
 ## Question
 
