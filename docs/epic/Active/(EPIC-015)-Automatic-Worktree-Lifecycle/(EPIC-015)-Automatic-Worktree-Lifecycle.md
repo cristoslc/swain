@@ -55,3 +55,4 @@ The governing architectural decisions are recorded in ADR-005.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation; three child specs identified |
+| Active | 2026-03-14 | dacbf2c | Transition to Active |

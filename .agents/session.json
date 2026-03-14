@@ -5,7 +5,11 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Checked status — complete SPIKE-018 to unblock EPIC-014",
-    "timestamp": "2026-03-14T06:04:13Z"
+    "note": "Activated SPIKE-007 and SPIKE-008 — container isolation research now in progress",
+    "files": [
+      "docs/research/Active/(SPIKE-007)-Container-Image-And-Runtime-Requirements/(SPIKE-007)-Container-Image-And-Runtime-Requirements.md",
+      "docs/research/Active/(SPIKE-008)-Credential-And-State-Management-In-Containers/(SPIKE-008)-Credential-And-State-Management-In-Containers.md"
+    ],
+    "timestamp": "2026-03-14T06:09:37Z"
   }
 }
