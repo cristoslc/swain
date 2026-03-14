@@ -91,4 +91,4 @@ Also creates `.devcontainer/devcontainer.json` using the Anthropic reference con
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | cded412 | Created from EPIC-005 decomposition; depends on SPEC-048 for launcher script base |
-| Complete | 2026-03-14 | -- | --docker flag added to claude-sandbox; Dockerfile, devcontainer.json generation, credential forwarding via env vars |
+| Complete | 2026-03-14 | 4bae1d4 | --docker flag added to claude-sandbox; Dockerfile, devcontainer.json generation, credential forwarding via env vars |
