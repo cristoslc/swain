@@ -1,7 +1,7 @@
 ---
 title: "SPEC-038: Dynamic Track Resolution from Artifact Frontmatter"
 artifact: SPEC-038
-status: Proposed
+status: Ready
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
