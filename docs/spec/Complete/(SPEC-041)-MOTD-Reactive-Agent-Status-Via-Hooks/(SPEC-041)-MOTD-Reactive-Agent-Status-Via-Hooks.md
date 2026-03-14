@@ -75,4 +75,4 @@ Claude Code hooks (`PostToolUse`, `SubagentStart`, `SubagentStop`, `Stop`, `PreT
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Initial creation from EPIC-011 decomposition; sourced from tk swain-6oa |
 | Ready | 2026-03-14 | 51c037cc8fcc36538b69a893865fc63c06b459cb | Approved by operator |
-| Complete | 2026-03-14 | -- | Reactive 1s mtime polling; hooks_configured() check; "hooks not configured" notice |
+| Complete | 2026-03-14 | ec401e5 | Reactive 1s mtime polling; hooks_configured() check; "hooks not configured" notice |
