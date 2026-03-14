@@ -140,3 +140,4 @@ SPIKE-007: should list EPIC-005 in linked-artifacts (EPIC-005 depends-on SPIKE-0
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
+| Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
