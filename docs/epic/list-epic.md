@@ -5,7 +5,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
-| EPIC-013 | Specgraph Python Rewrite | 2026-03-13 | — |
 | EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | — |
 | EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | — |
 
@@ -34,3 +33,4 @@
 | EPIC-006 | Skill Context Footprint Reduction | 2026-03-13 | dbcb557 |
 | EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | e9084d2 |
 | EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | 0e54e5e |
+| EPIC-013 | Specgraph Python Rewrite | 2026-03-14 | — |
