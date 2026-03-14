@@ -42,6 +42,8 @@ Rename the artifact lifecycle skill from `swain-design` to `swain-commission`. T
 - Release notes with migration path documentation
 - Update skills-lock.json
 
+**Implementation note:** This rename should be implemented in a git worktree to isolate the breaking change from main until ready.
+
 **Out of scope:**
 - Building the new swain-design frontend orchestrator (separate epic)
 - Renaming artifact types or changing artifact lifecycle phases
