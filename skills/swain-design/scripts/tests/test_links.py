@@ -146,3 +146,11 @@ class TestFileLink:
             mock_stdout.isatty.return_value = False
             result = file_link("My Label", "", "/repo/root")
         assert result == "My Label"
+
+    def test_tty_empty_filepath_returns_text_only(self):
+        """When filepath is empty even with a TTY, return just the text (no link)."""
+        with patch("sys.stdout") as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            result = file_link("My Label", "", "/repo/root")
+        assert result == "My Label"
+        assert "\x1b" not in result
