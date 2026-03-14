@@ -231,6 +231,35 @@ Done!
 - Review loops add iterations
 - But catches issues early (cheaper than debugging later)
 
+## Completion Summary
+
+After all tasks are done and the final code reviewer approves, present a handoff summary to the user. **Lead with domain context, not file names.**
+
+**Structure:**
+1. **One-sentence recap** of what the spec accomplished in domain terms — what problem it solved, what contract it established, what capability it delivered. Source this from the spec's Problem Statement or Goal (you have it from the dispatch context).
+2. **Artifact list** — commits and files as supporting detail, not the lead.
+3. **Next-step options** with enough context to choose:
+   - Transition the spec to Testing (if there's a manual verification gate) or Complete (if acceptance criteria are fully testable automatically)
+   - Move to the next spec
+   - Review something
+
+**Example (good):**
+
+> **SPEC-037 (Constraint Baseline Schema)** defined the machine-readable contract between EPIC-014's per-style baselines and EPIC-015's drift detection engine — a YAML format for structural rules, statistical norms, and co-occurrence expectations. Schema, JSON Schema validation, CLI validator, and 25 tests (all passing) are committed.
+>
+> Commits: 188d9430 (schema), e9adac71 (JSON Schema), 0b7dd9fd (tests)
+> Deliverables: constraint-baseline-schema.yaml, constraint-baseline.schema.json, validate-baseline.py, 25 tests
+>
+> Ready to transition SPEC-037 to Testing and run the verification gate, or move to SPEC-038?
+
+**Example (bad — don't do this):**
+
+> SPEC-037 implementation complete. Here's what was built:
+> Commits: 188d9430 — YAML schema definition ...
+> Ready to transition SPEC-037 to Testing ...
+
+The bad example forces the user to remember what SPEC-037 was. After a long implementation pass, that context is gone — you have it, they don't.
+
 ## Red Flags
 
 **Never:**
