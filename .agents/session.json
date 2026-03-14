@@ -5,7 +5,7 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Approved SPEC-039, SPEC-043, SPEC-044 → Ready",
-    "timestamp": "2026-03-14T05:43:41Z"
+    "note": "EPIC-013 Complete — specgraph.py ships all 12 query subcommands",
+    "timestamp": "2026-03-14T05:51:27Z"
   }
 }
