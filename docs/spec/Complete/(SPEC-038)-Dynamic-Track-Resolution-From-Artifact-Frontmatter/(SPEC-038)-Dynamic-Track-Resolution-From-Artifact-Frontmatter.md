@@ -115,4 +115,4 @@ The audit's **Naming & structure validator** agent gains an additional check: ev
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | | Initial creation |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
-| Complete | 2026-03-14 | -- | All 8 ACs verified; 87 artifacts backfilled, 0 TRACK_MISSING warnings |
+| Complete | 2026-03-14 | 3a42d93 | All 8 ACs verified; 87 artifacts backfilled, 0 TRACK_MISSING warnings |
