@@ -66,3 +66,4 @@ If no fast path emerges: instead of tiered ceremony, invest in script performanc
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation |
+| Active | 2026-03-14 | 2f5cd7a | Investigation begins |
