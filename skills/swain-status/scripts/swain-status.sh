@@ -18,7 +18,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   exit 1
 }
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SPECGRAPH="$SCRIPT_DIR/../../swain-design/scripts/specgraph.sh"
+SPECGRAPH="$SCRIPT_DIR/../../swain-design/scripts/specgraph.py"
 
 PROJECT_NAME="$(basename "$REPO_ROOT")"
 SETTINGS_PROJECT="$REPO_ROOT/swain.settings.json"
@@ -134,7 +134,7 @@ collect_git() {
 collect_artifacts() {
   # Ensure specgraph cache is fresh
   if [[ -x "$SPECGRAPH" ]] || [[ -f "$SPECGRAPH" ]]; then
-    bash "$SPECGRAPH" build >/dev/null 2>&1 || true
+    python3 "$SPECGRAPH" build >/dev/null 2>&1 || true
   fi
 
   # Read specgraph cache

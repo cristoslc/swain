@@ -133,6 +133,27 @@ Rules:
 - If an issue is linked to an artifact (visible in the Linked Issues section), note the artifact ID in parentheses after the title
 - Omit this section if there are no open issues
 
+## Section 8: Cross-Reference Gaps
+
+Table of artifacts with frontmatter/body cross-reference discrepancies. Only
+show artifacts with at least one discrepancy. Merge body-not-in-frontmatter and
+missing-reciprocal into one row per artifact. Omit this section entirely when
+there are no discrepancies.
+
+```
+| Artifact | Undeclared Body References | Missing Reciprocal | Action |
+|----------|--------------------------|-------------------|--------|
+| EPIC-005 | SPIKE-007, SPIKE-008 | — | Classify as depends-on or linked-artifacts |
+| SPIKE-007 | — | EPIC-005 | Add EPIC-005 to linked-artifacts |
+```
+
+Rules:
+- Only show artifacts with at least one discrepancy
+- Merge body-not-in-frontmatter and missing-reciprocal into one row per artifact
+- Omit the entire section when there are no discrepancies
+- The agent should suggest concrete frontmatter edits based on context (e.g., which field to add the reference to)
+- When xref gaps exist, include in suggestions: "There are N cross-reference gaps — want me to review and fix the frontmatter declarations?"
+
 ## Full Example
 
 ```markdown
