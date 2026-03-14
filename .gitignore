@@ -20,6 +20,7 @@ skills-lock.json
 # Installed skills
 .claude/skills
 .agents/skills
+skills/using-superpowers
 
 # Skills installer agent dot-folders (npx skills add creates these)
 .adal
@@ -51,3 +52,4 @@ skills-lock.json
 .vibe
 .windsurf
 .zencoder
+.superpowers
