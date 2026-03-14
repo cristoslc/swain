@@ -5,7 +5,7 @@ user-invocable: true
 allowed-tools: Bash, Read, Edit
 metadata:
   short-description: Fetch, stage, commit, and push
-  version: 1.3.0
+  version: 1.4.0
   author: cristos
   license: MIT
   source: swain
@@ -99,24 +99,52 @@ git reset HEAD -- <secret-file-1> <secret-file-2> ...
 
 ## Step 3.5 — Gitignore check
 
-Before committing, verify `.gitignore` hygiene. This step is advisory — it warns but never blocks the commit.
+Before committing, verify `.gitignore` hygiene. **This step is blocking** — if relevant patterns are missing, stop and require the user to fix `.gitignore` before proceeding.
 
-1. **Check existence:** If no `.gitignore` file exists in the repo root, warn:
-   > WARN: No `.gitignore` file found. Consider creating one to avoid tracking build artifacts, secrets, and OS files.
+### 1. Check existence
 
-2. **Check common patterns:** If `.gitignore` exists, check whether these commonly ignored patterns are present (exact match or substring):
-   - `.env`
-   - `node_modules/`
-   - `__pycache__/`
-   - `.DS_Store`
-   - `*.pyc`
+If no `.gitignore` file exists in the repo root:
 
-   For each missing pattern, collect it. If any are missing, warn:
-   > WARN: `.gitignore` is missing common patterns: `.env`, `node_modules/`. Consider adding them.
+> STOP: No `.gitignore` file found. Create one before committing — without it, secrets, build artifacts, and OS files can enter git history.
+> Minimal starting point: `curl -sL https://www.toptal.com/developers/gitignore/api/macos,linux,node,python > .gitignore`
 
-   If all patterns are present (or none are relevant to the repo), this step is silent.
+**Stop execution.** Do not commit.
 
-3. Continue to Step 4 regardless of warnings.
+### 2. Detect relevant patterns
+
+Check which patterns are *relevant* to this repo, based on what actually exists on disk:
+
+| Pattern | Relevant if |
+|---------|-------------|
+| `.env` | `.env.example` exists, OR any untracked/tracked `.env` or `.env.*` file is present (excluding `.env.example`), OR `dotenv` appears in `package.json` or `requirements.txt` |
+| `node_modules/` | `package.json` exists in the repo root or any subdirectory |
+| `__pycache__/` | any `*.py` file exists in the repo |
+| `*.pyc` | same as `__pycache__/` |
+| `.DS_Store` | repo is on macOS (`uname` returns `Darwin`) |
+
+For each relevant pattern, check if `.gitignore` contains it (exact match or substring). Collect missing ones.
+
+### 3. Decide whether to block
+
+- If **no relevant patterns are missing**: this step is silent. Continue to Step 3.7.
+- If **any relevant patterns are missing**: stop and report:
+
+  > STOP: `.gitignore` is missing patterns relevant to this repo:
+  >   - `.env` — `.env.example` found; without this, a local `.env` file could be committed
+  >   - `node_modules/` — `package.json` found
+  >
+  > Add the missing patterns before committing:
+  >   echo ".env" >> .gitignore
+  >   echo "node_modules/" >> .gitignore
+  >
+  > To permanently suppress a specific pattern check (intentional omission), add a comment to `.gitignore`:
+  >   # swain-sync: allow .env
+
+  **Stop execution.** Do not commit until the user resolves this.
+
+### 4. Skip logic
+
+If `.gitignore` contains `# swain-sync: allow <pattern>` for a given pattern, treat that pattern as intentionally omitted and do not flag it.
 
 ## Step 3.7 — ADR compliance check
 
