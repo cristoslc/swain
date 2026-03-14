@@ -6,6 +6,10 @@ matching the link helpers in specgraph.sh. When stdout is not a TTY
 
 OSC 8 format:
     \\x1b]8;;{url}\\x1b\\{text}\\x1b]8;;\\x1b\\
+
+Note:
+    ``repo_root`` must be an absolute path with no trailing slash
+    (e.g. ``/home/user/myrepo``, not ``/home/user/myrepo/``).
 """
 
 import sys
@@ -51,6 +55,7 @@ def file_link(text: str, filepath: str, repo_root: str) -> str:
     necessarily an artifact ID).
 
     When stdout is not a TTY (piped, CI, etc.), returns just the text.
+    When filepath is empty, returns just the text regardless of TTY.
 
     URL format: file:///{repo_root}/{filepath}
     OSC 8 format: \\x1b]8;;{url}\\x1b\\{text}\\x1b]8;;\\x1b\\
@@ -58,12 +63,12 @@ def file_link(text: str, filepath: str, repo_root: str) -> str:
     Args:
         text: Display text for the hyperlink.
         filepath: Relative path to the file from repo_root.
-        repo_root: Absolute path to the repository root.
+        repo_root: Absolute path to the repository root (no trailing slash).
 
     Returns:
-        OSC 8 hyperlink string if TTY, else text.
+        OSC 8 hyperlink string if TTY and filepath is non-empty, else text.
     """
-    if not is_tty():
+    if not filepath or not is_tty():
         return text
     url = f"file://{repo_root}/{filepath}"
     return _osc8_link(url, text)
