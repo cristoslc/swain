@@ -53,7 +53,18 @@ Swain uses a two-tier settings model. Malformed JSON in either file causes silen
 
 ### Check project settings
 
-If `swain.settings.json` exists in the repo root:
+If `swain.settings.json` does not exist in the repo root, create it with an empty object:
+
+```bash
+if [[ ! -f swain.settings.json ]]; then
+  echo '{}' > swain.settings.json
+fi
+```
+
+If created, report **repaired**:
+> Created `swain.settings.json` with empty defaults. All settings have built-in defaults.
+
+If `swain.settings.json` exists, validate it:
 
 ```bash
 jq empty swain.settings.json 2>/dev/null
