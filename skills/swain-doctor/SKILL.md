@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session-start health checks and repair
-  version: 2.2.0
+  version: 2.3.0
   author: cristos
   source: swain
 ---
@@ -143,6 +143,48 @@ done
 
 Superpowers is strongly recommended but not required. This is always a warning, never a blocker.
 
+## Stale worktree detection
+
+Enumerate all linked worktrees and classify their health. **Skip if the repo has no linked worktrees** (i.e., `git worktree list --porcelain` returns only the main worktree entry) — this check produces no output in a clean repo.
+
+### Detection
+
+```bash
+git worktree list --porcelain
+```
+
+Parse each linked worktree (exclude the main worktree — the first entry in the output):
+
+```bash
+git worktree list --porcelain | awk '
+  /^worktree / { path=$2 }
+  /^branch /   { branch=$2 }
+  /^$/         { if (path != "") print path, branch; path=""; branch="" }
+' | tail -n +2
+```
+
+For each linked worktree:
+
+1. **Orphaned** — directory does not exist on disk (`[ ! -d "$path" ]`):
+   - WARN: "Orphaned worktree: `<path>` (directory missing). Clean up with: `git worktree prune`"
+
+2. **Stale (merged)** — directory exists and branch is fully merged into `main`:
+   ```bash
+   git merge-base --is-ancestor "$branch" origin/main
+   ```
+   - WARN: "Stale worktree: `<path>` (branch `<branch>` already merged into main). Safe to remove:
+     `git worktree remove <path> && git branch -d <branch>`"
+
+3. **Active (unmerged)** — directory exists and branch has commits not in `main`:
+   - INFO: "Active worktree: `<path>` (branch `<branch>`, N commits ahead of main). Do not remove — work in progress."
+
+Do not remove any worktree automatically. All output is advisory.
+
+### Status values
+
+- **ok** — no linked worktrees, or all are active
+- **warning** — one or more stale or orphaned worktrees found (provide cleanup commands per item)
+
 ## Summary report
 
 After all checks complete, output a concise summary table:
@@ -161,6 +203,7 @@ swain-doctor summary:
   .agents directory .. ok
   Status cache ....... seeded
   tk health .......... ok
+  Worktrees .......... ok
   Superpowers ........ ok (6/6 skills detected)
 
 3 checks performed repairs. 0 issues remain.

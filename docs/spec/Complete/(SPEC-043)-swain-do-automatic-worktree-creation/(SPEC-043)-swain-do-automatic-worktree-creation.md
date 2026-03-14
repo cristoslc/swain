@@ -1,7 +1,7 @@
 ---
 title: "swain-do: automatic worktree creation at dispatch"
 artifact: SPEC-043
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -104,3 +104,4 @@ TDD cycles:
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation under EPIC-015 |
 | Ready | 2026-03-14 | — | Approved |
+| Complete | 2026-03-14 | 984dd27 | Worktree isolation preamble added to swain-do SKILL.md (v3.1.0) |

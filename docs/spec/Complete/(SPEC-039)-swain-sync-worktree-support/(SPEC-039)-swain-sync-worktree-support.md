@@ -1,7 +1,7 @@
 ---
 title: "swain-sync: worktree-aware execution"
 artifact: SPEC-039
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -169,3 +169,4 @@ See ADR-005 for the full workflow rationale.
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation |
 | Ready | 2026-03-14 | d4a991c | Approved for implementation |
+| Complete | 2026-03-14 | dacbf2c | Implemented in EPIC-015 Active transition; all AC criteria met |
