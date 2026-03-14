@@ -62,4 +62,4 @@ Settings key: `motd.animationStyle` — valid values include at least: `"clockwi
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-14 | — | Initial creation from EPIC-011 decomposition; linked to GitHub #16 |
+| Proposed | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Initial creation from EPIC-011 decomposition; linked to GitHub #16 |

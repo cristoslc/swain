@@ -74,4 +74,4 @@ A clickable button (or keybind) in the Textual TUI labeled **"Commit & Push"** (
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-14 | — | Initial creation from EPIC-011 decomposition; linked to GitHub #13 |
+| Proposed | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Initial creation from EPIC-011 decomposition; linked to GitHub #13 |

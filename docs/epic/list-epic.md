@@ -14,7 +14,7 @@
 |----------|-------|-------------|--------|
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | 71c4f9b |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | c5afa36 |
-| EPIC-011 | MOTD Panel Improvements | 2026-03-14 | — |
+| EPIC-011 | MOTD Panel Improvements | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 |
 
 ## Superseded
 
