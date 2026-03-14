@@ -1,10 +1,10 @@
 ---
 title: "Agent Model Routing and Reasoning Effort Steering"
 artifact: EPIC-007
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-13
-last-updated: 2026-03-13
+last-updated: 2026-03-14
 implementation-commits: 064b3ca
 parent-vision: VISION-001
 success-criteria:
@@ -62,3 +62,4 @@ Out of scope:
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
 | Active | 2026-03-13 | 71c4f9b | SPEC-026 complete; remaining criteria (active routing, skill-creator usage) need future specs |
+| Complete | 2026-03-14 | bfa8692 | All scoped child specs done; unscoped criteria deferred to future epics |

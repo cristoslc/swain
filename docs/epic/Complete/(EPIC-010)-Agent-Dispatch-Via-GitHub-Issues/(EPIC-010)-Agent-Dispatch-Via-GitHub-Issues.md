@@ -1,10 +1,10 @@
 ---
 title: "Agent Dispatch Via GitHub Issues"
 artifact: EPIC-010
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-13
-last-updated: 2026-03-13
+last-updated: 2026-03-14
 parent-vision: VISION-001
 success-criteria:
   - swain-dispatch skill exists and is registered in the swain router
@@ -59,3 +59,4 @@ Create a `swain-dispatch` skill that pushes swain-design artifacts to GitHub Iss
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | 6a5e1ac | Initial creation from GitHub #18 decision |
 | Active | 2026-03-13 | c5afa36 | SPEC-025 implemented, SPIKE-016 complete |
+| Complete | 2026-03-14 | bfa8692 | All scoped child specs done; SPEC-029 (prereqs/docs) also complete |
