@@ -38,6 +38,23 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 
 When an operation fails (missing parent, number collision, script error, etc.), consult [references/troubleshooting.md](references/troubleshooting.md) for the recovery procedure. Do not improvise workarounds — the troubleshooting guide covers the known failure modes.
 
+### Complexity tier detection (SPEC-045)
+
+Before running the full authoring ceremony, classify the artifact into a complexity tier:
+
+**Low complexity (fast-path eligible)**:
+- SPEC with `type: bug` or `type: fix` and no `parent-epic` and no downstream `depends-on` links
+- SPIKE with no `parent-epic`
+- Any artifact where the user uses language like "quick", "simple", "trivial", or "fast"
+
+**Medium/High complexity (full ceremony)**:
+- Feature SPECs (`type: feature`)
+- Any SPEC or SPIKE with a `parent-epic`
+- EPICs, Visions, Journeys, ADRs — always full ceremony
+- Any artifact where the user describes significant architectural decisions
+
+When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope check, index update`
+
 ### Workflow
 
 1. Scan `docs/<type>/` (recursively, across all phase subdirectories) to determine the next available number for the prefix.
@@ -48,9 +65,9 @@ When an operation fails (missing parent, number collision, script error, etc.), 
 6. Initialize the lifecycle table with the appropriate phase and current date. This is usually `Proposed`, but an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
 7. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
 8. **ADR compliance check** — run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before proceeding.
-8a. **Alignment check** — run `skills/swain-design/scripts/specgraph.sh scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
-9. **Post-operation scan** — run `skills/swain-design/scripts/specwatch.sh scan`. Fix any stale references before committing.
-10. **Index refresh step** — update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
+8a. **Alignment check** — *(skip for fast-path tier)* run `skills/swain-design/scripts/specgraph.sh scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
+9. **Post-operation scan** — *(skip for fast-path tier)* run `skills/swain-design/scripts/specwatch.sh scan`. Fix any stale references before committing.
+10. **Index refresh step** — *(skip for fast-path tier; batch refresh at session end via `rebuild-index.sh`)* update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
 
 ## Superpowers integration
 

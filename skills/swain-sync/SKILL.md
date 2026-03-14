@@ -242,6 +242,25 @@ git push
 
 Run `git --no-pager status` and `git --no-pager log --oneline -3` to verify the push landed and show the user the final state. Do not prompt for confirmation — just report the result.
 
+## Index rebuild (SPEC-047)
+
+Before committing (after staging, before Step 5), check whether any artifact index files (`list-*.md`) are stale. If `skills/swain-design/scripts/rebuild-index.sh` exists, run it for each artifact type that had changes staged:
+
+```bash
+REBUILD_SCRIPT="$REPO_ROOT/skills/swain-design/scripts/rebuild-index.sh"
+if [[ -x "$REBUILD_SCRIPT" ]]; then
+    # Detect which types had staged changes
+    for type in spec epic spike adr persona runbook design vision journey; do
+        if git diff --cached --name-only | grep -q "^docs/$type/"; then
+            bash "$REBUILD_SCRIPT" "$type"
+            git add "docs/$type/list-${type}.md" 2>/dev/null || true
+        fi
+    done
+fi
+```
+
+This ensures the index is current when the session's commits land.
+
 ## Session bookmark
 
 After a successful push, update the bookmark. Use `$REPO_ROOT` (set in Step 1) as the search root so this works from both main and linked worktrees:

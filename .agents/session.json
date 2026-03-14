@@ -5,7 +5,7 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "transition EPIC-015 to Complete; fix SPEC-031 status",
-    "timestamp": "2026-03-14T06:52:19Z"
+    "note": "add SPEC-047; fix list-spec.md SPEC-045/046",
+    "timestamp": "2026-03-14T06:59:24Z"
   }
 }
