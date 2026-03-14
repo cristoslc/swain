@@ -1,7 +1,7 @@
 ---
 title: "Cross-Reference Validation and Bidirectional Edge Enforcement"
 artifact: SPEC-032
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
@@ -113,6 +113,14 @@ SPIKE-007: should list EPIC-005 in linked-artifacts (EPIC-005 depends-on SPIKE-0
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| 1. body_not_in_frontmatter detection | test_xref.py::TestComputeXrefPipeline — 47/47 passing | ✅ |
+| 2. Already-declared IDs not flagged | TestComputeXrefPipeline::test_both_artifacts_clean_returns_empty | ✅ |
+| 3. UTF-8/SHA-256 filtered out | TestScanBodyNonArtifactFiltering — broad sweep documented | ✅ |
+| 4. Self-reference excluded | TestScanBodySelfExclusion | ✅ |
+| 5. Missing reciprocal flagged | TestCheckReciprocalEdgesBasic | ✅ |
+| 6. Present reciprocal not flagged | test_reciprocal_present_no_gap | ✅ |
+| 7. xref key in cache after build | Integration test: specgraph.py build → 66 xref entries | ✅ |
+| 8. xref subcommand human output | specgraph.py xref shows all 3 sections on live repo | ✅ |
 
 ## Scope & Constraints
 
@@ -141,3 +149,4 @@ SPIKE-007: should list EPIC-005 in linked-artifacts (EPIC-005 depends-on SPIKE-0
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
+| Complete | 2026-03-14 | 5a4386c | xref.py + cli xref subcommand, 47/47 tests, 66 real discrepancies found |
