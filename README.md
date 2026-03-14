@@ -45,10 +45,29 @@ This shows active epics with progress, decisions waiting on you, implementation-
 From there, the core loop is:
 
 - **Design** (`/swain-design`) — create and evolve artifacts: Visions, Epics, Specs, Spikes, ADRs, Stories, Bugs, and more. Each has a lifecycle tracked in git (Draft → Approved → Implemented).
-- **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies.
-- **Ship** (`/swain-sync`, `/swain-release`) — fetch, rebase, commit with conventional messages, cut versioned releases.
+- **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies. When starting implementation work, swain-do automatically creates a linked git worktree so agent changes are isolated from your main workspace.
+- **Ship** (`/swain-sync`, `/swain-release`) — fetch, rebase, commit with conventional messages, cut versioned releases. When running from a linked worktree, swain-sync lands the changes on `main` and prunes the worktree automatically.
 
 Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions are commits. Everything is inspectable, diffable, and version-controlled.
+
+## Isolated execution
+
+Swain ships a `scripts/claude-sandbox` launcher that runs Claude Code inside an isolated environment — keeping agent file access and network calls contained:
+
+```bash
+# Tier 1: native platform sandboxing (default)
+# macOS: sandbox-exec (Seatbelt), Linux: Landlock or bubblewrap
+./scripts/claude-sandbox
+
+# Tier 2: Docker container with bind-mounted project files
+./scripts/claude-sandbox --docker
+```
+
+Both modes pass extra arguments through to `claude`. Configuration (`dockerImage`, `allowedDomains`) lives in `swain.settings.json`.
+
+**Requirements:**
+- Tier 1: no extra dependencies (uses OS-native sandboxing)
+- Tier 2: Docker daemon running
 
 ## Skills
 
