@@ -5,7 +5,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
-| EPIC-011 | MOTD Panel Improvements | 2026-03-13 | ea0d165 |
 | EPIC-013 | Specgraph Python Rewrite | 2026-03-13 | — |
 | EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | — |
 
@@ -15,6 +14,7 @@
 |----------|-------|-------------|--------|
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | 71c4f9b |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | c5afa36 |
+| EPIC-011 | MOTD Panel Improvements | 2026-03-14 | — |
 
 ## Superseded
 
