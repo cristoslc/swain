@@ -95,16 +95,33 @@ artifact_link() {
 # --- Data collectors ---
 
 collect_git() {
-  local branch dirty changed_count last_hash last_msg last_age recent_json
+  local branch dirty staged_count modified_count untracked_count changed_count last_hash last_msg last_age recent_json
 
   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "detached")
 
-  if git diff --quiet HEAD 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+  # Use git status --porcelain for accurate per-category counts
+  local porcelain
+  porcelain=$(git status --porcelain 2>/dev/null) || porcelain=""
+
+  staged_count=0
+  modified_count=0
+  untracked_count=0
+
+  if [[ -n "$porcelain" ]]; then
+    dirty="true"
+    while IFS= read -r line; do
+      local x="${line:0:1}" y="${line:1:1}"
+      if [[ "$x" == "?" ]]; then
+        (( untracked_count++ ))
+      else
+        [[ "$x" != " " ]] && (( staged_count++ ))
+        [[ "$y" != " " ]] && (( modified_count++ ))
+      fi
+    done <<< "$porcelain"
+    changed_count=$(( staged_count + modified_count + untracked_count ))
+  else
     dirty="false"
     changed_count=0
-  else
-    dirty="true"
-    changed_count=$(git diff --name-only HEAD 2>/dev/null | wc -l | tr -d ' ')
   fi
 
   last_hash=$(git log -1 --pretty=format:'%h' 2>/dev/null || echo "")
@@ -118,6 +135,9 @@ collect_git() {
     --arg branch "$branch" \
     --argjson dirty "$dirty" \
     --argjson changed "$changed_count" \
+    --argjson staged "$staged_count" \
+    --argjson modified "$modified_count" \
+    --argjson untracked "$untracked_count" \
     --arg lastHash "$last_hash" \
     --arg lastMsg "$last_msg" \
     --arg lastAge "$last_age" \
@@ -126,6 +146,9 @@ collect_git() {
       branch: $branch,
       dirty: $dirty,
       changedFiles: $changed,
+      staged: $staged,
+      modified: $modified,
+      untracked: $untracked,
       lastCommit: { hash: $lastHash, message: $lastMsg, age: $lastAge },
       recentCommits: $recent
     }'

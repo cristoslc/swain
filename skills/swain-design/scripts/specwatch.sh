@@ -691,6 +691,31 @@ PYEOF
   fi
 }
 
+# --- Architecture diagram checker ---
+# Warns (ARCH_NO_DIAGRAM) for architecture-overview.md files that have no diagram.
+# A diagram is: a mermaid code block, an image reference, or a ## Diagram heading.
+
+scan_arch_diagrams() {
+  local warn_count=0
+  while IFS= read -r arch_file; do
+    [ -f "$arch_file" ] || continue
+    # Check for mermaid block, image reference, or diagram section heading
+    if grep -qE '```mermaid|!\[.*\]\(.*\)|^## .*[Dd]iagram' "$arch_file" 2>/dev/null; then
+      continue
+    fi
+    echo "ARCH_NO_DIAGRAM: $arch_file (no mermaid block, image reference, or ## Diagram heading found)"
+    warn_count=$(( warn_count + 1 ))
+  done < <(find "$REPO_ROOT/docs" -name "architecture-overview.md" 2>/dev/null)
+
+  if [ "$warn_count" -gt 0 ]; then
+    echo "specwatch arch-diagrams: found ${warn_count} architecture overview(s) without a diagram."
+    return 1
+  else
+    echo "specwatch arch-diagrams: all architecture overviews have diagrams."
+    return 0
+  fi
+}
+
 # --- Sentinel management ---
 
 touch_sentinel() {
@@ -1050,8 +1075,10 @@ case "$cmd" in
     scan_result="${scan_result:-0}"
     scan_tk_sync || tk_result=$?
     tk_result="${tk_result:-0}"
-    # Exit non-zero if either found issues
-    exit $(( scan_result > 0 || tk_result > 0 ? 1 : 0 ))
+    scan_arch_diagrams || arch_result=$?
+    arch_result="${arch_result:-0}"
+    # Exit non-zero if any check found issues
+    exit $(( scan_result > 0 || tk_result > 0 || arch_result > 0 ? 1 : 0 ))
     ;;
   tk-sync)
     log_header

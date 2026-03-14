@@ -5,7 +5,7 @@ user-invocable: true
 allowed-tools: Bash, Read, Edit
 metadata:
   short-description: Fetch, stage, commit, and push
-  version: 1.2.0
+  version: 1.3.0
   author: cristos
   license: MIT
   source: swain
@@ -16,9 +16,20 @@ Run through the following steps in order without pausing for confirmation unless
 
 Delegate this to a sub-agent so the main conversation thread stays clean. Include the full text of these instructions in the agent prompt, since sub-agents cannot read skill files directly.
 
-## Step 1 — Fetch and rebase upstream
+## Step 1 — Detect worktree context and fetch/rebase upstream
 
-First, check whether the current branch has an upstream tracking branch:
+First, detect whether you are running in a git linked worktree:
+
+```bash
+GIT_COMMON=$(git rev-parse --git-common-dir)
+GIT_DIR=$(git rev-parse --git-dir)
+IN_WORKTREE=$( [ "$GIT_COMMON" != "$GIT_DIR" ] && echo "yes" || echo "no" )
+REPO_ROOT=$(git rev-parse --show-toplevel)
+```
+
+`IN_WORKTREE=yes` means the current directory is inside a linked worktree (e.g., `.claude/worktrees/agent-abc123`). Use this flag in Steps 3, 6, and the session bookmark step.
+
+Next, check whether the current branch has an upstream tracking branch:
 
 ```bash
 git --no-pager rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null
@@ -33,8 +44,9 @@ git fetch origin
 If there are local changes (dirty working tree), stash them first:
 
 ```bash
-git stash push -m "swain-sync: auto-stash before rebase"
-git --no-pager rebase origin/$(git rev-parse --abbrev-ref HEAD)
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+git stash push -m "swain-sync: auto-stash [$BRANCH]"
+git --no-pager rebase origin/$BRANCH
 git stash pop
 ```
 
@@ -47,7 +59,16 @@ git stash pop       # recover stashed changes
 
 Show the user the conflicting files and stop. Do not force-push or drop changes.
 
-If there is no upstream (new branch), skip this step entirely.
+If there is no upstream (`@{u}` returns an error) **and** `IN_WORKTREE=yes`, the worktree branch has no remote tracking counterpart. Rebase onto `origin/main` so the commits apply cleanly as a fast-forward:
+
+```bash
+git fetch origin
+git rebase origin/main
+```
+
+If `origin` cannot be fetched, skip fetch/rebase and proceed to Step 2.
+
+If there is no upstream **and** `IN_WORKTREE=no` (main worktree, new branch), skip this step entirely.
 
 ## Step 2 — Survey the working tree
 
@@ -179,6 +200,33 @@ If the commit fails because a pre-commit hook rejected it:
 
 ## Step 6 — Push
 
+**If `IN_WORKTREE=yes`:** push the worktree's commits directly to `main` rather than creating a remote worktree branch:
+
+```bash
+git push origin HEAD:main
+```
+
+If this push is rejected with a non-fast-forward error:
+- Check whether the rejection message mentions branch protection rules or required reviews.
+  - If **branch protection is the cause**, open a PR instead:
+    ```bash
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    SUBJECT=$(git log -1 --pretty=format:'%s')
+    BODY=$(git log -1 --pretty=format:'%b')
+    gh pr create --base main --head "$BRANCH" --title "$SUBJECT" --body "$BODY"
+    ```
+    Report the PR URL. Do not retry the push. Proceed to worktree pruning below.
+  - If **diverged history is the cause** (not branch protection), report the conflict and stop. Do not force-push.
+
+After a successful push or PR creation, remove the worktree:
+```bash
+WORKTREE_PATH=$(git worktree list --porcelain | grep -B2 "HEAD" | awk '/worktree/{print $2}' | grep -v "$(git rev-parse --git-common-dir | sed 's|/.git$||')")
+git -C "$(git rev-parse --show-toplevel 2>/dev/null || git rev-parse --git-common-dir | sed 's|/.git||')" worktree remove --force "$WORKTREE_PATH" 2>/dev/null || true
+git -C "$(git rev-parse --git-common-dir | sed 's|/.git||')" worktree prune 2>/dev/null || true
+```
+
+**If `IN_WORKTREE=no`** (main worktree, normal case):
+
 ```bash
 git push          # or: git push -u origin HEAD (if no upstream)
 ```
@@ -196,4 +244,8 @@ Run `git --no-pager status` and `git --no-pager log --oneline -3` to verify the 
 
 ## Session bookmark
 
-After a successful push, update the bookmark: `bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "Pushed {n} commits to {branch}"`
+After a successful push, update the bookmark. Use `$REPO_ROOT` (set in Step 1) as the search root so this works from both main and linked worktrees:
+
+```bash
+bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "Pushed {n} commits to {branch}"
+```
