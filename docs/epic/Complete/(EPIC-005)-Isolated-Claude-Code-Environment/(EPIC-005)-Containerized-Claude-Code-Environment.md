@@ -59,4 +59,4 @@ The isolation mechanism (Docker container, microVM, or other) is an open questio
 |-------|------|--------|-------|
 | Proposed | 2026-03-12 | — | Initial creation |
 | Active | 2026-03-14 | cded412 | SPIKE-009 complete; decomposed into SPEC-048 and SPEC-049 |
-| Complete | 2026-03-14 | -- | SPEC-048 (Tier 1 sandbox launcher) and SPEC-049 (Tier 2 Docker runner) delivered; all success criteria met |
+| Complete | 2026-03-14 | 2843b4e | SPEC-048 (Tier 1 sandbox launcher) and SPEC-049 (Tier 2 Docker runner) delivered; all success criteria met |
