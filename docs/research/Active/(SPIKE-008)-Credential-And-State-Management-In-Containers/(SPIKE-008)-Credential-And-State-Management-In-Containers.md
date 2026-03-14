@@ -51,4 +51,4 @@ If credential forwarding proves too fragile:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Planned | 2026-03-12 | — | Initial creation |
-| Active | 2026-03-14 | — | Transition to Active |
+| Active | 2026-03-14 | 257ea9c | Transition to Active |
