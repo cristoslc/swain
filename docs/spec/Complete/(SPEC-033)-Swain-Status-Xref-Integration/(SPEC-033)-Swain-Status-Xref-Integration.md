@@ -1,6 +1,7 @@
 ---
 title: "swain-status xref Integration"
 artifact: SPEC-033
+track: implementable
 status: Ready
 author: cristos
 created: 2026-03-13

@@ -1,10 +1,11 @@
 ---
 title: "Architecture Overview Enhancements"
 artifact: SPEC-034
-status: Ready
+track: implementable
+status: Complete
 author: cristos
 created: 2026-03-13
-last-updated: 2026-03-13
+last-updated: 2026-03-14
 type: enhancement
 parent-epic:
 linked-artifacts:
@@ -73,6 +74,12 @@ This is advisory, not enforced — any diagram satisfies the requirement.
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| Epic-level arch overview in scope output | specgraph.sh do_scope walks Epic then Vision parent chain | PASS |
+| Both Epic+Vision shown when both exist | Bash specgraph walks parent chain; Python scope() walks arch_ancestor_ids | PASS |
+| Mermaid block → no warning | arch_check.py has_diagram() detects mermaid; specwatch scan produces no ARCH_NO_DIAGRAM | PASS |
+| Image reference → no warning | has_diagram() detects markdown + HTML img refs | PASS |
+| Prose only → ARCH_NO_DIAGRAM | specwatch scan_arch_diagrams() emits ARCH_NO_DIAGRAM | PASS |
+| Definition files updated | epic-definition.md + vision-definition.md updated with diagram guidance | PASS |
 
 ## Scope & Constraints
 
@@ -97,3 +104,4 @@ This is advisory, not enforced — any diagram satisfies the requirement.
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
+| Complete | 2026-03-14 | dacbf2c | Epic-level arch overview detection, arch_check.py (15 tests), scan_arch_diagrams in specwatch, definition files updated |

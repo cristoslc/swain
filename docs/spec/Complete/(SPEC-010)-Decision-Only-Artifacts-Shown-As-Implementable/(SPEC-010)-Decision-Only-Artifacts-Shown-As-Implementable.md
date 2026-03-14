@@ -1,6 +1,7 @@
 ---
 title: "Decision-Only Artifacts Incorrectly Shown as Implementable in swain-status"
 artifact: SPEC-010
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-13

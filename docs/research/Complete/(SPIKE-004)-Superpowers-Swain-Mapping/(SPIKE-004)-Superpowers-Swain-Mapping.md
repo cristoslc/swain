@@ -1,6 +1,7 @@
 ---
 title: "Superpowers–Swain Skill Mapping"
 artifact: SPIKE-004
+track: container
 status: Complete
 author: cristos
 created: 2026-03-12

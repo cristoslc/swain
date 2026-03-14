@@ -1,6 +1,7 @@
 ---
 title: "Evidence Pool Collection and Normalization"
 artifact: EPIC-001
+track: container
 status: Complete
 author: cristos
 created: 2026-03-09

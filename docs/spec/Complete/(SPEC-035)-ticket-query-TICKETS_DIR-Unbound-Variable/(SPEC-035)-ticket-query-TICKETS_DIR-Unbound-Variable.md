@@ -1,7 +1,8 @@
 ---
 title: "ticket-query TICKETS_DIR Unbound Variable"
 artifact: SPEC-035
-status: Ready
+track: implementable
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -61,10 +62,10 @@ low
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| Direct invocation outputs JSON | `skills/swain-do/bin/ticket-query` exits 0, stdout is valid JSON | — |
-| Missing .tickets/ gives clean error | Confirm stderr message + non-zero exit | — |
-| TICKETS_DIR env respected | Set `TICKETS_DIR=/tmp/fake`; confirm it uses that path | — |
-| specwatch no longer skips tk-sync | Run specwatch scan; confirm no "failed, skipping" line | — |
+| Direct invocation outputs JSON | `skills/swain-do/bin/ticket-query` exits 0, stdout is valid JSON | PASS |
+| Missing .tickets/ gives clean error | Confirm stderr message + non-zero exit | PASS |
+| TICKETS_DIR env respected | Set `TICKETS_DIR=/tmp/fake`; confirm it uses that path | PASS |
+| specwatch no longer skips tk-sync | Run specwatch scan; confirm no "failed, skipping" line | PASS |
 
 ## Scope & Constraints
 
@@ -84,3 +85,4 @@ low
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
+| Complete | 2026-03-14 | dacbf2c | Walk-up TICKETS_DIR detection added to ticket-query (v1.1.0); all 4 ACs verified |

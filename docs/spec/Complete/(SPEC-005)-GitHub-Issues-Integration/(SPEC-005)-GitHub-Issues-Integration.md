@@ -1,6 +1,7 @@
 ---
 title: "GitHub Issues Integration"
 artifact: SPEC-005
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-12

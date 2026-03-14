@@ -1,6 +1,7 @@
 ---
 title: "Pre-Commit Verification in swain-sync"
 artifact: SPEC-024
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-13

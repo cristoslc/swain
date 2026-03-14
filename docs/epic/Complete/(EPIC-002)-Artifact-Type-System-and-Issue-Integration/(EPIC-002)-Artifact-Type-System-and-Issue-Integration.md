@@ -1,6 +1,7 @@
 ---
 title: "Artifact Type System & Issue Integration"
 artifact: EPIC-002
+track: container
 status: Complete
 author: cristos
 created: 2026-03-11

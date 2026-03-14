@@ -1,6 +1,7 @@
 ---
 title: "Specgraph Query Commands"
 artifact: SPEC-031
+track: implementable
 status: Active
 author: cristos
 created: 2026-03-13

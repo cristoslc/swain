@@ -1,6 +1,7 @@
 ---
 title: "MOTD Textual TUI Animation Fixes"
 artifact: SPEC-040
+track: implementable
 status: Ready
 author: cristos
 created: 2026-03-14

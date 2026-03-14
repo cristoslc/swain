@@ -1,6 +1,7 @@
 ---
 title: "Rewrite Specgraph in Python"
 artifact: ADR-004
+track: standing
 status: Active
 author: cristos
 created: 2026-03-13

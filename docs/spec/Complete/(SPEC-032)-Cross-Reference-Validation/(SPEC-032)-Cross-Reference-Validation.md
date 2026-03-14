@@ -1,6 +1,7 @@
 ---
 title: "Cross-Reference Validation and Bidirectional Edge Enforcement"
 artifact: SPEC-032
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-13

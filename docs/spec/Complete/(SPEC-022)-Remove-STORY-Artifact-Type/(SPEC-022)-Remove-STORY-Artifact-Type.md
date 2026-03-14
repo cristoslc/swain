@@ -1,6 +1,7 @@
 ---
 title: "Remove STORY Artifact Type"
 artifact: SPEC-022
+track: implementable
 status: Complete
 type: enhancement
 author: cristos

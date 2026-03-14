@@ -1,6 +1,7 @@
 ---
 title: "Normalize Artifact Frontmatter Relationships"
 artifact: SPEC-009
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-13

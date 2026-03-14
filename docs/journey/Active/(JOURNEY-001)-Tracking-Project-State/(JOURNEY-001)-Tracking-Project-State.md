@@ -1,6 +1,7 @@
 ---
 title: "Resolving the Decision Backlog"
 artifact: JOURNEY-001
+track: standing
 status: Active
 author: cristos
 created: 2026-03-11

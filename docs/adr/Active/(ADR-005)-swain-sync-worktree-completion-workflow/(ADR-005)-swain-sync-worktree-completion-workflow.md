@@ -1,6 +1,7 @@
 ---
 title: "Worktree Lifecycle: swain-do Creates, swain-sync Lands"
 artifact: ADR-005
+track: standing
 status: Active
 author: cristos
 created: 2026-03-14

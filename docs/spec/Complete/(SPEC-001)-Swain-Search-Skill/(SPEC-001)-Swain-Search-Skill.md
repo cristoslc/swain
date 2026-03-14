@@ -1,6 +1,7 @@
 ---
 title: "swain-search Skill"
 artifact: SPEC-001
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-09

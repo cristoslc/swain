@@ -1,6 +1,7 @@
 ---
 title: "MOTD Reactive Agent Status via Claude Code Hooks"
 artifact: SPEC-041
+track: implementable
 status: Ready
 author: cristos
 created: 2026-03-14

@@ -1,6 +1,7 @@
 ---
 title: "MOTD Uncommitted File Display and Interactive Commit Button"
 artifact: SPEC-042
+track: implementable
 status: Ready
 author: cristos
 created: 2026-03-14

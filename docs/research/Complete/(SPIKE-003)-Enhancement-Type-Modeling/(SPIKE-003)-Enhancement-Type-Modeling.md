@@ -1,6 +1,7 @@
 ---
 title: "Enhancement Type Modeling"
 artifact: SPIKE-003
+track: container
 status: Complete
 author: cristos
 created: 2026-03-11

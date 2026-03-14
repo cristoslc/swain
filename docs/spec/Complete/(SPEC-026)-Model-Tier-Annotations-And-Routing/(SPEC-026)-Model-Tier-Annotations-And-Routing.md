@@ -1,6 +1,7 @@
 ---
 title: "Model Tier Annotations and Routing"
 artifact: SPEC-026
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-13

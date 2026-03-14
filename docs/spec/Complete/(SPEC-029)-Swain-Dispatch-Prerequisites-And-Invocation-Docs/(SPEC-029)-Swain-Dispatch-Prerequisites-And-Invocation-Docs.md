@@ -1,6 +1,7 @@
 ---
 title: "swain-dispatch Prerequisites and Invocation Docs"
 artifact: SPEC-029
+track: implementable
 status: Complete
 type: enhancement
 author: cristos

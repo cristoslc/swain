@@ -1,6 +1,7 @@
 ---
 title: "Specgraph Python Rewrite"
 artifact: EPIC-013
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

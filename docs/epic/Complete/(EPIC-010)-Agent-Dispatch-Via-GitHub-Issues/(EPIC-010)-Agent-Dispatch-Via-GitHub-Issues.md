@@ -1,6 +1,7 @@
 ---
 title: "Agent Dispatch Via GitHub Issues"
 artifact: EPIC-010
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

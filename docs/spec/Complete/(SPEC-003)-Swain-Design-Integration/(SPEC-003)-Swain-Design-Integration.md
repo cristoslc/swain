@@ -1,6 +1,7 @@
 ---
 title: "swain-design Integration"
 artifact: SPEC-003
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-09

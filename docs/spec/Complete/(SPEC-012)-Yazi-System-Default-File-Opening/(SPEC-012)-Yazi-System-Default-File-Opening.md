@@ -1,6 +1,7 @@
 ---
 title: "Yazi System Default File Opening"
 artifact: SPEC-012
+track: implementable
 status: Complete
 type: bug
 author: cristos

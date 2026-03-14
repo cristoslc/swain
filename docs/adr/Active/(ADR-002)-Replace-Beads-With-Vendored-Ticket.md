@@ -1,6 +1,7 @@
 ---
 title: "Replace Beads with Vendored Ticket"
 artifact: ADR-002
+track: standing
 status: Active
 author: cristos
 created: 2026-03-12

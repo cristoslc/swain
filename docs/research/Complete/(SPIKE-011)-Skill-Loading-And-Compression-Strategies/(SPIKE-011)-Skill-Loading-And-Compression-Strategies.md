@@ -1,6 +1,7 @@
 ---
 title: "Skill Loading and Compression Strategies"
 artifact: SPIKE-011
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

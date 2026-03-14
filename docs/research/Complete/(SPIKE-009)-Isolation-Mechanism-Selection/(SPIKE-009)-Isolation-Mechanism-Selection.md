@@ -1,6 +1,7 @@
 ---
 title: "Isolation Mechanism Selection"
 artifact: SPIKE-009
+track: container
 status: Complete
 author: cristos
 created: 2026-03-12

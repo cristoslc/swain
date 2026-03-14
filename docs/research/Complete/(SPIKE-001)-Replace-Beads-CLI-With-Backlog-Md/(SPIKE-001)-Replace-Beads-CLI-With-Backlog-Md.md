@@ -1,6 +1,7 @@
 ---
 title: "Replace Beads CLI with Backlog.md"
 artifact: SPIKE-001
+track: container
 status: Complete
 author: cristos
 created: 2026-03-10

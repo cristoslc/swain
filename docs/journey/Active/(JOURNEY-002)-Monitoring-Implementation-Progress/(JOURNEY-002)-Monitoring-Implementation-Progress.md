@@ -1,6 +1,7 @@
 ---
 title: "Monitoring Implementation Progress"
 artifact: JOURNEY-002
+track: standing
 status: Active
 author: cristos
 created: 2026-03-11

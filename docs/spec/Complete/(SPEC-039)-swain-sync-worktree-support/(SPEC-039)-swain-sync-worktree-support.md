@@ -1,6 +1,7 @@
 ---
 title: "swain-sync: worktree-aware execution"
 artifact: SPEC-039
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-14

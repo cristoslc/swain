@@ -1,6 +1,7 @@
 ---
 title: "Isolated Claude Code Environment"
 artifact: EPIC-005
+track: container
 status: Proposed
 author: cristos
 created: 2026-03-12

@@ -1,7 +1,8 @@
 ---
 title: "swain-status Decision Support"
 artifact: SPEC-036
-status: Ready
+track: implementable
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -106,11 +107,11 @@ The primary fix is to `agent-summary-template.md`: it currently leads with Epic 
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| Single recommendation leads | Manual review of agent summary output | — |
-| Leverage-based reason | Recommendation names unblock count | — |
-| All-specs-done epic shows "ready to close" | EPIC-007/010 pattern reproduced in test run | — |
-| Blocked items grouped by common blocker | SPEC-031/032/033 → SPEC-030 grouping | — |
-| Cache includes unblock_count | `jq '.artifacts.ready[].unblock_count' cache.json` returns integers | — |
+| Single recommendation leads | Manual review of agent summary output | PASS |
+| Leverage-based reason | Recommendation names unblock count | PASS |
+| All-specs-done epic shows "ready to close" | EPIC-007/010 pattern reproduced in test run | PASS |
+| Blocked items grouped by common blocker | SPEC-031/032/033 → SPEC-030 grouping | PASS |
+| Cache includes unblock_count | `jq '.artifacts.ready[].unblock_count' cache.json` returns integers | PASS |
 
 ## Scope & Constraints
 
@@ -143,3 +144,4 @@ No test infrastructure changes needed — verification is by manual review of a 
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | 8e30b25 | Initial creation; motivated by operator feedback: "state-snapshotted, not decision-supported" |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
+| Complete | 2026-03-14 | dacbf2c | Recommendation section, two-bucket layout, unblock_count in cache — all 5 ACs verified |
