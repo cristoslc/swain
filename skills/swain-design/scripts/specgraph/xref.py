@@ -2,9 +2,31 @@
 
 from __future__ import annotations
 
-import re
-
 from .parser import extract_list_ids, extract_scalar_id, _ARTIFACT_ID_RE
+
+
+# Known artifact type prefixes — used to filter body-scanned IDs and avoid
+# false positives from CVE identifiers, SPDX license tags, model names, etc.
+_KNOWN_ARTIFACT_PREFIXES = frozenset({
+    "VISION", "EPIC", "SPEC", "SPIKE", "ADR", "JOURNEY",
+    "PERSONA", "DESIGN", "RUNBOOK", "STORY", "BUG",
+})
+
+# All list-type frontmatter fields that carry artifact cross-references.
+# Shared with graph.py to keep the two files in sync.
+_XREF_LIST_FIELDS = (
+    "depends-on-artifacts",
+    "linked-artifacts",
+    "validates",
+    "linked-research",
+    "linked-adrs",
+    "linked-epics",
+    "linked-specs",
+    "affected-artifacts",
+    "linked-personas",
+    "linked-journeys",
+    "linked-stories",
+)
 
 
 def scan_body(body_text: str, known_ids: set[str], self_id: str) -> set[str]:
@@ -17,7 +39,7 @@ def collect_frontmatter_ids(frontmatter: dict) -> set[str]:
     """Collect all artifact IDs referenced in frontmatter fields.
 
     Extracts from:
-    - List fields: depends-on-artifacts, linked-artifacts, validates
+    - List fields: all fields in _XREF_LIST_FIELDS
     - addresses list: strips sub-path (e.g. JOURNEY-001.PP-03 -> JOURNEY-001)
     - Scalar fields: parent-epic, parent-vision, superseded-by
 
@@ -26,7 +48,7 @@ def collect_frontmatter_ids(frontmatter: dict) -> set[str]:
     ids: set[str] = set()
 
     # List fields — extract artifact IDs from each item
-    for key in ("depends-on-artifacts", "linked-artifacts", "validates"):
+    for key in _XREF_LIST_FIELDS:
         ids.update(extract_list_ids(frontmatter, key))
 
     # addresses — strip sub-path suffix, keep only the base artifact ID
@@ -77,19 +99,17 @@ def check_reciprocal_edges(nodes: dict, edges: list[dict]) -> list[dict]:
             })
             continue
 
-        # Two expected node shapes: flat dict {field: value} from tests, or
-        # {raw_fields: {field: value}} from parse_artifact() output via graph.py.
-        if "linked-artifacts" in node:
-            linked = node["linked-artifacts"]
-        elif "raw_fields" in node:
-            linked = node["raw_fields"].get("linked-artifacts", [])
-        else:
-            linked = []
+        # Check all xref list fields for a back-link — artifacts may use any
+        # typed field (linked-research, linked-adrs, etc.) not just linked-artifacts.
+        back_linked: set[str] = set()
+        raw = node.get("raw_fields", node)  # support both node shapes
+        for field in _XREF_LIST_FIELDS:
+            vals = raw.get(field, [])
+            if not isinstance(vals, list):
+                vals = [vals] if vals else []
+            back_linked.update(vals)
 
-        if not isinstance(linked, list):
-            linked = [linked] if linked else []
-
-        if from_id not in linked:
+        if from_id not in back_linked:
             gaps.append({
                 "from": from_id,
                 "to": to_id,
@@ -129,8 +149,7 @@ def compute_xref(artifacts: list[dict], edges: list[dict]) -> list[dict]:
     if not artifacts:
         return []
 
-    # Build known_ids set and nodes dict for reciprocal check
-    known_ids = {a["id"] for a in artifacts}
+    # Build nodes dict for reciprocal check
     nodes: dict = {}
     for a in artifacts:
         fm = a.get("frontmatter", {})
@@ -153,13 +172,15 @@ def compute_xref(artifacts: list[dict], edges: list[dict]) -> list[dict]:
         body = artifact.get("body", "")
         frontmatter = artifact.get("frontmatter", {})
 
-        # Intentional broad sweep: scan for ALL TYPE-NNN patterns in the body,
-        # not just those in the loaded graph. This catches dangling references to
-        # IDs that are not yet in the graph (e.g. missing artifacts, typos). The
-        # known-ID filter in scan_body() serves a different purpose — it is used
-        # when the caller only wants to identify in-graph references (e.g. for
-        # scope/impact queries). Self-reference is still excluded.
-        body_ids = set(_ARTIFACT_ID_RE.findall(body)) - {artifact_id}
+        # Broad sweep for TYPE-NNN patterns, filtered to known artifact prefixes.
+        # This catches dangling references not yet in the graph while suppressing
+        # false positives from CVE identifiers (CVE-2024), SPDX tags (GPL-2),
+        # model names (GPT-4), pain-point IDs (PP-01), and other non-artifact
+        # patterns that match the general [A-Z]+-\d+ shape.
+        body_ids = {
+            ref for ref in _ARTIFACT_ID_RE.findall(body)
+            if ref.split("-")[0] in _KNOWN_ARTIFACT_PREFIXES
+        } - {artifact_id}
         fm_ids = collect_frontmatter_ids(frontmatter)
         discrepancies = compute_discrepancies(body_ids, fm_ids)
         missing_reciprocal = reciprocal_by_artifact.get(artifact_id, [])
