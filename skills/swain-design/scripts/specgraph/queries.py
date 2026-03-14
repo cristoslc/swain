@@ -125,6 +125,50 @@ def tree(
     return "\n".join(result)
 
 
+def neighbors(
+    artifact_id: str,
+    nodes: dict,
+    edges: list[dict],
+    repo_root: str = "",
+    show_links: bool = False,
+) -> str:
+    """Return TSV of all edges touching artifact_id (both directions).
+
+    Columns: direction\tedge_type\tartifact_id\tstatus\ttitle
+    direction: "from" if artifact_id is the source, "to" if it's the target
+
+    For each edge where from==artifact_id: direction="from", other_id=to
+    For each edge where to==artifact_id: direction="to", other_id=from
+
+    Include node metadata (status, title) when the other_id is in nodes.
+    Sort by: direction, then edge_type, then artifact_id.
+    """
+    rows: list[tuple[str, str, str, str, str]] = []
+
+    for edge in edges:
+        frm = edge.get("from", "")
+        to = edge.get("to", "")
+        typ = edge.get("type", "")
+
+        if frm == artifact_id and to:
+            direction = "from"
+            other_id = to
+        elif to == artifact_id and frm:
+            direction = "to"
+            other_id = frm
+        else:
+            continue
+
+        node = nodes.get(other_id, {})
+        status = node.get("status", "")
+        title = node.get("title", "")
+        display_id = _format_id(other_id, nodes, repo_root, show_links)
+        rows.append((direction, typ, display_id, status, title))
+
+    rows.sort(key=lambda r: (r[0], r[1], r[2]))
+    return "\n".join(f"{d}\t{et}\t{aid}\t{st}\t{ti}" for d, et, aid, st, ti in rows)
+
+
 def edges_cmd(
     artifact_id: str | None,
     nodes: dict,
