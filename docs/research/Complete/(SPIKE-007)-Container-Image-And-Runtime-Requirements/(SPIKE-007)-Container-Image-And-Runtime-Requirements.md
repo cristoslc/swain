@@ -1,7 +1,7 @@
 ---
 title: "Container Image and Runtime Requirements"
 artifact: SPIKE-007
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-14
@@ -16,6 +16,10 @@ linked-artifacts: []
 ---
 
 # Container Image and Runtime Requirements
+
+## Summary
+
+**Go.** The official `node:20` base image with Anthropic's published apt package list works; Anthropic publishes a first-party reference Dockerfile at `anthropics/claude-code/.devcontainer/Dockerfile`. Interactive TTY requires `-it`; non-interactive `--print` (`-p`) mode works headless. Proceed with EPIC-005 container implementation using the documented Dockerfile (§4).
 
 **Note:** This spike is conditional on SPIKE-009 selecting containers as the isolation mechanism. If SPIKE-009 recommends microVMs, this spike may be abandoned or adapted.
 
