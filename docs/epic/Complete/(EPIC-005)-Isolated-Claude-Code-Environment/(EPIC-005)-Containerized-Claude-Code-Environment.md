@@ -2,7 +2,7 @@
 title: "Isolated Claude Code Environment"
 artifact: EPIC-005
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
@@ -44,8 +44,8 @@ The isolation mechanism (Docker container, microVM, or other) is an open questio
 
 ## Child Specs
 
-- SPEC-048: `claude-sandbox` launcher — Tier 1 native sandboxing (sandbox-exec / Landlock)
-- SPEC-049: `claude-sandbox --docker` — Tier 2 Docker container runner with credential forwarding
+- SPEC-048: `claude-sandbox` launcher — Tier 1 native sandboxing (sandbox-exec / Landlock) ✅
+- SPEC-049: `claude-sandbox --docker` — Tier 2 Docker container runner with credential forwarding ✅
 
 ## Key Dependencies
 
@@ -59,3 +59,4 @@ The isolation mechanism (Docker container, microVM, or other) is an open questio
 |-------|------|--------|-------|
 | Proposed | 2026-03-12 | — | Initial creation |
 | Active | 2026-03-14 | cded412 | SPIKE-009 complete; decomposed into SPEC-048 and SPEC-049 |
+| Complete | 2026-03-14 | -- | SPEC-048 (Tier 1 sandbox launcher) and SPEC-049 (Tier 2 Docker runner) delivered; all success criteria met |
