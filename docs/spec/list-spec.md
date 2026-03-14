@@ -4,6 +4,8 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPEC-045 | Fast-Path Authoring Mode for Low-Complexity Artifacts | 2026-03-14 | — |
+| SPEC-046 | Inline Lifecycle Hash Stamping for Trivial Artifacts | 2026-03-14 | — |
 
 ## Active
 

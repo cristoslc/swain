@@ -40,7 +40,8 @@ Out of scope:
 
 ## Child Specs
 
-To be defined after SPIKE-018 findings.
+- SPEC-045: Fast-path authoring mode — tier detection and selective ceremony skipping
+- SPEC-046: Inline lifecycle hash stamping — fold stamp into transition commit for trivial artifacts
 
 ## Key Dependencies
 
