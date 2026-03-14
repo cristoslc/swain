@@ -6,7 +6,59 @@ summary is what the user actually reads for decision-making.
 
 Do NOT just dump bullet lists. Use tables so the user can scan and compare.
 
-## Section 1: Epic Progress
+Lead with decisions and actions — answer "what's waiting on me?" before showing
+anything else. Reference data (Epic Progress, Spikes, Blocked) comes after.
+
+## Section 0: Recommendation
+
+Pick the single ready artifact with the highest `unblock_count` from
+`.artifacts.ready[]` in the JSON cache. Write exactly two sentences:
+
+- **Action:** One sentence naming the action (e.g., "Approve SPEC-030.")
+- **Why:** One sentence naming the unblock count and the artifact IDs that
+  would be unblocked (e.g., "Approving it unblocks SPEC-031, SPEC-032,
+  SPEC-033 — highest downstream leverage of all actionable items.")
+
+Omit this section entirely if no ready items exist.
+
+## Section 1: Decisions Needed
+
+Artifacts requiring human judgment, sorted by unblock_count descending so
+highest-leverage decisions appear first. Includes:
+
+- Proposed/Draft specs needing review
+- Proposed ADRs needing acceptance
+- Proposed spikes needing activation
+
+```
+| Artifact | What's Needed | Unblocks |
+|----------|--------------|----------|
+| **TYPE-NNN**: Title | review and approve / review and decide / activate | SPEC-NNN, ... or — |
+```
+
+Rules:
+- Sort by unblock count descending (highest first)
+- "What's Needed" = the human action required (approve, decide, accept, activate)
+- Unblocks = downstream artifact IDs waiting on this decision
+- Only show this section if there are items to list
+
+## Section 2: Work Ready to Start
+
+Agent-delegatable, implementation-ready items from `.artifacts.ready[]` that
+are NOT decision-type artifacts (i.e., not Proposed specs, ADRs, or spikes).
+
+```
+| Artifact | Purpose | Unblocks |
+|----------|---------|----------|
+| SPEC-NNN: Title | Truncated description (~60 chars) | DEP-NNN, ... or — |
+```
+
+Rules:
+- Purpose = first ~60 chars of the artifact's description
+- Unblocks = downstream artifact IDs that become unblocked once this is done
+- Omit this section if there are no implementation-ready items
+
+## Section 3: Epic Progress
 
 One table with all active epics and their child specs in a tree.
 Use `└` to indent children under their parent epic.
@@ -29,7 +81,7 @@ Rules:
 - Epics/specs that are blocked: note what they're blocked on
 - Omit the Status column from the epic table in SKILL.md — readiness subsumes it
 
-## Section 2: Research (Spikes)
+## Section 4: Research (Spikes)
 
 Table of all unresolved spikes.
 
@@ -44,18 +96,7 @@ Rules:
 - Unblocks = downstream artifacts waiting on this spike
 - Sort: Active first, then by unblock count descending, then by ID
 
-## Section 3: Drafts Needing Review
-
-Artifacts in Proposed status that need human review/approval.
-**Exclude** items already shown in the epic tree or spike table — no duplication.
-
-```
-- **TYPE-NNN**: Title [Status] — what's needed (e.g., "review and approve", "review and decide")
-```
-
-Only show this section if there are items to list.
-
-## Section 4: Blocked Items
+## Section 5: Blocked Items
 
 Only if there are blocked items not already shown in the epic tree.
 
@@ -63,11 +104,15 @@ Only if there are blocked items not already shown in the epic tree.
 - **TYPE-NNN**: Title — blocked on: DEP-NNN (with note if the blocker is actionable)
 ```
 
-## Section 5: Tasks & Issues
+Rules:
+- Group items that share a common blocker under a single entry. State whether
+  the blocker is actionable now.
+
+## Section 6: Tasks & Issues
 
 Brief summary of in-progress tk tasks. Omit if empty.
 
-## Section 6: Open GitHub Issues
+## Section 7: Open GitHub Issues
 
 Table of open GitHub issues. These are external signals — bugs, feature requests,
 or process gaps reported outside the artifact system.
@@ -85,14 +130,27 @@ Rules:
 - If an issue is linked to an artifact (visible in the Linked Issues section), note the artifact ID in parentheses after the title
 - Omit this section if there are no open issues
 
-## Section 7: Follow-up
-
-1-2 actionable suggestions. See the follow-up table in SKILL.md.
-Pick suggestions based on what has the most downstream impact.
-
 ## Full Example
 
 ```markdown
+## Recommendation
+
+**Action:** Approve SPEC-009.
+**Why:** Approving it unblocks SPEC-010 and EPIC-007 — highest downstream leverage of all actionable items.
+
+## Decisions Needed
+
+| Artifact | What's Needed | Unblocks |
+|----------|--------------|----------|
+| **SPEC-009**: Normalize Artifact Frontmatter Relationships | review and approve | SPEC-010, EPIC-007 |
+| **SPIKE-012**: Which artifact types are decision-only? | activate | SPEC-010 |
+
+## Work Ready to Start
+
+| Artifact | Purpose | Unblocks |
+|----------|---------|----------|
+| SPEC-011: Skill Context Footprint Audit | Audit context size across all active skills | EPIC-006 |
+
 ## Epic Progress
 
 | Artifact | Purpose | Readiness |
@@ -113,9 +171,9 @@ Pick suggestions based on what has the most downstream impact.
 | SPIKE-013 | How do agent runtimes expose model selection and effort controls? | Proposed | — |
 | SPIKE-014 | Which skill operations belong to which cognitive load tier? | Proposed | — |
 
-## Drafts Needing Review
+## Blocked Items
 
-- **SPEC-009**: Normalize Artifact Frontmatter Relationships [Proposed] — review and approve
+- **EPIC-007**: Model Routing & Reasoning Effort — blocked on: EPIC-006 (actionable: yes, EPIC-006 has ready specs)
 
 ## Tasks & Issues
 
@@ -130,8 +188,4 @@ No tasks in progress.
 | #28 | VISION-to-VISION deps should not block status | bug |
 | #27 | swain-search: normalize YouTube transcripts to markdown | enhancement |
 | #26 | Spike conclusions not surfaced in final pass | enhancement |
-
----
-
-EPIC-006 has the most downstream impact (unblocks EPIC-007). Ready to pick one up?
 ```
