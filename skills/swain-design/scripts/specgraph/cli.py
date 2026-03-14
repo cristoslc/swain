@@ -56,37 +56,62 @@ def cmd_build(args: argparse.Namespace, repo_root: Path) -> None:
 def cmd_xref(args: argparse.Namespace, repo_root: Path) -> None:
     """Show cross-reference validation results."""
     data = _ensure_cache(repo_root)
+
+    if "xref" not in data:
+        print("Warning: cache has no xref data — run 'specgraph build' to refresh", file=sys.stderr)
+        return
+
     xref = data.get("xref") or []
 
     if getattr(args, "json", False):
         print(json.dumps(xref, indent=2))
         return
 
-    # Human-readable output
-    has_gaps = any(
-        entry.get("body_not_in_frontmatter") or entry.get("frontmatter_not_in_body")
-        for entry in xref
-    )
-    has_reciprocal = any(entry.get("missing_reciprocal") for entry in xref)
+    # === Cross-Reference Gaps ===
+    print("=== Cross-Reference Gaps ===")
+    print()
+    gaps_found = False
+    for entry in xref:
+        if entry.get("body_not_in_frontmatter"):
+            if not gaps_found:
+                gaps_found = True
+            print(f"{entry['artifact']} ({entry.get('file', '')}):")
+            for ref_id in sorted(entry["body_not_in_frontmatter"]):
+                print(f"  -> {ref_id} (mentioned in body, not in frontmatter)")
+            print()
+    if not gaps_found:
+        print("(none)")
+        print()
 
-    if has_gaps:
-        print("=== Cross-Reference Gaps ===")
-        for entry in xref:
-            if entry.get("body_not_in_frontmatter") or entry.get("frontmatter_not_in_body"):
-                print(f"  {entry['artifact']}  ({entry.get('file', '')})")
-                if entry.get("body_not_in_frontmatter"):
-                    print(f"    body not in frontmatter: {', '.join(entry['body_not_in_frontmatter'])}")
-                if entry.get("frontmatter_not_in_body"):
-                    print(f"    frontmatter not in body: {', '.join(entry['frontmatter_not_in_body'])}")
+    # === Missing Reciprocal Edges ===
+    print("=== Missing Reciprocal Edges ===")
+    print()
+    reciprocal_found = False
+    for entry in xref:
+        for gap in entry.get("missing_reciprocal", []):
+            reciprocal_found = True
+            print(
+                f"{entry['artifact']}: should list {gap['from']} in"
+                f" {gap['expected_field']} ({gap['from']} {gap['edge_type']} {entry['artifact']})"
+            )
+    if not reciprocal_found:
+        print("(none)")
+    print()
 
-    if has_reciprocal:
-        print("=== Missing Reciprocal Edges ===")
-        for entry in xref:
-            for gap in entry.get("missing_reciprocal", []):
-                print(
-                    f"  {entry['artifact']} missing {gap['expected_field']} back-link"
-                    f" from {gap['from']} ({gap['edge_type']})"
-                )
+    # === Stale References ===
+    print("=== Stale References ===")
+    print()
+    stale_found = False
+    for entry in xref:
+        if entry.get("frontmatter_not_in_body"):
+            if not stale_found:
+                stale_found = True
+            print(f"{entry['artifact']} ({entry.get('file', '')}):")
+            for ref_id in sorted(entry["frontmatter_not_in_body"]):
+                print(f"  -> {ref_id} (declared in frontmatter, not in body)")
+            print()
+    if not stale_found:
+        print("(none)")
 
 
 def main(argv: list[str] | None = None) -> None:
