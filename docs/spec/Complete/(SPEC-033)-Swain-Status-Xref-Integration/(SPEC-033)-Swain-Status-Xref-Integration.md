@@ -76,6 +76,11 @@ When xref gaps exist, add to the follow-up suggestions:
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| 1. Cache with xref discrepancies → Cross-Reference Gaps section appears | swa-fy5d integration test: 67 xref gaps rendered in terminal output | ✅ |
+| 2. No discrepancies → section omitted | Conditional rendering based on xref_count > 0 | ✅ |
+| 3. Agent summary template has xref table | references/agent-summary-template.md updated with Cross-Reference Gaps section | ✅ |
+| 4. --compact shows xref: N gaps | swa-fy5d verified: "xref: 67 gaps" in compact output | ✅ |
+| 5. specgraph path updated to .py | SPECGRAPH variable at line 21 points to specgraph.py | ✅ |
 
 ## Scope & Constraints
 
@@ -103,3 +108,5 @@ When xref gaps exist, add to the follow-up suggestions:
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
+| Active | 2026-03-14 | acf66cf | Implementation started — specgraph path update and xref template |
+| Complete | 2026-03-14 | c51ed6d | xref integration verified — 67 gaps surfaced, compact mode shows count, bug in missing_reciprocal rendering fixed |
