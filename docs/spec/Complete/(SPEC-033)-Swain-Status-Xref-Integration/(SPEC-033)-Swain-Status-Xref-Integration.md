@@ -2,7 +2,7 @@
 title: "swain-status xref Integration"
 artifact: SPEC-033
 track: implementable
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
