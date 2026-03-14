@@ -178,7 +178,7 @@ collect_artifacts() {
       ([$edges[] | select(.to == $id and .type == "depends-on") | .from] |
         map(select(. as $dep | $nodes[$dep] != null and ($nodes[$dep] | is_resolved | not))) |
         unique) as $unblocks |
-      {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, description: .value.description, unblocks: $unblocks}
+      {id: .key, status: .value.status, title: .value.title, type: .value.type, file: .value.file, description: .value.description, unblocks: $unblocks, unblock_count: ($unblocks | length)}
     ] | sort_by(-(.unblocks | length), .id)) as $ready |
 
     # Blocked: deps not yet satisfied (still in Proposed or legacy Draft/Planned/Review)
