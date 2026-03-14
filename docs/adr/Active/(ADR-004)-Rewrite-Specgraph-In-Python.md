@@ -1,10 +1,10 @@
 ---
 title: "Rewrite Specgraph in Python"
 artifact: ADR-004
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-13
-last-updated: 2026-03-13
+last-updated: 2026-03-14
 linked-artifacts:
   - EPIC-013
   - ADR-003
@@ -73,3 +73,4 @@ Rewrite specgraph as a Python module at `skills/swain-design/scripts/specgraph.p
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
+| Active | 2026-03-14 | — | Decision adopted |
