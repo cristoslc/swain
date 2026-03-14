@@ -18,7 +18,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   exit 1
 }
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SPECGRAPH="$SCRIPT_DIR/../../swain-design/scripts/specgraph.sh"
+SPECGRAPH="$SCRIPT_DIR/../../swain-design/scripts/specgraph.py"
 
 PROJECT_NAME="$(basename "$REPO_ROOT")"
 SETTINGS_PROJECT="$REPO_ROOT/swain.settings.json"
@@ -134,7 +134,7 @@ collect_git() {
 collect_artifacts() {
   # Ensure specgraph cache is fresh
   if [[ -x "$SPECGRAPH" ]] || [[ -f "$SPECGRAPH" ]]; then
-    bash "$SPECGRAPH" build >/dev/null 2>&1 || true
+    python3 "$SPECGRAPH" build >/dev/null 2>&1 || true
   fi
 
   # Read specgraph cache
@@ -143,11 +143,22 @@ collect_artifacts() {
   local SG_CACHE="/tmp/agents-specgraph-${REPO_HASH}.json"
 
   if [[ ! -f "$SG_CACHE" ]]; then
-    echo '{"ready":[],"blocked":[],"epics":{},"counts":{"total":0,"resolved":0,"ready":0,"blocked":0}}'
+    echo '{"ready":[],"blocked":[],"epics":{},"counts":{"total":0,"resolved":0,"ready":0,"blocked":0},"xref":[],"xref_gap_count":0}'
     return
   fi
 
-  jq '
+  # Extract xref data from specgraph cache (empty array if key absent)
+  local SG_XREF
+  SG_XREF=$(jq -c '.xref // []' "$SG_CACHE" 2>/dev/null || echo '[]')
+
+  # Count artifacts with at least one discrepancy
+  local XREF_GAP_COUNT
+  XREF_GAP_COUNT=$(echo "$SG_XREF" | jq 'length' 2>/dev/null || echo 0)
+
+  jq \
+    --argjson xref "$SG_XREF" \
+    --argjson xref_gap_count "$XREF_GAP_COUNT" \
+    '
     def is_status_resolved: test("Complete|Retired|Superseded|Abandoned|Implemented|Adopted|Validated|Archived|Sunset|Deprecated|Verified|Declined");
     def is_resolved: (.status | is_status_resolved) or ((.type | test("VISION|JOURNEY|PERSONA|ADR|RUNBOOK|DESIGN")) and .status == "Active");
     # A dependency is satisfied once its target moves past initial planning phases.
@@ -232,7 +243,9 @@ collect_artifacts() {
         resolved: $resolved,
         ready: ($ready | length),
         blocked: ($blocked | length)
-      }
+      },
+      xref: $xref,
+      xref_gap_count: $xref_gap_count
     }
   ' "$SG_CACHE"
 }
@@ -737,6 +750,34 @@ render_full() {
     echo ""
   fi
 
+  # --- Cross-Reference Gaps ---
+  local xref_count
+  xref_count=$(echo "$data" | jq -r '.artifacts.xref | length // 0')
+
+  if [[ "$xref_count" -gt 0 ]]; then
+    echo "## Cross-Reference Gaps"
+    echo ""
+    echo "$data" | jq -r --arg repo "$REPO_ROOT" --arg osc8 "$_USE_OSC8" '
+      def art_link($aid; $file):
+        if $file != null and $file != "" and $osc8 == "true" then
+          "\u001b]8;;file://\($repo)/\($file)\u001b\\\($aid)\u001b]8;;\u001b\\"
+        else $aid end;
+      .artifacts.xref[] |
+      . as $entry |
+      "- \(art_link($entry.artifact; $entry.file))" +
+      (if $entry.body_not_in_frontmatter and ($entry.body_not_in_frontmatter | length) > 0 then
+        "\n  undeclared: \($entry.body_not_in_frontmatter | join(", "))"
+      else "" end) +
+      (if $entry.frontmatter_not_in_body and ($entry.frontmatter_not_in_body | length) > 0 then
+        "\n  undeclared (reverse): \($entry.frontmatter_not_in_body | join(", "))"
+      else "" end) +
+      (if $entry.missing_reciprocal and ($entry.missing_reciprocal | length) > 0 then
+        "\n  missing reciprocal: \($entry.missing_reciprocal | map(.from) | join(", "))"
+      else "" end)
+    '
+    echo ""
+  fi
+
   # --- Artifact counts footer ---
   local total resolved ready blocked
   total=$(echo "$data" | jq -r '.artifacts.counts.total')
@@ -786,12 +827,19 @@ render_compact() {
   local issue_count
   issue_count=$(echo "$data" | jq -r '.issues.assigned | length // 0')
 
+  # Xref gap count
+  local xref_gap_count
+  xref_gap_count=$(echo "$data" | jq -r '.artifacts.xref_gap_count // 0')
+
   echo "${branch} (${dirty})"
   echo "epic: ${epic_summary}"
   echo "task: ${task_line}"
   echo "ready: ${ready_count} actionable"
   if [[ "$issue_count" -gt 0 ]]; then
     echo "issues: ${issue_count} assigned"
+  fi
+  if [[ "$xref_gap_count" -gt 0 ]]; then
+    echo "xref: ${xref_gap_count} gaps"
   fi
 }
 
