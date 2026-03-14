@@ -1,7 +1,7 @@
 ---
 title: "MOTD Uncommitted File Display and Interactive Commit Button"
 artifact: SPEC-042
-status: Proposed
+status: Ready
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -75,3 +75,4 @@ A clickable button (or keybind) in the Textual TUI labeled **"Commit & Push"** (
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Initial creation from EPIC-011 decomposition; linked to GitHub #13 |
+| Ready | 2026-03-14 | — | Approved by operator |
