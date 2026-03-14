@@ -1,10 +1,10 @@
 ---
 title: "Specgraph Query Commands"
 artifact: SPEC-031
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-13
-last-updated: 2026-03-13
+last-updated: 2026-03-14
 type: feature
 parent-epic: EPIC-013
 linked-artifacts:
@@ -90,3 +90,4 @@ All subcommands read from the specgraph cache (auto-rebuilding if stale) and wri
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
+| Complete | 2026-03-14 | 6eb4eea | All 13 query subcommands shipped in specgraph.py. 118 tests passing. |

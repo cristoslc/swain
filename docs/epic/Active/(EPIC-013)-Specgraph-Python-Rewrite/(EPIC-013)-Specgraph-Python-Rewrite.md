@@ -1,10 +1,10 @@
 ---
 title: "Specgraph Python Rewrite"
 artifact: EPIC-013
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-13
-last-updated: 2026-03-13
+last-updated: 2026-03-14
 parent-vision: VISION-001
 success-criteria:
   - specgraph.py passes all existing bash specgraph subcommands with identical output (modulo whitespace)
@@ -87,3 +87,4 @@ _Updated as Agent Specs are created under this epic._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
+| Active | 2026-03-14 | 6eb4eea | SPEC-030 and SPEC-031 complete; SPEC-032 and SPEC-033 in progress. |

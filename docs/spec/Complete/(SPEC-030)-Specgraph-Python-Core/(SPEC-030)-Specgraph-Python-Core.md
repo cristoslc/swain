@@ -1,10 +1,10 @@
 ---
 title: "Specgraph Python Core"
 artifact: SPEC-030
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-13
-last-updated: 2026-03-13
+last-updated: 2026-03-14
 type: feature
 parent-epic: EPIC-013
 linked-artifacts:
@@ -108,3 +108,4 @@ skills/swain-design/scripts/
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
+| Complete | 2026-03-14 | 6eb4eea | Shipped with Python specgraph package: parser, graph, cache, CLI dispatch. 118 tests passing. |
