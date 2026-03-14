@@ -1,7 +1,7 @@
 ---
 title: "swain-doctor: stale worktree detection"
 artifact: SPEC-044
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -112,3 +112,4 @@ TDD cycles:
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation under EPIC-015; depends on SPEC-039 and SPEC-043 |
 | Ready | 2026-03-14 | — | Approved |
+| Complete | 2026-03-14 | 984dd27 | Stale worktree detection check added to swain-doctor SKILL.md (v2.3.0) |

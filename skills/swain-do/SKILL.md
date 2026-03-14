@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Bootstrap and operate external task tracking
-  version: 3.0.0
+  version: 3.1.0
   author: cristos
   source: swain
 ---
@@ -114,6 +114,34 @@ When a superpowers plan file exists, use the ingestion script (`skills/swain-do/
 ## Execution strategy
 
 Selects serial vs. subagent-driven execution based on superpowers availability and task complexity. Read [references/execution-strategy.md](references/execution-strategy.md) for the decision tree, detection commands, and worktree-artifact mapping.
+
+## Worktree isolation preamble
+
+Before any implementation or execution operation (plan creation, task claim, code writing, execution handoff), run this detection:
+
+```bash
+GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+[ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
+```
+
+**Read-only operations** (`tk ready`, `tk show`, status checks, task queries) skip this check entirely — proceed in the current context.
+
+**If `IN_WORKTREE=yes`:** already isolated. Proceed normally.
+
+**If `IN_WORKTREE=no`** (main worktree) and the operation is implementation or execution:
+
+1. Detect superpowers:
+   ```bash
+   ls .agents/skills/using-git-worktrees/SKILL.md .claude/skills/using-git-worktrees/SKILL.md 2>/dev/null | head -1
+   ```
+2. If **superpowers absent** — stop. Report:
+   > Worktree isolation requires the `using-git-worktrees` superpowers skill. Install superpowers first, then retry.
+   Do not begin implementation work.
+
+3. If **superpowers present** — invoke the `using-git-worktrees` skill to create a linked worktree, then hand off execution into that worktree.
+
+4. If **worktree creation fails** — stop. Surface the error message from `using-git-worktrees` to the operator. Do not begin implementation work.
 
 ## Fallback
 
