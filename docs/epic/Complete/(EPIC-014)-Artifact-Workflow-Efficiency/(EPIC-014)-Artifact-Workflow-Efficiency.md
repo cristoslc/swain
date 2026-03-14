@@ -2,7 +2,7 @@
 title: "Artifact Workflow Efficiency"
 artifact: EPIC-014
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -40,9 +40,9 @@ Out of scope:
 
 ## Child Specs
 
-- SPEC-045: Fast-path authoring mode — tier detection and selective ceremony skipping
-- SPEC-046: Inline lifecycle hash stamping — fold stamp into transition commit for trivial artifacts
-- SPEC-047: Lazy index refresh — skip per-artifact list-*.md updates; batch rebuild at session end
+- SPEC-045: Fast-path authoring mode — tier detection and selective ceremony skipping ✅
+- SPEC-046: Inline lifecycle hash stamping — fold stamp into transition commit for trivial artifacts ✅
+- SPEC-047: Lazy index refresh — skip per-artifact list-*.md updates; batch rebuild at session end ✅
 
 ## Key Dependencies
 
@@ -54,3 +54,4 @@ SPIKE-018 must complete before implementation specs are written — the spike de
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation |
 | Active | 2026-03-14 | 6f26e1bf8ca11faad9d98ae8a57390c65b571d6c | Transition to Active |
+| Complete | 2026-03-14 | -- | All 3 child specs done: fast-path, inline stamp, lazy index |
