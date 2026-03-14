@@ -2,7 +2,7 @@
 title: "Fast-Path Authoring Mode for Low-Complexity Artifacts"
 artifact: SPEC-045
 track: implementable
-status: Proposed
+status: Ready
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -97,4 +97,5 @@ No prompt or confirmation required — the tier detection is automatic.
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-14 | -- | Initial creation from EPIC-014 decomposition; SPIKE-018 findings confirmed GO |
+| Proposed | 2026-03-14 | c0e77ed2b6f273cb273a6e9c011149c13831c18c | Initial creation from EPIC-014 decomposition; SPIKE-018 findings confirmed GO |
+| Ready | 2026-03-14 | c0e77ed | Approved — SPIKE-018 findings reviewed, GO confirmed |
