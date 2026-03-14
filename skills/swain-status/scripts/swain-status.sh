@@ -772,7 +772,7 @@ render_full() {
         "\n  undeclared (reverse): \($entry.frontmatter_not_in_body | join(", "))"
       else "" end) +
       (if $entry.missing_reciprocal and ($entry.missing_reciprocal | length) > 0 then
-        "\n  missing reciprocal: \($entry.missing_reciprocal | map(.target // .) | join(", "))"
+        "\n  missing reciprocal: \($entry.missing_reciprocal | map(.from) | join(", "))"
       else "" end)
     '
     echo ""
