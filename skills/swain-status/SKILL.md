@@ -30,7 +30,7 @@ If the path search fails, glob for `**/swain-status/scripts/swain-status.sh`.
 
 The script's terminal output uses OSC 8 hyperlinks for clickable artifact links. Let the terminal output scroll by — it is reference data, not the primary output.
 
-**After the script runs, present a structured agent summary** following the template in `references/agent-summary-template.md`. The agent summary is what the user reads for decision-making. It must use tables (not bullet lists) so the user can scan and compare at a glance.
+**After the script runs, present a structured agent summary** following the template in `references/agent-summary-template.md`. The agent summary is what the user reads for decision-making. It must lead with a Recommendation section (see below), then Decisions Needed, then Work Ready to Start, then reference data — following the template in `references/agent-summary-template.md`.
 
 The script collects from five data sources:
 
@@ -64,19 +64,25 @@ The script writes a JSON cache to the Claude Code memory directory:
 
 The MOTD can read this cache cheaply between full refreshes.
 
-## Follow-up actions
+## Recommendation
 
-After presenting status, suggest relevant next steps based on what the data shows:
+The first thing the operator reads must be a single ranked recommendation — not a follow-up footnote, not a list of options.
 
-| Condition | Suggestion |
-|-----------|------------|
-| Actionable items exist | "Ready to pick one up? Tell me which artifact to work on." |
-| Blocked items exist | "Want to look at what's blocking {ID}?" |
-| GitHub issues assigned | "Want to triage your assigned issues?" |
-| No active tasks | "No tasks in progress. Want to start one from the ready list?" |
-| Session bookmark exists | "Want to pick up where you left off?" |
+**How to generate:**
+1. From `.artifacts.ready[]` in the JSON cache, pick the item with the highest `unblock_count` (precomputed — no need to compute length)
+2. If there are ties, prefer decision-type artifacts (ADR, SPEC needing review) over implementation items
+3. Write exactly one `**Action:**` sentence (e.g., "Approve SPEC-030")
+4. Write exactly one `**Why:**` sentence naming unblock count and artifact IDs (e.g., "Approving it unblocks SPEC-031, SPEC-032, SPEC-033 — highest downstream leverage of all actionable items.")
+5. If no ready items exist, omit the section entirely
 
-Offer one or two suggestions, not all of them.
+Do NOT offer multiple options. One recommendation, one reason.
+
+## Active epics with all specs resolved
+
+When an Active epic has `progress.done == progress.total`:
+- Show "→ ready to close" in the Readiness column of the Epic Progress table
+- Do NOT show it in the Work Ready to Start bucket (it's not implementation work)
+- Do NOT show it as "work on child specs"
 
 ## Settings
 
