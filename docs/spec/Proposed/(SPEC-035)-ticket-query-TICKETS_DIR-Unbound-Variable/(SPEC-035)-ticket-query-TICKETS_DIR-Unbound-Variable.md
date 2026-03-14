@@ -6,8 +6,9 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 type: bug
-parent-epic: ""
-linked-artifacts: []
+parent-epic: "EPIC-014"
+linked-artifacts:
+  - EPIC-014
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
