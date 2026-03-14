@@ -116,6 +116,33 @@ done
 - **repaired** — migration script ran successfully
 - **warning** — old directories found, user chose not to migrate now
 
+## Superpowers detection
+
+Check whether superpowers skills are installed:
+
+```bash
+SUPERPOWERS_SKILLS="brainstorming writing-plans test-driven-development verification-before-completion subagent-driven-development executing-plans"
+found=0
+missing=0
+missing_names=""
+for skill in $SUPERPOWERS_SKILLS; do
+  if ls .agents/skills/$skill/SKILL.md .claude/skills/$skill/SKILL.md 2>/dev/null | head -1 | grep -q .; then
+    found=$((found + 1))
+  else
+    missing=$((missing + 1))
+    missing_names="$missing_names $skill"
+  fi
+done
+```
+
+### Status values
+
+- **ok** — all superpowers skills detected
+- **warning** — some or all superpowers skills missing. Report which are missing and note: "Superpowers provides brainstorming, TDD, plan writing, and verification skills that chain with swain-design and swain-do. Install with: `npx @anthropic/claude-code-skills add obra/superpowers`"
+- **partial** — some skills present, some missing. List the missing ones — a partial install may indicate a failed update.
+
+Superpowers is strongly recommended but not required. This is always a warning, never a blocker.
+
 ## Summary report
 
 After all checks complete, output a concise summary table:
@@ -134,6 +161,7 @@ swain-doctor summary:
   .agents directory .. ok
   Status cache ....... seeded
   tk health .......... ok
+  Superpowers ........ ok (6/6 skills detected)
 
 3 checks performed repairs. 0 issues remain.
 ```

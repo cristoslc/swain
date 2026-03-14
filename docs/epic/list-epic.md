@@ -7,6 +7,7 @@
 | EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
 | EPIC-013 | Specgraph Python Rewrite | 2026-03-13 | — |
 | EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | — |
+| EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | — |
 
 ## Active
 

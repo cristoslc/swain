@@ -79,6 +79,18 @@ if find .claude/skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -
   issues+=("scripts missing executable permission")
 fi
 
+# 10. Superpowers detection (advisory — warn but don't fail)
+SUPERPOWERS_SKILLS="brainstorming writing-plans test-driven-development verification-before-completion subagent-driven-development executing-plans"
+sp_missing=0
+for skill in $SUPERPOWERS_SKILLS; do
+  if ! ls .agents/skills/$skill/SKILL.md .claude/skills/$skill/SKILL.md 2>/dev/null | head -1 | grep -q .; then
+    sp_missing=$((sp_missing + 1))
+  fi
+done
+if [[ $sp_missing -gt 0 ]]; then
+  echo "swain-preflight: superpowers: $sp_missing/6 skills missing (advisory)"
+fi
+
 # Report
 if [[ ${#issues[@]} -eq 0 ]]; then
   exit 0

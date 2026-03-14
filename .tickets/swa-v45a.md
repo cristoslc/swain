@@ -6,7 +6,7 @@ links: []
 created: 2026-03-13T23:27:02Z
 type: task
 priority: 1
-assignee: cristos
+assignee: Cristos L-C
 parent: swa-n4vm
 tags: [spec:SPEC-031]
 ---
@@ -17,6 +17,6 @@ Implement as pure functions in a new queries.py module. Each takes nodes dict + 
 
 ## Notes
 
-**2026-03-14T05:04:14Z**
+**2026-03-14T05:19:49Z**
 
-Completed: blocks/blocked-by/tree/edges implemented in queries.py with tests.
+Completed: blocks/blocked-by/tree/edges implemented in queries.py — sorted output, all tests passing, commit d8839d4

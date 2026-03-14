@@ -6,7 +6,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 type: enhancement
-parent-epic: ""
+parent-epic: EPIC-015
 linked-artifacts:
   - ADR-005
 depends-on-artifacts: []
