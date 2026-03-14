@@ -83,4 +83,4 @@ A clickable button (or keybind) in the Textual TUI labeled **"Commit & Push"** (
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Initial creation from EPIC-011 decomposition; linked to GitHub #13 |
 | Ready | 2026-03-14 | 51c037cc8fcc36538b69a893865fc63c06b459cb | Approved by operator |
-| Complete | 2026-03-14 | 2f617a603c57093804403720de1a15332952ef13 | staged/unstaged DataLines, Commit & Push Button widget, tmux split-window handler, TMUX guard — all 7 ACs verified |
+| Complete | 2026-03-14 | ec401e5 | staged/unstaged DataLines, Commit & Push Button widget, tmux split-window handler, TMUX guard — all 7 ACs verified |

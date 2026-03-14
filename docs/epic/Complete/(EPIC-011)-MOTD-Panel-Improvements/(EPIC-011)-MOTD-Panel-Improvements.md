@@ -2,7 +2,7 @@
 title: "MOTD Panel Improvements"
 artifact: EPIC-011
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-14
@@ -52,3 +52,4 @@ Make the MOTD panel a responsive, interactive dashboard that accurately reflects
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | ea0d165 | Initial creation, groups #16, #13, and swain-6oa |
 | Active | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Activated and decomposed into SPEC-040, SPEC-041, SPEC-042 |
+| Complete | 2026-03-14 | -- | All 3 child SPECs Complete: SPEC-040, SPEC-041, SPEC-042 |
