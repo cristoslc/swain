@@ -4,7 +4,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-039 | swain-sync: worktree-aware execution | 2026-03-14 | — |
 
 ## Active
 
@@ -22,6 +21,7 @@
 | SPEC-036 | swain-status Decision Support | 2026-03-14 | b4037a0 |
 | SPEC-037 | Specgraph ready Leaks Standing-Track Artifacts | 2026-03-14 | b4037a0 |
 | SPEC-038 | Dynamic Track Resolution from Artifact Frontmatter | 2026-03-14 | b4037a0 |
+| SPEC-039 | swain-sync: worktree-aware execution | 2026-03-14 | 592da6c |
 
 ## Complete
 
