@@ -39,8 +39,6 @@ import re
 import subprocess
 from pathlib import Path
 
-import pytest
-
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 SPECGRAPH = SCRIPTS_DIR / "specgraph.py"
 
@@ -273,9 +271,13 @@ class TestImpact:
     def test_impact_total_is_sum_of_direct_and_chains(self):
         """TOTAL should equal DIRECT + AFFECTED CHAINS."""
         result = run_specgraph(["impact", "SPEC-030"])
-        direct = int(re.search(r"^DIRECT: (\d+)", result, re.MULTILINE).group(1))
-        chains = int(re.search(r"^AFFECTED CHAINS: (\d+)", result, re.MULTILINE).group(1))
-        total = int(re.search(r"^TOTAL: (\d+)", result, re.MULTILINE).group(1))
+        m_direct = re.search(r"^DIRECT: (\d+)", result, re.MULTILINE)
+        m_chains = re.search(r"^AFFECTED CHAINS: (\d+)", result, re.MULTILINE)
+        m_total = re.search(r"^TOTAL: (\d+)", result, re.MULTILINE)
+        assert m_direct and m_chains and m_total, "Expected DIRECT/AFFECTED CHAINS/TOTAL lines in output"
+        direct = int(m_direct.group(1))
+        chains = int(m_chains.group(1))
+        total = int(m_total.group(1))
         assert total == direct + chains, (
             f"TOTAL ({total}) should equal DIRECT ({direct}) + AFFECTED CHAINS ({chains})"
         )
