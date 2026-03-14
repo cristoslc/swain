@@ -5,7 +5,10 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "add SPEC-047; fix list-spec.md SPEC-045/046",
-    "timestamp": "2026-03-14T06:59:24Z"
+    "note": "complete EPIC-005 (Isolated Claude Code Environment) — SPEC-048 Tier1 sandbox and SPEC-049 Tier2 Docker runner delivered",
+    "files": [
+      "docs/epic/Complete/(EPIC-005)-Isolated-Claude-Code-Environment/(EPIC-005)-Containerized-Claude-Code-Environment.md"
+    ],
+    "timestamp": "2026-03-14T07:14:40Z"
   }
 }
