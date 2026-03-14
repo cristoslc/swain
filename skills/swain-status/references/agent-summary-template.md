@@ -12,7 +12,10 @@ anything else. Reference data (Epic Progress, Spikes, Blocked) comes after.
 ## Section 0: Recommendation
 
 Pick the single ready artifact with the highest `unblock_count` from
-`.artifacts.ready[]` in the JSON cache. Write exactly two sentences:
+`.artifacts.ready[]` in the JSON cache. If multiple items tie on `unblock_count`,
+prefer decision-type artifacts (Proposed specs, ADRs) over implementation items —
+a human-gated decision is more valuable to unblock than an agent-executable task.
+Write exactly two sentences:
 
 - **Action:** One sentence naming the action (e.g., "Approve SPEC-030.")
 - **Why:** One sentence naming the unblock count and the artifact IDs that
@@ -29,6 +32,7 @@ highest-leverage decisions appear first. Includes:
 - Proposed/Draft specs needing review
 - Proposed ADRs needing acceptance
 - Proposed spikes needing activation
+- For the full type/phase classification (including VISION, JOURNEY, EPIC in Proposed state, PERSONA, DESIGN), see the `is_decision` definition in SKILL.md.
 
 ```
 | Artifact | What's Needed | Unblocks |
@@ -79,7 +83,6 @@ Rules:
 - Readiness = current status + what needs to happen next
 - Epics with no children: readiness = "Needs decomposition into specs"
 - Epics/specs that are blocked: note what they're blocked on
-- Omit the Status column from the epic table in SKILL.md — readiness subsumes it
 
 ## Section 4: Research (Spikes)
 
