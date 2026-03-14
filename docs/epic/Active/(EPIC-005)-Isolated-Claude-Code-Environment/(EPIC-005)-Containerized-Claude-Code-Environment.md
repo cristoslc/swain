@@ -58,4 +58,4 @@ The isolation mechanism (Docker container, microVM, or other) is an open questio
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-12 | — | Initial creation |
-| Active | 2026-03-14 | -- | SPIKE-009 complete; decomposed into SPEC-048 and SPEC-049 |
+| Active | 2026-03-14 | cded412 | SPIKE-009 complete; decomposed into SPEC-048 and SPEC-049 |
