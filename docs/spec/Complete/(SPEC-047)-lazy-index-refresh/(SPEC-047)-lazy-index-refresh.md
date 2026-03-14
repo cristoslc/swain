@@ -2,7 +2,7 @@
 title: "Lazy Index Refresh for list-*.md Artifact Indices"
 artifact: SPEC-047
 track: implementable
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -72,3 +72,4 @@ The index schema is unchanged. The batch refresh is idempotent (safe to run mult
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | c0e77ed | Initial creation from SPIKE-018 GO decision |
 | Ready | 2026-03-14 | c0e77ed | Approved — lazy index refresh complements fast-path and inline stamp |
+| Complete | 2026-03-14 | b4892cd | Fast-path tier detection and lazy index rebuild.sh implemented; swain-design SKILL.md updated |
