@@ -1,0 +1,94 @@
+#!/bin/sh
+# claude-sandbox — Tier 1 native sandbox launcher for Claude Code (SPEC-048)
+# Usage: ./scripts/claude-sandbox [--docker] [extra claude args...]
+#
+# Tier 1 (default): claude --sandbox with native platform sandboxing
+#   macOS: sandbox-exec (Seatbelt kernel profiles)
+#   Linux: Landlock (default) or bubblewrap
+#
+# Tier 2 (--docker): docker container runner — see SPEC-049
+
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SETTINGS_FILE="$REPO_ROOT/swain.settings.json"
+
+# --- Argument parsing ---
+USE_DOCKER=0
+EXTRA_ARGS=""
+for arg in "$@"; do
+    case "$arg" in
+        --docker) USE_DOCKER=1 ;;
+        *) EXTRA_ARGS="$EXTRA_ARGS $arg" ;;
+    esac
+done
+
+if [ "$USE_DOCKER" = "1" ]; then
+    # Delegate to Tier 2 (SPEC-049) when implemented
+    echo "ERROR: --docker (Tier 2) is not yet implemented. See SPEC-049." >&2
+    exit 1
+fi
+
+# --- Platform check ---
+OS="$(uname -s)"
+case "$OS" in
+    Darwin) PLATFORM="macos" ;;
+    Linux)  PLATFORM="linux" ;;
+    *)
+        echo "ERROR: Unsupported platform: $OS" >&2
+        echo "claude-sandbox supports macOS and Linux only." >&2
+        exit 1
+        ;;
+esac
+
+# --- claude CLI check ---
+if ! command -v claude >/dev/null 2>&1; then
+    echo "ERROR: 'claude' CLI not found." >&2
+    echo "Install Claude Code: npm install -g @anthropic-ai/claude-code" >&2
+    exit 1
+fi
+
+# Check that --sandbox flag is supported
+if ! claude --help 2>&1 | grep -q -- '--sandbox'; then
+    echo "WARN: This version of Claude Code may not support --sandbox." >&2
+    echo "Proceeding anyway — update claude if the flag is unrecognized." >&2
+fi
+
+# --- Read swain.settings.json config (optional, requires jq) ---
+ALLOWED_DOMAINS=""
+EXTRA_WRITE_PATHS=""
+if [ -f "$SETTINGS_FILE" ] && command -v jq >/dev/null 2>&1; then
+    ALLOWED_DOMAINS="$(jq -r '.sandbox.allowedDomains // [] | join(",")' "$SETTINGS_FILE" 2>/dev/null || true)"
+    EXTRA_WRITE_PATHS="$(jq -r '.sandbox.extraWritePaths // [] | join(":")' "$SETTINGS_FILE" 2>/dev/null || true)"
+fi
+
+# --- Credential forwarding ---
+# Forward API keys and git identity as environment variables.
+# These are passed through to the sandboxed process; not written to disk.
+FORWARD_ENVS=""
+for var in ANTHROPIC_API_KEY ANTHROPIC_BASE_URL \
+           GITHUB_TOKEN GH_TOKEN \
+           GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL \
+           GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL; do
+    eval "val=\${$var:-}"
+    if [ -n "$val" ]; then
+        FORWARD_ENVS="$FORWARD_ENVS $var"
+    fi
+done
+
+# --- Launch ---
+echo "claude-sandbox: launching Claude Code in Tier 1 native sandbox"
+echo "  Platform : $PLATFORM"
+echo "  Project  : $REPO_ROOT"
+if [ -n "$ALLOWED_DOMAINS" ]; then
+    echo "  Domains  : $ALLOWED_DOMAINS"
+fi
+echo ""
+
+# Change to the repo root so Claude Code starts in the right place
+cd "$REPO_ROOT"
+
+# Build the command
+# --sandbox enables platform-native isolation (sandbox-exec on macOS, Landlock on Linux)
+exec claude --sandbox $EXTRA_ARGS

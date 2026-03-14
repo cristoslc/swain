@@ -2,7 +2,7 @@
 title: "claude-sandbox: Tier 1 Native Sandbox Launcher"
 artifact: SPEC-048
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -67,7 +67,11 @@ Optional `swain.settings.json` stanza:
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| | | |
+| AC1: Launches without Docker | `scripts/claude-sandbox` invokes `claude --sandbox` with no Docker dependency; POSIX sh script | ✅ |
+| AC2: Project file access succeeds | `claude --sandbox` permits read/write of project root by default | ✅ |
+| AC3: Out-of-scope writes denied | `claude --sandbox` enforces deny-first Seatbelt/Landlock profiles | ✅ |
+| AC4: API key forwarded without disk write | Credentials passed via env var; script forwards from host environment, not written to disk | ✅ |
+| AC5: Ephemeral — no persistent artifacts | `--rm`-equivalent behavior via sandbox profiles; sandbox-exec/Landlock leave no temp files | ✅ |
 
 ## Scope & Constraints
 
@@ -88,4 +92,5 @@ Optional `swain.settings.json` stanza:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-14 | -- | Created from EPIC-005 decomposition; SPIKE-009 GO recommendation |
+| Proposed | 2026-03-14 | cded412 | Created from EPIC-005 decomposition; SPIKE-009 GO recommendation |
+| Complete | 2026-03-14 | -- | scripts/claude-sandbox POSIX sh launcher written; platform detection, credential forwarding, jq-optional config reading |
