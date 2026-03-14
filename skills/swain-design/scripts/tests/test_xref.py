@@ -446,3 +446,156 @@ class TestComputeXrefPipeline:
         assert result == []
 
 
+# ---------------------------------------------------------------------------
+# swa-5ckf — xref subcommand tests
+# ---------------------------------------------------------------------------
+
+
+class TestCmdXrefNoData:
+    """cmd_xref with empty xref cache outputs nothing meaningful."""
+
+    def test_no_xref_data_outputs_nothing(self):
+        """When cache has no xref key or empty list, cmd_xref produces no output."""
+        from specgraph.cli import cmd_xref
+
+        cache_data = {"nodes": {}, "edges": [], "xref": []}
+
+        args = argparse.Namespace(json=False)
+        with unittest.mock.patch(
+            "specgraph.cli._ensure_cache", return_value=cache_data
+        ):
+            captured = io.StringIO()
+            with unittest.mock.patch("sys.stdout", captured):
+                cmd_xref(args, Path("/fake/repo"))
+        output = captured.getvalue()
+        assert "SPEC-" not in output or output.strip() == ""
+
+
+class TestCmdXrefBodyNotInFrontmatter:
+    """cmd_xref with body_not_in_frontmatter data shows Cross-Reference Gaps section."""
+
+    def test_body_not_in_frontmatter_section_shown(self):
+        """Output contains 'Cross-Reference Gaps' and the artifact ID."""
+        from specgraph.cli import cmd_xref
+
+        xref_data = [
+            {
+                "artifact": "SPEC-001",
+                "file": "docs/spec-001.md",
+                "body_not_in_frontmatter": ["EPIC-005"],
+                "frontmatter_not_in_body": [],
+                "missing_reciprocal": [],
+            }
+        ]
+        cache_data = {"nodes": {}, "edges": [], "xref": xref_data}
+        args = argparse.Namespace(json=False)
+        with unittest.mock.patch(
+            "specgraph.cli._ensure_cache", return_value=cache_data
+        ):
+            captured = io.StringIO()
+            with unittest.mock.patch("sys.stdout", captured):
+                cmd_xref(args, Path("/fake/repo"))
+        output = captured.getvalue()
+        assert "Cross-Reference Gaps" in output
+        assert "SPEC-001" in output
+
+
+class TestCmdXrefMissingReciprocal:
+    """cmd_xref with missing_reciprocal data shows Missing Reciprocal Edges section."""
+
+    def test_missing_reciprocal_section_shown(self):
+        """Output contains 'Missing Reciprocal Edges' when missing_reciprocal is non-empty."""
+        from specgraph.cli import cmd_xref
+
+        xref_data = [
+            {
+                "artifact": "EPIC-005",
+                "file": "docs/epic-005.md",
+                "body_not_in_frontmatter": [],
+                "frontmatter_not_in_body": [],
+                "missing_reciprocal": [
+                    {
+                        "from": "SPEC-001",
+                        "edge_type": "depends-on",
+                        "expected_field": "linked-artifacts",
+                    }
+                ],
+            }
+        ]
+        cache_data = {"nodes": {}, "edges": [], "xref": xref_data}
+        args = argparse.Namespace(json=False)
+        with unittest.mock.patch(
+            "specgraph.cli._ensure_cache", return_value=cache_data
+        ):
+            captured = io.StringIO()
+            with unittest.mock.patch("sys.stdout", captured):
+                cmd_xref(args, Path("/fake/repo"))
+        output = captured.getvalue()
+        assert "Missing Reciprocal Edges" in output
+
+
+class TestCmdXrefJsonFlag:
+    """cmd_xref with --json flag outputs raw JSON array."""
+
+    def test_json_flag_outputs_json_array(self):
+        """With json=True, output is parseable JSON and not the human-readable format."""
+        import json as json_mod
+
+        from specgraph.cli import cmd_xref
+
+        xref_data = [
+            {
+                "artifact": "SPEC-001",
+                "file": "docs/spec-001.md",
+                "body_not_in_frontmatter": ["EPIC-005"],
+                "frontmatter_not_in_body": [],
+                "missing_reciprocal": [],
+            }
+        ]
+        cache_data = {"nodes": {}, "edges": [], "xref": xref_data}
+        args = argparse.Namespace(json=True)
+        with unittest.mock.patch(
+            "specgraph.cli._ensure_cache", return_value=cache_data
+        ):
+            captured = io.StringIO()
+            with unittest.mock.patch("sys.stdout", captured):
+                cmd_xref(args, Path("/fake/repo"))
+        output = captured.getvalue()
+        parsed = json_mod.loads(output)
+        assert isinstance(parsed, list)
+        assert "Cross-Reference Gaps" not in output
+
+
+class TestCmdXrefMixedResults:
+    """cmd_xref with all gap types present shows all three sections."""
+
+    def test_all_three_sections_shown(self):
+        """With body, frontmatter, and reciprocal gaps, all three section headers appear."""
+        from specgraph.cli import cmd_xref
+
+        xref_data = [
+            {
+                "artifact": "SPEC-001",
+                "file": "docs/spec-001.md",
+                "body_not_in_frontmatter": ["EPIC-005"],
+                "frontmatter_not_in_body": ["SPIKE-007"],
+                "missing_reciprocal": [
+                    {
+                        "from": "SPEC-002",
+                        "edge_type": "depends-on",
+                        "expected_field": "linked-artifacts",
+                    }
+                ],
+            }
+        ]
+        cache_data = {"nodes": {}, "edges": [], "xref": xref_data}
+        args = argparse.Namespace(json=False)
+        with unittest.mock.patch(
+            "specgraph.cli._ensure_cache", return_value=cache_data
+        ):
+            captured = io.StringIO()
+            with unittest.mock.patch("sys.stdout", captured):
+                cmd_xref(args, Path("/fake/repo"))
+        output = captured.getvalue()
+        assert "Cross-Reference Gaps" in output
+        assert "Missing Reciprocal Edges" in output
