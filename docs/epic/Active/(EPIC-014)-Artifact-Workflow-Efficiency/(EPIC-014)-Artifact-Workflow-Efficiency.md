@@ -50,3 +50,4 @@ SPIKE-018 must complete before implementation specs are written — the spike de
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation |
+| Active | 2026-03-14 | 6f26e1bf8ca11faad9d98ae8a57390c65b571d6c | Transition to Active |
