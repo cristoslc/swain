@@ -270,3 +270,71 @@ class TestComputeDiscrepanciesBasic:
         assert result["frontmatter_not_in_body"] == set()
 
 
+# ---------------------------------------------------------------------------
+# swa-htqd — Bidirectional edge enforcement tests
+# ---------------------------------------------------------------------------
+
+
+class TestCheckReciprocalEdgesBasic:
+    """Test check_reciprocal_edges returns gaps when linked-artifacts is missing."""
+
+    def test_reciprocal_present_no_gap(self):
+        """A depends-on B, B has A in linked-artifacts → no gaps."""
+        nodes = {
+            "A": {"linked-artifacts": []},
+            "B": {"linked-artifacts": ["A"]},
+        }
+        edges = [{"from": "A", "to": "B", "type": "depends-on"}]
+        result = check_reciprocal_edges(nodes, edges)
+        assert result == []
+
+    def test_reciprocal_missing_returns_gap(self):
+        """A depends-on B, B does NOT have A in linked-artifacts → one gap."""
+        nodes = {
+            "A": {"linked-artifacts": []},
+            "B": {"linked-artifacts": []},
+        }
+        edges = [{"from": "A", "to": "B", "type": "depends-on"}]
+        result = check_reciprocal_edges(nodes, edges)
+        assert len(result) == 1
+        gap = result[0]
+        assert gap["from"] == "A"
+        assert gap["to"] == "B"
+        assert gap["edge_type"] == "depends-on"
+        assert gap["expected_field"] == "linked-artifacts"
+
+    def test_multiple_edges_some_gaps(self):
+        """Multiple edges; only the ones missing reciprocals are returned."""
+        nodes = {
+            "A": {"linked-artifacts": []},
+            "B": {"linked-artifacts": ["A"]},
+            "C": {"linked-artifacts": []},
+        }
+        edges = [
+            {"from": "A", "to": "B", "type": "depends-on"},
+            {"from": "A", "to": "C", "type": "depends-on"},
+        ]
+        result = check_reciprocal_edges(nodes, edges)
+        # A→B has reciprocal; A→C does not
+        assert len(result) == 1
+        assert result[0]["to"] == "C"
+
+    def test_empty_edges_returns_empty(self):
+        """No edges → no gaps."""
+        nodes = {"A": {"linked-artifacts": []}}
+        result = check_reciprocal_edges(nodes, [])
+        assert result == []
+
+    def test_orphan_node_missing_from_nodes_dict(self):
+        """Node B missing from nodes dict is treated as missing linked-artifacts (gap flagged)."""
+        nodes = {
+            "A": {"linked-artifacts": []},
+            # "B" intentionally absent
+        }
+        edges = [{"from": "A", "to": "B", "type": "depends-on"}]
+        result = check_reciprocal_edges(nodes, edges)
+        assert len(result) == 1
+        assert result[0]["to"] == "B"
+
+
+# ---------------------------------------------------------------------------
