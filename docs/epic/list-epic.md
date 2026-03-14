@@ -33,4 +33,4 @@
 | EPIC-006 | Skill Context Footprint Reduction | 2026-03-13 | dbcb557 |
 | EPIC-008 | Normalize Artifact Lifecycle States | 2026-03-13 | e9084d2 |
 | EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | 0e54e5e |
-| EPIC-013 | Specgraph Python Rewrite | 2026-03-14 | — |
+| EPIC-013 | Specgraph Python Rewrite | 2026-03-14 | 621416b |
