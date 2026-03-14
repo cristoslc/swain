@@ -18,13 +18,9 @@
 | SPEC-035 | ticket-query TICKETS_DIR Unbound Variable | 2026-03-14 | b4037a0 |
 | SPEC-036 | swain-status Decision Support | 2026-03-14 | b4037a0 |
 | SPEC-037 | Specgraph ready Leaks Standing-Track Artifacts | 2026-03-14 | b4037a0 |
-| SPEC-038 | Dynamic Track Resolution from Artifact Frontmatter | 2026-03-14 | b4037a0 |
 | SPEC-039 | swain-sync: worktree-aware execution | 2026-03-14 | 592da6c |
 | SPEC-043 | swain-do: automatic worktree creation at dispatch | 2026-03-14 | — |
 | SPEC-044 | swain-doctor: stale worktree detection | 2026-03-14 | — |
-| SPEC-040 | MOTD Textual TUI Animation Fixes | 2026-03-14 | 51c037cc8fcc36538b69a893865fc63c06b459cb |
-| SPEC-041 | MOTD Reactive Agent Status via Claude Code Hooks | 2026-03-14 | 51c037cc8fcc36538b69a893865fc63c06b459cb |
-| SPEC-042 | MOTD Uncommitted File Display and Interactive Commit Button | 2026-03-14 | 51c037cc8fcc36538b69a893865fc63c06b459cb |
 
 ## Complete
 
@@ -63,3 +59,7 @@
 | SPEC-032 | Cross-Reference Validation and Bidirectional Edge Enforcement | 2026-03-14 | 5a4386c |
 | SPEC-031 | Specgraph Query Commands | 2026-03-14 | 88a9d04 |
 | SPEC-033 | swain-status xref Integration | 2026-03-14 | c51ed6d |
+| SPEC-038 | Dynamic Track Resolution from Artifact Frontmatter | 2026-03-14 | 3a42d93 |
+| SPEC-040 | MOTD Textual TUI Animation Fixes | 2026-03-14 | 2f617a6 |
+| SPEC-041 | MOTD Reactive Agent Status via Claude Code Hooks | 2026-03-14 | 2f617a6 |
+| SPEC-042 | MOTD Uncommitted File Display and Interactive Commit Button | 2026-03-14 | 2f617a6 |
