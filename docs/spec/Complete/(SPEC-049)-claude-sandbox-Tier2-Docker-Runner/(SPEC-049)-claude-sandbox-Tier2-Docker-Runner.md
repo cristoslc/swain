@@ -2,7 +2,7 @@
 title: "claude-sandbox: Tier 2 Docker Container Runner"
 artifact: SPEC-049
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -63,7 +63,12 @@ Also creates `.devcontainer/devcontainer.json` using the Anthropic reference con
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| | | |
+| AC1: Launches with Docker; project files accessible | `--docker` flag in claude-sandbox; `docker run -v $REPO_ROOT:$REPO_ROOT` bind mount | ✅ |
+| AC2: File writes appear on host | Bind mount (not volume); writes go directly to host filesystem | ✅ |
+| AC3: API key forwarded without baking into image | All secrets via `-e KEY` env flags; Dockerfile has no ENV for credentials | ✅ |
+| AC4: Container removed on exit | `docker run --rm` flag | ✅ |
+| AC5: Clear error when Docker not installed | Guard checks `command -v docker` and `docker info`; prints install hint | ✅ |
+| AC6: devcontainer.json created on first run | Script creates `.devcontainer/devcontainer.json` if absent | ✅ |
 
 ## Scope & Constraints
 
@@ -85,4 +90,5 @@ Also creates `.devcontainer/devcontainer.json` using the Anthropic reference con
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-14 | -- | Created from EPIC-005 decomposition; depends on SPEC-048 for launcher script base |
+| Proposed | 2026-03-14 | cded412 | Created from EPIC-005 decomposition; depends on SPEC-048 for launcher script base |
+| Complete | 2026-03-14 | -- | --docker flag added to claude-sandbox; Dockerfile, devcontainer.json generation, credential forwarding via env vars |
