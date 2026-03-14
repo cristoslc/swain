@@ -1,0 +1,11 @@
+{
+  "lastBranch": "main",
+  "lastContext": null,
+  "preferences": {
+    "verbosity": "concise"
+  },
+  "bookmark": {
+    "note": "Checked status — SPEC-030 gates EPIC-013; SPIKE-018 unblocks EPIC-014; EPIC-007 and EPIC-010 are fully resolved",
+    "timestamp": "2026-03-14T03:16:32Z"
+  }
+}
