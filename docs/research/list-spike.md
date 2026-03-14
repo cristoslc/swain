@@ -6,6 +6,7 @@
 |----------|-------|-------------|--------|
 | SPIKE-007 | Container Image and Runtime Requirements | 2026-03-12 | — |
 | SPIKE-008 | Credential and State Management in Isolated Environments | 2026-03-12 | — |
+| SPIKE-018 | Artifact Authoring Latency and Ceremony Audit | 2026-03-14 | — |
 
 ## Active
 
