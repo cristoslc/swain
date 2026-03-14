@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: One-time swain project onboarding
-  version: 3.0.0
+  version: 3.1.0
   author: cristos
   source: swain
 ---
@@ -250,19 +250,55 @@ Set `enabled: true` for any scanners the user opted into. Merge with existing se
 Tell the user:
 > Pre-commit hooks configured with gitleaks (default). Scanner settings saved to `swain.settings.json`. To enable additional scanners later, edit `swain.settings.json` and re-run `/swain-init`.
 
-## Phase 4: Swain governance
+## Phase 4: Superpowers companion
+
+Goal: offer to install `obra/superpowers` if it is not already present. Superpowers provides TDD enforcement, brainstorming, plan writing, and verification skills that swain chains into — the full AGENTS.md workflow depends on them being installed.
+
+### Step 4.1 — Detect superpowers
+
+```bash
+ls .agents/skills/brainstorming/SKILL.md .claude/skills/brainstorming/SKILL.md 2>/dev/null | head -1
+```
+
+If any result is returned, superpowers is already installed. Report "Superpowers: already installed" and skip to Phase 5.
+
+### Step 4.2 — Offer installation
+
+Ask the user:
+
+> Superpowers (`obra/superpowers`) is not installed. It provides TDD, brainstorming, plan writing, and verification skills that swain chains into during implementation and design work.
+>
+> Install superpowers now? (yes/no)
+
+If the user says **no**, note "Superpowers: skipped" and continue to Phase 5. They can always install later: `npx skills add obra/superpowers`.
+
+### Step 4.3 — Install
+
+```bash
+npx skills add obra/superpowers
+```
+
+If the install succeeds, tell the user:
+> Superpowers installed. Brainstorming, TDD, plan writing, and verification skills are now available.
+
+If it fails, warn:
+> Superpowers installation failed. You can retry manually: `npx skills add obra/superpowers`
+
+Continue to Phase 5 regardless.
+
+## Phase 5: Swain governance
 
 Goal: add swain's routing and governance rules to AGENTS.md.
 
-### Step 4.1 — Check for existing governance
+### Step 5.1 — Check for existing governance
 
 ```bash
 grep -l "swain governance" AGENTS.md CLAUDE.md 2>/dev/null
 ```
 
-If found in either file, governance is already installed. Tell the user and skip to Phase 5.
+If found in either file, governance is already installed. Tell the user and skip to Phase 6.
 
-### Step 4.2 — Ask permission
+### Step 5.2 — Ask permission
 
 Ask the user:
 
@@ -274,9 +310,9 @@ Ask the user:
 >
 > Add governance rules to AGENTS.md? (yes/no)
 
-If no, skip to Phase 5.
+If no, skip to Phase 6.
 
-### Step 4.3 — Inject governance
+### Step 5.3 — Inject governance
 
 Read the canonical governance content from `skills/swain-doctor/references/AGENTS.content.md`. Locate it by searching for the file relative to the installed skills directory:
 
@@ -289,9 +325,9 @@ Append the full contents of that file to AGENTS.md.
 Tell the user:
 > Governance rules added to AGENTS.md. These ensure swain skills are routable and conventions are enforced. You can customize anything outside the `<!-- swain governance -->` markers.
 
-## Phase 5: Finalize
+## Phase 6: Finalize
 
-### Step 5.1 — Create .agents directory
+### Step 6.1 — Create .agents directory
 
 ```bash
 mkdir -p .agents
@@ -299,15 +335,15 @@ mkdir -p .agents
 
 This directory is used by swain-do for configuration and by swain-design scripts for logs.
 
-### Step 5.2 — Run swain-doctor
+### Step 6.2 — Run swain-doctor
 
 Invoke the **swain-doctor** skill. This validates `.tickets/` health, checks stale locks, removes legacy skill directories, and ensures governance is correctly installed.
 
-### Step 5.3 — Onboarding
+### Step 6.3 — Onboarding
 
 Invoke the **swain-help** skill in onboarding mode to give the user a guided orientation of what they just installed.
 
-### Step 5.4 — Summary
+### Step 6.4 — Summary
 
 Report what was done:
 
@@ -317,10 +353,11 @@ Report what was done:
 > - tk (ticket) verified: [done/not found]
 > - Beads migration: [done/skipped/no beads found]
 > - Pre-commit security hooks: [done/skipped/already configured]
+> - Superpowers: [installed/skipped/already present]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
 
 ## Re-running init
 
-If the user runs `/swain init` on a project that's already set up, each phase will detect its work is done and skip. The only interactive phase is governance injection (Phase 3), which checks for the `<!-- swain governance -->` marker before asking.
+If the user runs `/swain init` on a project that's already set up, each phase will detect its work is done and skip. The only interactive phase is governance injection (Phase 5), which checks for the `<!-- swain governance -->` marker before asking.
 
 To force a fresh governance block, delete the `<!-- swain governance -->` ... `<!-- end swain governance -->` section from AGENTS.md and re-run.
