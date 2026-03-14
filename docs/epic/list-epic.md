@@ -9,6 +9,7 @@
 | EPIC-018 | Work Scope Progress Visualizations For Swain-Status | 2026-03-14 | — |
 | EPIC-019 | Rename swain-design to swain-commission | 2026-03-14 | — |
 | EPIC-020 | Multi-Agent Workdir Safety | 2026-03-14 | — |
+| EPIC-021 | Frontend Design Orchestrator | 2026-03-14 | — |
 
 ## Complete
 
