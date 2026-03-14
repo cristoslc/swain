@@ -23,7 +23,7 @@ from pathlib import Path
 from textual.app import App, ComposeResult
 from textual.containers import Vertical
 from textual.reactive import reactive
-from textual.widgets import Rule, Static
+from textual.widgets import Button, Rule, Static
 
 
 # --- Path resolution ---
@@ -83,6 +83,23 @@ STATUS_CACHE = MEMORY_DIR / "status-cache.json"
 CACHE_STALE_SECONDS = 300  # 5 minutes
 
 
+def hooks_configured() -> bool:
+    """Return True if Claude Code hooks are registered for agent status updates."""
+    settings_file = REPO_ROOT / ".claude" / "settings.json"
+    if not settings_file.is_file():
+        return False
+    try:
+        with open(settings_file) as f:
+            data = json.load(f)
+        hooks = data.get("hooks", {})
+        return "PostToolUse" in hooks or "Stop" in hooks
+    except (json.JSONDecodeError, OSError):
+        return False
+
+
+HOOKS_CONFIGURED = hooks_configured()
+
+
 def art_link(aid: str, file: str | None = None) -> str:
     """Wrap an artifact ID in Rich link markup for clickable terminal links."""
     if file:
@@ -91,7 +108,7 @@ def art_link(aid: str, file: str | None = None) -> str:
     return aid
 
 SPINNER_STYLES = {
-    "braille": ["⣾", "⣷", "⣯", "⣟", "⡿", "⢿", "⣻", "⣽"],
+    "braille": ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"],  # clockwise
     "dots": ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
     "bar": ["[    ]", "[=   ]", "[==  ]", "[=== ]", "[ ===]", "[  ==]", "[   =]", "[    ]"],
 }
@@ -99,10 +116,17 @@ SPINNER_STYLES = {
 REFRESH_INTERVAL = (
     SETTINGS.get("stage", {}).get("motd", {}).get("refreshInterval", 5)
 )
-SPINNER_STYLE = (
-    SETTINGS.get("stage", {}).get("motd", {}).get("spinnerStyle", "braille")
+ANIMATION_STYLE = (
+    SETTINGS.get("stage", {}).get("motd", {}).get("animationStyle", "clockwise")
 )
-FRAMES = SPINNER_STYLES.get(SPINNER_STYLE, SPINNER_STYLES["braille"])
+# Map animationStyle values to frame sets; unknown → clockwise (braille)
+_STYLE_MAP = {
+    "clockwise": SPINNER_STYLES["braille"],
+    "dots": SPINNER_STYLES["dots"],
+    "bar": SPINNER_STYLES["bar"],
+    "none": [],
+}
+FRAMES = _STYLE_MAP.get(ANIMATION_STYLE, SPINNER_STYLES["braille"])
 
 
 # --- Data readers ---
@@ -181,6 +205,28 @@ def git_dirty() -> str:
         return "?"
 
 
+def git_counts() -> dict:
+    """Return dict with staged and unstaged file counts."""
+    try:
+        r = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True, text=True,
+        )
+        staged = 0
+        unstaged = 0
+        for line in r.stdout.splitlines():
+            if not line:
+                continue
+            x, y = line[0], line[1]
+            if x != "?" and x != " ":
+                staged += 1
+            if y not in (" ", "?"):
+                unstaged += 1
+        return {"staged": staged, "unstaged": unstaged}
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return {"staged": 0, "unstaged": 0}
+
+
 def git_last_commit() -> str:
     try:
         r = subprocess.run(
@@ -228,6 +274,8 @@ def collect_data() -> dict:
     cache = read_status_cache()
     agent = read_agent_status()
 
+    counts = git_counts()
+
     if cache:
         branch = cache.get("git", {}).get("branch", "detached")
         git_data = cache.get("git", {})
@@ -274,6 +322,8 @@ def collect_data() -> dict:
     return {
         "branch": branch,
         "dirty": dirty,
+        "staged": counts["staged"],
+        "unstaged": counts["unstaged"],
         "last": last,
         "epic": epic,
         "task": task,
@@ -336,14 +386,37 @@ class MotdApp(App):
     .idle {
         color: $success;
     }
+    .staged {
+        color: $success;
+    }
+    .unstaged {
+        color: $warning;
+    }
+    Button {
+        width: auto;
+        height: 1;
+        margin: 0;
+        padding: 0 1;
+        min-width: 0;
+        border: none;
+    }
+    Button.-disabled {
+        color: $text-muted;
+        background: $surface-darken-1;
+    }
     """
 
     frame_idx = reactive(0)
+    _agent_file_mtime: float = 0.0
 
     def compose(self) -> ComposeResult:
         with MotdPanel():
             yield HeaderLine(id="header")
             yield AgentLine(id="agent")
+            yield Rule()
+            yield DataLine(id="staged")
+            yield DataLine(id="unstaged")
+            yield Button("Commit & Push", id="commit-btn", disabled=True)
             yield Rule()
             yield DataLine(id="epic")
             yield DataLine(id="task")
@@ -358,12 +431,37 @@ class MotdApp(App):
         # Periodic refresh — data every N seconds, spinner every 0.2s
         self.set_interval(REFRESH_INTERVAL, self._refresh_data)
         self.set_interval(0.2, self._tick_spinner)
+        # Reactive agent status — 1s poll for file mtime changes
+        self.set_interval(1.0, self._check_agent_file)
+
+    def _check_agent_file(self) -> None:
+        """Re-render agent line within 1s of agent status file change."""
+        if not AGENT_STATUS_FILE.is_file():
+            return
+        mtime = AGENT_STATUS_FILE.stat().st_mtime
+        if mtime != self._agent_file_mtime:
+            self._agent_file_mtime = mtime
+            agent = read_agent_status()
+            self._data["agent_state"] = agent.get("state", "idle")
+            self._data["agent_context"] = agent.get("context", "")
+            self._data["touched"] = len(agent.get("touchedFiles", []))
+            self._render_agent()
+            # Update touched widget too
+            touched_widget = self.query_one("#touched", DataLine)
+            t = self._data["touched"]
+            if t > 0:
+                touched_widget.update(f"touched: {t} file(s)")
+                touched_widget.display = True
+            else:
+                touched_widget.display = False
 
     def _refresh_data(self) -> None:
         self._data = collect_data()
         self._render_all()
 
     def _tick_spinner(self) -> None:
+        if ANIMATION_STYLE == "none" or not FRAMES:
+            return
         if self._data.get("agent_state") == "working":
             self.frame_idx = (self.frame_idx + 1) % len(FRAMES)
             self._render_agent()
@@ -375,6 +473,20 @@ class MotdApp(App):
             f"{PROJECT_NAME} @ {d['branch']} ({d['dirty']})"
         )
         self._render_agent()
+
+        # Staged / unstaged counts
+        staged = d.get("staged", 0)
+        unstaged = d.get("unstaged", 0)
+        staged_widget = self.query_one("#staged", DataLine)
+        staged_widget.update(f"staged: {staged}")
+        staged_widget.set_class(staged > 0, "staged")
+        unstaged_widget = self.query_one("#unstaged", DataLine)
+        unstaged_widget.update(f"unstaged: {unstaged}")
+        unstaged_widget.set_class(unstaged > 0, "unstaged")
+
+        # Commit button — enabled only when staged > 0
+        btn = self.query_one("#commit-btn", Button)
+        btn.disabled = staged == 0
 
         self.query_one("#epic", DataLine).update(f"epic: {d['epic']}")
         self.query_one("#task", DataLine).update(f"task: {d['task']}")
@@ -395,12 +507,30 @@ class MotdApp(App):
         else:
             touched_widget.display = False
 
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id != "commit-btn":
+            return
+        if not os.environ.get("TMUX"):
+            self.query_one("#commit-btn", Button).label = "Commit button requires tmux"
+            return
+        cmd = (
+            f"cd {REPO_ROOT} && git status --short && echo '' "
+            "&& read -p 'Commit message: ' msg "
+            "&& git commit -m \"$msg\" && git push "
+            "&& echo 'Done! Press Enter to close.' && read "
+            "|| (echo 'Failed. Press Enter to close.' && read)"
+        )
+        subprocess.Popen(["tmux", "split-window", "-h", f"bash -c '{cmd}'"])
+
     def _render_agent(self) -> None:
         d = self._data
         agent_widget = self.query_one("#agent", AgentLine)
 
         if d["agent_state"] == "working":
-            spinner = FRAMES[self.frame_idx % len(FRAMES)]
+            if FRAMES:
+                spinner = FRAMES[self.frame_idx % len(FRAMES)]
+            else:
+                spinner = "●"
             ctx = d["agent_context"]
             if ctx and ctx not in ("no status", ""):
                 agent_widget.update(f"{spinner} working: {ctx[:34]}")
@@ -409,7 +539,10 @@ class MotdApp(App):
             agent_widget.remove_class("idle")
             agent_widget.add_class("working")
         else:
-            agent_widget.update("● idle")
+            if not HOOKS_CONFIGURED:
+                agent_widget.update("● idle (hooks not configured)")
+            else:
+                agent_widget.update("● idle")
             agent_widget.remove_class("working")
             agent_widget.add_class("idle")
 
