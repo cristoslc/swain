@@ -391,3 +391,128 @@ def impact(
     lines.append(f"TOTAL: {total}")
 
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Mermaid diagram
+# ---------------------------------------------------------------------------
+
+# Edge types always included in mermaid output
+_MERMAID_CORE_EDGE_TYPES = frozenset({"depends-on", "parent-epic", "parent-vision"})
+
+
+def mermaid_cmd(nodes: dict, edges: list[dict], show_all: bool = False, all_edges: bool = False) -> str:
+    """Emit a Mermaid graph TD diagram.
+
+    - Only include nodes that are not resolved (unless show_all=True)
+    - Node labels: ARTIFACT-NNN["Title"] or ARTIFACT-NNN["ARTIFACT-NNN"] if no title
+    - Escape double quotes in titles with #quot;
+    - Edge types to include:
+      - Always: "depends-on", "parent-epic", "parent-vision"
+      - If all_edges=True: also "linked-artifacts", "validates", "addresses", etc.
+    - Only emit edges where BOTH from and to nodes are visible
+    - Sort node definitions and edges for deterministic output
+    - Wrap with: graph TD\\n...
+    """
+    # Determine visible node set
+    visible: set[str] = set()
+    for artifact_id, node in nodes.items():
+        if show_all or not _node_is_resolved(artifact_id, nodes):
+            visible.add(artifact_id)
+
+    # Build node definition lines
+    node_lines: list[str] = []
+    for artifact_id in sorted(visible):
+        node = nodes[artifact_id]
+        raw_title = node.get("title", "") or artifact_id
+        label = raw_title.replace('"', "#quot;")
+        node_lines.append(f'{artifact_id}["{label}"]')
+
+    # Determine which edge types to include
+    if all_edges:
+        # Include all edge types
+        allowed_types: frozenset[str] | None = None
+    else:
+        allowed_types = _MERMAID_CORE_EDGE_TYPES
+
+    # Build edge lines
+    edge_lines: list[str] = []
+    seen_edges: set[tuple[str, str]] = set()
+    for edge in edges:
+        frm = edge.get("from", "")
+        to = edge.get("to", "")
+        typ = edge.get("type", "")
+        if not frm or not to:
+            continue
+        if allowed_types is not None and typ not in allowed_types:
+            continue
+        if frm not in visible or to not in visible:
+            continue
+        pair = (frm, to)
+        if pair in seen_edges:
+            continue
+        seen_edges.add(pair)
+        edge_lines.append(f"{frm} --> {to}")
+
+    edge_lines.sort()
+
+    lines: list[str] = ["graph TD"]
+    lines.extend(f"  {nl}" for nl in node_lines)
+    lines.extend(f"  {el}" for el in edge_lines)
+
+    # Remove trailing blank lines beyond "graph TD" when nothing else present
+    if len(lines) == 1:
+        return "graph TD"
+
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Status table
+# ---------------------------------------------------------------------------
+
+
+def status_cmd(nodes: dict, edges: list[dict], show_all: bool = False) -> str:
+    """Emit a summary table grouped by artifact type.
+
+    - Group nodes by type (SPEC, EPIC, SPIKE, ADR, etc.)
+    - Within each group, sort by artifact ID
+    - Each row: artifact_id, status, title
+    - If not show_all: exclude resolved artifacts
+    - Include a count of hidden resolved artifacts if any were excluded
+    - Format: simple aligned columns (not markdown table)
+    """
+    # Bucket nodes by type, track how many were hidden
+    by_type: dict[str, list[tuple[str, str, str]]] = {}  # type → [(id, status, title)]
+    hidden_count = 0
+
+    for artifact_id, node in nodes.items():
+        resolved = _node_is_resolved(artifact_id, nodes)
+        if not show_all and resolved:
+            hidden_count += 1
+            continue
+        artifact_type = node.get("type", "UNKNOWN").upper()
+        status = node.get("status", "")
+        title = node.get("title", "")
+        by_type.setdefault(artifact_type, []).append((artifact_id, status, title))
+
+    if not by_type:
+        if hidden_count > 0 and not show_all:
+            return f"({hidden_count} resolved artifacts hidden)"
+        return ""
+
+    # Sort types alphabetically; within each type sort by artifact ID
+    lines: list[str] = []
+    for artifact_type in sorted(by_type):
+        rows = sorted(by_type[artifact_type], key=lambda r: r[0])
+        lines.append(f"--- {artifact_type} ---")
+        # Compute column widths for alignment
+        id_width = max(len(r[0]) for r in rows)
+        status_width = max((len(r[1]) for r in rows), default=0)
+        for artifact_id, status, title in rows:
+            lines.append(f"  {artifact_id:<{id_width}}  {status:<{status_width}}  {title}")
+
+    if hidden_count > 0 and not show_all:
+        lines.append(f"({hidden_count} resolved artifact{'s' if hidden_count != 1 else ''} hidden)")
+
+    return "\n".join(lines)

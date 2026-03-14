@@ -9,7 +9,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors, scope, impact
+from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors, scope, impact, mermaid_cmd, status_cmd
 
 
 # ---------------------------------------------------------------------------
@@ -587,3 +587,228 @@ class TestImpact:
         direct_line = next((l for l in lines if l.startswith("DIRECT:")), "")
         # SPEC-010 has a linked-artifact edge to ADR-010 → counts as direct
         assert direct_line == "DIRECT: 1"
+
+
+# ---------------------------------------------------------------------------
+# Fixtures for mermaid/status tests
+# ---------------------------------------------------------------------------
+
+MERMAID_NODES = {
+    "SPEC-001": {"title": "Spec One", "status": "In Progress", "type": "SPEC", "file": "docs/spec/SPEC-001.md", "description": ""},
+    "SPEC-002": {"title": 'Spec "Quoted"', "status": "Ready", "type": "SPEC", "file": "docs/spec/SPEC-002.md", "description": ""},
+    "EPIC-001": {"title": "Epic One", "status": "Active", "type": "EPIC", "file": "docs/epic/EPIC-001.md", "description": ""},
+    "EPIC-002": {"title": "Epic Done", "status": "Complete", "type": "EPIC", "file": "docs/epic/EPIC-002.md", "description": ""},
+    "ADR-001": {"title": "ADR Active", "status": "Active", "type": "ADR", "file": "docs/adr/ADR-001.md", "description": ""},
+    "SPIKE-001": {"title": "", "status": "In Progress", "type": "SPIKE", "file": "docs/spike/SPIKE-001.md", "description": ""},
+}
+
+MERMAID_EDGES = [
+    {"from": "SPEC-001", "to": "EPIC-001", "type": "depends-on"},
+    {"from": "SPEC-002", "to": "EPIC-001", "type": "parent-epic"},
+    {"from": "EPIC-001", "to": "EPIC-002", "type": "depends-on"},
+    {"from": "SPEC-001", "to": "SPEC-002", "type": "linked-artifacts"},
+    {"from": "SPEC-001", "to": "ADR-001", "type": "validates"},
+]
+
+
+# ---------------------------------------------------------------------------
+# TestMermaid
+# ---------------------------------------------------------------------------
+
+
+class TestMermaid:
+    """Test mermaid_cmd() — Mermaid graph TD diagram generation."""
+
+    def test_mermaid_starts_with_graph_td(self):
+        """mermaid_cmd output starts with 'graph TD'."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        assert result.startswith("graph TD")
+
+    def test_mermaid_includes_node_definitions(self):
+        """mermaid_cmd includes node definitions for visible nodes."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # SPEC-001 is unresolved — should appear
+        assert "SPEC-001" in result
+
+    def test_mermaid_excludes_resolved_nodes_by_default(self):
+        """mermaid_cmd excludes resolved nodes by default (show_all=False)."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # EPIC-002 is Complete (resolved), ADR-001 is ADR Active (resolved)
+        # They should not appear as node definitions
+        lines = result.split("\n")
+        node_def_lines = [l for l in lines if "[" in l and "]" in l and "-->" not in l]
+        node_ids_defined = []
+        for line in node_def_lines:
+            # e.g. SPEC-001["Spec One"]
+            node_id = line.strip().split("[")[0]
+            node_ids_defined.append(node_id)
+        assert "EPIC-002" not in node_ids_defined
+        assert "ADR-001" not in node_ids_defined
+
+    def test_mermaid_show_all_includes_resolved_nodes(self):
+        """mermaid_cmd with show_all=True includes resolved nodes."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES, show_all=True)
+        assert "EPIC-002" in result
+        assert "ADR-001" in result
+
+    def test_mermaid_node_label_uses_title(self):
+        """mermaid_cmd node label uses title when available."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        assert 'SPEC-001["Spec One"]' in result
+
+    def test_mermaid_node_label_uses_id_when_no_title(self):
+        """mermaid_cmd node label uses artifact ID when title is empty."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # SPIKE-001 has empty title
+        assert 'SPIKE-001["SPIKE-001"]' in result
+
+    def test_mermaid_escapes_double_quotes_in_title(self):
+        """mermaid_cmd escapes double quotes in titles with #quot;."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # SPEC-002 title has double quotes: Spec "Quoted"
+        assert '#quot;' in result
+
+    def test_mermaid_includes_depends_on_edges(self):
+        """mermaid_cmd includes depends-on edges between visible nodes."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # SPEC-001 --> EPIC-001 (depends-on, both unresolved)
+        assert "SPEC-001 --> EPIC-001" in result
+
+    def test_mermaid_includes_parent_epic_edges(self):
+        """mermaid_cmd includes parent-epic edges between visible nodes."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # SPEC-002 --> EPIC-001 (parent-epic, both unresolved)
+        assert "SPEC-002 --> EPIC-001" in result
+
+    def test_mermaid_excludes_edges_to_resolved_nodes(self):
+        """mermaid_cmd excludes edges where either endpoint is resolved (show_all=False)."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # EPIC-001 --> EPIC-002 (depends-on), but EPIC-002 is resolved
+        assert "EPIC-001 --> EPIC-002" not in result
+
+    def test_mermaid_excludes_lateral_edges_by_default(self):
+        """mermaid_cmd excludes linked-artifacts/validates edges when all_edges=False."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # SPEC-001 --> SPEC-002 (linked-artifacts) should NOT appear
+        # Note: we check for edge specifically, not just "SPEC-002" appearing as a node
+        lines = result.split("\n")
+        edge_lines = [l for l in lines if "-->" in l]
+        assert not any("SPEC-001 --> SPEC-002" in l for l in edge_lines)
+
+    def test_mermaid_all_edges_includes_lateral_edges(self):
+        """mermaid_cmd with all_edges=True includes linked-artifacts/validates edges."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES, all_edges=True)
+        lines = result.split("\n")
+        edge_lines = [l for l in lines if "-->" in l]
+        assert any("SPEC-001 --> SPEC-002" in l for l in edge_lines)
+
+    def test_mermaid_all_edges_excludes_edges_to_resolved_when_show_all_false(self):
+        """mermaid_cmd all_edges=True still excludes edges to resolved when show_all=False."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES, all_edges=True)
+        # SPEC-001 --> ADR-001 (validates), ADR-001 is resolved (ADR Active)
+        lines = result.split("\n")
+        edge_lines = [l for l in lines if "-->" in l]
+        assert not any("ADR-001" in l for l in edge_lines)
+
+    def test_mermaid_all_edges_show_all_includes_edges_to_resolved(self):
+        """mermaid_cmd all_edges=True, show_all=True includes edges involving resolved nodes."""
+        result = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES, show_all=True, all_edges=True)
+        lines = result.split("\n")
+        edge_lines = [l for l in lines if "-->" in l]
+        assert any("ADR-001" in l for l in edge_lines)
+
+    def test_mermaid_output_is_deterministic(self):
+        """mermaid_cmd produces the same output on repeated calls."""
+        result1 = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        result2 = mermaid_cmd(MERMAID_NODES, MERMAID_EDGES)
+        assert result1 == result2
+
+    def test_mermaid_empty_graph(self):
+        """mermaid_cmd on empty graph returns just 'graph TD'."""
+        result = mermaid_cmd({}, [])
+        assert result.strip() == "graph TD"
+
+
+# ---------------------------------------------------------------------------
+# TestStatus
+# ---------------------------------------------------------------------------
+
+
+class TestStatus:
+    """Test status_cmd() — summary table grouped by artifact type."""
+
+    def test_status_groups_by_type(self):
+        """status_cmd output groups artifacts by type (SPEC, EPIC, etc.)."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # SPEC section should appear before SPIKE section (alphabetical or by type)
+        assert "SPEC" in result
+        assert "EPIC" in result
+
+    def test_status_includes_artifact_id(self):
+        """status_cmd includes artifact IDs in output."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES)
+        assert "SPEC-001" in result
+        assert "SPEC-002" in result
+
+    def test_status_includes_status_column(self):
+        """status_cmd includes status values in output."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES)
+        assert "In Progress" in result
+        assert "Ready" in result
+
+    def test_status_includes_title_column(self):
+        """status_cmd includes title values in output."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES)
+        assert "Spec One" in result
+
+    def test_status_excludes_resolved_by_default(self):
+        """status_cmd excludes resolved artifacts by default (show_all=False)."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # EPIC-002 (Complete) and ADR-001 (ADR Active = resolved) should not appear as rows
+        lines = result.split("\n")
+        data_lines = [l for l in lines if "EPIC-002" in l]
+        assert not data_lines, f"EPIC-002 should be excluded but found: {data_lines}"
+        adr_lines = [l for l in lines if "ADR-001" in l]
+        assert not adr_lines, f"ADR-001 should be excluded but found: {adr_lines}"
+
+    def test_status_show_all_includes_resolved(self):
+        """status_cmd with show_all=True includes resolved artifacts."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES, show_all=True)
+        assert "EPIC-002" in result
+        assert "ADR-001" in result
+
+    def test_status_shows_hidden_count_when_resolved_excluded(self):
+        """status_cmd indicates how many resolved artifacts were hidden."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # MERMAID_NODES has 2 resolved: EPIC-002 and ADR-001
+        assert "hidden" in result.lower() or "resolved" in result.lower()
+
+    def test_status_no_hidden_count_when_show_all(self):
+        """status_cmd with show_all=True does not show a hidden count."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES, show_all=True)
+        assert "hidden" not in result.lower()
+
+    def test_status_sorts_within_group(self):
+        """status_cmd sorts artifact IDs within each type group."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES, show_all=True)
+        lines = result.split("\n")
+        # Find SPEC lines
+        spec_lines = [l for l in lines if "SPEC-" in l and "-->" not in l]
+        spec_ids = []
+        for line in spec_lines:
+            for part in line.split():
+                if part.startswith("SPEC-"):
+                    spec_ids.append(part)
+                    break
+        assert spec_ids == sorted(spec_ids), f"SPEC IDs not sorted: {spec_ids}"
+
+    def test_status_empty_graph_returns_string(self):
+        """status_cmd on empty graph returns a string (possibly empty or note)."""
+        result = status_cmd({}, [])
+        assert isinstance(result, str)
+
+    def test_status_type_headers_present(self):
+        """status_cmd output includes type group headers."""
+        result = status_cmd(MERMAID_NODES, MERMAID_EDGES)
+        # Should have some kind of section header or type label for SPEC
+        assert "SPEC" in result
