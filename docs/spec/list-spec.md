@@ -4,6 +4,9 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPEC-040 | MOTD Textual TUI Animation Fixes | 2026-03-14 | — |
+| SPEC-041 | MOTD Reactive Agent Status via Claude Code Hooks | 2026-03-14 | — |
+| SPEC-042 | MOTD Uncommitted File Display and Interactive Commit Button | 2026-03-14 | — |
 
 ## Active
 

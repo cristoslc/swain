@@ -1,10 +1,10 @@
 ---
 title: "MOTD Panel Improvements"
 artifact: EPIC-011
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-13
-last-updated: 2026-03-13
+last-updated: 2026-03-14
 parent-vision: VISION-001
 success-criteria:
   - MOTD Textual TUI has configurable clockwise animation
@@ -36,9 +36,9 @@ Make the MOTD panel a responsive, interactive dashboard that accurately reflects
 
 ## Child Specs
 
-- SPEC: Textual TUI animation (clockwise fix, configurable styles via settings) — #16
-- SPEC: Reactive agent status via Claude Code hooks — swain-6oa
-- SPEC: Uncommitted file display and interactive commit button — #13
+- SPEC-040: Textual TUI animation (clockwise fix, configurable styles via settings) — #16
+- SPEC-041: Reactive agent status via Claude Code hooks — swain-6oa
+- SPEC-042: Uncommitted file display and interactive commit button — #13
 
 ## Key Dependencies
 
@@ -50,3 +50,4 @@ Make the MOTD panel a responsive, interactive dashboard that accurately reflects
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | ea0d165 | Initial creation, groups #16, #13, and swain-6oa |
+| Active | 2026-03-14 | — | Activated and decomposed into SPEC-040, SPEC-041, SPEC-042 |
