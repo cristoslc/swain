@@ -2,7 +2,7 @@
 title: "Inline Lifecycle Hash Stamping for Trivial Artifacts"
 artifact: SPEC-046
 track: implementable
-status: Proposed
+status: Ready
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -95,4 +95,5 @@ No change to visible output — the lifecycle table just has the hash pre-filled
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-14 | -- | Initial creation from EPIC-014 decomposition; follows SPEC-045 fast-path classification |
+| Proposed | 2026-03-14 | c0e77ed2b6f273cb273a6e9c011149c13831c18c | Initial creation from EPIC-014 decomposition; follows SPEC-045 fast-path classification |
+| Ready | 2026-03-14 | c0e77ed | Approved — depends on SPEC-045 fast-path classification |
