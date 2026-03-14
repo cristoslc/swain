@@ -70,15 +70,16 @@ def build_graph(
             continue
 
         aid = artifact.artifact
+        fields = artifact.raw_fields
+        track = fields.get("track", "")
         nodes[aid] = {
             "title": artifact.title,
             "status": artifact.status,
             "type": artifact.type,
+            "track": track,
             "file": artifact.file,
             "description": artifact.description,
         }
-
-        fields = artifact.raw_fields
 
         # depends-on edges
         for dep in extract_list_ids(fields, "depends-on-artifacts"):

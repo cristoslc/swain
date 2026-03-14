@@ -20,7 +20,7 @@ Spawn seven agents in a single turn:
 |-------|---------------|
 | **Lifecycle auditor** | Check every artifact in `docs/` for valid status field, lifecycle table with hash stamps, and matching row in the appropriate `list-<type>.md` index. |
 | **Cross-reference checker** | Verify all `parent-*`, `depends-on`, `linked-*`, and `addresses` frontmatter values resolve to existing artifact files. Flag dangling references. |
-| **Naming & structure validator** | Confirm directory/file names follow `(TYPE-NNN)-Title` convention, templates have required frontmatter fields, and folder-type artifacts contain a primary `.md` file. |
+| **Naming & structure validator** | Confirm directory/file names follow `(TYPE-NNN)-Title` convention, templates have required frontmatter fields, and folder-type artifacts contain a primary `.md` file. Additionally, every artifact must have a `track` field set to one of `implementable`, `container`, or `standing` (as defined in [lifecycle-tracks.md](lifecycle-tracks.md)). Missing or invalid `track` fields are errors. |
 | **Phase/folder alignment** | Confirm `specwatch.sh phase-fix` from the pre-scan left no remaining mismatches. Flag any artifacts that could not be auto-moved. |
 | **Dependency coherence auditor** | Validate that `depends-on` edges are logically sound, not just syntactically valid. See checks below. |
 | **ADR compliance auditor** | Run `scripts/adr-check.sh` against every non-ADR artifact in `docs/`. Collect all RELEVANT, DEAD_REF, and stale findings into a single table. For each RELEVANT finding, read both documents and assess content-level compliance (see [adr-check-guide.md](adr-check-guide.md)). |
