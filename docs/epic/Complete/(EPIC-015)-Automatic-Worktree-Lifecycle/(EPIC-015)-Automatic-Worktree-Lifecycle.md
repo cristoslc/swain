@@ -57,4 +57,4 @@ The governing architectural decisions are recorded in ADR-005.
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation; three child specs identified |
 | Active | 2026-03-14 | dacbf2c | Transition to Active |
-| Complete | 2026-03-14 | -- | All 3 child SPECs Complete: SPEC-039, SPEC-043, SPEC-044 |
+| Complete | 2026-03-14 | 30116841a602a022632075525db90283f2c85e6b | All 3 child SPECs Complete: SPEC-039, SPEC-043, SPEC-044 |
