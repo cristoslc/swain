@@ -254,8 +254,17 @@ LIST_REF_FIELDS = [
 ]
 ALL_REF_FIELDS = SINGLE_REF_FIELDS + LIST_REF_FIELDS
 
-# Terminal/suspicious statuses
+# Terminal/suspicious statuses (for targets)
 TERMINAL_STATUSES = {'Abandoned', 'Rejected', 'Superseded'}
+
+# Terminal/closed phases for source artifacts — these are historical records
+# and should not warn when referencing Superseded/Retired targets
+SOURCE_TERMINAL_PHASES = {
+    'Complete', 'Implemented', 'Done',
+    'Abandoned', 'Rejected',
+    'Retired', 'Archived',
+    'Superseded', 'Deprecated',
+}
 
 # Phase ordering for mismatch detection (higher = more advanced)
 PHASE_ORDER = {
@@ -405,8 +414,11 @@ for root, dirs, files in os.walk(docs_dir):
                     target_path, target_status = artifact_index[base_id]
                     rel_target = os.path.relpath(target_path, os.path.dirname(docs_dir))
 
-                    # Check for terminal status
-                    if target_status in TERMINAL_STATUSES:
+                    # Check for terminal status — but only warn if
+                    # the SOURCE artifact is still active (not terminal/closed).
+                    # Closed artifacts referencing Superseded/Retired targets
+                    # are historical records and don't need updating.
+                    if target_status in TERMINAL_STATUSES and source_status not in SOURCE_TERMINAL_PHASES:
                         print(f"WARN\t{rel_source}\t{line_num}\t{field}\t{target_id}\t{rel_target}\ttarget is {target_status}")
 
                     # Check for phase mismatch
