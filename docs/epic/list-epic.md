@@ -1,10 +1,10 @@
 # Epics
 
-## Proposed
+## Active
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | — |
+| EPIC-005 | Isolated Claude Code Environment | 2026-03-12 | -- |
 
 ## Complete
 
@@ -21,7 +21,7 @@
 | EPIC-011 | MOTD Panel Improvements | 2026-03-14 | f1a7254 |
 | EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | 0e54e5e |
 | EPIC-013 | Specgraph Python Rewrite | 2026-03-14 | 621416b |
-| EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | -- |
+| EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | 9bc896b |
 | EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | 30116841a602a022632075525db90283f2c85e6b |
 
 ## Superseded
