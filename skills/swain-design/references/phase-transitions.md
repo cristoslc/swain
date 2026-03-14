@@ -20,8 +20,10 @@ Phases listed in the artifact definition files are available waypoints, not mand
 4a. **Verification gate (SPEC only)** — for `Needs Manual Test → Complete` transitions, run `skills/swain-design/scripts/spec-verify.sh <artifact-path>`. Address gaps before proceeding.
 4b. **Code review gate (SPEC only)** — for `Needs Manual Test → Complete`, if superpowers code review skills are installed, request spec compliance + code quality reviews (see [superpowers-integration.md](superpowers-integration.md)). Not a hard gate.
 5. Commit the transition change (move + status update).
-6. Append a row to the artifact's lifecycle table with the commit hash from step 5.
-7. Commit the hash stamp as a **separate commit** — never amend. Two distinct commits keeps the stamped hash reachable in git history and avoids interactive-rebase pitfalls.
+6. Stamp the lifecycle table with the transition commit hash. Choose the pattern based on artifact complexity tier (see SPEC-045):
+   - **Fast-path tier with no downstream dependents:** Use the inline stamp — run `git rev-parse HEAD` *before* the transition commit, pre-fill the lifecycle row hash, and include it in the single transition commit (step 5). No second commit needed.
+   - **Full-ceremony tier, EPICs, or artifacts with downstream dependents:** Append a row with `--` as a placeholder hash in step 5, then commit the hash stamp as a **separate commit** (step 7). Never amend — two distinct commits keeps the stamped hash reachable in git history.
+7. *(Full-ceremony only)* Commit the hash stamp as a separate commit — append the commit hash from step 5 into the lifecycle table row and commit. Skip this step for inline-stamped artifacts.
 8. **Post-operation scan** — run `skills/swain-design/scripts/specwatch.sh scan`. Fix any stale references.
 9. **Index refresh step** — move the artifact's row to the new phase table (see [index-maintenance.md](index-maintenance.md)).
 

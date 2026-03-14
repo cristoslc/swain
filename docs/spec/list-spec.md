@@ -1,11 +1,5 @@
 # Agent Specs
 
-## Ready
-
-| Artifact | Title | Last Updated | Commit |
-|----------|-------|-------------|--------|
-| SPEC-046 | Inline Lifecycle Hash Stamping for Trivial Artifacts | 2026-03-14 | c0e77ed |
-
 ## Complete
 
 | Artifact | Title | Last Updated | Commit |
@@ -55,5 +49,6 @@
 | SPEC-043 | swain-do: automatic worktree creation at dispatch | 2026-03-14 | 984dd27 |
 | SPEC-044 | swain-doctor: stale worktree detection | 2026-03-14 | 984dd27 |
 | SPEC-045 | Fast-Path Authoring Mode for Low-Complexity Artifacts | 2026-03-14 | b4892cd |
+| SPEC-046 | Inline Lifecycle Hash Stamping for Trivial Artifacts | 2026-03-14 | -- |
 | SPEC-047 | Lazy Index Refresh for list-*.md Artifact Indices | 2026-03-14 | b4892cd |
 
