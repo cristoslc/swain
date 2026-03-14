@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session-start health checks and repair
-  version: 2.3.0
+  version: 2.4.0
   author: cristos
   source: swain
 ---
@@ -135,13 +135,27 @@ for skill in $SUPERPOWERS_SKILLS; do
 done
 ```
 
-### Status values
+### Status values and response
 
-- **ok** — all superpowers skills detected
-- **warning** — some or all superpowers skills missing. Report which are missing and note: "Superpowers provides brainstorming, TDD, plan writing, and verification skills that chain with swain-design and swain-do. Install with: `npx @anthropic/claude-code-skills add obra/superpowers`"
-- **partial** — some skills present, some missing. List the missing ones — a partial install may indicate a failed update.
+- **ok** — all superpowers skills detected. No output.
+- **partial** — some skills present, some missing. List the missing ones, then prompt (see below). A partial install may indicate a failed update — note this in the prompt.
+- **missing** — no superpowers skills found. Prompt the user.
 
-Superpowers is strongly recommended but not required. This is always a warning, never a blocker.
+**When status is `missing` or `partial`**, ask:
+
+> Superpowers (`obra/superpowers`) is not installed [or: partially installed — N of 6 skills missing]. It provides TDD, brainstorming, plan writing, and verification skills that swain chains into during implementation and design work.
+>
+> Install superpowers now? (yes/no)
+
+If the user says **yes**:
+```bash
+npx skills add obra/superpowers
+```
+Report success or failure. On success, update status to **ok**.
+
+If the user says **no**, note "Superpowers: skipped" and continue. They can install later: `npx skills add obra/superpowers`.
+
+Superpowers is strongly recommended but not required. Declining is always allowed.
 
 ## Stale worktree detection
 
