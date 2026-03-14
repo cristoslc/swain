@@ -6,6 +6,7 @@
 |----------|-------|-------------|--------|
 | SPIKE-019 | Worktree Session Bookmark Design | 2026-03-14 | — |
 | SPIKE-020 | Security Scanning Landscape and BUILD vs BUY for swain-security-check | 2026-03-14 | — |
+| SPIKE-021 | Gantt Visualization Options For Swain-Status | 2026-03-14 | — |
 
 ## Active
 
