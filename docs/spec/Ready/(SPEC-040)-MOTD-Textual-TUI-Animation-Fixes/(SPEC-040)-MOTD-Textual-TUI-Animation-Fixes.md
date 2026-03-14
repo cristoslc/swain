@@ -1,7 +1,7 @@
 ---
 title: "MOTD Textual TUI Animation Fixes"
 artifact: SPEC-040
-status: Proposed
+status: Ready
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -63,3 +63,4 @@ Settings key: `motd.animationStyle` — valid values include at least: `"clockwi
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Initial creation from EPIC-011 decomposition; linked to GitHub #16 |
+| Ready | 2026-03-14 | — | Approved by operator |

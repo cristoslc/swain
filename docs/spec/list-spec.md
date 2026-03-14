@@ -4,9 +4,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-040 | MOTD Textual TUI Animation Fixes | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 |
-| SPEC-041 | MOTD Reactive Agent Status via Claude Code Hooks | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 |
-| SPEC-042 | MOTD Uncommitted File Display and Interactive Commit Button | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 |
 
 ## Active
 
@@ -25,6 +22,9 @@
 | SPEC-037 | Specgraph ready Leaks Standing-Track Artifacts | 2026-03-14 | b4037a0 |
 | SPEC-038 | Dynamic Track Resolution from Artifact Frontmatter | 2026-03-14 | b4037a0 |
 | SPEC-039 | swain-sync: worktree-aware execution | 2026-03-14 | 592da6c |
+| SPEC-040 | MOTD Textual TUI Animation Fixes | 2026-03-14 | — |
+| SPEC-041 | MOTD Reactive Agent Status via Claude Code Hooks | 2026-03-14 | — |
+| SPEC-042 | MOTD Uncommitted File Display and Interactive Commit Button | 2026-03-14 | — |
 
 ## Complete
 
