@@ -9,7 +9,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors, scope, impact, mermaid_cmd, status_cmd, ready, next_cmd
+from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors, scope, impact, mermaid_cmd, status_cmd, ready, next_cmd, overview
 
 
 # ---------------------------------------------------------------------------
@@ -985,3 +985,129 @@ class TestNext:
         assert spec001_line is not None
         assert "needs:" in spec001_line
         assert "SPEC-002" in spec001_line
+
+
+# ---------------------------------------------------------------------------
+# TestOverview
+# ---------------------------------------------------------------------------
+
+# Hierarchy fixture: VISION-001 → EPIC-001 → [SPEC-010, SPEC-011(done)]
+# SPIKE-010 has no parent edge (unparented root)
+HIER_NODES = {
+    # Use "In Progress" for VISION so it is not resolved (VISION "Active" = resolved in standing types)
+    "VISION-001": {"title": "Product Vision", "status": "In Progress", "type": "VISION", "file": "docs/vision/VISION-001.md", "description": ""},
+    "EPIC-001": {"title": "Epic 1", "status": "Active", "type": "EPIC", "file": "docs/epic/EPIC-001.md", "description": ""},
+    "SPEC-010": {"title": "Spec 10", "status": "In Progress", "type": "SPEC", "file": "docs/spec/SPEC-010.md", "description": ""},
+    "SPEC-011": {"title": "Spec 11 (done)", "status": "Complete", "type": "SPEC", "file": "docs/spec/SPEC-011.md", "description": ""},
+    "SPIKE-010": {"title": "Orphan Spike", "status": "In Progress", "type": "SPIKE", "file": "docs/spike/SPIKE-010.md", "description": ""},
+}
+HIER_EDGES = [
+    {"from": "EPIC-001", "to": "VISION-001", "type": "parent-vision"},
+    {"from": "SPEC-010", "to": "EPIC-001", "type": "parent-epic"},
+    {"from": "SPEC-011", "to": "EPIC-001", "type": "parent-epic"},
+]
+
+
+class TestOverview:
+    """Tests for overview() — hierarchy tree view."""
+
+    def test_overview_shows_hierarchy_structure(self):
+        """VISION-001 appears as root and EPIC-001 is indented as a child."""
+        result = overview(HIER_NODES, HIER_EDGES)
+        lines = result.split("\n")
+        vision_line = next((l for l in lines if "VISION-001" in l), None)
+        epic_line = next((l for l in lines if "EPIC-001" in l), None)
+        assert vision_line is not None, "VISION-001 should appear in output"
+        assert epic_line is not None, "EPIC-001 should appear in output"
+        # EPIC-001 line must come after VISION-001 line
+        assert lines.index(epic_line) > lines.index(vision_line)
+        # EPIC-001 should be indented (start with whitespace or tree chars)
+        assert epic_line[0] in (" ", "\u251c", "\u2514", "\u2502"), (
+            f"EPIC-001 line should be indented, got: {repr(epic_line)}"
+        )
+
+    def test_overview_hides_resolved_by_default(self):
+        """SPEC-011 (Complete) is NOT in output without show_all."""
+        result = overview(HIER_NODES, HIER_EDGES, show_all=False)
+        assert "SPEC-011" not in result
+
+    def test_overview_shows_resolved_with_all(self):
+        """SPEC-011 appears in output with show_all=True."""
+        result = overview(HIER_NODES, HIER_EDGES, show_all=True)
+        assert "SPEC-011" in result
+
+    def test_overview_unparented_section(self):
+        """Artifacts whose parent is resolved/hidden appear in '=== Unparented ===' section.
+
+        SPIKE-010 has a parent-epic edge to EPIC-001, but EPIC-001 is Complete (resolved).
+        With show_all=False, EPIC-001 is hidden, so SPIKE-010 appears in Unparented.
+        """
+        # Build a scenario: SPIKE-010 has a parent that is resolved (Complete)
+        resolved_parent_nodes = {
+            "EPIC-RESOLVED": {"title": "Done Epic", "status": "Complete", "type": "EPIC", "file": "docs/epic/EPIC-RESOLVED.md", "description": ""},
+            "SPEC-010": {"title": "Spec 10", "status": "In Progress", "type": "SPEC", "file": "docs/spec/SPEC-010.md", "description": ""},
+        }
+        resolved_parent_edges = [
+            {"from": "SPEC-010", "to": "EPIC-RESOLVED", "type": "parent-epic"},
+        ]
+        result = overview(resolved_parent_nodes, resolved_parent_edges, show_all=False)
+        assert "=== Unparented ===" in result, f"Expected Unparented section, got:\n{result}"
+        unparented_section = result.split("=== Unparented ===")[-1]
+        assert "SPEC-010" in unparented_section
+
+    def test_overview_summary_section(self):
+        """Output contains '=== Summary ===' with Ready/Blocked/Total counts."""
+        result = overview(HIER_NODES, HIER_EDGES)
+        assert "=== Summary ===" in result
+        summary_section = result.split("=== Summary ===")[-1]
+        assert "Ready:" in summary_section
+        assert "Blocked:" in summary_section
+        assert "Total unresolved:" in summary_section
+
+    def test_overview_status_icons(self):
+        """Ready artifacts use the right-arrow icon; no blocked icon used when no deps."""
+        # SPEC-010 has no depends-on edges → should be ready (→)
+        # SPEC-011 is resolved (only shown with show_all)
+        result = overview(HIER_NODES, HIER_EDGES)
+        spec010_line = next((l for l in result.split("\n") if "SPEC-010" in l), None)
+        assert spec010_line is not None, "SPEC-010 should be in output"
+        # The ready icon → should appear
+        assert "\u2192" in spec010_line, f"Expected → in SPEC-010 line: {repr(spec010_line)}"
+
+    def test_overview_blocked_shows_deps(self):
+        """Blocked artifacts show '[blocked by: ...]' in their line."""
+        # Add a depends-on edge so SPEC-010 is blocked by EPIC-001
+        extra_edges = list(HIER_EDGES) + [
+            {"from": "SPEC-010", "to": "EPIC-001", "type": "depends-on"},
+        ]
+        result = overview(HIER_NODES, extra_edges)
+        spec010_line = next((l for l in result.split("\n") if "SPEC-010" in l), None)
+        assert spec010_line is not None, "SPEC-010 should be in output"
+        assert "[blocked by:" in spec010_line, (
+            f"Expected '[blocked by:' in SPEC-010 line: {repr(spec010_line)}"
+        )
+        assert "EPIC-001" in spec010_line
+
+    def test_overview_empty_nodes(self):
+        """overview() with empty nodes returns minimal output (just summary)."""
+        result = overview({}, [])
+        assert "=== Summary ===" in result
+        assert "Ready: 0" in result
+        assert "Blocked: 0" in result
+        assert "Total unresolved: 0" in result
+
+    def test_overview_cross_cutting_section(self):
+        """Cross-cutting section appears when lateral edges connect visible artifacts."""
+        extra_edges = list(HIER_EDGES) + [
+            {"from": "SPEC-010", "to": "SPIKE-010", "type": "linked-artifact"},
+        ]
+        result = overview(HIER_NODES, extra_edges)
+        assert "=== Cross-cutting ===" in result
+        cross_section = result.split("=== Cross-cutting ===")[-1]
+        assert "SPEC-010" in cross_section
+        assert "SPIKE-010" in cross_section
+
+    def test_overview_tk_section_present(self):
+        """Output always contains '=== Execution Tracking (tk ready) ===' section."""
+        result = overview(HIER_NODES, HIER_EDGES)
+        assert "=== Execution Tracking (tk ready) ===" in result

@@ -7,6 +7,7 @@ in-memory graph cache (nodes dict + edges list) and returns plain text output.
 from __future__ import annotations
 
 import os
+import subprocess
 from collections import deque
 
 from .links import art_link
@@ -670,5 +671,278 @@ def next_cmd(
                     unresolved_deps.append(target)
             needs_str = ", ".join(sorted(unresolved_deps))
             lines.append(f"  {display_id}  {status}  {title}  (needs: {needs_str})")
+
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Overview — hierarchy tree view
+# ---------------------------------------------------------------------------
+
+
+def _status_icon(artifact_id: str, nodes: dict, edges: list[dict], ready_set: set[str]) -> str:
+    """Return a status icon for the artifact.
+
+    Icons:
+    - checkmark  resolved artifact (only shown when show_all=True)
+    - blocked    unresolved with unresolved deps
+    - ready      unresolved with all deps satisfied
+    - dot        otherwise (in progress, no specific ready/blocked state)
+    """
+    if _node_is_resolved(artifact_id, nodes):
+        return "\u2713"  # checkmark ✓
+    if artifact_id in ready_set:
+        return "\u2192"  # right arrow →
+    # Check if it has any unresolved depends-on deps
+    for edge in edges:
+        if edge.get("from") != artifact_id:
+            continue
+        if edge.get("type") != "depends-on":
+            continue
+        target = edge.get("to", "")
+        if target and not _node_is_resolved(target, nodes):
+            return "\u2298"  # circled division slash ⊘
+    return "\u00b7"  # middle dot ·
+
+
+def _render_subtree_v2(
+    artifact_id: str,
+    nodes: dict,
+    edges: list[dict],
+    children: dict,
+    ready_set: set[str],
+    show_all: bool,
+    repo_root: str,
+    show_links: bool,
+    prefix: str,
+    connector: str,
+    visited: set[str],
+    lines: list[str],
+) -> None:
+    """Recursively render artifact_id and its children into lines.
+
+    prefix: the running indent prefix (accumulated from ancestors)
+    connector: the connector to prepend to this node's line (e.g., "├── " or "└── " or "")
+    """
+    visited.add(artifact_id)
+    node = nodes.get(artifact_id, {})
+    display_id = _format_id(artifact_id, nodes, repo_root, show_links)
+    status = node.get("status", "")
+    title = node.get("title", "")
+    icon = _status_icon(artifact_id, nodes, edges, ready_set)
+
+    # Collect unresolved depends-on deps for blocked indicator
+    unresolved_deps: list[str] = []
+    for edge in edges:
+        if edge.get("from") != artifact_id:
+            continue
+        if edge.get("type") != "depends-on":
+            continue
+        target = edge.get("to", "")
+        if target and not _node_is_resolved(target, nodes):
+            unresolved_deps.append(target)
+    unresolved_deps.sort()
+
+    blocking_info = ""
+    if unresolved_deps:
+        blocking_info = f"  [blocked by: {', '.join(unresolved_deps)}]"
+
+    lines.append(f"{prefix}{connector}{icon} {display_id}  {status}  {title}{blocking_info}")
+
+    # Get visible children
+    child_ids = sorted(children.get(artifact_id, []))
+    visible_children: list[str] = []
+    for child_id in child_ids:
+        if not show_all and _node_is_resolved(child_id, nodes):
+            continue
+        visible_children.append(child_id)
+
+    for i, child_id in enumerate(visible_children):
+        is_last = i == len(visible_children) - 1
+        child_connector = "\u2514\u2500\u2500 " if is_last else "\u251c\u2500\u2500 "  # └── or ├──
+        # Determine continuation prefix for children of this child
+        if connector in ("\u2514\u2500\u2500 ", ""):
+            child_prefix = prefix + "    "
+        else:
+            child_prefix = prefix + "\u2502   "  # │
+        # For root nodes (connector==""), use empty continuation
+        if connector == "":
+            child_prefix = ""
+        _render_subtree_v2(
+            child_id,
+            nodes,
+            edges,
+            children,
+            ready_set,
+            show_all,
+            repo_root,
+            show_links,
+            child_prefix,
+            child_connector,
+            visited,
+            lines,
+        )
+
+
+def overview(
+    nodes: dict,
+    edges: list[dict],
+    show_all: bool = False,
+    repo_root: str = "",
+    show_links: bool = False,
+) -> str:
+    """Build a tree view of the artifact hierarchy.
+
+    Artifacts are organized by parent-epic / parent-vision relationships.
+    Roots (no parent edge outgoing) are rendered at the top level.
+    Children are indented with classic Unix tree connectors.
+
+    Sections:
+    1. Hierarchy tree
+    2. === Unparented === (unresolved artifacts not reachable from visible roots)
+    3. === Cross-cutting === (artifacts in lateral edges)
+    4. === Summary === (Ready / Blocked / Total unresolved counts)
+    5. === Execution Tracking (tk ready) === (output of `tk ready` command)
+    """
+    # --- Step 1: Build adjacency maps ---
+    # children[parent_id] = list of artifact IDs that have parent_id as parent
+    children: dict[str, list[str]] = {}
+    # has_parent = set of artifact IDs that have at least one outgoing parent edge
+    has_parent: set[str] = set()
+
+    for edge in edges:
+        if edge.get("type") not in _PARENT_EDGE_TYPES:
+            continue
+        child_id = edge.get("from", "")
+        parent_id = edge.get("to", "")
+        if not child_id or not parent_id:
+            continue
+        has_parent.add(child_id)
+        children.setdefault(parent_id, []).append(child_id)
+
+    # --- Step 2: Find roots ---
+    roots = sorted(artifact_id for artifact_id in nodes if artifact_id not in has_parent)
+
+    # --- Step 3: Compute ready set ---
+    ready_set = _compute_ready_set(nodes, edges)
+
+    # --- Step 4: Render tree ---
+    visited: set[str] = set()
+    tree_lines: list[str] = []
+
+    for root_id in roots:
+        # Apply visibility filter for roots
+        if not show_all and _node_is_resolved(root_id, nodes):
+            # Mark as visited so we don't show it in unparented either
+            visited.add(root_id)
+            continue
+        _render_subtree_v2(
+            root_id,
+            nodes,
+            edges,
+            children,
+            ready_set,
+            show_all,
+            repo_root,
+            show_links,
+            "",   # prefix
+            "",   # connector (root has no connector)
+            visited,
+            tree_lines,
+        )
+
+    lines: list[str] = list(tree_lines)
+
+    # --- Step 5: Unparented section ---
+    # Collect unresolved (or all, if show_all) artifacts NOT visited during tree walk
+    unparented: list[str] = []
+    for artifact_id in sorted(nodes):
+        if artifact_id in visited:
+            continue
+        if not show_all and _node_is_resolved(artifact_id, nodes):
+            continue
+        unparented.append(artifact_id)
+
+    if unparented:
+        lines.append("")
+        lines.append("=== Unparented ===")
+        for artifact_id in unparented:
+            node = nodes.get(artifact_id, {})
+            display_id = _format_id(artifact_id, nodes, repo_root, show_links)
+            status = node.get("status", "")
+            title = node.get("title", "")
+            icon = _status_icon(artifact_id, nodes, edges, ready_set)
+            unresolved_deps_list: list[str] = []
+            for edge in edges:
+                if edge.get("from") != artifact_id:
+                    continue
+                if edge.get("type") != "depends-on":
+                    continue
+                target = edge.get("to", "")
+                if target and not _node_is_resolved(target, nodes):
+                    unresolved_deps_list.append(target)
+            unresolved_deps_list.sort()
+            blocking_info_u = f"  [blocked by: {', '.join(unresolved_deps_list)}]" if unresolved_deps_list else ""
+            lines.append(f"{icon} {display_id}  {status}  {title}{blocking_info_u}")
+
+    # --- Step 6: Cross-cutting section ---
+    # Artifacts that appear in lateral edges where both endpoints are visible
+    visible_ids: set[str] = set()
+    for artifact_id in nodes:
+        if show_all or not _node_is_resolved(artifact_id, nodes):
+            visible_ids.add(artifact_id)
+
+    cross_pairs: list[tuple[str, str]] = []
+    seen_pairs: set[frozenset] = set()
+    for edge in edges:
+        if edge.get("type") not in _LATERAL_EDGE_TYPES:
+            continue
+        frm = edge.get("from", "")
+        to = edge.get("to", "")
+        if not frm or not to:
+            continue
+        if frm not in visible_ids or to not in visible_ids:
+            continue
+        pair: frozenset = frozenset({frm, to})
+        if pair in seen_pairs:
+            continue
+        seen_pairs.add(pair)
+        cross_pairs.append((frm, to))
+
+    if cross_pairs:
+        lines.append("")
+        lines.append("=== Cross-cutting ===")
+        for frm, to in sorted(cross_pairs):
+            frm_display = _format_id(frm, nodes, repo_root, show_links)
+            to_display = _format_id(to, nodes, repo_root, show_links)
+            lines.append(f"{frm_display} <--> {to_display}")
+
+    # --- Step 7: Summary ---
+    all_unresolved = [aid for aid in nodes if not _node_is_resolved(aid, nodes)]
+    ready_count = len(ready_set)
+    blocked_count = sum(1 for aid in all_unresolved if aid not in ready_set)
+    total_unresolved = len(all_unresolved)
+
+    lines.append("")
+    lines.append("=== Summary ===")
+    lines.append(f"Ready: {ready_count}  Blocked: {blocked_count}  Total unresolved: {total_unresolved}")
+
+    # --- Step 8: tk integration ---
+    lines.append("")
+    lines.append("=== Execution Tracking (tk ready) ===")
+    try:
+        result = subprocess.run(
+            ["tk", "ready"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        tk_output = result.stdout.strip()
+        if tk_output:
+            lines.append(tk_output)
+        else:
+            lines.append("(no ready tasks)")
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+        lines.append("(tk not found)")
 
     return "\n".join(lines)
