@@ -37,7 +37,7 @@ Architecture overviews are valid alongside both Vision and Epic artifacts:
 
 Every architecture overview must contain at least one diagram. Acceptable formats:
 - Mermaid code block (` ```mermaid `)
-- Image reference (`![...](...)`)
+- Image reference (standard markdown `![alt](path)` syntax pointing to a local or remote image)
 - A `## Diagram` or `## Architecture Diagram` section heading (for externally-hosted diagrams)
 
 ### 3. Diagram level guidance
