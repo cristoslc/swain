@@ -9,7 +9,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors
+from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors, scope, impact
 
 
 # ---------------------------------------------------------------------------
@@ -360,3 +360,230 @@ class TestNeighbors:
         assert len(parts) == 5
         assert parts[3] == ""   # status empty
         assert parts[4] == ""   # title empty
+
+
+# ---------------------------------------------------------------------------
+# Fixtures for scope/impact tests
+# ---------------------------------------------------------------------------
+
+# Richer graph: VISION → EPIC → SPEC hierarchy + laterals
+SCOPE_NODES = {
+    "VISION-001": {"title": "Vision 1", "status": "Active", "type": "VISION", "file": "docs/vision/VISION-001.md", "description": ""},
+    "EPIC-010": {"title": "Epic 10", "status": "Active", "type": "EPIC", "file": "docs/epic/EPIC-010.md", "description": ""},
+    "EPIC-011": {"title": "Epic 11", "status": "Active", "type": "EPIC", "file": "docs/epic/EPIC-011.md", "description": ""},
+    "SPEC-010": {"title": "Spec 10", "status": "In Progress", "type": "SPEC", "file": "docs/spec/SPEC-010.md", "description": ""},
+    "SPEC-011": {"title": "Spec 11", "status": "Ready", "type": "SPEC", "file": "docs/spec/SPEC-011.md", "description": ""},
+    "SPEC-012": {"title": "Spec 12", "status": "Draft", "type": "SPEC", "file": "docs/spec/SPEC-012.md", "description": ""},
+    "ADR-010": {"title": "ADR 10", "status": "Active", "type": "ADR", "file": "docs/adr/ADR-010.md", "description": ""},
+}
+
+SCOPE_EDGES = [
+    # EPIC-010 is child of VISION-001
+    {"from": "EPIC-010", "to": "VISION-001", "type": "parent-vision"},
+    # EPIC-011 is also child of VISION-001 (sibling of EPIC-010)
+    {"from": "EPIC-011", "to": "VISION-001", "type": "parent-vision"},
+    # SPEC-010 is child of EPIC-010
+    {"from": "SPEC-010", "to": "EPIC-010", "type": "parent-epic"},
+    # SPEC-011 is also child of EPIC-010 (sibling of SPEC-010)
+    {"from": "SPEC-011", "to": "EPIC-010", "type": "parent-epic"},
+    # SPEC-012 is child of EPIC-011 (different epic, not sibling of SPEC-010)
+    {"from": "SPEC-012", "to": "EPIC-011", "type": "parent-epic"},
+    # Lateral: SPEC-010 linked-artifact to ADR-010
+    {"from": "SPEC-010", "to": "ADR-010", "type": "linked-artifact"},
+    # Lateral: SPEC-010 validates SPEC-012
+    {"from": "SPEC-010", "to": "SPEC-012", "type": "validates"},
+]
+
+
+# ---------------------------------------------------------------------------
+# TestScope
+# ---------------------------------------------------------------------------
+
+
+class TestScope:
+    """Test scope() — parent chain, siblings, laterals."""
+
+    def test_scope_unknown_artifact_returns_empty(self):
+        """scope(UNKNOWN-999) returns empty string."""
+        result = scope("UNKNOWN-999", SCOPE_NODES, SCOPE_EDGES)
+        assert result == ""
+
+    def test_scope_parent_chain_direct_parent(self):
+        """scope(SPEC-010) parent chain includes EPIC-010."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "EPIC-010" in result
+
+    def test_scope_parent_chain_grandparent(self):
+        """scope(SPEC-010) parent chain includes VISION-001 (grandparent via EPIC-010)."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "VISION-001" in result
+
+    def test_scope_parent_chain_section_header(self):
+        """scope output includes '=== Parent Chain ===' header."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "=== Parent Chain ===" in result
+
+    def test_scope_siblings_includes_sibling_spec(self):
+        """scope(SPEC-010) siblings includes SPEC-011 (shares EPIC-010 parent)."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "SPEC-011" in result
+
+    def test_scope_siblings_excludes_self(self):
+        """scope(SPEC-010) siblings does NOT include SPEC-010 itself."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        # Find siblings section specifically
+        lines = result.split("\n")
+        in_siblings = False
+        sibling_ids = []
+        for line in lines:
+            if "=== Siblings ===" in line:
+                in_siblings = True
+                continue
+            if in_siblings and line.startswith("==="):
+                break
+            if in_siblings and line.strip():
+                sibling_ids.append(line.strip())
+        assert "SPEC-010" not in sibling_ids
+
+    def test_scope_siblings_excludes_different_parent(self):
+        """scope(SPEC-010) siblings does NOT include SPEC-012 (different parent EPIC-011)."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        lines = result.split("\n")
+        in_siblings = False
+        sibling_ids = []
+        for line in lines:
+            if "=== Siblings ===" in line:
+                in_siblings = True
+                continue
+            if in_siblings and line.startswith("==="):
+                break
+            if in_siblings and line.strip():
+                sibling_ids.append(line.strip())
+        assert "SPEC-012" not in sibling_ids
+
+    def test_scope_siblings_section_header(self):
+        """scope output includes '=== Siblings ===' header."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "=== Siblings ===" in result
+
+    def test_scope_laterals_includes_linked_artifact(self):
+        """scope(SPEC-010) laterals includes ADR-010 (linked-artifact edge)."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "ADR-010" in result
+
+    def test_scope_laterals_includes_validates(self):
+        """scope(SPEC-010) laterals includes SPEC-012 (validates edge)."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "SPEC-012" in result
+
+    def test_scope_laterals_section_header(self):
+        """scope output includes '=== Laterals ===' header."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "=== Laterals ===" in result
+
+    def test_scope_no_parent_shows_empty_parent_chain(self):
+        """scope(VISION-001) has no parent chain entries."""
+        result = scope("VISION-001", SCOPE_NODES, SCOPE_EDGES)
+        lines = result.split("\n")
+        in_chain = False
+        chain_ids = []
+        for line in lines:
+            if "=== Parent Chain ===" in line:
+                in_chain = True
+                continue
+            if in_chain and line.startswith("==="):
+                break
+            if in_chain and line.strip():
+                chain_ids.append(line.strip())
+        assert chain_ids == []
+
+    def test_scope_architecture_overview_section_header(self):
+        """scope output includes '=== Architecture Overview ===' header."""
+        result = scope("SPEC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "=== Architecture Overview ===" in result
+
+    def test_scope_parent_chain_epic_only(self):
+        """scope(EPIC-010) parent chain includes VISION-001 only."""
+        result = scope("EPIC-010", SCOPE_NODES, SCOPE_EDGES)
+        lines = result.split("\n")
+        in_chain = False
+        chain_ids = []
+        for line in lines:
+            if "=== Parent Chain ===" in line:
+                in_chain = True
+                continue
+            if in_chain and line.startswith("==="):
+                break
+            if in_chain and line.strip():
+                chain_ids.append(line.strip())
+        assert "VISION-001" in chain_ids
+        assert "EPIC-010" not in chain_ids
+
+
+# ---------------------------------------------------------------------------
+# TestImpact
+# ---------------------------------------------------------------------------
+
+
+class TestImpact:
+    """Test impact() — direct refs and transitive chain walking."""
+
+    def test_impact_unknown_artifact_shows_zero_direct(self):
+        """impact(UNKNOWN-999) shows DIRECT: 0."""
+        result = impact("UNKNOWN-999", SCOPE_NODES, SCOPE_EDGES)
+        assert "DIRECT: 0" in result
+
+    def test_impact_direct_refs(self):
+        """impact(EPIC-010) shows SPEC-010 and SPEC-011 as direct references."""
+        result = impact("EPIC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "SPEC-010" in result
+        assert "SPEC-011" in result
+
+    def test_impact_direct_count(self):
+        """impact(EPIC-010) DIRECT count is 2 (SPEC-010 and SPEC-011)."""
+        result = impact("EPIC-010", SCOPE_NODES, SCOPE_EDGES)
+        lines = result.split("\n")
+        direct_line = next((l for l in lines if l.startswith("DIRECT:")), "")
+        assert direct_line == "DIRECT: 2"
+
+    def test_impact_affected_chains_section(self):
+        """impact output includes 'AFFECTED CHAINS:' section."""
+        result = impact("VISION-001", SCOPE_NODES, SCOPE_EDGES)
+        assert "AFFECTED CHAINS:" in result
+
+    def test_impact_total_section(self):
+        """impact output includes 'TOTAL:' section."""
+        result = impact("EPIC-010", SCOPE_NODES, SCOPE_EDGES)
+        assert "TOTAL:" in result
+
+    def test_impact_vision_direct_is_epics(self):
+        """impact(VISION-001) direct refs are EPIC-010 and EPIC-011."""
+        result = impact("VISION-001", SCOPE_NODES, SCOPE_EDGES)
+        assert "EPIC-010" in result
+        assert "EPIC-011" in result
+        lines = result.split("\n")
+        direct_line = next((l for l in lines if l.startswith("DIRECT:")), "")
+        assert direct_line == "DIRECT: 2"
+
+    def test_impact_vision_affected_chains_include_specs(self):
+        """impact(VISION-001) affected chains includes SPEC-010, SPEC-011, SPEC-012."""
+        result = impact("VISION-001", SCOPE_NODES, SCOPE_EDGES)
+        assert "SPEC-010" in result
+        assert "SPEC-011" in result
+        assert "SPEC-012" in result
+
+    def test_impact_total_count_vision(self):
+        """impact(VISION-001) TOTAL includes direct + chain artifacts."""
+        result = impact("VISION-001", SCOPE_NODES, SCOPE_EDGES)
+        lines = result.split("\n")
+        total_line = next((l for l in lines if l.startswith("TOTAL:")), "")
+        # 2 direct (EPIC-010, EPIC-011) + 3 chain (SPEC-010, SPEC-011, SPEC-012) = 5
+        assert total_line == "TOTAL: 5"
+
+    def test_impact_leaf_node_no_direct(self):
+        """impact(ADR-010) DIRECT is 1 (SPEC-010 linked-artifact edge to ADR-010)."""
+        result = impact("ADR-010", SCOPE_NODES, SCOPE_EDGES)
+        lines = result.split("\n")
+        direct_line = next((l for l in lines if l.startswith("DIRECT:")), "")
+        # SPEC-010 has a linked-artifact edge to ADR-010 → counts as direct
+        assert direct_line == "DIRECT: 1"

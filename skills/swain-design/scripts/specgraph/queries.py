@@ -1,11 +1,12 @@
-"""Query functions for specgraph: blocks, blocked_by, tree, edges_cmd.
+"""Query functions for specgraph: blocks, blocked_by, tree, edges_cmd, scope, impact.
 
-These implement the four primary graph query commands. Each operates on the
+These implement the primary graph query commands. Each operates on the
 in-memory graph cache (nodes dict + edges list) and returns plain text output.
 """
 
 from __future__ import annotations
 
+import os
 from collections import deque
 
 from .links import art_link
@@ -59,7 +60,7 @@ def blocks(
         if _node_is_resolved(target, nodes):
             continue
         result.append(_format_id(target, nodes, repo_root, show_links))
-    return "\n".join(result)
+    return "\n".join(sorted(result))
 
 
 def blocked_by(
@@ -86,7 +87,7 @@ def blocked_by(
         if _node_is_resolved(source, nodes):
             continue
         result.append(_format_id(source, nodes, repo_root, show_links))
-    return "\n".join(result)
+    return "\n".join(sorted(result))
 
 
 def tree(
@@ -122,7 +123,7 @@ def tree(
             result.append(_format_id(target, nodes, repo_root, show_links))
             queue.append(target)
 
-    return "\n".join(result)
+    return "\n".join(sorted(result))
 
 
 def neighbors(
@@ -191,3 +192,202 @@ def edges_cmd(
 
     filtered.sort(key=lambda t: (t[0], t[1], t[2]))
     return "\n".join(f"{frm}\t{to}\t{typ}" for frm, to, typ in filtered)
+
+
+# ---------------------------------------------------------------------------
+# Parent-edge types used by scope/impact for hierarchy traversal
+# ---------------------------------------------------------------------------
+
+_PARENT_EDGE_TYPES = frozenset({"parent-epic", "parent-vision"})
+
+# Lateral edge types shown in scope's Laterals section
+_LATERAL_EDGE_TYPES = frozenset({"linked-artifact", "addresses", "validates", "superseded-by"})
+
+
+def _get_immediate_parent(artifact_id: str, edges: list[dict]) -> str | None:
+    """Return the first immediate parent ID (via parent-epic or parent-vision), or None."""
+    for edge in edges:
+        if edge.get("from") == artifact_id and edge.get("type") in _PARENT_EDGE_TYPES:
+            return edge.get("to", "") or None
+    return None
+
+
+def _walk_parent_chain(artifact_id: str, edges: list[dict]) -> list[str]:
+    """Walk parent-epic / parent-vision edges upward. Return ordered list (closest first).
+
+    Cycle-safe via visited set.
+    """
+    chain: list[str] = []
+    visited: set[str] = {artifact_id}
+    current = artifact_id
+    while True:
+        parent = _get_immediate_parent(current, edges)
+        if parent is None or parent in visited:
+            break
+        visited.add(parent)
+        chain.append(parent)
+        current = parent
+    return chain
+
+
+def _find_vision_ancestor(artifact_id: str, nodes: dict, edges: list[dict]) -> str | None:
+    """Return the VISION-type ancestor ID, if any exists in the parent chain."""
+    chain = _walk_parent_chain(artifact_id, edges)
+    for ancestor_id in chain:
+        node = nodes.get(ancestor_id, {})
+        if node.get("type", "").upper() == "VISION":
+            return ancestor_id
+    return None
+
+
+def scope(
+    artifact_id: str,
+    nodes: dict,
+    edges: list[dict],
+    repo_root: str = "",
+    show_links: bool = False,
+) -> str:
+    """Show the scope context of an artifact.
+
+    Output sections:
+    1. Parent chain: walk parent-epic and parent-vision edges BFS upward
+    2. Siblings: other artifacts sharing the same immediate parent
+    3. Laterals: linked-artifacts, addresses, validates, superseded-by edges
+    4. Architecture overview: if a VISION ancestor exists, check for
+       architecture-overview.md adjacent to the Vision file (filesystem check)
+
+    Format each section with a header like "=== Parent Chain ===" etc.
+    Return empty string if artifact_id not in nodes.
+    """
+    if artifact_id not in nodes:
+        return ""
+
+    sections: list[str] = []
+
+    # --- 1. Parent chain ---
+    chain = _walk_parent_chain(artifact_id, edges)
+    chain_lines = [_format_id(pid, nodes, repo_root, show_links) for pid in chain]
+    sections.append("=== Parent Chain ===")
+    sections.extend(chain_lines)
+
+    # --- 2. Siblings (other artifacts sharing the same immediate parent) ---
+    immediate_parent = chain[0] if chain else None
+    sibling_ids: list[str] = []
+    if immediate_parent is not None:
+        for edge in edges:
+            if edge.get("to") != immediate_parent:
+                continue
+            if edge.get("type") not in _PARENT_EDGE_TYPES:
+                continue
+            sibling = edge.get("from", "")
+            if sibling and sibling != artifact_id:
+                sibling_ids.append(sibling)
+    sibling_ids.sort()
+    sections.append("=== Siblings ===")
+    sections.extend(_format_id(sid, nodes, repo_root, show_links) for sid in sibling_ids)
+
+    # --- 3. Laterals ---
+    lateral_ids: list[str] = []
+    for edge in edges:
+        if edge.get("from") != artifact_id:
+            continue
+        if edge.get("type") not in _LATERAL_EDGE_TYPES:
+            continue
+        target = edge.get("to", "")
+        if target:
+            lateral_ids.append(target)
+    lateral_ids.sort()
+    sections.append("=== Laterals ===")
+    sections.extend(_format_id(lid, nodes, repo_root, show_links) for lid in lateral_ids)
+
+    # --- 4. Architecture overview ---
+    sections.append("=== Architecture Overview ===")
+    vision_id = _find_vision_ancestor(artifact_id, nodes, edges)
+    if vision_id is None and nodes.get(artifact_id, {}).get("type", "").upper() == "VISION":
+        vision_id = artifact_id
+
+    arch_path: str | None = None
+    if vision_id and repo_root:
+        vision_file = nodes.get(vision_id, {}).get("file", "")
+        if vision_file:
+            vision_dir = os.path.dirname(os.path.join(repo_root, vision_file))
+            candidate = os.path.join(vision_dir, "architecture-overview.md")
+            if os.path.isfile(candidate):
+                arch_path = candidate
+
+    if arch_path:
+        sections.append(arch_path)
+
+    return "\n".join(sections)
+
+
+def impact(
+    artifact_id: str,
+    nodes: dict,
+    edges: list[dict],
+    repo_root: str = "",
+    show_links: bool = False,
+) -> str:
+    """Show what would be impacted if this artifact changed.
+
+    Find all edges where to==artifact_id (direct references).
+    Then walk parent chains of those referencing artifacts.
+
+    Output format:
+    DIRECT: count
+    list of direct references
+
+    AFFECTED CHAINS: count
+    list of artifacts in chains
+
+    TOTAL: count
+    """
+    # --- Direct references: any edge where to==artifact_id ---
+    direct_ids: list[str] = []
+    for edge in edges:
+        if edge.get("to") == artifact_id:
+            source = edge.get("from", "")
+            if source and source not in direct_ids:
+                direct_ids.append(source)
+    direct_ids.sort()
+
+    # --- Affected chains: walk the parent chain of each direct referrer
+    # (children of the direct referrers, i.e., things that reference them) ---
+    chain_ids_set: set[str] = set()
+    # For each direct referrer, find all artifacts whose parent chain passes through it
+    # Walk "downward": find everything that has direct_id in its parent chain
+    # i.e., for each artifact, check if artifact_id appears in its ancestry
+
+    # Build a map: artifact → immediate parent
+    # Then for each direct referrer, find all artifacts that ultimately have it as ancestor
+    # We do this by BFS "downward" — follow edges in reverse (to→from for parent edges)
+    for direct_id in direct_ids:
+        # Find children of direct_id (edges where to==direct_id and type is parent edge)
+        queue: deque[str] = deque([direct_id])
+        visited: set[str] = {direct_id, artifact_id}
+        while queue:
+            current = queue.popleft()
+            for edge in edges:
+                if edge.get("to") != current:
+                    continue
+                if edge.get("type") not in _PARENT_EDGE_TYPES:
+                    continue
+                child = edge.get("from", "")
+                if child and child not in visited:
+                    visited.add(child)
+                    chain_ids_set.add(child)
+                    queue.append(child)
+
+    # Remove any that are already in direct_ids
+    chain_ids = sorted(chain_ids_set - set(direct_ids))
+
+    total = len(direct_ids) + len(chain_ids)
+
+    lines: list[str] = []
+    lines.append(f"DIRECT: {len(direct_ids)}")
+    lines.extend(_format_id(did, nodes, repo_root, show_links) for did in direct_ids)
+    lines.append(f"AFFECTED CHAINS: {len(chain_ids)}")
+    lines.extend(_format_id(cid, nodes, repo_root, show_links) for cid in chain_ids)
+    lines.append(f"TOTAL: {total}")
+
+    return "\n".join(lines)
