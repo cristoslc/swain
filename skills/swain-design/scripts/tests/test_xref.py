@@ -338,3 +338,111 @@ class TestCheckReciprocalEdgesBasic:
 
 
 # ---------------------------------------------------------------------------
+# swa-zvey — Full xref pipeline tests
+# ---------------------------------------------------------------------------
+
+
+class TestComputeXrefPipeline:
+    """Test compute_xref returns only artifacts with at least one discrepancy."""
+
+    def test_one_artifact_with_body_mention_not_in_frontmatter(self):
+        """Artifact with body mention missing from frontmatter appears in result; clean artifact omitted."""
+        artifacts = [
+            {
+                "id": "SPEC-001",
+                "file": "docs/spec-001.md",
+                "body": "See EPIC-005 for context.",
+                "frontmatter": {},
+            },
+            {
+                "id": "SPEC-002",
+                "file": "docs/spec-002.md",
+                "body": "No cross-references here.",
+                "frontmatter": {},
+            },
+        ]
+        edges = []
+        result = compute_xref(artifacts, edges)
+        ids = [entry["artifact"] for entry in result]
+        assert "SPEC-001" in ids
+        assert "SPEC-002" not in ids
+
+    def test_both_artifacts_clean_returns_empty(self):
+        """Two fully consistent artifacts → empty result list."""
+        artifacts = [
+            {
+                "id": "SPEC-010",
+                "file": "docs/spec-010.md",
+                "body": "SPEC-020 is referenced here.",
+                "frontmatter": {"depends-on-artifacts": ["SPEC-020"]},
+            },
+            {
+                "id": "SPEC-020",
+                "file": "docs/spec-020.md",
+                "body": "No references.",
+                "frontmatter": {},
+            },
+        ]
+        edges = []
+        result = compute_xref(artifacts, edges)
+        assert result == []
+
+    def test_artifact_with_missing_reciprocal_edge(self):
+        """Artifact with missing reciprocal edge appears with missing_reciprocal populated."""
+        artifacts = [
+            {
+                "id": "SPEC-001",
+                "file": "docs/spec-001.md",
+                "body": "",
+                "frontmatter": {},
+            },
+            {
+                "id": "EPIC-005",
+                "file": "docs/epic-005.md",
+                "body": "",
+                "frontmatter": {"linked-artifacts": []},
+            },
+        ]
+        edges = [{"from": "SPEC-001", "to": "EPIC-005", "type": "depends-on"}]
+        result = compute_xref(artifacts, edges)
+        epic_entries = [e for e in result if e["artifact"] == "EPIC-005"]
+        assert len(epic_entries) == 1
+        assert len(epic_entries[0]["missing_reciprocal"]) >= 1
+
+    def test_all_three_discrepancy_types_in_one_artifact(self):
+        """Single artifact with body_not_in_frontmatter, frontmatter_not_in_body, and missing_reciprocal."""
+        artifacts = [
+            {
+                "id": "SPEC-001",
+                "file": "docs/spec-001.md",
+                "body": "See EPIC-005.",
+                "frontmatter": {"depends-on-artifacts": ["SPIKE-007"]},
+            },
+            {
+                "id": "EPIC-005",
+                "file": "docs/epic-005.md",
+                "body": "",
+                "frontmatter": {"linked-artifacts": []},
+            },
+            {
+                "id": "SPIKE-007",
+                "file": "docs/spike-007.md",
+                "body": "",
+                "frontmatter": {},
+            },
+        ]
+        edges = [{"from": "SPEC-001", "to": "EPIC-005", "type": "depends-on"}]
+        result = compute_xref(artifacts, edges)
+        spec_entries = [e for e in result if e["artifact"] == "SPEC-001"]
+        assert len(spec_entries) == 1
+        entry = spec_entries[0]
+        # body mentions EPIC-005 but frontmatter has SPIKE-007 → both discrepancy sets non-empty
+        assert len(entry["body_not_in_frontmatter"]) >= 1
+        assert len(entry["frontmatter_not_in_body"]) >= 1
+
+    def test_empty_artifact_list_returns_empty(self):
+        """Empty artifact list → empty result."""
+        result = compute_xref([], [])
+        assert result == []
+
+
