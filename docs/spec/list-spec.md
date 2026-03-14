@@ -11,6 +11,8 @@
 | SPEC-034 | Architecture Overview Enhancements | 2026-03-13 | — |
 | SPEC-035 | ticket-query TICKETS_DIR Unbound Variable | 2026-03-14 | — |
 | SPEC-036 | swain-status Decision Support | 2026-03-14 | — |
+| SPEC-037 | Specgraph ready Leaks Standing-Track Artifacts | 2026-03-14 | — |
+| SPEC-038 | Dynamic Track Resolution from Artifact Frontmatter | 2026-03-14 | — |
 
 ## Ready
 
