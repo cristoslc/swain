@@ -2,7 +2,7 @@
 title: "Inline Lifecycle Hash Stamping for Trivial Artifacts"
 artifact: SPEC-046
 track: implementable
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -76,7 +76,10 @@ No change to visible output — the lifecycle table just has the hash pre-filled
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| | | |
+| AC1: Fast-path artifact gets pre-filled hash in lifecycle row | `lifecycle-format.md` inline stamp section; inline stamp uses `git rev-parse HEAD` before transition commit | ✅ |
+| AC2: Only one commit for fast-path transition | `phase-transitions.md` step 6/7 — inline path skips second stamp commit | ✅ |
+| AC3: EPICs and SPECs with dependents preserve two-commit pattern | `lifecycle-format.md` "Use two-commit stamp for" list; `phase-transitions.md` step 6 conditional | ✅ |
+| AC4: Inline stamp hash resolves to existing commit | Inline stamp uses `git rev-parse HEAD` which always points to an existing reachable commit | ✅ |
 
 ## Scope & Constraints
 
@@ -97,3 +100,4 @@ No change to visible output — the lifecycle table just has the hash pre-filled
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | c0e77ed2b6f273cb273a6e9c011149c13831c18c | Initial creation from EPIC-014 decomposition; follows SPEC-045 fast-path classification |
 | Ready | 2026-03-14 | c0e77ed | Approved — depends on SPEC-045 fast-path classification |
+| Complete | 2026-03-14 | -- | lifecycle-format.md and phase-transitions.md updated with inline vs. two-commit stamping rules |
