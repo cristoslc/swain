@@ -1,7 +1,7 @@
 ---
 title: "Artifact Workflow Efficiency"
 artifact: EPIC-014
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
