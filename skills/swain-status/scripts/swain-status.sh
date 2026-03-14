@@ -143,11 +143,22 @@ collect_artifacts() {
   local SG_CACHE="/tmp/agents-specgraph-${REPO_HASH}.json"
 
   if [[ ! -f "$SG_CACHE" ]]; then
-    echo '{"ready":[],"blocked":[],"epics":{},"counts":{"total":0,"resolved":0,"ready":0,"blocked":0}}'
+    echo '{"ready":[],"blocked":[],"epics":{},"counts":{"total":0,"resolved":0,"ready":0,"blocked":0},"xref":[],"xref_gap_count":0}'
     return
   fi
 
-  jq '
+  # Extract xref data from specgraph cache (empty array if key absent)
+  local SG_XREF
+  SG_XREF=$(jq -c '.xref // []' "$SG_CACHE" 2>/dev/null || echo '[]')
+
+  # Count artifacts with at least one discrepancy
+  local XREF_GAP_COUNT
+  XREF_GAP_COUNT=$(echo "$SG_XREF" | jq 'length' 2>/dev/null || echo 0)
+
+  jq \
+    --argjson xref "$SG_XREF" \
+    --argjson xref_gap_count "$XREF_GAP_COUNT" \
+    '
     def is_status_resolved: test("Complete|Retired|Superseded|Abandoned|Implemented|Adopted|Validated|Archived|Sunset|Deprecated|Verified|Declined");
     def is_resolved: (.status | is_status_resolved) or ((.type | test("VISION|JOURNEY|PERSONA|ADR|RUNBOOK|DESIGN")) and .status == "Active");
     # A dependency is satisfied once its target moves past initial planning phases.
@@ -232,7 +243,9 @@ collect_artifacts() {
         resolved: $resolved,
         ready: ($ready | length),
         blocked: ($blocked | length)
-      }
+      },
+      xref: $xref,
+      xref_gap_count: $xref_gap_count
     }
   ' "$SG_CACHE"
 }
