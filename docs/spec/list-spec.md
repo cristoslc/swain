@@ -16,7 +16,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-033 | swain-status xref Integration | 2026-03-14 | b4037a0 |
 | SPEC-034 | Architecture Overview Enhancements | 2026-03-14 | b4037a0 |
 | SPEC-035 | ticket-query TICKETS_DIR Unbound Variable | 2026-03-14 | b4037a0 |
 | SPEC-036 | swain-status Decision Support | 2026-03-14 | b4037a0 |
@@ -58,3 +57,4 @@
 | SPEC-029 | swain-dispatch Prerequisites and Invocation Docs | 2026-03-13 | f5d1aad |
 | SPEC-030 | Specgraph Python Core | 2026-03-13 | — |
 | SPEC-032 | Cross-Reference Validation and Bidirectional Edge Enforcement | 2026-03-14 | 5a4386c |
+| SPEC-033 | swain-status xref Integration | 2026-03-14 | — |
