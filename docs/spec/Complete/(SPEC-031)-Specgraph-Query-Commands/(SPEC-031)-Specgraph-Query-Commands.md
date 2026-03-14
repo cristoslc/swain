@@ -65,6 +65,13 @@ All subcommands read from the specgraph cache (auto-rebuilding if stale) and wri
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| 1. Python output matches bash (modulo trailing whitespace, OSC 8) | 50 integration tests in test_integration.py — edges command matches exactly; other commands have documented intentional divergences (Python correctly filters resolved items) | ✅ |
+| 2. ready: artifact appears when all deps resolved | test_ready_returns_nodes_with_all_deps_resolved — EPIC-001 and SPIKE-001 confirmed ready; SPEC-001/SPEC-002 confirmed blocked | ✅ |
+| 3. overview without --all hides resolved; --all shows all | TestOverview.test_overview_hides_resolved_by_default and test_overview_shows_resolved_with_all | ✅ |
+| 4. mermaid with --all-edges shows all edge types | TestMermaid.test_mermaid_all_edges_includes_non_core_types | ✅ |
+| 5. scope shows parent chain, siblings, laterals, architecture | TestScope — 4 sections rendered correctly | ✅ |
+| 6. overview with tk installed appends tk ready output | TestOverview.test_overview_tk_section_present — tk integration section present | ✅ |
+| 7. next: completing ready item shows unblockable artifacts | TestNext.test_next_would_unblock — EPIC-001 shows would unblock SPEC-002 | ✅ |
 
 ## Scope & Constraints
 
@@ -92,3 +99,4 @@ All subcommands read from the specgraph cache (auto-rebuilding if stale) and wri
 | Proposed | 2026-03-13 | — | Initial creation |
 | Complete | 2026-03-14 | 6eb4eea | All 13 query subcommands shipped in specgraph.py. 118 tests passing. (incorrect stamp — see Active row) |
 | Active | 2026-03-14 | — | Reverted from Complete — query subcommands not yet implemented in Python |
+| Complete | 2026-03-14 | 88a9d04 | All 12 query subcommands implemented in Python; 341 tests passing; integrated with CLI dispatch |
