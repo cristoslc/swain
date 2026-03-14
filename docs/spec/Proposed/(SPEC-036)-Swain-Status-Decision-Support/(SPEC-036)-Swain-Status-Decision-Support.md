@@ -9,6 +9,7 @@ type: enhancement
 parent-epic: EPIC-014
 linked-artifacts:
   - SPIKE-018
+  - JOURNEY-001
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
@@ -20,9 +21,11 @@ swain-do: required
 
 ## Problem Statement
 
-swain-status answers "what exists and what state is it in?" — it does not answer "what should I do and why?" The output is an inventory: a table of epics, a list of blocked items, a follow-up section at the bottom with multiple options. The operator must read the entire output and extract their own decision from it.
+JOURNEY-001 (§ O-01) defined this requirement explicitly: add a dedicated "Decisions waiting on you" section that is the developer's **primary entry point** — answer "what's waiting on me?" before showing anything else. It also defined the two-bucket structure: **Decision backlog** (requires human judgment) before **Implementation backlog** (agent-delegatable).
 
-The result is state-snapshotting without decision support. The operator knows more about the project state after reading it, but still has to decide what to do. The suggestions at the bottom feel low-priority because they appear after all the data, and listing multiple options is equivalent to listing none.
+That structure was never implemented in `agent-summary-template.md`. The current template leads with **Epic Progress** — an inventory view that is neither bucket. The operator must read the entire output and extract their own decision from it.
+
+The result is state-snapshotting without decision support. The suggestions at the bottom feel low-priority because they appear after all the data, and listing multiple options is equivalent to listing none.
 
 ## External Behavior
 
@@ -50,18 +53,24 @@ The agent summary (what the operator reads, not the terminal OSC 8 output) restr
 - Option B
 ```
 
-**After (this spec):**
+**After (this spec) — two-bucket layout from JOURNEY-001 § O-01:**
 ```
 ## Recommendation
 **Action:** Approve SPEC-030
-**Why:** It is the gate for EPIC-013 — approving it unblocks SPEC-031, SPEC-032, and SPEC-033 in one move (highest downstream leverage among all actionable items).
+**Why:** It is the gate for EPIC-013 — approving it unblocks SPEC-031, SPEC-032, and
+SPEC-033 in one move (highest downstream leverage among all actionable items).
 
-## Epic Progress
-[table — active epics with all specs resolved show inline transition prompt]
+## Decisions Needed  ← human-owned bucket, shown first
+[artifacts requiring human judgment, sorted by unblock_count descending]
 
-## Research / Blocked / Issues
-[unchanged structure, but blocked items include leverage cost in the reason field]
+## Work Ready to Start  ← agent-owned bucket, shown second
+[implementation-ready items the agent can execute autonomously]
+
+## Epic Progress / Research / Blocked / Issues
+[reference data — shown after the two action buckets]
 ```
+
+The primary fix is to `agent-summary-template.md`: it currently leads with Epic Progress (inventory) and has no two-bucket structure. This spec corrects that.
 
 ### Specific behavioral changes
 
