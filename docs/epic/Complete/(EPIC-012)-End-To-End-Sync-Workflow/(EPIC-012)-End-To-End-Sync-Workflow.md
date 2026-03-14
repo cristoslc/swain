@@ -1,6 +1,7 @@
 ---
 title: "End-to-End Sync Workflow"
 artifact: EPIC-012
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

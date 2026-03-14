@@ -1,6 +1,7 @@
 ---
 title: "swain-dispatch Skill"
 artifact: SPEC-025
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-13

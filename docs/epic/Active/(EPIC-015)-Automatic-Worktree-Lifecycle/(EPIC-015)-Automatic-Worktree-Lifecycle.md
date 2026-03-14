@@ -1,6 +1,7 @@
 ---
 title: "Automatic Worktree Lifecycle"
 artifact: EPIC-015
+track: container
 status: Active
 author: cristos
 created: 2026-03-14

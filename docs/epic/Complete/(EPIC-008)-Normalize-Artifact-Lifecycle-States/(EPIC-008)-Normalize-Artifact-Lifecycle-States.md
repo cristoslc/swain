@@ -1,6 +1,7 @@
 ---
 title: "Normalize Artifact Lifecycle States"
 artifact: EPIC-008
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

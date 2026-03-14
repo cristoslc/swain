@@ -1,6 +1,7 @@
 ---
 title: "Fetch/Pull-First Sync Behavior"
 artifact: SPEC-013
+track: implementable
 status: Complete
 type: enhancement
 author: cristos

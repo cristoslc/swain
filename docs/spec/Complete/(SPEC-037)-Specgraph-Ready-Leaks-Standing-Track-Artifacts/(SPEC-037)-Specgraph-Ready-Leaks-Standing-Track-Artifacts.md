@@ -1,7 +1,8 @@
 ---
 title: "SPEC-037: Specgraph ready Leaks Standing-Track Artifacts"
 artifact: SPEC-037
-status: Ready
+track: implementable
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -58,6 +59,8 @@ medium
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| specgraph ready excludes Active standing-track artifacts | `specgraph.sh ready` + `specgraph.py ready` — no ADR/PERSONA/VISION/JOURNEY/RUNBOOK/DESIGN in output | PASS |
+| Uses same is_resolved pattern as do_next/do_overview | Code inspection: bash uses is_resolved def; Python uses resolved.py _STANDING_TYPES | PASS |
 
 ## Scope & Constraints
 
@@ -77,3 +80,4 @@ medium
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | | Initial creation — bug report |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
+| Complete | 2026-03-14 | dacbf2c | Standing-track exclusion already in HEAD — verified correct in both bash and Python specgraph |

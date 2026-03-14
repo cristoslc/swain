@@ -1,6 +1,7 @@
 ---
 title: "Migrate Existing Artifacts to New Phase Directories"
 artifact: SPEC-020
+track: implementable
 status: Complete
 type: enhancement
 author: cristos

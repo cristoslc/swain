@@ -1,6 +1,7 @@
 ---
 title: "Unified SPEC Type System"
 artifact: SPEC-004
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-12

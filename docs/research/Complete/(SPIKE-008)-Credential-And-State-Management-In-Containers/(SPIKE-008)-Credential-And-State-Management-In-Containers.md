@@ -1,6 +1,7 @@
 ---
 title: "Credential and State Management in Isolated Environments"
 artifact: SPIKE-008
+track: container
 status: Complete
 author: cristos
 created: 2026-03-12

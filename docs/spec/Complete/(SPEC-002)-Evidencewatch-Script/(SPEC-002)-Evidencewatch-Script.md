@@ -1,6 +1,7 @@
 ---
 title: "evidencewatch Script"
 artifact: SPEC-002
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-09

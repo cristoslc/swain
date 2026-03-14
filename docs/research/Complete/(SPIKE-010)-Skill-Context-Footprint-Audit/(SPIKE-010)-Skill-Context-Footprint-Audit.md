@@ -1,6 +1,7 @@
 ---
 title: "Skill Context Footprint Audit"
 artifact: SPIKE-010
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

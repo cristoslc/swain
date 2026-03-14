@@ -1,6 +1,7 @@
 ---
 title: "Swain"
 artifact: VISION-001
+track: standing
 status: Active
 product-type: personal
 author: cristos

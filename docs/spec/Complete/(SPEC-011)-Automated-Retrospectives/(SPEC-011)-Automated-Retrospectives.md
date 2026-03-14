@@ -1,6 +1,7 @@
 ---
 title: "Automated Retrospectives"
 artifact: SPEC-011
+track: implementable
 status: Complete
 type: feature
 author: cristos

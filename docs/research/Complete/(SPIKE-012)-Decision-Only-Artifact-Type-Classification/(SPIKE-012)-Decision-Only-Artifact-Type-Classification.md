@@ -1,6 +1,7 @@
 ---
 title: "Decision-Only Artifact Type Classification"
 artifact: SPIKE-012
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

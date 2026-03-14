@@ -1,6 +1,7 @@
 ---
 title: "Update Tooling Scripts for Normalized Lifecycle"
 artifact: SPEC-019
+track: implementable
 status: Complete
 type: enhancement
 author: cristos

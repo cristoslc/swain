@@ -1,6 +1,7 @@
 ---
 title: "Pre-Commit Hook Setup in swain-init"
 artifact: SPEC-023
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-13

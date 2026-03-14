@@ -1,6 +1,7 @@
 ---
 title: "swain-doctor: stale worktree detection"
 artifact: SPEC-044
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-14

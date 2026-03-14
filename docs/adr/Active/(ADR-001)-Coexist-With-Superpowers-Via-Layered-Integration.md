@@ -1,6 +1,7 @@
 ---
 title: "Coexist with Superpowers via Layered Integration"
 artifact: ADR-001
+track: standing
 status: Active
 author: cristos
 created: 2026-03-12

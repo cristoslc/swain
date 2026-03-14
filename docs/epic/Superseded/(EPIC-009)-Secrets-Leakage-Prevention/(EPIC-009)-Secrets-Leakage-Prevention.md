@@ -1,6 +1,7 @@
 ---
 title: "Secrets Leakage Prevention"
 artifact: EPIC-009
+track: container
 status: Superseded
 author: cristos
 created: 2026-03-13

@@ -1,6 +1,7 @@
 ---
 title: "swain-doctor Lifecycle Migration Detection"
 artifact: SPEC-021
+track: implementable
 status: Complete
 type: enhancement
 author: cristos

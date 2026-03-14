@@ -1,6 +1,7 @@
 ---
 title: "MOTD Panel Improvements"
 artifact: EPIC-011
+track: container
 status: Active
 author: cristos
 created: 2026-03-13

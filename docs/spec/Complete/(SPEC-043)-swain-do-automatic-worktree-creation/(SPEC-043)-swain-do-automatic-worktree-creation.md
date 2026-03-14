@@ -1,6 +1,7 @@
 ---
 title: "swain-do: automatic worktree creation at dispatch"
 artifact: SPEC-043
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-14

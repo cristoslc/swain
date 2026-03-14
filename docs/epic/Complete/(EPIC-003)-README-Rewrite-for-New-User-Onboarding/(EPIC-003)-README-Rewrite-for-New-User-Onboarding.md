@@ -1,6 +1,7 @@
 ---
 title: "README Rewrite for New User Onboarding"
 artifact: EPIC-003
+track: container
 status: Complete
 author: cristos
 created: 2026-03-11

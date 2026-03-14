@@ -1,6 +1,7 @@
 ---
 title: "Swain Skill Cognitive Load Classification"
 artifact: SPIKE-014
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

@@ -1,6 +1,7 @@
 ---
 title: "Session JSON Per-Project Storage"
 artifact: SPEC-027
+track: implementable
 status: Complete
 type: bug
 author: cristos

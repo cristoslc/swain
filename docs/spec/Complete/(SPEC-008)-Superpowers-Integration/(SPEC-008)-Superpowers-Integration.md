@@ -1,6 +1,7 @@
 ---
 title: "Superpowers Integration"
 artifact: SPEC-008
+track: implementable
 status: Complete
 author: cristos
 created: 2026-03-12

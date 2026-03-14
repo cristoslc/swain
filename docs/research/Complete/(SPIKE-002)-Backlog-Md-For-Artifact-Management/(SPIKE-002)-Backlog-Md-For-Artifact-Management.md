@@ -1,6 +1,7 @@
 ---
 title: "Backlog.md for artifact management"
 artifact: SPIKE-002
+track: container
 status: Complete
 author: cristos
 created: 2026-03-10

@@ -1,6 +1,7 @@
 ---
 title: "swain-sync Gitignore Checks"
 artifact: SPEC-028
+track: implementable
 status: Complete
 type: enhancement
 author: cristos

@@ -1,6 +1,7 @@
 ---
 title: "Legacy pre-swain skills not cleaned up by swain-doctor"
 artifact: SPEC-007
+track: implementable
 type: bug
 status: Complete
 author: cristos

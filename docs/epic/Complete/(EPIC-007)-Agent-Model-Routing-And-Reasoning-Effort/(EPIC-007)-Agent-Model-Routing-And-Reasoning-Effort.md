@@ -1,6 +1,7 @@
 ---
 title: "Agent Model Routing and Reasoning Effort Steering"
 artifact: EPIC-007
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

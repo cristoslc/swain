@@ -1,6 +1,7 @@
 ---
 title: "Task Tracker Requirements and Alternatives"
 artifact: SPIKE-006
+track: container
 status: Complete
 author: cristos
 created: 2026-03-12

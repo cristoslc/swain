@@ -1,6 +1,7 @@
 ---
 title: "Sync Workflow Best Practices"
 artifact: SPIKE-017
+track: container
 status: Complete
 author: cristos
 created: 2026-03-13

@@ -1,6 +1,7 @@
 ---
 title: "Update Artifact Definitions and Templates"
 artifact: SPEC-018
+track: implementable
 status: Complete
 type: enhancement
 author: cristos

@@ -1,6 +1,7 @@
 ---
 title: "Artifact Authoring Latency and Ceremony Audit"
 artifact: SPIKE-018
+track: container
 status: Active
 author: cristos
 created: 2026-03-14

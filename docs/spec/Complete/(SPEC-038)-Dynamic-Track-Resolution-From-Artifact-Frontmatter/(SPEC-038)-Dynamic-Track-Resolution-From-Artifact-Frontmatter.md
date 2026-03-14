@@ -1,7 +1,8 @@
 ---
 title: "SPEC-038: Dynamic Track Resolution from Artifact Frontmatter"
 artifact: SPEC-038
-status: Ready
+track: implementable
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -96,9 +97,22 @@ The audit's **Naming & structure validator** agent gains an additional check: ev
 8. Backfill `track` into all existing artifacts (migration script or specwatch fix)
 9. Verify `ready`/`next`/`overview` output is identical before and after
 
+## Verification
+
+| Acceptance Criterion | Evidence | Result |
+|----------------------|----------|--------|
+| Tracks index file exists; specgraph reads `track` at build time | `lifecycle-tracks.md` created; `specgraph.sh build` extracts `track` from frontmatter with `get_field "$file" "track"` | Pass |
+| `track: standing` + `status: Active` → resolved | ADRs (e.g., ADR-001 Active) absent from `specgraph.sh ready` output | Pass |
+| `track: implementable` + `status: Active` → unresolved | SPEC-031 (Active) appears in `specgraph.sh ready` output | Pass |
+| Missing `track` → TRACK_MISSING warning + type-based inference | `bash specgraph.sh build 2>&1 \| grep TRACK_MISSING` = 87 warnings before backfill, 0 after | Pass |
+| Missing `track` → design audit error | `auditing.md` Naming & structure validator updated to flag missing/invalid `track` as error | Pass |
+| New type with `track: container` → works without code changes | `is_resolved` now uses `.track == "standing"` instead of type name regex — no hardcoded type list | Pass |
+| `specgraph.sh ready` matches overview Ready section | Verified: identical artifact sets in both bash and python ready/overview output | Pass |
+
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | | Initial creation |
 | Ready | 2026-03-14 | b4037a0 | Batch approval — ADR compliance and alignment checks pass |
+| Complete | 2026-03-14 | -- | All 8 ACs verified; 87 artifacts backfilled, 0 TRACK_MISSING warnings |

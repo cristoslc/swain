@@ -1,6 +1,7 @@
 ---
 title: "Container Image and Runtime Requirements"
 artifact: SPIKE-007
+track: container
 status: Complete
 author: cristos
 created: 2026-03-12
