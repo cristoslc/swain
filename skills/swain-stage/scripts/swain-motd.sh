@@ -91,23 +91,45 @@ get_branch() {
 }
 
 get_dirty_state() {
+  local staged=0 modified=0 untracked=0 parts=()
+
   if cache_is_usable; then
-    local dirty changed
+    local dirty
     dirty=$(cache_get '.git.dirty' 'false')
-    if [[ "$dirty" == "true" ]]; then
-      changed=$(cache_get '.git.changedFiles' '0')
-      echo "${changed} changed"
-    else
+    if [[ "$dirty" != "true" ]]; then
       echo "clean"
+      return
     fi
+  fi
+
+  # Use git status --porcelain for accurate per-category counts
+  local porcelain
+  porcelain=$(git status --porcelain 2>/dev/null) || { echo "?"; return; }
+
+  if [[ -z "$porcelain" ]]; then
+    echo "clean"
+    return
+  fi
+
+  while IFS= read -r line; do
+    local x="${line:0:1}" y="${line:1:1}"
+    if [[ "$x" == "?" ]]; then
+      (( untracked++ ))
+    else
+      [[ "$x" != " " ]] && (( staged++ ))
+      [[ "$y" != " " ]] && (( modified++ ))
+    fi
+  done <<< "$porcelain"
+
+  [[ $staged -gt 0 ]] && parts+=("${staged} staged")
+  [[ $modified -gt 0 ]] && parts+=("${modified} modified")
+  [[ $untracked -gt 0 ]] && parts+=("${untracked} new")
+
+  if [[ ${#parts[@]} -eq 0 ]]; then
+    echo "clean"
   else
-    if git diff --quiet HEAD 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
-      echo "clean"
-    else
-      local count
-      count=$(git diff --name-only HEAD 2>/dev/null | wc -l | tr -d ' ')
-      echo "${count} changed"
-    fi
+    local IFS=", "
+    echo "${parts[*]}"
   fi
 }
 
