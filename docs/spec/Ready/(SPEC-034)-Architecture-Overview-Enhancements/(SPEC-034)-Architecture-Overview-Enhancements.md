@@ -1,7 +1,7 @@
 ---
 title: "Architecture Overview Enhancements"
 artifact: SPEC-034
-status: Proposed
+status: Ready
 author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
