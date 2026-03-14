@@ -36,6 +36,20 @@ When the user wants to create, plan, write, update, transition, or review any do
 
 **For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system.
 
+## Superpowers skill chaining
+
+When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), swain skills **must** chain into them at these points — do not skip or inline the work yourself:
+
+| Trigger | Chain | Why |
+|---------|-------|-----|
+| Creating a Vision or Persona | swain-design → invoke **brainstorming** → draft artifact | Socratic exploration surfaces goals and constraints that shallow drafting misses |
+| SPEC comes up for implementation | swain-design → invoke **brainstorming** → **writing-plans** → swain-do (plan ingestion) | Plans anchored to acceptance criteria produce better TDD task breakdowns |
+| Executing implementation tasks | swain-do → invoke **test-driven-development** per task | RED-GREEN-REFACTOR ensures tests verify the spec, not the implementation |
+| Dispatching parallel work | swain-do → invoke **subagent-driven-development** or **executing-plans** | Fresh subagent context prevents cross-task contamination |
+| Claiming work is complete | invoke **verification-before-completion** before any success claim | Evidence before assertions — prevents false completion claims |
+
+Detection: `ls .agents/skills/brainstorming/SKILL.md .claude/skills/brainstorming/SKILL.md 2>/dev/null`. If superpowers is not installed, swain functions independently — chains are skipped, not blocked. swain-doctor warns when superpowers is absent.
+
 ## Session startup (AUTO-INVOKE)
 
 At the start of every session, run preflight then conditionally invoke skills:

@@ -54,7 +54,17 @@ When an operation fails (missing parent, number collision, script error, etc.), 
 
 ## Superpowers integration
 
-When superpowers is installed, read [references/superpowers-integration.md](references/superpowers-integration.md) for brainstorming routing, thin SPEC format, and code review gate details. All integration is optional — swain functions fully without superpowers.
+When superpowers is installed, the following chains are **mandatory** — invoke the skills, do not skip them or do the work inline:
+
+1. **Before creating Vision or Persona artifacts:** Invoke the `brainstorming` skill for Socratic exploration. Pass the artifact context (goals, audience, constraints). Capture brainstorming output into swain's artifact format with proper frontmatter and lifecycle table.
+
+2. **When a SPEC comes up for implementation:** Invoke `brainstorming` with the SPEC's acceptance criteria and scope. Brainstorming chains into `writing-plans` automatically. After `writing-plans` saves a plan file, invoke swain-do for plan ingestion.
+
+3. **For Testing → Implemented transitions:** Invoke `requesting-code-review` for spec compliance and code quality review (if the review skills are available).
+
+**Detection:** `ls .agents/skills/brainstorming/SKILL.md .claude/skills/brainstorming/SKILL.md 2>/dev/null` — if at least one path exists, superpowers is available. Cache the result for the session.
+
+Read [references/superpowers-integration.md](references/superpowers-integration.md) for thin SPEC format and full routing details. All integration is optional — swain functions fully without superpowers.
 
 <!-- swain-model-hint: sonnet, effort: low — transitions are procedural -->
 ## Phase transitions

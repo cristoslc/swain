@@ -6,7 +6,7 @@ links: []
 created: 2026-03-13T23:27:02Z
 type: task
 priority: 1
-assignee: cristos
+assignee: Cristos L-C
 parent: swa-n4vm
 tags: [spec:SPEC-031]
 ---
@@ -17,6 +17,6 @@ Implement neighbors() in queries.py. Iterate all edges, emit both directions whe
 
 ## Notes
 
-**2026-03-14T05:07:18Z**
+**2026-03-14T05:19:50Z**
 
-Completed: neighbors() added to queries.py with tests.
+Completed: neighbors command implemented — 5-column TSV, sorted, missing nodes handled, spec compliance reviewed ✅, commit 9ca2b63
