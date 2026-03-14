@@ -14,7 +14,7 @@ from .parser import (
     get_body,
     parse_artifact,
 )
-from .xref import compute_xref
+from .xref import compute_xref, _XREF_LIST_FIELDS
 
 
 def _is_valid_ref(val: str) -> bool:
@@ -101,8 +101,11 @@ def build_graph(
         if pe:
             add_edge(aid, pe, "parent-epic")
 
-        # List-type relationship edges
-        for list_field in ("linked-artifacts", "validates"):
+        # List-type relationship edges (all typed xref fields except depends-on-artifacts,
+        # which is handled above with its own "depends-on" edge type)
+        for list_field in _XREF_LIST_FIELDS:
+            if list_field == "depends-on-artifacts":
+                continue
             for ref in extract_list_ids(fields, list_field):
                 add_edge(aid, ref, list_field)
 
