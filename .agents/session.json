@@ -5,13 +5,11 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "created EPIC-016 SPIKE-019",
+    "note": "updated EPIC-018 SPIKE-021: pivot from time-based Gantt to scope-based progress",
     "files": [
-      "docs/epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md",
-      "docs/research/Proposed/(SPIKE-019)-Worktree-Session-Bookmark-Design/(SPIKE-019)-Worktree-Session-Bookmark-Design.md",
-      "docs/epic/list-epic.md",
-      "docs/research/list-spike.md"
+      "docs/epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md",
+      "docs/research/Proposed/(SPIKE-021)-Scope-Progress-Visualization-Options-For-Swain-Status/(SPIKE-021)-Scope-Progress-Visualization-Options-For-Swain-Status.md"
     ],
-    "timestamp": "2026-03-14T16:34:48Z"
+    "timestamp": "2026-03-14T19:39:15Z"
   }
 }

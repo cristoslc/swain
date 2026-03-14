@@ -5,7 +5,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPIKE-019 | Worktree Session Bookmark Design | 2026-03-14 | — |
-| SPIKE-020 | Security Scanning Landscape and BUILD vs BUY for swain-security-check | 2026-03-14 | — |
 | SPIKE-021 | Scope Progress Visualization Options For Swain-Status | 2026-03-14 | — |
 | SPIKE-022 | Multi-Agent Collision Vectors | 2026-03-14 | — |
 
@@ -36,3 +35,4 @@
 | SPIKE-016 | Background Agent Invocation Via GitHub | 2026-03-13 | 3e54fe2 |
 | SPIKE-017 | Sync Workflow Best Practices | 2026-03-13 | ef4d358 |
 | SPIKE-018 | Artifact Authoring Latency and Ceremony Audit | 2026-03-14 | — |
+| SPIKE-020 | Security Scanning Landscape and BUILD vs BUY for swain-security-check | 2026-03-14 | — |
