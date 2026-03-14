@@ -9,8 +9,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-007 | Container Image and Runtime Requirements | 2026-03-14 | 257ea9c |
-| SPIKE-008 | Credential and State Management in Isolated Environments | 2026-03-14 | 257ea9c |
 | SPIKE-018 | Artifact Authoring Latency and Ceremony Audit | 2026-03-14 | 1f59fe2 |
 
 ## Complete
@@ -23,6 +21,8 @@
 | SPIKE-004 | Superpowers–Swain Skill Mapping | 2026-03-12 | e94bb4b |
 | SPIKE-005 | Dolt Backend Performance in Beads | 2026-03-12 | 4831536 |
 | SPIKE-006 | Task Tracker Requirements and Alternatives | 2026-03-13 | ad0f05f |
+| SPIKE-007 | Container Image and Runtime Requirements | 2026-03-14 | e510403 |
+| SPIKE-008 | Credential and State Management in Isolated Environments | 2026-03-14 | e510403 |
 | SPIKE-009 | Isolation Mechanism Selection | 2026-03-13 | 8ab71ab |
 | SPIKE-010 | Skill Context Footprint Audit | 2026-03-13 | 459bdc7 |
 | SPIKE-011 | Skill Loading and Compression Strategies | 2026-03-13 | 459bdc7 |
