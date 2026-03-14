@@ -2,6 +2,7 @@
 ---
 title: "{{ title }}"
 artifact: RUNBOOK-{{ number }}
+track: standing
 status: {{ status | default("Proposed") }}
 mode: {{ mode | default("manual") }}
 trigger: {{ trigger | default("on-demand") }}

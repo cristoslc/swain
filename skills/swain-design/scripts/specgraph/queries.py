@@ -15,12 +15,16 @@ from .resolved import is_resolved
 
 
 def _node_is_resolved(artifact_id: str, nodes: dict) -> bool:
-    """Return True if the artifact is resolved (considering its type)."""
+    """Return True if the artifact is resolved (considering its track or type)."""
     node = nodes.get(artifact_id)
     if node is None:
         # Unknown node — treat as unresolved (conservative)
         return False
-    return is_resolved(node.get("type", ""), node.get("status", ""))
+    return is_resolved(
+        node.get("type", ""),
+        node.get("status", ""),
+        node.get("track") or None,
+    )
 
 
 def _format_id(

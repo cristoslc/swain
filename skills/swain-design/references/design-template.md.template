@@ -2,6 +2,7 @@
 ---
 title: "{{ title }}"
 artifact: DESIGN-{{ number }}
+track: standing
 status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}

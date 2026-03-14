@@ -2,6 +2,7 @@
 ---
 title: "{{ title }}"
 artifact: EPIC-{{ number }}
+track: container
 status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}

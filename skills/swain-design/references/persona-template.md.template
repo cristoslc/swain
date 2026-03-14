@@ -2,6 +2,7 @@
 ---
 title: "{{ title }}"
 artifact: PERSONA-{{ number }}
+track: standing
 status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}

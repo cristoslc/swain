@@ -3,6 +3,7 @@
 ---
 title: "{{ title }}"
 artifact: VISION-{{ number }}
+track: standing
 status: {{ status | default("Proposed") }}
 product-type: {{ product_type }}  # "competitive" or "personal"
 author: {{ author }}
