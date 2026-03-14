@@ -100,4 +100,4 @@ No change to visible output — the lifecycle table just has the hash pre-filled
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | c0e77ed2b6f273cb273a6e9c011149c13831c18c | Initial creation from EPIC-014 decomposition; follows SPEC-045 fast-path classification |
 | Ready | 2026-03-14 | c0e77ed | Approved — depends on SPEC-045 fast-path classification |
-| Complete | 2026-03-14 | -- | lifecycle-format.md and phase-transitions.md updated with inline vs. two-commit stamping rules |
+| Complete | 2026-03-14 | 534a2e5 | lifecycle-format.md and phase-transitions.md updated with inline vs. two-commit stamping rules |
