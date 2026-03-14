@@ -1,6 +1,11 @@
 # Git worktrees
 .worktrees/
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
 # Runtime artifacts
 *.log
 .agents/specwatch.log
