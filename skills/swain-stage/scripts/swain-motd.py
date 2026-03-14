@@ -150,32 +150,33 @@ def git_branch() -> str:
 
 def git_dirty() -> str:
     try:
-        staged_r = subprocess.run(
-            ["git", "diff", "--cached", "--name-only"],
+        r = subprocess.run(
+            ["git", "status", "--porcelain"],
             capture_output=True, text=True,
         )
-        staged = len([l for l in staged_r.stdout.strip().split("\n") if l])
-        unstaged_r = subprocess.run(
-            ["git", "diff", "--name-only"],
-            capture_output=True, text=True,
-        )
-        unstaged = len([l for l in unstaged_r.stdout.strip().split("\n") if l])
-        untracked_r = subprocess.run(
-            ["git", "ls-files", "--others", "--exclude-standard"],
-            capture_output=True, text=True,
-        )
-        untracked = len([l for l in untracked_r.stdout.strip().split("\n") if l])
-        total = staged + unstaged + untracked
-        if total == 0:
+        lines = [l for l in r.stdout.split("\n") if l]
+        if not lines:
             return "clean"
+        staged = 0
+        modified = 0
+        untracked = 0
+        for line in lines:
+            x, y = line[0], line[1]
+            if x == "?":
+                untracked += 1
+            else:
+                if x != " ":
+                    staged += 1
+                if y != " ":
+                    modified += 1
         parts = []
         if staged:
             parts.append(f"{staged} staged")
-        if unstaged:
-            parts.append(f"{unstaged} modified")
+        if modified:
+            parts.append(f"{modified} modified")
         if untracked:
             parts.append(f"{untracked} new")
-        return ", ".join(parts)
+        return ", ".join(parts) if parts else "clean"
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "?"
 
@@ -231,7 +232,8 @@ def collect_data() -> dict:
         branch = cache.get("git", {}).get("branch", "detached")
         git_data = cache.get("git", {})
         if git_data.get("dirty"):
-            dirty = f"{git_data.get('changedFiles', 0)} changed"
+            # Prefer granular counts from live git status over cached total
+            dirty = git_dirty()
         else:
             dirty = "clean"
 
