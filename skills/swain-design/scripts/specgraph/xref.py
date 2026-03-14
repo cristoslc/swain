@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from typing import Optional
 
 from .parser import extract_list_ids, extract_scalar_id, _ARTIFACT_ID_RE
 
@@ -78,7 +77,8 @@ def check_reciprocal_edges(nodes: dict, edges: list[dict]) -> list[dict]:
             })
             continue
 
-        # Support both flat dict (tests) and raw_fields-wrapped (parser output)
+        # Two expected node shapes: flat dict {field: value} from tests, or
+        # {raw_fields: {field: value}} from parse_artifact() output via graph.py.
         if "linked-artifacts" in node:
             linked = node["linked-artifacts"]
         elif "raw_fields" in node:
@@ -153,11 +153,13 @@ def compute_xref(artifacts: list[dict], edges: list[dict]) -> list[dict]:
         body = artifact.get("body", "")
         frontmatter = artifact.get("frontmatter", {})
 
-        # In the pipeline context, we scan for all artifact-pattern IDs in the body,
-        # not just those in the loaded graph, so the full regex is used via a
-        # broad known_ids pass. We still exclude self_id.
-        all_body_candidates = set(_ARTIFACT_ID_RE.findall(body)) - {artifact_id}
-        body_ids = all_body_candidates
+        # Intentional broad sweep: scan for ALL TYPE-NNN patterns in the body,
+        # not just those in the loaded graph. This catches dangling references to
+        # IDs that are not yet in the graph (e.g. missing artifacts, typos). The
+        # known-ID filter in scan_body() serves a different purpose — it is used
+        # when the caller only wants to identify in-graph references (e.g. for
+        # scope/impact queries). Self-reference is still excluded.
+        body_ids = set(_ARTIFACT_ID_RE.findall(body)) - {artifact_id}
         fm_ids = collect_frontmatter_ids(frontmatter)
         discrepancies = compute_discrepancies(body_ids, fm_ids)
         missing_reciprocal = reciprocal_by_artifact.get(artifact_id, [])
