@@ -2,7 +2,7 @@
 title: "MOTD Reactive Agent Status via Claude Code Hooks"
 artifact: SPEC-041
 track: implementable
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -47,7 +47,11 @@ Claude Code hooks (`PostToolUse`, `SubagentStart`, `SubagentStop`, `Stop`, `PreT
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| | | |
+| `PostToolUse` → `stage-status.json` updated within 1s | `stage-status-hook.sh` writes state/context/updated; hook registered in `.claude/settings.json` | Pass |
+| TUI re-renders within 2s of file update | `_check_agent_file` polls mtime every 1s and calls `_render_agent()` on change | Pass |
+| `SubagentStart` → shows subagent active | Hook writes `{"state":"working","context":"subagent",...}`; re-render reflects it | Pass |
+| `Stop` → transitions to idle | Hook writes `{"state":"idle",...}`; next mtime check triggers re-render | Pass |
+| Hooks absent → "hooks not configured" notice, no crash | `hooks_configured()` checks `.claude/settings.json`; idle state shows notice; gracefully handles missing file | Pass |
 
 ## Scope & Constraints
 
@@ -71,3 +75,4 @@ Claude Code hooks (`PostToolUse`, `SubagentStart`, `SubagentStop`, `Stop`, `PreT
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Initial creation from EPIC-011 decomposition; sourced from tk swain-6oa |
 | Ready | 2026-03-14 | 51c037cc8fcc36538b69a893865fc63c06b459cb | Approved by operator |
+| Complete | 2026-03-14 | -- | Reactive 1s mtime polling; hooks_configured() check; "hooks not configured" notice |

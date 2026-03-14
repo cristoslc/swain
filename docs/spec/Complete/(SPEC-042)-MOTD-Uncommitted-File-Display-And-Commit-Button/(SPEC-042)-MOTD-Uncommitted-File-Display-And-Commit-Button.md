@@ -2,7 +2,7 @@
 title: "MOTD Uncommitted File Display and Interactive Commit Button"
 artifact: SPEC-042
 track: implementable
-status: Ready
+status: Complete
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
@@ -54,7 +54,13 @@ A clickable button (or keybind) in the Textual TUI labeled **"Commit & Push"** (
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| | | |
+| Staged count shown and distinct from unstaged | `git_counts()` parses `git status --porcelain` and returns `{staged, unstaged}` dict; DataLines with ids `staged`/`unstaged` render separately in compose() | ✅ |
+| Staged=0 / unstaged>0 shown separately | Same `git_counts()` logic; both DataLines always rendered regardless of zero values | ✅ |
+| Commit & Push button opens tmux pane | `on_button_pressed` checks `$TMUX` env and runs `tmux split-window -h bash -c '...'` | ✅ |
+| Pane auto-closes on success | Shell command in split-window: `|| read -p 'Press enter to close'` — only prompts on failure | ✅ |
+| Pane stays open on failure | `|| read -p 'Press enter to close'` keeps pane open on non-zero exit | ✅ |
+| Button disabled when staged=0 | `_render_all()` sets `btn.disabled = staged_count == 0`; CSS `.button.-disabled` grays it out | ✅ |
+| Notice shown outside tmux (no crash) | `on_button_pressed` checks `os.environ.get("TMUX")` and shows inline notice if absent | ✅ |
 
 ## Scope & Constraints
 
@@ -77,3 +83,4 @@ A clickable button (or keybind) in the Textual TUI labeled **"Commit & Push"** (
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | ca755446db4a68c7429812fa6b8f2837856e7050 | Initial creation from EPIC-011 decomposition; linked to GitHub #13 |
 | Ready | 2026-03-14 | 51c037cc8fcc36538b69a893865fc63c06b459cb | Approved by operator |
+| Complete | 2026-03-14 | 2f617a603c57093804403720de1a15332952ef13 | staged/unstaged DataLines, Commit & Push Button widget, tmux split-window handler, TMUX guard — all 7 ACs verified |
