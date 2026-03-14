@@ -1,11 +1,11 @@
 ---
 name: swain-sync
-description: "Fetch upstream, rebase, stage all changes, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream. Handles merge conflicts by preferring local changes for config/project files and upstream for scaffolding."
+description: "Fetch upstream, rebase, stage all changes, run ADR compliance check on modified artifacts, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream. Handles merge conflicts by preferring local changes for config/project files and upstream for scaffolding."
 user-invocable: true
 allowed-tools: Bash, Read, Edit
 metadata:
   short-description: Fetch, stage, commit, and push
-  version: 1.1.0
+  version: 1.2.0
   author: cristos
   license: MIT
   source: swain
@@ -96,6 +96,23 @@ Before committing, verify `.gitignore` hygiene. This step is advisory — it war
    If all patterns are present (or none are relevant to the repo), this step is silent.
 
 3. Continue to Step 4 regardless of warnings.
+
+## Step 3.7 — ADR compliance check
+
+If modified files include any swain artifacts (`docs/spec/`, `docs/epic/`, `docs/vision/`, `docs/research/`, `docs/journey/`, `docs/persona/`, `docs/runbook/`, `docs/design/`), run an ADR compliance check against each modified artifact:
+
+```bash
+bash skills/swain-design/scripts/adr-check.sh <artifact-path>
+```
+
+For each artifact with findings (exit code 1 — DEAD_REF or STALE), collect the output and present a single consolidated warning after all checks complete:
+
+> ADR compliance: N artifact(s) have findings that may need attention.
+> <condensed findings summary>
+
+This step is **advisory** — it warns but never blocks the commit. Continue to Step 4 regardless.
+
+If the `adr-check.sh` script is not found or fails with exit code 2, skip silently — the check is only available in repos with swain-design installed.
 
 ## Step 4 — Generate a commit message
 
