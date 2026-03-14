@@ -20,3 +20,7 @@ Update Python specgraph resolved.py to read track from artifact frontmatter, loo
 **2026-03-14T06:31:47Z**
 
 Completed: updated resolved.py (track param + _infer_track fallback), graph.py (track in node dict), queries.py (_node_is_resolved passes track). 33 integration test failures verified as pre-existing, not introduced by SPEC-038.
+
+**2026-03-14T06:44:21Z**
+
+Completed: test_integration.py cwd bug fixed (SCRIPTS_DIR.parent.parent.parent.parent -> .parent.parent.parent). Pyright warnings fixed (re.search guard + unused import removed). 50 integration tests pass.
