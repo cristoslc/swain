@@ -13,7 +13,6 @@
 | EPIC-007 | Agent Model Routing and Reasoning Effort Steering | 2026-03-13 | 71c4f9b |
 | EPIC-010 | Agent Dispatch Via GitHub Issues | 2026-03-13 | c5afa36 |
 | EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | 6f26e1bf8ca11faad9d98ae8a57390c65b571d6c |
-| EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | dacbf2c |
 
 ## Superseded
 
@@ -34,3 +33,4 @@
 | EPIC-012 | End-to-End Sync Workflow | 2026-03-13 | 0e54e5e |
 | EPIC-013 | Specgraph Python Rewrite | 2026-03-14 | 621416b |
 | EPIC-011 | MOTD Panel Improvements | 2026-03-14 | ec401e5 |
+| EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | 8e2cc05 |
