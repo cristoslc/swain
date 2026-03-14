@@ -9,7 +9,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from specgraph.queries import blocks, blocked_by, tree, edges_cmd
+from specgraph.queries import blocks, blocked_by, tree, edges_cmd, neighbors
 
 
 # ---------------------------------------------------------------------------
@@ -270,3 +270,93 @@ class TestBlocksBlockedByTreeEdges:
             mock_stdout.isatty.return_value = False
             result = tree("SPEC-001", NODES, EDGES, repo_root="/repo", show_links=True)
         assert "\x1b" not in result
+
+
+# ---------------------------------------------------------------------------
+# TestNeighbors
+# ---------------------------------------------------------------------------
+
+
+class TestNeighbors:
+    """Test neighbors() — TSV of all edges touching an artifact (both directions)."""
+
+    def test_neighbors_from_direction(self):
+        """neighbors returns 'from' direction when artifact is the source."""
+        result = neighbors("SPEC-001", NODES, EDGES)
+        lines = [l for l in result.strip().split("\n") if l]
+        directions = {line.split("\t")[0] for line in lines}
+        assert "from" in directions
+
+    def test_neighbors_to_direction(self):
+        """neighbors returns 'to' direction when artifact is the target."""
+        # SPEC-002 is the target of SPEC-001 depends-on, so neighbors(SPEC-002) should
+        # show direction='to' for the edge from SPEC-001
+        result = neighbors("SPEC-002", NODES, EDGES)
+        lines = [l for l in result.strip().split("\n") if l]
+        directions = {line.split("\t")[0] for line in lines}
+        assert "to" in directions
+
+    def test_neighbors_both_directions(self):
+        """neighbors includes both 'from' and 'to' directions for a hub artifact.
+
+        EPIC-001 is:
+        - target of SPEC-002 depends-on (direction='to')
+        - target of SPEC-001 parent-epic (direction='to')
+        - source of EPIC-001 depends-on EPIC-002 (direction='from')
+        - source of EPIC-001 depends-on ADR-001 (direction='from')
+        So both directions should appear.
+        """
+        result = neighbors("EPIC-001", NODES, EDGES)
+        lines = [l for l in result.strip().split("\n") if l]
+        directions = {line.split("\t")[0] for line in lines}
+        assert "from" in directions
+        assert "to" in directions
+
+    def test_neighbors_includes_status_and_title(self):
+        """neighbors includes status and title columns when node is in nodes dict."""
+        result = neighbors("SPEC-001", NODES, EDGES)
+        lines = [l for l in result.strip().split("\n") if l]
+        # Find the row for SPEC-002 (from direction)
+        spec002_rows = [l for l in lines if "SPEC-002" in l]
+        assert spec002_rows, "Expected row for SPEC-002"
+        parts = spec002_rows[0].split("\t")
+        # Columns: direction, edge_type, artifact_id, status, title
+        assert len(parts) == 5
+        assert parts[3] == NODES["SPEC-002"]["status"]
+        assert parts[4] == NODES["SPEC-002"]["title"]
+
+    def test_neighbors_empty_when_no_edges_touch_artifact(self):
+        """neighbors returns empty string when no edges reference the artifact."""
+        result = neighbors("UNKNOWN-999", NODES, EDGES)
+        assert result.strip() == ""
+
+    def test_neighbors_tsv_format_column_count(self):
+        """Each output line has exactly 5 tab-separated columns."""
+        result = neighbors("SPEC-001", NODES, EDGES)
+        for line in result.strip().split("\n"):
+            if not line:
+                continue
+            parts = line.split("\t")
+            assert len(parts) == 5, f"Expected 5 columns, got: {line!r}"
+
+    def test_neighbors_sorted_by_direction_then_type_then_id(self):
+        """neighbors output is sorted by direction, then edge_type, then artifact_id."""
+        result = neighbors("EPIC-001", NODES, EDGES)
+        lines = [l for l in result.strip().split("\n") if l]
+        tuples = [tuple(l.split("\t")[:3]) for l in lines]  # direction, edge_type, artifact_id
+        assert tuples == sorted(tuples), f"Output not sorted: {tuples}"
+
+    def test_neighbors_unknown_node_shows_empty_status_title(self):
+        """neighbors shows empty status and title for other_id not in nodes dict."""
+        extra_edges = list(EDGES) + [
+            {"from": "SPEC-001", "to": "UNKNOWN-999", "type": "relates-to"},
+        ]
+        result = neighbors("SPEC-001", NODES, extra_edges)
+        # Use splitlines() to preserve trailing-tab lines without stripping them
+        lines = [l for l in result.splitlines() if l.strip()]
+        unknown_rows = [l for l in lines if "UNKNOWN-999" in l]
+        assert unknown_rows, "Expected row for UNKNOWN-999"
+        parts = unknown_rows[0].split("\t")
+        assert len(parts) == 5
+        assert parts[3] == ""   # status empty
+        assert parts[4] == ""   # title empty
