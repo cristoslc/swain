@@ -1,6 +1,9 @@
 """Tests for specgraph body cross-reference scanner."""
 
+import argparse
+import io
 import sys
+import unittest.mock
 from pathlib import Path
 
 import pytest
@@ -8,7 +11,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from specgraph.xref import collect_frontmatter_ids, scan_body
+from specgraph.xref import collect_frontmatter_ids, compute_discrepancies, compute_xref, scan_body, check_reciprocal_edges
 
 
 class TestScanBodyBasic:
@@ -226,3 +229,44 @@ class TestCollectFrontmatterIdsMixed:
             "linked-artifacts": ["SPEC-010"],
         }
         assert collect_frontmatter_ids(fm) == {"SPEC-010"}
+
+
+# ---------------------------------------------------------------------------
+# swa-ika9 — Discrepancy computation tests
+# ---------------------------------------------------------------------------
+
+
+class TestComputeDiscrepanciesBasic:
+    """Test compute_discrepancies returns correct set differences."""
+
+    def test_partial_overlap(self):
+        """body_ids={A,B}, frontmatter_ids={B,C} → body_not_in_frontmatter={A}, frontmatter_not_in_body={C}."""
+        result = compute_discrepancies({"A", "B"}, {"B", "C"})
+        assert result["body_not_in_frontmatter"] == {"A"}
+        assert result["frontmatter_not_in_body"] == {"C"}
+
+    def test_perfect_overlap(self):
+        """Identical sets → both output sets empty."""
+        result = compute_discrepancies({"A", "B"}, {"A", "B"})
+        assert result["body_not_in_frontmatter"] == set()
+        assert result["frontmatter_not_in_body"] == set()
+
+    def test_empty_body_ids(self):
+        """body_ids empty → body_not_in_frontmatter empty, frontmatter_not_in_body=all frontmatter_ids."""
+        result = compute_discrepancies(set(), {"B", "C"})
+        assert result["body_not_in_frontmatter"] == set()
+        assert result["frontmatter_not_in_body"] == {"B", "C"}
+
+    def test_empty_frontmatter_ids(self):
+        """frontmatter_ids empty → body_not_in_frontmatter=all body_ids, frontmatter_not_in_body empty."""
+        result = compute_discrepancies({"A", "B"}, set())
+        assert result["body_not_in_frontmatter"] == {"A", "B"}
+        assert result["frontmatter_not_in_body"] == set()
+
+    def test_both_empty(self):
+        """Both empty → both output sets empty."""
+        result = compute_discrepancies(set(), set())
+        assert result["body_not_in_frontmatter"] == set()
+        assert result["frontmatter_not_in_body"] == set()
+
+
