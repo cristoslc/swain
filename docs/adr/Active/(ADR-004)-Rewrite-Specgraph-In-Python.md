@@ -73,4 +73,4 @@ Rewrite specgraph as a Python module at `skills/swain-design/scripts/specgraph.p
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-13 | — | Initial creation |
-| Active | 2026-03-14 | — | Decision adopted |
+| Active | 2026-03-14 | 8783f9a | Decision adopted |
