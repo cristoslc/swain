@@ -77,7 +77,7 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
 
 When superpowers is installed, the following chains are **mandatory** — invoke the skills, do not skip them or do the work inline:
 
-1. **Before creating Vision or Persona artifacts:** Invoke the `brainstorming` skill for Socratic exploration. Pass the artifact context (goals, audience, constraints). Capture brainstorming output into swain's artifact format with proper frontmatter and lifecycle table.
+1. **Before creating Vision, Initiative, or Persona artifacts:** Invoke the `brainstorming` skill for Socratic exploration. Pass the artifact context (goals, audience, constraints). Capture brainstorming output into swain's artifact format with proper frontmatter and lifecycle table.
 
 2. **When a SPEC comes up for implementation:** Invoke `brainstorming` with the SPEC's acceptance criteria and scope. Brainstorming chains into `writing-plans` automatically. After `writing-plans` saves a plan file, invoke swain-do for plan ingestion.
 

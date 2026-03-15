@@ -15,7 +15,7 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | **swain** | Meta-router — routes `/swain` prompts to the correct sub-skill |
 | **swain-init** | One-time project onboarding — CLAUDE.md migration, tk verification, governance |
 | **swain-doctor** | Session-start health checks — governance, .tickets/ validation, legacy cleanup |
-| **swain-design** | Artifact lifecycle — Vision, Epic, Story, Spec, ADR, Spike, Persona, Runbook, Journey, Design |
+| **swain-design** | Artifact lifecycle — Vision, Initiative, Epic, Story, Spec, ADR, Spike, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect, normalize, and cache research sources |
 | **swain-do** | Execution tracking — task management via tk (ticket) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
@@ -57,7 +57,7 @@ When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), 
 
 | Trigger | Chain | Why |
 |---------|-------|-----|
-| Creating a Vision or Persona | swain-design → invoke **brainstorming** → draft artifact | Socratic exploration surfaces goals and constraints that shallow drafting misses |
+| Creating a Vision, Initiative, or Persona | swain-design → invoke **brainstorming** → draft artifact | Socratic exploration surfaces goals and constraints that shallow drafting misses |
 | SPEC comes up for implementation | swain-design → invoke **brainstorming** → **writing-plans** → swain-do (plan ingestion) | Plans anchored to acceptance criteria produce better TDD task breakdowns |
 | Executing implementation tasks | swain-do → invoke **test-driven-development** per task | RED-GREEN-REFACTOR ensures tests verify the spec, not the implementation |
 | Dispatching parallel work | swain-do → invoke **subagent-driven-development** or **executing-plans** | Fresh subagent context prevents cross-task contamination |
