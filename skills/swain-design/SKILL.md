@@ -33,6 +33,26 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 | Runbook (RUNBOOK-NNN) | Step-by-step operational procedure (agentic or manual) with a defined trigger. | [definition](references/runbook-definition.md) | [template](references/runbook-template.md.template) |
 | Design (DESIGN-NNN) | UI/UX interaction design — wireframes, flows, and state diagrams for user-facing surfaces. | [definition](references/design-definition.md) | [template](references/design-template.md.template) |
 
+## Choosing the right artifact type
+
+When the user's request doesn't name a specific type, infer it from their intent:
+
+| User intent | Artifact | Signal words |
+|-------------|----------|-------------|
+| Product direction, why we exist | **Vision** | "product direction", "what should we build", "north star" |
+| Strategic direction, group related work | **Initiative** | "focus on", "security effort", "group these epics", "strategic", "track" |
+| Ship a feature or deliverable | **Epic** | "build X", "add Y feature", "implement Z" |
+| One implementation unit | **Spec** | "fix this", "add a flag", "refactor", "small change", "bug" |
+| Research question | **Spike** | "should we", "investigate", "compare options", "what's the best way" |
+| Record a decision | **ADR** | "decided to", "choosing between", "why did we" |
+
+**Initiative vs Epic** — the key distinction:
+- **Initiative**: a *direction* with multiple deliverables. "Harden security" is an initiative — it spans scanning, gates, policies. The operator steers it.
+- **Epic**: a *deliverable* with multiple specs. "Build the scanning tool" is an epic — it has clear completion criteria. Agents execute it.
+- **Rule of thumb**: if the work needs 2+ epics to describe, it's an Initiative. If it needs 2+ specs, it's an Epic. If it's one spec, just create the spec.
+
+**Spec under Initiative (small work path)** — bugs, minor enhancements, and chores that relate to an Initiative's direction but don't warrant an Epic can attach directly to the Initiative via `parent-initiative`. If small work clusters, suggest promoting it to an Epic.
+
 ## Creating artifacts
 
 ### Error handling
