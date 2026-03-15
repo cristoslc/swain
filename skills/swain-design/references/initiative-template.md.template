@@ -1,0 +1,53 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: INITIATIVE-{{ number }}
+track: container
+status: {{ status | default("Proposed") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+parent-vision: VISION-{{ parent_vision_number }}
+priority-weight: {{ priority_weight | default("") }}
+success-criteria:
+{%- for criterion in success_criteria %}
+  - {{ criterion }}
+{%- endfor %}
+depends-on-artifacts:
+{%- for dep in depends_on_artifacts | default([]) %}
+  - {{ dep }}
+{%- endfor %}
+addresses:
+{%- for pp in addresses | default([]) %}
+  - {{ pp }}
+{%- endfor %}
+evidence-pool: {{ evidence_pool | default("") }}
+---
+
+# {{ title }}
+
+## Strategic Focus
+
+{{ strategic_focus | default("What direction is this initiative pursuing? What problem does it address and why now?") }}
+
+## Scope Boundaries
+
+{{ scope | default("What is in scope and what is explicitly out of scope.") }}
+
+## Child Epics
+
+{{ child_epics | default("Updated as Epics are created under this initiative.") }}
+
+## Small Work (Epic-less Specs)
+
+{{ small_work | default("Specs attached directly to this initiative without an epic wrapper.") }}
+
+## Key Dependencies
+
+{{ dependencies | default("Dependencies on other Initiatives or external factors.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Proposed") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |
