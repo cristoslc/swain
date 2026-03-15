@@ -613,6 +613,47 @@ render_full() {
           "  _\(.description)_"
         else empty end)
       '
+
+      # --- Vision context for decisions ---
+      echo "$data" | jq -r '
+        if .priority.decision_debt then
+          [.priority.decision_debt | to_entries[] | select(.key != "_unaligned")] |
+          if length > 0 then
+            "**By vision:** " + (
+              [.[] | "\(.key) (\(.value.count) decisions, \(.value.total_unblocks) unblocks)"] | join(", ")
+            )
+          else empty end
+        else empty end
+      '
+      echo ""
+    fi
+
+    # --- Attention Drift ---
+    local drift_count
+    drift_count=$(echo "$data" | jq '[.priority.drift // [] | .[] ] | length' 2>/dev/null || echo 0)
+    if [[ "$drift_count" -gt 0 ]]; then
+      echo "## Attention Drift"
+      echo ""
+      echo "$data" | jq -r '
+        [.priority.drift[] |
+          "- \(.vision_id) [weight: \(.weight)] — \(.days_since_activity) days since last activity (threshold: \(.threshold))"
+        ] | .[]
+      '
+      echo ""
+    fi
+
+    # --- Peripheral Awareness ---
+    local focus_lane
+    focus_lane=$(echo "$data" | jq -r '.session.focus_lane // empty' 2>/dev/null || echo "")
+    if [[ -n "$focus_lane" ]]; then
+      echo "## Meanwhile"
+      echo ""
+      echo "$data" | jq -r --arg focus "$focus_lane" '
+        [.priority.decision_debt // {} | to_entries[] |
+          select(.key != "_unaligned" and .key != $focus) |
+          "\(.key) has \(.value.count) pending decisions"
+        ] | if length > 0 then "- " + join("\n- ") else empty end
+      '
       echo ""
     fi
 
