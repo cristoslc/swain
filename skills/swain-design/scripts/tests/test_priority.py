@@ -86,3 +86,61 @@ class TestDecisionDebt:
         debt = compute_decision_debt(self.NODES, self.EDGES)
         # SPIKE-001 being completed would unblock EPIC-002
         assert debt["VISION-002"]["total_unblocks"] >= 1
+
+
+class TestRecommendationScoring:
+    """Test the score = unblock_count × vision_weight ranking."""
+
+    NODES = {
+        "VISION-001": {"title": "V1", "status": "Active", "type": "VISION", "priority_weight": "high", "file": "", "description": ""},
+        "VISION-002": {"title": "V2", "status": "Active", "type": "VISION", "priority_weight": "low", "file": "", "description": ""},
+        "INITIATIVE-001": {"title": "I1", "status": "Active", "type": "INITIATIVE", "priority_weight": "", "file": "", "description": ""},
+        "INITIATIVE-002": {"title": "I2", "status": "Active", "type": "INITIATIVE", "priority_weight": "", "file": "", "description": ""},
+        "EPIC-001": {"title": "E1", "status": "Proposed", "type": "EPIC", "priority_weight": "", "file": "", "description": ""},
+        "EPIC-002": {"title": "E2", "status": "Proposed", "type": "EPIC", "priority_weight": "", "file": "", "description": ""},
+        "SPEC-010": {"title": "SP10", "status": "Proposed", "type": "SPEC", "priority_weight": "", "file": "", "description": ""},
+        "SPEC-011": {"title": "SP11", "status": "Proposed", "type": "SPEC", "priority_weight": "", "file": "", "description": ""},
+        "SPEC-012": {"title": "SP12", "status": "Proposed", "type": "SPEC", "priority_weight": "", "file": "", "description": ""},
+    }
+
+    EDGES = [
+        {"from": "INITIATIVE-001", "to": "VISION-001", "type": "parent-vision"},
+        {"from": "INITIATIVE-002", "to": "VISION-002", "type": "parent-vision"},
+        {"from": "EPIC-001", "to": "INITIATIVE-001", "type": "parent-initiative"},
+        {"from": "EPIC-002", "to": "INITIATIVE-002", "type": "parent-initiative"},
+        # EPIC-002 (low vision) unblocks 3 specs
+        {"from": "SPEC-010", "to": "EPIC-002", "type": "depends-on"},
+        {"from": "SPEC-011", "to": "EPIC-002", "type": "depends-on"},
+        {"from": "SPEC-012", "to": "EPIC-002", "type": "depends-on"},
+    ]
+
+    def test_unblock_count_times_weight_determines_rank(self):
+        from specgraph.priority import rank_recommendations
+        ranked = rank_recommendations(self.NODES, self.EDGES)
+        # EPIC-001: 0 unblocks × 3 (high) = 0. EPIC-002: 3 unblocks × 1 (low) = 3
+        # Score 3 > 0 so EPIC-002 ranks first despite lower vision weight
+        assert ranked[0]["id"] == "EPIC-002"
+
+    def test_ranking_is_deterministic(self):
+        from specgraph.priority import rank_recommendations
+        ranked1 = rank_recommendations(self.NODES, self.EDGES)
+        ranked2 = rank_recommendations(self.NODES, self.EDGES)
+        assert [r["id"] for r in ranked1] == [r["id"] for r in ranked2]
+
+    def test_focus_vision_filters_results(self):
+        from specgraph.priority import rank_recommendations
+        ranked = rank_recommendations(self.NODES, self.EDGES, focus_vision="VISION-001")
+        vision_ids = {r["vision_id"] for r in ranked}
+        assert "VISION-002" not in vision_ids
+
+    def test_each_item_has_required_fields(self):
+        from specgraph.priority import rank_recommendations
+        ranked = rank_recommendations(self.NODES, self.EDGES)
+        for item in ranked:
+            assert "id" in item
+            assert "score" in item
+            assert "unblock_count" in item
+            assert "vision_weight" in item
+            assert "vision_id" in item
+            assert "is_decision" in item
+            assert "type" in item
