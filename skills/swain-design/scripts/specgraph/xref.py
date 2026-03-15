@@ -9,7 +9,7 @@ from .parser import extract_list_ids, extract_scalar_id, _ARTIFACT_ID_RE
 # false positives from CVE identifiers, SPDX license tags, model names, etc.
 _KNOWN_ARTIFACT_PREFIXES = frozenset({
     "VISION", "EPIC", "SPEC", "SPIKE", "ADR", "JOURNEY",
-    "PERSONA", "DESIGN", "RUNBOOK", "STORY", "BUG",
+    "PERSONA", "DESIGN", "RUNBOOK", "STORY", "BUG", "INITIATIVE",
 })
 
 # All list-type frontmatter fields that carry artifact cross-references.

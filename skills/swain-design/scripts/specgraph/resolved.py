@@ -31,7 +31,7 @@ _STANDING_TYPES = frozenset(
 )
 
 # Container-track types for migration fallback
-_CONTAINER_TYPES = frozenset({"EPIC", "SPIKE"})
+_CONTAINER_TYPES = frozenset({"EPIC", "SPIKE", "INITIATIVE"})
 
 
 def is_status_resolved(status: str) -> bool:
