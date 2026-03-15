@@ -8,6 +8,7 @@ author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 parent-vision: VISION-{{ parent_vision_number }}
+parent-initiative: {{ parent_initiative | default("") }}
 success-criteria:
 {%- for criterion in success_criteria %}
   - {{ criterion }}

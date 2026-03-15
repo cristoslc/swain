@@ -9,6 +9,7 @@ created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 type: {{ type | default("feature") }}
 parent-epic: {{ parent_epic | default("") }}
+parent-initiative: {{ parent_initiative | default("") }}
 linked-artifacts:
 {%- for artifact in linked_artifacts | default([]) %}
   - {{ artifact }}
