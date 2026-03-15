@@ -72,6 +72,7 @@ def build_graph(
         aid = artifact.artifact
         fields = artifact.raw_fields
         track = fields.get("track", "")
+        priority_weight = fields.get("priority-weight", "")
         nodes[aid] = {
             "title": artifact.title,
             "status": artifact.status,
@@ -79,6 +80,7 @@ def build_graph(
             "track": track,
             "file": artifact.file,
             "description": artifact.description,
+            "priority_weight": priority_weight,
         }
 
         # depends-on edges
