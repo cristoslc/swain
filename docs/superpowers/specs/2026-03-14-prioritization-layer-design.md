@@ -10,7 +10,7 @@ The system answers "what's actionable?" but not "what matters most for where thi
 
 1. **No priority at the artifact level** — all actionable items appear equal
 2. **No vision connection** — decisions aren't framed in terms of which vision they advance
-3. **Missing hierarchy layer** — everything is either a Vision (too strategic) or an Epic (too tactical), with no grouping for strategic bets
+3. **Missing hierarchy layer** — everything is either a Vision (too strategic) or an Epic (too tactical), with no grouping for strategic focus areas
 4. **No small work pipeline** — bugs, minor enhancements, and chores require full epic ceremony
 5. **No attention tracking** — no way to detect that the operator is drifting from stated priorities
 6. **No steering support** — no mechanism for the operator to declare focus or see peripheral accumulation
@@ -19,13 +19,13 @@ The system answers "what's actionable?" but not "what matters most for where thi
 
 ### Work Hierarchy
 
-A new **Initiative** layer sits between Vision and Epic, representing a coordinated strategic bet. ("Initiative" is the working name — may be renamed later via mechanical find-and-replace.)
+A new **Initiative** layer sits between Vision and Epic, representing a coordinated strategic focus. ("Initiative" is the working name — may be renamed later via mechanical find-and-replace.)
 
 ```
 Vision           →  why does this product exist?
                     (has priority-weight: high / medium / low)
 
-Initiative       →  what strategic bet are we making?
+Initiative       →  what strategic focus are we pursuing?
                     (inherits vision weight, can override, groups epics)
 
 Epic             →  what are we shipping?

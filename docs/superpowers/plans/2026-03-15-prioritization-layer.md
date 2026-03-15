@@ -51,9 +51,9 @@ evidence-pool: {{ evidence_pool | default("") }}
 
 # {{ title }}
 
-## Strategic Bet
+## Strategic Focus
 
-{{ strategic_bet | default("What strategic bet is this initiative making? What problem does it address?") }}
+{{ strategic_focus | default("What direction is this initiative pursuing? What problem does it address and why now?") }}
 
 ## Scope Boundaries
 
