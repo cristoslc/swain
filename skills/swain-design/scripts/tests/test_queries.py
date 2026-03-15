@@ -1111,3 +1111,43 @@ class TestOverview:
         """Output always contains '=== Execution Tracking (tk ready) ===' section."""
         result = overview(HIER_NODES, HIER_EDGES)
         assert "=== Execution Tracking (tk ready) ===" in result
+
+
+# ---------------------------------------------------------------------------
+# TestInitiativeParentChain
+# ---------------------------------------------------------------------------
+
+
+class TestInitiativeParentChain:
+    """Test parent chain walking includes parent-initiative edges."""
+
+    NODES = {
+        "SPEC-010": {"title": "Spec 10", "status": "Ready", "type": "SPEC", "file": "", "description": ""},
+        "EPIC-010": {"title": "Epic 10", "status": "Active", "type": "EPIC", "file": "", "description": ""},
+        "INITIATIVE-001": {"title": "Initiative 1", "status": "Active", "type": "INITIATIVE", "file": "", "description": ""},
+        "VISION-001": {"title": "Vision 1", "status": "Active", "type": "VISION", "file": "", "description": ""},
+    }
+
+    EDGES = [
+        {"from": "SPEC-010", "to": "EPIC-010", "type": "parent-epic"},
+        {"from": "EPIC-010", "to": "INITIATIVE-001", "type": "parent-initiative"},
+        {"from": "INITIATIVE-001", "to": "VISION-001", "type": "parent-vision"},
+    ]
+
+    def test_walk_parent_chain_through_initiative(self):
+        """Parent chain walks SPEC → EPIC → INITIATIVE → VISION."""
+        from specgraph.queries import _walk_parent_chain
+        chain = _walk_parent_chain("SPEC-010", self.EDGES)
+        assert chain == ["EPIC-010", "INITIATIVE-001", "VISION-001"]
+
+    def test_find_vision_ancestor_through_initiative(self):
+        """Vision ancestor found through initiative layer."""
+        from specgraph.queries import _find_vision_ancestor
+        vision = _find_vision_ancestor("SPEC-010", self.NODES, self.EDGES)
+        assert vision == "VISION-001"
+
+    def test_find_vision_ancestor_from_initiative(self):
+        """Vision ancestor found directly from initiative."""
+        from specgraph.queries import _find_vision_ancestor
+        vision = _find_vision_ancestor("INITIATIVE-001", self.NODES, self.EDGES)
+        assert vision == "VISION-001"
