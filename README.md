@@ -1,15 +1,16 @@
 # swain
 
-**Decision support for the operator. Alignment support for the agent.**
+**Ship what actually matters — not just what the AI decided to build.**
 
-Swain is a skill suite for solo developers who work with AI coding agents. It serves two audiences in every session:
+AI agents can ship code fast. But the decisions that shape a project are still human calls. What to build, what to defer, which tradeoffs to accept. The problem is that those decisions are ephemeral. They live in the operator's head, in agent memories that aren't clear enough, and in context that's gone by the next session. So the agent guesses.
 
-- **You (the operator)** get a decision-support layer — what's active, what's blocked, what needs your judgment, and what the agent can handle autonomously. You make the calls; swain surfaces the right information at the right time.
-- **Your agent** gets an alignment layer — structured artifacts on disk that say what was decided, what to build, what constraints apply, and where it left off. The agent reads these instead of guessing or asking you to repeat context.
+Swain captures the operator's decisions as artifacts in git: what was decided and why. When the AI makes decisions, swain makes those visible too, so you can review and course-correct. You bring judgment and vision. The AI brings throughput and execution.
 
-Both layers are the same data: markdown files in git. Swain just presents them differently depending on who's looking.
+The result is a project that maintains intent, not just one that accumulates code. The AI doesn't drift because the reasoning is right there on disk. You stop re-explaining context that should already be settled. When priorities shift, you trace back to *why* and adapt instead of starting over. Every session builds on the last.
 
-Named for the *swain* in boat**swain** — the officer who keeps the rigging tight.
+> *Swain is in early development. It's actively used in production by its author, but expect rough edges and shifting APIs. Feedback and contributions welcome.*
+
+Named for the *swain* in boat**swain**, the officer who keeps the rigging tight.
 
 ## Install
 
@@ -50,25 +51,6 @@ From there, the core loop is:
 
 Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions are commits. Everything is inspectable, diffable, and version-controlled.
 
-## Isolated execution
-
-Swain ships a `scripts/claude-sandbox` launcher that runs Claude Code inside an isolated environment — keeping agent file access and network calls contained:
-
-```bash
-# Tier 1: native platform sandboxing (default)
-# macOS: sandbox-exec (Seatbelt), Linux: Landlock or bubblewrap
-./scripts/claude-sandbox
-
-# Tier 2: Docker container with bind-mounted project files
-./scripts/claude-sandbox --docker
-```
-
-Both modes pass extra arguments through to `claude`. Configuration (`dockerImage`, `allowedDomains`) lives in `swain.settings.json`.
-
-**Requirements:**
-- Tier 1: no extra dependencies (uses OS-native sandboxing)
-- Tier 2: Docker daemon running
-
 ## Skills
 
 | Skill | What it does |
@@ -81,7 +63,6 @@ Both modes pass extra arguments through to `claude`. Configuration (`dockerImage
 | **swain-search** | Evidence pools — collect and cache research sources as reusable markdown |
 | **swain-do** | Task tracking — implementation plans, dependencies, progress |
 | **swain-sync** | Fetch, rebase, commit, and push with conventional commit messages |
-| **swain-push** | Deprecated alias for swain-sync |
 | **swain-release** | Changelog, version bump, git tag |
 | **swain-stage** | Tmux workspace layouts and animated status panel |
 | **swain-keys** | Per-project SSH keys for git signing and auth |
