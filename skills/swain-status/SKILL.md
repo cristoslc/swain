@@ -87,10 +87,10 @@ If attention drift is detected for the recommended item's vision, include it as 
 
 swain-status infers the operating mode from context (first match wins):
 
-1. Specs awaiting operator review (agent finished, needs sign-off) → **detail mode**
-2. Focus lane set with pending strategic decisions → **vision mode** within that lane
-3. No specs in review, decisions piling up → **vision mode**
-4. Both specs in review AND strategic decisions pending → ask: "Steering or reviewing?"
+1. Both specs in review AND strategic decisions pending → ask: "Steering or reviewing?"
+2. Specs awaiting operator review (agent finished, needs sign-off) → **detail mode**
+3. Focus lane set with pending strategic decisions → **vision mode** within that lane
+4. No specs in review, decisions piling up → **vision mode**
 5. Nothing actionable in either mode → **vision mode** (show the master plan mirror)
 
 Once the operator answers, swain remembers for the session via swain-session bookmark.

@@ -53,6 +53,23 @@ When the user's request doesn't name a specific type, infer it from their intent
 
 **Spec under Initiative (small work path)** — bugs, minor enhancements, and chores that relate to an Initiative's direction but don't warrant an Epic can attach directly to the Initiative via `parent-initiative`. If small work clusters, suggest promoting it to an Epic.
 
+## Updating artifact metadata
+
+When the operator asks to update a field on an existing artifact (e.g., "set VISION-001 priority to high", "re-parent EPIC-017 under INITIATIVE-001"):
+
+1. Read the artifact's definition file to confirm the field name and valid values
+2. Edit the frontmatter field directly (e.g., `priority-weight: high`)
+3. Update the `last-updated` date
+4. Run `specgraph build` to refresh the graph cache
+5. Commit the change
+
+**Common updates:**
+- `priority-weight` on Visions and Initiatives — accepts `high`, `medium`, or `low`. Affects downstream recommendation scoring.
+- `parent-initiative` on Epics and Specs — re-parents them under an Initiative. A Spec can have `parent-epic` OR `parent-initiative`, never both.
+- `parent-vision` on Initiatives — attaches to a Vision.
+
+When the operator says "priority" or "weight" in the context of a Vision or Initiative, they mean the `priority-weight` frontmatter field.
+
 ## Creating artifacts
 
 ### Error handling
