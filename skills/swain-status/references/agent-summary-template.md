@@ -11,18 +11,22 @@ anything else. Reference data (Epic Progress, Spikes, Blocked) comes after.
 
 ## Section 0: Recommendation
 
-Pick the single ready artifact with the highest `unblock_count` from
-`.artifacts.ready[]` in the JSON cache. If multiple items tie on `unblock_count`,
-prefer decision-type artifacts (Proposed specs, ADRs) over implementation items —
-a human-gated decision is more valuable to unblock than an agent-executable task.
-Write exactly two sentences:
+Read `.priority.recommendations[0]` from the JSON cache. Write exactly two sentences:
 
-- **Action:** One sentence naming the action (e.g., "Approve SPEC-030.")
-- **Why:** One sentence naming the unblock count and the artifact IDs that
-  would be unblocked (e.g., "Approving it unblocks SPEC-031, SPEC-032,
-  SPEC-033 — highest downstream leverage of all actionable items.")
+- **Action:** One sentence naming the action (e.g., "Activate EPIC-017.")
+- **Why:** One sentence naming the score, vision context, and unblock count (e.g., "Security is weighted high with 3 pending decisions — activating this unblocks EPIC-023. Note: your last 2 weeks of work has been in design tooling.")
+
+Include attention drift context if any drift is detected for the recommendation's vision (check `.priority.drift`).
 
 Omit this section entirely if no ready items exist.
+
+## Section 0.5: Peripheral Awareness
+
+If a focus lane is set (`.session.focus_lane` is non-null) and there are decisions in other visions, summarize:
+"Meanwhile: [Vision Name] has N pending decisions (weight: W)"
+
+One line per non-focus vision with pending decisions from `.priority.decision_debt`.
+Omit this section entirely if no focus lane is set.
 
 ## Section 1: Decisions Needed
 
