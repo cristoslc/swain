@@ -1,5 +1,22 @@
 # Lifecycle Table Format
 
+## Frontmatter fields (Initiative-related)
+
+Two scalar fields introduced with the INITIATIVE artifact type are also valid on EPIC and SPEC:
+
+| Field | Type | Valid values | Description |
+|-------|------|-------------|-------------|
+| `parent-initiative` | scalar | `INITIATIVE-NNN` | The Initiative this artifact belongs to. Sits alongside `parent-vision` and `parent-epic` in the hierarchy. |
+| `priority-weight` | scalar | `high`, `medium`, `low` | Relative priority within the parent Initiative or Vision. Used by `specgraph recommend` to compute ranked scores. |
+
+Example EPIC frontmatter:
+
+```yaml
+parent-vision: VISION-001
+parent-initiative: INITIATIVE-003
+priority-weight: high
+```
+
 Every artifact embeds a lifecycle table tracking phase transitions:
 
 ```markdown

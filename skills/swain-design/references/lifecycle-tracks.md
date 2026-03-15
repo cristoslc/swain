@@ -7,7 +7,7 @@ Three-track lifecycle model from ADR-003. Each artifact type belongs to exactly 
 | Track | Artifact Types | Phases (ordered) | Terminal Phases | Resolution Rule |
 |-------|---------------|-----------------|-----------------|-----------------|
 | `implementable` | SPEC | Proposed → Ready → Active → Complete | Complete, Abandoned, Retired, Superseded | Status equals a terminal phase |
-| `container` | EPIC, SPIKE | Proposed → Active → Complete | Complete, Abandoned, Retired, Superseded | Status equals a terminal phase |
+| `container` | INITIATIVE, EPIC, SPIKE | Proposed → Active → Complete | Complete, Abandoned, Retired, Superseded | Status equals a terminal phase |
 | `standing` | VISION, JOURNEY, PERSONA, ADR, RUNBOOK, DESIGN | Proposed → Active → (Retired \| Superseded) | Retired, Superseded | Active OR status equals a terminal phase |
 
 Universal terminal states applicable to all tracks: `Abandoned`, `Retired`, `Superseded`.
@@ -26,7 +26,7 @@ Every artifact's YAML frontmatter includes a `track` field:
 
 ```yaml
 track: implementable   # SPEC
-track: container       # EPIC, SPIKE
+track: container       # INITIATIVE, EPIC, SPIKE
 track: standing        # VISION, JOURNEY, PERSONA, ADR, RUNBOOK, DESIGN
 ```
 

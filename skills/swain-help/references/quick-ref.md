@@ -19,7 +19,7 @@
 
 ## Artifacts
 
-Swain manages 9 artifact types, organized into three lifecycle tracks.
+Swain manages 10 artifact types, organized into three lifecycle tracks.
 
 ### Implementable track (tracked via tk)
 
@@ -33,7 +33,8 @@ These require a tracked plan (via swain-do) before implementation begins.
 
 | Type | ID Pattern | Phases | When to use |
 |------|-----------|--------|-------------|
-| **Epic** | EPIC-NNN | Proposed → Active → Complete | Large initiative decomposed into specs |
+| **Initiative** | INITIATIVE-NNN | Proposed → Active → Complete | Strategic grouping of Epics under a Vision — prioritization and decision tracking |
+| **Epic** | EPIC-NNN | Proposed → Active → Complete | Large deliverable decomposed into specs |
 | **Spike** | SPIKE-NNN | Proposed → Active → Complete | Time-boxed investigation to reduce uncertainty |
 
 ### Standing track (no tracking)
@@ -49,7 +50,8 @@ These require a tracked plan (via swain-do) before implementation begins.
 
 ### Artifact relationships
 
-- **Vision** → decomposes into Epics and Journeys
+- **Vision** → decomposes into Initiatives, Epics, and Journeys
+- **Initiative** → groups related Epics (and optionally Specs) under a Vision
 - **Epic** → decomposes into Specs, Spikes
 - **Spec** → may reference ADRs, Personas, Designs
 - **Spike** → attaches to any artifact, may produce ADRs
@@ -137,6 +139,7 @@ CLAUDE.md contains just `@AGENTS.md`, which includes the full AGENTS.md file. Th
 ├── .agents/               # Swain config and logs
 └── docs/
     ├── vision/            # VISION artifacts
+    ├── initiative/        # INITIATIVE artifacts
     ├── epic/              # EPIC artifacts
     ├── spec/              # SPEC artifacts
     ├── spike/             # SPIKE artifacts
