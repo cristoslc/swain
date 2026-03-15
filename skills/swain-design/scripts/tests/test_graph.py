@@ -174,6 +174,19 @@ class TestBuildGraph:
         data = build_graph(tmp_path)
         assert len(data["edges"]) == 0
 
+    def test_priority_weight_extraction(self, tmp_path):
+        """Vision artifact with priority-weight in frontmatter should be in node dict."""
+        docs = tmp_path / "docs"
+        docs.mkdir()
+        (docs / "vision.md").write_text(
+            '---\ntitle: "My Vision"\nartifact: VISION-001\nstatus: Active\n'
+            "priority-weight: high\n---\n# Vision\n"
+        )
+
+        data = build_graph(tmp_path)
+        assert "VISION-001" in data["nodes"]
+        assert data["nodes"]["VISION-001"]["priority_weight"] == "high"
+
 
 class TestCacheIO:
     """Test cache read/write operations."""

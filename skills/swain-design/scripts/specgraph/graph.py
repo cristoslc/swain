@@ -79,6 +79,7 @@ def build_graph(
             "track": track,
             "file": artifact.file,
             "description": artifact.description,
+            "priority_weight": fields.get("priority-weight", ""),
         }
 
         # depends-on edges
