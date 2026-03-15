@@ -109,6 +109,12 @@ def build_graph(
         if pi:
             add_edge(aid, pi, "parent-initiative")
 
+        # Track dual-parent warning
+        has_parent_epic = pe is not None
+        has_parent_initiative = pi is not None
+        if has_parent_epic and has_parent_initiative:
+            nodes[aid]["_dual_parent_warning"] = True
+
         # List-type relationship edges (all typed xref fields except depends-on-artifacts,
         # which is handled above with its own "depends-on" edge type)
         for list_field in _XREF_LIST_FIELDS:
@@ -142,6 +148,19 @@ def build_graph(
         })
 
     xref = compute_xref(artifact_dicts, edges)
+
+    # Append dual-parent warnings to xref
+    for aid, node in nodes.items():
+        if node.pop("_dual_parent_warning", False):
+            xref.append({
+                "artifact": aid,
+                "file": node.get("file", ""),
+                "body_not_in_frontmatter": [],
+                "frontmatter_not_in_body": [],
+                "missing_reciprocal": [],
+                "dual_parent": True,
+                "dual_parent_message": f"{aid} has both parent-epic and parent-initiative — use exactly one",
+            })
 
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 

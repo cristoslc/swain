@@ -190,6 +190,24 @@ class TestBuildGraph:
         assert len(data["edges"]) == 0
 
 
+def test_dual_parent_spec_produces_xref_warning():
+    """A spec with both parent-epic and parent-initiative produces a warning in xref."""
+    import tempfile, os
+    from pathlib import Path
+    from specgraph.graph import build_graph
+    with tempfile.TemporaryDirectory() as tmpdir:
+        docs = os.path.join(tmpdir, "docs", "spec", "Ready")
+        os.makedirs(docs)
+        spec_dir = os.path.join(docs, "(SPEC-099)-Dual-Parent")
+        os.makedirs(spec_dir)
+        with open(os.path.join(spec_dir, "(SPEC-099)-Dual-Parent.md"), "w") as f:
+            f.write("---\ntitle: Dual Parent\nartifact: SPEC-099\nstatus: Ready\nparent-epic: EPIC-001\nparent-initiative: INITIATIVE-001\n---\nBody.\n")
+        result = build_graph(Path(tmpdir))
+        # Check for dual-parent warning in xref
+        warnings = [x for x in result.get("xref", []) if x.get("artifact") == "SPEC-099"]
+        assert any(w.get("dual_parent") for w in warnings), f"Expected dual_parent warning, got: {warnings}"
+
+
 class TestCacheIO:
     """Test cache read/write operations."""
 
