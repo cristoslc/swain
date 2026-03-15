@@ -390,10 +390,12 @@ collect_session() {
     jq '{
       bookmark: (.bookmark // null),
       lastBranch: (.lastBranch // null),
-      lastContext: (.lastContext // null)
-    }' "$SESSION_FILE" 2>/dev/null || echo '{"bookmark":null,"lastBranch":null,"lastContext":null}'
+      lastContext: (.lastContext // null),
+      focus_lane: (.focus_lane // null),
+      status_mode: (.status_mode // null)
+    }' "$SESSION_FILE" 2>/dev/null || echo '{"bookmark":null,"lastBranch":null,"lastContext":null,"focus_lane":null,"status_mode":null}'
   else
-    echo '{"bookmark":null,"lastBranch":null,"lastContext":null}'
+    echo '{"bookmark":null,"lastBranch":null,"lastContext":null,"focus_lane":null,"status_mode":null}'
   fi
 }
 
@@ -412,7 +414,15 @@ build_cache() {
 
   # Priority data from specgraph
   local recommend_data debt_data attention_data
-  recommend_data=$(python3 "$SPECGRAPH" recommend --json 2>/dev/null || echo '[]')
+  local focus_lane=""
+  if [[ -f "$SESSION_FILE" ]]; then
+    focus_lane=$(jq -r '.focus_lane // empty' "$SESSION_FILE" 2>/dev/null || echo "")
+  fi
+  if [[ -n "$focus_lane" ]]; then
+    recommend_data=$(python3 "$SPECGRAPH" recommend --focus "$focus_lane" --json 2>/dev/null || echo '[]')
+  else
+    recommend_data=$(python3 "$SPECGRAPH" recommend --json 2>/dev/null || echo '[]')
+  fi
   debt_data=$(python3 "$SPECGRAPH" decision-debt 2>/dev/null || echo '{}')
   attention_data=$(python3 "$SPECGRAPH" attention --json 2>/dev/null || echo '{"attention":{},"drift":[]}')
 
