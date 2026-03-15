@@ -24,5 +24,13 @@
       "spinnerStyle": "braille"
     },
     "defaultLayout": "focus"
+  },
+  "prioritization": {
+    "driftThresholds": {
+      "high": 14,
+      "medium": 28
+    },
+    "minActivityThreshold": 5,
+    "attentionWindowDays": 30
   }
 }

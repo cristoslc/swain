@@ -228,9 +228,21 @@ def main(argv: list[str] | None = None) -> None:
         elif args.command == "attention":
             from .attention import scan_git_log, compute_attention, compute_drift
             import json as _json
-            log_entries = scan_git_log(repo_root, days=getattr(args, "days", 30))
+            # Read settings for drift thresholds
+            settings_path = repo_root / "swain.settings.json"
+            drift_thresholds = None
+            att_days = getattr(args, "days", 30)
+            if settings_path.exists():
+                try:
+                    settings = _json.loads(settings_path.read_text())
+                    p = settings.get("prioritization", {})
+                    drift_thresholds = p.get("driftThresholds")
+                    att_days = p.get("attentionWindowDays", att_days)
+                except (ValueError, KeyError):
+                    pass
+            log_entries = scan_git_log(repo_root, days=att_days)
             attention = compute_attention(log_entries, nodes, edges)
-            drift = compute_drift(attention, nodes)
+            drift = compute_drift(attention, nodes, drift_thresholds=drift_thresholds)
             if getattr(args, "json", False):
                 print(_json.dumps({"attention": attention, "drift": drift}, indent=2))
             else:
