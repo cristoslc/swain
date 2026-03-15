@@ -101,6 +101,14 @@ def build_graph(
         if pe:
             add_edge(aid, pe, "parent-epic")
 
+        # parent-initiative (scalar or list)
+        pi = extract_scalar_id(fields, "parent-initiative")
+        if pi is None:
+            pis = extract_list_ids(fields, "parent-initiative")
+            pi = pis[0] if pis else None
+        if pi:
+            add_edge(aid, pi, "parent-initiative")
+
         # List-type relationship edges (all typed xref fields except depends-on-artifacts,
         # which is handled above with its own "depends-on" edge type)
         for list_field in _XREF_LIST_FIELDS:

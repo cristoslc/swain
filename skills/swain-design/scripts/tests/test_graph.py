@@ -162,6 +162,21 @@ class TestBuildGraph:
         assert len(data["nodes"]) == 1
         assert "SPEC-001" in data["nodes"]
 
+    def test_parent_initiative_edge(self, tmp_path):
+        docs = tmp_path / "docs"
+        docs.mkdir()
+        (docs / "initiative.md").write_text(
+            '---\ntitle: "Initiative"\nartifact: INITIATIVE-001\nstatus: Active\n---\n# Initiative\n'
+        )
+        (docs / "epic.md").write_text(
+            '---\ntitle: "Epic"\nartifact: EPIC-001\nstatus: Active\n'
+            "parent-initiative: INITIATIVE-001\n---\n# Epic\n"
+        )
+
+        data = build_graph(tmp_path)
+        edge_tuples = {(e["from"], e["to"], e["type"]) for e in data["edges"]}
+        assert ("EPIC-001", "INITIATIVE-001", "parent-initiative") in edge_tuples
+
     def test_skips_empty_refs(self, tmp_path):
         """Empty, null, tilde values should not create edges."""
         docs = tmp_path / "docs"
