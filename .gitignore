@@ -31,10 +31,14 @@ skills-lock.json
 .dolt/
 *.db
 
-# Installed skills
+# Installed skills (consumer-side)
 .claude/skills
 .agents/skills
-skills/using-superpowers
+
+# Ignore all skills, then un-ignore swain's own skills
+skills/*
+!skills/swain/
+!skills/swain-*/
 
 # Skills installer agent dot-folders (npx skills add creates these)
 .adal
