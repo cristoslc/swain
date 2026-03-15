@@ -160,6 +160,7 @@ def main(argv: list[str] | None = None) -> None:
     rec_parser.add_argument("--focus", default=None, help="Focus vision ID (e.g. VISION-001)")
     rec_parser.add_argument("--json", action="store_true", help="Output raw JSON")
 
+
     # attention: drift detection
     att_parser = subparsers.add_parser("attention", help="Show attention distribution by vision")
     att_parser.add_argument("--days", type=int, default=30, help="Lookback window in days")
