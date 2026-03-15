@@ -1,25 +1,26 @@
 ---
-title: "Frontend Design Integration Strategy"
+title: "Product Design Integration Strategy"
 artifact: SPIKE-023
 track: container
 status: Proposed
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
-question: "How should swain-design (frontend orchestrator) integrate Anthropic's frontend design plugin, superpowers' frontend-design skill, and impeccable.style — and what's the right division of responsibility between them?"
+question: "How should swain-design (product design orchestrator) integrate three generation systems (Anthropic's plugin, superpowers' frontend-design, impeccable.style) with swain's artifact system (DESIGN and JOURNEY types) to produce UX-aware product design — not just frontend code?"
 gate: Pre-development
 risks-addressed:
   - Building an orchestrator that adds overhead without adding value over using each system directly
   - Style inconsistency when different systems generate different parts of the frontend
   - Tight coupling to a specific system that may change or be deprecated (especially Anthropic's plugin)
   - impeccable.style integration approach that doesn't scale to real component libraries
+  - Treating design as code generation rather than product thinking — losing the UX/journey context
 linked-artifacts:
   - EPIC-021
   - EPIC-019
 evidence-pool: ""
 ---
 
-# Frontend Design Integration Strategy
+# Product Design Integration Strategy
 
 ## Summary
 
@@ -27,7 +28,9 @@ evidence-pool: ""
 
 ## Question
 
-How should swain-design (frontend orchestrator) integrate Anthropic's frontend design plugin, superpowers' frontend-design skill, and impeccable.style — and what's the right division of responsibility between them?
+How should swain-design (product design orchestrator) integrate three generation systems (Anthropic's plugin, superpowers' frontend-design, impeccable.style) with swain's artifact system (DESIGN and JOURNEY types) to produce UX-aware product design — not just frontend code?
+
+The skill's persona is a senior product developer — someone who owns both "right thing built" and "thing built right." They understand the product vision well enough that their implementation decisions are product-informed, and they write code well enough that the result is maintainable and secure. The skill should think about user flows and design rationale, not just component markup.
 
 ## Go / No-Go Criteria
 
@@ -93,12 +96,21 @@ Anthropic's plugin or superpowers' skill generates the base output. swain-design
 **Option D — Thin wrapper:**
 swain-design is just a prompt enhancer — it prepends impeccable.style context to the user's request and delegates entirely to one of the two generation systems. Minimal orchestration.
 
-### 6. Graceful degradation
+### 6. DESIGN and JOURNEY artifact integration
+
+Evaluate how the skill connects to swain's artifact system:
+- How should the skill read JOURNEY artifacts to understand where a screen fits in a user flow?
+- Should designing a screen automatically create or update a DESIGN artifact capturing the rationale?
+- What's the right handoff between swain-commission (which creates JOURNEY and DESIGN artifacts) and swain-design (which consumes and extends them)?
+- Can DESIGN artifacts serve as a component inventory — tracking what's been designed, what patterns exist, what's reusable?
+
+### 7. Graceful degradation
 
 What happens when a system is unavailable?
 - Anthropic plugin not available (different runtime, older Claude version)
 - superpowers not installed
 - impeccable.style offline or removed
+- No JOURNEY or DESIGN artifacts exist yet
 
 Can the orchestrator still produce useful output with any single system present?
 
