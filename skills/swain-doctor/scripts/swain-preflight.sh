@@ -91,6 +91,17 @@ if [[ $sp_missing -gt 0 ]]; then
   echo "swain-preflight: superpowers: $sp_missing/6 skills missing (advisory)"
 fi
 
+# Check for epics without parent-initiative (initiative migration advisory)
+EPICS_WITHOUT_INITIATIVE=0
+while IFS= read -r -d '' f; do
+  if grep -q '^parent-vision:' "$f" 2>/dev/null && ! grep -q '^parent-initiative:' "$f" 2>/dev/null; then
+    EPICS_WITHOUT_INITIATIVE=$((EPICS_WITHOUT_INITIATIVE + 1))
+  fi
+done < <(find docs/epic -name '*.md' -not -name 'README.md' -not -name 'list-*.md' -print0 2>/dev/null)
+if [[ "$EPICS_WITHOUT_INITIATIVE" -gt 0 ]]; then
+  echo "advisory: $EPICS_WITHOUT_INITIATIVE epic(s) without parent-initiative — run initiative migration"
+fi
+
 # Report
 if [[ ${#issues[@]} -eq 0 ]]; then
   exit 0
