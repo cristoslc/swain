@@ -1,0 +1,61 @@
+pool: security-skill-landscape
+created: 2026-03-14
+refreshed: 2026-03-14
+tags:
+  - security
+  - claude-code
+  - skills
+  - OWASP
+  - static-analysis
+  - secure-coding
+  - trail-of-bits
+  - vibesec
+  - skill-ecosystem
+
+freshness-ttl:
+  web: 30d
+  media: never
+
+referenced-by: []
+
+sources:
+  - id: "001"
+    slug: trailofbits-skills
+    type: web
+    url: "https://github.com/trailofbits/skills"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Trail of Bits Skills Marketplace"
+    hash: "sha256:c3c2e0de375ac5c96bd730602a9163cde9a517c7f06f8a53394f1904d5814664"
+
+  - id: "002"
+    slug: agamm-owasp-security
+    type: web
+    url: "https://github.com/agamm/claude-code-owasp"
+    fetched: 2026-03-14T00:00:00Z
+    title: "OWASP Security Skill for Claude Code (agamm/claude-code-owasp)"
+    hash: "sha256:9cb2401502b0920038256077debac4d175b59c47d5a34fa5000f3f17aae8e18a"
+
+  - id: "003"
+    slug: vibesec-skill
+    type: web
+    url: "https://github.com/BehiSecc/VibeSec-Skill"
+    fetched: 2026-03-14T00:00:00Z
+    title: "VibeSec-Skill (BehiSecc/VibeSec-Skill)"
+    hash: "sha256:5504319d0cd12a91fc01c0a318ae6760650930791549262edfdd6dc4355b4310"
+
+  - id: "004"
+    slug: anthropic-security-review
+    type: web
+    url: "https://github.com/anthropics/claude-code-security-review"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Claude Code Security Reviewer (anthropics/claude-code-security-review)"
+    hash: "sha256:0898af91dc3aacd43b79bb247dcd073832e3402992ce14a75f9b46664586b1ef"
+
+  - id: "005"
+    slug: community-skill-landscape
+    type: web
+    url: "https://github.com/travisvn/awesome-claude-skills"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Community Security Skills Landscape (awesome-claude-skills, VoltAgent/awesome-agent-skills)"
+    hash: "sha256:9932f03c83efd7f3ed58d82b2634cb896a7fd327d28f09fb438e2eae3f5d1d19"
+    notes: "Aggregated from multiple community skill directories"
