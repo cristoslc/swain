@@ -566,6 +566,14 @@ class TestCmdXrefJsonFlag:
         assert "Cross-Reference Gaps" not in output
 
 
+def test_collect_frontmatter_ids_includes_parent_initiative():
+    """parent-initiative scalar is collected by collect_frontmatter_ids."""
+    from specgraph.xref import collect_frontmatter_ids
+    fm = {"parent-initiative": "INITIATIVE-001"}
+    ids = collect_frontmatter_ids(fm)
+    assert "INITIATIVE-001" in ids
+
+
 class TestCmdXrefMixedResults:
     """cmd_xref with all gap types present shows all three sections."""
 

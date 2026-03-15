@@ -62,7 +62,7 @@ def collect_frontmatter_ids(frontmatter: dict) -> set[str]:
                     ids.add(match.group(0))
 
     # Scalar fields
-    for key in ("parent-epic", "parent-vision", "superseded-by"):
+    for key in ("parent-epic", "parent-vision", "parent-initiative", "superseded-by"):
         val = extract_scalar_id(frontmatter, key)
         if val:
             ids.add(val)
