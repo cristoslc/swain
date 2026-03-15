@@ -85,6 +85,53 @@ def _compute_unblock_count(artifact_id: str, nodes: dict, edges: list[dict]) -> 
     return count
 
 
+def rank_recommendations(
+    nodes: dict,
+    edges: list[dict],
+    focus_vision: str | None = None,
+) -> list[dict]:
+    """Rank all ready items by score = unblock_count × vision_weight.
+
+    If focus_vision is set, only score items under that vision.
+    Returns list of {id, score, unblock_count, vision_weight, vision_id, type, is_decision, vision_debt}
+    sorted descending by score.
+
+    Tiebreakers:
+    1. Higher decision debt in the item's vision
+    2. Decision-type artifacts over implementation-type
+    3. Artifact ID (deterministic fallback)
+    """
+    ready_set = _compute_ready_set(nodes, edges)
+    debt = compute_decision_debt(nodes, edges)
+
+    scored: list[dict] = []
+    for rid in ready_set:
+        node = nodes.get(rid, {})
+        vision = _find_vision_ancestor(rid, nodes, edges)
+
+        if focus_vision and vision != focus_vision:
+            continue
+
+        weight = resolve_vision_weight(rid, nodes, edges)
+        unblock_count = _compute_unblock_count(rid, nodes, edges)
+        vision_debt = debt.get(vision or "_unaligned", {}).get("count", 0)
+
+        scored.append({
+            "id": rid,
+            "score": unblock_count * weight,
+            "unblock_count": unblock_count,
+            "vision_weight": weight,
+            "vision_id": vision,
+            "vision_debt": vision_debt,
+            "is_decision": _is_decision_type(node),
+            "type": node.get("type", ""),
+        })
+
+    # Sort: score desc, then vision_debt desc, then is_decision desc, then id asc
+    scored.sort(key=lambda x: (-x["score"], -x["vision_debt"], -int(x["is_decision"]), x["id"]))
+    return scored
+
+
 def compute_decision_debt(
     nodes: dict,
     edges: list[dict],
