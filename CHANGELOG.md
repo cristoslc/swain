@@ -3,10 +3,11 @@
 ## [0.4.0-alpha] - 2026-03-14
 
 ### Changes
-- Rewrite README opening for leadership and AI-tools audience — frame swain around decision traceability and human-AI alignment
-- Add alpha warning callout
-- Remove experimental sandbox section from README
+- Rewrite README to focus on decision traceability and human-AI alignment
+- Add alpha status callout
+- Remove experimental sandbox section
 - Remove deprecated swain-push from skills table
+- Adopt 0.x semver to reflect alpha status (previous v1/v2/v3 tags preserved as history)
 
 ## [3.0.0] - 2026-03-14
 
