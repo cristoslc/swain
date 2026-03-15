@@ -410,6 +410,12 @@ build_cache() {
   linked_issue_data=$(collect_linked_issues)
   session_data=$(collect_session)
 
+  # Priority data from specgraph
+  local recommend_data debt_data attention_data
+  recommend_data=$(python3 "$SPECGRAPH" recommend --json 2>/dev/null || echo '[]')
+  debt_data=$(python3 "$SPECGRAPH" decision-debt 2>/dev/null || echo '{}')
+  attention_data=$(python3 "$SPECGRAPH" attention --json 2>/dev/null || echo '{"attention":{},"drift":[]}')
+
   local timestamp
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -423,6 +429,9 @@ build_cache() {
     --argjson issues "$issue_data" \
     --argjson session "$session_data" \
     --argjson linked "$linked_issue_data" \
+    --argjson recommend "$recommend_data" \
+    --argjson debt "$debt_data" \
+    --argjson attention "$attention_data" \
     '{
       timestamp: $ts,
       repo: $repo,
@@ -432,7 +441,13 @@ build_cache() {
       tasks: $tasks,
       issues: $issues,
       linkedIssues: $linked,
-      session: $session
+      session: $session,
+      priority: {
+        recommendations: $recommend,
+        decision_debt: $debt,
+        attention: $attention.attention,
+        drift: $attention.drift
+      }
     }' > "${CACHE_FILE}.tmp" && mv "${CACHE_FILE}.tmp" "$CACHE_FILE"
 }
 
