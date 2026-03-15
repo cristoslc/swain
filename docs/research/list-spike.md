@@ -8,6 +8,7 @@
 | SPIKE-021 | Scope Progress Visualization Options For Swain-Status | 2026-03-14 | — |
 | SPIKE-022 | Multi-Agent Collision Vectors | 2026-03-14 | — |
 | SPIKE-023 | Frontend Design Integration Strategy | 2026-03-14 | — |
+| SPIKE-024 | Postflight Summary Design | 2026-03-14 | — |
 
 ## Active
 
