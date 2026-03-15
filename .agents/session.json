@@ -5,11 +5,10 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "updated EPIC-018 SPIKE-021: pivot from time-based Gantt to scope-based progress",
+    "note": "created EPIC-023",
     "files": [
-      "docs/epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md",
-      "docs/research/Proposed/(SPIKE-021)-Scope-Progress-Visualization-Options-For-Swain-Status/(SPIKE-021)-Scope-Progress-Visualization-Options-For-Swain-Status.md"
+      "docs/epic/Proposed/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md"
     ],
-    "timestamp": "2026-03-14T19:39:15Z"
+    "timestamp": "2026-03-15T01:58:05Z"
   }
 }
