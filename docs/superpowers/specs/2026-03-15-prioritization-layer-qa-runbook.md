@@ -120,6 +120,50 @@ Test the skill chains added by the prioritization layer. Each test is a prompt y
 
 ---
 
+## Test 11: Artifact type selection — Initiative vs Epic vs Spec
+
+The agent should infer the right artifact type from user intent without the user naming the type explicitly.
+
+**Prompt A:** `I want to improve our security posture across the board`
+
+**Expected:** Agent suggests creating an **Initiative** (strategic direction, likely spans multiple epics). NOT an Epic, NOT a Spec.
+
+**Pass if:** Agent says something like "This sounds like a strategic initiative — let me create an Initiative artifact" or asks brainstorming questions framed around strategic focus.
+
+---
+
+**Prompt B:** `Build a vulnerability scanner that checks dependencies`
+
+**Expected:** Agent suggests creating an **Epic** (single deliverable with specs). NOT an Initiative.
+
+**Pass if:** Agent creates or offers to create an Epic.
+
+---
+
+**Prompt C:** `Add a --verbose flag to the specgraph recommend command`
+
+**Expected:** Agent suggests creating a **Spec** (one implementation unit). NOT an Epic, NOT an Initiative.
+
+**Pass if:** Agent creates or offers to create a Spec (possibly asks which Epic or Initiative to attach it to).
+
+---
+
+**Prompt D:** `I have EPIC-017, EPIC-023, and some upcoming security work — I want to group them together`
+
+**Expected:** Agent suggests creating an **Initiative** and re-parenting the named Epics under it.
+
+**Pass if:** Agent proposes an Initiative (not a Vision, not another Epic) and offers to add `parent-initiative` to the existing Epics.
+
+---
+
+**Prompt E:** `Fix the typo in the status output header`
+
+**Expected:** Agent suggests creating a **Spec** with `type: bug`. May offer to attach to an Initiative as small work (no Epic needed).
+
+**Pass if:** Agent creates a Spec, NOT an Epic or Initiative.
+
+---
+
 ## Quick smoke test (covers Tests 1, 3, 4, 5)
 
 Run these commands in sequence and verify each output:
