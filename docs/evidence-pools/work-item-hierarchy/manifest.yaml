@@ -1,0 +1,119 @@
+pool: work-item-hierarchy
+created: 2026-03-14
+refreshed: 2026-03-14
+tags:
+  - project-management
+  - hierarchy
+  - epics
+  - initiatives
+  - backlogs
+  - SAFe
+  - Linear
+  - Jira
+  - Shortcut
+  - agile
+
+freshness-ttl:
+  web: 60d
+  media: never
+
+referenced-by: []
+
+sources:
+  - id: "001"
+    slug: linear-conceptual-model
+    type: web
+    url: "https://linear.app/docs/conceptual-model"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Linear Conceptual Model — Issues, Projects, Initiatives, Cycles, Teams"
+
+  - id: "002"
+    slug: linear-initiatives
+    type: web
+    url: "https://linear.app/docs/initiatives"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Linear Initiatives Documentation"
+
+  - id: "003"
+    slug: linear-sub-initiatives
+    type: web
+    url: "https://linear.app/changelog/2025-07-10-sub-initiatives"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Linear Changelog: Sub-Initiatives (July 2025)"
+
+  - id: "004"
+    slug: safe-hierarchy-tempo
+    type: web
+    url: "https://www.tempo.io/blog/which-safe-hierarchy-should-you-choose"
+    fetched: 2026-03-14T00:00:00Z
+    title: "SAFe Hierarchy: Epic-Feature-Story vs Initiative-Epic-Story (Tempo)"
+
+  - id: "005"
+    slug: safe-enterprise-backlog
+    type: web
+    url: "https://framework.scaledagile.com/enterprise-backlog-structure-and-management"
+    fetched: 2026-03-14T00:00:00Z
+    title: "SAFe Enterprise Backlog Structure and Management"
+
+  - id: "006"
+    slug: atlassian-epics-stories-themes
+    type: web
+    url: "https://www.atlassian.com/agile/project-management/epics-stories-themes"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Atlassian: Epics, Stories, Themes, and Initiatives"
+
+  - id: "007"
+    slug: jira-hierarchy-guide
+    type: web
+    url: "https://community.atlassian.com/forums/App-Central-articles/Understanding-Jira-Hierarchy-Complete-Guide-in-2025/ba-p/2947722"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Understanding Jira Hierarchy: Complete Guide (2025)"
+
+  - id: "008"
+    slug: shortcut-hierarchy-best-practices
+    type: web
+    url: "https://www.shortcut.com/blog/ultimate-setup-series-best-practices-for-the-shortcut-hierarchy"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Shortcut: Best Practices for the Hierarchy"
+
+  - id: "009"
+    slug: aha-initiatives-epics-features
+    type: web
+    url: "https://www.aha.io/blog/initiatives-vs-epics-vs-features"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Aha!: Initiatives vs Epics vs Features"
+
+  - id: "010"
+    slug: prodpad-initiatives-vs-epics
+    type: web
+    url: "https://www.prodpad.com/blog/initiatives-vs-epics/"
+    fetched: 2026-03-14T00:00:00Z
+    title: "ProdPad: Initiative vs Epic — What's the difference?"
+
+  - id: "011"
+    slug: github-evolving-issues
+    type: web
+    url: "https://github.blog/changelog/2025-04-09-evolving-github-issues-and-projects/"
+    fetched: 2026-03-14T00:00:00Z
+    title: "GitHub Changelog: Evolving Issues and Projects (Sub-Issues GA, Issue Types)"
+
+  - id: "012"
+    slug: bigpicture-initiative-epic-story
+    type: web
+    url: "https://bigpicture.one/blog/initiative-epic-story/"
+    fetched: 2026-03-14T00:00:00Z
+    title: "BigPicture: Stories, Initiatives, and Epics Across Agile Frameworks"
+
+  - id: "013"
+    slug: safe-backlog-levels
+    type: web
+    url: "https://agileseekers.com/blog/portfolio-backlog-vs-program-backlog-what-agile-leaders-need-to-know"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Portfolio Backlog vs Program Backlog: What Agile Leaders Need to Know"
+
+  - id: "014"
+    slug: linear-org-guide
+    type: web
+    url: "https://www.marcusmth.com/linear-project-organization-guide"
+    fetched: 2026-03-14T00:00:00Z
+    title: "Linear Project Organization Guide (marcusmth)"
