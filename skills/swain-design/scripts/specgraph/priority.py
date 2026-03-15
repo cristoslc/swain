@@ -8,7 +8,7 @@ Vision weight cascades: Vision → Initiative (can override) → Epic → Spec.
 
 from __future__ import annotations
 
-from .queries import _walk_parent_chain
+from .queries import _walk_parent_chain, _compute_ready_set, _find_vision_ancestor, _node_is_resolved
 
 WEIGHT_MAP = {"high": 3, "medium": 2, "low": 1}
 DEFAULT_WEIGHT = 2  # medium
@@ -55,3 +55,61 @@ def resolve_vision_weight(
                 return WEIGHT_MAP[ancestor_weight]
 
     return DEFAULT_WEIGHT
+
+
+# Decision-type detection (matches swain-status is_decision logic)
+_DECISION_ONLY_TYPES = {"VISION", "JOURNEY", "PERSONA", "ADR", "DESIGN"}
+_DECISION_PHASES = {"Proposed", "Draft", "Review", "Planned"}
+
+
+def _is_decision_type(node: dict) -> bool:
+    """Check if an artifact is a decision (requires operator, not agent)."""
+    t = node.get("type", "").upper()
+    if t in _DECISION_ONLY_TYPES:
+        return True
+    if t in ("EPIC", "INITIATIVE", "SPIKE") and node.get("status", "") in _DECISION_PHASES:
+        return True
+    if t == "SPEC" and node.get("status", "") in _DECISION_PHASES:
+        return True
+    return False
+
+
+def _compute_unblock_count(artifact_id: str, nodes: dict, edges: list[dict]) -> int:
+    """Count how many unresolved artifacts depend on this one."""
+    count = 0
+    for edge in edges:
+        if edge.get("to") == artifact_id and edge.get("type") == "depends-on":
+            source = edge.get("from", "")
+            if source and source in nodes and not _node_is_resolved(source, nodes):
+                count += 1
+    return count
+
+
+def compute_decision_debt(
+    nodes: dict,
+    edges: list[dict],
+) -> dict[str, dict]:
+    """Compute decision debt per vision.
+
+    Only counts decision-type artifacts (operator-gated), not implementation work.
+    Returns: {vision_id: {count: N, total_unblocks: N, items: [...]}}
+    Items not attached to any vision go into an "_unaligned" bucket.
+    """
+    ready_set = _compute_ready_set(nodes, edges)
+
+    # Group decision-type ready items by vision
+    debt: dict[str, dict] = {}
+    for rid in ready_set:
+        node = nodes.get(rid, {})
+        if not _is_decision_type(node):
+            continue  # Skip implementation-type items
+        vision = _find_vision_ancestor(rid, nodes, edges)
+        bucket = vision or "_unaligned"
+        unblocks = _compute_unblock_count(rid, nodes, edges)
+        if bucket not in debt:
+            debt[bucket] = {"count": 0, "total_unblocks": 0, "items": []}
+        debt[bucket]["count"] += 1
+        debt[bucket]["total_unblocks"] += unblocks
+        debt[bucket]["items"].append(rid)
+
+    return debt
