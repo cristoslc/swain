@@ -57,6 +57,12 @@ These require a tracked plan (via swain-do) before implementation begins.
 - **Spike** → attaches to any artifact, may produce ADRs
 - Any artifact can declare `depends-on:` blocking dependencies
 
+### When to use which
+
+- **Initiative vs Epic**: Initiative = strategic direction with multiple deliverables ("harden security"). Epic = single deliverable with multiple specs ("build scanning tool"). If it needs 2+ epics, it's an Initiative.
+- **Spec under Initiative**: Small work (bugs, enhancements) can attach directly to an Initiative without an Epic wrapper. If it clusters, promote to an Epic.
+- **Spec under Epic vs standalone Spec**: Use `parent-epic` when the spec is part of a planned deliverable. Standalone specs are for one-off fixes.
+
 ## Commands
 
 ### Creating artifacts
