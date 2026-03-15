@@ -154,6 +154,12 @@ def main(argv: list[str] | None = None) -> None:
     for cmd in ("ready", "next", "mermaid", "status", "overview"):
         subparsers.add_parser(cmd)
 
+    # Priority commands
+    subparsers.add_parser("decision-debt", help="Show decision debt per vision")
+    rec_parser = subparsers.add_parser("recommend", help="Show ranked recommendation")
+    rec_parser.add_argument("--focus", default=None, help="Focus vision ID (e.g. VISION-001)")
+    rec_parser.add_argument("--json", action="store_true", help="Output raw JSON")
+
     args = parser.parse_args(argv)
 
     if not args.command:
@@ -198,6 +204,22 @@ def main(argv: list[str] | None = None) -> None:
             print(queries.status_cmd(nodes, edges, show_all))
         elif args.command == "overview":
             print(queries.overview(nodes, edges, show_all, repo_root_str, show_links))
+        elif args.command == "decision-debt":
+            from .priority import compute_decision_debt
+            import json as _json
+            debt = compute_decision_debt(nodes, edges)
+            print(_json.dumps(debt, indent=2))
+        elif args.command == "recommend":
+            from .priority import rank_recommendations
+            import json as _json
+            focus = getattr(args, "focus", None)
+            ranked = rank_recommendations(nodes, edges, focus_vision=focus)
+            if getattr(args, "json", False):
+                print(_json.dumps(ranked, indent=2))
+            else:
+                for i, item in enumerate(ranked[:10]):
+                    marker = "→ " if i == 0 else "  "
+                    print(f"{marker}{item['id']}  score={item['score']}  unblocks={item['unblock_count']}  weight={item['vision_weight']}  vision={item['vision_id'] or 'unaligned'}")
         else:
             print(f"Unknown command: {args.command}", file=sys.stderr)
             sys.exit(1)
