@@ -9,6 +9,7 @@ product-type: {{ product_type }}  # "competitive" or "personal"
 author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
+priority-weight: {{ priority_weight | default("") }}
 depends-on-artifacts:
 {%- for dep in depends_on_artifacts | default([]) %}
   - {{ dep }}
