@@ -143,6 +143,29 @@ bash "$BOOKMARK_SCRIPT" --clear
 
 The script handles session.json discovery, atomic writes, and graceful degradation (no jq = silent no-op).
 
+## Focus Lane
+
+The operator can set a focus lane to tell swain-status to recommend within a single vision or initiative. This is a steering mechanism — it doesn't hide other work, but frames recommendations around the operator's current focus.
+
+**Setting focus:**
+When the operator says "focus on security" or "I'm working on VISION-001", invoke the focus script:
+
+```bash
+bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)" set VISION-001
+```
+
+**Clearing focus:**
+```bash
+bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)" clear
+```
+
+**Checking focus:**
+```bash
+bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)"
+```
+
+Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. swain-status reads it to filter recommendations and show peripheral awareness for non-focus visions.
+
 ## Settings
 
 This skill reads from `swain.settings.json` (project root) and `~/.config/swain/settings.json` (user override). User settings take precedence.
