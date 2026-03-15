@@ -225,7 +225,7 @@ def main(argv: list[str] | None = None) -> None:
             else:
                 for i, item in enumerate(ranked[:10]):
                     marker = "→ " if i == 0 else "  "
-                    print(f"{marker}{item['id']}  score={item['score']}  unblocks={item['unblock_count']}  weight={item['vision_weight']}  vision={item['vision_id'] or 'unaligned'}")
+                    print(f"{marker}{item['id']}  score={item['score']}  unblocks={item['unblock_count']}  weight={item['vision_weight']}  vision={item['vision_id'] or 'none (orphan)'}")
         elif args.command == "attention":
             from .attention import scan_git_log, compute_attention, compute_drift
             import json as _json
