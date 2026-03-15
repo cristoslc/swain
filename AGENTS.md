@@ -32,11 +32,24 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 
 ## Skill routing
 
-When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Design) or their supporting docs, **always invoke the swain-design skill**.
+When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Initiative, Journey, Epic, Story, Agent Spec, Spike, ADR, Persona, Runbook, Design) or their supporting docs, **always invoke the swain-design skill**.
 
 **For project status, progress, or "what's next?"**, use the **swain-status** skill.
 
 **For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system.
+
+## Work Hierarchy
+
+Swain organizes work in a four-level hierarchy:
+
+```
+Vision           →  why does this product exist?
+Initiative       →  what strategic focus are we pursuing?
+Epic             →  what are we shipping?
+Spec             →  implementable unit
+```
+
+Visions carry a `priority-weight` (high/medium/low) that cascades to child initiatives and their descendants. Initiatives can override their parent vision's weight. Standalone specs can attach directly to an initiative for small work (bugs, minor enhancements) without needing an epic wrapper.
 
 ## Superpowers skill chaining
 
