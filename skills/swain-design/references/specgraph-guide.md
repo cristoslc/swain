@@ -19,6 +19,9 @@ Reference for `specgraph.sh` subcommands and output interpretation.
 | `scope <ID>` | Alignment scope — parent chain to Vision, siblings, lateral links |
 | `impact <ID>` | Everything that references this artifact transitively |
 | `edges [<ID>]` | Raw edge list with types, optionally filtered to one artifact |
+| `recommend [--focus VISION-ID] [--json]` | Ranked recommendations by score = unblock_count × vision_weight |
+| `decision-debt [--json]` | Decision debt per vision (unresolved blocking artifacts) |
+| `attention [--days N] [--json]` | Attention distribution and drift detection from git history |
 
 ## Options
 
@@ -61,7 +64,8 @@ The graph captures all frontmatter relationship fields as typed edges:
 | Edge type | Source | Target | Purpose |
 |-----------|--------|--------|---------|
 | `depends-on-artifacts` | Any (except SPIKE) | Any | Blocking dependency |
-| `parent-vision` | EPIC, JOURNEY | VISION | Hierarchy (child → parent) |
+| `parent-vision` | INITIATIVE, EPIC, JOURNEY | VISION | Hierarchy (child → parent) |
+| `parent-initiative` | EPIC, SPEC | INITIATIVE | Hierarchy (child → parent) |
 | `parent-epic` | SPEC, EPIC | EPIC | Hierarchy (child → parent) |
 | `linked-artifacts` | Any | Any | Unified cross-reference (replaces per-type linked-* fields) |
 | `addresses` | SPEC, EPIC | JOURNEY.PP-NN | Pain point being addressed |
@@ -138,3 +142,51 @@ SPEC-005  SPEC-004        depends-on
 ```
 
 Without an ID argument, outputs all edges in the graph. Useful for scripting and programmatic access.
+
+## Recommend output
+
+The `recommend` command ranks artifacts by prioritization score to guide the operator toward the highest-leverage work:
+
+```
+RECOMMENDED NEXT:
+  1. EPIC-012  [Proposed]  Scoring Engine     score=12  (unblocks: 4, weight: high)
+  2. SPEC-031  [Ready]     Graph Persistence  score=6   (unblocks: 2, weight: medium)
+  3. EPIC-009  [Proposed]  Search Indexing    score=3   (unblocks: 3, weight: low)
+```
+
+**Score formula:** `score = unblock_count × vision_weight`, where `vision_weight` maps `high → 3`, `medium → 2`, `low → 1` from the artifact's `priority-weight` field. Artifacts with no `priority-weight` default to `medium`.
+
+`--focus VISION-ID` limits output to artifacts under that Vision. `--json` outputs the ranked list as a JSON array.
+
+## Decision-debt output
+
+The `decision-debt` command summarizes unresolved blocking artifacts (SPIKEs, ADRs in Proposed) per Vision:
+
+```
+DECISION DEBT:
+  VISION-001  Personal Agent Patterns
+    SPIKE-014  [Proposed]  Storage format evaluation      (blocks: SPEC-028, SPEC-029)
+    ADR-007    [Proposed]  Auth provider selection        (blocks: EPIC-011)
+
+  VISION-002  Collaboration Layer
+    (no debt)
+```
+
+Use this to identify where research or decisions are delaying downstream work. `--json` outputs structured debt data keyed by Vision ID.
+
+## Attention output
+
+The `attention` command analyzes git commit history to surface attention distribution and drift:
+
+```
+ATTENTION DISTRIBUTION (last 30 days):
+  EPIC-007  Spec Management    ████████████  42 commits  (40%)
+  EPIC-012  Scoring Engine     ████          12 commits  (11%)
+  EPIC-009  Search Indexing    ██             6 commits   (6%)
+  (unlinked)                   ██████        22 commits  (21%)
+
+DRIFT DETECTED:
+  EPIC-011  [Active] Auth Layer — 0 commits in 30 days (last touched: 45 days ago)
+```
+
+**Drift detection:** any Active artifact with zero commits in the window is flagged. Default window is 30 days; `--days N` overrides it. `--json` outputs attention counts and drift flags per artifact.

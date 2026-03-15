@@ -1,6 +1,6 @@
 ---
 name: swain-design
-description: Create, validate, and transition documentation artifacts (Vision, Epic, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC; decomposes EPIC/VISION/JOURNEY into children first.
+description: Create, validate, and transition documentation artifacts (Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, initiative creation, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC; decomposes EPIC/VISION/INITIATIVE/JOURNEY into children first.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Skill
 metadata:
@@ -23,8 +23,9 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 | Type | What it is | Definition | Template |
 |------|-----------|-----------|----------|
 | Product Vision (VISION-NNN) | Top-level product direction — goals, audience, and success metrics for a competitive or personal product. | [definition](references/vision-definition.md) | [template](references/vision-template.md.template) |
+| Initiative (INITIATIVE-NNN) | Strategic grouping of Epics under a Vision — provides a mid-level container for prioritization and decision tracking. | [definition](references/initiative-definition.md) | [template](references/initiative-template.md.template) |
 | User Journey (JOURNEY-NNN) | End-to-end user workflow with pain points that drive epics and specs. | [definition](references/journey-definition.md) | [template](references/journey-template.md.template) |
-| Epic (EPIC-NNN) | Large deliverable under a vision — groups related specs with success criteria. | [definition](references/epic-definition.md) | [template](references/epic-template.md.template) |
+| Epic (EPIC-NNN) | Large deliverable under a vision or initiative — groups related specs with success criteria. | [definition](references/epic-definition.md) | [template](references/epic-template.md.template) |
 | Agent Spec (SPEC-NNN) | Technical implementation specification with acceptance criteria. Supports `type: feature \| enhancement \| bug`. Parent epic is optional. | [definition](references/spec-definition.md) | [template](references/spec-template.md.template) |
 | Research Spike (SPIKE-NNN) | Time-boxed investigation with a specific question and completion gate. | [definition](references/spike-definition.md) | [template](references/spike-template.md.template) |
 | Persona (PERSONA-NNN) | Archetypal user profile that informs journeys and specs. | [definition](references/persona-definition.md) | [template](references/persona-template.md.template) |
@@ -50,7 +51,7 @@ Before running the full authoring ceremony, classify the artifact into a complex
 **Medium/High complexity (full ceremony)**:
 - Feature SPECs (`type: feature`)
 - Any SPEC or SPIKE with a `parent-epic`
-- EPICs, Visions, Journeys, ADRs — always full ceremony
+- EPICs, INITIATIVEs, Visions, Journeys, ADRs — always full ceremony
 - Any artifact where the user describes significant architectural decisions
 
 When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope check, index update`

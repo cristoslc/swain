@@ -2,8 +2,11 @@
 
 ```mermaid
 erDiagram
+    VISION ||--o{ INITIATIVE : "parent-vision"
     VISION ||--o{ EPIC : "parent-vision"
     VISION ||--o{ JOURNEY : "parent-vision"
+    INITIATIVE ||--o{ EPIC : "parent-initiative"
+    INITIATIVE ||--o{ SPEC : "parent-initiative"
     EPIC ||--o{ SPEC : "parent-epic"
     JOURNEY ||--|{ PAIN_POINT : "PP-NN"
     PAIN_POINT }o--o{ EPIC : "addresses"
@@ -21,14 +24,14 @@ erDiagram
     DESIGN }o--o{ SPEC : "linked-artifacts"
 ```
 
-**9 artifact types in three lifecycle tracks:**
+**10 artifact types in three lifecycle tracks:**
 
 | Track | Types | Lifecycle |
 |-------|-------|-----------|
 | **Implementable** | SPEC | Proposed -> Ready -> In Progress -> Needs Manual Test -> Complete |
-| **Container** | EPIC, SPIKE | Proposed -> Active -> Complete |
+| **Container** | INITIATIVE, EPIC, SPIKE | Proposed -> Active -> Complete |
 | **Standing** | VISION, JOURNEY, PERSONA, ADR, RUNBOOK, DESIGN | Proposed -> Active -> (Retired \| Superseded) |
 
 **Universal terminal states** (available from any phase): Abandoned, Retired, Superseded.
 
-**Key:** Solid lines (`||--o{`) = mandatory hierarchy. Diamond lines (`}o--o{`) = informational cross-references. SPIKE can attach to any artifact type, not just SPEC. Any artifact can declare `depends-on-artifacts:` blocking dependencies on any other artifact (spikes use `linked-artifacts` only). Per-type frontmatter fields are defined in each type's template.
+**Key:** Solid lines (`||--o{`) = mandatory hierarchy. Diamond lines (`}o--o{`) = informational cross-references. SPIKE can attach to any artifact type, not just SPEC. Any artifact can declare `depends-on-artifacts:` blocking dependencies on any other artifact (spikes use `linked-artifacts` only). INITIATIVEs sit between VISION and EPIC — a SPEC may declare `parent-initiative` directly when no intermediate EPIC exists. Per-type frontmatter fields are defined in each type's template.

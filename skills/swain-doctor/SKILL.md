@@ -199,6 +199,39 @@ Do not remove any worktree automatically. All output is advisory.
 - **ok** — no linked worktrees, or all are active
 - **warning** — one or more stale or orphaned worktrees found (provide cleanup commands per item)
 
+## Epics without parent-initiative (migration advisory)
+
+This is a non-blocking advisory check. It does not gate any other checks.
+
+### Detection
+
+```bash
+# Find Active EPICs that have a parent-vision but no parent-initiative field
+grep -rl "parent-vision:" docs/epic/ 2>/dev/null | while read f; do
+  if ! grep -q "parent-initiative:" "$f"; then
+    echo "$f"
+  fi
+done
+```
+
+### Response
+
+If any EPICs are found without `parent-initiative`:
+
+> **Advisory:** N Epic(s) have a `parent-vision` but no `parent-initiative`. The INITIATIVE artifact type is now available as a mid-level container between Vision and Epic. Adding `parent-initiative` links is optional but recommended for projects using prioritization features (`specgraph recommend`, `specgraph decision-debt`).
+>
+> To add the link, edit each Epic's frontmatter and add:
+> ```yaml
+> parent-initiative: INITIATIVE-NNN
+> ```
+>
+> This check is informational — no action required.
+
+### Status values
+
+- **ok** — all Active EPICs already have `parent-initiative`, or no EPICs exist
+- **advisory** — one or more Active EPICs lack `parent-initiative` (non-blocking)
+
 ## Summary report
 
 After all checks complete, output a concise summary table:
@@ -217,6 +250,8 @@ swain-doctor summary:
   .agents directory .. ok
   Status cache ....... seeded
   tk health .......... ok
+  Lifecycle dirs ..... ok
+  Epics w/o initiative advisory (3 epics — see note below)
   Worktrees .......... ok
   Superpowers ........ ok (6/6 skills detected)
 
