@@ -305,6 +305,16 @@ Check that initiatives appear in the tree and that recommendations reflect the n
 - **ok** — all Active EPICs already have `parent-initiative`, or no EPICs exist
 - **advisory** — one or more Active EPICs lack `parent-initiative` (non-blocking)
 
+## Evidence Pool → Trove Migration
+
+Detect unmigrated evidence pools:
+- If `docs/evidence-pools/` exists: warn and offer to run migration
+- If any artifact frontmatter contains `evidence-pool:`: warn and offer migration
+- If both `docs/troves/` and `docs/evidence-pools/` exist: warn about incomplete migration
+
+Migration script: `bash skills/swain-search/scripts/migrate-to-troves.sh`
+Dry run first: `bash skills/swain-search/scripts/migrate-to-troves.sh --dry-run`
+
 ## Summary report
 
 After all checks complete, output a concise summary table:
