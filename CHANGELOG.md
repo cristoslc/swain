@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.6.0-alpha] - 2026-03-16
+
+### Trove Redesign (BREAKING)
+
+"Evidence pool" is now "trove" — a better name for what swain-search produces,
+which ranges from research evidence to reference libraries to repo mirrors.
+`evidencewatch` becomes `trovewatch`.
+
+**Hierarchical sources** — sources are no longer flattened to `001-slug.md`. Each
+source gets its own directory (`sources/<source-id>/`), and repository or
+documentation-site sources mirror their original tree structure. Large sources can
+be selectively ingested (`selective: true`).
+
+**Migration** — `migrate-to-troves.sh` converts existing evidence pools
+non-destructively. `swain-doctor` detects unmigrated pools and offers migration.
+
+**Wordlist disambiguator** — when source-id slugs collide within a trove, a
+`__word1-word2` suffix is appended from a curated wordlist.
+
+### Swain Chart & Specgraph
+
+- Add `swain chart` CLI with lens framework and VisionTree renderer
+- Extend priority-weight cascade to epics
+- Wire swain chart into all skill invocations
+
 ## [0.5.0-alpha] - 2026-03-15
 
 ### Prioritization Layer
