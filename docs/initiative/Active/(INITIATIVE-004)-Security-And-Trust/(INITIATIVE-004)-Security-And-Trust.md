@@ -11,6 +11,11 @@ success-criteria:
   - Pre-commit secrets scanning in every sync workflow
   - Multi-vector security scanning skill available on demand
   - Security-sensitive tasks auto-detected and gated in swain-do execution flow
+linked-artifacts:
+  - EPIC-009
+  - EPIC-012
+  - EPIC-017
+  - EPIC-023
 ---
 
 # Security & Trust

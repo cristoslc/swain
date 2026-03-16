@@ -14,6 +14,12 @@ success-criteria:
   - Session bookmarks captured in a worktree restore correctly in that worktree or gracefully handle pruned worktrees
   - Concurrent agents in separate worktrees cannot corrupt shared state (.tickets/, artifact indexes, session.json)
   - swain-doctor validates worktree health — detects broken hooks, stale bookmarks, orphaned worktrees, and path resolution failures
+linked-artifacts:
+  - ADR-005
+  - EPIC-015
+  - EPIC-016
+  - EPIC-020
+  - SPEC-050
 depends-on-artifacts: []
 addresses: []
 trove: ""

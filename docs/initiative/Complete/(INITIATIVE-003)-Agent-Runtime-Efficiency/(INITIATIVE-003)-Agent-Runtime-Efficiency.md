@@ -11,6 +11,10 @@ success-criteria:
   - Skill context footprint ≤5% of context window
   - Each skill operation routed to appropriate model tier
   - Superpowers integration assessed and coexistence path established
+linked-artifacts:
+  - EPIC-004
+  - EPIC-006
+  - EPIC-007
 ---
 
 # Agent Runtime Efficiency

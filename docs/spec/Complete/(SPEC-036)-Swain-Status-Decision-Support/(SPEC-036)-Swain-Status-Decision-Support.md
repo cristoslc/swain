@@ -11,6 +11,12 @@ parent-epic: EPIC-014
 linked-artifacts:
   - SPIKE-018
   - JOURNEY-001
+  - EPIC-007
+  - EPIC-013
+  - SPEC-030
+  - SPEC-031
+  - SPEC-032
+  - SPEC-033
 depends-on-artifacts: []
 addresses: []
 trove: ""

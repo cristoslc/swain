@@ -14,6 +14,7 @@ linked-artifacts:
   - ADR-003
   - SPEC-004
   - SPEC-006
+  - SPEC-018
 depends-on-artifacts: []
 addresses: []
 trove: ""

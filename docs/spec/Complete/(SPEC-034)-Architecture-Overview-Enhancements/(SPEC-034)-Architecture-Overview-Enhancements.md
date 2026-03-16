@@ -10,6 +10,7 @@ type: enhancement
 parent-epic:
 linked-artifacts:
   - VISION-001
+  - SPEC-031
 depends-on-artifacts: []
 addresses: []
 source-issue: github:cristoslc/swain#44

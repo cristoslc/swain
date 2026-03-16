@@ -10,6 +10,7 @@ last-updated: 2026-03-13
 parent-epic: EPIC-008
 linked-artifacts:
   - ADR-003
+  - SPEC-021
 depends-on-artifacts:
   - SPEC-018
   - SPEC-019

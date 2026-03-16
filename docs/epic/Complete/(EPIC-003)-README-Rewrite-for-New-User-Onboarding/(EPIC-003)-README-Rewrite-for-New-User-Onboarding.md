@@ -18,7 +18,9 @@ success-criteria:
   - No stale references to removed features, old skill names, or deprecated workflows
 addresses: []
 trove: ""
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-002
+
 depends-on-artifacts: []
 ---
 

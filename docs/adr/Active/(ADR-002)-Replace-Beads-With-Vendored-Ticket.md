@@ -12,6 +12,7 @@ linked-artifacts:
   - SPIKE-002
   - SPIKE-005
   - SPIKE-006
+  - SPEC-003
 depends-on-artifacts: []
 ---
 

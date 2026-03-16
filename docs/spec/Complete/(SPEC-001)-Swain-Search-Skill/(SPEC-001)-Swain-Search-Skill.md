@@ -9,7 +9,10 @@ last-updated: 2026-03-11
 parent-epic: EPIC-001
 addresses: []
 swain-do: required
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-002
+  - SPEC-003
+
 depends-on-artifacts: []
 ---
 

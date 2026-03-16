@@ -8,7 +8,11 @@ created: 2026-03-13
 last-updated: 2026-03-13
 type: feature
 parent-epic: EPIC-013
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-005
+  - SPIKE-007
+  - SPIKE-008
+
 depends-on-artifacts:
   - SPEC-032
 addresses: []

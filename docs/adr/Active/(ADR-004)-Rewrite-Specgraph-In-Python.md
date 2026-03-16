@@ -9,6 +9,7 @@ last-updated: 2026-03-14
 linked-artifacts:
   - EPIC-013
   - ADR-003
+  - SPEC-030
 depends-on-artifacts: []
 ---
 

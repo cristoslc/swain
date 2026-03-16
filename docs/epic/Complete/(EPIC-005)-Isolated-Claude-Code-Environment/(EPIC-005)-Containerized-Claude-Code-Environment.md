@@ -16,7 +16,11 @@ success-criteria:
   - Environment cleanup is automatic — no orphaned instances or volumes accumulate
 addresses: []
 trove:
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-048
+  - SPEC-049
+  - SPIKE-009
+
 depends-on-artifacts: []
 ---
 

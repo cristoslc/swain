@@ -12,6 +12,7 @@ parent-initiative: INITIATIVE-005
 linked-artifacts:
   - EPIC-018
   - EPIC-013
+  - SPIKE-021
 depends-on-artifacts: []
 addresses: []
 trove: ""

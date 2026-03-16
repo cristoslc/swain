@@ -14,6 +14,8 @@ risks-addressed:
 linked-artifacts:
   - SPEC-010
   - EPIC-006
+  - SPEC-004
+  - SPEC-006
 trove: ""
 ---
 

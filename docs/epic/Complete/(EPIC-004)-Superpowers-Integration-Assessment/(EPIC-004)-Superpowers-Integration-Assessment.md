@@ -14,7 +14,11 @@ success-criteria:
   - If coexistence chosen — integration spec written for superpowers skill adoption within swain
 addresses: []
 trove:
-linked-artifacts: []
+linked-artifacts:
+  - ADR-001
+  - SPEC-008
+  - SPIKE-004
+
 depends-on-artifacts: []
 ---
 

@@ -15,7 +15,10 @@ risks-addressed:
   - No web UI for task visualization
   - No native MCP server support in bd
 trove: ""
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-001
+  - SPEC-001
+  - SPEC-003
 ---
 
 # Replace Beads CLI with Backlog.md

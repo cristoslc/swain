@@ -15,7 +15,11 @@ success-criteria:
   - trovewatch script detects oversized and stale pools with configurable thresholds
   - swain-design invokes swain-search when spikes enter Active or during ADR research
 addresses: []
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-001
+  - SPEC-002
+  - SPEC-003
+
 depends-on-artifacts: []
 ---
 

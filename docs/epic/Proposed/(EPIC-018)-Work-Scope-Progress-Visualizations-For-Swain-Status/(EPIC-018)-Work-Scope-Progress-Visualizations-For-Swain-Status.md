@@ -14,6 +14,8 @@ success-criteria:
   - Visualization approach is informed by SPIKE-021 findings (rendering target and library selection)
   - View integrates with existing artifact frontmatter and specgraph output (phase, status, dependencies)
   - No mandatory external installs for the default output mode
+linked-artifacts:
+  - SPEC-036
 depends-on-artifacts:
   - SPIKE-021
 addresses: []

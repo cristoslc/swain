@@ -10,7 +10,9 @@ last-updated: 2026-03-11
 affected-artifacts:
   - swain-doctor
 swain-do: required
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-006
+
 depends-on-artifacts: []
 ---
 

@@ -10,6 +10,7 @@ type: enhancement
 parent-epic: EPIC-015
 linked-artifacts:
   - ADR-005
+  - SPEC-044
 depends-on-artifacts: []
 addresses: []
 trove: ""

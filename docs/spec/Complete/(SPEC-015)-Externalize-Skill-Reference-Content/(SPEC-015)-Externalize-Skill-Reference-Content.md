@@ -15,6 +15,7 @@ swain-do: required
 linked-artifacts:
   - SPIKE-010
   - SPIKE-011
+  - SPEC-016
 depends-on-artifacts: []
 ---
 

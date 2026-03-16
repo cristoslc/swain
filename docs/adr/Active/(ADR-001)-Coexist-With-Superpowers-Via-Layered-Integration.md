@@ -10,6 +10,7 @@ trove:
 linked-artifacts:
   - EPIC-004
   - SPEC-008
+  - SPIKE-004
 depends-on-artifacts: []
 ---
 

@@ -8,6 +8,7 @@ created: 2026-03-11
 last-updated: 2026-03-11
 linked-artifacts:
   - JOURNEY-002
+  - SPIKE-003
 depends-on-artifacts: []
 ---
 

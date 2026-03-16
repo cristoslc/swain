@@ -10,6 +10,7 @@ type: feature
 parent-epic: EPIC-014
 linked-artifacts:
   - EPIC-014
+  - SPEC-046
 depends-on-artifacts:
   - SPIKE-018
 addresses: []

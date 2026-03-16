@@ -22,6 +22,12 @@ trove: ""
 source-issue: "github:cristoslc/swain#25"
 linked-artifacts:
   - ADR-003
+  - SPEC-009
+  - SPEC-018
+  - SPEC-019
+  - SPEC-020
+  - SPEC-021
+  - SPEC-022
 depends-on-artifacts: []
 ---
 

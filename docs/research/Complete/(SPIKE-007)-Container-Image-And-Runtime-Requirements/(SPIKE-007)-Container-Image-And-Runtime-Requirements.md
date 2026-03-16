@@ -13,7 +13,9 @@ risks-addressed:
   - Claude Code may have host-level dependencies (Node.js version, native modules) that complicate containerization
   - Interactive terminal mode (TTY allocation) may behave differently in containers
 trove:
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-005
+  - SPIKE-009
 ---
 
 # Container Image and Runtime Requirements

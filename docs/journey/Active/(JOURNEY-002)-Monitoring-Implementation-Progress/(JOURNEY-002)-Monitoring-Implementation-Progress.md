@@ -9,6 +9,10 @@ last-updated: 2026-03-11
 parent-vision: []
 linked-artifacts:
   - PERSONA-001
+  - JOURNEY-001
+  - SPEC-001
+  - SPEC-003
+  - SPIKE-001
 depends-on-artifacts: []
 ---
 

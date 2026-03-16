@@ -12,6 +12,10 @@ success-criteria:
   - Filing a simple bug SPEC takes ≤30 seconds and ≤500 tokens of agent work
   - The full-ceremony path remains available for complex artifacts (specs, ADRs, epics)
   - Ceremony reduction does not compromise artifact quality or missing critical checks
+linked-artifacts:
+  - SPEC-045
+  - SPEC-046
+  - SPEC-047
 depends-on-artifacts:
   - SPIKE-018
 addresses: []

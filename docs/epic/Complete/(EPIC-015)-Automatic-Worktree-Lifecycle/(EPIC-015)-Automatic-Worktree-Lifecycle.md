@@ -13,6 +13,13 @@ success-criteria:
   - swain-sync lands worktree work on main (direct push or PR), then prunes the worktree
   - swain-doctor detects and reports stale/orphaned worktrees left by crashed agents
   - An operator can run swain-do, work in the resulting worktree, and invoke swain-sync with no manual git worktree commands
+linked-artifacts:
+  - ADR-005
+  - SPEC-039
+  - SPEC-040
+  - SPEC-043
+  - SPEC-044
+  - EPIC-016
 depends-on-artifacts: []
 addresses: []
 trove: ""
