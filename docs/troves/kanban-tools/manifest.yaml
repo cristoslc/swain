@@ -1,0 +1,177 @@
+trove: kanban-tools
+created: 2026-03-15
+refreshed: 2026-03-15
+tags:
+- kanban
+- markdown
+- frontmatter
+- visualization
+- lifecycle
+- local-first
+- swain
+- filesystem-watching
+- reactive-loop
+- git-hooks
+- headless-cms
+- near-miss
+
+freshness-ttl:
+  web: 14d
+  local: 30d
+
+referenced-by: []
+
+sources:
+- source-id: 001-daymark-md-readme
+  type: local
+  path: "docs/evidence-pools/kanban-tools/files.zip#README.md"
+  fetched: 2026-03-15T02:30:00Z
+  title: "daymark-md — README"
+  hash: "sha256:e1cb36f523f8a134c9e8437e6e34dfa878c1098e7992e40841e6a65e7d667c0d"
+
+  highlights: []
+  selective: false
+- source-id: 002-daymark-md-vision
+  type: local
+  path: "docs/evidence-pools/kanban-tools/files.zip#VISION.md"
+  fetched: 2026-03-15T02:30:00Z
+  title: "daymark-md — Vision"
+  hash: "sha256:6778007fa4e1e54fb3cf2c5ce09136301f9361e9c4451bad8a78535dec0a9abd"
+
+  highlights: []
+  selective: false
+- source-id: 003-daymark-md-architecture
+  type: local
+  path: "docs/evidence-pools/kanban-tools/files.zip#ARCHITECTURE.md"
+  fetched: 2026-03-15T02:30:00Z
+  title: "daymark-md — Architecture"
+  hash: "sha256:e0a8879b370410a6c1ccbb84acff28b747085e3b101368b67273f8fdfd48a650"
+
+  highlights: []
+  selective: false
+- source-id: 004-kanban-md-cli-tui
+  type: web
+  url: "https://github.com/antopolskiy/kanban-md"
+  fetched: 2026-03-15T02:35:00Z
+  title: "kanban-md — File-based kanban CLI/TUI for multi-agent workflows"
+  hash: "sha256:28007b51ae59259312b3a74e0dd0b749e9c1dc4eb80e689fa800252d52a412bf"
+
+  highlights: []
+  selective: false
+- source-id: 005-obsidian-kanban
+  type: web
+  url: "https://github.com/obsidian-community/obsidian-kanban"
+  fetched: 2026-03-15T02:35:00Z
+  title: "Obsidian Kanban — Markdown-backed Kanban boards in Obsidian"
+  hash: "sha256:4b3dda71ee9e9fd37c8581456a20d85f8a221d3cad91166bd158a2406f898759"
+
+  highlights: []
+  selective: false
+- source-id: 006-vscode-md-board
+  type: web
+  url: "https://marketplace.visualstudio.com/items?itemName=iketiunn.md-board"
+  fetched: 2026-03-15T02:40:00Z
+  title: "VS Code Markdown Board (md-board) — Frontmatter-powered kanban"
+  hash: "sha256:b0ce4a97806f691c044b69a1dea260d662fac1e80bf8d8153dc41e324b6f3c96"
+
+  highlights: []
+  selective: false
+- source-id: 007-vscode-agent-kanban
+  type: web
+  url: "https://www.appsoftware.com/products/developer-tools/agent-kanban"
+  fetched: 2026-03-15T02:40:00Z
+  title: "VS Code Agent Kanban — Task management for AI-assisted developers"
+  hash: "sha256:c2d929cfd56dff1058edff84fec9cfa6c487c4868010508896f210fd30f45e04"
+
+  highlights: []
+  selective: false
+- source-id: 008-kanban-tui
+  type: web
+  url: "https://github.com/Zaloog/kanban-tui"
+  fetched: 2026-03-15T02:45:00Z
+  title: "kanban-tui — Python TUI task manager with multiple backends"
+  hash: "sha256:ab7e08705c7ed0d9f404167bb2e4df16f57e036bff6986733368161e3883cbf4"
+
+  highlights: []
+  selective: false
+- source-id: 009-imdone
+  type: web
+  url: "https://imdone.io/markdown-kanban-board"
+  fetched: 2026-03-15T02:45:00Z
+  title: "Imdone — Markdown kanban board (local-first)"
+  hash: "sha256:7da8be26d9fc9349a021e5426f8b9ac876a17273d58ed2d067c2fe68613f50ec"
+
+  highlights: []
+  selective: false
+- source-id: 010-tasks-md
+  type: web
+  url: "https://github.com/BaldissaraMatheus/Tasks.md"
+  fetched: 2026-03-15T02:45:00Z
+  title: "Tasks.md — Self-hosted, file-based task management board"
+  hash: "sha256:f3a837523f25d356bb291c14a75e2e84c1bf25a37fc23d844254aa669200354d"
+
+  highlights: []
+  selective: false
+- source-id: 011-fd93-minimal-kanban
+  type: web
+  url: "https://fd93.me/minimal-kanban"
+  fetched: 2026-03-15T02:50:00Z
+  title: "fd93 — The Most Minimal Kanban (essay on filesystem-as-board)"
+  hash: "sha256:e0e59fc9e0a8c9b6537a5e9cb2a8615abc5e8dfd2e2245403222ca8c820da16d"
+
+  highlights: []
+  selective: false
+- source-id: 012-taskell
+  type: web
+  url: "https://github.com/smallhadroncollider/taskell"
+  fetched: 2026-03-15T02:50:00Z
+  title: "taskell — CLI kanban board with markdown storage"
+  hash: "sha256:db4ff2a1686aba99036326eadb9fa4da0ee4dba0a0729a41a669f23dc0ec2512"
+
+  highlights: []
+  selective: false
+- source-id: 013-watchfiles-rust-python
+  type: web
+  url: "https://github.com/samuelcolvin/watchfiles"
+  fetched: 2026-03-15T03:00:00Z
+  title: "watchfiles — Rust-backed async file watching for Python"
+  hash: "sha256:3b1440a7fed4592627895120aeee2f564f9a1f5df5cc2b7025f69d8531f7dc12"
+
+  highlights: []
+  selective: false
+- source-id: 014-filesystem-watcher-pitfalls
+  type: web
+  url: "https://stackoverflow.com/questions/182197/how-do-i-watch-a-file-for-changes"
+  fetched: 2026-03-15T03:00:00Z
+  title: "Filesystem watcher pitfalls — duplicate events, platform quirks, debouncing"
+  hash: "sha256:a079b4b5317a8c1005eadf152ee68870b7d948f92a5894dd0794193c71fdb8ba"
+
+  highlights: []
+  selective: false
+- source-id: 015-git-hooks-as-trigger
+  type: web
+  url: "https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks"
+  fetched: 2026-03-15T03:05:00Z
+  title: "Git hooks as an alternative trigger mechanism for lifecycle events"
+  hash: "sha256:68c47b1d27dc88c26904c06e38869803216bef7347fb14a2227eba8878bdabd6"
+
+  highlights: []
+  selective: false
+- source-id: 016-python-frontmatter-library
+  type: web
+  url: "https://pypi.org/project/python-frontmatter/"
+  fetched: 2026-03-15T03:05:00Z
+  title: "python-frontmatter — Parse and edit YAML frontmatter in markdown files"
+  hash: "sha256:64546c358271267bcec66d53c33195e6df2506a68ce1c7d3b36f89c5e3d2e44e"
+
+  highlights: []
+  selective: false
+- source-id: 017-frontmatter-cms-near-miss
+  type: web
+  url: "https://frontmatter.codes/docs/dashboard/content-view"
+  fetched: 2026-03-15T03:15:00Z
+  title: "Near-miss alternatives — Front Matter CMS, headless CMS tools, Datasette,
+    knowledge bases"
+  hash: "sha256:dea88e7d2a0dc8baad65a0f2eff83b43bfa159473c35c0c2297b45ffd3b3a63b"
+  highlights: []
+  selective: false

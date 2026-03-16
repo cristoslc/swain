@@ -14,7 +14,7 @@ linked-artifacts:
   - EPIC-013
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

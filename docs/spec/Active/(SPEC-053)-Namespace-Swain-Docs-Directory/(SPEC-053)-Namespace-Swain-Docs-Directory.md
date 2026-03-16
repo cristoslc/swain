@@ -12,7 +12,7 @@ parent-initiative: INITIATIVE-001
 linked-artifacts: []
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---
