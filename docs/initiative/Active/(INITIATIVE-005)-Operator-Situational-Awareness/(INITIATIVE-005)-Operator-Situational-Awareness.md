@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-15
 last-updated: 2026-03-15
 parent-vision: VISION-001
+priority-weight: high
 success-criteria:
   - Operator can answer "what needs my decision?" in <30 seconds
   - Status dashboard shows scope progress with completion ratios
