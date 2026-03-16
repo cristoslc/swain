@@ -49,6 +49,46 @@ class TestVisionWeightResolution:
     def test_orphan_returns_default(self):
         assert resolve_vision_weight("ORPHAN-001", self.NODES, self.EDGES) == 2  # medium default
 
+    def test_epic_overrides_initiative_weight(self):
+        """Epic with priority-weight overrides its parent initiative's weight."""
+        nodes = {
+            "VISION-001": {"title": "V1", "status": "Active", "type": "VISION",
+                           "priority_weight": "high", "file": "", "description": ""},
+            "INITIATIVE-001": {"title": "I1", "status": "Active", "type": "INITIATIVE",
+                               "priority_weight": "medium", "file": "", "description": ""},
+            "EPIC-001": {"title": "E1", "status": "Active", "type": "EPIC",
+                         "priority_weight": "low", "file": "", "description": ""},
+            "SPEC-001": {"title": "S1", "status": "Proposed", "type": "SPEC",
+                         "priority_weight": "", "file": "", "description": ""},
+        }
+        edges = [
+            {"from": "INITIATIVE-001", "to": "VISION-001", "type": "parent-vision"},
+            {"from": "EPIC-001", "to": "INITIATIVE-001", "type": "parent-initiative"},
+            {"from": "SPEC-001", "to": "EPIC-001", "type": "parent-epic"},
+        ]
+        # SPEC inherits from EPIC's override (low=1), not INITIATIVE (medium=2)
+        assert resolve_vision_weight("SPEC-001", nodes, edges) == 1
+
+    def test_epic_without_weight_inherits_from_initiative(self):
+        """Epic without priority-weight inherits from parent initiative."""
+        nodes = {
+            "VISION-001": {"title": "V1", "status": "Active", "type": "VISION",
+                           "priority_weight": "high", "file": "", "description": ""},
+            "INITIATIVE-001": {"title": "I1", "status": "Active", "type": "INITIATIVE",
+                               "priority_weight": "medium", "file": "", "description": ""},
+            "EPIC-001": {"title": "E1", "status": "Active", "type": "EPIC",
+                         "priority_weight": "", "file": "", "description": ""},
+            "SPEC-001": {"title": "S1", "status": "Proposed", "type": "SPEC",
+                         "priority_weight": "", "file": "", "description": ""},
+        }
+        edges = [
+            {"from": "INITIATIVE-001", "to": "VISION-001", "type": "parent-vision"},
+            {"from": "EPIC-001", "to": "INITIATIVE-001", "type": "parent-initiative"},
+            {"from": "SPEC-001", "to": "EPIC-001", "type": "parent-epic"},
+        ]
+        # SPEC inherits from INITIATIVE (medium=2) since EPIC has no weight
+        assert resolve_vision_weight("SPEC-001", nodes, edges) == 2
+
 
 class TestDecisionDebt:
     """Test decision debt computation per vision."""

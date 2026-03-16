@@ -29,29 +29,22 @@ def resolve_vision_weight(
     if node is None:
         return DEFAULT_WEIGHT
 
-    # Check self first (Vision with own weight, or Initiative with override)
+    # Check self first (Vision, Initiative, or Epic with explicit weight)
     own_weight = node.get("priority_weight", "")
     if own_weight and own_weight in WEIGHT_MAP:
-        # If this is a Vision, return its weight directly
-        if node.get("type", "").upper() == "VISION":
-            return WEIGHT_MAP[own_weight]
-        # If this is an Initiative with an override, use the override
-        if node.get("type", "").upper() == "INITIATIVE":
+        node_type = node.get("type", "").upper()
+        if node_type in ("VISION", "INITIATIVE", "EPIC"):
             return WEIGHT_MAP[own_weight]
 
     # Walk parent chain and find the nearest weight
+    # Cascade: Epic override > Initiative override > Vision default
     chain = _walk_parent_chain(artifact_id, edges)
-    # Check for initiative override first, then vision weight
     for ancestor_id in chain:
         ancestor = nodes.get(ancestor_id, {})
         ancestor_weight = ancestor.get("priority_weight", "")
         if ancestor_weight and ancestor_weight in WEIGHT_MAP:
             ancestor_type = ancestor.get("type", "").upper()
-            if ancestor_type == "INITIATIVE":
-                # Initiative override — use it
-                return WEIGHT_MAP[ancestor_weight]
-            if ancestor_type == "VISION":
-                # Vision weight — use it (no initiative override found)
+            if ancestor_type in ("EPIC", "INITIATIVE", "VISION"):
                 return WEIGHT_MAP[ancestor_weight]
 
     return DEFAULT_WEIGHT
