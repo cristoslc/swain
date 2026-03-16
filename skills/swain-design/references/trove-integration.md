@@ -38,4 +38,4 @@ When an artifact's `trove` frontmatter is set or changed:
    ```
 3. Write the updated manifest
 
-This keeps the trove's manifest in sync with which artifacts depend on it. Back-links enable evidencewatch to detect when a trove is no longer referenced and can be archived.
+This keeps the trove's manifest in sync with which artifacts depend on it. Back-links enable trovewatch to detect when a trove is no longer referenced and can be archived.

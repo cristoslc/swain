@@ -74,7 +74,7 @@ their manifest.
   ingest selectively based on research purpose
 - The manifest records what was included; the `highlights` array marks key files
 - Selective ingestion sets `selective: true` in the manifest entry so that
-  tooling (evidencewatch) does not flag missing files as errors
+  tooling (trovewatch) does not flag missing files as errors
 
 ### Source Grouping
 
@@ -141,7 +141,7 @@ Shipped with swain-search, invokable by swain-doctor. Steps:
 4. **Update artifact frontmatter:** `evidence-pool: <id>@<hash>` to
    `trove: <id>@<hash>` across all artifact files.
 5. **Update skill references:** swain-search SKILL.md, swain-design integration
-   hook, evidencewatch script.
+   hook, trovewatch script.
 
 ### Non-destructive and idempotent
 
@@ -191,7 +191,7 @@ those too. Each step checks current state before acting.
   `trove`), and user-facing strings ("evidence pool" to "trove")
 - Tag-based discovery searches `docs/troves/*/manifest.yaml`
 
-### evidencewatch
+### trovewatch
 
 - Scans `docs/troves/` instead of `docs/evidence-pools/`
 - **Structural change:** File-discovery logic must walk `sources/<source-id>/`
@@ -225,6 +225,6 @@ are consumed through swain-search and swain-design only.
 9. Migration script is idempotent — running it when already migrated is a no-op
 10. swain-doctor detects unmigrated evidence pools and offers migration
 11. All skill references updated: swain-search SKILL.md, normalization-formats.md,
-    manifest-schema.md, trove-integration.md, evidencewatch
+    manifest-schema.md, trove-integration.md, trovewatch
 12. Existing troves with flat structure (migrated from evidence pools) remain
     valid and functional — extend mode works alongside old-format sources
