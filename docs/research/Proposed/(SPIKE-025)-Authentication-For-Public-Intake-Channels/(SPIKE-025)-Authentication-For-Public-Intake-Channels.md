@@ -211,3 +211,156 @@ An author allowlist (already specified for the slow path in EPIC-024) provides e
 - GitHub Actions scheduled workflow constraints -- https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions
 - GitHub Actions minimum cron frequency changelog -- https://github.blog/changelog/2019-11-01-github-actions-scheduled-jobs-maximum-frequency-is-changing/
 - "Time Is on My Side: Forward-Replay Attacks to TOTP Authentication" (SocialSec 2023) -- https://link.springer.com/chapter/10.1007/978-981-99-5177-2_7
+
+## Findings: Alternative Auth Mechanisms
+
+### 1. HMAC Signatures Over Issue Body
+
+**How it works:** The operator computes `HMAC-SHA256(shared_secret, canonical_issue_body)` and appends the resulting hex digest to the issue -- typically as a footer line like `<!-- swain-auth: hmac-sha256:a1b2c3d4... -->`. The filter chain strips the signature line, recomputes the HMAC over the remaining body, and compares.
+
+**Canonicalization matters.** GitHub normalizes markdown on submission (trailing whitespace, line endings, HTML entity encoding). The HMAC must be computed over the *post-normalization* form, or the operator must use a CLI tool that predicts the normalization. In practice this means the signing tool should either (a) submit via GitHub API and sign the API-returned body, or (b) enforce a strict canonical form (UTF-8, LF line endings, no trailing whitespace, no HTML entities).
+
+**Security properties:**
+- **Replay-proof:** Yes -- the signature is bound to the exact issue body. Replaying the signature with a different body fails.
+- **Content-bound:** Yes -- any modification to the body invalidates the signature.
+- **Secret exposure risk:** An attacker who observes multiple (body, signature) pairs cannot recover the secret in polynomial time, assuming HMAC-SHA256. The security reduction to the underlying hash function means the attacker would need to find collisions in SHA-256 or break the HMAC construction itself. With a 256-bit secret, brute force is infeasible. However, if the secret has low entropy (e.g., a short passphrase), offline brute force is possible since the attacker has oracle pairs.
+- **Key management:** Shared secret must be available to both the operator (at signing time) and the filter pipeline (at verification time). For a GitHub Actions-based filter, this means a repository secret.
+
+**Operator friction:** Medium. Without tooling, computing an HMAC requires a command like `echo -n "body" | openssl dgst -sha256 -hmac "secret"`. With a CLI helper (`swain intake sign`), friction drops to low. The signature line is an HTML comment, so it renders invisibly in the GitHub issue UI.
+
+**Implementation complexity:** Low. HMAC computation is a single function call in every language. The canonicalization step is the only non-trivial part.
+
+### 2. GitHub-Native Trust Signals
+
+#### 2a. Author Association (`author_association` field)
+
+**How it works:** Every GitHub issue and comment carries an `author_association` field with one of: `OWNER`, `MEMBER`, `COLLABORATOR`, `CONTRIBUTOR`, `FIRST_TIMER`, `FIRST_TIME_CONTRIBUTOR`, `MANNEQUIN`, or `NONE`. The filter chain checks this field and fast-tracks issues from trusted associations.
+
+**What the values mean:**
+- `OWNER` -- the repo owner (personal repo) or organization owner
+- `MEMBER` -- member of the organization that owns the repo
+- `COLLABORATOR` -- has been explicitly added as a collaborator
+- `CONTRIBUTOR` -- has a merged PR in the repo
+- `NONE` -- no relationship
+
+**Security properties:**
+- **Replay-proof:** N/A -- there is no token to replay. Trust is identity-based.
+- **Content-bound:** No -- any issue from a trusted author is fast-tracked regardless of content. A compromised account submits arbitrary work.
+- **Spoofability:** The `author_association` field is set by GitHub's API and cannot be forged by the issue author. However, it depends on the author's GitHub account security. If an attacker compromises a collaborator's account, they bypass all filters.
+- **Granularity:** Coarse. You cannot distinguish "this specific issue is operator-sanctioned" from "this person happens to be a collaborator." All issues from trusted authors get fast-tracked, including mistakes, drafts, or accidental submissions.
+
+**Operator friction:** Zero. The operator just creates an issue normally. No signing, no tokens, no extra steps.
+
+**Implementation complexity:** Trivial. The webhook payload or API response already includes `author_association`. A single string comparison.
+
+**Assessment:** Author association is an excellent *first filter* for the slow path (e.g., auto-close issues from `NONE` authors on repos with restricted intake). But it is too coarse for the fast path -- it cannot distinguish intentional intake requests from casual issues filed by the same person. Best used as a complement to a content-bound mechanism, not a replacement.
+
+#### 2b. GitHub App Payloads
+
+**How it works:** A GitHub App installed on the repo receives webhook events for issue creation. The webhook payload is signed by GitHub using the App's webhook secret (`X-Hub-Signature-256` header). The filter pipeline, running as the App's webhook handler, can trust the payload's integrity and origin.
+
+**Security properties:**
+- **Replay-proof:** Yes -- GitHub includes a delivery GUID and timestamp. The handler can enforce idempotency.
+- **Content-bound:** Yes -- the signature covers the entire payload including the issue body.
+- **Trust model:** Strong -- GitHub is the signing authority. No shared secret between operator and filter (the App secret is between GitHub and the handler).
+
+**But there is a fundamental mismatch.** The App signs the *delivery of the event*, not the *intent of the operator*. Any issue creation triggers the webhook, including issues from untrusted authors. The App signature proves "GitHub delivered this event" not "the operator sanctioned this issue." To use this for auth, the operator would need to create issues *through* the App (e.g., a custom UI or CLI that calls the App's API), which adds significant friction and complexity.
+
+**Operator friction:** High if the operator must use the App to create issues. Medium if the App is used only for payload integrity on the receiving end (but then it does not solve auth).
+
+**Implementation complexity:** High. Requires creating and hosting a GitHub App, handling webhook delivery, managing App credentials, and potentially building a custom issue-creation frontend.
+
+**Assessment:** GitHub App payloads solve *transport integrity* (proving the event came from GitHub) but not *operator intent* (proving the operator sanctioned this specific issue). They are valuable as infrastructure for the filter pipeline but do not replace an auth mechanism on the issue content itself.
+
+#### 2c. Commit-Signed References
+
+**How it works:** The operator creates a signed commit (GPG or SSH signature) that contains or references the issue body, then includes the commit hash in the issue. The filter verifies: (1) the commit exists in the repo, (2) the commit signature is valid and from a known key, and (3) the commit content matches the issue body.
+
+**Security properties:**
+- **Replay-proof:** Yes -- the commit hash is unique. Reusing a hash with different content fails.
+- **Content-bound:** Partial -- depends on how tightly the commit content is bound to the issue body. If the commit contains the full issue body, it is fully content-bound. If it only contains a hash or summary, it is weakly bound.
+- **Trust model:** Strong -- GPG/SSH signatures are well-understood and widely deployed.
+
+**Practical problems:**
+- The operator must create a commit *before* filing the issue. This inverts the natural workflow (file issue, then do work, then commit).
+- The commit must be pushed to the repo before the filter can verify it. This means the operator needs write access to some branch, or a fork.
+- Commit signing requires GPG or SSH key setup, which is a one-time cost but non-trivial.
+- The commit is "empty" (it exists only to sign the issue body), polluting the git history.
+
+**Operator friction:** High. Multiple steps: compose issue body, create signed commit with body as content, push commit, file issue referencing commit hash. A CLI helper could streamline this, but the fundamental workflow inversion remains.
+
+**Implementation complexity:** Medium. Verifying commit signatures via the GitHub API (`GET /repos/{owner}/{repo}/git/commits/{sha}` with `verification` field) is straightforward. Matching commit content to issue body requires canonicalization.
+
+**Assessment:** Overly complex for the problem. The workflow inversion is a dealbreaker for routine use. Could work for high-ceremony scenarios (e.g., security-critical intake) but not as the default mechanism.
+
+### 3. Asymmetric Signature Approach
+
+**How it works:** The operator holds a private key (Ed25519 or RSA). The corresponding public key is stored in the repo (e.g., `.swain/intake-pubkey.pem` or in a config file). To create an authenticated issue, the operator signs the issue body with their private key and appends the signature as a footer: `<!-- swain-auth: ed25519:<base64-signature> -->`.
+
+The filter extracts the signature, strips it from the body, and verifies using the public key from the repo.
+
+**Security properties:**
+- **Replay-proof:** Yes -- the signature is bound to the exact body content.
+- **Content-bound:** Yes -- any modification invalidates the signature.
+- **No shared secret:** The private key never leaves the operator's machine. The public key in the repo is not sensitive. Compromising the filter pipeline does not compromise the signing key.
+- **Forward security:** If the operator rotates keys, old signatures remain valid against old public keys (if retained) or can be invalidated.
+- **Non-repudiation:** The operator cannot deny having created a signed issue (assuming their private key was not compromised).
+
+**Signature size concerns:** Ed25519 signatures are 64 bytes, which base64-encodes to 88 characters. An HTML comment footer like `<!-- swain-auth: ed25519:ABCD...XYZ= -->` is approximately 110 characters -- long but not unreasonable. RSA-2048 signatures are 256 bytes (344 chars base64), which is bulky. **Ed25519 is the clear choice.**
+
+**Canonicalization:** Same challenge as HMAC. The signing tool must produce a canonical form that survives GitHub's markdown processing. The same mitigation applies: sign-then-submit via API, or enforce strict canonical form.
+
+**CLI helper:** A helper like `swain intake sign "issue body"` or `swain intake sign --file issue.md` would:
+1. Read the issue body
+2. Canonicalize it (strip trailing whitespace, normalize line endings)
+3. Sign with the operator's private key (from `~/.swain/intake-key` or configured path)
+4. Append the signature footer
+5. Optionally submit directly via `gh issue create`
+
+This reduces the workflow to a single command, bringing friction from "high" to "low."
+
+**Operator friction:** High without tooling (manual signing, base64 encoding, footer formatting). Low with a CLI helper. The one-time setup (key generation, adding public key to repo config) is comparable to setting up SSH keys.
+
+**Implementation complexity:** Medium. Ed25519 verification is available in most languages (Go: `crypto/ed25519`, Python: `cryptography` or `PyNaCl`, Node: `crypto`). Key management adds a small amount of configuration surface.
+
+### 4. Comparison Matrix
+
+| Mechanism | Replay-proof | Content-bound | Operator friction | Impl. complexity | Secret management | Degradation mode |
+|-----------|:---:|:---:|:---:|:---:|---|---|
+| **TOTP** | No (30s window) | No | Low (paste 6 digits) | Low | Shared secret (TOTP seed) | Attacker who sees code has 30s to replay |
+| **HMAC-SHA256** | Yes | Yes | Medium (need CLI tool) | Low | Shared secret (HMAC key) | Shared secret compromise = full bypass |
+| **Author allowlist** | N/A | No | None | Trivial | None (GitHub identity) | Compromised account = full bypass; no per-issue granularity |
+| **GitHub App** | Yes | Yes (transport) | High (custom workflow) | High | App credentials (GitHub-managed) | Proves delivery, not operator intent |
+| **Commit-signed ref** | Yes | Partial | High (workflow inversion) | Medium | GPG/SSH key pair | Pollutes git history; awkward workflow |
+| **Asymmetric sig** | Yes | Yes | Low (with CLI) / High (without) | Medium | Key pair (private stays local) | Strongest auth; key rotation is clean |
+
+### 5. Narrative Analysis
+
+**The field narrows quickly.** TOTP is unsuitable -- the replay window is a real vulnerability on public repos where automated watchers can extract and reuse codes within seconds (see Findings: TOTP-in-the-Clear Assessment above). Commit-signed references impose an unacceptable workflow inversion. GitHub App payloads solve transport integrity but not operator intent, and carry high implementation cost for a problem that does not require a hosted service.
+
+**Three viable mechanisms remain:** author allowlist, HMAC, and asymmetric signatures.
+
+**Author allowlist is the pragmatic baseline.** It costs nothing to implement, adds zero operator friction, and handles the common case where the repo has a small number of known operators. Its weakness is granularity: it fast-tracks *all* issues from trusted authors, including accidental or draft submissions. For a single-operator repo (swain's current reality), this weakness is minimal. For multi-contributor repos, it becomes a real concern.
+
+**HMAC is the practical middle ground.** It provides content-binding and replay-proofing at low implementation cost. The shared secret is the main drawback -- if the secret leaks, an attacker can forge authenticated issues until the secret is rotated. However, for a system where the secret lives in a GitHub Actions secret and the operator's local config, the attack surface is small. A CLI helper makes friction comparable to TOTP.
+
+**Asymmetric signatures are the strongest mechanism.** No shared secret means compromising the filter pipeline does not compromise auth. Ed25519 signatures are compact enough for an HTML comment footer. The key management burden (generate key pair, store public key in repo, store private key locally) is a one-time cost comparable to SSH setup. With a CLI helper, per-issue friction is low.
+
+**Recommended layering for INITIATIVE-008:**
+
+1. **Tier 0 (always active):** Author allowlist via `author_association`. Issues from `OWNER`/`MEMBER`/`COLLABORATOR` enter a *warm path* -- they skip spam/content filters but still go through structural validation. This is not full fast-path auth but a trust signal that reduces false-positive filtering.
+
+2. **Tier 1 (default auth for fast path):** HMAC-SHA256 signature in an HTML comment footer. The `swain intake` CLI computes the HMAC and optionally submits the issue. This gives content-binding and replay-proofing at minimal implementation cost. The shared secret is acceptable for the current threat model (single-operator, attacker must compromise GitHub Actions secrets or operator's local config).
+
+3. **Tier 2 (upgrade path):** Asymmetric Ed25519 signatures, same footer format. This becomes worthwhile if swain supports multi-operator intake (different operators with different keys) or if the threat model escalates. The CLI helper and footer format are designed to be mechanism-agnostic, so switching from HMAC to Ed25519 is a config change, not an architecture change.
+
+**Key design decision: mechanism-agnostic footer format.** The auth footer should use a tagged format that identifies the mechanism:
+
+```
+<!-- swain-auth: hmac-sha256:<hex-digest> -->
+<!-- swain-auth: ed25519:<base64-signature> -->
+```
+
+This allows the filter chain to support multiple mechanisms simultaneously and enables smooth migration from HMAC to asymmetric signatures without a flag day.
+
+**What about canonicalization?** Both HMAC and asymmetric approaches share the canonicalization challenge. The recommended approach: the `swain intake` CLI creates the issue via the GitHub API, retrieves the rendered body, computes the signature over the API-returned body, and then edits the issue to append the footer. This two-step process (create-then-sign) eliminates canonicalization guesswork at the cost of a brief window where the issue exists unsigned. Alternatively, the CLI can enforce a strict canonical form (UTF-8, LF, no trailing whitespace, no HTML) and document that operators must not use GitHub's web editor for authenticated issues.
