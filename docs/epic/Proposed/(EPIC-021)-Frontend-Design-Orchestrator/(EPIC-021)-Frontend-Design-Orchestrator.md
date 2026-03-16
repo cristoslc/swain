@@ -21,7 +21,7 @@ depends-on-artifacts:
   - SPIKE-023
   - EPIC-019
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Product Design Orchestrator

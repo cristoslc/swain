@@ -1,0 +1,133 @@
+trove: work-item-hierarchy
+created: 2026-03-14
+refreshed: 2026-03-14
+tags:
+- project-management
+- hierarchy
+- epics
+- initiatives
+- backlogs
+- SAFe
+- Linear
+- Jira
+- Shortcut
+- agile
+
+freshness-ttl:
+  web: 60d
+  media: never
+
+referenced-by: []
+
+sources:
+- source-id: 001-linear-conceptual-model
+  type: web
+  url: "https://linear.app/docs/conceptual-model"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Linear Conceptual Model — Issues, Projects, Initiatives, Cycles, Teams"
+
+  highlights: []
+  selective: true
+- source-id: 002-linear-initiatives
+  type: web
+  url: "https://linear.app/docs/initiatives"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Linear Initiatives Documentation"
+
+  highlights: []
+  selective: true
+- source-id: 003-linear-sub-initiatives
+  type: web
+  url: "https://linear.app/changelog/2025-07-10-sub-initiatives"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Linear Changelog: Sub-Initiatives (July 2025)"
+
+  highlights: []
+  selective: true
+- source-id: 004-safe-hierarchy-tempo
+  type: web
+  url: "https://www.tempo.io/blog/which-safe-hierarchy-should-you-choose"
+  fetched: 2026-03-14T00:00:00Z
+  title: "SAFe Hierarchy: Epic-Feature-Story vs Initiative-Epic-Story (Tempo)"
+
+  highlights: []
+  selective: true
+- source-id: 005-safe-enterprise-backlog
+  type: web
+  url: "https://framework.scaledagile.com/enterprise-backlog-structure-and-management"
+  fetched: 2026-03-14T00:00:00Z
+  title: "SAFe Enterprise Backlog Structure and Management"
+
+  highlights: []
+  selective: true
+- source-id: 006-atlassian-epics-stories-themes
+  type: web
+  url: "https://www.atlassian.com/agile/project-management/epics-stories-themes"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Atlassian: Epics, Stories, Themes, and Initiatives"
+
+  highlights: []
+  selective: true
+- source-id: 007-jira-hierarchy-guide
+  type: web
+  url: "https://community.atlassian.com/forums/App-Central-articles/Understanding-Jira-Hierarchy-Complete-Guide-in-2025/ba-p/2947722"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Understanding Jira Hierarchy: Complete Guide (2025)"
+
+  highlights: []
+  selective: true
+- source-id: 008-shortcut-hierarchy-best-practices
+  type: web
+  url: "https://www.shortcut.com/blog/ultimate-setup-series-best-practices-for-the-shortcut-hierarchy"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Shortcut: Best Practices for the Hierarchy"
+
+  highlights: []
+  selective: true
+- source-id: 009-aha-initiatives-epics-features
+  type: web
+  url: "https://www.aha.io/blog/initiatives-vs-epics-vs-features"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Aha!: Initiatives vs Epics vs Features"
+
+  highlights: []
+  selective: true
+- source-id: 010-prodpad-initiatives-vs-epics
+  type: web
+  url: "https://www.prodpad.com/blog/initiatives-vs-epics/"
+  fetched: 2026-03-14T00:00:00Z
+  title: "ProdPad: Initiative vs Epic — What's the difference?"
+
+  highlights: []
+  selective: true
+- source-id: 011-github-evolving-issues
+  type: web
+  url: "https://github.blog/changelog/2025-04-09-evolving-github-issues-and-projects/"
+  fetched: 2026-03-14T00:00:00Z
+  title: "GitHub Changelog: Evolving Issues and Projects (Sub-Issues GA, Issue Types)"
+
+  highlights: []
+  selective: true
+- source-id: 012-bigpicture-initiative-epic-story
+  type: web
+  url: "https://bigpicture.one/blog/initiative-epic-story/"
+  fetched: 2026-03-14T00:00:00Z
+  title: "BigPicture: Stories, Initiatives, and Epics Across Agile Frameworks"
+
+  highlights: []
+  selective: true
+- source-id: 013-safe-backlog-levels
+  type: web
+  url: "https://agileseekers.com/blog/portfolio-backlog-vs-program-backlog-what-agile-leaders-need-to-know"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Portfolio Backlog vs Program Backlog: What Agile Leaders Need to Know"
+
+  highlights: []
+  selective: true
+- source-id: 014-linear-org-guide
+  type: web
+  url: "https://www.marcusmth.com/linear-project-organization-guide"
+  fetched: 2026-03-14T00:00:00Z
+  title: "Linear Project Organization Guide (marcusmth)"
+  highlights: []
+  selective: true

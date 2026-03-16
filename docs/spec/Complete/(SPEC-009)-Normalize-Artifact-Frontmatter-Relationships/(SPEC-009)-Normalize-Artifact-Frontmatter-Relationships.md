@@ -9,7 +9,7 @@ last-updated: 2026-03-13
 type: feature
 parent-epic: ""
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 linked-artifacts: []

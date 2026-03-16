@@ -12,7 +12,7 @@ risks-addressed:
   - No official Claude Code Docker image may exist — need to confirm or build one
   - Claude Code may have host-level dependencies (Node.js version, native modules) that complicate containerization
   - Interactive terminal mode (TTY allocation) may behave differently in containers
-evidence-pool:
+trove:
 linked-artifacts: []
 ---
 

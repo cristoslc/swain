@@ -16,7 +16,7 @@ risks-addressed:
 linked-artifacts:
   - EPIC-022
   - "github:cristoslc/swain#51"
-evidence-pool: ""
+trove: ""
 ---
 
 # Postflight Summary Design

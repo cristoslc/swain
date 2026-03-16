@@ -12,7 +12,7 @@ gate: Pre-implementation
 risks-addressed:
   - Bookmark restore silently resolving against wrong worktree after EPIC-015 rollout
   - Schema changes breaking existing bookmark files for operators upgrading mid-project
-evidence-pool: ""
+trove: ""
 ---
 
 # Worktree Session Bookmark Design

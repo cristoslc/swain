@@ -11,7 +11,7 @@ gate: Pre-Implementation
 risks-addressed:
   - Wrong abstraction leads to process overhead that defeats the purpose of lightweight enhancements
   - Type proliferation makes the artifact model harder to learn and maintain
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-002
 ---

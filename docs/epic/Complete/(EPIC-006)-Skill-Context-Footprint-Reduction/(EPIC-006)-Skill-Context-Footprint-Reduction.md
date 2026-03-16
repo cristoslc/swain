@@ -13,7 +13,7 @@ success-criteria:
   - No existing skill functionality is removed — only redundant, verbose, or misplaced content
   - All skills that exceed a size budget are flagged by swain-doctor
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts: []
 depends-on-artifacts: []
 ---

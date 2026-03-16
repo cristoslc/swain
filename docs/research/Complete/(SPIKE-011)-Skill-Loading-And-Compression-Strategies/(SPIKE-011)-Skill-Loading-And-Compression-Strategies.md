@@ -15,7 +15,7 @@ risks-addressed:
 linked-artifacts:
   - EPIC-006
   - SPIKE-010
-evidence-pool: ""
+trove: ""
 ---
 
 # Skill Loading and Compression Strategies

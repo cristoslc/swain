@@ -14,7 +14,7 @@ risks-addressed:
   - Building a progress renderer that can't consume swain's existing specgraph/frontmatter output without heavy parsing work
 linked-artifacts:
   - EPIC-018
-evidence-pool: ""
+trove: ""
 ---
 
 # Scope Progress Visualization Options For Swain-Status

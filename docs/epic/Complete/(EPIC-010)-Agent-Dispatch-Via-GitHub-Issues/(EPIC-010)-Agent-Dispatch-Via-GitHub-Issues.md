@@ -15,7 +15,7 @@ success-criteria:
   - Model routing decision: Opus vs Sonnet based on task complexity assessment
   - swain-design can tag artifacts as good candidates for dispatch
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "github:cristoslc/swain#18"
 linked-artifacts: []
 depends-on-artifacts:
