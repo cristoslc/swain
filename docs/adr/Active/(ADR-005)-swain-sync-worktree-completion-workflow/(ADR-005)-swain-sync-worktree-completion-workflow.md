@@ -9,7 +9,7 @@ last-updated: 2026-03-14
 linked-artifacts:
   - SPEC-039
 depends-on-artifacts: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Worktree Lifecycle: swain-do Creates, swain-sync Lands

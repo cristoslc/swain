@@ -13,7 +13,7 @@ linked-artifacts:
   - SPIKE-014
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 swain-do: required
 ---
 

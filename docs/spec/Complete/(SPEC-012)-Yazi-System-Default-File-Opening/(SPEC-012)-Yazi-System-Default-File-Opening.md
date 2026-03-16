@@ -9,7 +9,7 @@ created: 2026-03-13
 last-updated: 2026-03-13
 parent-epic:
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "github:cristoslc/swain#15"
 swain-do: required
 linked-artifacts: []

@@ -17,7 +17,7 @@ success-criteria:
   - Existing swain consumers have a clean migration path via swain-doctor
 addresses:
   - JOURNEY-001.PP-01
-evidence-pool: ""
+trove: ""
 linked-artifacts: []
 depends-on-artifacts: []
 ---

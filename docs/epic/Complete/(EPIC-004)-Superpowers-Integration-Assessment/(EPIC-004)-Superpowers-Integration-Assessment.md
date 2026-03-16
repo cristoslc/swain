@@ -13,7 +13,7 @@ success-criteria:
   - Decision documented (ADR) on whether to retire swain, integrate superpowers, or coexist
   - If coexistence chosen — integration spec written for superpowers skill adoption within swain
 addresses: []
-evidence-pool:
+trove:
 linked-artifacts: []
 depends-on-artifacts: []
 ---

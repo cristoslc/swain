@@ -16,7 +16,7 @@ linked-artifacts:
 depends-on-artifacts:
   - SPEC-023
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "github:cristoslc/swain#24"
 swain-do: required
 ---

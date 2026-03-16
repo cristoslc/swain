@@ -17,7 +17,7 @@ success-criteria:
 depends-on-artifacts:
   - SPIKE-021
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Work Scope Progress Visualizations For Swain-Status

@@ -14,7 +14,7 @@ depends-on-artifacts:
   - SPEC-039
   - SPEC-043
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

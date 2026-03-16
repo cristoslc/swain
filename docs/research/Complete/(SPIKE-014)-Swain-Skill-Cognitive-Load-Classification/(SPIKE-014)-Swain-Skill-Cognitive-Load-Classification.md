@@ -15,7 +15,7 @@ risks-addressed:
 linked-artifacts:
   - EPIC-007
   - SPIKE-013
-evidence-pool: ""
+trove: ""
 ---
 
 # Swain Skill Cognitive Load Classification

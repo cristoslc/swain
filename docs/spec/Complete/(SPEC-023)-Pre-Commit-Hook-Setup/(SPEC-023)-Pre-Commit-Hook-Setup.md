@@ -14,7 +14,7 @@ linked-artifacts:
   - SPIKE-015
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "github:cristoslc/swain#24"
 swain-do: required
 ---

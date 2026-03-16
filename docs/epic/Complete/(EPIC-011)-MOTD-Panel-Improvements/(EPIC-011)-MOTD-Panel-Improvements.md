@@ -14,7 +14,7 @@ success-criteria:
   - MOTD shows staged vs unstaged file counts prominently
   - Interactive commit button in Textual TUI triggers swain-push
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts: []
 depends-on-artifacts: []
 ---

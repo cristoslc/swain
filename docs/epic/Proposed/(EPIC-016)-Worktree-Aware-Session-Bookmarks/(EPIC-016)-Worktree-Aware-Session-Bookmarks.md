@@ -16,7 +16,7 @@ success-criteria:
 depends-on-artifacts:
   - EPIC-015
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Worktree-Aware Session Bookmarks

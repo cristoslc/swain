@@ -20,7 +20,7 @@ success-criteria:
   - swain-design name is freed for future use as a frontend orchestrator skill
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Rename swain-design to swain-commission

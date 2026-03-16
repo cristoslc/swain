@@ -15,7 +15,7 @@ risks-addressed:
 linked-artifacts:
   - EPIC-017
   - SPIKE-015
-evidence-pool: ""
+trove: ""
 ---
 
 # Security Scanning Landscape and BUILD vs BUY for swain-security-check

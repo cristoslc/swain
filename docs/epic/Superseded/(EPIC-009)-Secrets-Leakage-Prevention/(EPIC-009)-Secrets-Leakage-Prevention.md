@@ -15,7 +15,7 @@ success-criteria:
   - Scanner list is configurable via swain.settings.json
   - Clear error messages when scanners detect secrets, with remediation guidance
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "github:cristoslc/swain#24"
 linked-artifacts: []
 depends-on-artifacts: []

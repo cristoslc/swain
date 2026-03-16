@@ -17,7 +17,7 @@ risks-addressed:
 linked-artifacts:
   - EPIC-021
   - EPIC-019
-evidence-pool: ""
+trove: ""
 ---
 
 # Product Design Integration Strategy
