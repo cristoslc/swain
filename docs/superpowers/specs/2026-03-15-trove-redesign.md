@@ -55,8 +55,8 @@ docs/troves/<trove-id>/
 
 - Must be a slug: lowercase, hyphenated, human-readable
 - Descriptive enough that the source is meaningful when copied out of context
-- When a slug collides within a trove, append a wordlist-pair disambiguator in
-  brackets: `cognee-meta-skill-repo-[amber-finch]`
+- When a slug collides within a trove, append a wordlist-pair disambiguator with
+  a double-underscore separator: `cognee-meta-skill-repo__amber-finch`
 - For flat sources, the file is `<source-id>/<source-id>.md`
 - For hierarchical sources, the directory is `<source-id>/` with the original
   tree mirrored inside
@@ -102,13 +102,12 @@ manifest entry.
 |-------|--------|------|-------------|
 | `source-id` | renamed from `id` | string | Slug matching the directory name under `sources/` |
 | `slug` | removed | — | Redundant with `source-id` |
-| `type` | expanded | string | `web`, `forum`, `document`, `media`, `repository`, `documentation-site` |
+| `type` | expanded | string | `web`, `forum`, `document`, `media`, `local`, `repository`, `documentation-site` |
 | `url` | unchanged | string | Source URL or path |
 | `fetched` | unchanged | ISO 8601 | When the source was fetched |
 | `hash` | unchanged | string | SHA-256 content hash |
 | `freshness-ttl` | unchanged | string | Optional TTL override |
-| `root` | **new** | string | Path to source root relative to `sources/` (always `sources/<source-id>/`) |
-| `highlights` | **new** | string[] | Paths relative to `root` marking key files identified during ingestion |
+| `highlights` | **new** | string[] | Paths relative to the source-id directory marking key files identified during ingestion |
 | `selective` | **new** | boolean | Default false. When true, the source was selectively ingested |
 
 ## Wordlist Disambiguator
@@ -116,9 +115,11 @@ manifest entry.
 - Curated wordlist of ~2000 short (3-7 char), thematically neutral words
 - Shipped as `skills/swain-search/references/wordlist.txt`, one word per line
 - When a source-id slug collides within a trove, two words are drawn at random,
-  hyphen-joined, and appended in brackets: `<slug>-[word1-word2]`
+  hyphen-joined, and appended after a double-underscore: `<slug>__word1-word2`
 - Collision probability with 2000-word pairs: ~4 million combinations
-- The wordlist is curated during implementation
+- The wordlist is curated during implementation (minimum 1000 entries)
+- **Fallback:** If the wordlist file is missing or empty, fall back to a random
+  4-character hex suffix (e.g., `<slug>__a3f8`)
 
 ## Migration
 
@@ -127,20 +128,28 @@ manifest entry.
 Shipped with swain-search, invokable by swain-doctor. Steps:
 
 1. **Rename directory:** `docs/evidence-pools/` to `docs/troves/`
-2. **Restructure sources:** For each existing pool, move `sources/<old-name>.md`
-   to `sources/<old-name>/<old-name>.md`. Old numbered IDs become slugs as-is —
-   no forced renaming, but the agent can rename on next `extend` or `refresh`.
-3. **Update manifest:** Rename `pool` to `trove`, rename `id` to `source-id`,
-   add `root` field, set `highlights: []`, set `selective: false`.
+2. **Restructure sources:** For each existing pool, move `sources/NNN-slug.md`
+   to `sources/NNN-slug/NNN-slug.md`. The full old filename stem (e.g.,
+   `001-mdn-websocket-api`) becomes the `source-id`. Old numbered prefixes are
+   preserved as-is — no forced renaming, but the agent can rename to a cleaner
+   slug on the next `extend` or `refresh`.
+3. **Update manifest:** Rename `pool` to `trove`. For each source entry, set
+   `source-id` to the old `slug` field value prefixed with the old `id` (e.g.,
+   `id: "001"` + `slug: "mdn-websocket-api"` becomes
+   `source-id: "001-mdn-websocket-api"`). Remove the old `id` and `slug` fields.
+   Set `highlights: []`, set `selective: false`.
 4. **Update artifact frontmatter:** `evidence-pool: <id>@<hash>` to
    `trove: <id>@<hash>` across all artifact files.
 5. **Update skill references:** swain-search SKILL.md, swain-design integration
    hook, evidencewatch script.
 
-### Non-destructive
+### Non-destructive and idempotent
 
 The migration script moves, never deletes. Git tracks renames. Recovery via
-`git checkout` if anything goes wrong.
+`git checkout` if anything goes wrong. The script is idempotent: if
+`docs/troves/` already exists and `docs/evidence-pools/` does not, it skips
+the directory rename. If source directories are already restructured, it skips
+those too. Each step checks current state before acting.
 
 ### swain-doctor detection
 
@@ -154,25 +163,42 @@ The migration script moves, never deletes. Git tracks renames. Recovery via
 ### swain-search SKILL.md
 
 - All "evidence pool" references become "trove"
+- Update SKILL.md frontmatter: `description` and `short-description` fields
+- Update path references: report template (`docs/evidence-pools/<pool-id>/` to
+  `docs/troves/<trove-id>/`), discover-mode scan glob
+  (`docs/evidence-pools/*/manifest.yaml` to `docs/troves/*/manifest.yaml`),
+  and `evidence-pool:` frontmatter format strings
 - Source creation: slug-based IDs, `<source-id>/<source-id>.md` for flat,
   mirrored tree for hierarchical
-- Wordlist pair disambiguator in brackets on slug collision
+- Wordlist pair disambiguator with `__` separator on slug collision
 - New source types: `repository`, `documentation-site` with hierarchy-mirroring
 - Selective ingestion: mirror full tree by default, be selective for large
   sources, set `selective: true`
 - `highlights` populated during ingestion
 
+### swain-search references
+
+- `normalization-formats.md`: update all frontmatter examples from sequential
+  IDs (`source-id: "001"`) to slug-based IDs; update `type` enum to include
+  `local`, `repository`, `documentation-site`
+- `manifest-schema.md`: update schema to reflect new fields and removed fields
+
 ### swain-design integration
 
 - `evidence-pool-integration.md` renamed to `trove-integration.md`
-- Frontmatter field `evidence-pool` becomes `trove`
+- All internal references updated: path globs (`docs/evidence-pools/*/manifest.yaml`
+  to `docs/troves/*/manifest.yaml`), frontmatter field name (`evidence-pool` to
+  `trove`), and user-facing strings ("evidence pool" to "trove")
 - Tag-based discovery searches `docs/troves/*/manifest.yaml`
 
 ### evidencewatch
 
 - Scans `docs/troves/` instead of `docs/evidence-pools/`
+- **Structural change:** File-discovery logic must walk `sources/<source-id>/`
+  directories instead of looking for `NNN-slug.md` flat files. Orphan detection
+  and missing-file checks must understand the new directory-per-source layout.
 - Sources with `selective: true` skip missing-file warnings
-- Existing checks (size, freshness, orphaned files, missing synthesis) unchanged
+- Existing checks (size, freshness, missing synthesis) unchanged in logic
 
 ### swain-doctor
 
@@ -192,11 +218,14 @@ are consumed through swain-search and swain-design only.
 3. Repository and documentation-site sources mirror the original tree under
    their source-id directory
 4. Flat sources (web, forum, media, document) use `<source-id>/<source-id>.md`
-5. Manifest schema includes `source-id`, `root`, `highlights`, and `selective`
-   fields
-6. Wordlist disambiguator appends `[word1-word2]` on slug collision
-7. Migration script converts existing evidence pools to troves non-destructively
-8. swain-doctor detects unmigrated evidence pools and offers migration
-9. All skill references updated: swain-search, swain-design, evidencewatch
-10. Existing troves with flat structure (migrated from evidence pools) remain
-    valid and functional
+5. Manifest schema includes `source-id`, `highlights`, and `selective` fields
+   (`root` removed — derivable from source-id)
+6. Wordlist disambiguator appends `__word1-word2` on slug collision
+7. Wordlist contains at least 1000 entries; hex fallback when wordlist is missing
+8. Migration script converts existing evidence pools to troves non-destructively
+9. Migration script is idempotent — running it when already migrated is a no-op
+10. swain-doctor detects unmigrated evidence pools and offers migration
+11. All skill references updated: swain-search SKILL.md, normalization-formats.md,
+    manifest-schema.md, trove-integration.md, evidencewatch
+12. Existing troves with flat structure (migrated from evidence pools) remain
+    valid and functional — extend mode works alongside old-format sources
