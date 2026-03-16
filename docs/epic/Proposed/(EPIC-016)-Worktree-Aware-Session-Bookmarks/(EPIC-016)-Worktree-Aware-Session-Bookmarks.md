@@ -6,7 +6,7 @@ status: Proposed
 author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
-parent-vision: ""
+parent-vision: VISION-001
 parent-initiative: INITIATIVE-001
 success-criteria:
   - swain-session bookmarks capture the active worktree path alongside context, not just main-tree coordinates

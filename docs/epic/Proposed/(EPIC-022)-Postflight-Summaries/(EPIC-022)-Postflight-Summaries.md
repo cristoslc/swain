@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-005
 success-criteria:
   - swain-status supports a postflight mode that any swain skill can invoke on completion
   - Postflight produces a domain-context recap ("what just happened in project terms") and a recommendation ("what's next")

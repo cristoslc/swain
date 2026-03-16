@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-13
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-006
 success-criteria:
   - swain-dispatch skill exists and is registered in the swain router
   - Artifacts (SPECs, etc.) can be pushed to GitHub Issues for background agent execution

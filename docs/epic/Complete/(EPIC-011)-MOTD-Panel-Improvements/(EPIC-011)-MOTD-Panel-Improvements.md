@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-13
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-005
 success-criteria:
   - MOTD Textual TUI has configurable clockwise animation
   - Agent status updates automatically via Claude Code hooks (no manual motd update calls)
