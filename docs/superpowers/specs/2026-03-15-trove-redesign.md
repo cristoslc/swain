@@ -105,7 +105,7 @@ manifest entry.
 | `type` | expanded | string | `web`, `forum`, `document`, `media`, `local`, `repository`, `documentation-site` |
 | `url` | unchanged | string | Source URL or path |
 | `fetched` | unchanged | ISO 8601 | When the source was fetched |
-| `hash` | unchanged | string | SHA-256 content hash |
+| `hash` | standardized | string | Bare hex SHA-256 digest (no `sha256:` prefix) |
 | `freshness-ttl` | unchanged | string | Optional TTL override |
 | `highlights` | **new** | string[] | Paths relative to the source-id directory marking key files identified during ingestion |
 | `selective` | **new** | boolean | Default false. When true, the source was selectively ingested |
@@ -219,7 +219,6 @@ are consumed through swain-search and swain-design only.
    their source-id directory
 4. Flat sources (web, forum, media, document) use `<source-id>/<source-id>.md`
 5. Manifest schema includes `source-id`, `highlights`, and `selective` fields
-   (`root` removed — derivable from source-id)
 6. Wordlist disambiguator appends `__word1-word2` on slug collision
 7. Wordlist contains at least 1000 entries; hex fallback when wordlist is missing
 8. Migration script converts existing evidence pools to troves non-destructively
