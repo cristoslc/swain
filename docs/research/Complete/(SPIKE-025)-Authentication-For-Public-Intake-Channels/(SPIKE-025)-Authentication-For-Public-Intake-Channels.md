@@ -130,80 +130,43 @@ Only users with triage access or higher can apply labels to issues on a reposito
 
 An automated attacker watching the repo could replay a TOTP code within 10-20 seconds of issue creation -- well inside the 60-90 second acceptance window. The TOTP code is posted in plaintext in a public channel, so no cryptographic interception is required; it is a simple string copy from the issue body.
 
-### 2. One-Time-Use Enforcement in a Polling Architecture
+### 2. The Core Problem: Replayability
 
-RFC 6238 requires one-time-use enforcement: once a code has been validated, the verifier must reject subsequent uses of the same code. This is the primary defense against replay within the validity window.
+**The polling interval is irrelevant.** The pipeline can trivially validate a TOTP code retroactively by computing the expected code at the issue's `created_at` timestamp. This is standard practice for any system that processes TOTP codes asynchronously. The "codes are expired by polling time" framing is a red herring.
 
-**The polling architecture fundamentally breaks one-time-use.**
+**The actual problem is that TOTP codes posted in public issues are replayable.** A TOTP code is a short, static string (typically 6 digits) valid for a 30-90 second window. On a public repo, the code is visible to anyone the moment the issue is created. An attacker who sees the issue can copy the code into a new issue within the same validity window, and the pipeline cannot distinguish the two — both carry a valid code for the same time step, both have `created_at` timestamps within the validity window.
 
-The intake pipeline runs on a GitHub Actions cron schedule. GitHub Actions enforces a minimum cron interval of 5 minutes, with the planned default for EPIC-024 being 15 minutes. This creates a fatal timing mismatch:
+**Why one-time-use doesn't help:** RFC 6238 requires that a verifier reject the second use of the same code. But this defense assumes the verifier can determine submission order. When two issues arrive with the same TOTP code and overlapping `created_at` timestamps, there is no reliable way to determine which was "first" — GitHub does not guarantee sub-second timestamp ordering, and even if it did, the attacker can submit within milliseconds of the original.
 
-| Scenario | TOTP window | Poll interval | Code age at first check |
-|----------|-------------|--------------|------------------------|
-| Best case | 30s | 5 min | 4.5 min expired |
-| Planned default | 30s | 15 min | 14.5 min expired |
-| Extended window (+/-1 step) | 90s | 15 min | 13.5 min expired |
+**A consumed-codes ledger partially mitigates but doesn't solve the problem.** The pipeline could record each TOTP code after first use and reject duplicates. This blocks exact replays processed in a later polling batch. But within the same batch (the common case — attacker submits within seconds), both issues are processed simultaneously. The ledger would need to process issues strictly sequentially and reject the second one, which adds complexity for a mechanism that is fundamentally flawed by the cleartext exposure.
 
-**Implications:**
-
-- **Expired-by-design:** By the time the poller runs, the TOTP code is always already expired. The pipeline would need to validate the code retroactively by computing what the valid TOTP was at the issue's `created_at` timestamp rather than at polling time. This transforms TOTP from a time-based challenge into a static proof-of-knowledge verified after the fact.
-
-- **Batch replay between polls:** Multiple issues posted between polling intervals can all carry the same TOTP code (valid at the same 30-second window). The pipeline processes them in a single batch and has no way to determine which was "first." One-time-use enforcement requires a real-time verifier that consumes codes at submission time; a batch poller cannot provide this.
-
-- **No consumed-codes ledger:** A ledger of consumed codes only prevents replay if the verifier runs within the TOTP validity window. When the verifier runs 5-15 minutes later, the ledger would need to persist across polls, but the attacker's replayed code is indistinguishable from the legitimate code -- both are the same string, both were submitted within the same TOTP window.
-
-**Attempted mitigation -- retroactive timestamp validation:** The pipeline could compute the valid TOTP at `issue.created_at` and compare. This proves the submitter knew the shared secret at creation time. However, since the code is plaintext in the public issue body, any observer gains that same knowledge instantly. Two issues created 5 seconds apart in the same 30-second TOTP window will carry identical valid codes, and the pipeline cannot distinguish the legitimate submission from the replay.
+**The deeper issue: TOTP is not content-bound.** The same TOTP code can authenticate any issue body. An attacker doesn't just replay the original issue — they can submit a completely different issue body with the same code. This means a valid TOTP code is a bearer token for any fast-path submission during its validity window.
 
 ### 3. Practical Risk Assessment
 
-**Likelihood of active monitoring:**
+| Repo profile | Replay likelihood | Justification |
+|-------------|-------------------|--------------|
+| Low-profile personal repo | Very low | Attacker must discover the repo, understand intake, and monitor in real-time |
+| Public repo with visible CI/CD | Low | Scanners target secrets/vulns, not work-intake injection |
+| Targeted attack on known repo | High | Trivial with webhook subscription or API polling; attacker submits within seconds |
 
-| Repo profile | Monitoring likelihood | Justification |
-|-------------|----------------------|--------------|
-| Low-profile personal repo | Very low | Attacker must discover the repo, understand the intake system, set up monitoring, and have motivation |
-| Public repo with visible CI/CD | Low | Automated scanners crawl public repos but target secrets and vulnerabilities, not work-intake injection |
-| Targeted attack on known repo | High | Trivially achievable with a webhook subscription or API polling script; all tooling is off-the-shelf |
-
-**Blast radius of successful replay:**
-
-Per INITIATIVE-008's two-tier model, a replayed TOTP issue that passes the fast path would:
-
-1. Skip structural/content filters (the entire point of the fast path)
-2. Be classified by an agent as a SPEC, EPIC, or SPIKE
-3. Have a swain artifact created following swain-design conventions
-4. **The operator reviews all artifacts before any execution occurs**
-
-The damage is bounded: the attacker can cause an unwanted artifact to be created, consuming agent compute time and polluting the artifact namespace. There is no code execution, no deployment, no data exfiltration, and no privilege escalation. The operator catches spurious artifacts during review.
-
-However, per the Threat Model findings (above), prompt injection via a fast-tracked issue body is the amplified risk: the fast path skips content-pattern filters, so a well-crafted issue body reaching the classifying agent has a wider surface for prompt injection than one that passed the slow-path gauntlet.
-
-**Is the risk acceptable given the two-tier model?**
-
-The practical risk is low, but the mechanism provides **false confidence**. The TOTP code offers no meaningful security guarantee in this architecture because:
-
-1. **Secret revealed on every use** -- The TOTP code (derived from the shared secret) is posted in plaintext. While the shared secret itself is not revealed, the code is all an attacker needs to replay.
-2. **One-time-use is unenforceable** -- The polling model cannot consume codes at submission time, and batch processing cannot distinguish original from replay.
-3. **Code is always stale** -- The 5-15 minute polling interval guarantees the code has expired, requiring retroactive validation that defeats TOTP's time-based security property.
-4. **Any observer can replay** -- No cryptographic barrier; the code is a 6-digit string visible in the issue body.
-
-An author allowlist (already specified for the slow path in EPIC-024) provides equivalent or better protection with zero secret exposure, since GitHub author identity cannot be spoofed without account compromise (see Threat Model, Trust Assumption #1).
+**Blast radius:** A replayed TOTP issue bypasses all slow-path filters and reaches the classifying agent directly. The attacker can inject arbitrary content (including prompt injection payloads) that skips content-pattern filtering. The operator reviews artifacts before execution, bounding the damage to unwanted artifact creation and agent compute waste — but the prompt injection surface is wider than the slow path.
 
 ### 4. GO/NO-GO Verdict
 
-**NO-GO** -- TOTP-in-the-clear is not viable for the public intake fast path.
+**NO-GO** — TOTP-in-the-clear is not viable for the public intake fast path.
 
 | Criterion | Rating | Detail |
 |-----------|--------|--------|
-| Replay window | FAIL | 60-90s window is exploitable in <20s by automated observers; code is plaintext |
-| One-time-use | FAIL | Polling architecture (5-15 min) cannot enforce one-time-use; codes are batch-processed post-expiry |
-| Retroactive validation | WEAK | Timestamp-based check proves knowledge of secret at creation time, but code is public, so all observers share that knowledge |
-| Practical risk | LOW | Blast radius limited to unwanted artifact creation; operator review gate catches it |
-| False confidence | HIGH | TOTP provides the appearance of authentication without substance in a polling architecture |
-| Prompt injection amplification | MEDIUM | Fast path skips content filters, widening the attack surface for agent manipulation |
+| Replayability | FAIL | Code is plaintext in public issue; any observer can submit a different issue body with the same code within the 30-90s window |
+| Content binding | FAIL | TOTP code authenticates the submitter, not the content — same code works for any issue body |
+| Retroactive validation | WORKS | Pipeline can validate against `created_at` timestamp — this is not the problem |
+| Practical risk | LOW | Blast radius bounded to unwanted artifacts; operator review catches it |
+| False confidence | HIGH | Mechanism appears to authenticate but provides no content integrity and is trivially replayable |
 
-**Rationale:** Although the practical exploitation risk is low (limited blast radius, low-profile repos, operator review gate), TOTP-in-the-clear for a polling-based pipeline is architecturally unsound. The mechanism cannot deliver on its core promise -- proof of authorized identity -- because the proof material is public and the verification model (batch polling) cannot enforce the one-time-use property that makes TOTP secure. Adopting it would create a false sense of security that might discourage adoption of mechanisms that actually work.
+**Rationale:** TOTP on a public channel fails because the proof material (the code) is exposed to all observers and is not bound to the content it authenticates. An attacker can use a legitimate code to fast-track an arbitrary payload. The NO-GO is not about polling architecture — retroactive validation solves that. The NO-GO is about the fundamental mismatch between a bearer-token auth primitive and a public channel where the token is visible.
 
-**Recommended next step:** Evaluate HMAC-based signatures over the issue body (Question 2a from this spike's research questions). In an HMAC scheme, the shared secret is never revealed in the issue -- only a signature derived from the secret and the issue content is posted. The signature can be verified retroactively at polling time and cannot be replayed for a different issue body, making it naturally resistant to both the replay and batch-verification problems that disqualify TOTP.
+**Recommended next step:** Use a content-bound mechanism where the authentication proof is derived from the issue body itself. HMAC signatures over the issue body are the natural choice — the shared secret is never exposed, and the signature cannot be reused for different content.
 
 **Sources consulted:**
 - RFC 6238 (TOTP), Sections 4.1, 5.2, 6 -- https://datatracker.ietf.org/doc/html/rfc6238
@@ -370,7 +333,7 @@ This allows the filter chain to support multiple mechanisms simultaneously and e
 
 ### Verdict: HMAC-SHA256 with author-allowlist warm path
 
-**TOTP is a NO-GO.** The polling architecture fundamentally breaks TOTP's security model — codes are always expired by polling time, one-time-use is unenforceable in batch processing, and codes posted in public issues are trivially replayable within the 60-90 second window. TOTP provides the appearance of authentication without substance and should not be adopted.
+**TOTP is a NO-GO.** TOTP codes posted in public issues are replayable — any observer can copy the code into a new issue with arbitrary content within the 30-90 second validity window. Worse, TOTP is not content-bound: the same code authenticates any issue body, making it a bearer token for the fast path. Retroactive validation against `created_at` timestamps works fine for the polling architecture, but does nothing about the replayability problem.
 
 **HMAC-SHA256 is the recommended default auth mechanism for the fast path.** It is replay-proof (signature bound to exact issue content), content-bound (body modifications invalidate the signature), low implementation complexity (single function call), and the shared-secret model is acceptable for the current threat profile (single operator, secret stored in GitHub Actions secrets and operator's local config). A CLI helper (`swain intake sign`) reduces operator friction to a single command. The signature is invisible in the GitHub UI (HTML comment footer), keeping issues readable.
 

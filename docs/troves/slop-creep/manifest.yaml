@@ -1,0 +1,40 @@
+trove: slop-creep
+created: 2026-03-16
+refreshed: 2026-03-16T01:00:00Z
+tags:
+- slop-creep
+- sloppypasta
+- enshittification
+- coding-agents
+- code-quality
+- architectural-decay
+- agent-workflow
+- sdlc
+- one-way-doors
+- planning
+- vibe-coding
+- ai-etiquette
+- effort-asymmetry
+- trust
+- cognitive-debt
+
+freshness-ttl:
+  web: 14d
+  media: never
+
+referenced-by: []
+
+sources:
+  - source-id: boristane-slop-creep-enshittification
+    type: web
+    url: "https://boristane.com/blog/slop-creep-enshittification-of-software/"
+    fetched: 2026-03-16T00:00:00Z
+    title: "Slop Creep: The Great Enshittification of Software"
+    hash: "a8b82c0ffd62dc48bdcd10b5e71e23bae1af23f5c15985ebafc5ee5b48b5ae1a"
+
+  - source-id: stopsloppypasta-ai
+    type: web
+    url: "https://stopsloppypasta.ai/"
+    fetched: 2026-03-16T00:00:00Z
+    title: "Stop Sloppypasta: Don't paste raw LLM output at people"
+    hash: "ff9e90adccefa95fde9b84f1bd058c83e4712f0dad799e37119df56360949fe3"

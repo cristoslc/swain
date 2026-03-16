@@ -9,4 +9,5 @@
 | ADR-003 | Normalize Artifact Lifecycle to Three Tracks | 2026-03-13 | — |
 | ADR-004 | Rewrite Specgraph in Python | 2026-03-14 | 8783f9a |
 | ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-14 | — |
+| ADR-006 | Trove Analysis Layer | 2026-03-16 | — |
 

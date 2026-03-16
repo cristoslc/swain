@@ -7,6 +7,7 @@
 | SPEC-052 | Vision-Rooted Chart Hierarchy | 2026-03-15 | — |
 | SPEC-053 | Namespace Swain Docs Directory | 2026-03-15 | — |
 | SPEC-054 | Project Identity Enforcement | 2026-03-16 | — |
+| SPEC-055 | Trove Analysis Layer | 2026-03-16 | — |
 
 ## Complete
 

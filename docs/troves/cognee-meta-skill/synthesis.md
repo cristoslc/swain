@@ -35,16 +35,34 @@ The skill parser supports multiple community formats (Anthropic, OpenClaw, murat
 
 cognee-skills can be used via: (a) Claude Code / MCP IDEs with zero code, (b) Python SDK for custom workflows, (c) CLI for terminal/CI, (d) MCP programmatically for custom agents. All four expose the same capabilities. [002]
 
+### 5. Anthropic's Official Skill Testing Framework (skill-creator)
+
+Anthropic released skill-creator enhancements (March 2026) that bring evals, benchmarking, and description tuning to SKILL.md authoring — no coding required. [017]
+
+**Two skill categories with different testing needs:**
+- **Capability uplift skills** encode techniques beyond the base model. Evals detect when model improvements make them obsolete.
+- **Encoded preference skills** sequence existing capabilities per team process. Evals verify fidelity to the actual workflow.
+
+**Key capabilities:**
+- **Evals**: Test prompts + expected-output descriptions. Skill-creator reports pass/fail. Example: the PDF skill's non-fillable form bug was isolated and fixed via evals.
+- **Benchmark mode**: Standardized assessment tracking pass rate, elapsed time, and token usage. Runnable after model updates or skill iterations. Results are local — storable, dashboardable, CI-integrable.
+- **Multi-agent parallel eval**: Independent agents run evals concurrently in clean contexts. No cross-contamination from accumulated context.
+- **Comparator agents**: Blind A/B comparison between two skill versions, or skill vs. no skill. Judges don't know which output came from which version.
+- **Description tuning**: Analyzes skill descriptions against sample prompts, suggests edits to reduce false positives and false negatives. Improved triggering on 5/6 public document-creation skills.
+
+**Forward-looking insight**: As models improve, SKILL.md may evolve from "implementation plan" (how to do it) to "specification" (what to do). Evals already describe the "what" — eventually, that description may *be* the skill itself. [017]
+
 ## Points of Agreement
 
-- **Skills need feedback loops**: Both cognee-skills and the broader skills ecosystem recognize that static instructions degrade over time. The Anthropic skill-creator adds eval-based description optimization; cognee-skills extends this to runtime self-repair. [004, 007]
+- **Skills need feedback loops**: Both cognee-skills and the broader skills ecosystem recognize that static instructions degrade over time. The Anthropic skill-creator adds eval-based quality testing and description optimization; cognee-skills extends this to runtime self-repair. [004, 007, 017]
 - **SKILL.md as the interchange format**: All sources agree on SKILL.md with YAML frontmatter as the standard. cognee-skills consumes the same format but adds a graph persistence layer on top. [001, 004, 007]
 - **Progressive disclosure matters**: Both Claude Code's native architecture and cognee-skills use lazy loading — metadata first, full instructions only when needed. [004, 003]
+- **Testing separates "seems to work" from "known to work"**: Both Anthropic's eval framework and cognee-skills' execution scoring aim to provide objective quality signals rather than relying on subjective assessment. [017, 003]
 
 ## Points of Disagreement
 
-- **Where intelligence lives**: Claude Code's native skills put all routing intelligence in the LLM (pure reasoning over descriptions). cognee-skills argues this is insufficient — you need learned preferences from execution history to route well. Neither approach has published head-to-head benchmarks. [004, 003]
-- **Evaluation scope**: cognee-skills evaluates output usefulness via a second LLM call. The native Claude Code architecture has no built-in quality signal — it relies on user feedback or the agent's own judgment. Whether the overhead of a second LLM call per execution is worth it depends on the use case. [003, 004]
+- **Where intelligence lives**: Claude Code's native skills put all routing intelligence in the LLM (pure reasoning over descriptions). cognee-skills argues this is insufficient — you need learned preferences from execution history to route well. Anthropic's skill-creator approaches routing from the description-tuning side rather than learned weights. Neither approach has published head-to-head benchmarks. [004, 003, 017]
+- **Evaluation scope**: cognee-skills evaluates output usefulness via a second LLM call on every run. Anthropic's skill-creator uses evals as an authoring-time tool (run manually or in CI), not a runtime feedback loop. The cognee approach is more automatic but adds latency; the Anthropic approach is lighter but requires author initiative. [003, 017]
 - **Graph vs file as source of truth**: cognee-skills stores the "real" skill in the graph (amendments update the graph node, not necessarily the SKILL.md file). The rest of the ecosystem treats the file as the source of truth. This creates potential divergence — the graph can evolve away from the file on disk. [003]
 
 ## Gaps
@@ -54,7 +72,8 @@ cognee-skills can be used via: (a) Claude Code / MCP IDEs with zero code, (b) Py
 3. **Evaluation model reliability**: The quality evaluator uses the same LLM config as execution. If the evaluator is unreliable, the entire improvement loop could amplify noise rather than signal.
 4. **No cross-session learning for routing**: While `prefers` weights persist in the graph, there's no mechanism to transfer learned preferences between different cognee instances or share them across teams.
 5. **SKILL.md ↔ graph drift**: When amendify changes instructions in the graph but doesn't write to disk (the default), the file and graph diverge. There's no reconciliation mechanism for this drift.
-6. **Comparison with swain's skill-creator eval system**: The Anthropic skill-creator has a description-optimization eval loop (train/test split, trigger rate measurement) that targets a different problem — when skills get triggered — rather than whether they produce good output. These could be complementary.
+6. **Bridging cognee and skill-creator**: cognee-skills does runtime self-improvement; Anthropic's skill-creator does authoring-time eval + description tuning. A combined approach — using skill-creator evals as the scoring function for cognee's amendment loop — is an obvious but unexplored integration point. [003, 017]
+7. **Eval portability**: Anthropic's skill-creator evals are described as local/storable but the exact format and schema for eval definitions isn't documented in the blog post. Whether cognee-skills could consume them as scoring criteria is unclear.
 
 ## Raw Source Coverage (added 2026-03-15)
 
@@ -73,3 +92,7 @@ Sources 008-016 contain the verbatim Python source code from `cognee/cognee_skil
 | 016 | `tests/` | Unit tests for parser, execute, inspect, amendify — documents expected behavior |
 
 These sources complement the analytical summary in source 003 by providing the actual implementation code for direct reference and code-level comparison.
+
+## Anthropic skill-creator (added 2026-03-16)
+
+Source 017 covers Anthropic's official skill-creator enhancements — the first-party tooling for testing, benchmarking, and improving SKILL.md files. This provides the "official" counterpart to cognee-skills' third-party self-improvement approach.
