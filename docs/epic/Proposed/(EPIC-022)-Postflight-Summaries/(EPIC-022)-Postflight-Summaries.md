@@ -20,7 +20,7 @@ depends-on-artifacts:
   - SPIKE-024
 addresses:
   - "github:cristoslc/swain#51"
-evidence-pool: ""
+trove: ""
 ---
 
 # Postflight Summaries

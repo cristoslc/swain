@@ -16,7 +16,7 @@ success-criteria:
   - swain-doctor validates worktree health — detects broken hooks, stale bookmarks, orphaned worktrees, and path resolution failures
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Worktree-Safe Skill Execution

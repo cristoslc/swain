@@ -16,7 +16,7 @@ success-criteria:
   - skill-creator is used to apply model steering instructions to skill files
   - Consumers running unsupported runtimes receive a graceful no-op (no errors, best-effort behavior)
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts: []
 depends-on-artifacts:
   - EPIC-006

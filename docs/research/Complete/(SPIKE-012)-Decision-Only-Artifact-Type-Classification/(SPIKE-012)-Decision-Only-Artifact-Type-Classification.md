@@ -14,7 +14,7 @@ risks-addressed:
 linked-artifacts:
   - SPEC-010
   - EPIC-006
-evidence-pool: ""
+trove: ""
 ---
 
 # Decision-Only Artifact Type Classification

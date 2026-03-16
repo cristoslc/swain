@@ -13,7 +13,7 @@ risks-addressed:
   - MicroVMs (Firecracker, QEMU) add startup latency and complexity that may not be justified for an interactive CLI
   - Must work on both macOS and Linux; Windows assumed via WSL (Linux path)
   - macOS and Linux have different virtualization stacks — mechanisms that work natively on one may need shims on the other
-evidence-pool:
+trove:
   - microvm-research-findings.md
   - lightweight-sandbox-research-findings.md
 linked-artifacts: []

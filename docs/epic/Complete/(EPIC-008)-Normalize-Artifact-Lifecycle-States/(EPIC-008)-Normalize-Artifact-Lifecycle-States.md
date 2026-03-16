@@ -18,7 +18,7 @@ success-criteria:
   - swain-doctor detects old phase directories and offers migration
   - Existing artifacts migrated to new phase names with git history preserved
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "github:cristoslc/swain#25"
 linked-artifacts:
   - ADR-003

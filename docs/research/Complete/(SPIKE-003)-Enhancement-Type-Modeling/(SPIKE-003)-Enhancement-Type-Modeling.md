@@ -11,7 +11,7 @@ gate: Pre-Implementation
 risks-addressed:
   - Wrong abstraction leads to process overhead that defeats the purpose of lightweight enhancements
   - Type proliferation makes the artifact model harder to learn and maintain
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-002
 ---
@@ -73,7 +73,7 @@ If neither option is clean, consider a third path: keep BUG but broaden its sema
 
 ### Thread 1: Audit of existing artifacts
 
-- **SPEC-002 (evidencewatch)** is enhancement-shaped — a modest monitoring script that could be delivered as a lightweight task within SPEC-001 rather than requiring full spec ceremony.
+- **SPEC-002 (trovewatch)** is enhancement-shaped — a modest monitoring script that could be delivered as a lightweight task within SPEC-001 rather than requiring full spec ceremony.
 - **9 of 10 open GitHub issues** are enhancement-shaped (small improvements, not defects). Only #8 (malformed hyperlinks) is a true bug.
 - **Zero BUG artifacts exist** — `docs/bug/` directory doesn't exist yet.
 - Conclusion: enhancement-type work is the most common category of incoming work. The need is real and frequent.

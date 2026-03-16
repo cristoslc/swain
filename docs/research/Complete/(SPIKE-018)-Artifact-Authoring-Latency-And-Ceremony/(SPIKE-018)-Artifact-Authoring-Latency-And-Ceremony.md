@@ -12,7 +12,7 @@ gate: Pre-EPIC-014
 risks-addressed:
   - Ceremony cost exceeds value for simple artifacts, reducing willingness to file
   - Skipping the wrong checks causes quality regressions
-evidence-pool: ""
+trove: ""
 ---
 
 # Artifact Authoring Latency and Ceremony Audit

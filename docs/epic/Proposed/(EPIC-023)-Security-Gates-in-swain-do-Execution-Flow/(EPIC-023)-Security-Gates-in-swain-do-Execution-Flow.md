@@ -18,7 +18,7 @@ success-criteria:
   - Security findings at task completion are filed as new tk issues, not silently dropped
 depends-on-artifacts:
   - EPIC-017
-evidence-pool: "security-skill-landscape"
+trove: "security-skill-landscape"
 addresses: []
 ---
 

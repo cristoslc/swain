@@ -11,7 +11,7 @@ gate: Pre-decision
 risks-addressed:
   - Redundant maintenance of two overlapping skill ecosystems
   - Missing best-in-class agent alignment techniques
-evidence-pool:
+trove:
 linked-artifacts:
   - EPIC-004
 ---

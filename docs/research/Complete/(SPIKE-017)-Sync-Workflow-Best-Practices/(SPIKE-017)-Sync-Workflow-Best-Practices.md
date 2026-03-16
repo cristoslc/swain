@@ -13,7 +13,7 @@ risks-addressed:
   - Over-engineering the sync workflow with rarely useful checks
 linked-artifacts:
   - EPIC-012
-evidence-pool: ""
+trove: ""
 ---
 
 # Sync Workflow Best Practices

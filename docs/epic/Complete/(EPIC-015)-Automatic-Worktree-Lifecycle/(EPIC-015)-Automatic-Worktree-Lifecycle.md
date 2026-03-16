@@ -15,7 +15,7 @@ success-criteria:
   - An operator can run swain-do, work in the resulting worktree, and invoke swain-sync with no manual git worktree commands
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Automatic Worktree Lifecycle

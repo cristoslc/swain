@@ -13,7 +13,7 @@ linked-artifacts:
   - SPEC-037
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

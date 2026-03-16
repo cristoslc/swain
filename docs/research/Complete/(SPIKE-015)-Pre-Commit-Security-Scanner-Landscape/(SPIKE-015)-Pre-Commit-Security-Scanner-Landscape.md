@@ -13,7 +13,7 @@ risks-addressed:
   - Incomplete coverage with a single scanner
 linked-artifacts:
   - EPIC-012
-evidence-pool: ""
+trove: ""
 ---
 
 # Pre-Commit Security Scanner Landscape

@@ -19,7 +19,7 @@ success-criteria:
 depends-on-artifacts:
   - SPIKE-022
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Multi-Agent Workdir Safety

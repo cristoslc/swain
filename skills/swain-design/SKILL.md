@@ -130,9 +130,9 @@ Read [references/superpowers-integration.md](references/superpowers-integration.
 
 Phases are waypoints, not mandatory gates — artifacts may skip forward. Read [references/phase-transitions.md](references/phase-transitions.md) for phase skipping rules, the transition workflow (validate → move → commit → hash stamp), verification/review gates, and completion rules.
 
-## Evidence pool integration
+## Trove integration
 
-During research phase transitions (Spike Proposed → Active, ADR Proposed → Active, Vision/Epic creation), check for existing evidence pools and offer to link or create one. Read [references/evidence-pool-integration.md](references/evidence-pool-integration.md) for the full hook, pool scanning, and back-link maintenance procedures.
+During research phase transitions (Spike Proposed -> Active, ADR Proposed -> Active, Vision/Epic creation), check for existing troves and offer to link or create one. Read [references/trove-integration.md](references/trove-integration.md) for the full hook, trove scanning, and back-link maintenance procedures.
 
 ## Execution tracking handoff
 
