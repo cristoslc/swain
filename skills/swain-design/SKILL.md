@@ -1,6 +1,6 @@
 ---
 name: swain-design
-description: Create, validate, and transition documentation artifacts (Vision, Epic, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC; decomposes EPIC/VISION/JOURNEY into children first.
+description: Create, validate, and transition documentation artifacts (Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, initiative creation, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC; decomposes EPIC/VISION/INITIATIVE/JOURNEY into children first.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Skill
 metadata:
@@ -23,14 +23,52 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 | Type | What it is | Definition | Template |
 |------|-----------|-----------|----------|
 | Product Vision (VISION-NNN) | Top-level product direction — goals, audience, and success metrics for a competitive or personal product. | [definition](references/vision-definition.md) | [template](references/vision-template.md.template) |
+| Initiative (INITIATIVE-NNN) | Strategic grouping of Epics under a Vision — provides a mid-level container for prioritization and decision tracking. | [definition](references/initiative-definition.md) | [template](references/initiative-template.md.template) |
 | User Journey (JOURNEY-NNN) | End-to-end user workflow with pain points that drive epics and specs. | [definition](references/journey-definition.md) | [template](references/journey-template.md.template) |
-| Epic (EPIC-NNN) | Large deliverable under a vision — groups related specs with success criteria. | [definition](references/epic-definition.md) | [template](references/epic-template.md.template) |
+| Epic (EPIC-NNN) | Large deliverable under a vision or initiative — groups related specs with success criteria. | [definition](references/epic-definition.md) | [template](references/epic-template.md.template) |
 | Agent Spec (SPEC-NNN) | Technical implementation specification with acceptance criteria. Supports `type: feature \| enhancement \| bug`. Parent epic is optional. | [definition](references/spec-definition.md) | [template](references/spec-template.md.template) |
 | Research Spike (SPIKE-NNN) | Time-boxed investigation with a specific question and completion gate. | [definition](references/spike-definition.md) | [template](references/spike-template.md.template) |
 | Persona (PERSONA-NNN) | Archetypal user profile that informs journeys and specs. | [definition](references/persona-definition.md) | [template](references/persona-template.md.template) |
 | ADR (ADR-NNN) | Single architectural decision — context, choice, alternatives, and consequences (Nygard format). | [definition](references/adr-definition.md) | [template](references/adr-template.md.template) |
 | Runbook (RUNBOOK-NNN) | Step-by-step operational procedure (agentic or manual) with a defined trigger. | [definition](references/runbook-definition.md) | [template](references/runbook-template.md.template) |
 | Design (DESIGN-NNN) | UI/UX interaction design — wireframes, flows, and state diagrams for user-facing surfaces. | [definition](references/design-definition.md) | [template](references/design-template.md.template) |
+
+## Choosing the right artifact type
+
+When the user's request doesn't name a specific type, infer it from their intent:
+
+| User intent | Artifact | Signal words |
+|-------------|----------|-------------|
+| Product direction, why we exist | **Vision** | "product direction", "what should we build", "north star" |
+| Strategic direction, group related work | **Initiative** | "focus on", "security effort", "group these epics", "strategic", "track" |
+| Ship a feature or deliverable | **Epic** | "build X", "add Y feature", "implement Z" |
+| One implementation unit | **Spec** | "fix this", "add a flag", "refactor", "small change", "bug" |
+| Research question | **Spike** | "should we", "investigate", "compare options", "what's the best way" |
+| Record a decision | **ADR** | "decided to", "choosing between", "why did we" |
+
+**Initiative vs Epic** — the key distinction:
+- **Initiative**: a *direction* with multiple deliverables. "Harden security" is an initiative — it spans scanning, gates, policies. The operator steers it.
+- **Epic**: a *deliverable* with multiple specs. "Build the scanning tool" is an epic — it has clear completion criteria. Agents execute it.
+- **Rule of thumb**: if the work needs 2+ epics to describe, it's an Initiative. If it needs 2+ specs, it's an Epic. If it's one spec, just create the spec.
+
+**Spec under Initiative (small work path)** — bugs, minor enhancements, and chores that relate to an Initiative's direction but don't warrant an Epic can attach directly to the Initiative via `parent-initiative`. If small work clusters, suggest promoting it to an Epic.
+
+## Updating artifact metadata
+
+When the operator asks to update a field on an existing artifact (e.g., "set VISION-001 priority to high", "re-parent EPIC-017 under INITIATIVE-001"):
+
+1. Read the artifact's definition file to confirm the field name and valid values
+2. Edit the frontmatter field directly (e.g., `priority-weight: high`)
+3. Update the `last-updated` date
+4. Run `specgraph build` to refresh the graph cache
+5. Commit the change
+
+**Common updates:**
+- `priority-weight` on Visions and Initiatives — accepts `high`, `medium`, or `low`. Affects downstream recommendation scoring.
+- `parent-initiative` on Epics and Specs — re-parents them under an Initiative. A Spec can have `parent-epic` OR `parent-initiative`, never both.
+- `parent-vision` on Initiatives — attaches to a Vision.
+
+When the operator says "priority" or "weight" in the context of a Vision or Initiative, they mean the `priority-weight` frontmatter field.
 
 ## Creating artifacts
 
@@ -50,7 +88,7 @@ Before running the full authoring ceremony, classify the artifact into a complex
 **Medium/High complexity (full ceremony)**:
 - Feature SPECs (`type: feature`)
 - Any SPEC or SPIKE with a `parent-epic`
-- EPICs, Visions, Journeys, ADRs — always full ceremony
+- EPICs, INITIATIVEs, Visions, Journeys, ADRs — always full ceremony
 - Any artifact where the user describes significant architectural decisions
 
 When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope check, index update`
@@ -76,7 +114,7 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
 
 When superpowers is installed, the following chains are **mandatory** — invoke the skills, do not skip them or do the work inline:
 
-1. **Before creating Vision or Persona artifacts:** Invoke the `brainstorming` skill for Socratic exploration. Pass the artifact context (goals, audience, constraints). Capture brainstorming output into swain's artifact format with proper frontmatter and lifecycle table.
+1. **Before creating Vision, Initiative, or Persona artifacts:** Invoke the `brainstorming` skill for Socratic exploration. Pass the artifact context (goals, audience, constraints). Capture brainstorming output into swain's artifact format with proper frontmatter and lifecycle table.
 
 2. **When a SPEC comes up for implementation:** Invoke `brainstorming` with the SPEC's acceptance criteria and scope. Brainstorming chains into `writing-plans` automatically. After `writing-plans` saves a plan file, invoke swain-do for plan ingestion.
 

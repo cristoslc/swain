@@ -162,6 +162,21 @@ class TestBuildGraph:
         assert len(data["nodes"]) == 1
         assert "SPEC-001" in data["nodes"]
 
+    def test_parent_initiative_edge(self, tmp_path):
+        docs = tmp_path / "docs"
+        docs.mkdir()
+        (docs / "initiative.md").write_text(
+            '---\ntitle: "Initiative"\nartifact: INITIATIVE-001\nstatus: Active\n---\n# Initiative\n'
+        )
+        (docs / "epic.md").write_text(
+            '---\ntitle: "Epic"\nartifact: EPIC-001\nstatus: Active\n'
+            "parent-initiative: INITIATIVE-001\n---\n# Epic\n"
+        )
+
+        data = build_graph(tmp_path)
+        edge_tuples = {(e["from"], e["to"], e["type"]) for e in data["edges"]}
+        assert ("EPIC-001", "INITIATIVE-001", "parent-initiative") in edge_tuples
+
     def test_skips_empty_refs(self, tmp_path):
         """Empty, null, tilde values should not create edges."""
         docs = tmp_path / "docs"
@@ -186,6 +201,24 @@ class TestBuildGraph:
         data = build_graph(tmp_path)
         assert "VISION-001" in data["nodes"]
         assert data["nodes"]["VISION-001"]["priority_weight"] == "high"
+
+
+def test_dual_parent_spec_produces_xref_warning():
+    """A spec with both parent-epic and parent-initiative produces a warning in xref."""
+    import tempfile, os
+    from pathlib import Path
+    from specgraph.graph import build_graph
+    with tempfile.TemporaryDirectory() as tmpdir:
+        docs = os.path.join(tmpdir, "docs", "spec", "Ready")
+        os.makedirs(docs)
+        spec_dir = os.path.join(docs, "(SPEC-099)-Dual-Parent")
+        os.makedirs(spec_dir)
+        with open(os.path.join(spec_dir, "(SPEC-099)-Dual-Parent.md"), "w") as f:
+            f.write("---\ntitle: Dual Parent\nartifact: SPEC-099\nstatus: Ready\nparent-epic: EPIC-001\nparent-initiative: INITIATIVE-001\n---\nBody.\n")
+        result = build_graph(Path(tmpdir))
+        # Check for dual-parent warning in xref
+        warnings = [x for x in result.get("xref", []) if x.get("artifact") == "SPEC-099"]
+        assert any(w.get("dual_parent") for w in warnings), f"Expected dual_parent warning, got: {warnings}"
 
 
 class TestCacheIO:

@@ -203,7 +203,7 @@ def edges_cmd(
 # Parent-edge types used by scope/impact for hierarchy traversal
 # ---------------------------------------------------------------------------
 
-_PARENT_EDGE_TYPES = frozenset({"parent-epic", "parent-vision"})
+_PARENT_EDGE_TYPES = frozenset({"parent-epic", "parent-vision", "parent-initiative"})
 
 # Lateral edge types shown in scope's Laterals section
 _LATERAL_EDGE_TYPES = frozenset({"linked-artifact", "addresses", "validates", "superseded-by"})
@@ -409,7 +409,7 @@ def impact(
 # ---------------------------------------------------------------------------
 
 # Edge types always included in mermaid output
-_MERMAID_CORE_EDGE_TYPES = frozenset({"depends-on", "parent-epic", "parent-vision"})
+_MERMAID_CORE_EDGE_TYPES = frozenset({"depends-on", "parent-epic", "parent-vision", "parent-initiative"})
 
 
 def mermaid_cmd(nodes: dict, edges: list[dict], show_all: bool = False, all_edges: bool = False) -> str:

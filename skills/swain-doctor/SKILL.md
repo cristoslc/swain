@@ -199,6 +199,112 @@ Do not remove any worktree automatically. All output is advisory.
 - **ok** — no linked worktrees, or all are active
 - **warning** — one or more stale or orphaned worktrees found (provide cleanup commands per item)
 
+## Epics without parent-initiative (migration advisory)
+
+This is a non-blocking advisory check. It does not gate any other checks.
+
+### Detection
+
+```bash
+# Find Active EPICs that have a parent-vision but no parent-initiative field
+grep -rl "parent-vision:" docs/epic/ 2>/dev/null | while read f; do
+  if ! grep -q "parent-initiative:" "$f"; then
+    echo "$f"
+  fi
+done
+```
+
+### Response
+
+If any EPICs are found without `parent-initiative`:
+
+> **Advisory:** N Epic(s) have a `parent-vision` but no `parent-initiative`. The INITIATIVE artifact type is now available as a mid-level container between Vision and Epic. Adding `parent-initiative` links is optional but recommended for projects using prioritization features (`specgraph recommend`, `specgraph decision-debt`).
+>
+> To add the link, edit each Epic's frontmatter and add:
+> ```yaml
+> parent-initiative: INITIATIVE-NNN
+> ```
+>
+> This check is informational — no action required. To run the guided migration, ask: "how do I fix the initiative migration?" or "run the initiative migration".
+
+### Guided migration workflow
+
+**When the operator asks to run the migration** (or says "how do I fix the initiative migration?"), guide them through these steps:
+
+#### Step 1: Scan and group
+
+Run the scan helper to list all epics without `parent-initiative`, grouped by `parent-vision`:
+
+```bash
+bash skills/swain-doctor/scripts/swain-initiative-scan.sh
+```
+
+Analyze the output and propose initiative clusters. For example:
+
+> "Under VISION-001, you have 8 epics. I'd suggest grouping them into 2-3 initiatives based on theme:
+> - **Security Hardening**: EPIC-017, EPIC-023 (both security-related)
+> - **Developer Experience**: EPIC-016, EPIC-019, EPIC-022 (workflow improvements)
+> - **Product Design**: EPIC-021 (standalone strategic bet)
+>
+> Does this grouping work, or would you like to adjust?"
+
+Proposals are suggestions, not commitments. Base clustering on epic titles, descriptions, and shared themes visible in the scan output.
+
+#### Step 2: Operator decides
+
+The operator approves, adjusts, or rejects each proposed cluster. This is a vision-mode decision — don't rush it. Present one vision's worth of clusters at a time if there are many.
+
+#### Step 3: Create initiatives
+
+For each approved cluster, invoke swain-design to create an Initiative artifact:
+
+- Set `parent-vision` to the vision these epics belong to
+- Set `priority-weight` if the operator specifies one (otherwise omit — it inherits from the vision)
+- List the child epics in the "Child Epics" section of the initiative document
+
+#### Step 4: Re-parent epics
+
+For each epic in an approved cluster, add `parent-initiative: INITIATIVE-NNN` to its frontmatter. During the migration period, `parent-vision` can remain alongside `parent-initiative` — specgraph accepts both and resolves the vision ancestor through whichever path exists.
+
+```yaml
+# Before
+parent-vision: VISION-001
+
+# After (during migration — both fields coexist)
+parent-vision: VISION-001
+parent-initiative: INITIATIVE-001
+```
+
+#### Step 5: Set vision weights
+
+Prompt the operator to set `priority-weight` on their visions if not already set:
+
+```yaml
+priority-weight: high    # active strategic focus
+priority-weight: medium  # maintained, progressing (default if omitted)
+priority-weight: low     # parked, not abandoned
+```
+
+They can defer — everything defaults to `medium` and the system works without weights.
+
+#### Step 6: Verify
+
+Run specgraph to verify the new hierarchy looks correct:
+
+```bash
+bash skills/swain-design/scripts/specgraph.sh overview
+bash skills/swain-design/scripts/specgraph.sh recommend
+```
+
+Check that initiatives appear in the tree and that recommendations reflect the new structure.
+
+**Migration is incremental.** The operator can migrate one vision's epics at a time. Unmigrated epics continue to work — they just show this advisory on each session start.
+
+### Status values
+
+- **ok** — all Active EPICs already have `parent-initiative`, or no EPICs exist
+- **advisory** — one or more Active EPICs lack `parent-initiative` (non-blocking)
+
 ## Summary report
 
 After all checks complete, output a concise summary table:
@@ -217,6 +323,8 @@ swain-doctor summary:
   .agents directory .. ok
   Status cache ....... seeded
   tk health .......... ok
+  Lifecycle dirs ..... ok
+  Epics w/o initiative advisory (3 epics — see note below)
   Worktrees .......... ok
   Superpowers ........ ok (6/6 skills detected)
 

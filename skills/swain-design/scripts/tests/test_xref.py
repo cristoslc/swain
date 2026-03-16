@@ -566,6 +566,23 @@ class TestCmdXrefJsonFlag:
         assert "Cross-Reference Gaps" not in output
 
 
+def test_collect_frontmatter_ids_includes_parent_initiative():
+    """parent-initiative scalar is collected by collect_frontmatter_ids."""
+    from specgraph.xref import collect_frontmatter_ids
+    fm = {"parent-initiative": "INITIATIVE-001"}
+    ids = collect_frontmatter_ids(fm)
+    assert "INITIATIVE-001" in ids
+
+
+def test_spec_with_parent_initiative_no_parent_epic_is_valid():
+    """A spec can have parent-initiative without parent-epic (small work path)."""
+    from specgraph.xref import collect_frontmatter_ids
+    fm = {"parent-initiative": "INITIATIVE-001", "title": "Fix bug"}
+    ids = collect_frontmatter_ids(fm)
+    assert "INITIATIVE-001" in ids
+    # No parent-epic — that's fine for small work
+
+
 class TestCmdXrefMixedResults:
     """cmd_xref with all gap types present shows all three sections."""
 

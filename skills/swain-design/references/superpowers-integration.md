@@ -19,6 +19,7 @@ When superpowers is detected AND a new artifact is being created, route through 
 | Artifact type | Brainstorming? | Rationale |
 |---------------|---------------|-----------|
 | **Vision** | Yes — full Socratic | Visions benefit from deep interrogation of goals, audience, and success metrics |
+| **Initiative** | Yes — focused Socratic | Initiatives need exploration of strategic focus, scope boundaries, and child epic grouping |
 | **Persona** | Yes — full Socratic | Personas need probing to avoid shallow archetypes |
 | **Epic** | Quick draft first, then offer | Epics often have enough context from their parent Vision |
 | **Story** | No | Stories are derived from Epics/Journeys — the thinking already happened |
