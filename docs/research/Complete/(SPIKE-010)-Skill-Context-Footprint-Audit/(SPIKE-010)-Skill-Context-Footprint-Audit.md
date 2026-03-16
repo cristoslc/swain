@@ -13,7 +13,7 @@ risks-addressed:
   - Content that looks redundant may actually be load-bearing for agent behavior
 linked-artifacts:
   - EPIC-006
-evidence-pool: ""
+trove: ""
 ---
 
 # Skill Context Footprint Audit

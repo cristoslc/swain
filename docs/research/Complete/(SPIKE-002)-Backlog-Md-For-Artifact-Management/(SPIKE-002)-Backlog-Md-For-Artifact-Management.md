@@ -14,7 +14,7 @@ risks-addressed:
   - Phase transitions require git mv of directories
   - Separate index files (list-*.md) that drift from source of truth
   - No visual board for artifact status
-evidence-pool: ""
+trove: ""
 linked-artifacts: []
 ---
 

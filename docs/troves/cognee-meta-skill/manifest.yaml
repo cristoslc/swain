@@ -1,0 +1,186 @@
+trove: cognee-meta-skill
+created: 2026-03-15
+refreshed: 2026-03-15T21:15:00Z
+tags:
+- cognee
+- meta-skill
+- skill-self-improvement
+- amendify
+- knowledge-graph
+- agent-memory
+- skill-routing
+- claude-code-skills
+- SKILL.md
+
+freshness-ttl:
+  web: 14d
+  local: 30d
+
+referenced-by: []
+
+sources:
+- source-id: 001-cognee-meta-skill-md
+  type: local
+  url: "https://github.com/topoteretes/cognee/blob/demo/graphskill_COG-4178/cognee/cognee_skills/meta-skill/SKILL.md"
+  fetched: 2026-03-15T21:05:00Z
+  title: "cognee meta-skill SKILL.md — Skill Self-Improvement"
+  hash: "642ab6082d03b0ab7a4cb9bf20614c24e96c6d28c7fbe8217409fca90fb73ace"
+
+  highlights: []
+  selective: false
+- source-id: 002-cognee-skills-readme
+  type: local
+  url: "https://github.com/topoteretes/cognee/blob/demo/graphskill_COG-4178/cognee/cognee_skills/README.md"
+  fetched: 2026-03-15T21:05:00Z
+  title: "cognee-skills README — Full Documentation"
+  hash: "0f05567beaafbea0952f3aa2aba8ce2a17218a36ee289c2e9b2b5bb2545876c5"
+
+  highlights: []
+  selective: false
+- source-id: 003-cognee-skills-architecture
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills"
+  fetched: 2026-03-15T21:05:00Z
+  title: "cognee-skills Python Architecture — Models, Pipeline, Router, and Client"
+  hash: "f92dc4c6c6a8ec79e269ea571020a5800f52d788f682342568d82c526e50b884"
+  notes: "Comprehensive analysis of all Python modules: models, parser, pipeline,
+    client, retrieve, execute, observe, inspect, amendify, preview_amendify"
+
+  highlights: []
+  selective: false
+- source-id: 004-claude-skills-deep-dive
+  type: web
+  url: "https://leehanchung.github.io/blogs/2025/10/26/claude-skills-deep-dive/"
+  fetched: 2026-03-15T21:06:00Z
+  title: "Claude Agent Skills: A First Principles Deep Dive"
+  hash: "9d28aec77f3523fc433c303df1ac55c66d5d7dcf9ed716ba9a5f3b324c8bf20a"
+
+  highlights: []
+  selective: false
+- source-id: 005-cognee-skills-examples
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills/example"
+  fetched: 2026-03-15T21:05:00Z
+  title: "cognee-skills Example Skills and Test Harness"
+  hash: "072f8ebab4722009132b9ce2e01d9c44e6642e83025b37046895febd9e5519dc"
+  notes: "Includes deliberately broken team-comms skill for self-improvement demo"
+
+  highlights: []
+  selective: false
+- source-id: 006-cognee-memory-architecture
+  type: web
+  url: "https://www.cognee.ai/blog/fundamentals/how-cognee-builds-ai-memory"
+  fetched: 2026-03-15T21:06:00Z
+  title: "Cognee AI Memory Architecture — Knowledge Engine Overview"
+  hash: "1741a6bdad522ad850dbe90e89021b8ea2636643950f0a8d9ebf2d0ef4ca2bec"
+
+  highlights: []
+  selective: false
+- source-id: 007-skill-ecosystem-landscape
+  type: web
+  url: "https://code.claude.com/docs/en/skills"
+  fetched: 2026-03-15T21:06:00Z
+  title: "SKILL.md Ecosystem — Claude Code Skills Landscape and Meta-Skill Patterns"
+  hash: "ec998f759751a55ff5577e2afa95a9197adfc0d0032f15fcf399a525aff8a54f"
+
+  highlights: []
+  selective: false
+- source-id: 008-src-client
+  type: local
+  url: "https://github.com/topoteretes/cognee/blob/demo/graphskill_COG-4178/cognee/cognee_skills/client.py"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — client.py (Skills class orchestrator)"
+  hash: "d5f078b04ba268c0f6a6fb10a034bca4fe01aee4558019f5a4600519c4d65bfc"
+  notes: "669 lines — Skills class, the main orchestrator tying together routing,
+    execution, observation, and self-amendifying"
+
+  highlights: []
+  selective: false
+- source-id: 009-src-execute-observe
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — execute.py + observe.py (execution and observation)"
+  hash: "095dee4703c66fcdfd66f41b42af8567012b71c1a91d50cdd3d6b20a66416e91"
+  notes: "execute_skill() + evaluate_output() + record_skill_run() + prefers weight
+    update"
+
+  highlights: []
+  selective: false
+- source-id: 010-src-inspect-preview-amendify
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — inspect.py + preview_amendify.py + amendify.py (self-improvement
+    loop)"
+  hash: "269e952a0e9e9b4826ad0dddd9039de0658320f3c5549b4c7b1367cae18ad999"
+  notes: "The complete self-improvement loop: inspect failures → generate amended
+    instructions → apply/rollback/evaluate"
+
+  highlights: []
+  selective: false
+- source-id: 011-src-pipeline-retrieve
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — pipeline.py + retrieve.py (ingestion and retrieval)"
+  hash: "e17b61c9d61ed1f3825c5b41c702ca900800285858a485f650af31b85db62b76"
+  notes: "Ingestion pipeline (parse→enrich→materialize→store) + hybrid vector+graph
+    retrieval with prefers boosting"
+
+  highlights: []
+  selective: false
+- source-id: 012-src-parser
+  type: local
+  url: "https://github.com/topoteretes/cognee/blob/demo/graphskill_COG-4178/cognee/cognee_skills/parser/skill_parser.py"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — parser/skill_parser.py (multi-format SKILL.md parser)"
+  hash: "6dbe035ce78005a55b40c51f6a0c8c80d72c6195e2c6f292cd84c8ce850fccd2"
+  notes: "Supports Anthropic, OpenClaw, muratcankoylan formats with extensive alias
+    handling"
+
+  highlights: []
+  selective: false
+- source-id: 013-src-models
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills/models"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — models/ (all DataPoint definitions)"
+  hash: "b440bf06643b70357c8db9e3dc24a344bf922c89702abcd7b1dfedb7b22a2a3b"
+  notes: "Skill, TaskPattern, SkillRun, ToolCall, CandidateSkill, SkillInspection,
+    SkillAmendment, SkillChangeEvent"
+
+  highlights: []
+  selective: false
+- source-id: 014-src-tasks
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills/tasks"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — tasks/ (pipeline stages: parse, enrich, materialize, apply_node_set)"
+  hash: "d1b011793e5971b2ddaa7b772bcbf76a4c563ed86ff18d42a9d6efc89d9c1c5a"
+  notes: "LLM enrichment prompts, TaskPattern materialization, node set tagging"
+
+  highlights: []
+  selective: false
+- source-id: 015-src-init-utils
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — __init__.py + utils.py + example.py (API surface, helpers,
+    demo)"
+  hash: "7c6672c7f07929bf574e0ff5f4078573aa9762d83c049602721c29e5ec38c23a"
+  notes: "Public API exports, SkillChangeEvent factory, closed-loop demo with simulated
+    executions"
+
+  highlights: []
+  selective: false
+- source-id: 016-src-tests
+  type: local
+  url: "https://github.com/topoteretes/cognee/tree/demo/graphskill_COG-4178/cognee/cognee_skills/tests"
+  fetched: 2026-03-15T21:10:00Z
+  title: "Raw Source — tests/ (parser, execute, inspect, amendify tests)"
+  hash: "8219c25ad7d4e5e7ac4f6ca78a01dd05e3287695cb53c91fd42b153f1a09d0cc"
+  notes: "Unit tests for parser, execute, inspect, and amendify — shows expected behavior
+    and edge cases"
+  highlights: []
+  selective: false

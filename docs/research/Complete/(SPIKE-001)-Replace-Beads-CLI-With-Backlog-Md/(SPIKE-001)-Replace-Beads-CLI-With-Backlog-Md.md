@@ -14,7 +14,7 @@ risks-addressed:
   - .beads/.gitignore hygiene burden (swain-doctor dedicates an entire section to this)
   - No web UI for task visualization
   - No native MCP server support in bd
-evidence-pool: ""
+trove: ""
 linked-artifacts: []
 ---
 

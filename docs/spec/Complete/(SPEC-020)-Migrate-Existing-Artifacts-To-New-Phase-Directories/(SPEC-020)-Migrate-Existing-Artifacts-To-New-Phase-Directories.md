@@ -15,7 +15,7 @@ depends-on-artifacts:
   - SPEC-019
 implementation-commits: [2da897b]
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

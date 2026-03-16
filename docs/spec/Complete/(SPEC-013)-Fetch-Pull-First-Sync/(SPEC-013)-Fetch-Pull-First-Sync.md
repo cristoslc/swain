@@ -11,7 +11,7 @@ implementation-commits:
   - b2bed7b
 parent-epic: EPIC-012
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 linked-artifacts:

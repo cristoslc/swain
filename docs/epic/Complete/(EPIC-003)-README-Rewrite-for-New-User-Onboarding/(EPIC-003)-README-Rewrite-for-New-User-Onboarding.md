@@ -17,7 +17,7 @@ success-criteria:
   - The README includes a concrete walkthrough showing the first-session experience (doctor → status → design → do cycle)
   - No stale references to removed features, old skill names, or deprecated workflows
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts: []
 depends-on-artifacts: []
 ---

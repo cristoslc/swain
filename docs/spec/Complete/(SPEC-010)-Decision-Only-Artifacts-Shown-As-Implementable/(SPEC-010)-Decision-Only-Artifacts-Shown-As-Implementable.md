@@ -9,7 +9,7 @@ last-updated: 2026-03-13
 type: bug
 parent-epic:
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: github:cristoslc/swain#29
 swain-do: required
 linked-artifacts:

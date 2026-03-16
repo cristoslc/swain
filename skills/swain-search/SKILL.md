@@ -1,11 +1,11 @@
 ---
 name: swain-search
-description: "Evidence pool collection and normalization for swain-design artifacts. Collects sources from the web, local files, and media (video/audio), normalizes them to markdown, and caches them in reusable evidence pools. Use when researching a topic for a spike, ADR, vision, or any artifact that needs structured evidence. Also use to refresh stale pools or extend existing ones with new sources. Triggers on: 'research X', 'gather evidence for', 'build an evidence pool', 'search for sources about', 'refresh the evidence pool', 'what do we know about X', or when swain-design needs research inputs for a spike or ADR."
+description: "Trove collection and normalization for swain-design artifacts. Collects sources from the web, local files, and media (video/audio), normalizes them to markdown, and caches them in reusable troves. Use when researching a topic for a spike, ADR, vision, or any artifact that needs structured research. Also use to refresh stale troves or extend existing ones with new sources. Triggers on: 'research X', 'gather sources for', 'build a trove', 'search for sources about', 'refresh the trove', 'what do we know about X', or when swain-design needs research inputs for a spike or ADR."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Skill, WebSearch, WebFetch
 metadata:
-  short-description: Evidence pool collection and normalization
+  short-description: Trove collection and normalization
   version: 1.0.0
   author: cristos
   source: swain
@@ -14,33 +14,33 @@ metadata:
 
 # swain-search
 
-Collect, normalize, and cache source materials into reusable evidence pools that swain-design artifacts can reference.
+Collect, normalize, and cache source materials into reusable troves that swain-design artifacts can reference.
 
 ## Mode detection
 
 | Signal | Mode |
 |--------|------|
-| No pool exists for the topic, or user says "research X" / "gather evidence" | **Create** — new pool |
-| Pool exists and user provides new sources or says "add to" / "extend" | **Extend** — add sources to existing pool |
-| Pool exists and user says "refresh" or sources are past TTL | **Refresh** — re-fetch stale sources |
-| User asks "what pools do we have" or "find evidence about X" | **Discover** — search existing pools by tag |
+| No trove exists for the topic, or user says "research X" / "gather sources" | **Create** — new trove |
+| Trove exists and user provides new sources or says "add to" / "extend" | **Extend** — add sources to existing trove |
+| Trove exists and user says "refresh" or sources are past TTL | **Refresh** — re-fetch stale sources |
+| User asks "what troves do we have" or "find sources about X" | **Discover** — search existing troves by tag |
 
 ## Create mode
 
-Build a new evidence pool from scratch.
+Build a new trove from scratch.
 
 ### Step 1 — Gather inputs
 
 Ask the user (or infer from context) for:
 
-1. **Pool ID** — a slug for the topic (e.g., `websocket-vs-sse`). Suggest one if the context is clear.
+1. **Trove ID** — a slug for the topic (e.g., `websocket-vs-sse`). Suggest one if the context is clear.
 2. **Tags** — keywords for discovery (e.g., `real-time`, `websocket`, `sse`)
 3. **Sources** — any combination of:
    - Web search queries ("search for WebSocket vs SSE comparisons")
    - URLs (web pages, forum threads, docs)
    - Video/audio URLs
    - Local file paths
-4. **Freshness TTL overrides** — optional, defaults are fine for most pools
+4. **Freshness TTL overrides** — optional, defaults are fine for most troves
 
 If invoked from swain-design (e.g., spike entering Active), the artifact context provides the topic, tags, and sometimes initial sources.
 
@@ -74,19 +74,39 @@ For each source, use the appropriate capability. Read `skills/swain-search/refer
 1. Fetch and normalize per the forum format (chronological, author-attributed)
 2. Flatten nested threads to chronological order with reply-to context
 
-Each normalized source file goes to `sources/NNN-<slug>.md` with sequential numbering.
+**Repositories:**
+1. Clone or read the repository contents
+2. Mirror the original directory tree under `sources/<source-id>/`
+3. Default: mirror the full tree. For large repositories (thousands of files), ingest selectively and set `selective: true` in the manifest entry
+4. Populate the `highlights` array with paths to the most important files (relative to the source-id directory)
+
+**Documentation sites:**
+1. Crawl or fetch the documentation site
+2. Mirror the section hierarchy under `sources/<source-id>/`
+3. Default: mirror the full site. For large sites, ingest selectively and set `selective: true`
+4. Populate the `highlights` array with paths to the most important pages
+5. Preserve internal link structure where possible
+
+Each normalized source gets a **slug-based source ID** and lives in a directory-per-source layout:
+- **Flat sources** (web, forum, media, document, local): `sources/<source-id>/<source-id>.md`
+- **Hierarchical sources** (repository, documentation-site): `sources/<source-id>/` with the original tree mirrored inside
+
+**Source ID generation:**
+- Derive the source ID as a slug from the source title or URL (e.g., `mdn-websocket-api`, `strangeloop-2025-realtime`)
+- When a slug collides with an existing source ID: append `__word1-word2` using two random words from `skills/swain-search/references/wordlist.txt`
+- If the wordlist is missing, append `__` followed by 4 hex characters (e.g., `__a3f8`) as a fallback
 
 ### Step 3 — Generate manifest
 
 Create `manifest.yaml` following the schema in `skills/swain-search/references/manifest-schema.md`. Include:
-- Pool metadata (id, created date, tags)
+- Trove metadata (id, created date, tags)
 - Default freshness TTL per source type
 - One entry per source with provenance (URL/path, fetch date, content hash, type)
 
-Compute content hashes as SHA-256 of the normalized markdown content:
+Compute content hashes as bare hex SHA-256 digests (no prefix) of the normalized markdown content:
 
 ```bash
-shasum -a 256 sources/001-example.md | cut -d' ' -f1
+shasum -a 256 sources/mdn-websocket-api/mdn-websocket-api.md | cut -d' ' -f1
 ```
 
 ### Step 4 — Generate synthesis
@@ -105,21 +125,21 @@ Keep it concise. The synthesis is a starting point, not a comprehensive report �
 
 Tell the user what was created:
 
-> **Evidence pool `<pool-id>` created** with N sources.
+> **Trove `<trove-id>` created** with N sources.
 >
-> - `docs/evidence-pools/<pool-id>/manifest.yaml` — provenance and metadata
-> - `docs/evidence-pools/<pool-id>/sources/` — N normalized source files
-> - `docs/evidence-pools/<pool-id>/synthesis.md` — thematic distillation
+> - `docs/troves/<trove-id>/manifest.yaml` — provenance and metadata
+> - `docs/troves/<trove-id>/sources/` — N normalized source files
+> - `docs/troves/<trove-id>/synthesis.md` — thematic distillation
 >
-> Reference from artifacts with: `evidence-pool: <pool-id>@<commit-hash>`
+> Reference from artifacts with: `trove: <trove-id>@<commit-hash>`
 
 ## Extend mode
 
-Add new sources to an existing pool.
+Add new sources to an existing trove.
 
 1. Read the existing `manifest.yaml`
 2. Collect and normalize new sources (same as Create step 2)
-3. Number new sources sequentially after the highest existing ID
+3. Assign slug-based source IDs to new sources (following the same ID generation rules)
 4. Append new entries to `manifest.yaml`
 5. Update `refreshed` date
 6. Regenerate `synthesis.md` incorporating all sources (old + new)
@@ -145,14 +165,14 @@ For sources with `freshness-ttl: never`, skip them during refresh.
 
 ## Discover mode
 
-Help the user find existing pools relevant to their topic.
+Help the user find existing troves relevant to their topic.
 
-1. Scan `docs/evidence-pools/*/manifest.yaml` for all pools
+1. Scan `docs/troves/*/manifest.yaml` for all troves
 2. Match against the user's query by:
-   - **Tag match** — pool tags contain query keywords
-   - **Title match** — pool ID slug contains query keywords
-3. For each match, show: pool ID, tags, source count, last refreshed date, referenced-by list
-4. If no matches, suggest creating a new pool
+   - **Tag match** — trove tags contain query keywords
+   - **Title match** — trove ID slug contains query keywords
+3. For each match, show: trove ID, tags, source count, last refreshed date, referenced-by list
+4. If no matches, suggest creating a new trove
 
 ## Graceful degradation
 
@@ -180,12 +200,12 @@ Report available capabilities at the start of collection so the user knows what 
 
 ## Linking from artifacts
 
-Artifacts reference evidence pools in frontmatter:
+Artifacts reference troves in frontmatter:
 
 ```yaml
-evidence-pool: websocket-vs-sse@abc1234
+trove: websocket-vs-sse@abc1234
 ```
 
-The format is `<pool-id>@<commit-hash>`. The commit hash pins the pool to a specific version — pools evolve over time as sources are added or refreshed, and the hash ensures reproducibility.
+The format is `<trove-id>@<commit-hash>`. The commit hash pins the trove to a specific version — troves evolve over time as sources are added or refreshed, and the hash ensures reproducibility.
 
-When creating or extending a pool, remind the user to commit and then update the referencing artifact's frontmatter with the new commit hash.
+When creating or extending a trove, remind the user to commit and then update the referencing artifact's frontmatter with the new commit hash.

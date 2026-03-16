@@ -16,7 +16,7 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | **swain-init** | One-time project onboarding — CLAUDE.md migration, tk verification, governance |
 | **swain-doctor** | Session-start health checks — governance, .tickets/ validation, legacy cleanup |
 | **swain-design** | Artifact lifecycle — Vision, Initiative, Epic, Story, Spec, ADR, Spike, Persona, Runbook, Journey, Design |
-| **swain-search** | Evidence pools — collect, normalize, and cache research sources |
+| **swain-search** | Troves — collect, normalize, and cache research sources |
 | **swain-do** | Execution tracking — task management via tk (ticket) |
 | **swain-release** | Release automation — changelog, version bump, git tag |
 | **swain-sync** | Fetch, rebase, stage, commit, push — bidirectional sync with upstream |

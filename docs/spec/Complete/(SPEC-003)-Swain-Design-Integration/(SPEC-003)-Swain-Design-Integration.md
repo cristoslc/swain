@@ -27,7 +27,7 @@ swain-design needs to know about evidence pools so it can offer them during rese
 All artifact templates gain an optional `evidence-pool` field:
 
 ```yaml
-evidence-pool: <pool-id>@<commit-hash>
+trove: <pool-id>@<commit-hash>
 ```
 
 ### Research phase hook

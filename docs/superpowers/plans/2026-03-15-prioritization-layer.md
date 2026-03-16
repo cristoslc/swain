@@ -46,7 +46,7 @@ addresses:
 {%- for pp in addresses | default([]) %}
   - {{ pp }}
 {%- endfor %}
-evidence-pool: {{ evidence_pool | default("") }}
+trove: {{ evidence_pool | default("") }}
 ---
 
 # {{ title }}

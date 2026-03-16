@@ -15,7 +15,7 @@ risks-addressed:
   - Reasoning effort APIs (extended-thinking, budget tokens) differ across providers and may not map cleanly
 linked-artifacts:
   - EPIC-007
-evidence-pool: ""
+trove: ""
 ---
 
 # Model Selection Mechanisms Across Agent Runtimes

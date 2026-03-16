@@ -15,7 +15,7 @@ implementation-commits:
   - 50b7e38
   - 00f11b2
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

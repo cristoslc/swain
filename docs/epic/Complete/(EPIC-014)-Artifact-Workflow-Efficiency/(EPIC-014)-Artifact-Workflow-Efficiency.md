@@ -15,7 +15,7 @@ success-criteria:
 depends-on-artifacts:
   - SPIKE-018
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Artifact Workflow Efficiency

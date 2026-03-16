@@ -8,7 +8,7 @@ created: 2026-03-12
 last-updated: 2026-03-12
 parent-epic: EPIC-002
 addresses: []
-evidence-pool:
+trove:
 swain-do: required
 linked-artifacts:
   - SPIKE-003

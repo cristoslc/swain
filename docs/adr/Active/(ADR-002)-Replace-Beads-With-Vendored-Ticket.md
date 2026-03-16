@@ -6,7 +6,7 @@ status: Active
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - SPIKE-001
   - SPIKE-002

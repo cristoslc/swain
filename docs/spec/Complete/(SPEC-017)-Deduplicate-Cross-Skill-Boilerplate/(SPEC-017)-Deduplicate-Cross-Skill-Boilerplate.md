@@ -9,7 +9,7 @@ created: 2026-03-13
 last-updated: 2026-03-13
 parent-epic: EPIC-006
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 linked-artifacts:

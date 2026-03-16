@@ -12,7 +12,7 @@ linked-artifacts:
   - ADR-005
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

@@ -14,7 +14,7 @@ depends-on-artifacts:
   - SPIKE-018
   - SPEC-045
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

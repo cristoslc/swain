@@ -9,7 +9,7 @@ last-updated: 2026-03-12
 type: feature
 parent-epic: EPIC-004
 addresses: []
-evidence-pool:
+trove:
 source-issue:
 swain-do: required
 linked-artifacts:

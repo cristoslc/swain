@@ -45,6 +45,12 @@ if [[ -d .beads ]]; then
   issues+=("stale .beads/ directory needs migration to .tickets/")
 fi
 
+# Evidence pool migration check
+if [[ -d "$REPO_ROOT/docs/evidence-pools" ]]; then
+  echo "preflight: docs/evidence-pools/ detected — trove migration needed"
+  issues+=("docs/evidence-pools/ detected — trove migration needed")
+fi
+
 # 6. No stale tk lock files (older than 1 hour)
 if [[ -d .tickets/.locks ]]; then
   stale_locks=$(find .tickets/.locks -type f -mmin +60 2>/dev/null | head -1)

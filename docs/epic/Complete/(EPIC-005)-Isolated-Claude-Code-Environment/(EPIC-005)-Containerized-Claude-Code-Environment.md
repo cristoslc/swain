@@ -15,7 +15,7 @@ success-criteria:
   - Credentials (API keys, git auth) are forwarded without baking them into the image
   - Environment cleanup is automatic — no orphaned instances or volumes accumulate
 addresses: []
-evidence-pool:
+trove:
 linked-artifacts: []
 depends-on-artifacts: []
 ---
