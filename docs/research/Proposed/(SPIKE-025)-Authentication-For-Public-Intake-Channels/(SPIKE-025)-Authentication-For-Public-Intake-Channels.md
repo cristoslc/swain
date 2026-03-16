@@ -364,3 +364,43 @@ This reduces the workflow to a single command, bringing friction from "high" to 
 This allows the filter chain to support multiple mechanisms simultaneously and enables smooth migration from HMAC to asymmetric signatures without a flag day.
 
 **What about canonicalization?** Both HMAC and asymmetric approaches share the canonicalization challenge. The recommended approach: the `swain intake` CLI creates the issue via the GitHub API, retrieves the rendered body, computes the signature over the API-returned body, and then edits the issue to append the footer. This two-step process (create-then-sign) eliminates canonicalization guesswork at the cost of a brief window where the issue exists unsigned. Alternatively, the CLI can enforce a strict canonical form (UTF-8, LF, no trailing whitespace, no HTML) and document that operators must not use GitHub's web editor for authenticated issues.
+
+## Recommendation
+
+### Verdict: HMAC-SHA256 with author-allowlist warm path
+
+**TOTP is a NO-GO.** The polling architecture fundamentally breaks TOTP's security model — codes are always expired by polling time, one-time-use is unenforceable in batch processing, and codes posted in public issues are trivially replayable within the 60-90 second window. TOTP provides the appearance of authentication without substance and should not be adopted.
+
+**HMAC-SHA256 is the recommended default auth mechanism for the fast path.** It is replay-proof (signature bound to exact issue content), content-bound (body modifications invalidate the signature), low implementation complexity (single function call), and the shared-secret model is acceptable for the current threat profile (single operator, secret stored in GitHub Actions secrets and operator's local config). A CLI helper (`swain intake sign`) reduces operator friction to a single command. The signature is invisible in the GitHub UI (HTML comment footer), keeping issues readable.
+
+**Author allowlist (`author_association`) serves as a warm path — not full fast-path auth, but a trust-based filter bypass.** Issues from OWNER/MEMBER/COLLABORATOR skip spam and content-pattern filters but still go through structural validation. This handles the common case (operator filing issues from their own account) with zero friction. Its weakness — no per-issue granularity — is acceptable for single-operator repos and is compensated by HMAC for intentional fast-tracking.
+
+### What this defends against
+
+| Threat | Defended? | How |
+|--------|-----------|-----|
+| Drive-by spam | Yes | Author allowlist rejects unknown authors; HMAC rejects unsigned issues |
+| Targeted spoofing | Mostly | HMAC signature cannot be forged without the shared secret; author allowlist blocks unknown actors |
+| TOTP replay | N/A | TOTP is not used |
+| Bot flooding | Yes | Author allowlist + rate limits reject bulk automated issues |
+| Prompt injection | Partially | Fast path still exposes the classifying agent to issue body content; HMAC proves operator intent but not content safety |
+
+### What this does NOT defend against
+
+- **Compromised shared secret:** If the HMAC key leaks (GitHub Actions secret exposure, operator machine compromise), an attacker can forge authenticated issues until the key is rotated. Mitigation: key rotation procedure, monitoring for unexpected authenticated issues.
+- **Compromised operator account:** If the operator's GitHub account is compromised, the author allowlist is bypassed. Mitigation: GitHub 2FA, token scoping.
+- **Prompt injection via authenticated issues:** A legitimate operator (or someone with the HMAC secret) can submit issues with adversarial content that manipulates the classifying agent. Mitigation: out of scope for this spike (INITIATIVE-004 territory); content sanitization in the classifying agent.
+
+### Residual risks and acceptability
+
+The residual risks are acceptable because:
+1. **Blast radius is bounded.** Even a successful attack only creates an unwanted artifact. The operator reviews all artifacts before execution. No code runs, no deployments happen, no data is exfiltrated.
+2. **Key rotation is straightforward.** Changing the HMAC secret in GitHub Actions secrets and operator config invalidates all old signatures. No flag day needed.
+3. **Upgrade path exists.** The mechanism-agnostic footer format (`<!-- swain-auth: <mechanism>:<value> -->`) means migrating from HMAC to Ed25519 asymmetric signatures is a config change. Ed25519 eliminates the shared-secret risk entirely and should be adopted when multi-operator intake or escalated threat models arise.
+
+### Migration path
+
+If the auth mechanism needs to change:
+1. **HMAC → Ed25519:** Add Ed25519 verification to the filter chain alongside HMAC. Both mechanisms coexist (footer format distinguishes them). Deprecate HMAC after migration window.
+2. **Single operator → multi-operator:** Each operator gets their own key pair. The filter chain checks against a list of public keys. Author allowlist becomes essential (maps GitHub identity to expected signing key).
+3. **Secret compromise:** Rotate the HMAC key in GitHub Actions secrets and operator config. Old signatures become invalid. Re-sign any open issues that should remain authenticated.
