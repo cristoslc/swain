@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set +e  # Never fail hard — session naming is a convenience, not a gate
 
 # swain-tab-name.sh — Set terminal tab/window title
 #
