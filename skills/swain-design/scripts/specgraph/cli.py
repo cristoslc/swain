@@ -142,7 +142,7 @@ def main(argv: list[str] | None = None) -> None:
     xref_parser.add_argument("--json", action="store_true", help="Output raw JSON")
 
     # Commands requiring a mandatory ID
-    for cmd in ("blocks", "blocked-by", "tree", "neighbors", "scope", "impact"):
+    for cmd in ("blocks", "blocked-by", "tree", "deps", "neighbors", "scope", "impact"):
         sp = subparsers.add_parser(cmd)
         sp.add_argument("id", help="Artifact ID (e.g. SPEC-001)")
 
@@ -190,7 +190,7 @@ def main(argv: list[str] | None = None) -> None:
             print(queries.blocks(args.id, nodes, edges, repo_root_str, show_links))
         elif args.command == "blocked-by":
             print(queries.blocked_by(args.id, nodes, edges, repo_root_str, show_links))
-        elif args.command == "tree":
+        elif args.command in ("tree", "deps"):
             print(queries.tree(args.id, nodes, edges, repo_root_str, show_links))
         elif args.command == "neighbors":
             print(queries.neighbors(args.id, nodes, edges, repo_root_str, show_links))
