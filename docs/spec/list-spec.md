@@ -1,5 +1,13 @@
 # Agent Specs
 
+## Active
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| SPEC-052 | Vision-Rooted Chart Hierarchy | 2026-03-15 | — |
+| SPEC-053 | Namespace Swain Docs Directory | 2026-03-15 | — |
+| SPEC-054 | Project Identity Enforcement | 2026-03-16 | — |
+
 ## Complete
 
 | Artifact | Title | Last Updated | Commit |
@@ -52,7 +60,7 @@
 | SPEC-046 | Inline Lifecycle Hash Stamping for Trivial Artifacts | 2026-03-14 | 534a2e5 |
 | SPEC-047 | Lazy Index Refresh for list-*.md Artifact Indices | 2026-03-14 | b4892cd |
 | SPEC-048 | claude-sandbox: Tier 1 Native Sandbox Launcher | 2026-03-14 | 0eb40a8 |
-| SPEC-049 | claude-sandbox: Tier 2 Docker Container Runner | 2026-03-14 | -- |
+| SPEC-049 | claude-sandbox: Tier 2 Docker Container Runner | 2026-03-14 | 4bae1d4 |
 | SPEC-050 | Stage Status Hook Fails in Worktrees | 2026-03-15 | — |
 | SPEC-051 | Batch Repository Ingestion for swain-search | 2026-03-15 | — |
 

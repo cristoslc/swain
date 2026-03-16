@@ -36,7 +36,9 @@ Help the operator see what matters — current state, progress, and what needs a
 
 ## Small Work (Epic-less Specs)
 
-None.
+| Spec | Title | Status |
+|------|-------|--------|
+| SPEC-054 | Project Identity Enforcement | Active |
 
 ## Key Dependencies
 
