@@ -1,7 +1,7 @@
 # Trove Redesign: Rename Evidence Pools & Add Hierarchical Source Support
 
 **Date:** 2026-03-15
-**Status:** Draft
+**Status:** Complete
 **Addresses:** GitHub #61 (rename "evidence pool"), GitHub #63 (evidence pools need depth)
 **Approach:** Single coherent redesign with backward-compatible migration (Approach C)
 
