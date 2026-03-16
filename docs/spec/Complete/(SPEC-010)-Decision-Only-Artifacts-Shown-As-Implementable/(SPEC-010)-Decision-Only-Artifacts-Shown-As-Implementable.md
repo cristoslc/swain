@@ -14,6 +14,9 @@ source-issue: github:cristoslc/swain#29
 swain-do: required
 linked-artifacts:
   - SPIKE-012
+  - SPEC-002
+  - SPEC-003
+  - VISION-001
 depends-on-artifacts:
   - SPIKE-012
 ---

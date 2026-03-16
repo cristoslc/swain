@@ -14,7 +14,14 @@ success-criteria:
   - All skills that exceed a size budget are flagged by swain-doctor
 addresses: []
 trove: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-015
+  - SPEC-016
+  - SPEC-017
+  - SPIKE-010
+  - SPIKE-011
+  - EPIC-007
+
 depends-on-artifacts: []
 ---
 

@@ -16,6 +16,8 @@ success-criteria:
   - Worktree-based isolation is the default for parallel agent work where feasible
   - Agents that must share a workdir have clear conventions for which files they can touch
   - swain-doctor detects unsafe concurrent access patterns and warns
+linked-artifacts:
+  - EPIC-015
 depends-on-artifacts:
   - SPIKE-022
 addresses: []

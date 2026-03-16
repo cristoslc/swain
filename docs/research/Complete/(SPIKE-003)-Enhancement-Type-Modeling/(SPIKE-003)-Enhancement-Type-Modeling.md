@@ -14,6 +14,8 @@ risks-addressed:
 trove: ""
 linked-artifacts:
   - EPIC-002
+  - SPEC-001
+  - SPEC-002
 ---
 
 # Enhancement Type Modeling

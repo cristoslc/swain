@@ -11,6 +11,8 @@ parent-epic: EPIC-013
 linked-artifacts:
   - ADR-004
   - ADR-003
+  - SPEC-031
+  - SPEC-032
 depends-on-artifacts:
   - ADR-004
 addresses: []

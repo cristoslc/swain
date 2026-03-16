@@ -11,6 +11,7 @@ parent-epic: EPIC-005
 linked-artifacts:
   - EPIC-005
   - SPIKE-009
+  - SPEC-049
 depends-on-artifacts: []
 addresses: []
 trove: ""

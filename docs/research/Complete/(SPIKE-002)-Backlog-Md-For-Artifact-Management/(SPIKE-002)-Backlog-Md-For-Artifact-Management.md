@@ -15,7 +15,11 @@ risks-addressed:
   - Separate index files (list-*.md) that drift from source of truth
   - No visual board for artifact status
 trove: ""
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-001
+  - SPEC-001
+  - SPEC-002
+  - SPIKE-001
 ---
 
 # Backlog.md for artifact management

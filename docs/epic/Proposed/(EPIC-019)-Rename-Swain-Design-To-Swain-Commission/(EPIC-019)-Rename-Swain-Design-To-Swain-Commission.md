@@ -18,6 +18,9 @@ success-criteria:
   - Existing docs/artifacts that reference swain-design by name are updated
   - Migration path documented in release notes per project policy (ADR-002 precedent)
   - swain-design name is freed for future use as a frontend orchestrator skill
+linked-artifacts:
+  - ADR-002
+  - EPIC-021
 depends-on-artifacts: []
 addresses: []
 trove: ""

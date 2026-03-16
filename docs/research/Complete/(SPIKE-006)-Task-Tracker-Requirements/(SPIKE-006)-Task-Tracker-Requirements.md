@@ -17,6 +17,9 @@ linked-artifacts:
   - SPIKE-001
   - SPIKE-002
   - SPIKE-005
+  - ADR-002
+  - EPIC-001
+  - SPEC-003
 ---
 
 # Task Tracker Requirements and Alternatives

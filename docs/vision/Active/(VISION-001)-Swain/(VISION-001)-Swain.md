@@ -8,7 +8,11 @@ author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
 trove: ""
-linked-artifacts: []
+linked-artifacts:
+  - PERSONA-001
+  - PERSONA-002
+  - SPIKE-003
+
 depends-on-artifacts: []
 ---
 

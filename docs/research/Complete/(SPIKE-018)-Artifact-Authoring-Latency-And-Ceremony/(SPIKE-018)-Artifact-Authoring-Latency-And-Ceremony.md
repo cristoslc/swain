@@ -13,6 +13,11 @@ risks-addressed:
   - Ceremony cost exceeds value for simple artifacts, reducing willingness to file
   - Skipping the wrong checks causes quality regressions
 trove: ""
+linked-artifacts:
+  - EPIC-014
+  - SPEC-045
+  - SPEC-046
+  - SPEC-047
 ---
 
 # Artifact Authoring Latency and Ceremony Audit

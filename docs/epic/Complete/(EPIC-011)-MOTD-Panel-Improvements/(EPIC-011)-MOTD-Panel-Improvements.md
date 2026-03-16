@@ -15,7 +15,11 @@ success-criteria:
   - Interactive commit button in Textual TUI triggers swain-push
 addresses: []
 trove: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-040
+  - SPEC-041
+  - SPEC-042
+
 depends-on-artifacts: []
 ---
 

@@ -9,6 +9,9 @@ last-updated: 2026-03-13
 trove: ""
 linked-artifacts:
   - EPIC-008
+  - SPEC-004
+  - SPEC-006
+  - SPIKE-012
 depends-on-artifacts: []
 ---
 

@@ -16,6 +16,8 @@ success-criteria:
   - External skill integration points (Trail of Bits differential-review, agamm/owasp-security) are defined as optional hooks, not hard dependencies
   - The execution flow gates do not block tasks that have no security surface — detection must have a low false-positive rate
   - Security findings at task completion are filed as new tk issues, not silently dropped
+linked-artifacts:
+  - SPIKE-020
 depends-on-artifacts:
   - EPIC-017
 trove: "security-skill-landscape"

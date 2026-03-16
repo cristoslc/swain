@@ -12,6 +12,12 @@ success-criteria:
   - Specgraph tooling supports cross-reference validation and querying
   - Artifact authoring ceremony is proportional to artifact complexity
   - Evidence pools are collected, normalized, and cached for reuse
+linked-artifacts:
+  - EPIC-001
+  - EPIC-002
+  - EPIC-008
+  - EPIC-013
+  - EPIC-014
 ---
 
 # Artifact System Maturity

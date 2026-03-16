@@ -14,7 +14,11 @@ risks-addressed:
   - Agent state directories (.claude/, .agents/, .tickets/) need to survive environment restarts
   - gh CLI auth tokens live in host-specific paths that differ inside the environment
 trove:
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-005
+  - SPEC-023
+  - SPEC-024
+  - SPIKE-009
 ---
 
 # Credential and State Management in Isolated Environments

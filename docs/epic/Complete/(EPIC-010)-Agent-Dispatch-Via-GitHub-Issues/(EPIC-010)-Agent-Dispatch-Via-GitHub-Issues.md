@@ -17,7 +17,11 @@ success-criteria:
 addresses: []
 trove: ""
 source-issue: "github:cristoslc/swain#18"
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-007
+  - SPEC-025
+  - SPEC-029
+
 depends-on-artifacts:
   - SPIKE-016
 ---

@@ -13,6 +13,9 @@ trove:
 swain-do: required
 linked-artifacts:
   - SPIKE-003
+  - EPIC-004
+  - SPEC-005
+  - SPEC-006
 depends-on-artifacts: []
 ---
 

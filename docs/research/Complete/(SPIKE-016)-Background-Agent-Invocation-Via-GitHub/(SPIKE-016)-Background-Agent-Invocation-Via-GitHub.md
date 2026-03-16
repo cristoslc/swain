@@ -13,6 +13,7 @@ risks-addressed:
   - Assuming @claude works a certain way without testing
 linked-artifacts:
   - EPIC-010
+  - SPEC-012
 trove: |
   - https://github.com/anthropics/claude-code-action (Claude Code Action repo)
   - https://code.claude.com/docs/en/github-actions (Claude Code GitHub Actions docs)

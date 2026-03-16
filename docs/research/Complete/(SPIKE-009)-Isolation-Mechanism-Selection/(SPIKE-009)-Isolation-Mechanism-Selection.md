@@ -16,7 +16,9 @@ risks-addressed:
 trove:
   - microvm-research-findings.md
   - lightweight-sandbox-research-findings.md
-linked-artifacts: []
+linked-artifacts:
+  - SPIKE-007
+  - SPIKE-008
 ---
 
 # Isolation Mechanism Selection

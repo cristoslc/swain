@@ -18,6 +18,10 @@ depends-on-artifacts:
   - ADR-004
 linked-artifacts:
   - ADR-003
+  - SPEC-030
+  - SPEC-031
+  - SPEC-032
+  - SPEC-033
 addresses: []
 ---
 

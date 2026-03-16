@@ -13,6 +13,14 @@ success-criteria:
   - Status dashboard shows scope progress with completion ratios
   - Postflight summaries provide context recovery after task completion
   - New users can onboard from README without external help
+linked-artifacts:
+  - EPIC-003
+  - EPIC-011
+  - EPIC-018
+  - EPIC-022
+  - SPEC-054
+  - SPIKE-021
+  - SPIKE-024
 ---
 
 # Operator Situational Awareness

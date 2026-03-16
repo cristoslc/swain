@@ -13,6 +13,9 @@ success-criteria:
   - Restoring a bookmark in a different worktree (or from main) routes the operator to the correct worktree
   - Bookmark format is backward-compatible — old bookmarks without a worktree field load without error
   - swain-doctor detects stale bookmarks pointing to pruned worktrees and offers cleanup
+linked-artifacts:
+  - SPIKE-001
+  - SPIKE-019
 depends-on-artifacts:
   - EPIC-015
 addresses: []

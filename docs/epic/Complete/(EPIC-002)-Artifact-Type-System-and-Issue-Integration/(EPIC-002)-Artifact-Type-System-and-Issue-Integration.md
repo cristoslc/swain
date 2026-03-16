@@ -18,7 +18,13 @@ success-criteria:
 addresses:
   - JOURNEY-001.PP-01
 trove: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-004
+  - SPEC-005
+  - SPEC-006
+  - SPEC-007
+  - SPIKE-003
+
 depends-on-artifacts: []
 ---
 

@@ -12,6 +12,7 @@ type: feature
 parent-epic: EPIC-012
 linked-artifacts:
   - SPIKE-015
+  - SPEC-024
 depends-on-artifacts: []
 addresses: []
 trove: ""

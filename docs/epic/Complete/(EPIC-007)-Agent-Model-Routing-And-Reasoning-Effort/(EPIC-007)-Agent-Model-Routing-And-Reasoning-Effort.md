@@ -17,7 +17,11 @@ success-criteria:
   - Consumers running unsupported runtimes receive a graceful no-op (no errors, best-effort behavior)
 addresses: []
 trove: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-026
+  - SPIKE-013
+  - SPIKE-014
+
 depends-on-artifacts:
   - EPIC-006
 ---

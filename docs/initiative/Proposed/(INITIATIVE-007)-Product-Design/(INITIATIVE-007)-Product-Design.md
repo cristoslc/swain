@@ -11,6 +11,10 @@ success-criteria:
   - swain-design name freed for frontend orchestration (swain-commission rename complete)
   - Frontend design orchestrator integrates Anthropic plugin, superpowers frontend-design, and impeccable.style
   - DESIGN and JOURNEY artifact types inform frontend decisions
+linked-artifacts:
+  - EPIC-019
+  - EPIC-021
+  - SPIKE-023
 ---
 
 # Product Design
