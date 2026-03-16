@@ -83,7 +83,11 @@ When work cannot proceed as designed, abandon tasks and escalate to swain-design
 
 ## "What's next?" flow
 
-Run `tk ready` for unblocked tasks and `ticket-query '.status == "in_progress"'` for in-flight work. If `.tickets/` is empty or missing, defer to `specgraph.sh next` for artifact-level guidance.
+Run `tk ready` for unblocked tasks and `ticket-query '.status == "in_progress"'` for in-flight work. If `.tickets/` is empty or missing, defer to `bash skills/swain-design/scripts/chart.sh ready` for artifact-level guidance.
+
+## Context on claim
+
+When claiming a task tagged with `spec:<ID>`, show the Vision ancestry breadcrumb to provide strategic context. Run `bash skills/swain-design/scripts/chart.sh scope <SPEC-ID> 2>/dev/null | head -5` to display the parent chain. This tells the agent/operator how the current task connects to project strategy.
 
 ## Artifact/tk reconciliation
 

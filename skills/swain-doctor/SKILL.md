@@ -292,8 +292,8 @@ They can defer — everything defaults to `medium` and the system works without 
 Run specgraph to verify the new hierarchy looks correct:
 
 ```bash
-bash skills/swain-design/scripts/specgraph.sh overview
-bash skills/swain-design/scripts/specgraph.sh recommend
+bash skills/swain-design/scripts/chart.sh
+bash skills/swain-design/scripts/chart.sh recommend
 ```
 
 Check that initiatives appear in the tree and that recommendations reflect the new structure.

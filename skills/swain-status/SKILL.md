@@ -14,7 +14,7 @@ metadata:
 
 # Status
 
-Cross-cutting project status dashboard. Aggregates data from artifact lifecycle (specgraph), task tracking (tk), git, GitHub issues, and session state into an activity-oriented view.
+Cross-cutting project status dashboard. Aggregates data from artifact lifecycle (`swain chart`), task tracking (tk), git, GitHub issues, and session state into an activity-oriented view.
 
 ## When invoked
 
@@ -34,7 +34,7 @@ The script's terminal output uses OSC 8 hyperlinks for clickable artifact links.
 
 The script collects from five data sources:
 
-1. **Artifacts** — specgraph cache (epic progress, ready/blocked items, dependency info)
+1. **Artifacts** — `swain chart` vision-rooted hierarchy (epic progress, ready/blocked items, dependency info). Use `bash skills/swain-design/scripts/chart.sh recommend` for ranked artifact view; respects focus lane automatically.
 2. **Tasks** — tk (in-progress, recently completed)
 3. **Git** — branch, working tree state, recent commits
 4. **GitHub** — open issues, issues assigned to the user
@@ -133,7 +133,7 @@ After presenting status, update the bookmark with the most actionable highlight:
 
 ## Error handling
 
-- If specgraph is unavailable: skip artifact section, show other data
+- If chart.sh / specgraph is unavailable: skip artifact section, show other data
 - If tk is unavailable: skip task section
 - If gh CLI is unavailable or no GitHub remote: skip issues section
 - If `.agents/session.json` doesn't exist: skip bookmark

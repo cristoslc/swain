@@ -14,7 +14,7 @@ Things that merely do not contradict each other but are otherwise semantically d
 
 ## Procedure
 
-1. Run `specgraph.sh scope <ID>` to identify the alignment scope — the parent chain, siblings, and lateral links.
+1. Run `bash skills/swain-design/scripts/chart.sh scope <ID>` to identify the alignment scope — the parent chain, siblings, and lateral links.
 2. Read the Vision at the top of the chain. This is the "North Star" — the goal everything should orient toward.
 3. Read the changed/created artifact.
 4. Assess each relationship level per the checks below.

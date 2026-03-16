@@ -32,7 +32,7 @@ Collect evidence of what happened during the work period.
 
 ```bash
 # Get the EPIC and its children
-bash skills/swain-design/scripts/specgraph.sh tree <EPIC-ID>
+bash skills/swain-design/scripts/chart.sh deps <EPIC-ID>
 
 # Get closed tasks linked to child specs
 TK_BIN="$(cd skills/swain-do/bin && pwd)"
@@ -58,7 +58,7 @@ export PATH="$TK_BIN:$PATH"
 ticket-query '.status == "closed"' 2>/dev/null | head -20
 
 # Recently transitioned artifacts
-bash skills/swain-design/scripts/specgraph.sh status 2>/dev/null
+bash skills/swain-design/scripts/chart.sh status 2>/dev/null
 ```
 
 Also check:
