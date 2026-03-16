@@ -4,9 +4,9 @@
 
 **Goal:** Rename "evidence pool" to "trove" across all swain skills and restructure source storage to support hierarchical content mirroring.
 
-**Architecture:** A migration script handles the mechanical work (directory renames, manifest updates, frontmatter rewrites). Skill files are updated to reference "trove" and the new directory-per-source layout. evidencewatch gets structural scanning changes. swain-doctor gets migration detection.
+**Architecture:** A migration script handles the mechanical work (directory renames, manifest updates, frontmatter rewrites). Skill files are updated to reference "trove" and the new directory-per-source layout. trovewatch gets structural scanning changes. swain-doctor gets migration detection.
 
-**Tech Stack:** Bash (migration script, evidencewatch), YAML (manifests), Markdown (skill files, artifacts)
+**Tech Stack:** Bash (migration script, trovewatch), YAML (manifests), Markdown (skill files, artifacts)
 
 **Spec:** `docs/superpowers/specs/2026-03-15-trove-redesign.md`
 
@@ -22,8 +22,8 @@
 - `skills/swain-search/SKILL.md` — Full rename + structural source creation changes
 - `skills/swain-search/references/manifest-schema.md` — Schema field renames and additions
 - `skills/swain-search/references/normalization-formats.md` — Example source-id and type updates
-- `skills/swain-search/references/evidencewatch-guide.md` — Rename references
-- `skills/swain-search/scripts/evidencewatch.sh` — Directory scanning logic rewrite
+- `skills/swain-search/references/trovewatch-guide.md` — Rename references
+- `skills/swain-search/scripts/trovewatch.sh` — Directory scanning logic rewrite
 - `skills/swain-design/references/evidence-pool-integration.md` — Rename to `trove-integration.md` + update internals
 - `skills/swain-design/SKILL.md` — Update reference path from `evidence-pool-integration.md` to `trove-integration.md`
 - `skills/swain-doctor/SKILL.md` — Add migration detection section
@@ -391,11 +391,11 @@ git commit -m "feat: rename evidence pool to trove in swain-search SKILL.md and 
 **Files:**
 - Modify: `skills/swain-search/references/manifest-schema.md`
 - Modify: `skills/swain-search/references/normalization-formats.md`
-- Modify: `skills/swain-search/references/evidencewatch-guide.md`
+- Modify: `skills/swain-search/references/trovewatch-guide.md`
 
 - [ ] **Step 1: Read all three files**
 
-Read `manifest-schema.md`, `normalization-formats.md`, `evidencewatch-guide.md` in full.
+Read `manifest-schema.md`, `normalization-formats.md`, `trovewatch-guide.md` in full.
 
 - [ ] **Step 2: Update manifest-schema.md**
 
@@ -419,7 +419,7 @@ Key changes:
 - Add brief section for `repository` type normalization (preserve tree structure, add frontmatter to each file)
 - Add brief section for `documentation-site` type normalization (preserve section hierarchy)
 
-- [ ] **Step 4: Update evidencewatch-guide.md**
+- [ ] **Step 4: Update trovewatch-guide.md**
 
 Key changes:
 - Line 3: "evidence pools" → "troves"
@@ -427,7 +427,7 @@ Key changes:
 
 - [ ] **Step 5: Verify no "evidence" references remain in any of the three files**
 
-Run: `grep -in "evidence" skills/swain-search/references/manifest-schema.md skills/swain-search/references/normalization-formats.md skills/swain-search/references/evidencewatch-guide.md`
+Run: `grep -in "evidence" skills/swain-search/references/manifest-schema.md skills/swain-search/references/normalization-formats.md skills/swain-search/references/trovewatch-guide.md`
 
 Expected: Zero matches.
 
@@ -436,7 +436,7 @@ Expected: Zero matches.
 ```bash
 git add skills/swain-search/references/manifest-schema.md \
       skills/swain-search/references/normalization-formats.md \
-      skills/swain-search/references/evidencewatch-guide.md
+      skills/swain-search/references/trovewatch-guide.md
 git commit -m "feat: update swain-search reference docs for trove rename"
 ```
 
@@ -488,18 +488,18 @@ git commit -m "feat: rename evidence-pool-integration to trove-integration"
 
 ---
 
-## Chunk 3: evidencewatch Structural Changes
+## Chunk 3: trovewatch Structural Changes
 
-### Task 6: Update evidencewatch.sh scanning logic
+### Task 6: Update trovewatch.sh scanning logic
 
 **Files:**
-- Modify: `skills/swain-search/scripts/evidencewatch.sh`
+- Modify: `skills/swain-search/scripts/trovewatch.sh`
 
 The scanning logic currently looks for flat `NNN-slug.md` files. It needs to walk `sources/<source-id>/` directories instead. It also needs to handle `selective: true` sources.
 
-- [ ] **Step 1: Read the current evidencewatch.sh**
+- [ ] **Step 1: Read the current trovewatch.sh**
 
-Read `skills/swain-search/scripts/evidencewatch.sh` in full. Identify:
+Read `skills/swain-search/scripts/trovewatch.sh` in full. Identify:
 - Line 12: `POOLS_DIR="docs/evidence-pools"` — change to `TROVES_DIR="docs/troves"`
 - The Python scanning block (~lines 183-211) that constructs filenames as `{id}-{slug}.md`
 - The orphan detection logic that expects flat files in `sources/`
@@ -533,8 +533,8 @@ Replace all "evidence pool" strings in echo/log statements with "trove".
 - [ ] **Step 6: Commit (testing deferred to Task 8 Step 7 after migration runs)**
 
 ```bash
-git add skills/swain-search/scripts/evidencewatch.sh
-git commit -m "feat: update evidencewatch scanning for directory-per-source layout"
+git add skills/swain-search/scripts/trovewatch.sh
+git commit -m "feat: update trovewatch scanning for directory-per-source layout"
 ```
 
 ---
@@ -634,9 +634,9 @@ Run: `grep -r '^trove:' docs/ | head -5` — should show updated frontmatter.
 
 Run: `ls docs/evidence-pools/ 2>&1` — should show "No such file or directory".
 
-- [ ] **Step 7: Run evidencewatch to validate**
+- [ ] **Step 7: Run trovewatch to validate**
 
-Run: `bash skills/swain-search/scripts/evidencewatch.sh scan`
+Run: `bash skills/swain-search/scripts/trovewatch.sh scan`
 
 Expected: Clean scan, no warnings for the migrated troves.
 
@@ -682,7 +682,7 @@ Walk through each AC from the spec:
 9. Migration is idempotent — run `bash skills/swain-search/scripts/migrate-to-troves.sh` again, verify no-op
 10. swain-doctor detects migration — check SKILL.md and preflight.sh
 11. All skill references updated — confirmed by grep in Step 1
-12. Existing troves functional — evidencewatch scan clean
+12. Existing troves functional — trovewatch scan clean
 
 - [ ] **Step 4: Commit any fixes found during verification**
 

@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# evidencewatch — monitor troves for size, freshness, and consistency
+# trovewatch — monitor troves for size, freshness, and consistency
 #
 # Usage:
-#   evidencewatch.sh scan     Check all troves for issues
-#   evidencewatch.sh status   Summary of all troves
+#   trovewatch.sh scan     Check all troves for issues
+#   trovewatch.sh status   Summary of all troves
 
 # --- Configuration ---
 
 TROVES_DIR="docs/troves"
-LOG_FILE=".agents/evidencewatch.log"
-CONFIG_FILE=".agents/evidencewatch.vars.json"
+LOG_FILE=".agents/trovewatch.log"
+CONFIG_FILE=".agents/trovewatch.vars.json"
 
 # Defaults (overridable via config file)
 MAX_SOURCES_PER_TROVE=20
@@ -30,7 +30,7 @@ warn() {
 }
 
 die() {
-  echo "evidencewatch: error: $1" >&2
+  echo "trovewatch: error: $1" >&2
   exit 2
 }
 
@@ -299,17 +299,17 @@ main() {
   case "$cmd" in
     scan)
       echo "" > "$LOG_FILE"
-      log "=== evidencewatch scan $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+      log "=== trovewatch scan $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
       if [ ! -d "$TROVES_DIR" ]; then
-        echo "evidencewatch: no troves found (${TROVES_DIR}/ does not exist)."
+        echo "trovewatch: no troves found (${TROVES_DIR}/ does not exist)."
         exit 0
       fi
 
       local total_issues=0
       local trove_count=0
 
-      echo "evidencewatch: scanning troves..."
+      echo "trovewatch: scanning troves..."
       echo ""
 
       for trove_dir in "$TROVES_DIR"/*/; do
@@ -319,22 +319,22 @@ main() {
       done
 
       if [ "$trove_count" -eq 0 ]; then
-        echo "evidencewatch: no troves found in ${TROVES_DIR}/."
+        echo "trovewatch: no troves found in ${TROVES_DIR}/."
         exit 0
       fi
 
       if [ "$total_issues" -gt 0 ]; then
-        echo "evidencewatch: found ${total_issues} issue(s) across ${trove_count} trove(s). See ${LOG_FILE}"
+        echo "trovewatch: found ${total_issues} issue(s) across ${trove_count} trove(s). See ${LOG_FILE}"
         exit 1
       else
-        echo "evidencewatch: all ${trove_count} trove(s) healthy."
+        echo "trovewatch: all ${trove_count} trove(s) healthy."
         exit 0
       fi
       ;;
 
     status)
       if [ ! -d "$TROVES_DIR" ]; then
-        echo "evidencewatch: no troves found."
+        echo "trovewatch: no troves found."
         exit 0
       fi
 
@@ -356,13 +356,13 @@ main() {
       ;;
 
     help|--help|-h)
-      echo "Usage: evidencewatch.sh <command>"
+      echo "Usage: trovewatch.sh <command>"
       echo ""
       echo "Commands:"
       echo "  scan     Check all troves for size, freshness, and consistency issues"
       echo "  status   Summary of all troves"
       echo ""
-      echo "Configuration: .agents/evidencewatch.vars.json"
+      echo "Configuration: .agents/trovewatch.vars.json"
       echo "  max_sources_per_trove  (default: 20)"
       echo "  max_trove_size_mb      (default: 5)"
       echo "  freshness_multiplier   (default: 1.5)"

@@ -112,7 +112,7 @@ If all scripts are already executable, this step is silent.
 The `.agents/` directory stores per-project configuration for swain skills:
 - `execution-tracking.vars.json` — swain-do first-run config
 - `specwatch.log` — swain-design stale reference log
-- `evidencewatch.log` — swain-search pool refresh log
+- `trovewatch.log` — swain-search pool refresh log
 
 ### Check and create
 

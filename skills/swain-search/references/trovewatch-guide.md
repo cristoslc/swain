@@ -1,4 +1,4 @@
-# evidencewatch Guide
+# trovewatch Guide
 
 Monitor troves for size, freshness, and consistency.
 
@@ -6,10 +6,10 @@ Monitor troves for size, freshness, and consistency.
 
 ```bash
 # Check all troves for issues
-bash skills/swain-search/scripts/evidencewatch.sh scan
+bash skills/swain-search/scripts/trovewatch.sh scan
 
 # Summary of all troves
-bash skills/swain-search/scripts/evidencewatch.sh status
+bash skills/swain-search/scripts/trovewatch.sh status
 ```
 
 ## What it checks
@@ -27,7 +27,7 @@ bash skills/swain-search/scripts/evidencewatch.sh status
 
 Exit code 0 = all healthy, 1 = warnings found.
 
-Output goes to stdout (summary) and `.agents/evidencewatch.log` (details).
+Output goes to stdout (summary) and `.agents/trovewatch.log` (details).
 
 ### status
 
@@ -35,7 +35,7 @@ One-line summary per trove: source count, size, last refreshed date, tags.
 
 ## Configuration
 
-Create `.agents/evidencewatch.vars.json` to override defaults:
+Create `.agents/trovewatch.vars.json` to override defaults:
 
 ```json
 {
@@ -53,4 +53,4 @@ Create `.agents/evidencewatch.vars.json` to override defaults:
 
 ## Integration with swain-search
 
-After extending or refreshing a trove, run `evidencewatch.sh scan` to verify the trove is healthy. The swain-search skill can invoke this automatically after collection.
+After extending or refreshing a trove, run `trovewatch.sh scan` to verify the trove is healthy. The swain-search skill can invoke this automatically after collection.

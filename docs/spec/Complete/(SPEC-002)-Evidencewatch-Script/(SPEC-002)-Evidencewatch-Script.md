@@ -1,5 +1,5 @@
 ---
-title: "evidencewatch Script"
+title: "trovewatch Script"
 artifact: SPEC-002
 track: implementable
 status: Complete
@@ -14,7 +14,7 @@ depends-on-artifacts:
   - SPEC-001
 ---
 
-# evidencewatch Script
+# trovewatch Script
 
 ## Problem Statement
 
@@ -22,18 +22,18 @@ Evidence pools can grow unbounded and sources can go stale without anyone notici
 
 ## External Behavior
 
-A bash script at `skills/swain-search/scripts/evidencewatch.sh` with subcommands:
+A bash script at `skills/swain-search/scripts/trovewatch.sh` with subcommands:
 
-- `evidencewatch.sh scan` — check all pools for size, freshness, and consistency issues
-- `evidencewatch.sh status` — summary of all pools (source count, last refreshed, health)
+- `trovewatch.sh scan` — check all pools for size, freshness, and consistency issues
+- `trovewatch.sh status` — summary of all pools (source count, last refreshed, health)
 
 Exit codes: 0 = healthy, 1 = warnings found.
 
-Output goes to stdout (summary) and `.agents/evidencewatch.log` (details).
+Output goes to stdout (summary) and `.agents/trovewatch.log` (details).
 
 ### Configurable thresholds
 
-Defaults (overridable via `.agents/evidencewatch.vars.json`):
+Defaults (overridable via `.agents/trovewatch.vars.json`):
 
 | Threshold | Default | What it checks |
 |-----------|---------|---------------|
@@ -43,13 +43,13 @@ Defaults (overridable via `.agents/evidencewatch.vars.json`):
 
 ## Acceptance Criteria
 
-1. **Given** a pool with >20 sources, **when** `evidencewatch.sh scan` runs, **then** it warns about oversized pool with source count.
+1. **Given** a pool with >20 sources, **when** `trovewatch.sh scan` runs, **then** it warns about oversized pool with source count.
 2. **Given** a pool >5MB, **when** scan runs, **then** it warns about pool size.
 3. **Given** a source past its TTL, **when** scan runs, **then** it flags the stale source with age and TTL.
 4. **Given** a source file in `sources/` not listed in manifest, **when** scan runs, **then** it reports the orphaned file.
 5. **Given** a manifest entry with no corresponding source file, **when** scan runs, **then** it reports the missing file.
 6. **Given** all pools are healthy, **when** scan runs, **then** it exits 0 with "all pools healthy".
-7. **Given** custom thresholds in `.agents/evidencewatch.vars.json`, **when** scan runs, **then** it uses the custom values.
+7. **Given** custom thresholds in `.agents/trovewatch.vars.json`, **when** scan runs, **then** it uses the custom values.
 
 ## Lifecycle
 
@@ -57,4 +57,4 @@ Defaults (overridable via `.agents/evidencewatch.vars.json`):
 |-------|------|--------|-------|
 | Draft | 2026-03-09 | — | Initial creation |
 | Approved | 2026-03-11 | — | Approved for implementation |
-| Implemented | 2026-03-13 | 93f39f5 | Transitioned — evidencewatch.sh fully implements all 7 AC |
+| Implemented | 2026-03-13 | 93f39f5 | Transitioned — trovewatch.sh fully implements all 7 AC |

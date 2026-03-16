@@ -102,7 +102,7 @@ When a capability isn't available, the skill degrades gracefully:
 - Graceful degradation for missing capabilities
 
 **Out of scope:**
-- evidencewatch script (SPEC-002)
+- trovewatch script (SPEC-002)
 - swain-design integration hooks (SPEC-003)
 - Semantic pool discovery (phase 2)
 

@@ -12,7 +12,7 @@ success-criteria:
   - swain-search skill can collect sources from web, local files, and video/audio and normalize them into a consistent markdown format
   - Evidence pools are cached in docs/evidence-pools/<pool-id>/ with manifest, normalized sources, and auto-generated synthesis
   - Multiple artifacts can reference the same pool via evidence-pool frontmatter with commit-hash pinning
-  - evidencewatch script detects oversized and stale pools with configurable thresholds
+  - trovewatch script detects oversized and stale pools with configurable thresholds
   - swain-design invokes swain-search when spikes enter Active or during ADR research
 addresses: []
 linked-artifacts: []
@@ -32,7 +32,7 @@ Add a `swain-search` skill that builds reusable evidence pools — collections o
 - manifest.yaml schema for pool metadata and provenance
 - Source normalization to markdown for: web pages, PDFs, video/audio transcripts, forum threads, local documents
 - Auto-generated synthesis.md per pool
-- evidencewatch script (pool size + freshness monitoring)
+- trovewatch script (pool size + freshness monitoring)
 - swain-design integration (invoke swain-search on spike Active, ADR research)
 - evidence-pool frontmatter field with commit-hash pinning
 - Tag-based pool discovery (phase 1)
@@ -66,7 +66,7 @@ docs/evidence-pools/<pool-id>/
 | Spec | Title | Status |
 |------|-------|--------|
 | SPEC-001 | swain-search skill (SKILL.md, normalization formats, manifest schema) | Implemented |
-| SPEC-002 | evidencewatch script (size + freshness monitoring) | Implemented |
+| SPEC-002 | trovewatch script (size + freshness monitoring) | Implemented |
 | SPEC-003 | swain-design integration (evidence pool hooks, frontmatter linking) | Implemented |
 
 ## Key Dependencies
