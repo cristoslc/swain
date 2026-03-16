@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: ""
+parent-initiative: INITIATIVE-001
 success-criteria:
   - swain-session bookmarks capture the active worktree path alongside context, not just main-tree coordinates
   - Restoring a bookmark in a different worktree (or from main) routes the operator to the correct worktree

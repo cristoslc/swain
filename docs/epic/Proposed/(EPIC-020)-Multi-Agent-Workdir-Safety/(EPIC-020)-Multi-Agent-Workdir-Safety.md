@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-001
 success-criteria:
   - Multiple agents can operate in the same project without stomping on each other's files
   - Race conditions on shared state (.tickets/, artifact indexes, session.json) are prevented or safely resolved
