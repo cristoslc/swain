@@ -1,5 +1,45 @@
 # Changelog
 
+## [0.5.0-alpha] - 2026-03-15
+
+### Prioritization Layer
+
+Swain now answers "what matters most?" — not just "what's actionable?"
+
+**Initiative artifact type** — a new layer between Vision and Epic for grouping
+related work under a strategic focus. Epics and standalone specs attach to
+Initiatives; Initiatives attach to Visions. This gives the operator a way to
+say "security matters more than polish right now" and have swain's
+recommendations follow.
+
+**Vision-weighted recommendations** — Visions carry a `priority-weight`
+(high/medium/low) that cascades through the hierarchy. The recommendation
+formula (`score = unblock_count × vision_weight`) surfaces decisions with the
+most downstream leverage in the highest-priority strategic direction.
+
+**Attention tracking** — swain scans git history to show where the operator has
+actually been spending time vs. where they said they'd focus. Drift alerts fire
+when a high-priority vision goes untouched past a configurable threshold.
+
+**Focus lane** — the operator can say "focus on security" to scope
+recommendations to a single vision or initiative. Other lanes appear as
+peripheral awareness ("Meanwhile: Design has 4 pending decisions") — visible
+but not nagging.
+
+**Guided migration** — `swain-doctor` detects existing epics without an
+Initiative parent and walks the operator through grouping them, creating
+Initiatives, and setting vision weights. Migration is incremental — one vision
+at a time.
+
+### Supporting Changes
+
+- Three new specgraph commands: `recommend`, `decision-debt`, `attention`
+- Mode inference in swain-status (vision mode vs detail mode, with ask on ambiguity)
+- Artifact type selection guide in swain-design (Initiative vs Epic vs Spec)
+- Metadata update workflow for `priority-weight` and `parent-initiative`
+- Prioritization settings in `swain.settings.json` (drift thresholds, attention window)
+- Updated all reference docs: relationship model, lifecycle tracks, specgraph guide, phase transitions, quick-ref
+
 ## [0.4.0-alpha] - 2026-03-14
 
 ### Changes
