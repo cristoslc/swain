@@ -1,6 +1,6 @@
 trove: cognee-meta-skill
 created: 2026-03-15
-refreshed: 2026-03-15T21:15:00Z
+refreshed: 2026-03-16T00:00:00Z
 tags:
 - cognee
 - meta-skill
@@ -11,6 +11,9 @@ tags:
 - skill-routing
 - claude-code-skills
 - SKILL.md
+- skill-evals
+- skill-benchmarking
+- skill-triggering
 
 freshness-ttl:
   web: 14d
@@ -182,5 +185,15 @@ sources:
   hash: "8219c25ad7d4e5e7ac4f6ca78a01dd05e3287695cb53c91fd42b153f1a09d0cc"
   notes: "Unit tests for parser, execute, inspect, and amendify — shows expected behavior
     and edge cases"
+  highlights: []
+  selective: false
+- source-id: 017-skill-creator-eval-benchmark
+  type: web
+  url: "https://claude.com/blog/improving-skill-creator-test-measure-and-refine-agent-skills"
+  fetched: 2026-03-16T00:00:00Z
+  title: "Improving skill-creator: Test, measure, and refine Agent Skills"
+  hash: "15b7d9b48d41d44c5821021af315d42122bb3b042b2cb66ebe96d703dd769921"
+  notes: "Anthropic's official skill-creator enhancements: evals, benchmarks, multi-agent
+    parallel eval, comparator agents, description tuning for trigger accuracy"
   highlights: []
   selective: false

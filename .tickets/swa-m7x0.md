@@ -1,6 +1,6 @@
 ---
 id: swa-m7x0
-status: in_progress
+status: closed
 deps: []
 links: []
 created: 2026-03-16T19:17:41Z
@@ -58,3 +58,9 @@ git commit -m "research(SPIKE-025): TOTP-in-the-clear GO/NO-GO assessment"
 
 ---
 
+
+## Notes
+
+**2026-03-16T19:31:16Z**
+
+Completed: TOTP-in-the-clear assessment with replay window analysis, one-time-use feasibility, practical risk rating, and GO/NO-GO recommendation

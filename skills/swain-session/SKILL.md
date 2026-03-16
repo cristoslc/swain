@@ -26,7 +26,7 @@ This skill is invoked automatically at session start (see AGENTS.md). When auto-
 
 When invoked manually, the user can change preferences or bookmark context.
 
-## Step 1 — Set terminal tab name (tmux only)
+## Step 1 — Set terminal tab/session name (tmux only)
 
 Check if `$TMUX` is set. If yes, run the tab-naming script:
 
@@ -35,6 +35,8 @@ bash "$(dirname "$0")/../skills/swain-session/scripts/swain-tab-name.sh" --auto
 ```
 
 Use the project root to locate the script. The script reads `swain.settings.json` for the tab name format (default: `{project} @ {branch}`).
+
+The script renames **both** the tmux window (tab) and the tmux session. Git context (project name and branch) is resolved from the **active pane's working directory**, so the names reflect wherever the operator is actually working.
 
 If this fails (e.g., not in a git repo), set a fallback title of "swain".
 
