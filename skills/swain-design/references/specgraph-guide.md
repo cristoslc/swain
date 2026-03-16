@@ -1,36 +1,72 @@
 # Specgraph Guide
 
-Reference for `specgraph.sh` subcommands and output interpretation.
+Reference for `chart.sh` (swain chart) and `specgraph.sh` subcommands.
 
-## Subcommands
+> **Note:** `chart.sh` is the primary interface. `specgraph.sh` is a deprecated alias that continues to work.
+
+## swain chart — vision-rooted hierarchy
+
+`chart.sh` renders all artifacts as a tree rooted at Vision artifacts. Titles are the primary label; IDs are hidden by default. Lenses filter and annotate the tree for different decision contexts.
+
+### Lenses
+
+| Command | What it shows | Default depth |
+|---------|-------------|---------------|
+| `chart.sh` | **Default.** All non-terminal artifacts with status icons | strategic (2) |
+| `chart.sh ready` | Unblocked artifacts ready for work | execution (4) |
+| `chart.sh recommend [--focus ID]` | Scored by priority × unblock count | strategic (2) |
+| `chart.sh attention [--days N]` | Recent git activity per vision | strategic (2) |
+| `chart.sh debt` | Unresolved decisions (Proposed Spikes/ADRs/Epics) | strategic (2) |
+| `chart.sh unanchored` | Artifacts with no Vision ancestry | strategic (2) |
+| `chart.sh status` | All artifacts annotated with phase | strategic (2) |
+
+### Display options
+
+| Flag | Effect |
+|------|--------|
+| `--depth N` | Set tree depth (2=strategic, 4=execution) |
+| `--detail` | Alias for `--depth 4` |
+| `--phase active,ready` | Only show artifacts in these phases |
+| `--hide-terminal` | Exclude Complete, Abandoned, etc. |
+| `--ids` | Show artifact IDs alongside titles |
+| `--flat` | Flat list output for scripting |
+| `--json` | Structured JSON output |
+
+### Depth precedence
+
+1. `--depth N` — explicit flag, always wins
+2. Focus lane — execution depth (4) when set, strategic (2) when unset
+3. Lens default — each lens defines its own
+
+## Low-level graph queries
+
+These commands pass through to the specgraph engine:
 
 | Command | What it does |
 |---------|-------------|
-| `overview` | **Default.** Hierarchy tree with status indicators + execution tracking |
 | `build` | Force-rebuild graph from frontmatter |
 | `blocks <ID>` | What does this artifact depend on? (direct dependencies) |
 | `blocked-by <ID>` | What depends on this artifact? (inverse lookup) |
-| `tree <ID>` | Transitive dependency tree (all ancestors) |
+| `deps <ID>` | Transitive dependency closure (all ancestors). Formerly `tree`. |
+| `tree <ID>` | Alias for `deps` (backward compat) |
 | `ready` | Active/Planned artifacts with all deps resolved |
-| `next` | What to work on next (ready items + what they unblock, blocked items + what they need) |
+| `next` | What to work on next (ready items + what they unblock) |
 | `mermaid` | Mermaid diagram to stdout |
 | `status` | Summary table by type and phase |
 | `neighbors <ID>` | All directly connected artifacts (any edge type, both directions) |
 | `scope <ID>` | Alignment scope — parent chain to Vision, siblings, lateral links |
 | `impact <ID>` | Everything that references this artifact transitively |
 | `edges [<ID>]` | Raw edge list with types, optionally filtered to one artifact |
-| `recommend [--focus VISION-ID] [--json]` | Ranked recommendations by score = unblock_count × vision_weight |
-| `decision-debt [--json]` | Decision debt per vision (unresolved blocking artifacts) |
-| `attention [--days N] [--json]` | Attention distribution and drift detection from git history |
-
-## Options
+| `recommend [--focus VISION-ID] [--json]` | Ranked recommendations |
+| `decision-debt [--json]` | Decision debt per vision |
+| `attention [--days N] [--json]` | Attention distribution and drift detection |
 
 | Flag | Effect |
 |------|--------|
-| `--all` | Include finished artifacts (terminal states like Complete, Abandoned, etc.). By default `overview`, `status`, and `mermaid` hide them to reduce noise. |
-| `--all-edges` | Show all edge types in mermaid output (not just depends-on and parent edges). |
+| `--all` | Include finished artifacts (terminal states). |
+| `--all-edges` | Show all edge types in mermaid output. |
 
-Run `blocks <ID>` before phase transitions to verify dependencies are resolved. Run `ready` to find unblocked work. Run `tree <ID>` for transitive dependency chains. Run `scope <ID>` before alignment checks.
+Run `blocks <ID>` before phase transitions to verify dependencies are resolved. Run `chart.sh ready` to find unblocked work. Run `deps <ID>` for transitive dependency chains. Run `scope <ID>` before alignment checks.
 
 ## Overview output
 
