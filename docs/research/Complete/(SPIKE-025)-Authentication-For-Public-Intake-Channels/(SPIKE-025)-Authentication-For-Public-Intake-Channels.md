@@ -2,7 +2,7 @@
 title: "Authentication for Public Intake Channels"
 artifact: SPIKE-025
 track: research
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-16
 last-updated: 2026-03-16
@@ -55,6 +55,7 @@ TOTP (time-based one-time password) was the initial candidate, but TOTP codes po
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-16 | — | Created during INITIATIVE-008 brainstorming |
+| Complete | 2026-03-16 | — | TOTP NO-GO; HMAC-SHA256 recommended with author-allowlist warm path |
 
 ## Findings: Threat Model
 
@@ -404,3 +405,139 @@ If the auth mechanism needs to change:
 1. **HMAC → Ed25519:** Add Ed25519 verification to the filter chain alongside HMAC. Both mechanisms coexist (footer format distinguishes them). Deprecate HMAC after migration window.
 2. **Single operator → multi-operator:** Each operator gets their own key pair. The filter chain checks against a list of public keys. Author allowlist becomes essential (maps GitHub identity to expected signing key).
 3. **Secret compromise:** Rotate the HMAC key in GitHub Actions secrets and operator config. Old signatures become invalid. Re-sign any open issues that should remain authenticated.
+
+## Integration Sketch
+
+### Where auth fits in the EPIC-024 filter chain
+
+The auth check runs at **step 3** of the filter chain defined in EPIC-024. The updated flow:
+
+```
+1. FETCH     — query open issues by pollLabel from configured repos
+2. DEDUP     — skip issues with processedLabel
+3. AUTH      — check for swain-auth footer → fast path or warm path
+   ├─ HMAC valid       → FAST PATH (skip to step 6)
+   ├─ author_association ∈ {OWNER,MEMBER,COLLABORATOR} → WARM PATH (skip to step 5)
+   └─ neither          → SLOW PATH (continue to step 4)
+4. AUTHOR    — check author against allowlist
+5. CONTENT   — match required/excluded content patterns
+6. CLASSIFY  — agent determines artifact type (SPEC/EPIC/SPIKE)
+7. MARK      — label issue as processed, comment with artifact link
+```
+
+The warm path skips the author allowlist check (step 4) since `author_association` is a stronger signal, but still goes through content pattern matching (step 5) to catch accidental or draft submissions.
+
+### Configuration shape
+
+Extends the `intake` key in `swain.settings.json`:
+
+```json
+{
+  "intake": {
+    "repos": ["owner/repo"],
+    "pollLabel": "agent-intake",
+    "processedLabel": "intake-processed",
+    "auth": {
+      "method": "hmac-sha256",
+      "secretEnvVar": "SWAIN_INTAKE_HMAC_SECRET"
+    },
+    "warmPathAssociations": ["OWNER", "MEMBER", "COLLABORATOR"],
+    "authors": ["cristoslc"],
+    "contentPatterns": {
+      "required": [],
+      "excluded": ["\\[question\\]", "\\[discussion\\]"]
+    },
+    "cronSchedule": "*/15 * * * *"
+  }
+}
+```
+
+Key changes from the original design:
+- `authMethod: "totp"` replaced with `auth.method: "hmac-sha256"` and `auth.secretEnvVar` pointing to the GitHub Actions secret name
+- `warmPathAssociations` added to configure which `author_association` values qualify for the warm path
+- `authors` remains for the slow-path allowlist (step 4)
+
+### Auth validation pseudocode
+
+```python
+def check_auth(issue: GitHubIssue, config: IntakeConfig) -> AuthResult:
+    """Deterministic auth check — no LLM involvement."""
+
+    # Check for swain-auth footer
+    footer_match = re.search(
+        r'<!-- swain-auth: (\w[\w-]+):(\S+) -->',
+        issue.body
+    )
+
+    if footer_match:
+        mechanism = footer_match.group(1)  # e.g., "hmac-sha256"
+        signature = footer_match.group(2)  # e.g., hex digest
+
+        if mechanism == "hmac-sha256":
+            # Strip the footer to get the signed body
+            signed_body = issue.body[:footer_match.start()].rstrip()
+            secret = os.environ[config.auth.secretEnvVar]
+            expected = hmac.new(
+                secret.encode(), signed_body.encode(), hashlib.sha256
+            ).hexdigest()
+
+            if hmac.compare_digest(signature, expected):
+                return AuthResult.FAST_PATH
+
+        elif mechanism == "ed25519":
+            # Future: verify Ed25519 signature against public key
+            pass
+
+    # Check warm path (author association)
+    if issue.author_association in config.warmPathAssociations:
+        return AuthResult.WARM_PATH
+
+    # Fall through to slow path
+    return AuthResult.SLOW_PATH
+```
+
+### How the operator submits an authenticated issue
+
+**With the CLI helper (recommended):**
+
+```bash
+# One-command workflow
+swain intake create --repo owner/repo \
+  --title "[SPEC] Add rate limiting to API" \
+  --body-file issue.md \
+  --label agent-intake
+
+# What happens under the hood:
+# 1. Reads issue body from issue.md
+# 2. Canonicalizes (UTF-8, LF, strip trailing whitespace)
+# 3. Computes HMAC-SHA256 with secret from ~/.swain/intake.json
+# 4. Appends <!-- swain-auth: hmac-sha256:<digest> --> footer
+# 5. Creates issue via `gh issue create`
+```
+
+**Without the CLI helper (manual):**
+
+```bash
+# 1. Write your issue body
+cat > /tmp/issue.md << 'BODY'
+Implement rate limiting for the public API endpoints...
+BODY
+
+# 2. Compute HMAC
+HMAC=$(cat /tmp/issue.md | openssl dgst -sha256 -hmac "$SWAIN_INTAKE_HMAC_SECRET" | awk '{print $NF}')
+
+# 3. Append footer and create issue
+echo "" >> /tmp/issue.md
+echo "<!-- swain-auth: hmac-sha256:$HMAC -->" >> /tmp/issue.md
+gh issue create --repo owner/repo --title "[SPEC] Rate limiting" --body-file /tmp/issue.md --label agent-intake
+```
+
+### How failed auth routes to the slow path
+
+A failed auth check does NOT reject the issue. It routes to the slow path:
+
+- **Missing footer:** No `<!-- swain-auth: ... -->` found → slow path (author allowlist + content patterns)
+- **Invalid signature:** Footer present but HMAC doesn't match → slow path (treat as unsigned; the signature may have been corrupted by editing)
+- **Unknown mechanism:** Footer specifies an unrecognized mechanism → slow path (forward-compatible; new mechanisms added later won't break old filters)
+
+The slow path is the default, not a failure mode. Most issues (questions, discussions, feature requests from community members) will take the slow path and be filtered by author allowlist and content patterns. The fast path is an optimization for the operator's own authenticated submissions.
