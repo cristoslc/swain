@@ -140,3 +140,18 @@ class TestIsResolvedWithTrack:
         assert is_resolved("VISION", "Active", track=None) is True
         # SPEC is implementable by inference, so Active should NOT resolve
         assert is_resolved("SPEC", "Active", track=None) is False
+
+
+def test_initiative_container_track():
+    """INITIATIVE uses container track — resolved only at terminal statuses."""
+    assert not is_resolved("INITIATIVE", "Proposed")
+    assert not is_resolved("INITIATIVE", "Active")
+    assert is_resolved("INITIATIVE", "Complete")
+    assert is_resolved("INITIATIVE", "Abandoned")
+    assert is_resolved("INITIATIVE", "Superseded")
+
+
+def test_initiative_with_track_field():
+    """INITIATIVE with explicit track=container works correctly."""
+    assert not is_resolved("INITIATIVE", "Active", track="container")
+    assert is_resolved("INITIATIVE", "Complete", track="container")

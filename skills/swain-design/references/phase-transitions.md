@@ -29,20 +29,34 @@ Phases listed in the artifact definition files are available waypoints, not mand
 
 ## Completion rules
 
+- An Initiative is "Complete" only when all child Epics are "Complete" and its stated objectives are met.
 - An Epic is "Complete" only when all child Agent Specs are "Complete" and success criteria are met.
 - An Agent Spec is "Complete" only when its implementation plan is closed (or all tasks are done in fallback mode) **and** its Verification table confirms all acceptance criteria pass (enforced by `spec-verify.sh`).
 - An ADR is "Superseded" only when the superseding ADR is "Active" and links back.
 
 ## Child artifact propagation
 
-When a parent artifact (e.g., EPIC, VISION) transitions to a new phase, child artifacts that were already attached at the time of the transition should be promoted to the equivalent phase automatically:
+When a parent artifact (e.g., INITIATIVE, EPIC, VISION) transitions to a new phase, child artifacts that were already attached at the time of the transition should be promoted to the equivalent phase automatically:
 
-1. After completing the parent's own phase transition (steps 1–9 above), identify all child artifacts currently linked to the parent (via `parent-epic`, `parent-vision`, `linked-specs`, `linked-research`, etc.).
+1. After completing the parent's own phase transition (steps 1–9 above), identify all child artifacts currently linked to the parent (via `parent-initiative`, `parent-epic`, `parent-vision`, `linked-specs`, `linked-research`, etc.).
 2. For each child that is in the same phase as the parent *was* (or in `Proposed` if the parent was being activated), transition it to match the parent's new phase using the same workflow.
 3. Children created **after** a parent transition are not affected retroactively — they follow the normal creation rules (user-requested → Active; agent-suggested → Proposed).
 4. If a child has already advanced past the equivalent phase, leave it in its current phase — only pull lagging children forward, never push advanced ones backward.
 
 **Example:** User promotes EPIC-005 from `Proposed` → `Active`. SPEC-012 and SPIKE-014, both currently in `Proposed`, are automatically promoted to `Active`. SPEC-013, already in `InProgress`, is left alone.
+
+## INITIATIVE phase transitions
+
+INITIATIVE follows the **container track** (same as EPIC): `Proposed → Active → Complete`, with `Abandoned` and `Superseded` available from any phase.
+
+| From | To | Gate |
+|------|----|------|
+| Proposed | Active | Objectives and scope defined; at least one child Epic linked |
+| Active | Complete | All child Epics are Complete and stated objectives are met |
+| Any | Abandoned | Intentionally dropped — record rationale in the lifecycle table Notes column |
+| Active | Superseded | A replacement Initiative exists and links back via `superseded-by` |
+
+Use two-commit stamp for all INITIATIVE transitions (same rule as EPIC).
 
 ## EPIC completion hook
 

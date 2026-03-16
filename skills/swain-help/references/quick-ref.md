@@ -19,7 +19,7 @@
 
 ## Artifacts
 
-Swain manages 9 artifact types, organized into three lifecycle tracks.
+Swain manages 10 artifact types, organized into three lifecycle tracks.
 
 ### Implementable track (tracked via tk)
 
@@ -33,7 +33,8 @@ These require a tracked plan (via swain-do) before implementation begins.
 
 | Type | ID Pattern | Phases | When to use |
 |------|-----------|--------|-------------|
-| **Epic** | EPIC-NNN | Proposed → Active → Complete | Large initiative decomposed into specs |
+| **Initiative** | INITIATIVE-NNN | Proposed → Active → Complete | Strategic grouping of Epics under a Vision — prioritization and decision tracking |
+| **Epic** | EPIC-NNN | Proposed → Active → Complete | Large deliverable decomposed into specs |
 | **Spike** | SPIKE-NNN | Proposed → Active → Complete | Time-boxed investigation to reduce uncertainty |
 
 ### Standing track (no tracking)
@@ -49,11 +50,18 @@ These require a tracked plan (via swain-do) before implementation begins.
 
 ### Artifact relationships
 
-- **Vision** → decomposes into Epics and Journeys
+- **Vision** → decomposes into Initiatives, Epics, and Journeys
+- **Initiative** → groups related Epics (and optionally Specs) under a Vision
 - **Epic** → decomposes into Specs, Spikes
 - **Spec** → may reference ADRs, Personas, Designs
 - **Spike** → attaches to any artifact, may produce ADRs
 - Any artifact can declare `depends-on:` blocking dependencies
+
+### When to use which
+
+- **Initiative vs Epic**: Initiative = strategic direction with multiple deliverables ("harden security"). Epic = single deliverable with multiple specs ("build scanning tool"). If it needs 2+ epics, it's an Initiative.
+- **Spec under Initiative**: Small work (bugs, enhancements) can attach directly to an Initiative without an Epic wrapper. If it clusters, promote to an Epic.
+- **Spec under Epic vs standalone Spec**: Use `parent-epic` when the spec is part of a planned deliverable. Standalone specs are for one-off fixes.
 
 ## Commands
 
@@ -137,6 +145,7 @@ CLAUDE.md contains just `@AGENTS.md`, which includes the full AGENTS.md file. Th
 ├── .agents/               # Swain config and logs
 └── docs/
     ├── vision/            # VISION artifacts
+    ├── initiative/        # INITIATIVE artifacts
     ├── epic/              # EPIC artifacts
     ├── spec/              # SPEC artifacts
     ├── spike/             # SPIKE artifacts

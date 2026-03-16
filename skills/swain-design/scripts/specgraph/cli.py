@@ -154,6 +154,13 @@ def main(argv: list[str] | None = None) -> None:
     for cmd in ("ready", "next", "mermaid", "status", "overview"):
         subparsers.add_parser(cmd)
 
+    # Priority commands
+    subparsers.add_parser("decision-debt", help="Show decision debt per vision")
+    rec_parser = subparsers.add_parser("recommend", help="Show ranked recommendation")
+    rec_parser.add_argument("--focus", default=None, help="Focus vision ID (e.g. VISION-001)")
+    rec_parser.add_argument("--json", action="store_true", help="Output raw JSON")
+
+
     # attention: drift detection
     att_parser = subparsers.add_parser("attention", help="Show attention distribution by vision")
     att_parser.add_argument("--days", type=int, default=30, help="Lookback window in days")
@@ -203,12 +210,40 @@ def main(argv: list[str] | None = None) -> None:
             print(queries.status_cmd(nodes, edges, show_all))
         elif args.command == "overview":
             print(queries.overview(nodes, edges, show_all, repo_root_str, show_links))
+        elif args.command == "decision-debt":
+            from .priority import compute_decision_debt
+            import json as _json
+            debt = compute_decision_debt(nodes, edges)
+            print(_json.dumps(debt, indent=2))
+        elif args.command == "recommend":
+            from .priority import rank_recommendations
+            import json as _json
+            focus = getattr(args, "focus", None)
+            ranked = rank_recommendations(nodes, edges, focus_vision=focus)
+            if getattr(args, "json", False):
+                print(_json.dumps(ranked, indent=2))
+            else:
+                for i, item in enumerate(ranked[:10]):
+                    marker = "→ " if i == 0 else "  "
+                    print(f"{marker}{item['id']}  score={item['score']}  unblocks={item['unblock_count']}  weight={item['vision_weight']}  vision={item['vision_id'] or 'none (orphan)'}")
         elif args.command == "attention":
             from .attention import scan_git_log, compute_attention, compute_drift
             import json as _json
-            log_entries = scan_git_log(repo_root, days=getattr(args, "days", 30))
+            # Read settings for drift thresholds
+            settings_path = repo_root / "swain.settings.json"
+            drift_thresholds = None
+            att_days = getattr(args, "days", 30)
+            if settings_path.exists():
+                try:
+                    settings = _json.loads(settings_path.read_text())
+                    p = settings.get("prioritization", {})
+                    drift_thresholds = p.get("driftThresholds")
+                    att_days = p.get("attentionWindowDays", att_days)
+                except (ValueError, KeyError):
+                    pass
+            log_entries = scan_git_log(repo_root, days=att_days)
             attention = compute_attention(log_entries, nodes, edges)
-            drift = compute_drift(attention, nodes)
+            drift = compute_drift(attention, nodes, drift_thresholds=drift_thresholds)
             if getattr(args, "json", False):
                 print(_json.dumps({"attention": attention, "drift": drift}, indent=2))
             else:

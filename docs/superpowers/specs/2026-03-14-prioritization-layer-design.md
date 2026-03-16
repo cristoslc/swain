@@ -141,10 +141,10 @@ The operator decides whether to go breadth-first (address highest debt wherever 
 - Artifacts in scope: specs, implementation plans, code
 
 **Mode inference:** swain-status evaluates rules in priority order (first match wins):
-1. Specs awaiting operator review (agent finished, needs sign-off) → detail mode
-2. Focus lane set with pending strategic decisions → vision mode within that lane
-3. No specs in review, decisions piling up → vision mode
-4. Both specs in review AND strategic decisions pending → ask: "Steering or reviewing?"
+1. Both specs in review AND strategic decisions pending → ask: "Steering or reviewing?"
+2. Specs awaiting operator review (agent finished, needs sign-off) → detail mode
+3. Focus lane set with pending strategic decisions → vision mode within that lane
+4. No specs in review, decisions piling up → vision mode
 5. Nothing actionable in either mode → vision mode (show the master plan mirror)
 
 Once the operator answers, swain remembers for the session (via swain-session bookmark) so it doesn't ask again on the next status check.

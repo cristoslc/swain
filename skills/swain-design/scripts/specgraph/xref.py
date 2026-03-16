@@ -9,7 +9,7 @@ from .parser import extract_list_ids, extract_scalar_id, _ARTIFACT_ID_RE
 # false positives from CVE identifiers, SPDX license tags, model names, etc.
 _KNOWN_ARTIFACT_PREFIXES = frozenset({
     "VISION", "EPIC", "SPEC", "SPIKE", "ADR", "JOURNEY",
-    "PERSONA", "DESIGN", "RUNBOOK", "STORY", "BUG",
+    "PERSONA", "DESIGN", "RUNBOOK", "STORY", "BUG", "INITIATIVE",
 })
 
 # All list-type frontmatter fields that carry artifact cross-references.
@@ -62,7 +62,7 @@ def collect_frontmatter_ids(frontmatter: dict) -> set[str]:
                     ids.add(match.group(0))
 
     # Scalar fields
-    for key in ("parent-epic", "parent-vision", "superseded-by"):
+    for key in ("parent-epic", "parent-vision", "parent-initiative", "superseded-by"):
         val = extract_scalar_id(frontmatter, key)
         if val:
             ids.add(val)

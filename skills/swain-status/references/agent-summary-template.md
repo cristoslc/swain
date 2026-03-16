@@ -20,6 +20,11 @@ Include attention drift context if any drift is detected for the recommendation'
 
 Omit this section entirely if no ready items exist.
 
+**Drift prompt:** If `.priority.drift` is non-empty, include a drift prompt after the recommendation:
+"Your attention has drifted from [Vision Name] (weight: [W]) — [N] days since last activity. Is that intentional, or should we course-correct?"
+
+This is not a recommendation to change — it's a mirror. The operator decides.
+
 ## Section 0.5: Peripheral Awareness
 
 If a focus lane is set (`.session.focus_lane` is non-null) and there are decisions in other visions, summarize:
@@ -49,6 +54,7 @@ Rules:
 - "What's Needed" = the human action required (approve, decide, accept, activate)
 - Unblocks = downstream artifact IDs waiting on this decision
 - Only show this section if there are items to list
+- For EPICs without a parent chain to an Initiative (check `.priority.decision_debt` — if the EPIC appears in `_unaligned`), append "(no initiative — assign first)" to the What's Needed column
 
 ## Section 2: Work Ready to Start
 

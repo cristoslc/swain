@@ -390,10 +390,12 @@ collect_session() {
     jq '{
       bookmark: (.bookmark // null),
       lastBranch: (.lastBranch // null),
-      lastContext: (.lastContext // null)
-    }' "$SESSION_FILE" 2>/dev/null || echo '{"bookmark":null,"lastBranch":null,"lastContext":null}'
+      lastContext: (.lastContext // null),
+      focus_lane: (.focus_lane // null),
+      status_mode: (.status_mode // null)
+    }' "$SESSION_FILE" 2>/dev/null || echo '{"bookmark":null,"lastBranch":null,"lastContext":null,"focus_lane":null,"status_mode":null}'
   else
-    echo '{"bookmark":null,"lastBranch":null,"lastContext":null}'
+    echo '{"bookmark":null,"lastBranch":null,"lastContext":null,"focus_lane":null,"status_mode":null}'
   fi
 }
 
@@ -410,6 +412,20 @@ build_cache() {
   linked_issue_data=$(collect_linked_issues)
   session_data=$(collect_session)
 
+  # Priority data from specgraph
+  local recommend_data debt_data attention_data
+  local focus_lane=""
+  if [[ -f "$SESSION_FILE" ]]; then
+    focus_lane=$(jq -r '.focus_lane // empty' "$SESSION_FILE" 2>/dev/null || echo "")
+  fi
+  if [[ -n "$focus_lane" ]]; then
+    recommend_data=$(python3 "$SPECGRAPH" recommend --focus "$focus_lane" --json 2>/dev/null || echo '[]')
+  else
+    recommend_data=$(python3 "$SPECGRAPH" recommend --json 2>/dev/null || echo '[]')
+  fi
+  debt_data=$(python3 "$SPECGRAPH" decision-debt 2>/dev/null || echo '{}')
+  attention_data=$(python3 "$SPECGRAPH" attention --json 2>/dev/null || echo '{"attention":{},"drift":[]}')
+
   local timestamp
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -423,6 +439,9 @@ build_cache() {
     --argjson issues "$issue_data" \
     --argjson session "$session_data" \
     --argjson linked "$linked_issue_data" \
+    --argjson recommend "$recommend_data" \
+    --argjson debt "$debt_data" \
+    --argjson attention "$attention_data" \
     '{
       timestamp: $ts,
       repo: $repo,
@@ -432,7 +451,13 @@ build_cache() {
       tasks: $tasks,
       issues: $issues,
       linkedIssues: $linked,
-      session: $session
+      session: $session,
+      priority: {
+        recommendations: $recommend,
+        decision_debt: $debt,
+        attention: $attention.attention,
+        drift: $attention.drift
+      }
     }' > "${CACHE_FILE}.tmp" && mv "${CACHE_FILE}.tmp" "$CACHE_FILE"
 }
 
@@ -597,6 +622,47 @@ render_full() {
         (if .description and (.description | length > 0) then
           "  _\(.description)_"
         else empty end)
+      '
+
+      # --- Vision context for decisions ---
+      echo "$data" | jq -r '
+        if .priority.decision_debt then
+          [.priority.decision_debt | to_entries[] | select(.key != "_unaligned")] |
+          if length > 0 then
+            "**By vision:** " + (
+              [.[] | "\(.key) (\(.value.count) decisions, \(.value.total_unblocks) unblocks)"] | join(", ")
+            )
+          else empty end
+        else empty end
+      '
+      echo ""
+    fi
+
+    # --- Attention Drift ---
+    local drift_count
+    drift_count=$(echo "$data" | jq '[.priority.drift // [] | .[] ] | length' 2>/dev/null || echo 0)
+    if [[ "$drift_count" -gt 0 ]]; then
+      echo "## Attention Drift"
+      echo ""
+      echo "$data" | jq -r '
+        [.priority.drift[] |
+          "- \(.vision_id) [weight: \(.weight)] — \(.days_since_activity) days since last activity (threshold: \(.threshold))"
+        ] | .[]
+      '
+      echo ""
+    fi
+
+    # --- Peripheral Awareness ---
+    local focus_lane
+    focus_lane=$(echo "$data" | jq -r '.session.focus_lane // empty' 2>/dev/null || echo "")
+    if [[ -n "$focus_lane" ]]; then
+      echo "## Meanwhile"
+      echo ""
+      echo "$data" | jq -r --arg focus "$focus_lane" '
+        [.priority.decision_debt // {} | to_entries[] |
+          select(.key != "_unaligned" and .key != $focus) |
+          "\(.key) has \(.value.count) pending decisions"
+        ] | if length > 0 then "- " + join("\n- ") else empty end
       '
       echo ""
     fi
