@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-002
 success-criteria:
   - All 9 artifact types use the normalized lifecycle phases
   - STORY type is removed; SPECs with type field absorb its use cases

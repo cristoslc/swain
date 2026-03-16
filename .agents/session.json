@@ -5,10 +5,7 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "created EPIC-023",
-    "files": [
-      "docs/epic/Proposed/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md"
-    ],
-    "timestamp": "2026-03-15T01:58:05Z"
+    "note": "Checked status — 8 proposed epics, all decision-gated; 4 spikes ready to activate (each unblocks 1 epic)",
+    "timestamp": "2026-03-16T00:47:01Z"
   }
 }

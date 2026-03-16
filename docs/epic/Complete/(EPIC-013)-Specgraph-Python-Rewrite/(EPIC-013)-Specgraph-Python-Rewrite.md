@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-13
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-002
 success-criteria:
   - specgraph.py passes all existing bash specgraph subcommands with identical output (modulo whitespace)
   - xref validation detects body-text artifact references not declared in frontmatter (and vice versa)

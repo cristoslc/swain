@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-007
 success-criteria:
   - Skill directory renamed from skills/swain-design/ to skills/swain-commission/
   - All internal references updated (AGENTS.md, swain meta-router, swain-search, swain-do, swain-help, swain-doctor, swain-init)

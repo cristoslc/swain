@@ -8,6 +8,7 @@ created: 2026-03-13
 last-updated: 2026-03-14
 implementation-commits: 064b3ca
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-003
 success-criteria:
   - Each swain skill invocation specifies an appropriate model tier (heavy/analysis/lightweight) and reasoning effort level
   - Claude Code runtime routes correctly — Opus for heavy planning/creative, Sonnet for analysis, Haiku for lightweight orchestration

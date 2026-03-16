@@ -6,7 +6,8 @@ status: Complete
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
-parent-vision:
+parent-vision: VISION-001
+parent-initiative: INITIATIVE-003
 success-criteria:
   - SPIKE-004 research complete with clear mapping between swain and superpowers skill surfaces
   - Decision documented (ADR) on whether to retire swain, integrate superpowers, or coexist

@@ -6,7 +6,8 @@ status: Complete
 author: cristos
 created: 2026-03-11
 last-updated: 2026-03-11
-parent-vision:
+parent-vision: VISION-001
+parent-initiative: INITIATIVE-005
   - VISION-001
 success-criteria:
   - A new user who has never seen swain can install it, run their first session, and understand the core workflow within 10 minutes of reading the README

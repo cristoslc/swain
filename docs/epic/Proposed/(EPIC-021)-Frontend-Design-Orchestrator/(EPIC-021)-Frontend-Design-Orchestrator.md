@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-007
 success-criteria:
   - A new `swain-design` skill operates as a product design practice — UX thinking, user journey awareness, and visual design — not just code generation
   - Orchestrates across three systems: Anthropic's frontend design plugin, superpowers' frontend-design skill, and impeccable.style

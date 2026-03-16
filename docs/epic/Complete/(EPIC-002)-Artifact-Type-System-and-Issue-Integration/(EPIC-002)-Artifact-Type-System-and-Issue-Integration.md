@@ -6,7 +6,8 @@ status: Complete
 author: cristos
 created: 2026-03-11
 last-updated: 2026-03-12
-parent-vision:
+parent-vision: VISION-001
+parent-initiative: INITIATIVE-002
   - VISION-001
 success-criteria:
   - SPEC supports standalone use (no parent-epic required) with type metadata (feature | enhancement | bug)

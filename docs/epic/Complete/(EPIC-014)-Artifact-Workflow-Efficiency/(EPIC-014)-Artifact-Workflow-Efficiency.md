@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-002
 success-criteria:
   - Filing a simple bug SPEC takes ≤30 seconds and ≤500 tokens of agent work
   - The full-ceremony path remains available for complex artifacts (specs, ADRs, epics)

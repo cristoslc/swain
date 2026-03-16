@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-004
 success-criteria:
   - Security guidance is surfaced proactively during task claim — before implementation begins, not only at review time
   - A security gate runs at task completion as part of swain-do's landing-the-plane workflow, equivalent to how tests and lints are run today

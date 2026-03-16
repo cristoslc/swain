@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-005
 success-criteria:
   - swain-status can render a scope progress view showing epics and specs as done/total counts
   - Progress visualization makes it immediately clear what fraction of work is complete (e.g., "10 of 15 specs done")

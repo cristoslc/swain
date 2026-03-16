@@ -7,6 +7,7 @@ author: cristos
 created: 2026-03-13
 last-updated: 2026-03-13
 parent-vision: VISION-001
+parent-initiative: INITIATIVE-003
 success-criteria:
   - swain-do loads in ≤5% of a standard context window (down from 10-13%)
   - No existing skill functionality is removed — only redundant, verbose, or misplaced content

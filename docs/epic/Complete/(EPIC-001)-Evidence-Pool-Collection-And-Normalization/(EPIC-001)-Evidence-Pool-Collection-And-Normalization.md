@@ -6,7 +6,8 @@ status: Complete
 author: cristos
 created: 2026-03-09
 last-updated: 2026-03-10
-parent-vision: ~
+parent-vision: VISION-001
+parent-initiative: INITIATIVE-002
 success-criteria:
   - swain-search skill can collect sources from web, local files, and video/audio and normalize them into a consistent markdown format
   - Evidence pools are cached in docs/evidence-pools/<pool-id>/ with manifest, normalized sources, and auto-generated synthesis
