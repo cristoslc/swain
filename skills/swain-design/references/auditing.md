@@ -24,7 +24,7 @@ Spawn seven agents in a single turn:
 | **Phase/folder alignment** | Confirm `specwatch.sh phase-fix` from the pre-scan left no remaining mismatches. Flag any artifacts that could not be auto-moved. |
 | **Dependency coherence auditor** | Validate that `depends-on` edges are logically sound, not just syntactically valid. See checks below. |
 | **ADR compliance auditor** | Run `scripts/adr-check.sh` against every non-ADR artifact in `docs/`. Collect all RELEVANT, DEAD_REF, and stale findings into a single table. For each RELEVANT finding, read both documents and assess content-level compliance (see [adr-check-guide.md](adr-check-guide.md)). |
-| **Alignment auditor** | For each active Vision, run `specgraph.sh scope` on every descendant and check semantic alignment per [alignment-checking.md](alignment-checking.md). See checks below. |
+| **Alignment auditor** | For each active Vision, run `chart.sh scope` on every descendant and check semantic alignment per [alignment-checking.md](alignment-checking.md). See checks below. |
 
 ### Dependency coherence auditor
 
@@ -42,8 +42,8 @@ For checks 4 and 5, the agent must actually read artifact content — frontmatte
 
 The alignment auditor checks that artifacts are semantically oriented toward the same goal. It requires reading artifact content — frontmatter alone is not sufficient. Procedure:
 
-1. Run `specgraph.sh overview --all` to identify all active Visions.
-2. For each active Vision, use `specgraph.sh scope` on every non-terminal descendant (Epics, SPECs, Stories under that Vision).
+1. Run `bash skills/swain-design/scripts/chart.sh --all` to identify all active Visions.
+2. For each active Vision, use `chart.sh scope` on every non-terminal descendant (Epics, SPECs under that Vision).
 3. For each artifact, assess alignment per [alignment-checking.md](alignment-checking.md):
    - Read the Vision's goal (the "North Star")
    - Read the artifact content

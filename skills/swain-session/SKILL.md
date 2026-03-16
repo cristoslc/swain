@@ -110,6 +110,7 @@ User says "clear bookmark" or "fresh start":
 ### Show session info
 User says "session info" or "what's my session":
 - Display current tab name, branch, preferences, bookmark status
+- If the bookmark note contains an artifact ID (e.g., `SPEC-052`, `EPIC-018`), show the Vision ancestry breadcrumb for strategic context. Run `bash skills/swain-design/scripts/chart.sh scope <ID> 2>/dev/null | head -5` to get the parent chain. Display as: `Context: Swain > Operator Situational Awareness > Vision-Rooted Chart Hierarchy`
 
 ### Set preference
 User says "set preference X to Y":
@@ -150,9 +151,9 @@ The operator can set a focus lane to tell swain-status to recommend within a sin
 **Setting focus:**
 When the operator says "focus on security" or "I'm working on VISION-001", resolve the name to an artifact ID and invoke the focus script.
 
-**Name-to-ID resolution:** If the operator uses a name instead of an ID (e.g., "security" instead of "VISION-001"), search Vision and Initiative artifact titles for the best match using specgraph:
+**Name-to-ID resolution:** If the operator uses a name instead of an ID (e.g., "security" instead of "VISION-001"), search Vision and Initiative artifact titles for the best match using swain chart:
 ```bash
-python3 skills/swain-design/scripts/specgraph.py status --all | grep -i "<name>"
+bash skills/swain-design/scripts/chart.sh --ids --flat 2>/dev/null | grep -i "<name>"
 ```
 If exactly one match, use it. If multiple matches, ask the operator to clarify. If no match, tell the operator no Vision or Initiative matches that name and offer to create one.
 
