@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# evidencewatch — monitor evidence pools for size, freshness, and consistency
+# evidencewatch — monitor troves for size, freshness, and consistency
 #
 # Usage:
-#   evidencewatch.sh scan     Check all pools for issues
-#   evidencewatch.sh status   Summary of all pools
+#   evidencewatch.sh scan     Check all troves for issues
+#   evidencewatch.sh status   Summary of all troves
 
 # --- Configuration ---
 
-POOLS_DIR="docs/evidence-pools"
+TROVES_DIR="docs/troves"
 LOG_FILE=".agents/evidencewatch.log"
 CONFIG_FILE=".agents/evidencewatch.vars.json"
 
 # Defaults (overridable via config file)
-MAX_SOURCES_PER_POOL=20
-MAX_POOL_SIZE_MB=5
+MAX_SOURCES_PER_TROVE=20
+MAX_TROVE_SIZE_MB=5
 FRESHNESS_MULTIPLIER="1.5"
 
 # --- Helpers ---
@@ -42,8 +42,8 @@ load_config() {
 import json, sys
 try:
     c = json.load(open('$CONFIG_FILE'))
-    print(c.get('max_sources_per_pool', ''))
-    print(c.get('max_pool_size_mb', ''))
+    print(c.get('max_sources_per_trove', c.get('max_sources_per_pool', '')))
+    print(c.get('max_trove_size_mb', c.get('max_pool_size_mb', '')))
     print(c.get('freshness_multiplier', ''))
 except Exception:
     print(''); print(''); print('')
@@ -52,8 +52,8 @@ except Exception:
     line1=$(echo "$val" | sed -n '1p')
     line2=$(echo "$val" | sed -n '2p')
     line3=$(echo "$val" | sed -n '3p')
-    [ -n "$line1" ] && MAX_SOURCES_PER_POOL="$line1"
-    [ -n "$line2" ] && MAX_POOL_SIZE_MB="$line2"
+    [ -n "$line1" ] && MAX_SOURCES_PER_TROVE="$line1"
+    [ -n "$line2" ] && MAX_TROVE_SIZE_MB="$line2"
     [ -n "$line3" ] && FRESHNESS_MULTIPLIER="$line3"
   fi
 }
@@ -92,45 +92,45 @@ dir_size_mb() {
   du -sm "$1" 2>/dev/null | cut -f1
 }
 
-# --- Pool scanning ---
+# --- Trove scanning ---
 
-scan_pool() {
-  local pool_dir="$1"
-  local pool_id
-  pool_id=$(basename "$pool_dir")
-  local manifest="$pool_dir/manifest.yaml"
-  local sources_dir="$pool_dir/sources"
+scan_trove() {
+  local trove_dir="$1"
+  local trove_id
+  trove_id=$(basename "$trove_dir")
+  local manifest="$trove_dir/manifest.yaml"
+  local sources_dir="$trove_dir/sources"
   local issues=0
 
-  echo "Pool: $pool_id"
-  log "SCAN $pool_id"
+  echo "Trove: $trove_id"
+  log "SCAN $trove_id"
 
   # Check manifest exists
   if [ ! -f "$manifest" ]; then
-    warn "$pool_id: missing manifest.yaml"
+    warn "$trove_id: missing manifest.yaml"
     issues=$((issues + 1))
     echo ""
     return $issues
   fi
 
-  # Check source count
+  # Check source count (count directories in sources/)
   local source_count=0
   if [ -d "$sources_dir" ]; then
-    source_count=$(find "$sources_dir" -name '*.md' -type f | wc -l | tr -d ' ')
+    source_count=$(find "$sources_dir" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
   fi
 
-  if [ "$source_count" -gt "$MAX_SOURCES_PER_POOL" ]; then
-    warn "$pool_id: $source_count sources (max: $MAX_SOURCES_PER_POOL) — consider splitting or pruning"
-    log "SIZE_WARN $pool_id sources=$source_count max=$MAX_SOURCES_PER_POOL"
+  if [ "$source_count" -gt "$MAX_SOURCES_PER_TROVE" ]; then
+    warn "$trove_id: $source_count sources (max: $MAX_SOURCES_PER_TROVE) — consider splitting or pruning"
+    log "SIZE_WARN $trove_id sources=$source_count max=$MAX_SOURCES_PER_TROVE"
     issues=$((issues + 1))
   fi
 
-  # Check pool size
+  # Check trove size
   local size_mb
-  size_mb=$(dir_size_mb "$pool_dir")
-  if [ "$size_mb" -gt "$MAX_POOL_SIZE_MB" ]; then
-    warn "$pool_id: ${size_mb}MB (max: ${MAX_POOL_SIZE_MB}MB) — consider removing large sources"
-    log "SIZE_WARN $pool_id size=${size_mb}MB max=${MAX_POOL_SIZE_MB}MB"
+  size_mb=$(dir_size_mb "$trove_dir")
+  if [ "$size_mb" -gt "$MAX_TROVE_SIZE_MB" ]; then
+    warn "$trove_id: ${size_mb}MB (max: ${MAX_TROVE_SIZE_MB}MB) — consider removing large sources"
+    log "SIZE_WARN $trove_id size=${size_mb}MB max=${MAX_TROVE_SIZE_MB}MB"
     issues=$((issues + 1))
   fi
 
@@ -138,23 +138,23 @@ scan_pool() {
   if command -v uv >/dev/null 2>&1; then
     local py_result
     py_result=$(uv run --with pyyaml python3 << PYEOF
-import yaml, os, sys, hashlib
+import yaml, os, sys
 from datetime import datetime, timezone
 
 manifest_path = "$manifest"
 sources_dir = "$sources_dir"
-pool_id = "$pool_id"
+trove_id = "$trove_id"
 freshness_mult = float("$FRESHNESS_MULTIPLIER")
 
 try:
     with open(manifest_path) as f:
         m = yaml.safe_load(f)
 except Exception as e:
-    print(f"MANIFEST_ERROR {pool_id}: {e}")
+    print(f"MANIFEST_ERROR {trove_id}: {e}")
     sys.exit(0)
 
 if not m or not isinstance(m, dict):
-    print(f"MANIFEST_ERROR {pool_id}: empty or invalid")
+    print(f"MANIFEST_ERROR {trove_id}: empty or invalid")
     sys.exit(0)
 
 sources = m.get("sources", []) or []
@@ -174,13 +174,13 @@ def ttl_seconds(ttl_str):
         return int(s[:-1]) * 2592000
     return 0
 
-manifest_ids = set()
+manifest_source_ids = set()
 for src in sources:
-    sid = src.get("id", "?")
-    slug = src.get("slug", "unknown")
+    source_id = src.get("source-id", "unknown")
     stype = src.get("type", "web")
     fetched_str = src.get("fetched", "")
-    manifest_ids.add(f"{sid}-{slug}.md")
+    selective = src.get("selective", False)
+    manifest_source_ids.add(source_id)
 
     # Check freshness
     ttl_str = src.get("freshness-ttl") or default_ttls.get(stype, "7d")
@@ -196,24 +196,33 @@ for src in sources:
             threshold = ttl_secs * freshness_mult
             if age_secs > threshold:
                 age_days = int(age_secs / 86400)
-                print(f"STALE {pool_id}/{sid}-{slug}: {age_days}d old (ttl: {ttl_str})")
+                print(f"STALE {trove_id}/{source_id}: {age_days}d old (ttl: {ttl_str})")
         except Exception:
             pass
 
-    # Check source file exists
-    expected = os.path.join(sources_dir, f"{sid}-{slug}.md")
-    if not os.path.isfile(expected):
-        print(f"MISSING_FILE {pool_id}: manifest has {sid}-{slug} but file not found")
+    # Check source directory/file exists (skip if selective)
+    if not selective:
+        source_path = os.path.join(sources_dir, source_id)
+        if os.path.isdir(source_path):
+            # Hierarchical source — check directory is non-empty
+            if not os.listdir(source_path):
+                print(f"MISSING_FILE {trove_id}: source directory {source_id}/ exists but is empty")
+        elif os.path.isfile(os.path.join(source_path, source_id + ".md")):
+            # Flat source — file exists inside its directory (should not reach here if dir doesn't exist)
+            pass
+        elif not os.path.isdir(source_path):
+            print(f"MISSING_FILE {trove_id}: manifest has {source_id} but directory not found")
 
-# Check for orphaned files
+# Check for orphaned directories in sources/
 if os.path.isdir(sources_dir):
-    for fname in os.listdir(sources_dir):
-        if fname.endswith(".md") and fname not in manifest_ids:
-            print(f"ORPHAN {pool_id}: {fname} exists but not in manifest")
+    for entry in os.listdir(sources_dir):
+        entry_path = os.path.join(sources_dir, entry)
+        if os.path.isdir(entry_path) and entry not in manifest_source_ids:
+            print(f"ORPHAN {trove_id}: {entry}/ exists but not in manifest")
 
 # Check synthesis exists
 if not os.path.isfile(os.path.join(os.path.dirname(sources_dir), "synthesis.md")):
-    print(f"MISSING_SYNTHESIS {pool_id}: no synthesis.md")
+    print(f"MISSING_SYNTHESIS {trove_id}: no synthesis.md")
 PYEOF
     )
 
@@ -245,20 +254,20 @@ PYEOF
 
 # --- Status ---
 
-status_pool() {
-  local pool_dir="$1"
-  local pool_id
-  pool_id=$(basename "$pool_dir")
-  local manifest="$pool_dir/manifest.yaml"
-  local sources_dir="$pool_dir/sources"
+status_trove() {
+  local trove_dir="$1"
+  local trove_id
+  trove_id=$(basename "$trove_dir")
+  local manifest="$trove_dir/manifest.yaml"
+  local sources_dir="$trove_dir/sources"
 
   local source_count=0
   if [ -d "$sources_dir" ]; then
-    source_count=$(find "$sources_dir" -name '*.md' -type f | wc -l | tr -d ' ')
+    source_count=$(find "$sources_dir" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
   fi
 
   local size_mb
-  size_mb=$(dir_size_mb "$pool_dir")
+  size_mb=$(dir_size_mb "$trove_dir")
 
   local refreshed="unknown"
   local tags=""
@@ -276,7 +285,7 @@ print(','.join(m.get('tags', []) or []))
   fi
 
   printf "  %-30s %3s sources  %3sMB  refreshed: %-12s  tags: %s\n" \
-    "$pool_id" "$source_count" "$size_mb" "$refreshed" "$tags"
+    "$trove_id" "$source_count" "$size_mb" "$refreshed" "$tags"
 }
 
 # --- Main ---
@@ -292,71 +301,71 @@ main() {
       echo "" > "$LOG_FILE"
       log "=== evidencewatch scan $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
-      if [ ! -d "$POOLS_DIR" ]; then
-        echo "evidencewatch: no evidence pools found (${POOLS_DIR}/ does not exist)."
+      if [ ! -d "$TROVES_DIR" ]; then
+        echo "evidencewatch: no troves found (${TROVES_DIR}/ does not exist)."
         exit 0
       fi
 
       local total_issues=0
-      local pool_count=0
+      local trove_count=0
 
-      echo "evidencewatch: scanning evidence pools..."
+      echo "evidencewatch: scanning troves..."
       echo ""
 
-      for pool_dir in "$POOLS_DIR"/*/; do
-        [ -d "$pool_dir" ] || continue
-        pool_count=$((pool_count + 1))
-        scan_pool "$pool_dir" || total_issues=$((total_issues + $?))
+      for trove_dir in "$TROVES_DIR"/*/; do
+        [ -d "$trove_dir" ] || continue
+        trove_count=$((trove_count + 1))
+        scan_trove "$trove_dir" || total_issues=$((total_issues + $?))
       done
 
-      if [ "$pool_count" -eq 0 ]; then
-        echo "evidencewatch: no pools found in ${POOLS_DIR}/."
+      if [ "$trove_count" -eq 0 ]; then
+        echo "evidencewatch: no troves found in ${TROVES_DIR}/."
         exit 0
       fi
 
       if [ "$total_issues" -gt 0 ]; then
-        echo "evidencewatch: found ${total_issues} issue(s) across ${pool_count} pool(s). See ${LOG_FILE}"
+        echo "evidencewatch: found ${total_issues} issue(s) across ${trove_count} trove(s). See ${LOG_FILE}"
         exit 1
       else
-        echo "evidencewatch: all ${pool_count} pool(s) healthy."
+        echo "evidencewatch: all ${trove_count} trove(s) healthy."
         exit 0
       fi
       ;;
 
     status)
-      if [ ! -d "$POOLS_DIR" ]; then
-        echo "evidencewatch: no evidence pools found."
+      if [ ! -d "$TROVES_DIR" ]; then
+        echo "evidencewatch: no troves found."
         exit 0
       fi
 
-      local pool_count=0
-      echo "Evidence pools:"
+      local trove_count=0
+      echo "Troves:"
       echo ""
 
-      for pool_dir in "$POOLS_DIR"/*/; do
-        [ -d "$pool_dir" ] || continue
-        pool_count=$((pool_count + 1))
-        status_pool "$pool_dir"
+      for trove_dir in "$TROVES_DIR"/*/; do
+        [ -d "$trove_dir" ] || continue
+        trove_count=$((trove_count + 1))
+        status_trove "$trove_dir"
       done
 
-      if [ "$pool_count" -eq 0 ]; then
+      if [ "$trove_count" -eq 0 ]; then
         echo "  (none)"
       fi
       echo ""
-      echo "${pool_count} pool(s) total."
+      echo "${trove_count} trove(s) total."
       ;;
 
     help|--help|-h)
       echo "Usage: evidencewatch.sh <command>"
       echo ""
       echo "Commands:"
-      echo "  scan     Check all pools for size, freshness, and consistency issues"
-      echo "  status   Summary of all pools"
+      echo "  scan     Check all troves for size, freshness, and consistency issues"
+      echo "  status   Summary of all troves"
       echo ""
       echo "Configuration: .agents/evidencewatch.vars.json"
-      echo "  max_sources_per_pool  (default: 20)"
-      echo "  max_pool_size_mb      (default: 5)"
-      echo "  freshness_multiplier  (default: 1.5)"
+      echo "  max_sources_per_trove  (default: 20)"
+      echo "  max_trove_size_mb      (default: 5)"
+      echo "  freshness_multiplier   (default: 1.5)"
       ;;
 
     *)
