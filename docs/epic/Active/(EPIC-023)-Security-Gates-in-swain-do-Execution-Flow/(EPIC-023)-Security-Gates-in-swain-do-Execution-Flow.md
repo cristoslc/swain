@@ -2,10 +2,10 @@
 title: "Security Gates in swain-do Execution Flow"
 artifact: EPIC-023
 track: container
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-14
-last-updated: 2026-03-14
+last-updated: 2026-03-17
 parent-vision: VISION-001
 parent-initiative: INITIATIVE-004
 success-criteria:
@@ -97,3 +97,4 @@ Likely decomposition:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial filing; depends on EPIC-017 for completion-gate implementation |
+| Active | 2026-03-17 | -- | EPIC-017 now Active; ready for child spec decomposition |
