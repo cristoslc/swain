@@ -5,6 +5,7 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | INITIATIVE-007 | Product Design | 2026-03-15 | — |
+| INITIATIVE-009 | Unified Project State Graph | 2026-03-17 | — |
 
 ## Active
 

@@ -11,6 +11,10 @@
 | EPIC-021 | Product Design Orchestrator | 2026-03-14 | — |
 | EPIC-022 | Postflight Summaries | 2026-03-14 | — |
 | EPIC-024 | GitHub Issue Polling with Deterministic Pre-Filtering | 2026-03-16 | — |
+| EPIC-025 | Event Bus | 2026-03-17 | — |
+| EPIC-026 | Query Layer | 2026-03-17 | — |
+| EPIC-027 | Orchestrator Integration | 2026-03-17 | — |
+| EPIC-028 | Status Integration | 2026-03-17 | — |
 
 ## Active
 
