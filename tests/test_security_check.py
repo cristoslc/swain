@@ -996,6 +996,11 @@ class TestExitCodes:
         from security_check import main
 
         with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a complete .gitignore so repo-hygiene doesn't fire
+            gitignore = os.path.join(tmpdir, ".gitignore")
+            with open(gitignore, "w") as f:
+                f.write(".env\nnode_modules/\n__pycache__/\n.DS_Store\n")
+
             with patch("security_check.check_all_scanners") as mock_check:
                 from scanner_availability import ScannerResult
 
