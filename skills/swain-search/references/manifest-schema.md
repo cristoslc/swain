@@ -21,9 +21,18 @@ freshness-ttl:                     # Per-source-type defaults (override at sourc
   repository: 30d                  # Git repositories — default 30 days
   documentation-site: 7d           # Documentation sites — default 7 days
 
+history:                           # Append-only event log (oldest first)
+  - event: created                 # created | extended | refreshed
+    date: <ISO date>               # When the event occurred
+    commit: <short hash>           # Commit A hash from the dual-commit workflow
+    sources: <N>                   # Total source count after this event
+    sources-added: <N>             # Optional (extended) — how many new sources
+    sources-changed: <N>           # Optional (refreshed) — how many sources had content changes
+    notes: ""                      # Optional — e.g., "added 3 forum threads"
+
 referenced-by:                     # Back-links to artifacts using this trove
   - artifact: SPIKE-001
-    commit: abc1234                # Commit where the reference was added
+    commit: abc1234                # Commit A hash from the dual-commit workflow
   - artifact: ADR-003
     commit: def5678
 
@@ -101,6 +110,12 @@ tags:
 freshness-ttl:
   web: 14d
   media: never
+
+history:
+  - event: created
+    date: 2026-03-09
+    commit: abc1234
+    sources: 3
 
 referenced-by:
   - artifact: SPIKE-001

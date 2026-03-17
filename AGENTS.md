@@ -61,6 +61,7 @@ When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), 
 | SPEC comes up for implementation | swain-design → invoke **brainstorming** → **writing-plans** → swain-do (plan ingestion) | Plans anchored to acceptance criteria produce better TDD task breakdowns |
 | Executing implementation tasks | swain-do → invoke **test-driven-development** per task | RED-GREEN-REFACTOR ensures tests verify the spec, not the implementation |
 | Dispatching parallel work | swain-do → invoke **subagent-driven-development** or **executing-plans** | Fresh subagent context prevents cross-task contamination |
+| EPIC reaches terminal state | swain-design → invoke **swain-retro** (auto or interactive) | Embeds retrospective in the EPIC; standalone doc only for cross-epic retros |
 | Claiming work is complete | invoke **verification-before-completion** before any success claim | Evidence before assertions — prevents false completion claims |
 
 Detection: `ls .agents/skills/brainstorming/SKILL.md .claude/skills/brainstorming/SKILL.md 2>/dev/null`. If superpowers is not installed, swain functions independently — chains are skipped, not blocked. swain-doctor warns when superpowers is absent.

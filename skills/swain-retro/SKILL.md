@@ -1,12 +1,12 @@
 ---
 name: swain-retro
-description: "Automated retrospectives — captures learnings at EPIC completion and on manual invocation. Reviews recent work, prompts the user with reflection questions, then distills findings into memory files and retro docs. Triggers on: 'retro', 'retrospective', 'what did we learn', 'reflect', or automatically after EPIC completion."
+description: "Automated retrospectives — captures learnings at EPIC completion and on manual invocation. EPIC-scoped retros embed a Retrospective section in the EPIC artifact. Cross-epic and time-based retros produce standalone retro docs. Triggers on: 'retro', 'retrospective', 'what did we learn', 'reflect', or automatically after EPIC terminal transitions."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Structured retrospectives at natural completion points
-  version: 1.0.0
+  version: 2.0.0
   author: cristos
   source: swain
 ---
@@ -14,15 +14,25 @@ metadata:
 
 # Retrospectives
 
-Captures learnings at natural completion points and persists them for future use. This skill is both auto-triggered (EPIC completion hook in swain-design) and manually invocable via `/swain-retro`.
+Captures learnings at natural completion points and persists them for future use. This skill is both auto-triggered (EPIC terminal transition hook in swain-design) and manually invocable via `/swain-retro`.
+
+## Output modes
+
+| Scope | Output | Rationale |
+|-------|--------|-----------|
+| **EPIC-scoped** (auto or explicit) | `## Retrospective` section appended to the EPIC artifact | The EPIC already contains lifecycle, success criteria, and child specs — it's the single source of truth for "what we shipped and what we learned" |
+| **Cross-epic / time-based** (manual) | Standalone retro doc in `docs/swain-retro/` | No single artifact owns the scope — a dedicated doc is required |
 
 ## Invocation modes
 
-| Mode | Trigger | Context source |
-|------|---------|---------------|
-| **Auto** | EPIC transitions to Complete (called by swain-design) | The completed EPIC and its child artifacts |
-| **Manual** | User runs `/swain-retro` or `/swain retro` | Recent work — git log, closed tasks, transitioned artifacts |
-| **Scoped** | `/swain-retro EPIC-NNN` or `/swain-retro SPEC-NNN` | Specific artifact and its related work |
+| Mode | Trigger | Context source | Output | Interactive? |
+|------|---------|---------------|--------|-------------|
+| **Auto** | EPIC transitions to terminal state (called by swain-design) | The EPIC and its child artifacts | Embedded in EPIC | No — fully automated |
+| **Interactive** | EPIC transitions to terminal state during a live session | The EPIC and its child artifacts | Embedded in EPIC | Yes — reflection questions offered |
+| **Manual** | User runs `/swain-retro` or `/swain retro` | Recent work — git log, closed tasks, transitioned artifacts | Standalone retro doc (required) | Yes |
+| **Scoped** | `/swain-retro EPIC-NNN` or `/swain-retro SPEC-NNN` | Specific artifact and its related work | Embedded in EPIC (if EPIC-scoped) or standalone | Yes |
+
+**Terminal states** that trigger auto-retro: `Complete`, `Abandoned`, `Superseded`. The retro content adapts to the terminal state — an Abandoned EPIC's retro focuses on why work stopped and what was learned, not on success criteria.
 
 ## Step 1 — Gather context
 
@@ -65,11 +75,21 @@ Also check:
 - Existing memory files for context on prior patterns
 - Previous retro docs in `docs/swain-retro/` for recurring themes
 
-## Step 2 — Present summary and prompt reflection
+## Step 2 — Generate or prompt reflection
 
-Present a concise summary of what was accomplished, then ask targeted reflection questions. **Do not auto-generate retro content** — the user drives the reflection.
+### Auto mode (non-interactive)
 
-### Summary format
+When invoked by swain-design during a non-interactive EPIC terminal transition (e.g., dispatched agent, batch processing), **generate the retro content automatically** from the gathered context:
+
+1. Synthesize what was accomplished, what changed from the original scope, and what patterns are visible in the commit/task history
+2. For `Abandoned` or `Superseded` EPICs, focus on why the work stopped and what was learned
+3. Proceed directly to Step 3 (memory extraction) and Step 4 (write output)
+
+### Interactive mode
+
+When the user is present (live session, manual invocation), present a summary and offer reflection:
+
+#### Summary format
 
 > **Retro scope:** {EPIC-NNN title / "recent work"}
 > **Period:** {start date} — {end date}
@@ -77,7 +97,7 @@ Present a concise summary of what was accomplished, then ask targeted reflection
 > **Tasks closed:** {count}
 > **Key commits:** {notable commits}
 
-### Reflection questions
+#### Reflection questions
 
 Ask these one at a time, waiting for user response between each:
 
@@ -140,9 +160,39 @@ type: project
 - Use absolute dates (from the retro context), not relative
 - Maximum 3-5 memory files per retro — distill, don't dump
 
-## Step 4 — Write retro document
+## Step 4 — Write output
 
-Create a dated retro doc capturing the full reflection:
+Output destination depends on scope — see **Output modes** at the top.
+
+### EPIC-scoped: embed in the EPIC artifact
+
+Append a `## Retrospective` section to the EPIC markdown file, **before** the `## Lifecycle` table. This keeps the EPIC as the single source of truth.
+
+```markdown
+## Retrospective
+
+**Terminal state:** {Complete | Abandoned | Superseded}
+**Period:** {activation date} — {terminal date}
+
+### Summary
+
+{What was accomplished — or for Abandoned/Superseded, what was learned and why work stopped}
+
+### Reflection
+
+{Synthesized findings — from auto-generation or interactive Q&A}
+
+### Learnings captured
+
+| Memory file | Type | Summary |
+|------------|------|---------|
+| feedback_retro_x.md | feedback | ... |
+| project_retro_y.md | project | ... |
+```
+
+### Cross-epic / time-based: standalone retro doc (required)
+
+For manual retros not scoped to a single EPIC, a standalone doc is **required** — no single artifact owns the scope.
 
 ```bash
 mkdir -p docs/swain-retro
@@ -150,18 +200,16 @@ mkdir -p docs/swain-retro
 
 File: `docs/swain-retro/YYYY-MM-DD-{topic-slug}.md`
 
-### Retro doc format
-
 ```markdown
 # Retro: {title}
 
 **Date:** {YYYY-MM-DD}
-**Scope:** {EPIC-NNN title / "recent work"}
+**Scope:** {description of what's covered}
 **Period:** {start} — {end}
 
 ## Summary
 
-{Brief description of what was completed}
+{Brief description of what was completed across the scope}
 
 ## Artifacts
 
@@ -200,18 +248,25 @@ bash "$BOOKMARK" "Completed retro for {scope} — {N} learnings captured"
 
 ## Integration with swain-design
 
-When swain-design transitions an EPIC to Complete, it should invoke this skill:
+swain-design orchestrates this skill when an EPIC transitions to any terminal state (`Complete`, `Abandoned`, `Superseded`):
 
-```
-After completing EPIC transition → invoke swain-retro with the EPIC ID
-```
+1. swain-design completes the phase transition (move, status update, commit, hash stamp)
+2. swain-design invokes swain-retro with the EPIC ID and terminal state
+3. swain-retro gathers context, generates/prompts reflection, extracts memories, and embeds the `## Retrospective` section in the EPIC
+4. swain-design commits the retro content as part of (or immediately after) the transition
 
-This is a best-effort hook — if swain-retro is not available or the user declines, the EPIC transition still succeeds. The hook is documented in swain-design's completion rules, not enforced by this skill.
+**Interactive detection:** If the session is interactive (user is present and responding), swain-retro offers the reflection questions. If non-interactive (dispatched agent, batch), it runs fully automated.
+
+This is best-effort — if swain-retro is not available, the EPIC transition still succeeds without a retro section.
 
 ## Referencing prior retros
 
-When running a new retro, scan `docs/swain-retro/` for prior retros. If patterns recur across multiple retros, call them out explicitly — recurring themes are the most valuable learnings.
+When running a new retro, scan both EPIC artifacts (grep for `## Retrospective` sections) and `docs/swain-retro/` for prior retros. If patterns recur across multiple retros, call them out explicitly — recurring themes are the most valuable learnings.
 
 ```bash
+# Check standalone retro docs
 ls docs/swain-retro/*.md 2>/dev/null | head -10
+
+# Check embedded retros in EPICs
+grep -rl "## Retrospective" docs/epic/ 2>/dev/null | head -10
 ```

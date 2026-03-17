@@ -58,6 +58,18 @@ INITIATIVE follows the **container track** (same as EPIC): `Proposed → Active 
 
 Use two-commit stamp for all INITIATIVE transitions (same rule as EPIC).
 
-## EPIC completion hook
+## EPIC terminal transition hook
 
-When an EPIC transitions to Complete, invoke the **swain-retro** skill with the EPIC ID to capture retrospective learnings. This is best-effort — if swain-retro is not available or the user declines, the transition still succeeds.
+When an EPIC transitions to any terminal state (`Complete`, `Abandoned`, `Superseded`), invoke **swain-retro** with the EPIC ID and terminal state. swain-retro embeds a `## Retrospective` section directly in the EPIC artifact.
+
+**Orchestration:**
+
+1. Complete the phase transition (steps 1–9 above)
+2. Invoke swain-retro: pass EPIC ID, terminal state, and whether the session is interactive
+3. swain-retro gathers context, generates or prompts reflection, extracts memories, and returns the retro content
+4. The `## Retrospective` section is appended to the EPIC (before `## Lifecycle`)
+5. Commit the retro content (may be part of the transition commit or a follow-up)
+
+**Interactive detection:** If the user is present and responding in the current session, swain-retro offers interactive reflection questions. If non-interactive (dispatched agent, batch processing), it generates the retro automatically from gathered context.
+
+This is best-effort — if swain-retro is not available, the EPIC transition still succeeds without a retro section.

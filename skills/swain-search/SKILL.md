@@ -121,17 +121,51 @@ Structure the synthesis by **theme**, not by source. Group related findings toge
 
 Keep it concise. The synthesis is a starting point, not a comprehensive report — the user or artifact author will refine it.
 
-### Step 5 — Report
+### Step 5 — Commit and stamp
+
+Use the dual-commit pattern (same as swain-design lifecycle stamps) to give the trove a reachable commit hash.
+
+**Before Commit A** — append a `history` entry to `manifest.yaml` with a `--` placeholder for the commit hash:
+
+```yaml
+history:
+  - event: created
+    date: 2026-03-09
+    commit: "--"
+    sources: 3
+```
+
+**Commit A** — commit the trove content:
+
+```bash
+git add docs/troves/<trove-id>/
+git commit -m "research(<trove-id>): create trove with N sources"
+TROVE_HASH=$(git rev-parse HEAD)
+```
+
+**Commit B** — back-fill the commit hash into the history entry, then update the referencing artifact's frontmatter (if one exists):
+
+```bash
+# Replace "--" with the real hash in the history entry
+# Update artifact frontmatter: trove: <trove-id>@<TROVE_HASH>
+git add docs/troves/<trove-id>/manifest.yaml
+git add docs/<artifact-type>/<phase>/<artifact-dir>/   # if artifact exists
+git commit -m "docs(<trove-id>): stamp history hash ${TROVE_HASH:0:7}"
+```
+
+If no referencing artifact exists yet (standalone research), Commit B still stamps the history entry — report the hash so it can be referenced later.
+
+### Step 6 — Report
 
 Tell the user what was created:
 
-> **Trove `<trove-id>` created** with N sources.
+> **Trove `<trove-id>` created** with N sources — committed as `<TROVE_HASH:0:7>`.
 >
 > - `docs/troves/<trove-id>/manifest.yaml` — provenance and metadata
 > - `docs/troves/<trove-id>/sources/` — N normalized source files
 > - `docs/troves/<trove-id>/synthesis.md` — thematic distillation
 >
-> Reference from artifacts with: `trove: <trove-id>@<commit-hash>`
+> Reference from artifacts with: `trove: <trove-id>@<TROVE_HASH:0:7>`
 
 ## Extend mode
 
@@ -143,7 +177,12 @@ Add new sources to an existing trove.
 4. Append new entries to `manifest.yaml`
 5. Update `refreshed` date
 6. Regenerate `synthesis.md` incorporating all sources (old + new)
-7. Report what was added
+7. Append a `history` entry with `event: extended` and `commit: "--"` placeholder
+8. Commit and stamp (same dual-commit pattern as Create step 5):
+   - **Commit A**: `git commit -m "research(<trove-id>): extend with N new sources"`
+   - Capture `TROVE_HASH=$(git rev-parse HEAD)`
+   - **Commit B**: back-fill hash in history entry, update referencing artifact frontmatter (if artifact exists)
+9. Report what was added, including the new commit hash
 
 ## Refresh mode
 
@@ -159,7 +198,12 @@ Re-fetch stale sources and update changed content.
    - If hash unchanged: update only `fetched` date
 4. Update `refreshed` date in manifest
 5. If any content changed, regenerate `synthesis.md`
-6. Report: "Refreshed N sources. M had changed content, K were unchanged."
+6. Append a `history` entry with `event: refreshed`, `sources-changed: M`, and `commit: "--"` placeholder
+7. Commit and stamp (same dual-commit pattern as Create step 5):
+   - **Commit A**: `git commit -m "research(<trove-id>): refresh N sources (M changed)"`
+   - Capture `TROVE_HASH=$(git rev-parse HEAD)`
+   - **Commit B**: back-fill hash in history entry, update referencing artifact(s) frontmatter — check `referenced-by` in manifest for all dependents
+8. Report: "Refreshed N sources. M had changed content, K were unchanged. New hash: `<TROVE_HASH:0:7>`."
 
 For sources with `freshness-ttl: never`, skip them during refresh.
 
@@ -208,4 +252,4 @@ trove: websocket-vs-sse@abc1234
 
 The format is `<trove-id>@<commit-hash>`. The commit hash pins the trove to a specific version — troves evolve over time as sources are added or refreshed, and the hash ensures reproducibility.
 
-When creating or extending a trove, remind the user to commit and then update the referencing artifact's frontmatter with the new commit hash.
+The dual-commit workflow in Create step 5, Extend step 8, and Refresh step 7 handles this automatically — Commit A records the trove content and Commit B stamps the hash into the history entry and referencing artifact's frontmatter. Do not defer this to the operator.
