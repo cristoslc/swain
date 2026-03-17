@@ -81,15 +81,29 @@ reset_title() {
 auto_title() {
   local project branch fmt title pane_path
 
-  # Resolve git context from the active tmux pane's working directory
-  if [[ -n "$TMUX" ]]; then
-    pane_path=$(tmux display-message -p '#{pane_current_path}' 2>/dev/null)
+  # Priority: explicit --path arg > pwd > tmux pane path
+  # Agents (Claude Code, opencode, gemini cli, etc.) should pass --path
+  # when entering a worktree, since agent subshells don't update the
+  # tmux pane's tracked CWD.
+  pane_path="${SWAIN_TAB_PATH:-}"
+  if [[ -z "$pane_path" ]]; then
+    pane_path="$(pwd)"
   fi
-  pane_path="${pane_path:-$(pwd)}"
+  # Fallback to tmux pane path only if pwd isn't in a git repo
+  # (e.g., when called from tmux run-shell via the pane-focus-in hook)
+  if [[ -z "$(git -C "$pane_path" rev-parse --git-common-dir 2>/dev/null)" && -n "$TMUX" ]]; then
+    pane_path=$(tmux display-message -p '#{pane_current_path}' 2>/dev/null)
+    pane_path="${pane_path:-$(pwd)}"
+  fi
 
-  local toplevel
-  toplevel=$(git -C "$pane_path" rev-parse --show-toplevel 2>/dev/null) || true
-  project=$(basename "${toplevel:-unknown}")
+  # Use --git-common-dir to resolve the main repo root (not the worktree root)
+  local common_dir repo_root
+  common_dir=$(git -C "$pane_path" rev-parse --git-common-dir 2>/dev/null) || true
+  if [[ -n "$common_dir" ]]; then
+    # common_dir is e.g. /path/to/repo/.git — parent is the repo root
+    repo_root=$(cd "$pane_path" && cd "$common_dir/.." && pwd 2>/dev/null) || true
+  fi
+  project=$(basename "${repo_root:-unknown}")
   branch=$(git -C "$pane_path" rev-parse --abbrev-ref HEAD 2>/dev/null) || true
   branch="${branch:-no-branch}"
   fmt=$(read_setting '.terminal.tabNameFormat' '{project} @ {branch}')
@@ -101,7 +115,24 @@ auto_title() {
   echo "$title"
 }
 
-case "${1:-}" in
+# Parse --path before dispatching
+SWAIN_TAB_PATH=""
+args=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --path)
+      SWAIN_TAB_PATH="$2"
+      shift 2
+      ;;
+    *)
+      args+=("$1")
+      shift
+      ;;
+  esac
+done
+export SWAIN_TAB_PATH
+
+case "${args[0]:-}" in
   --auto)
     auto_title
     install_hook
@@ -111,18 +142,19 @@ case "${1:-}" in
     echo "(reset)"
     ;;
   --help|-h)
-    echo "Usage: swain-tab-name.sh [TITLE | --auto | --reset]"
+    echo "Usage: swain-tab-name.sh [--path DIR] [TITLE | --auto | --reset]"
     echo ""
-    echo "  TITLE     Set a custom tab/window title"
-    echo "  --auto    Generate title from git project + branch (uses settings)"
-    echo "  --reset   Restore default terminal title"
+    echo "  --path DIR  Resolve git context from DIR (for agents in worktrees)"
+    echo "  TITLE       Set a custom tab/window title"
+    echo "  --auto      Generate title from git project + branch (uses settings)"
+    echo "  --reset     Restore default terminal title"
     exit 0
     ;;
   "")
     auto_title
     ;;
   *)
-    set_title "$1" "$1"
-    echo "$1"
+    set_title "${args[0]}" "${args[0]}"
+    echo "${args[0]}"
     ;;
 esac

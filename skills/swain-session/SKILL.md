@@ -31,14 +31,24 @@ When invoked manually, the user can change preferences or bookmark context.
 Check if `$TMUX` is set. If yes, run the tab-naming script:
 
 ```bash
-bash "$(dirname "$0")/../skills/swain-session/scripts/swain-tab-name.sh" --auto
+bash skills/swain-session/scripts/swain-tab-name.sh --auto
 ```
 
 Use the project root to locate the script. The script reads `swain.settings.json` for the tab name format (default: `{project} @ {branch}`).
 
-The script renames **both** the tmux window (tab) and the tmux session. Git context (project name and branch) is resolved from the **active pane's working directory**, so the names reflect wherever the operator is actually working.
+The script renames **both** the tmux window (tab) and the tmux session. It also installs a `pane-focus-in` hook so names update automatically when the operator switches between tmux panes in different git repos/branches.
 
 If this fails (e.g., not in a git repo), set a fallback title of "swain".
+
+### Worktree / branch changes (agent-agnostic)
+
+When an agent enters a worktree or switches branches, the tmux pane's tracked CWD does not update (agent commands run in subshells). **Any agent** that changes its working context MUST re-run the tab-naming script with `--path`:
+
+```bash
+bash skills/swain-session/scripts/swain-tab-name.sh --path "$NEW_WORKDIR" --auto
+```
+
+This is agent-agnostic — it works in Claude Code, opencode, gemini cli, codex, copilot, or any other agent that reads AGENTS.md and can run bash commands. The `--path` flag takes priority over the pane's CWD.
 
 **If `$TMUX` is NOT set**, skip tab naming and show this tip:
 
