@@ -75,4 +75,4 @@ No maintained tool exists for static scanning of agentic coding context files (A
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-17 | -- | Decomposed from EPIC-017; novel BUILD component per SPIKE-020 |
+| Proposed | 2026-03-17 | b32f7db | Decomposed from EPIC-017; novel BUILD component per SPIKE-020 |

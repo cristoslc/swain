@@ -69,4 +69,4 @@ SPIKE-015 and SPIKE-020 resolved *what* security scanners to use but not *how* t
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-17 | -- | Decomposed from EPIC-017; addresses gap identified in SPIKE-020 review |
+| Proposed | 2026-03-17 | b32f7db | Decomposed from EPIC-017; addresses gap identified in SPIKE-020 review |

@@ -68,4 +68,4 @@ swain-do needs to automatically classify whether a task touches a security-sensi
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-17 | -- | Decomposed from EPIC-023 |
+| Proposed | 2026-03-17 | b32f7db | Decomposed from EPIC-023 |

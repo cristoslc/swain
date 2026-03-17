@@ -58,4 +58,4 @@ swain-doctor runs at session start to validate project health. Security scanning
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-17 | -- | Decomposed from EPIC-017 |
+| Proposed | 2026-03-17 | b32f7db | Decomposed from EPIC-017 |

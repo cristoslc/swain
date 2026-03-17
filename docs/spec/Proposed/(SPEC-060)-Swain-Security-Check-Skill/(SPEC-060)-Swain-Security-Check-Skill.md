@@ -75,4 +75,4 @@ The operator needs a single invocation that scans a project across all security 
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-17 | -- | Decomposed from EPIC-017; the orchestration shell per SPIKE-020 hybrid verdict |
+| Proposed | 2026-03-17 | b32f7db | Decomposed from EPIC-017; the orchestration shell per SPIKE-020 hybrid verdict |

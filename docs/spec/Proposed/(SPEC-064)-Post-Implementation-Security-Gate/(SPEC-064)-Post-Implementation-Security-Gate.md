@@ -71,4 +71,4 @@ Security gate: 2 findings filed as new issues
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-17 | -- | Decomposed from EPIC-023; depends on EPIC-017 for scanner |
+| Proposed | 2026-03-17 | b32f7db | Decomposed from EPIC-023; depends on EPIC-017 for scanner |

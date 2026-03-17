@@ -76,4 +76,4 @@ EPIC-023's security gates should integrate with external security skills (Trail 
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-17 | -- | Decomposed from EPIC-023; defines the external skill integration surface |
+| Proposed | 2026-03-17 | b32f7db | Decomposed from EPIC-023; defines the external skill integration surface |
