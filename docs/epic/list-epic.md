@@ -5,13 +5,19 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-016 | Worktree-Aware Session Bookmarks | 2026-03-14 | — |
-| EPIC-017 | Security Vulnerability Scanning Skill | 2026-03-14 | — |
 | EPIC-018 | Work Scope Progress Visualizations For Swain-Status | 2026-03-14 | — |
 | EPIC-019 | Rename swain-design to swain-commission | 2026-03-14 | — |
 | EPIC-020 | Multi-Agent Workdir Safety | 2026-03-14 | — |
 | EPIC-021 | Product Design Orchestrator | 2026-03-14 | — |
 | EPIC-022 | Postflight Summaries | 2026-03-14 | — |
-| EPIC-023 | Security Gates in swain-do Execution Flow | 2026-03-14 | — |
+| EPIC-024 | GitHub Issue Polling with Deterministic Pre-Filtering | 2026-03-16 | — |
+
+## Active
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| EPIC-017 | Security Vulnerability Scanning Skill | 2026-03-17 | 648d4a7 |
+| EPIC-023 | Security Gates in swain-do Execution Flow | 2026-03-17 | 648d4a7 |
 
 ## Complete
 
