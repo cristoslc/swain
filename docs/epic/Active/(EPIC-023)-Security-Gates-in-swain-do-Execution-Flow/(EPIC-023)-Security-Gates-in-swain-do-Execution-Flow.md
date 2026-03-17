@@ -18,6 +18,7 @@ success-criteria:
   - Security findings at task completion are filed as new tk issues, not silently dropped
 linked-artifacts:
   - SPIKE-020
+  - RUNBOOK-001
 depends-on-artifacts:
   - EPIC-017
 trove: "security-skill-landscape"
