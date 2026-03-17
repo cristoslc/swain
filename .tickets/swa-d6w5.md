@@ -1,6 +1,6 @@
 ---
 id: swa-d6w5
-status: open
+status: closed
 deps: [swa-pnhz, swa-h35y]
 links: []
 created: 2026-03-17T18:21:46Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-065]
 
 Python module at skills/swain-security-check/scripts/external_hooks.py. Detect installed skills, dispatch to appropriate hook points, merge results.
 
+
+## Notes
+
+**2026-03-17T18:29:11Z**
+
+Complete: merged from worktree-agent-a66341ef. 33 tests.

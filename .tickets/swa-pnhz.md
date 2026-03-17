@@ -1,6 +1,6 @@
 ---
 id: swa-pnhz
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T18:21:46Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-065]
 
 Test detection of trailofbits and owasp-security skills via known SKILL.md paths. Test graceful no-op when absent.
 
+
+## Notes
+
+**2026-03-17T18:29:11Z**
+
+Complete: merged from worktree-agent-a66341ef. 33 tests.

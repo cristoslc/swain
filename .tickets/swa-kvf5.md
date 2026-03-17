@@ -20,3 +20,7 @@ Test that gate runs for security-sensitive tasks (using threat_surface.py), skip
 **2026-03-17T18:24:50Z**
 
 RED complete: 10 tests for should_run_gate, 6 tests for get_changed_files, 6 tests for run_gate trigger behavior. All fail with ModuleNotFoundError (security_gate.py not yet implemented).
+
+**2026-03-17T18:29:10Z**
+
+Complete: merged from worktree-agent-a03d69eb. 35 tests.

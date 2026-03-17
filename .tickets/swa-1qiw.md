@@ -20,3 +20,7 @@ Test that findings are filed as new tk issues with security-finding tag, linked 
 **2026-03-17T18:24:55Z**
 
 RED complete: 11 tests for file_finding_as_ticket (correct fields, security-finding tag, linking, priority mapping, error handling) and 3 tests for run_gate filing integration (clean scan, None filtering, originating task passthrough). All fail with ModuleNotFoundError.
+
+**2026-03-17T18:29:11Z**
+
+Complete: merged from worktree-agent-a03d69eb. 35 tests.

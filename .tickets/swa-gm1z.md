@@ -1,6 +1,6 @@
 ---
 id: swa-gm1z
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T18:21:46Z
@@ -13,3 +13,9 @@ external-ref: SPEC-064
 
 Hook into swain-do task completion to run diff-only security scan on security-sensitive tasks. File findings as new tk issues with security-finding tag. Advisory only — does not block task closure.
 
+
+## Notes
+
+**2026-03-17T18:29:11Z**
+
+Complete: merged from worktree-agent-a03d69eb. 35 tests.
