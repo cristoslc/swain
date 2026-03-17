@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import platform
 import shutil
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 
