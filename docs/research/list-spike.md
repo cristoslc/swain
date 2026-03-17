@@ -14,6 +14,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPIKE-026 | Context Fork as Model Routing Implementation Path | 2026-03-16 | -- |
 
 ## Complete
 

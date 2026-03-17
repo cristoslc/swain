@@ -1,0 +1,25 @@
+trove: context-fork-claude-code
+created: 2026-03-16
+refreshed: 2026-03-16
+tags:
+  - context-fork
+  - agent-isolation
+  - skill-execution
+  - context-management
+  - model-routing
+  - claude-code
+
+freshness-ttl:
+  web: 14d
+
+referenced-by:
+  - artifact: SPIKE-026
+    commit: pending
+
+sources:
+  - source-id: claudelog-context-fork-faq
+    type: web
+    url: "https://claudelog.com/faqs/what-is-context-fork-in-claude-code/"
+    fetched: 2026-03-16T00:00:00Z
+    title: "What is Context Fork in Claude Code | ClaudeLog"
+    hash: "af22e8c30631fe5a67b24f2d01e2f7e63dcafeec553c4459f3f86b2e83e4277e"

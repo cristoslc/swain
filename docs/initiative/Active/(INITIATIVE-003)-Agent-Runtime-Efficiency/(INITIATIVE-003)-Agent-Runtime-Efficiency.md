@@ -2,10 +2,10 @@
 title: "Agent Runtime Efficiency"
 artifact: INITIATIVE-003
 track: container
-status: Complete
+status: Active
 author: cristos
 created: 2026-03-15
-last-updated: 2026-03-15
+last-updated: 2026-03-16
 parent-vision: VISION-001
 success-criteria:
   - Skill context footprint ≤5% of context window
@@ -25,15 +25,19 @@ Keep agents fast, cheap, and correctly routed. This initiative focuses on reduci
 
 ## Scope Boundaries
 
-**In scope:** Context footprint reduction, model routing annotations, superpowers interop assessment.
+**In scope:** Context footprint reduction, model routing annotations, runtime model routing enforcement, superpowers interop assessment.
 
-**Out of scope:** Agent runtime implementation details (Claude Code, Cursor, etc.), model selection APIs, prompt caching strategies.
+**Out of scope:** Prompt caching strategies.
 
 ## Child Epics
 
 - EPIC-004: Superpowers Integration Assessment (Complete)
 - EPIC-006: Skill Context Footprint Reduction (Complete)
 - EPIC-007: Agent Model Routing and Reasoning Effort Steering (Complete)
+
+## Research Spikes
+
+- SPIKE-026: Context Fork as Model Routing Implementation Path (Active)
 
 ## Small Work (Epic-less Specs)
 
@@ -47,4 +51,5 @@ EPIC-006 needed to complete before EPIC-007 to offset added annotation content.
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Complete | 2026-03-15 | — | Retroactive creation during initiative migration; all child epics already complete |
+| Complete | 2026-03-15 | -- | Retroactive creation during initiative migration; all child epics already complete |
+| Active | 2026-03-16 | -- | Reopened: SPEC-026 implemented advisory annotations but not runtime enforcement; "routed" success criterion unmet. SPIKE-026 investigates context fork as implementation path |
