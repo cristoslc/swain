@@ -112,6 +112,21 @@ if [[ $sp_missing -gt 0 ]]; then
   echo "swain-preflight: superpowers: $sp_missing/6 skills missing (advisory)"
 fi
 
+# 11. Security scanner availability (INFO — advisory, non-blocking) (SPEC-059)
+SCANNER_SCRIPT="skills/swain-security-check/scripts/scanner_availability.py"
+if [[ -x "$SCANNER_SCRIPT" ]]; then
+  scanner_output=$(python3 "$SCANNER_SCRIPT" 2>/dev/null || true)
+  # Extract the summary line (first line: "Scanner availability: N/4 scanners found")
+  scanner_summary=$(echo "$scanner_output" | head -1)
+  if [[ -n "$scanner_summary" ]] && ! echo "$scanner_summary" | grep -q "4/4"; then
+    echo "swain-preflight: $scanner_summary (advisory)"
+    # Print missing scanner details
+    echo "$scanner_output" | grep '^\s*\[--\]' | while read -r line; do
+      echo "  $line"
+    done
+  fi
+fi
+
 # Check for epics without parent-initiative (initiative migration advisory)
 EPICS_WITHOUT_INITIATIVE=0
 while IFS= read -r -d '' f; do

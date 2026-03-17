@@ -249,6 +249,57 @@ class TestCheckAllScanners:
         assert all(r.install_hint is not None for r in results)
 
 
+# ---------------------------------------------------------------------------
+# Tests for swain-doctor integration (format_report)
+# ---------------------------------------------------------------------------
+
+
+class TestFormatReport:
+    """format_report() produces swain-doctor-compatible output."""
+
+    def test_all_available_report(self):
+        from scanner_availability import format_report
+
+        results = [
+            ScannerResult(name="gitleaks", available=True, path="/usr/local/bin/gitleaks"),
+            ScannerResult(name="osv-scanner", available=True, path="/usr/local/bin/osv-scanner"),
+            ScannerResult(name="trivy", available=True, path="/usr/local/bin/trivy"),
+            ScannerResult(name="semgrep", available=True, path="/usr/local/bin/semgrep"),
+        ]
+        report = format_report(results)
+        assert "4/4 scanners found" in report
+        assert "[ok]" in report
+        assert "[--]" not in report
+
+    def test_none_available_report(self):
+        from scanner_availability import format_report
+
+        results = [
+            ScannerResult(name="gitleaks", available=False, install_hint="brew install gitleaks"),
+            ScannerResult(name="osv-scanner", available=False, install_hint="brew install osv-scanner"),
+            ScannerResult(name="trivy", available=False, install_hint="brew install trivy"),
+            ScannerResult(name="semgrep", available=False, install_hint="uv run --with semgrep semgrep"),
+        ]
+        report = format_report(results)
+        assert "0/4 scanners found" in report
+        assert "[--]" in report
+        assert "install:" in report
+
+    def test_partial_availability_report(self):
+        from scanner_availability import format_report
+
+        results = [
+            ScannerResult(name="gitleaks", available=True, path="/usr/local/bin/gitleaks"),
+            ScannerResult(name="osv-scanner", available=False, install_hint="brew install osv-scanner"),
+            ScannerResult(name="trivy", available=True, path="/usr/local/bin/trivy"),
+            ScannerResult(name="semgrep", available=False, install_hint="uv run --with semgrep semgrep"),
+        ]
+        report = format_report(results)
+        assert "2/4 scanners found" in report
+        assert "[ok]" in report
+        assert "[--]" in report
+
+
 class TestPerformanceBound:
     """Availability checks must complete in < 1 second with no network."""
 
