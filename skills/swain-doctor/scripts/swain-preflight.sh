@@ -127,6 +127,15 @@ if [[ -x "$SCANNER_SCRIPT" ]]; then
   fi
 fi
 
+# 12. Lightweight security diagnostic (advisory, non-blocking) (SPEC-061)
+DOCTOR_SECURITY_SCRIPT="skills/swain-security-check/scripts/doctor_security_check.py"
+if [[ -x "$DOCTOR_SECURITY_SCRIPT" ]]; then
+  security_output=$(python3 "$DOCTOR_SECURITY_SCRIPT" 2>/dev/null || true)
+  if [[ -n "$security_output" ]]; then
+    echo "$security_output"
+  fi
+fi
+
 # Check for epics without parent-initiative (initiative migration advisory)
 EPICS_WITHOUT_INITIATIVE=0
 while IFS= read -r -d '' f; do
