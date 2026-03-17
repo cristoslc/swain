@@ -97,4 +97,4 @@ Likely decomposition:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial filing; depends on EPIC-017 for completion-gate implementation |
-| Active | 2026-03-17 | -- | EPIC-017 now Active; ready for child spec decomposition |
+| Active | 2026-03-17 | 648d4a7 | EPIC-017 now Active; ready for child spec decomposition |
