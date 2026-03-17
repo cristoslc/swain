@@ -15,6 +15,7 @@
 | EPIC-026 | Query Layer | 2026-03-17 | — |
 | EPIC-027 | Orchestrator Integration | 2026-03-17 | — |
 | EPIC-028 | Status Integration | 2026-03-17 | — |
+| EPIC-029 | Configurable Trunk Branch | 2026-03-17 | — |
 
 ## Active
 
