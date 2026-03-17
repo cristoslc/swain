@@ -50,6 +50,9 @@ Migrate governance from the AGENTS.md prose chaining table to subscriptions.json
 1. **Gradual migration** — no big-bang cutover; both dispatch paths coexist during transition
 2. **Subscriptions own the chain definition** — AGENTS.md becomes documentation-only once migration completes
 3. **Mode field enables safe delegation** — `interactive` chains wait for operator; `delegable` chains can be dispatched to background agents via swain-dispatch
+4. **Orchestrator is a recommender, not a dispatcher** — The orchestrator outputs text instructions that any agent runtime can follow (e.g., "ACTION: transition SPEC-012 to Complete / CONTEXT: All tasks in plan closed / MODE: delegable"). The runtime decides how to execute — Claude Code uses skill invocations + subagents, OpenCode follows the text directly, Copilot uses /fleet, etc. This makes the orchestrator portable across all AGENTS.md-compatible tools.
+5. **Cross-runtime portability** — Research showed 5 of 7 major agent runtimes (Codex CLI, OpenCode, Copilot CLI, Cursor, Windsurf) now support subagent dispatch with parallelism. AGENTS.md is a Linux Foundation standard. The subscription registry's mode/model/prompt_seed metadata is portable — most runtimes can spawn a subagent with a prompt. The runtime-specific adapter layer is thin: "spawn a subagent with this prompt" works nearly everywhere.
+6. **Subscription registry dispatch hints** — The `mode: interactive|delegable` distinction maps across runtimes. "Delegable" means "can run without user interaction" — in Claude Code that's a subagent, in Codex that's a spawned agent, in Cursor that's a background agent. The `prompt_seed` is the portability mechanism — it's not "invoke skill X" but "here's what to do, as a prompt any LLM can follow."
 
 ## Migration Map (Current Table)
 
