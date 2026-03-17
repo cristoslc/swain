@@ -1,5 +1,18 @@
 # Agent Specs
 
+## Proposed
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| SPEC-058 | Context-File Injection Heuristic Scanner | 2026-03-17 | b32f7db |
+| SPEC-059 | Tooling Availability Strategy | 2026-03-17 | b32f7db |
+| SPEC-060 | swain-security-check Skill | 2026-03-17 | b32f7db |
+| SPEC-061 | swain-doctor Security Integration | 2026-03-17 | b32f7db |
+| SPEC-062 | Threat Surface Detection Heuristic | 2026-03-17 | b32f7db |
+| SPEC-063 | Pre-Claim Security Briefing | 2026-03-17 | b32f7db |
+| SPEC-064 | Post-Implementation Security Gate | 2026-03-17 | b32f7db |
+| SPEC-065 | External Security Skill Hook Interface | 2026-03-17 | b32f7db |
+
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
@@ -9,6 +22,7 @@
 | SPEC-054 | Project Identity Enforcement | 2026-03-16 | — |
 | SPEC-055 | Trove Analysis Layer | 2026-03-16 | — |
 | SPEC-056 | Tmux Pane-Aware Session Naming | 2026-03-16 | — |
+| SPEC-057 | tk close Must Release Claim Lock | 2026-03-17 | — |
 
 ## Complete
 
