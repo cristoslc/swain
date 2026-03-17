@@ -1,12 +1,12 @@
 ---
 id: swa-kvf5
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T18:21:46Z
 type: task
 priority: 1
-assignee: Cristos L-C
+assignee: cristos
 parent: swa-gm1z
 tags: [spec:SPEC-064]
 ---
@@ -14,3 +14,9 @@ tags: [spec:SPEC-064]
 
 Test that gate runs for security-sensitive tasks (using threat_surface.py), skips non-security tasks, and invokes security_check in diff-only mode.
 
+
+## Notes
+
+**2026-03-17T18:24:50Z**
+
+RED complete: 10 tests for should_run_gate, 6 tests for get_changed_files, 6 tests for run_gate trigger behavior. All fail with ModuleNotFoundError (security_gate.py not yet implemented).
