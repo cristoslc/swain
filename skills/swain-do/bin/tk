@@ -3,6 +3,10 @@ set -euo pipefail
 
 # ticket - minimal ticket system with dependency tracking
 # Stores markdown files with YAML frontmatter in .tickets/
+#
+# Originally from: https://github.com/wedow/ticket
+# Copyright (c) 2025 wedow — MIT License
+# Vendored and modified for swain (https://github.com/cristoslc/swain)
 
 # Find .tickets directory by walking parent directories
 find_tickets_dir() {
