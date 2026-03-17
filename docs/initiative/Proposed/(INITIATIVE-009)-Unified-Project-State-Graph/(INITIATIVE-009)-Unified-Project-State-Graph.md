@@ -21,6 +21,7 @@ linked-artifacts:
   - EPIC-027
   - EPIC-028
   - VISION-001
+  - ADR-007
 depends-on-artifacts: []
 ---
 
@@ -80,6 +81,20 @@ EPIC-027 and EPIC-028 are independent of each other; both depend on EPIC-026.
 ## Small Work (Epic-less Specs)
 
 None.
+
+## Cross-Runtime Portability
+
+Research in March 2026 confirmed that subagent dispatch is nearly universal across agent runtimes:
+
+- **Codex CLI** — GA subagents with parallel execution, first-class AGENTS.md
+- **OpenCode** — Agent teams with mixed-provider support, AGENTS.md auto-discovery
+- **Copilot CLI** — /fleet for parallel dispatch, #runSubagent in VS Code
+- **Cursor** — Up to 8 parallel background agents in git worktrees
+- **Windsurf** — Parallel multi-agent sessions with git worktrees
+- **Gemini CLI** — Experimental subagents, sequential only
+- **Aider** — No native subagents
+
+This means the architecture should assume subagent dispatch is available, not treat it as a Claude Code luxury. The orchestrator's "recommender not dispatcher" pattern ensures portability — it outputs text recommendations that any runtime can execute using its native dispatch mechanism. The subscription registry's metadata (mode, model hint, prompt_seed) is portable across all runtimes that support subagents.
 
 ## Key Dependencies
 
