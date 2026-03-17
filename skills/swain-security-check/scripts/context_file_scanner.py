@@ -353,8 +353,6 @@ _CYRILLIC_HOMOGLYPHS: set[int] = {
     0x0445,  # х -> x
 }
 
-# Suspicious Unicode categories
-_SUSPICIOUS_CODEPOINTS: dict[str, tuple[str, str]] = {}
 
 def _check_unicode_line(line: str, line_number: int, file_path: str) -> list[dict[str, Any]]:
     """Check a single line for suspicious Unicode characters."""
