@@ -1,5 +1,5 @@
 ---
-title: "Configurable Trunk Branch"
+title: "Auto-Detecting Trunk Branch"
 artifact: EPIC-029
 track: container
 status: Proposed
@@ -9,11 +9,12 @@ last-updated: 2026-03-17
 parent-initiative: INITIATIVE-009
 priority-weight: high
 success-criteria:
-  - swain.settings.json with git.trunk is respected by all swain scripts
-  - An operator can set git.trunk to "develop" and all swain operations target that branch
-  - Default behavior (no setting) is identical to current behavior (main)
+  - swain_trunk() auto-detects trunk from git state — returns the main worktree's branch
+  - All swain scripts use swain_trunk() instead of hardcoded "main"
+  - An operator on "develop" gets all swain operations targeting "develop" with zero configuration
+  - From a worktree, swain_trunk() returns the parent worktree's branch (not the worktree's branch)
+  - Optional swain.settings.json git.trunk override exists for edge cases but is not required
   - No literal "main" remains in runtime skill scripts (swain-sync, swain-doctor, preflight)
-  - A shell helper function swain_trunk() reads the setting with fallback to main
 depends-on-artifacts: []
 linked-artifacts:
   - INITIATIVE-009
@@ -23,17 +24,17 @@ linked-artifacts:
   - SPEC-044
 ---
 
-# Configurable Trunk Branch
+# Auto-Detecting Trunk Branch
 
 ## Goal / Objective
 
-Replace all hardcoded "main" branch references across swain with a configurable trunk branch. Operators using `develop`, `master`, `trunk`, or any custom branch name should be fully supported. This is a prerequisite for correctness in EPIC-025 (Event Bus), which must compile events to the trunk branch without assuming its name.
+Replace all hardcoded "main" branch references across swain with auto-detection from git state. The trunk is wherever you are when you're not in a worktree — no configuration required. Operators on `develop`, `master`, `trunk`, or any branch are supported automatically. This is a prerequisite for correctness in EPIC-025 (Event Bus), which must compile events to the trunk branch without assuming its name.
 
 ## Scope Boundaries
 
 **In scope:**
-- Add `git.trunk` key to `swain.settings.json` (default: `main`)
-- Shell helper function: `swain_trunk()` that reads the setting with fallback to `main`
+- Shell helper function: `swain_trunk()` that auto-detects trunk from git worktree state
+- Optional `swain.settings.json` `git.trunk` override for edge cases
 - Parameterize swain-sync: rebase target, push target, PR base
 - Parameterize swain-doctor: stale worktree detection, merge-base checks
 - Parameterize preflight script
@@ -46,8 +47,11 @@ Replace all hardcoded "main" branch references across swain with a configurable 
 
 ## Design Decisions
 
-1. **Single source of truth** — `swain.settings.json` `git.trunk` is the canonical trunk branch name. All scripts read from this file; no script infers the trunk from git state.
-2. **Shell helper with fallback** — `swain_trunk()` reads `git.trunk` from `swain.settings.json` using `jq`, falling back to `main` if the file or key is absent. This ensures backward compatibility without requiring configuration for projects that use `main`.
+1. **Auto-detect from git state, not config** — Trunk is not a setting, it's a fact about the repo. `swain_trunk()` detects it from git worktree state:
+   - **Not in a worktree** (`GIT_COMMON_DIR == GIT_DIR`): you ARE on trunk. Return current branch.
+   - **In a worktree** (`GIT_COMMON_DIR != GIT_DIR`): trunk is the main worktree's branch. Read it from the main worktree.
+   - **Optional override**: if `swain.settings.json` has `git.trunk`, use that instead. This is for edge cases (detached HEAD, unusual repo structures), not normal operation.
+2. **Zero configuration for the common case** — An operator on `develop` gets all swain operations targeting `develop` without touching any config file. An operator on `main` gets the same behavior as today. The override exists but is never required.
 3. **No retroactive SPEC changes** — completed SPECs (SPEC-039, SPEC-044) documented decisions at the time they were made. They are not updated retroactively; this EPIC parameterizes runtime behavior going forward.
 
 ## Child Specs
@@ -56,26 +60,28 @@ None yet — specs to be decomposed when this EPIC transitions to Active.
 
 ## Test Plan
 
-### T1 — Default behavior without configuration
-- Remove or omit `git.trunk` from `swain.settings.json`
-- Run `swain_trunk()` and verify it returns `main`
-- Run swain-sync, swain-doctor, and preflight and verify they target `main`
+### T1 — Auto-detection on main
+- On a repo where the main worktree is on `main`, run `swain_trunk()` — returns `main`
+- Run swain-sync, swain-doctor, and preflight — all target `main`
 
-### T2 — Custom trunk branch
-- Set `git.trunk` to `develop` in `swain.settings.json`
-- Run `swain_trunk()` and verify it returns `develop`
-- Run swain-sync and verify rebase target, push target, and PR base all use `develop`
-- Run swain-doctor and verify worktree detection and merge-base checks use `develop`
-- Run preflight and verify trunk references use `develop`
+### T2 — Auto-detection on non-main trunk
+- Check out `develop` in the main worktree
+- Run `swain_trunk()` — returns `develop`
+- Run swain-sync — rebase target, push target, and PR base all use `develop`
+- Run swain-doctor — worktree detection and merge-base checks use `develop`
 
-### T3 — No hardcoded main in runtime scripts
+### T3 — Detection from inside a worktree
+- Create a worktree from a repo whose main worktree is on `develop`
+- From inside the worktree, run `swain_trunk()` — returns `develop` (not the worktree's branch)
+
+### T4 — Override via settings
+- Set `git.trunk` to `release` in `swain.settings.json`
+- Run `swain_trunk()` — returns `release` regardless of current branch
+- Remove the override — returns to auto-detection
+
+### T5 — No hardcoded main in runtime scripts
 - Grep all runtime skill scripts (swain-sync, swain-doctor, preflight, event bus orchestrator) for literal `main` branch references
 - Verify none remain outside of comments, documentation, or fallback default values
-
-### T4 — Event bus compilation target
-- Set `git.trunk` to `trunk` in `swain.settings.json`
-- Verify event bus compile mode targets `trunk` branch for `events.jsonl` compilation
-- Verify worktree enforcement guards use the configured trunk name
 
 ## Key Dependencies
 
