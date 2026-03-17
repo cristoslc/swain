@@ -18,7 +18,6 @@ Zero external deps beyond Python 3 stdlib + sibling modules.
 from __future__ import annotations
 
 import subprocess
-import sys
 from typing import Any
 
 from context_file_scanner import scan_file
