@@ -459,6 +459,49 @@ class TestFalsePositiveRate:
         )
 
 
+class TestStemVsExactMatching:
+    """Verify that short/ambiguous keywords use exact matching to avoid FP."""
+
+    def test_keyboard_not_matched(self):
+        """'key' should not match 'keyboard'."""
+        result = detect_threat_surface(title="Add keyboard shortcuts for navigation")
+        assert result.is_security_sensitive is False
+
+    def test_keynote_not_matched(self):
+        """'key' should not match 'keynote'."""
+        result = detect_threat_surface(title="Fix keynote presentation export")
+        assert result.is_security_sensitive is False
+
+    def test_key_exact_match(self):
+        """'key' should match when used as a standalone word."""
+        result = detect_threat_surface(title="Generate API key for service")
+        assert result.is_security_sensitive is True
+
+    def test_encrypted_stem_match(self):
+        """'encrypt' should match 'encrypted' via stem matching."""
+        result = detect_threat_surface(title="All data must be encrypted")
+        assert result.is_security_sensitive is True
+        assert "crypto" in result.categories
+
+    def test_encryption_stem_match(self):
+        """'encrypt' should match 'encryption' via stem matching."""
+        result = detect_threat_surface(title="Add AES encryption support")
+        assert result.is_security_sensitive is True
+        assert "crypto" in result.categories
+
+    def test_authentication_stem_match(self):
+        """'auth' should match 'authentication' via stem matching."""
+        result = detect_threat_surface(title="Fix authentication flow")
+        assert result.is_security_sensitive is True
+        assert "auth" in result.categories
+
+    def test_validation_stem_match(self):
+        """'validate' should match 'validation' via stem matching."""
+        result = detect_threat_surface(title="Add input validation layer")
+        assert result.is_security_sensitive is True
+        assert "input-validation" in result.categories
+
+
 class TestReturnType:
     """ThreatSurfaceResult should have the expected structure."""
 

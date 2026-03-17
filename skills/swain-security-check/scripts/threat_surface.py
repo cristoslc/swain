@@ -31,29 +31,40 @@ VALID_CATEGORIES = frozenset({
 # ---------------------------------------------------------------------------
 # Keyword -> category mapping
 # ---------------------------------------------------------------------------
-# Order: auth keywords, then crypto, then input-validation, then secrets.
-# A keyword maps to exactly one primary category.
-KEYWORD_CATEGORIES: dict[str, str] = {
+# Keywords are split into two groups:
+#   - STEM keywords: longer, specific terms where suffix variants are valid
+#     (e.g., "encrypt" matches "encrypted", "encryption")
+#   - EXACT keywords: shorter or ambiguous terms that require word-boundary
+#     matching to avoid false positives (e.g., "key" must not match "keyboard")
+_STEM_KEYWORDS: dict[str, str] = {
     "auth": CAT_AUTH,
     "login": CAT_AUTH,
     "password": CAT_AUTH,
     "token": CAT_AUTH,
     "permission": CAT_AUTH,
-    "role": CAT_AUTH,
     "encrypt": CAT_CRYPTO,
     "certificate": CAT_CRYPTO,
     "sanitize": CAT_INPUT_VALIDATION,
-    "validate": CAT_INPUT_VALIDATION,
-    "escape": CAT_INPUT_VALIDATION,
+    "validat": CAT_INPUT_VALIDATION,     # matches validate, validation, validating
     "secret": CAT_SECRETS,
+}
+
+_EXACT_KEYWORDS: dict[str, str] = {
+    "role": CAT_AUTH,
+    "escape": CAT_INPUT_VALIDATION,
     "key": CAT_AUTH,
 }
 
-# Compile a single regex that matches keyword stems (case-insensitive).
-# Uses \b at the start to avoid matching mid-word, but allows suffixes
-# (e.g., "encrypt" matches "encrypted", "encryption").
-_KEYWORD_PATTERN = re.compile(
-    r"\b(" + "|".join(re.escape(kw) for kw in KEYWORD_CATEGORIES) + r")",
+# Combined lookup for category resolution
+KEYWORD_CATEGORIES: dict[str, str] = {**_STEM_KEYWORDS, **_EXACT_KEYWORDS}
+
+# Two compiled patterns: stem-matching (no trailing \b) and exact (with trailing \b)
+_STEM_PATTERN = re.compile(
+    r"\b(" + "|".join(re.escape(kw) for kw in _STEM_KEYWORDS) + r")",
+    re.IGNORECASE,
+)
+_EXACT_PATTERN = re.compile(
+    r"\b(" + "|".join(re.escape(kw) for kw in _EXACT_KEYWORDS) + r")\b",
     re.IGNORECASE,
 )
 
@@ -109,13 +120,17 @@ def _add_category(categories: set[str], category: str | None) -> None:
 def _scan_text_for_keywords(text: str, categories: set[str]) -> bool:
     """Scan text for security keywords, adding matched categories.
 
+    Uses stem matching for longer keywords and exact matching for short
+    or ambiguous keywords to minimize false positives.
+
     Returns True if any keyword was found.
     """
     found = False
-    for match in _KEYWORD_PATTERN.finditer(text):
-        keyword = match.group(1).lower()
-        _add_category(categories, KEYWORD_CATEGORIES.get(keyword))
-        found = True
+    for pattern in (_STEM_PATTERN, _EXACT_PATTERN):
+        for match in pattern.finditer(text):
+            keyword = match.group(1).lower()
+            _add_category(categories, KEYWORD_CATEGORIES.get(keyword))
+            found = True
     return found
 
 
