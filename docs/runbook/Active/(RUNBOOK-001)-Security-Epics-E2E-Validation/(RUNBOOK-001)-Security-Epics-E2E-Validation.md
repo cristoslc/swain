@@ -335,6 +335,7 @@ rm -rf /tmp/test-security-project /tmp/test-doctor-project
 | Date | Executor | Result | Duration | Notes |
 |------|----------|--------|----------|-------|
 | 2026-03-17 | — | — | — | Runbook created |
+| 2026-03-17 | Claude Opus 4.6 | **PASS** | ~2 min | 25/25 steps pass. 423 unit tests, all 10 phases green. Step 12 required git init in temp dir (script auto-detects repo root). Step 20 required tk on PATH. Preflight exit 1 due to pre-existing script permissions issue, not security checks. |
 
 ## Lifecycle
 
