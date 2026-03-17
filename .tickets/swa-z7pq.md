@@ -1,6 +1,6 @@
 ---
 id: swa-z7pq
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T17:10:29Z
@@ -13,3 +13,9 @@ external-ref: SPEC-059
 
 Define and implement per-scanner binary detection (gitleaks, osv-scanner, trivy via brew/apt; semgrep via uv run). Integrate availability checks into swain-doctor diagnostics. swain-security-check degrades gracefully when scanners are absent.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-ac564be9. 30 tests passing.

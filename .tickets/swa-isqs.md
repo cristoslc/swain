@@ -1,6 +1,6 @@
 ---
 id: swa-isqs
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T17:11:14Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-062]
 
 Test that tasks with security tags and tasks whose parent SPEC mentions security keywords in acceptance criteria are detected.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-ae45acba. 66 tests passing.

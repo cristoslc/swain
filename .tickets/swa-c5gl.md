@@ -1,6 +1,6 @@
 ---
 id: swa-c5gl
-status: open
+status: closed
 deps: [swa-bepi, swa-pc1x]
 links: []
 created: 2026-03-17T17:11:02Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-059]
 
 Shell/Python function that checks each scanner, returns availability status and install command per detected OS. Under 1 second, no network calls.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-ac564be9. 30 tests passing.

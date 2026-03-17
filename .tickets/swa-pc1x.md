@@ -1,6 +1,6 @@
 ---
 id: swa-pc1x
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T17:11:02Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-059]
 
 Test that when semgrep is not on PATH but uv is available, the availability check reports semgrep as available via uv run.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-ac564be9. 30 tests passing.

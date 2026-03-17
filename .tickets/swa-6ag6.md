@@ -1,6 +1,6 @@
 ---
 id: swa-6ag6
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T17:10:49Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-058]
 
 Test cases for persistence mechanisms, base64/ROT13 obfuscation, and hidden Unicode characters (RTLO, Tag block, zero-width).
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-a4230991. 144 tests passing.

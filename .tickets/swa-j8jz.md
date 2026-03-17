@@ -1,6 +1,6 @@
 ---
 id: swa-j8jz
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T17:10:32Z
@@ -13,3 +13,9 @@ external-ref: SPEC-062
 
 Build a heuristic classifier that determines if a tk task touches a security-sensitive surface based on title keywords, tags, SPEC acceptance criteria, and file paths. Categories: auth, input-validation, crypto, external-data, agent-context, dependency-change, secrets. Low false-positive rate target.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-ae45acba. 66 tests passing.

@@ -1,6 +1,6 @@
 ---
 id: swa-v8sx
-status: open
+status: closed
 deps: [swa-x4ta, swa-6ag6, swa-tbmh]
 links: []
 created: 2026-03-17T17:10:49Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-058]
 
 Python script in skills/swain-security-check/scripts/ implementing all 10 regex categories. JSON output format. Zero external deps.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-a4230991. 144 tests passing.

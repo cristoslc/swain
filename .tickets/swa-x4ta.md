@@ -1,6 +1,6 @@
 ---
 id: swa-x4ta
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T17:10:49Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-058]
 
 Test cases for regex detection of instruction override, role hijacking, privilege escalation, and data exfiltration patterns in context files.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-a4230991. 144 tests passing.

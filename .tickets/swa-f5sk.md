@@ -1,6 +1,6 @@
 ---
 id: swa-f5sk
-status: open
+status: closed
 deps: [swa-v8sx]
 links: []
 created: 2026-03-17T17:10:49Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-058]
 
 Auto-discover context files for Claude Code, Cursor, Copilot, Codex, Windsurf, Cline, Roo, Gemini based on known path patterns.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-a4230991. 144 tests passing.

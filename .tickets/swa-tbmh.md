@@ -1,6 +1,6 @@
 ---
 id: swa-tbmh
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T17:10:49Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-058]
 
 Test cases for MCP config manipulation, HTML comment injection, and external fetch+exec patterns.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-a4230991. 144 tests passing.

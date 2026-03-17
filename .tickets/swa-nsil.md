@@ -1,6 +1,6 @@
 ---
 id: swa-nsil
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T17:11:14Z
@@ -14,3 +14,9 @@ tags: [spec:SPEC-062]
 
 Test that file paths matching auth/, crypto/, .env, etc. trigger detection. Verify non-security tasks like 'Update README' are not flagged.
 
+
+## Notes
+
+**2026-03-17T18:10:41Z**
+
+Complete: implementation merged from worktree-agent-ae45acba. 66 tests passing.
