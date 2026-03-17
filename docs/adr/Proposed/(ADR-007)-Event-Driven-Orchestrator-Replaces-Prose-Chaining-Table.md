@@ -12,8 +12,7 @@ linked-artifacts:
   - EPIC-026
   - EPIC-027
   - ADR-001
-depends-on-artifacts:
-  - ADR-001
+depends-on-artifacts: []
 ---
 
 # ADR-007: Event-Driven Orchestrator Replaces Prose Chaining Table
@@ -28,13 +27,17 @@ This table has three structural problems:
 2. **No cross-session handoffs.** Dispatched agents (via swain-dispatch or subagent-driven-development) write results to disk, but the next session has no mechanism to discover what happened and what chains should fire next. The table assumes a single continuous session.
 3. **No third-party extensibility.** External skills cannot subscribe to events without editing the governance file. The table is a closed dispatch map.
 
+The catalyst was auditing the chaining table for completeness: the full lifecycle of a SPEC (plan completion → SPEC transition → EPIC rollup check → retro trigger) required chains that weren't represented. Adding them revealed the table was encoding a dependency graph that it couldn't adequately express — cascading completions, cross-skill handoffs, and conditional dispatch based on runtime capabilities.
+
+Separately, swain already has three state sources — specgraph (artifact state), tk (task state), and now the proposed event bus (transition state) — that are queried independently. swain-status already consults specgraph and tk to answer "what's next?" but can't answer "what happened recently" or "what reactions are pending." The event bus is the missing third input, and a unified query layer over all three is the architectural goal (EPIC-026).
+
 Research across 7 major agent runtimes showed that 5 (Codex CLI, OpenCode, Copilot, Cursor, Windsurf) now support subagent dispatch with parallelism. AGENTS.md is a Linux Foundation standard. Multiple runtimes (Cursor, Windsurf, Copilot) already use git worktrees for agent isolation. Subagent dispatch is table stakes, not Claude Code-specific — the orchestration layer must be runtime-portable.
 
 This ADR evolves the integration mechanism that ADR-001 established. ADR-001 defined the three-layer model (swain-only / overlap / superpowers-only) and placed skill chaining in the governance layer. This decision moves chaining from static prose into a machine-readable event system while preserving the layered ownership model.
 
 ## Decision
 
-Replace the prose chaining table with an event-driven orchestrator. Six design decisions define the architecture:
+Replace the prose chaining table with an event-driven orchestrator. Seven design decisions define the architecture:
 
 ### 1. Event bus — file-based, JSONL, append-only
 
@@ -44,11 +47,15 @@ Events are recorded in `.agents/events.jsonl` using JSONL format (one JSON objec
 
 Each worktree or session writes to `events/<id>.events.jsonl`. The orchestrator in main compiles worktree event files into the trunk `events.jsonl`. This eliminates write contention across parallel agents without requiring file locks or coordination protocols.
 
-### 3. State derivation as reliability fallback
+### 3. Emission via scripts, not prose
 
-The orchestrator cross-references tk (ticket state) and specgraph (artifact phase transitions) to synthesize events for transitions that occurred without emission. The event log is the fast path for coordination; state derivation is the consistency layer. This means the system is eventually consistent even when a skill fails to emit an event.
+Skill scripts — which already run deterministic operations (specwatch, tk close, lifecycle stamping) — emit events as a side effect. The agent doesn't have to remember to emit; the tool does it. This addresses emission reliability at the source. If a skill has a bash script that closes a ticket, that script appends the event. The LLM never writes to the event log directly.
 
-### 4. Subscription registry — machine-readable dispatch
+### 4. State derivation as reliability fallback
+
+The orchestrator cross-references tk (ticket state) and specgraph (artifact phase transitions) to synthesize events for transitions that occurred without emission. The event log is the fast path for coordination; state derivation is the consistency layer. This means the system is eventually consistent even when a skill script fails to emit or the agent bypasses the script.
+
+### 5. Subscription registry — machine-readable dispatch
 
 `subscriptions.json` maps event types to handlers with metadata:
 
@@ -59,11 +66,11 @@ The orchestrator cross-references tk (ticket state) and specgraph (artifact phas
 
 This replaces the prose table with a format that tools can parse, skills can register into, and third parties can extend without editing governance.
 
-### 5. Orchestrator is a recommender, not a dispatcher
+### 6. Orchestrator is a recommender, not a dispatcher
 
 The orchestrator reads the event log, evaluates subscriptions, and outputs text instructions describing what should happen next. It does not invoke skills directly. The agent runtime decides how to execute (inline, subagent, deferred). This makes the orchestrator portable across all AGENTS.md-compatible tools — all it requires is bash and the ability to read text recommendations.
 
-### 6. Gradual adoption — prose table coexists with subscriptions
+### 7. Gradual adoption — prose table coexists with subscriptions
 
 During migration, the AGENTS.md prose table and `subscriptions.json` coexist. The agent checks the prose table first and runs the orchestrator second. Skills migrate individually from table rows to subscription entries; the table shrinks over time. When the table is empty, it is removed. This avoids a big-bang migration and lets each skill validate its subscription independently.
 
