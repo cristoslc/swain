@@ -1,0 +1,34 @@
+trove: intercom-claude-code-plugins
+created: 2026-03-17
+refreshed: 2026-03-17
+tags:
+  - claude-code
+  - plugins
+  - skills
+  - hooks
+  - mcp
+  - engineering-platform
+  - intercom
+  - observability
+  - production-access
+  - flaky-tests
+  - permissions
+  - feedback-loop
+
+freshness-ttl:
+  forum: 7d
+
+history:
+  - event: created
+    date: 2026-03-17
+    commit: "--"
+    sources: 1
+
+sources:
+  - source-id: brian-scanlan-intercom-claude-code
+    type: forum
+    url: "https://twitter-thread.com/t/2033980599073907163"
+    fetched: 2026-03-17T00:00:00Z
+    title: "Intercom's Internal Claude Code Plugin System (24-tweet thread)"
+    hash: "76ca32d9e643c50fdc3615fe5b019583b7f87c5a17d126f20a45888c6e9dcb88"
+    notes: "Thread by @brian_scanlan at Intercom — 13 plugins, 100+ skills, hooks"
