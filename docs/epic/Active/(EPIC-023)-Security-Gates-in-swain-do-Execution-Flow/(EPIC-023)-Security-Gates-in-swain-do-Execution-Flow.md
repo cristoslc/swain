@@ -78,13 +78,10 @@ These are integrated as optional hooks — if the skills are not installed, swai
 
 ## Child Specs
 
-Updated as the threat surface detection algorithm and each lifecycle hook are specced out.
-
-Likely decomposition:
-- SPEC: Threat surface detection heuristic for task classification
-- SPEC: Pre-claim security briefing injection
-- SPEC: Post-implementation security gate hook and finding-to-ticket flow
-- SPEC: External skill hook interface (Trail of Bits / owasp-security integration points)
+- **SPEC-062** — Threat Surface Detection Heuristic (classify tasks as security-sensitive)
+- **SPEC-063** — Pre-Claim Security Briefing (surface guidance at task claim) — depends on SPEC-062
+- **SPEC-064** — Post-Implementation Security Gate (completion hook + finding-to-ticket) — depends on SPEC-060, SPEC-062
+- **SPEC-065** — External Security Skill Hook Interface (Trail of Bits / OWASP integration) — depends on SPEC-062, SPEC-063, SPEC-064
 
 ## Key Dependencies
 
