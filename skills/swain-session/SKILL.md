@@ -1,12 +1,12 @@
 ---
 name: swain-session
-description: "Session management — restores terminal tab name, user preferences, and context bookmarks on session start; verifies push status, closes tickets, and bookmarks context on session end. Auto-invoked at session start and end via AGENTS.md. Also invokable manually to change preferences or bookmark context."
+description: "Session management — restores terminal tab name, user preferences, and context bookmarks on session start. Auto-invoked at session start via AGENTS.md. Also invokable manually to change preferences or bookmark context for the next session."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session state and identity management
-  version: 1.3.0
+  version: 1.2.0
   author: cristos
   source: swain
 ---
@@ -99,51 +99,6 @@ If `$TMUX` is set and swain-stage is available, inform the user:
 > Run `/swain-stage` to set up your workspace layout.
 
 Do not auto-invoke swain-stage — let the user decide.
-
-## Session end
-
-When the session is ending (user says "done", "wrap up", "that's it", conversation is closing, or AGENTS.md session lifecycle triggers this), run through this checklist:
-
-### Step 1 — Verify push status
-
-```bash
-git status --porcelain && git log --oneline @{u}..HEAD 2>/dev/null
-```
-
-- If there are uncommitted changes or unpushed commits, invoke **swain-sync** to commit and push.
-- If push fails, report the failure to the user — do not silently leave work stranded.
-
-### Step 2 — Close completed tickets
-
-```bash
-TK_BIN="$(cd skills/swain-do/bin && pwd)" && export PATH="$TK_BIN:$PATH"
-tk list --status in-progress 2>/dev/null
-```
-
-For any in-progress tickets that were completed during this session:
-- `tk add-note <id> "Completed: <brief evidence>"`
-- `tk close <id>`
-
-For work started but not finished, leave tickets in-progress — they'll show up in the next session's status.
-
-### Step 3 — File issues for discovered work
-
-If the session surfaced bugs, follow-up tasks, or ideas that weren't tracked:
-- `tk create "<title>" -d "<context>" -p <priority>`
-
-### Step 4 — Bookmark context
-
-Update the session bookmark so the next session has continuity:
-
-```bash
-BOOKMARK_SCRIPT="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
-bash "$BOOKMARK_SCRIPT" "<what was accomplished and what's next>" --files <relevant-files>
-```
-
-### Step 5 — Report
-
-Tell the user:
-> **Session complete.** Pushed: [yes/no]. Tickets closed: [list]. Bookmark: [note].
 
 ## Manual invocation commands
 

@@ -36,16 +36,16 @@ When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), 
 | SPEC comes up for implementation | swain-design → **brainstorming** → **writing-plans** → swain-do |
 | Executing implementation tasks | swain-do → **test-driven-development** per task |
 | Dispatching parallel work | swain-do → **subagent-driven-development** or **executing-plans** |
-| EPIC reaches terminal state | swain-design → **swain-retro** |
 | Claiming work is complete | **verification-before-completion** before any success claim |
+| All tasks in a plan complete | swain-do → **swain-design** (transition SPEC to Complete) |
+| All child SPECs in an EPIC complete | swain-design checks parent EPIC → transition if ready |
+| EPIC reaches terminal state | swain-design → **swain-retro** (embed retrospective) |
 
-If superpowers is not installed, chains are skipped, not blocked.
+If superpowers is not installed, superpowers chains are skipped, not blocked. Swain-to-swain chains (last three rows) always apply.
 
-## Session lifecycle (AUTO-INVOKE)
+## Session startup (AUTO-INVOKE)
 
-**Start:** Run `bash .claude/skills/swain-doctor/scripts/swain-preflight.sh`. Exit 0 → skip doctor, invoke **swain-session**. Exit 1 → invoke **swain-doctor**, then **swain-session**.
-
-**End:** Invoke **swain-session** to verify push status, close tickets, and bookmark context.
+Run `bash .claude/skills/swain-doctor/scripts/swain-preflight.sh`. Exit 0 → skip doctor, invoke **swain-session**. Exit 1 → invoke **swain-doctor**, then **swain-session**.
 
 ## Bug reporting
 
