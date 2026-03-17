@@ -20,3 +20,7 @@ Python module with category-to-OWASP mapping and markdown output. Bundled refere
 **2026-03-17T18:15:08Z**
 
 GREEN confirmed: 42/42 tests pass, 282/282 total tests pass with zero regressions. Implemented security_briefing.py with CATEGORY_GUIDANCE mapping (auth->A07, input-validation->A03, crypto->A02, external-data->A08, agent-context->swain-specific, dependency-change->A06, secrets->A07+specific) and generate_security_briefing() that delegates to detect_threat_surface() and produces markdown output.
+
+**2026-03-17T18:21:13Z**
+
+Complete: merged from worktree-agent-a2263eeb. 42 tests.

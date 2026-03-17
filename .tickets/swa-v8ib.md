@@ -20,3 +20,7 @@ Test that only categories D/F/G/H are checked during doctor. Test AGENTS.md and 
 **2026-03-17T18:14:36Z**
 
 RED complete: 30 tests written, all fail with ModuleNotFoundError (doctor_security_check module does not exist yet). Tests cover: critical category filtering (D/F/G/H only), exclusion of A/B/C/E/I/J, diagnostic output format (CRIT/WARN), silent pass, AGENTS.md/CLAUDE.md/SKILL.md scanning, tracked .env detection, main() CLI.
+
+**2026-03-17T18:21:13Z**
+
+Complete: merged from worktree-agent-acd2ab08. 30 tests.

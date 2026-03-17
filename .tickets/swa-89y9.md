@@ -20,3 +20,7 @@ Test git ls-files detection of tracked .env files, excluding .env.example.
 **2026-03-17T18:14:43Z**
 
 RED complete: 10 tests for tracked .env detection written in test_doctor_security.py (TestTrackedEnvDetection class). Covers: .env, .env.local, .env.production detection; .env.example exclusion; empty list for clean repos; non-git directory graceful handling; WARN diagnostic severity; remediation guidance in message. All fail with ModuleNotFoundError.
+
+**2026-03-17T18:21:13Z**
+
+Complete: merged from worktree-agent-acd2ab08. 30 tests.
