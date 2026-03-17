@@ -17,7 +17,7 @@ stateDiagram-v2
     Abandoned --> [*]
 ```
 
-A design artifact captures the interaction layer of a feature or system: screens, states, flows, wireframes, happy/sad paths, and UI decisions. Designs sit between Journeys (experience narratives) and Stories/Specs (implementation). They answer "what does the user see and do?" — not "how does the system work?" (Spec) or "what is the user's experience narrative?" (Journey).
+A design artifact captures the interaction layer of a feature or system: screens, states, flows, wireframes, happy/sad paths, and UI decisions. Designs sit between Journeys (experience narratives) and Specs (implementation). They answer "what does the user see and do?" — not "how does the system work?" (Spec) or "what is the user's experience narrative?" (Journey).
 
 - **Folder structure:** `docs/design/<Phase>/(DESIGN-NNN)-<Title>/` — always foldered because a single design may contain multiple document types (screen wireframes, flow diagrams, interactive mockup links, annotated screenshots).
   - Example: `docs/design/Active/(DESIGN-003)-Skill-Installation-Flow/`
@@ -25,7 +25,7 @@ A design artifact captures the interaction layer of a feature or system: screens
   - Phase subdirectories: `Proposed/`, `Active/`, `Retired/`, `Superseded/`.
   - Primary file: `(DESIGN-NNN)-<Title>.md` — the design overview and entry point.
   - Supporting docs: individual screen wireframes, flow diagrams, state machines, annotated mockups, prototype links, asset inventories.
-- **Scoping rule:** One Design per cohesive interaction surface or workflow. "The skill installation flow" is a Design. "The settings page" is a Design. If a Design covers multiple unrelated interaction surfaces, it should be split. The artifact it's linked to sets the natural boundary — a Design linked to an Epic covers that Epic's interaction surface; a Design linked to a Story is narrower.
-- Designs are *cross-cutting reference artifacts* — they link to Epics, Stories, Specs, and Bugs via `linked-artifacts` but are not owned by any single one. Multiple artifacts can reference the same Design.
+- **Scoping rule:** One Design per cohesive interaction surface or workflow. "The skill installation flow" is a Design. "The settings page" is a Design. If a Design covers multiple unrelated interaction surfaces, it should be split. The artifact it's linked to sets the natural boundary — a Design linked to an Epic covers that Epic's interaction surface; a Design linked to a Spec is narrower.
+- Designs are *cross-cutting reference artifacts* — they link to Epics and Specs via `linked-artifacts` but are not owned by any single one. Multiple artifacts can reference the same Design.
 - A Design is "Active" when stakeholders agree it represents the intended interaction. "Superseded" when a newer Design replaces it (link via `superseded-by:` in frontmatter). "Retired" when the interaction surface it describes no longer exists.
 - Designs are NOT Specs. They do not define API contracts, data models, or system behavior. If a Design starts accumulating technical implementation details, those belong in a Spec that references the Design.

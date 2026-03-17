@@ -109,7 +109,7 @@ Every pain point in a journey MUST be assigned a stable, unique ID using the for
 
 The `PP-NN` label in the callout MUST match a row in the Pain Points Summary table.
 
-**Downstream traceability** — Epics, Stories, and Agent Specs can reference journey pain points via `addresses:` in their frontmatter (list of `JOURNEY-NNN.PP-NN` IDs). This is an informational traceability link, not a blocking dependency.
+**Downstream traceability** — Epics and Agent Specs can reference journey pain points via `addresses:` in their frontmatter (list of `JOURNEY-NNN.PP-NN` IDs). This is an informational traceability link, not a blocking dependency.
 
 **Workflow integration:**
 

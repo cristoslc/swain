@@ -8,26 +8,26 @@
 2. **Decompose**: `/swain create a spec for JWT token handling` (reference the epic)
    - Creates SPEC-NNN linked to the epic
 
-3. **Plan implementation**: When the spec reaches Approved, swain-design triggers swain-do to create a tracked plan with tasks
+3. **Plan implementation**: When the spec reaches Ready, swain-design triggers swain-do to create a tracked plan with tasks
 
 4. **Work the plan**: `/swain what should I work on?`
    - Swain-do shows the next ready task (blocker-aware)
    - Claim it, do the work, mark complete
 
-5. **Commit**: `/swain push`
+5. **Commit**: `/swain sync`
 
 6. **Release**: `/swain release` when the epic is complete
 
 ## Bug fix
 
 1. **File the bug**: `/swain file a bug: login fails when password contains special characters`
-   - Creates BUG-NNN with reproduction steps and affected artifacts
+   - Creates a SPEC with `type: bug`, including reproduction steps, severity, and expected vs. actual behavior
 
 2. **Plan the fix**: Swain creates tracked tasks before code changes begin
 
 3. **Fix and verify**: Work the tasks, mark resolved, verify
 
-4. **Commit**: `/swain push`
+4. **Commit**: `/swain sync`
 
 ## Research spike
 
@@ -39,13 +39,28 @@
 3. **Record findings**: Complete the spike with conclusions
    - May produce an ADR if an architectural decision was made
 
+## Checking project status
+
+1. **Get the dashboard**: `/swain-status` or just ask "what's next?" / "where are we?"
+   - Shows active epics with progress ratios (e.g., 3/5 specs complete)
+   - Surfaces blocked items, in-progress tasks, and GitHub issues
+   - Provides a ranked recommendation for what to work on next
+
+2. **Drill into specifics**: Follow up on anything in the dashboard
+   - "Tell me more about EPIC-003"
+   - "What's blocking SPEC-012?"
+
+3. **Act on the recommendation**: The dashboard points you to the highest-leverage next step
+
 ## Starting a new session
 
 1. **Health check**: `/swain-doctor` runs automatically (or invoke manually)
 
-2. **See what's in progress**: `/swain show my tasks` or `tk ready`
+2. **Context restore**: `/swain-session` runs automatically — restores your last context bookmark
 
-3. **Pick up work**: `/swain what should I work on?`
+3. **See what's in progress**: `/swain-status` or `tk ready`
+
+4. **Pick up work**: Follow the dashboard's recommendation or ask `/swain what should I work on?`
 
 ## Adopting swain in an existing project
 
@@ -58,12 +73,11 @@
 
 ## Artifact lifecycle walkthrough
 
-A typical implementation-tier artifact goes through:
+A typical implementation-tier artifact (Spec) goes through:
 
-1. **Create** — artifact lands in its first-phase directory (e.g., `docs/spec/draft/`)
-2. **Review** — transition to the review phase when ready for feedback
-3. **Approve** — transition to approved after review passes
-4. **Plan** — swain-do creates tracked tasks for implementation
-5. **Implement** — work the tasks, committing along the way
-6. **Complete** — artifact moves to its final phase directory
-7. **Validate** — specwatch checks for stale refs; adr-check validates compliance
+1. **Proposed** — artifact lands in `docs/spec/Proposed/`
+2. **Ready** — transition when scope, acceptance criteria, and dependencies are confirmed
+3. **In Progress** — swain-do creates tracked tasks; implementation begins
+4. **Needs Manual Test** — all tasks complete; populate the Verification table with evidence
+5. **Complete** — artifact moves to `docs/spec/Complete/` after all criteria pass
+6. **Validate** — specwatch checks for stale refs; adr-check validates compliance

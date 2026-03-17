@@ -45,7 +45,7 @@ This shows active epics with progress, decisions waiting on you, implementation-
 
 From there, the core loop is:
 
-- **Design** (`/swain-design`) — create and evolve artifacts: Visions, Epics, Specs, Spikes, ADRs, Stories, Bugs, and more. Each has a lifecycle tracked in git (Draft → Approved → Implemented).
+- **Design** (`/swain-design`) — create and evolve artifacts: Visions, Initiatives, Epics, Specs, Spikes, ADRs, Personas, Runbooks, Journeys, and Designs. Each follows a lifecycle tracked in git — phases vary by type (e.g., Proposed → Ready → In Progress → Complete for specs).
 - **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies. When starting implementation work, swain-do automatically creates a linked git worktree so agent changes are isolated from your main workspace.
 - **Ship** (`/swain-sync`, `/swain-release`) — fetch, rebase, commit with conventional messages, cut versioned releases. When running from a linked worktree, swain-sync lands the changes on `main` and prunes the worktree automatically.
 
@@ -59,7 +59,7 @@ Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions 
 | **swain-doctor** | Session-start health checks — auto-repairs config, permissions, stale state |
 | **swain-session** | Context bookmarks and preferences across sessions |
 | **swain-status** | Dashboard — active work, blockers, next steps, GitHub issues |
-| **swain-design** | Artifact lifecycle — Vision, Epic, Spec, Spike, ADR, Story, Bug, Persona, Runbook, Journey, Design |
+| **swain-design** | Artifact lifecycle — Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect and cache research sources as reusable markdown |
 | **swain-do** | Task tracking — implementation plans, dependencies, progress |
 | **swain-sync** | Fetch, rebase, commit, and push with conventional commit messages |

@@ -31,7 +31,7 @@ Things that merely do not contradict each other but are otherwise semantically d
 
 - Does the SPEC's problem statement address something within the Epic's scope?
 - Do the acceptance criteria contribute to the Epic's success criteria?
-- Is the SPEC's `type` (feature/enhancement/bug) consistent with the Epic's current phase?
+- Is the SPEC's `type` (enhancement/bug) consistent with the Epic's current phase?
 
 ### Vision - Journey
 
@@ -48,10 +48,10 @@ Things that merely do not contradict each other but are otherwise semantically d
 - Is the approach consistent with the ADR's decision? Does the artifact avoid rejected alternatives?
 - If the ADR constrains technology choices, does the artifact respect those constraints?
 
-### Persona - Journey/Story
+### Persona - Journey
 
-- Does the Journey/Story's user match the Persona's profile?
-- Are the needs and behaviors described in the Persona reflected in the Journey/Story?
+- Does the Journey's user match the Persona's profile?
+- Are the needs and behaviors described in the Persona reflected in the Journey?
 
 ### Architecture overview - ADRs
 
@@ -81,7 +81,7 @@ The artifact works outside its parent's boundaries. The content addresses proble
 
 **Examples:**
 - A SPEC under an Epic about "authentication" that adds unrelated logging features
-- A Story targeting a persona not defined in the parent Vision
+- A Spec targeting a persona not defined in the parent Vision
 
 ### GOAL_DRIFT (advisory)
 

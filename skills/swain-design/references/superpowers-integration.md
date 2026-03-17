@@ -22,11 +22,10 @@ When superpowers is detected AND a new artifact is being created, route through 
 | **Initiative** | Yes — focused Socratic | Initiatives need exploration of strategic focus, scope boundaries, and child epic grouping |
 | **Persona** | Yes — full Socratic | Personas need probing to avoid shallow archetypes |
 | **Epic** | Quick draft first, then offer | Epics often have enough context from their parent Vision |
-| **Story** | No | Stories are derived from Epics/Journeys — the thinking already happened |
 | **Spike** | No | Spikes define a question, not a design — brainstorming adds overhead |
 | **ADR** | No | ADRs record a decision already made, not discover one |
 | **SPEC** | No | SPECs capture decisions made at Epic/Vision level |
-| **Bug, Runbook, Design, Journey** | No | Structured templates are sufficient |
+| **Runbook, Design, Journey** | No | Structured templates are sufficient |
 
 When brainstorming is used, the output is still captured into swain's artifact format with proper frontmatter, lifecycle table, and parent references. Superpowers drives the conversation; swain owns the output structure.
 
