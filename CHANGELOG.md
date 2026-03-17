@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.7.0-alpha] - 2026-03-17
+
+### New Features
+- Pane-aware tmux tab naming with `--path` flag and worktree support (SPEC-056)
+- SPEC-054 Project Identity Enforcement
+
+### Research
+- SPIKE-025 Authentication for Public Intake Channels — threat model, TOTP-in-the-clear assessment, auth mechanism evaluation, synthesis, integration sketch, and spike completion
+
+### Bug Fixes
+- Use `set +e` in tab-naming script to prevent session-start failures
+- Rewrite TOTP analysis to center on replayability (SPIKE-025)
+- Close cross-reference gaps across 79 artifact files
+
+### Other Changes
+- Add THIRD_PARTY_NOTICES for vendored tk (MIT, wedow/ticket)
+- Add attribution header to `skills/swain-do/bin/tk`
+- Add acceptance test suite for tab naming
+- Refactor `swain-tab-name.sh`: extract `resolve_path()`, per-window hooks, `SWAIN_TMUX_SOCKET` override for testability
+
 ## [0.6.0-alpha] - 2026-03-16
 
 ### Trove Redesign (BREAKING)
