@@ -282,6 +282,13 @@ cmd_close() {
         return 1
     fi
     cmd_status "$1" "closed"
+    # Release claim lock if held (prevents stale lock accumulation)
+    local file
+    file=$(ticket_path "$1") || return 0
+    local real_id
+    real_id=$(basename "$file" .md)
+    local lockdir="$TICKETS_DIR/.locks/${real_id}"
+    [[ -d "$lockdir" ]] && rm -rf "$lockdir"
 }
 
 cmd_reopen() {
