@@ -1,12 +1,12 @@
 ---
 id: swa-maj1
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-17T18:11:24Z
 type: task
 priority: 1
-assignee: Cristos L-C
+assignee: cristos
 parent: swa-cdhc
 tags: [spec:SPEC-063]
 ---
@@ -14,3 +14,9 @@ tags: [spec:SPEC-063]
 
 Test that non-security-sensitive tasks produce no briefing output.
 
+
+## Notes
+
+**2026-03-17T18:14:05Z**
+
+RED confirmed: 14 tests for non-security task bypass written in same test file (TestNonSecurityTaskBypass class). Tests verify empty string return for README updates, CSS fixes, UI components, refactors, non-security tags, non-security file paths, and empty/default inputs. All fail with same ModuleNotFoundError.
