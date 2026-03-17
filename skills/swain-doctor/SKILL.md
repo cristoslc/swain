@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session-start health checks and repair
-  version: 2.4.0
+  version: 2.5.0
   author: cristos
   source: swain
 ---
@@ -41,9 +41,22 @@ When invoked directly by the user (not via the auto-invoke flow), swain-doctor a
    grep -l "swain governance" CLAUDE.md AGENTS.md .cursor/rules/swain-governance.mdc 2>/dev/null
    ```
 
-   If any file matches, governance is already installed. Proceed to [Legacy skill cleanup](#legacy-skill-cleanup).
+   If any file matches, governance is installed. Check freshness (step 3), then proceed to [Legacy skill cleanup](#legacy-skill-cleanup).
 
-3. If no match, run [Legacy skill cleanup](#legacy-skill-cleanup), then proceed to [Governance injection](#governance-injection).
+3. If governance markers found, check freshness:
+
+   Extract the block between `<!-- swain governance` and `<!-- end swain governance -->` from the installed context file. Compare against the canonical source at `skills/swain-doctor/references/AGENTS.content.md` (same extraction, excluding marker lines).
+
+   ```bash
+   extract_gov() { awk '/<!-- swain governance/{f=1;next}/<!-- end swain governance/{f=0}f' "$1"; }
+   INSTALLED_HASH=$(extract_gov "$GOV_FILE" | shasum -a 256 | cut -d' ' -f1)
+   CANONICAL_HASH=$(extract_gov "skills/swain-doctor/references/AGENTS.content.md" | shasum -a 256 | cut -d' ' -f1)
+   ```
+
+   - **ok** — hashes match. Governance is current. Proceed to [Legacy skill cleanup](#legacy-skill-cleanup).
+   - **stale** — hashes differ. Proceed to [Governance replacement](#governance-replacement) before Legacy skill cleanup.
+
+4. If no marker match in step 2 (governance missing), run [Legacy skill cleanup](#legacy-skill-cleanup), then proceed to [Governance injection](#governance-injection).
 
 ## Legacy skill cleanup
 
@@ -57,6 +70,10 @@ Remove dotfolder stubs (`.windsurf/`, `.cursor/`, etc.) for agent platforms that
 
 Inject governance rules into the platform context file when missing. Read [references/governance-injection.md](references/governance-injection.md) for Claude Code and Cursor injection procedures. Source: `skills/swain-doctor/references/AGENTS.content.md`.
 
+## Governance replacement
+
+Replace a stale governance block with the current canonical version. Read [references/governance-injection.md § Stale governance replacement](references/governance-injection.md) for the replacement procedure. This runs when freshness check (step 3) detects a hash mismatch.
+
 ## Tickets directory validation
 
 Validates `.tickets/` health — YAML frontmatter, stale locks. **Skip if `.tickets/` does not exist.** Read [references/tickets-validation.md](references/tickets-validation.md) for the full procedure.
@@ -67,7 +84,7 @@ Auto-migrates `.beads/` → `.tickets/` if present. Skip if `.beads/` does not e
 
 ## Governance content reference
 
-The canonical governance rules live in `skills/swain-doctor/references/AGENTS.content.md`. Both swain-doctor and swain-init read from this single source of truth. If the upstream rules change in a future swain release, update that file and bump the skill version. Consumers who want the updated rules can delete the `<!-- swain governance -->` block from their context file and re-run this skill.
+The canonical governance rules live in `skills/swain-doctor/references/AGENTS.content.md`. Both swain-doctor and swain-init read from this single source of truth. If the upstream rules change in a future swain release, update that file and bump the skill version. The freshness check (step 3 of the governance check) will automatically detect the mismatch and offer replacement on the next session.
 
 ## Tool availability
 

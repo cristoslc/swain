@@ -24,6 +24,21 @@ if ! grep -q "swain governance" AGENTS.md CLAUDE.md 2>/dev/null; then
   issues+=("governance markers missing")
 fi
 
+# 2b. Governance freshness — compare installed block against canonical
+CANONICAL="skills/swain-doctor/references/AGENTS.content.md"
+if [[ -f "$CANONICAL" ]] && grep -q "swain governance" AGENTS.md CLAUDE.md 2>/dev/null; then
+  GOV_FILE=$(grep -l "swain governance" AGENTS.md CLAUDE.md 2>/dev/null | head -1)
+  if [[ -n "$GOV_FILE" ]]; then
+    # Extract content between markers (exclusive) and hash
+    extract_gov() { awk '/<!-- swain governance/{f=1;next}/<!-- end swain governance/{f=0}f' "$1"; }
+    INSTALLED_HASH=$(extract_gov "$GOV_FILE" | shasum -a 256 | cut -d' ' -f1)
+    CANONICAL_HASH=$(extract_gov "$CANONICAL" | shasum -a 256 | cut -d' ' -f1)
+    if [[ "$INSTALLED_HASH" != "$CANONICAL_HASH" ]]; then
+      issues+=("governance block is stale (differs from canonical AGENTS.content.md)")
+    fi
+  fi
+fi
+
 # 3. .agents directory exists
 if [[ ! -d .agents ]]; then
   issues+=(".agents directory missing")
