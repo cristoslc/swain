@@ -12,6 +12,7 @@
 | SPEC-063 | Pre-Claim Security Briefing | 2026-03-17 | b32f7db |
 | SPEC-064 | Post-Implementation Security Gate | 2026-03-17 | b32f7db |
 | SPEC-065 | External Security Skill Hook Interface | 2026-03-17 | b32f7db |
+| SPEC-066 | Tmux as Strongly Recommended Dependency | 2026-03-17 | -- |
 
 ## Active
 
