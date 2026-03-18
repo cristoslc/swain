@@ -286,7 +286,7 @@ If it fails, warn:
 
 Continue to Phase 5 regardless.
 
-### Step 4.4 — Tmux advisory
+### Step 4.4 — Tmux
 
 Check if tmux is installed:
 
@@ -294,13 +294,27 @@ Check if tmux is installed:
 which tmux
 ```
 
-If tmux is **not found**, inform the user:
+If tmux is **already installed**, report "tmux: already installed" and continue to Phase 5.
 
-> **Recommended:** tmux is not installed. swain-stage (workspace layouts) and swain-session (tab naming) require a tmux session to function. Install with: `brew install tmux`
+If tmux is **not found**, ask the user:
+
+> tmux is not installed. swain-stage (workspace layouts) and swain-session (tab naming) require a tmux session to function. It is optional — swain works without it, but session and workspace features will be unavailable.
 >
-> This is optional — swain works without tmux, but session and workspace features will be unavailable.
+> Install tmux now? (yes/no)
 
-If tmux is found, no message is needed.
+If the user says **yes**:
+
+```bash
+brew install tmux
+```
+
+If the install succeeds, tell the user:
+> tmux installed. Workspace layout and tab naming features are now available.
+
+If the install fails, warn:
+> tmux installation failed. You can install it manually: `brew install tmux`
+
+If the user says **no**, note "tmux: skipped" and continue to Phase 5.
 
 ## Phase 5: Swain governance
 
@@ -370,7 +384,7 @@ Report what was done:
 > - Beads migration: [done/skipped/no beads found]
 > - Pre-commit security hooks: [done/skipped/already configured]
 > - Superpowers: [installed/skipped/already present]
-> - tmux: [found/not found — install with brew install tmux]
+> - tmux: [installed/skipped/already present]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
 
 ## Re-running init

@@ -50,9 +50,19 @@ bash skills/swain-session/scripts/swain-tab-name.sh --path "$NEW_WORKDIR" --auto
 
 This is agent-agnostic — it works in Claude Code, opencode, gemini cli, codex, copilot, or any other agent that reads AGENTS.md and can run bash commands. The `--path` flag takes priority over the pane's CWD.
 
-**If `$TMUX` is NOT set**, skip tab naming and show this note:
+**If `$TMUX` is NOT set**, skip tab naming and check whether tmux is installed:
 
-> [note] Not in a tmux session — session tab and pane features unavailable
+```bash
+which tmux
+```
+
+- **tmux not installed:** Offer to install it:
+  > tmux is not installed. Install it now? I can run `brew install tmux` for you.
+
+  If the user accepts, run `brew install tmux`. Session tab naming will be available on the next session start inside tmux.
+
+- **tmux installed but not in a session:** Show this note:
+  > [note] Not in a tmux session — session tab and pane features unavailable
 
 ## Step 2 — Load session preferences
 

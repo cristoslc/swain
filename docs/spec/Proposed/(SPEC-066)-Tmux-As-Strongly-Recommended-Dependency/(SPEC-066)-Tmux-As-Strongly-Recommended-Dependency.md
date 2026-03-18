@@ -5,7 +5,7 @@ track: implementable
 status: Proposed
 author: cristos
 created: 2026-03-17
-last-updated: 2026-03-17
+last-updated: 2026-03-18
 type: feature
 parent-epic: ""
 linked-artifacts: []
@@ -28,10 +28,10 @@ Changes across affected skills:
 
 | Skill | Current behavior | New behavior |
 |-------|-----------------|--------------|
-| `swain-doctor` | No tmux check | Checks `which tmux`; if not found, emits `warn` diagnostic: `"tmux not found — swain-stage and session features unavailable. Install: brew install tmux"`; if found but `$TMUX` is unset, no diagnostic (presence check only, not session check) |
-| `swain-stage` | Fails silently or errors unexpectedly when tmux is absent | Returns early with `"tmux not found — install with \`brew install tmux\`"` when tmux binary is missing; returns early with `"tmux not active — swain-stage requires a tmux session. Start tmux first."` when tmux is installed but not in a session |
-| `swain-session` | Uses tmux for tab naming/pane context; silently skips when not in tmux | Notes in startup output when not running inside a tmux session: `"[note] Not in a tmux session — session tab and pane features unavailable"` |
-| Onboarding docs | tmux not mentioned alongside superpowers | `swain-init`, `AGENTS.md`, or equivalent onboarding material lists tmux alongside superpowers as a recommended tool with install hint |
+| `swain-doctor` | No tmux check | Checks `which tmux`; if not found, offers to run `brew install tmux`; if found but `$TMUX` is unset, no diagnostic (presence check only, not session check) |
+| `swain-stage` | Fails silently or errors unexpectedly when tmux is absent | When tmux binary is missing: reports `"tmux not found"` and the skill offers to install it via `brew install tmux`, re-running the subcommand on acceptance; when tmux is installed but not in a session: exits with `"tmux not active — swain-stage requires a tmux session. Start tmux first."` |
+| `swain-session` | Uses tmux for tab naming/pane context; silently skips when not in tmux | Checks `which tmux` on startup; if not installed, offers to install; if installed but not in a session, shows note: `"[note] Not in a tmux session — session tab and pane features unavailable"` |
+| Onboarding docs | tmux not mentioned alongside superpowers | `swain-init` Phase 4.4 checks for tmux; if missing, offers to install interactively (same pattern as superpowers offer) |
 
 **swain-doctor tmux check specifics:**
 
@@ -41,12 +41,15 @@ Changes across affected skills:
 
 ## Acceptance Criteria
 
-- Given tmux is not installed, when `swain-doctor` runs, then a `warn` diagnostic is emitted naming the missing tool and the install command: `"tmux not found — swain-stage and session features unavailable. Install: brew install tmux"`
+- Given tmux is not installed, when `swain-doctor` runs, then the skill offers to run `brew install tmux` for the user
+- Given the user accepts the install offer from `swain-doctor`, then `brew install tmux` is run on their behalf
 - Given tmux is installed and `swain-doctor` runs, then no tmux diagnostic appears (regardless of whether operator is inside a tmux session)
 - Given tmux is installed but the operator is not in a tmux session, when `swain-stage` runs, then it exits with: `"tmux not active — swain-stage requires a tmux session. Start tmux first."`
-- Given tmux is not installed, when `swain-stage` runs, then it exits with: `"tmux not found — install with \`brew install tmux\`"`
+- Given tmux is not installed, when `swain-stage` runs, then the skill offers to install tmux and re-run the subcommand on acceptance
 - Given tmux is installed and active, when `swain-stage` runs, then it proceeds normally with no tmux-related message
-- Given the operator is not in a tmux session, when `swain-session` runs, then startup output includes the note: `"[note] Not in a tmux session — session tab and pane features unavailable"`
+- Given tmux is not installed, when `swain-session` runs, then the skill offers to install tmux
+- Given tmux is installed but `$TMUX` is not set, when `swain-session` runs, then startup output includes the note: `"[note] Not in a tmux session — session tab and pane features unavailable"` (no install offer)
+- Given tmux is not installed, when `swain-init` runs, then Phase 4.4 offers to install tmux interactively and runs `brew install tmux` on acceptance
 - `swain-doctor` tmux check completes in under 1 second (`which` command only, no network calls)
 
 ## Verification

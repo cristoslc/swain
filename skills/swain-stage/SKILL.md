@@ -16,7 +16,7 @@ metadata:
 
 Tmux workspace manager for swain. Creates pane layouts, manages an animated MOTD status panel, and gives the agent direct control over the visual workspace.
 
-**Prerequisite:** Must be running inside a tmux session (`$TMUX` must be set). If not in tmux, inform the user and exit gracefully.
+**Prerequisite:** Must be running inside a tmux session (`$TMUX` must be set). Before running any subcommand, the script checks for tmux — see Error handling below.
 
 ## Script location
 
@@ -161,7 +161,8 @@ Read from `swain.settings.json` (project) and `~/.config/swain/settings.json` (u
 
 ## Error handling
 
-- If not in tmux: report clearly and exit. Do not attempt tmux commands.
+- If tmux binary is not installed: the script exits with `"tmux not found"`. Offer to install it: `"tmux is not installed. Install it now? I can run \`brew install tmux\` for you."` If the user accepts, run `brew install tmux`, then re-run the original subcommand.
+- If tmux is installed but not in a tmux session (`$TMUX` unset): the script exits with `"tmux not active — swain-stage requires a tmux session. Start tmux first."` Inform the user and do not offer to install (tmux is already present).
 - If editor/file browser is not installed: warn the user and suggest alternatives or `swain.settings.json` override.
 - If the file browser resolves to `yazi`, swain-stage injects the bundled config in `skills/swain-stage/references/yazi/` so text files open with the system default app and directory colors remain readable on dark terminals.
 - If jq is not available: warn that settings cannot be read, use hardcoded defaults.
