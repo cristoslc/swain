@@ -5,11 +5,10 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "SPIKE-027 Complete: all threads done, SPEC-067 unblocked",
+    "note": "transition SPEC-067 to Complete",
     "files": [
-      "docs/research/Complete/(SPIKE-027)-Claude-Config-Dir-Mount-Strategy-In-Docker-Sandboxes/(SPIKE-027)-Claude-Config-Dir-Mount-Strategy-In-Docker-Sandboxes.md",
-      "docs/spec/Proposed/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md"
+      "docs/spec/Complete/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md"
     ],
-    "timestamp": "2026-03-18T03:56:27Z"
+    "timestamp": "2026-03-18T12:04:37Z"
   }
 }
