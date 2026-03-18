@@ -1,14 +1,29 @@
 #!/bin/sh
 # swain-box — Run Claude Code in a Docker Desktop sandbox (SPEC-067)
-# Usage: ./swain-box [path]
+# Usage: ./swain-box [--api-key] [path]
 #
 # With no argument, uses $PWD as the project root.
 # With a path argument, uses that directory as the project root.
 #
+# Credentials (default): uses CLAUDE_CODE_OAUTH_TOKEN (Claude Max subscription).
+#   ANTHROPIC_API_KEY is unset before launch to prevent it from overriding OAuth.
+#   If CLAUDE_CODE_OAUTH_TOKEN is not set, attempts to fetch it from macOS Keychain.
+#
+# --api-key: opt into API key mode — keeps ANTHROPIC_API_KEY, skips OAuth handling.
+#
 # Requires Docker Desktop 4.58+ (for the 'docker sandbox' subcommand).
-# Credentials: set CLAUDE_CODE_OAUTH_TOKEN for Claude Max subscription.
 
 set -eu
+
+# --- Argument parsing ---
+USE_API_KEY=0
+TARGET_PATH=""
+for arg in "$@"; do
+    case "$arg" in
+        --api-key) USE_API_KEY=1 ;;
+        *) TARGET_PATH="$arg" ;;
+    esac
+done
 
 # --- Docker availability check ---
 if ! command -v docker >/dev/null 2>&1; then
@@ -25,24 +40,33 @@ if ! docker sandbox --help >/dev/null 2>&1; then
     exit 1
 fi
 
-# --- Credential warnings ---
-if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
-    echo "swain-box: WARNING: ANTHROPIC_API_KEY is set — Docker Sandboxes will use" >&2
-    echo "  this API key instead of your Max subscription. If you have a Max sub," >&2
-    echo "  unset ANTHROPIC_API_KEY and set CLAUDE_CODE_OAUTH_TOKEN instead:" >&2
-    echo "    export CLAUDE_CODE_OAUTH_TOKEN=\"\$(security find-generic-password -s 'Claude Code-credentials' -w)\"" >&2
-    echo "  Then restart Docker Desktop and retry." >&2
-fi
+# --- Credential handling ---
+if [ "$USE_API_KEY" = "1" ]; then
+    # API key mode: use ANTHROPIC_API_KEY as-is
+    if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+        echo "swain-box: ERROR: --api-key specified but ANTHROPIC_API_KEY is not set." >&2
+        exit 1
+    fi
+    echo "swain-box: using API key mode." >&2
+else
+    # OAuth mode (default): unset API key, ensure OAuth token is present
+    unset ANTHROPIC_API_KEY 2>/dev/null || true
 
-if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-    echo "swain-box: NOTE: CLAUDE_CODE_OAUTH_TOKEN not set." >&2
-    echo "  You may need to run 'claude login' inside the sandbox on first launch." >&2
-    echo "  For Max subscription, add to ~/.zshrc and restart Docker Desktop:" >&2
-    echo "    export CLAUDE_CODE_OAUTH_TOKEN=\"\$(security find-generic-password -s 'Claude Code-credentials' -w)\"" >&2
+    if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+        # Try to fetch from macOS Keychain
+        _token=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null || true)
+        if [ -n "$_token" ]; then
+            export CLAUDE_CODE_OAUTH_TOKEN="$_token"
+            echo "swain-box: CLAUDE_CODE_OAUTH_TOKEN set from Keychain." >&2
+        else
+            echo "swain-box: NOTE: CLAUDE_CODE_OAUTH_TOKEN not set and not found in Keychain." >&2
+            echo "  You may need to run 'claude login' inside the sandbox on first launch." >&2
+        fi
+    fi
 fi
 
 # --- Resolve target path ---
-TARGET_PATH="${1:-$PWD}"
+TARGET_PATH="${TARGET_PATH:-$PWD}"
 
 # Resolve to absolute path without using realpath (not portable)
 ABSOLUTE_PATH="$(cd "$TARGET_PATH" && pwd)" || {
