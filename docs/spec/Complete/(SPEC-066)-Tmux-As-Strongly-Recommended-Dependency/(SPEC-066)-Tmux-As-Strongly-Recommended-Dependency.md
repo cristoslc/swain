@@ -2,7 +2,7 @@
 title: "Tmux as Strongly Recommended Dependency"
 artifact: SPEC-066
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-17
 last-updated: 2026-03-18
@@ -56,6 +56,16 @@ Changes across affected skills:
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| swain-doctor offers to install when tmux missing | `tool-availability.md`: tmux row has `offer to install` degradation note; new `## Install offers` section instructs agent to prompt and run install on acceptance | Pass |
+| swain-doctor install offer runs brew on acceptance | `tool-availability.md` Install offers section: "Run the command if the user accepts" with `<install-hint>` = `brew install tmux` | Pass |
+| swain-doctor: no diagnostic when tmux installed | `tool-availability.md` reporting format: "Only flag items that need attention" — tmux `ok` line is silent | Pass |
+| swain-stage: exits with not-active message when installed but no session | `env TMUX="" bash swain-stage.sh layout review` → `"tmux not active — swain-stage requires a tmux session. Start tmux first."` EXIT:1 | Pass |
+| swain-stage: offers to install when binary missing | `swain-stage/SKILL.md` error handling: "If the script reports tmux not found, offer to install it" with `brew install tmux` and re-run on acceptance | Pass |
+| swain-stage: proceeds normally when tmux active | `require_tmux()` only exits on two error paths; no regression to normal flow | Pass |
+| swain-session: offers to install when tmux not installed | `swain-session/SKILL.md` Step 1: `which tmux` check → if not found, offer `brew install tmux` | Pass |
+| swain-session: shows note (no offer) when installed but not in session | `swain-session/SKILL.md` Step 1: if `which tmux` succeeds but `$TMUX` unset → `[note] Not in a tmux session — session tab and pane features unavailable` | Pass |
+| swain-init Phase 4.4 offers interactive install | `swain-init/SKILL.md` Phase 4.4: asks yes/no, runs `brew install tmux` on acceptance, warns on failure | Pass |
+| swain-doctor tmux check under 1 second | `tool-availability.md`: check is `which tmux` — binary lookup only, no network calls | Pass |
 
 ## Scope & Constraints
 
@@ -70,3 +80,5 @@ Changes across affected skills:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-17 | 4090f28 | Formalizes tmux as strongly recommended dependency alongside superpowers |
+| NeedsManualTest | 2026-03-18 | -- | All tasks verified; offer-to-install behavior implemented across swain-doctor, swain-stage, swain-session, swain-init |
+| Complete | 2026-03-18 | -- | All acceptance criteria verified; spec-verify.sh exit 0 |
