@@ -1,11 +1,12 @@
 #!/bin/sh
 # swain-box — Run Claude Code in a Docker Desktop sandbox (SPEC-067)
-# Usage: ./scripts/swain-box [path]
+# Usage: ./swain-box [path]
 #
 # With no argument, uses $PWD as the project root.
 # With a path argument, uses that directory as the project root.
 #
 # Requires Docker Desktop 4.58+ (for the 'docker sandbox' subcommand).
+# Credentials: set CLAUDE_CODE_OAUTH_TOKEN for Claude Max subscription.
 
 set -eu
 
@@ -22,6 +23,22 @@ if ! docker sandbox --help >/dev/null 2>&1; then
     echo "Requires Docker Desktop 4.58 or later." >&2
     echo "Download: https://www.docker.com/products/docker-desktop/" >&2
     exit 1
+fi
+
+# --- Credential warnings ---
+if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+    echo "swain-box: WARNING: ANTHROPIC_API_KEY is set — Docker Sandboxes will use" >&2
+    echo "  this API key instead of your Max subscription. If you have a Max sub," >&2
+    echo "  unset ANTHROPIC_API_KEY and set CLAUDE_CODE_OAUTH_TOKEN instead:" >&2
+    echo "    export CLAUDE_CODE_OAUTH_TOKEN=\"\$(security find-generic-password -s 'Claude Code-credentials' -w)\"" >&2
+    echo "  Then restart Docker Desktop and retry." >&2
+fi
+
+if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+    echo "swain-box: NOTE: CLAUDE_CODE_OAUTH_TOKEN not set." >&2
+    echo "  You may need to run 'claude login' inside the sandbox on first launch." >&2
+    echo "  For Max subscription, add to ~/.zshrc and restart Docker Desktop:" >&2
+    echo "    export CLAUDE_CODE_OAUTH_TOKEN=\"\$(security find-generic-password -s 'Claude Code-credentials' -w)\"" >&2
 fi
 
 # --- Resolve target path ---

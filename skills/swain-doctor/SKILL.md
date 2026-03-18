@@ -100,13 +100,16 @@ Verify vendored tk is executable at `skills/swain-do/bin/tk` and check for stale
 
 ## swain-box symlink
 
-Ensure `./swain-box` exists as a symlink to `scripts/swain-box` so operators can launch Docker Sandboxes from the project root without knowing the scripts path. **Skip if `scripts/swain-box` does not exist in this project.**
+Ensure `./swain-box` exists as a symlink to the installed `swain-box` script so operators can launch Docker Sandboxes from the project root. The script is distributed inside the swain skill tree at `*/swain/scripts/swain-box`. **Skip if the script cannot be found.**
 
 ### Detection
 
 ```bash
-if [ -f scripts/swain-box ]; then
-  if [ -L swain-box ] && [ "$(readlink swain-box)" = "scripts/swain-box" ]; then
+SWAIN_BOX_SCRIPT=$(find . .claude .agents -path '*/swain/scripts/swain-box' -print -quit 2>/dev/null)
+if [ -n "$SWAIN_BOX_SCRIPT" ]; then
+  # Get relative path from project root
+  SWAIN_BOX_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1]))" "$SWAIN_BOX_SCRIPT" 2>/dev/null || echo "$SWAIN_BOX_SCRIPT")
+  if [ -L swain-box ] && [ "$(readlink swain-box)" = "$SWAIN_BOX_REL" ]; then
     echo "ok"
   elif [ -e swain-box ] && [ ! -L swain-box ]; then
     echo "conflict"  # a real file named swain-box exists — do not overwrite
@@ -121,10 +124,10 @@ fi
 - **ok** — silent, no output.
 - **missing** — create the symlink automatically:
   ```bash
-  ln -sf scripts/swain-box swain-box
+  ln -sf "$SWAIN_BOX_REL" swain-box
   ```
-  Report: `swain-box symlink created (./swain-box → scripts/swain-box)`
-- **conflict** — warn: `./swain-box exists but is not a symlink — skipping. To fix manually: rm swain-box && ln -sf scripts/swain-box swain-box`
+  Report: `swain-box symlink created (./swain-box → $SWAIN_BOX_REL)`
+- **conflict** — warn: `./swain-box exists but is not a symlink — skipping. To fix manually: rm swain-box && ln -sf <path> swain-box`
 
 ### Status values
 

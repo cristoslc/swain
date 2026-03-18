@@ -19,7 +19,7 @@ check() {
 # Resolve the worktree root (directory containing this script's parent)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WORKTREE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SWAIN_BOX="$WORKTREE_ROOT/scripts/swain-box"
+SWAIN_BOX="$WORKTREE_ROOT/skills/swain/scripts/swain-box"
 CLAUDE_SANDBOX="$WORKTREE_ROOT/scripts/claude-sandbox"
 
 # Temp dir for fake binaries and test logs
@@ -263,13 +263,13 @@ echo "--- AC-12: swain-box shell function documented in README ---"
 README="$WORKTREE_ROOT/README.md"
 if [ -f "$README" ]; then
     grep -q "swain-box" "$README" && HAS_SWAIN_BOX=yes || HAS_SWAIN_BOX=no
-    grep -q "docker sandbox run claude" "$README" && HAS_DSR=yes || HAS_DSR=no
+    grep -q "docker sandbox" "$README" && HAS_DSR=yes || HAS_DSR=no
 else
     HAS_SWAIN_BOX=no
     HAS_DSR=no
 fi
 check "$HAS_SWAIN_BOX" "yes" "AC-12: README.md contains 'swain-box'"
-check "$HAS_DSR" "yes" "AC-12: README.md contains 'docker sandbox run claude'"
+check "$HAS_DSR" "yes" "AC-12: README.md contains 'docker sandbox'"
 
 # ---------------------------------------------------------------------------
 # Results

@@ -144,24 +144,26 @@ If `.beads/` does not exist, skip this step. tk creates `.tickets/` on first `tk
 
 ### Step 2.4 — swain-box symlink
 
-If `scripts/swain-box` exists in the project root, create `./swain-box` as a relative symlink so operators can launch Docker Sandboxes without knowing the `scripts/` path.
+Find the swain-box script in the installed skill tree and create `./swain-box` as a relative symlink at the project root.
 
 ```bash
-if [ -f scripts/swain-box ]; then
-  if [ -L swain-box ] && [ "$(readlink swain-box)" = "scripts/swain-box" ]; then
+SWAIN_BOX_SCRIPT=$(find . .claude .agents -path '*/swain/scripts/swain-box' -print -quit 2>/dev/null)
+if [ -n "$SWAIN_BOX_SCRIPT" ]; then
+  SWAIN_BOX_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1]))" "$SWAIN_BOX_SCRIPT" 2>/dev/null || echo "$SWAIN_BOX_SCRIPT")
+  if [ -L swain-box ] && [ "$(readlink swain-box)" = "$SWAIN_BOX_REL" ]; then
     echo "already linked"
   elif [ -e swain-box ] && [ ! -L swain-box ]; then
     echo "conflict — ./swain-box exists as a real file; skipping"
   else
-    ln -sf scripts/swain-box swain-box
-    echo "created ./swain-box -> scripts/swain-box"
+    ln -sf "$SWAIN_BOX_REL" swain-box
+    echo "created ./swain-box -> $SWAIN_BOX_REL"
   fi
 fi
 ```
 
 Tell the user: `./swain-box created — run it from this project root to launch Claude Code in a Docker Sandbox for this directory.`
 
-If `scripts/swain-box` does not exist, skip silently — this project does not ship the script.
+If the script is not found, skip silently — swain-box is not installed in this skill tree.
 
 ## Phase 3: Pre-commit security hooks
 
