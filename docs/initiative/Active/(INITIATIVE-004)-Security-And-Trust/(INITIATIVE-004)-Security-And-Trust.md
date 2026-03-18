@@ -16,6 +16,7 @@ linked-artifacts:
   - EPIC-012
   - EPIC-017
   - EPIC-023
+  - EPIC-030
 ---
 
 # Security & Trust
@@ -36,6 +37,7 @@ Prevent leaks and enforce safety gates across the swain workflow. Security is no
 - EPIC-012: End-to-End Sync Workflow (Complete)
 - EPIC-017: Security Vulnerability Scanning Skill (Proposed)
 - EPIC-023: Security Gates in swain-do Execution Flow (Proposed)
+- EPIC-030: swain-box Multi-Agent Runtime Support (Proposed)
 
 ## Small Work (Epic-less Specs)
 

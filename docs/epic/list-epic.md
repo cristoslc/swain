@@ -16,6 +16,7 @@
 | EPIC-027 | Orchestrator Integration | 2026-03-17 | — |
 | EPIC-028 | Status Integration | 2026-03-17 | — |
 | EPIC-029 | Auto-Detecting Trunk Branch | 2026-03-17 | — |
+| EPIC-030 | swain-box Multi-Agent Runtime Support | 2026-03-18 | — |
 
 ## Active
 
