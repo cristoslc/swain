@@ -2,10 +2,11 @@
 title: "claude-sandbox: Tier 2 Docker Container Runner"
 artifact: SPEC-049
 track: implementable
-status: Complete
+status: Superseded
 author: cristos
 created: 2026-03-14
-last-updated: 2026-03-14
+last-updated: 2026-03-17
+superseded-by: SPEC-067
 type: feature
 parent-epic: EPIC-005
 linked-artifacts:
@@ -92,3 +93,4 @@ Also creates `.devcontainer/devcontainer.json` using the Anthropic reference con
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | cded412 | Created from EPIC-005 decomposition; depends on SPEC-048 for launcher script base |
 | Complete | 2026-03-14 | 4bae1d4 | --docker flag added to claude-sandbox; Dockerfile, devcontainer.json generation, credential forwarding via env vars |
+| Superseded | 2026-03-17 | — | Plain docker run replaced by Docker Sandboxes microVM path; see SPEC-067 |

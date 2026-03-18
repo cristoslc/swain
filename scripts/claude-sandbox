@@ -1,6 +1,6 @@
 #!/bin/sh
 # claude-sandbox — Isolated Claude Code launcher (SPEC-048 + SPEC-049)
-# Usage: ./scripts/claude-sandbox [--docker] [extra claude args...]
+# Usage: ./scripts/claude-sandbox [--docker] [--here|--project=DIR] [extra claude args...]
 #
 # Tier 1 (default): claude --sandbox with native platform sandboxing
 #   macOS: sandbox-exec (Seatbelt kernel profiles)
@@ -8,6 +8,9 @@
 #
 # Tier 2 (--docker): Docker container runner with bind-mounted project files
 #   Requires: docker daemon running
+#
+# --here          : mount $PWD as the project root instead of the swain repo
+# --project=DIR   : mount DIR as the project root
 
 set -eu
 
@@ -15,19 +18,28 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SETTINGS_FILE="$REPO_ROOT/swain.settings.json"
 DOCKERFILE="$SCRIPT_DIR/claude-sandbox.dockerfile"
-DEVCONTAINER_DIR="$REPO_ROOT/.devcontainer"
-DEVCONTAINER_FILE="$DEVCONTAINER_DIR/devcontainer.json"
 IMAGE_NAME="claude-sandbox"
 
 # --- Argument parsing ---
 USE_DOCKER=0
+PROJECT_DIR=""
 EXTRA_ARGS=""
 for arg in "$@"; do
     case "$arg" in
         --docker) USE_DOCKER=1 ;;
+        --here) PROJECT_DIR="$PWD" ;;
+        --project=*) PROJECT_DIR="${arg#--project=}" ;;
         *) EXTRA_ARGS="$EXTRA_ARGS $arg" ;;
     esac
 done
+
+# Default project dir to repo root (original behaviour)
+if [ -z "$PROJECT_DIR" ]; then
+    PROJECT_DIR="$REPO_ROOT"
+fi
+
+DEVCONTAINER_DIR="$PROJECT_DIR/.devcontainer"
+DEVCONTAINER_FILE="$DEVCONTAINER_DIR/devcontainer.json"
 
 # --- Read swain.settings.json config (optional, requires jq) ---
 DOCKER_IMAGE=""
@@ -110,12 +122,12 @@ DEVCONTAINER_EOF
 
     echo "claude-sandbox: launching Claude Code in Tier 2 Docker container"
     echo "  Image    : $DOCKER_IMAGE"
-    echo "  Project  : $REPO_ROOT"
+    echo "  Project  : $PROJECT_DIR"
     echo ""
 
     exec docker run --rm -it \
-        -v "$REPO_ROOT:$REPO_ROOT" \
-        -w "$REPO_ROOT" \
+        -v "$PROJECT_DIR:$PROJECT_DIR" \
+        -w "$PROJECT_DIR" \
         $ENV_FLAGS \
         "$DOCKER_IMAGE" \
         claude $EXTRA_ARGS
@@ -153,11 +165,11 @@ fi
 # --- Launch ---
 echo "claude-sandbox: launching Claude Code in Tier 1 native sandbox"
 echo "  Platform : $PLATFORM"
-echo "  Project  : $REPO_ROOT"
+echo "  Project  : $PROJECT_DIR"
 if [ -n "$ALLOWED_DOMAINS" ]; then
     echo "  Domains  : $ALLOWED_DOMAINS"
 fi
 echo ""
 
-cd "$REPO_ROOT"
+cd "$PROJECT_DIR"
 exec claude --sandbox $EXTRA_ARGS

@@ -39,7 +39,7 @@ Prevent leaks and enforce safety gates across the swain workflow. Security is no
 
 ## Small Work (Epic-less Specs)
 
-None.
+- SPEC-067: swain-box Docker Sandboxes Launcher (Proposed) — supersedes SPEC-049; pivots Tier 2 isolation from plain `docker run` to microVM-backed `docker sandbox run claude`
 
 ## Key Dependencies
 

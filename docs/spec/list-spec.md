@@ -12,7 +12,12 @@
 | SPEC-063 | Pre-Claim Security Briefing | 2026-03-17 | b32f7db |
 | SPEC-064 | Post-Implementation Security Gate | 2026-03-17 | b32f7db |
 | SPEC-065 | External Security Skill Hook Interface | 2026-03-17 | b32f7db |
-| SPEC-066 | Tmux as Strongly Recommended Dependency | 2026-03-17 | 4090f28 |
+
+## Ready
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| SPEC-067 | swain-box: Docker Sandboxes Launcher | 2026-03-18 | — |
 
 ## Active
 
@@ -77,7 +82,13 @@
 | SPEC-046 | Inline Lifecycle Hash Stamping for Trivial Artifacts | 2026-03-14 | 534a2e5 |
 | SPEC-047 | Lazy Index Refresh for list-*.md Artifact Indices | 2026-03-14 | b4892cd |
 | SPEC-048 | claude-sandbox: Tier 1 Native Sandbox Launcher | 2026-03-14 | 0eb40a8 |
-| SPEC-049 | claude-sandbox: Tier 2 Docker Container Runner | 2026-03-14 | 4bae1d4 |
 | SPEC-050 | Stage Status Hook Fails in Worktrees | 2026-03-15 | — |
 | SPEC-051 | Batch Repository Ingestion for swain-search | 2026-03-15 | — |
+| SPEC-066 | Tmux as Strongly Recommended Dependency | 2026-03-18 | 30b5a1a |
+
+## Superseded
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| SPEC-049 | claude-sandbox: Tier 2 Docker Container Runner | 2026-03-17 | — |
 
