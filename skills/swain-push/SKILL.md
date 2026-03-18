@@ -1,6 +1,6 @@
 ---
 name: swain-push
-description: "Stage all changes, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream."
+description: "Deprecated alias for swain-sync — use /swain-sync instead."
 user-invocable: true
 allowed-tools: Bash, Read, Edit
 metadata:

@@ -9,7 +9,6 @@ Invoke the Skill tool for exactly one match. Pass the user's full prompt as args
 | swain-search | research, evidence, gather sources, search for, evidence pool, what do we know about |
 | swain-do | tasks, implementation, tracking, tk, ticket |
 | swain-sync | commit, push, stage, sync, fetch |
-| swain-push | push (deprecated alias for swain-sync) |
 | swain-release | release, version, changelog, tag |
 | swain-update | update/upgrade swain |
 | swain-doctor | session init, governance, doctor, health check, gitignore |
