@@ -97,6 +97,50 @@ Optional:
 
 [obra/superpowers](https://github.com/obra/superpowers) is a recommended companion for plan authoring. Not a dependency.
 
+## Isolated execution with swain-box
+
+`swain-box` launches Claude Code inside a Docker Sandbox — a hypervisor-level microVM per sandbox provided by Docker Desktop 4.58+. Each sandbox has a private Docker daemon and credential proxy, so the host filesystem and Docker socket are not exposed.
+
+**Requirement:** Docker Desktop 4.58 or later (Docker Sandboxes feature).
+
+### Shell function
+
+Add to `~/.zshrc`:
+
+```sh
+swain-box() {
+  docker sandbox run claude "${1:-$PWD}"
+}
+```
+
+### Usage
+
+```sh
+swain-box                   # open sandbox for current directory
+swain-box ~/my-project      # open sandbox for a specific project
+```
+
+### Sandbox management
+
+```sh
+docker sandbox ls           # list all sandboxes
+docker sandbox rm <name>    # remove a sandbox
+```
+
+### Credentials
+
+If using an API key, set `ANTHROPIC_API_KEY` in your environment — Docker Sandboxes injects it via its host-side proxy. If using a Claude Max subscription (OAuth), export the token in `~/.zshrc` and restart Docker Desktop to pick it up:
+
+```sh
+export CLAUDE_CODE_OAUTH_TOKEN="$(security find-generic-password -s "Claude Code-credentials" -w)"
+```
+
+Restart Docker Desktop after adding this so the sandbox proxy picks up the new environment variable.
+
+### Native sandboxing (lighter alternative)
+
+`scripts/claude-sandbox` uses `claude --sandbox` (macOS Seatbelt / Linux Landlock) — no Docker required, near-zero startup overhead. Use `swain-box` when you want full hypervisor-level isolation; use `claude-sandbox` for a lighter local sandbox.
+
 ## License
 
 MIT

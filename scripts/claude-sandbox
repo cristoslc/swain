@@ -1,13 +1,10 @@
 #!/bin/sh
 # claude-sandbox — Isolated Claude Code launcher (SPEC-048 + SPEC-049)
-# Usage: ./scripts/claude-sandbox [--docker] [--here|--project=DIR] [extra claude args...]
+# Usage: ./scripts/claude-sandbox [--here|--project=DIR] [extra claude args...]
 #
 # Tier 1 (default): claude --sandbox with native platform sandboxing
 #   macOS: sandbox-exec (Seatbelt kernel profiles)
 #   Linux: Landlock (default) or bubblewrap
-#
-# Tier 2 (--docker): Docker container runner with bind-mounted project files
-#   Requires: docker daemon running
 #
 # --here          : mount $PWD as the project root instead of the swain repo
 # --project=DIR   : mount DIR as the project root
@@ -17,16 +14,12 @@ set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SETTINGS_FILE="$REPO_ROOT/swain.settings.json"
-DOCKERFILE="$SCRIPT_DIR/claude-sandbox.dockerfile"
-IMAGE_NAME="claude-sandbox"
 
 # --- Argument parsing ---
-USE_DOCKER=0
 PROJECT_DIR=""
 EXTRA_ARGS=""
 for arg in "$@"; do
     case "$arg" in
-        --docker) USE_DOCKER=1 ;;
         --here) PROJECT_DIR="$PWD" ;;
         --project=*) PROJECT_DIR="${arg#--project=}" ;;
         *) EXTRA_ARGS="$EXTRA_ARGS $arg" ;;
@@ -38,99 +31,10 @@ if [ -z "$PROJECT_DIR" ]; then
     PROJECT_DIR="$REPO_ROOT"
 fi
 
-DEVCONTAINER_DIR="$PROJECT_DIR/.devcontainer"
-DEVCONTAINER_FILE="$DEVCONTAINER_DIR/devcontainer.json"
-
 # --- Read swain.settings.json config (optional, requires jq) ---
-DOCKER_IMAGE=""
 ALLOWED_DOMAINS=""
 if [ -f "$SETTINGS_FILE" ] && command -v jq >/dev/null 2>&1; then
-    DOCKER_IMAGE="$(jq -r '.sandbox.dockerImage // ""' "$SETTINGS_FILE" 2>/dev/null || true)"
     ALLOWED_DOMAINS="$(jq -r '.sandbox.allowedDomains // [] | join(",")' "$SETTINGS_FILE" 2>/dev/null || true)"
-fi
-
-# ============================================================
-# TIER 2: Docker container runner (--docker flag)
-# ============================================================
-if [ "$USE_DOCKER" = "1" ]; then
-
-    # --- Docker availability check ---
-    if ! command -v docker >/dev/null 2>&1; then
-        echo "ERROR: 'docker' not found." >&2
-        echo "Install Docker: https://docs.docker.com/get-docker/" >&2
-        echo "Or run without --docker to use Tier 1 native sandboxing." >&2
-        exit 1
-    fi
-
-    if ! docker info >/dev/null 2>&1; then
-        echo "ERROR: Docker daemon is not running." >&2
-        echo "Start Docker Desktop (macOS) or run: sudo systemctl start docker (Linux)" >&2
-        exit 1
-    fi
-
-    # --- Determine image ---
-    if [ -z "$DOCKER_IMAGE" ]; then
-        DOCKER_IMAGE="$IMAGE_NAME"
-    fi
-
-    # Build image from local Dockerfile if it doesn't exist remotely
-    if ! docker image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
-        if [ -f "$DOCKERFILE" ]; then
-            echo "claude-sandbox: building Docker image from $DOCKERFILE ..."
-            docker build -t "$DOCKER_IMAGE" -f "$DOCKERFILE" "$REPO_ROOT"
-        else
-            echo "ERROR: Docker image '$DOCKER_IMAGE' not found and no Dockerfile at $DOCKERFILE" >&2
-            echo "Create scripts/claude-sandbox.dockerfile or set sandbox.dockerImage in swain.settings.json" >&2
-            exit 1
-        fi
-    fi
-
-    # --- Generate devcontainer.json on first run ---
-    if [ ! -f "$DEVCONTAINER_FILE" ]; then
-        mkdir -p "$DEVCONTAINER_DIR"
-        cat > "$DEVCONTAINER_FILE" <<'DEVCONTAINER_EOF'
-{
-  "name": "claude-sandbox",
-  "image": "claude-sandbox",
-  "mounts": [
-    "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind,consistency=cached"
-  ],
-  "workspaceFolder": "${localWorkspaceFolder}",
-  "remoteEnv": {
-    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
-    "GH_TOKEN": "${localEnv:GH_TOKEN}"
-  },
-  "runArgs": ["--rm"],
-  "postCreateCommand": "npm install -g @anthropic-ai/claude-code 2>/dev/null || true"
-}
-DEVCONTAINER_EOF
-        echo "claude-sandbox: created .devcontainer/devcontainer.json"
-    fi
-
-    # --- Build env var forwarding for docker ---
-    ENV_FLAGS=""
-    for var in ANTHROPIC_API_KEY ANTHROPIC_BASE_URL \
-               GITHUB_TOKEN GH_TOKEN \
-               GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL \
-               GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL; do
-        eval "val=\${$var:-}"
-        if [ -n "$val" ]; then
-            ENV_FLAGS="$ENV_FLAGS -e $var"
-        fi
-    done
-
-    echo "claude-sandbox: launching Claude Code in Tier 2 Docker container"
-    echo "  Image    : $DOCKER_IMAGE"
-    echo "  Project  : $PROJECT_DIR"
-    echo ""
-
-    exec docker run --rm -it \
-        -v "$PROJECT_DIR:$PROJECT_DIR" \
-        -w "$PROJECT_DIR" \
-        $ENV_FLAGS \
-        "$DOCKER_IMAGE" \
-        claude $EXTRA_ARGS
 fi
 
 # ============================================================

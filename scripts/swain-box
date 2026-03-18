@@ -1,0 +1,37 @@
+#!/bin/sh
+# swain-box — Run Claude Code in a Docker Desktop sandbox (SPEC-067)
+# Usage: ./scripts/swain-box [path]
+#
+# With no argument, uses $PWD as the project root.
+# With a path argument, uses that directory as the project root.
+#
+# Requires Docker Desktop 4.58+ (for the 'docker sandbox' subcommand).
+
+set -eu
+
+# --- Docker availability check ---
+if ! command -v docker >/dev/null 2>&1; then
+    echo "swain-box: 'docker' not found on PATH." >&2
+    echo "Install Docker Desktop: https://www.docker.com/products/docker-desktop/" >&2
+    exit 1
+fi
+
+# --- docker sandbox subcommand check (Docker Desktop 4.58+) ---
+if ! docker sandbox --help >/dev/null 2>&1; then
+    echo "swain-box: 'docker sandbox' subcommand is not available." >&2
+    echo "Requires Docker Desktop 4.58 or later." >&2
+    echo "Download: https://www.docker.com/products/docker-desktop/" >&2
+    exit 1
+fi
+
+# --- Resolve target path ---
+TARGET_PATH="${1:-$PWD}"
+
+# Resolve to absolute path without using realpath (not portable)
+ABSOLUTE_PATH="$(cd "$TARGET_PATH" && pwd)" || {
+    echo "swain-box: path does not exist or is not accessible: $TARGET_PATH" >&2
+    exit 1
+}
+
+# --- Launch ---
+exec docker sandbox run claude "$ABSOLUTE_PATH"
