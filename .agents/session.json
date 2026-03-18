@@ -5,10 +5,7 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "transition SPEC-067 to Complete",
-    "files": [
-      "docs/spec/Complete/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md"
-    ],
-    "timestamp": "2026-03-18T12:04:37Z"
+    "note": "fix swain-box symlink UX",
+    "timestamp": "2026-03-18T15:48:08Z"
   }
 }
