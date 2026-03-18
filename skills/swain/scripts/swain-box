@@ -73,4 +73,4 @@ if docker sandbox ls --format '{{.Sandbox}}' 2>/dev/null | grep -qx "$SANDBOX_NA
 fi
 
 # --- Launch ---
-exec docker sandbox run claude "$ABSOLUTE_PATH" --dangerously-skip-permissions
+exec docker sandbox run claude "$ABSOLUTE_PATH" -- --dangerously-skip-permissions
