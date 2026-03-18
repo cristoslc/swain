@@ -15,6 +15,7 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPIKE-026 | Context Fork as Model Routing Implementation Path | 2026-03-16 | -- |
+| SPIKE-027 | Claude Config Dir Mount Strategy In Docker Sandboxes | 2026-03-17 | — |
 
 ## Complete
 

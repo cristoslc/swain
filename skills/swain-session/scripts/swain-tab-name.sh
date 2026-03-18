@@ -79,20 +79,29 @@ reset_title() {
     tmux $TMUX_ARGS set-option -g set-titles-string "#W" 2>/dev/null || true
     tmux $TMUX_ARGS set-hook -uw pane-focus-in 2>/dev/null || true
     tmux $TMUX_ARGS set-option -pu @swain_path 2>/dev/null || true
+    tmux $TMUX_ARGS set-option -pu @swain_path_explicit 2>/dev/null || true
   fi
   printf '\033]0;%s\007' "${SHELL##*/}"
 }
 
 resolve_path() {
-  # Resolution priority: --path arg > @swain_path (per-pane) > pwd > #{pane_current_path}
+  # Resolution priority:
+  #   1. --path arg (SWAIN_TAB_PATH) — explicit call-time override
+  #   2. @swain_path_explicit=1 on pane — agent explicitly set a worktree path
+  #   3. pwd — normal interactive use; wins over stale @swain_path
+  #   4. #{pane_current_path} — fallback when pwd is not in a git repo
   local path="$SWAIN_TAB_PATH"
 
-  # Try @swain_path from the current pane
+  # Use @swain_path only when it was explicitly set via --path (agent/worktree use case)
   if [[ -z "$path" && -n "$TMUX" ]]; then
-    path=$(tmux $TMUX_ARGS show-options -pqv @swain_path 2>/dev/null)
+    local explicit
+    explicit=$(tmux $TMUX_ARGS show-options -pqv @swain_path_explicit 2>/dev/null)
+    if [[ "$explicit" == "1" ]]; then
+      path=$(tmux $TMUX_ARGS show-options -pqv @swain_path 2>/dev/null)
+    fi
   fi
 
-  # Try pwd
+  # Use pwd (wins over stale @swain_path when --path was not explicitly given)
   if [[ -z "$path" ]]; then
     path="$(pwd)"
   fi
@@ -127,9 +136,15 @@ auto_title() {
 
   set_title "$title" "$title"
 
-  # Store the resolved path as @swain_path on this pane
+  # Store the resolved path as @swain_path on this pane.
+  # Only mark it as explicit when --path was given in this invocation (agent/worktree case).
+  # Without --path, we intentionally do NOT set @swain_path_explicit so that future
+  # --auto calls will prefer pwd over the stored value (prevents stale override on cd).
   if [[ -n "$TMUX" ]]; then
     tmux $TMUX_ARGS set-option -p @swain_path "$pane_path" 2>/dev/null || true
+    if [[ -n "$SWAIN_TAB_PATH" ]]; then
+      tmux $TMUX_ARGS set-option -p @swain_path_explicit 1 2>/dev/null || true
+    fi
   fi
 
   echo "$title"
