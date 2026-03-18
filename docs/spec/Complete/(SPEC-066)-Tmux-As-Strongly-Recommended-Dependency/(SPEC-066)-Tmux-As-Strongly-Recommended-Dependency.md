@@ -80,5 +80,5 @@ Changes across affected skills:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-17 | 4090f28 | Formalizes tmux as strongly recommended dependency alongside superpowers |
-| NeedsManualTest | 2026-03-18 | -- | All tasks verified; offer-to-install behavior implemented across swain-doctor, swain-stage, swain-session, swain-init |
-| Complete | 2026-03-18 | -- | All acceptance criteria verified; spec-verify.sh exit 0 |
+| NeedsManualTest | 2026-03-18 | 4610918 | All tasks verified; offer-to-install behavior implemented across swain-doctor, swain-stage, swain-session, swain-init |
+| Complete | 2026-03-18 | 30b5a1a | All acceptance criteria verified; spec-verify.sh exit 0 |
