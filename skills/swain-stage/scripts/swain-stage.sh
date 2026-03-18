@@ -37,8 +37,12 @@ read_setting() {
 }
 
 require_tmux() {
+  if ! which tmux >/dev/null 2>&1; then
+    echo "tmux not found — install with \`brew install tmux\`" >&2
+    exit 1
+  fi
   if [[ -z "$TMUX" ]]; then
-    echo "error: swain-stage requires tmux (not in a tmux session)" >&2
+    echo "tmux not active — swain-stage requires a tmux session. Start tmux first." >&2
     exit 1
   fi
 }

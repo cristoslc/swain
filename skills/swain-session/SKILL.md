@@ -50,9 +50,9 @@ bash skills/swain-session/scripts/swain-tab-name.sh --path "$NEW_WORKDIR" --auto
 
 This is agent-agnostic — it works in Claude Code, opencode, gemini cli, codex, copilot, or any other agent that reads AGENTS.md and can run bash commands. The `--path` flag takes priority over the pane's CWD.
 
-**If `$TMUX` is NOT set**, skip tab naming and show this tip:
+**If `$TMUX` is NOT set**, skip tab naming and show this note:
 
-> **Tip:** Tab naming and workspace layouts require tmux. Run `tmux` before starting Claude Code to enable `/swain-session` tab naming and `/swain-stage` layouts.
+> [note] Not in a tmux session — session tab and pane features unavailable
 
 ## Step 2 — Load session preferences
 

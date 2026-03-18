@@ -20,7 +20,7 @@ These tools enable specific features. If missing, note which features are degrad
 | `tk` | `[ -x skills/swain-do/bin/tk ]` | swain-do, swain-status (tasks) | Task tracking unavailable; status skips task section | Vendored at `skills/swain-do/bin/tk` -- reinstall swain if missing |
 | `uv` | `command -v uv` | swain-stage (MOTD TUI), swain-do (plan ingestion) | MOTD falls back to bash script; plan ingestion unavailable | `brew install uv` |
 | `gh` | `command -v gh` | swain-status (GitHub issues), swain-release | Status skips issues section; release can't create GitHub releases | `brew install gh` |
-| `tmux` | `command -v tmux` | swain-stage | Workspace layouts unavailable (only relevant if user wants tmux features) | `brew install tmux` |
+| `tmux` | `which tmux` | swain-stage, swain-session | swain-stage and session features unavailable | `brew install tmux` |
 | `fswatch` | `command -v fswatch` | swain-design (specwatch live mode) | Live artifact watching unavailable; on-demand `specwatch.sh scan` still works | `brew install fswatch` |
 
 ## Reporting format
@@ -34,7 +34,8 @@ Tool availability:
   tk ............... ok (vendored)
   uv ............... ok
   gh ............... ok
-  tmux ............. ok (in tmux session: yes)
+  tmux ............. ok
+  tmux ............. WARN — tmux not found — swain-stage and session features unavailable. Install: brew install tmux
   fswatch .......... MISSING — live specwatch unavailable. Install: brew install fswatch
 ```
 

@@ -286,6 +286,22 @@ If it fails, warn:
 
 Continue to Phase 5 regardless.
 
+### Step 4.4 — Tmux advisory
+
+Check if tmux is installed:
+
+```bash
+which tmux
+```
+
+If tmux is **not found**, inform the user:
+
+> **Recommended:** tmux is not installed. swain-stage (workspace layouts) and swain-session (tab naming) require a tmux session to function. Install with: `brew install tmux`
+>
+> This is optional — swain works without tmux, but session and workspace features will be unavailable.
+
+If tmux is found, no message is needed.
+
 ## Phase 5: Swain governance
 
 Goal: add swain's routing and governance rules to AGENTS.md.
@@ -354,6 +370,7 @@ Report what was done:
 > - Beads migration: [done/skipped/no beads found]
 > - Pre-commit security hooks: [done/skipped/already configured]
 > - Superpowers: [installed/skipped/already present]
+> - tmux: [found/not found — install with brew install tmux]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
 
 ## Re-running init
