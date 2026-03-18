@@ -119,6 +119,38 @@ When a superpowers plan file exists, use the ingestion script (`skills/swain-do/
 
 Selects serial vs. subagent-driven execution based on superpowers availability and task complexity. Read [references/execution-strategy.md](references/execution-strategy.md) for the decision tree, detection commands, and worktree-artifact mapping.
 
+## Pre-plan implementation detection
+
+Before creating a plan for a SPEC, check whether it is already implemented. Perform all three steps:
+
+**Step 1 — Check git history for the spec ID:**
+```bash
+git log --oneline --all | grep -i "<SPEC-ID>"
+```
+Matching commits are a strong signal.
+
+**Step 2 — Check whether deliverable files exist:**
+Read the spec artifact to identify described deliverables (files, scripts, configs). Check whether those files exist using `ls` or `Glob`.
+
+**Step 3 — Re-run tests fresh (REQUIRED if tests are mentioned in the spec):**
+Do NOT trust any prior claim or cached result. Run the tests now and read the actual output. This is the critical evidence gate.
+
+**Decision:**
+- **2 or more signals confirm implementation** → offer the retroactive-close path (below)
+- **1 signal** → proceed with normal plan creation; note the signal in the first task's description
+- **0 signals** → proceed normally
+
+**Retroactive-close path:**
+1. Do NOT create a full task decomposition.
+2. Create a single tracking task: `tk create "Retroactive verification: <SPEC-ID>" -t task --external-ref <SPEC-ID>`
+3. Claim it: `tk claim <id>`
+4. Run `verification-before-completion` (if superpowers installed) or re-run the spec's tests manually.
+5. If verification passes: add a note with the evidence, close the task, then invoke swain-design to transition the spec to Complete.
+6. If verification fails: fall back to normal plan creation — the prior implementation was incomplete.
+
+**Anti-rationalization safeguard (CRITICAL):**
+The agent MUST re-run tests during detection — it cannot assume prior passing results are current. "Tests passed before" or "I implemented this earlier" is NOT evidence. Fresh test execution output is evidence.
+
 ## Worktree isolation preamble
 
 Before any implementation or execution operation (plan creation, task claim, code writing, execution handoff), run this detection:
