@@ -13,12 +13,6 @@
 | SPEC-064 | Post-Implementation Security Gate | 2026-03-17 | b32f7db |
 | SPEC-065 | External Security Skill Hook Interface | 2026-03-17 | b32f7db |
 
-## Ready
-
-| Artifact | Title | Last Updated | Commit |
-|----------|-------|-------------|--------|
-| SPEC-067 | swain-box: Docker Sandboxes Launcher | 2026-03-18 | — |
-
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
@@ -85,6 +79,7 @@
 | SPEC-050 | Stage Status Hook Fails in Worktrees | 2026-03-15 | — |
 | SPEC-051 | Batch Repository Ingestion for swain-search | 2026-03-15 | — |
 | SPEC-066 | Tmux as Strongly Recommended Dependency | 2026-03-18 | 30b5a1a |
+| SPEC-067 | swain-box: Docker Sandboxes Launcher | 2026-03-18 | e8eea3a |
 
 ## Superseded
 
