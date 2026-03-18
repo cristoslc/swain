@@ -1,5 +1,5 @@
 ---
-name: swain-push
+name: swain-~push
 description: "Deprecated alias for swain-sync — use /swain-sync instead."
 user-invocable: true
 allowed-tools: Bash, Read, Edit
