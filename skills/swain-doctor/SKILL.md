@@ -98,6 +98,40 @@ Memory directory, settings validation, script permissions, .agents directory, an
 
 Verify vendored tk is executable at `skills/swain-do/bin/tk` and check for stale lock files. **Skip if `.tickets/` does not exist.** See [references/tickets-validation.md](references/tickets-validation.md) for details.
 
+## swain-box symlink
+
+Ensure `./swain-box` exists as a symlink to `scripts/swain-box` so operators can launch Docker Sandboxes from the project root without knowing the scripts path. **Skip if `scripts/swain-box` does not exist in this project.**
+
+### Detection
+
+```bash
+if [ -f scripts/swain-box ]; then
+  if [ -L swain-box ] && [ "$(readlink swain-box)" = "scripts/swain-box" ]; then
+    echo "ok"
+  elif [ -e swain-box ] && [ ! -L swain-box ]; then
+    echo "conflict"  # a real file named swain-box exists — do not overwrite
+  else
+    echo "missing"
+  fi
+fi
+```
+
+### Remediation
+
+- **ok** — silent, no output.
+- **missing** — create the symlink automatically:
+  ```bash
+  ln -sf scripts/swain-box swain-box
+  ```
+  Report: `swain-box symlink created (./swain-box → scripts/swain-box)`
+- **conflict** — warn: `./swain-box exists but is not a symlink — skipping. To fix manually: rm swain-box && ln -sf scripts/swain-box swain-box`
+
+### Status values
+
+- **ok** — symlink present and correct
+- **repaired** — symlink created
+- **warning** — conflict (real file); manual action needed
+
 ## Lifecycle directory migration
 
 Detect old phase directories from before ADR-003's three-track normalization. Old directory names: `Draft/`, `Planned/`, `Review/`, `Approved/`, `Testing/`, `Implemented/`, `Adopted/`, `Deprecated/`, `Archived/`, `Sunset/`, `Validated/`.

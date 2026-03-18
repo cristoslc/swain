@@ -103,21 +103,13 @@ Optional:
 
 **Requirement:** Docker Desktop 4.58 or later (Docker Sandboxes feature).
 
-### Shell function
-
-Add to `~/.zshrc`:
-
-```sh
-swain-box() {
-  docker sandbox run claude "${1:-$PWD}"
-}
-```
+`scripts/swain-box` ships with swain. After running `swain-init` (or `swain-doctor`) in your project, a `./swain-box` symlink is created at the project root pointing to the script.
 
 ### Usage
 
 ```sh
-swain-box                   # open sandbox for current directory
-swain-box ~/my-project      # open sandbox for a specific project
+./swain-box                 # open sandbox for current directory
+./swain-box ~/my-project    # open sandbox for a specific project
 ```
 
 ### Sandbox management

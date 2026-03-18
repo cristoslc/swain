@@ -142,6 +142,27 @@ If `.beads/` exists:
 
 If `.beads/` does not exist, skip this step. tk creates `.tickets/` on first `tk create`.
 
+### Step 2.4 — swain-box symlink
+
+If `scripts/swain-box` exists in the project root, create `./swain-box` as a relative symlink so operators can launch Docker Sandboxes without knowing the `scripts/` path.
+
+```bash
+if [ -f scripts/swain-box ]; then
+  if [ -L swain-box ] && [ "$(readlink swain-box)" = "scripts/swain-box" ]; then
+    echo "already linked"
+  elif [ -e swain-box ] && [ ! -L swain-box ]; then
+    echo "conflict — ./swain-box exists as a real file; skipping"
+  else
+    ln -sf scripts/swain-box swain-box
+    echo "created ./swain-box -> scripts/swain-box"
+  fi
+fi
+```
+
+Tell the user: `./swain-box created — run it from this project root to launch Claude Code in a Docker Sandbox for this directory.`
+
+If `scripts/swain-box` does not exist, skip silently — this project does not ship the script.
+
 ## Phase 3: Pre-commit security hooks
 
 Goal: configure pre-commit hooks for secret scanning so credentials are caught before they enter git history. Default scanner is gitleaks; additional scanners (TruffleHog, Trivy, OSV-Scanner) are opt-in.
