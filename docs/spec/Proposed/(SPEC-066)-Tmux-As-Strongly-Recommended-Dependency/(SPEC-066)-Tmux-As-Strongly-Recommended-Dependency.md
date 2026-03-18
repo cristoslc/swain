@@ -66,4 +66,4 @@ Changes across affected skills:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-17 | -- | Formalizes tmux as strongly recommended dependency alongside superpowers |
+| Proposed | 2026-03-17 | 4090f28 | Formalizes tmux as strongly recommended dependency alongside superpowers |
