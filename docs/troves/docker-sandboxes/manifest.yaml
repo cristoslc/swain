@@ -1,0 +1,38 @@
+trove: docker-sandboxes
+created: 2026-03-17
+refreshed: 2026-03-17
+tags:
+  - docker
+  - sandboxes
+  - ai
+  - agents
+  - microvm
+  - isolation
+  - security
+  - networking
+
+freshness-ttl:
+  documentation-site: 7d
+
+history:
+  - event: created
+    date: 2026-03-17
+    commit: "--"
+    sources: 1
+
+sources:
+  - source-id: docker-sandboxes-docs
+    type: documentation-site
+    url: "https://docs.docker.com/ai/sandboxes/"
+    fetched: 2026-03-18T02:17:59Z
+    title: "Docker Sandboxes | Docker Docs"
+    hash: "dca294813377777936f6adbb73446675002036e11faa7a4c124a00e28da98b29"
+    selective: true
+    highlights:
+      - "index.md"
+      - "architecture/index.md"
+      - "agents/index.md"
+      - "get-started/index.md"
+      - "network-policies/index.md"
+      - "troubleshooting/index.md"
+    notes: "Selective mirror of the core Docker Sandboxes documentation section."
