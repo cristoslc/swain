@@ -147,8 +147,8 @@ if len(table_lines) < 3:
 # Parse data rows (skip header row and separator row)
 for row in table_lines[2:]:
     cells = [c.strip() for c in row.split('|')]
-    # Remove empty first/last from leading/trailing pipes
-    cells = [c for c in cells if c or c == '']
+    # Strip leading/trailing empty cells from pipe delimiters
+    cells = cells[1:-1]
     if len(cells) >= 3:
         ver_rows.append({
             'criterion': cells[0].strip(),
