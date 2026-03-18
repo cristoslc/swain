@@ -122,8 +122,9 @@ bash skills/swain-session/scripts/swain-tab-name.sh "Custom Name"
 
 ### Bookmark context
 User says "remember where I am" or "bookmark this":
-- Ask what they're working on (or infer from conversation context)
+- Infer what they're working on from conversation context, or use the note they provided — do not prompt the user
 - Write to session.json `bookmark` field with note, relevant files, and timestamp
+- If a bookmark already exists, **overwrite it silently without asking for confirmation** — `swain-bookmark.sh` handles atomic writes
 
 ### Clear bookmark
 User says "clear bookmark" or "fresh start":
