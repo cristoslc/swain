@@ -47,29 +47,12 @@ if [ "$USE_API_KEY" = "1" ]; then
         echo "swain-box: ERROR: --api-key specified but ANTHROPIC_API_KEY is not set." >&2
         exit 1
     fi
-    echo "swain-box: using API key mode." >&2
+    echo "swain-box: using API key mode (--api-key)." >&2
 else
-    # OAuth mode (default): unset API key, ensure OAuth token is present
+    # OAuth mode (default): unset API key to prevent fallback
+    # Claude Code will use its own stored credentials from the mounted config
     unset ANTHROPIC_API_KEY 2>/dev/null || true
-
-    if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-        # Try to fetch from macOS Keychain
-        _token=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null || true)
-        if [ -n "$_token" ]; then
-            # Extract accessToken from JSON: {"claudeAiOauth":{"accessToken":"sk-ant-oat01-..."}}
-            _access_token=$(echo "$_token" | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4 || true)
-            if [ -n "$_access_token" ]; then
-                export CLAUDE_CODE_OAUTH_TOKEN="$_access_token"
-                echo "swain-box: CLAUDE_CODE_OAUTH_TOKEN set from Keychain." >&2
-            else
-                echo "swain-box: WARNING: Keychain entry found but no accessToken extracted." >&2
-                echo "  You may need to run 'claude login' inside the sandbox on first launch." >&2
-            fi
-        else
-            echo "swain-box: NOTE: CLAUDE_CODE_OAUTH_TOKEN not set and not found in Keychain." >&2
-            echo "  You may need to run 'claude login' inside the sandbox on first launch." >&2
-        fi
-    fi
+    echo "swain-box: using OAuth mode (config mounted from host)." >&2
 fi
 
 # --- Resolve target path ---
@@ -82,4 +65,9 @@ ABSOLUTE_PATH="$(cd "$TARGET_PATH" && pwd)" || {
 }
 
 # --- Launch ---
-exec docker sandbox run claude "$ABSOLUTE_PATH" --dangerously-skip-permissions
+# Mount Claude Code config so the sandbox uses the authenticated session
+# This avoids credential passing and lets Claude Code use its stored OAuth credentials
+CLAUDE_CONFIG_HOME="${CLAUDE_CONFIG_HOME:-$HOME/.claude}"
+exec docker sandbox run \
+    -v "$CLAUDE_CONFIG_HOME:/root/.claude:ro" \
+    claude "$ABSOLUTE_PATH" --dangerously-skip-permissions
