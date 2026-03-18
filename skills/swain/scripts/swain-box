@@ -56,8 +56,15 @@ else
         # Try to fetch from macOS Keychain
         _token=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null || true)
         if [ -n "$_token" ]; then
-            export CLAUDE_CODE_OAUTH_TOKEN="$_token"
-            echo "swain-box: CLAUDE_CODE_OAUTH_TOKEN set from Keychain." >&2
+            # Extract accessToken from JSON: {"claudeAiOauth":{"accessToken":"sk-ant-oat01-..."}}
+            _access_token=$(echo "$_token" | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4 || true)
+            if [ -n "$_access_token" ]; then
+                export CLAUDE_CODE_OAUTH_TOKEN="$_access_token"
+                echo "swain-box: CLAUDE_CODE_OAUTH_TOKEN set from Keychain." >&2
+            else
+                echo "swain-box: WARNING: Keychain entry found but no accessToken extracted." >&2
+                echo "  You may need to run 'claude login' inside the sandbox on first launch." >&2
+            fi
         else
             echo "swain-box: NOTE: CLAUDE_CODE_OAUTH_TOKEN not set and not found in Keychain." >&2
             echo "  You may need to run 'claude login' inside the sandbox on first launch." >&2

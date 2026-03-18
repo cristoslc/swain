@@ -5,7 +5,12 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "fix swain-box symlink UX",
-    "timestamp": "2026-03-18T15:48:08Z"
+    "note": "filed EPIC-030 + SPEC-068/069/070 + DESIGN-002 for swain-box multi-agent runtime support",
+    "files": [
+      "docs/epic/Proposed",
+      "docs/spec/Proposed",
+      "docs/design/Active"
+    ],
+    "timestamp": "2026-03-18T16:39:05Z"
   }
 }
