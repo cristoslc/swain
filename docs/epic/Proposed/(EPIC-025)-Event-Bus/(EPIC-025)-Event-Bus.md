@@ -19,7 +19,7 @@ success-criteria:
   - Preflight triggers event compilation and checks for unprocessed events at session start
   - Compile mode fails with a shaped error when run from a worktree; recommend mode fails with a shaped error when emitting from trunk
   - Compilation is triggered at preflight (session start) and swain-sync (worktree merge) — no daemon required
-  - All trunk branch references are parameterized via swain.settings.json git.trunk (EPIC-029)
+  - All trunk branch references use swain_trunk() auto-detection (EPIC-029)
   - State-derivation fallback cross-references tk and specgraph to synthesize events for transitions that occurred without emission
 linked-artifacts:
   - INITIATIVE-009
@@ -67,8 +67,8 @@ Establish the foundational event infrastructure for swain's coordination layer. 
 8. **Worktree enforcement guards** — the orchestrator script has two modes that run in different contexts:
    - **Compile mode** (trunk only): merges per-worktree event files into trunk `events.jsonl`. Fails with a shaped error if run from a worktree.
    - **Recommend mode** (worktree): reads trunk log, checks subscriptions, outputs next actions. Fails with a shaped error if emitting from trunk, prompting the agent to use a worktree.
-   Compilation is triggered at two natural sync points — preflight (session start, before the agent enters a worktree) and swain-sync (when merging a worktree back to trunk). No daemon or launchctl agent is needed. The trunk branch is not hardcoded — it is read from `swain.settings.json` `git.trunk` (see EPIC-029).
-9. **Parameterized trunk reference** — all references to the trunk branch (compilation target, merge base, event file paths) use the configurable `git.trunk` setting from `swain.settings.json` rather than hardcoding "main". See EPIC-029 for the cross-cutting parameterization.
+   Compilation is triggered at two natural sync points — preflight (session start, before the agent enters a worktree) and swain-sync (when merging a worktree back to trunk). No daemon or launchctl agent is needed. The trunk branch is auto-detected from git worktree state via `swain_trunk()` (see EPIC-029).
+9. **Auto-detected trunk reference** — all references to the trunk branch (compilation target, merge base, event file paths) use `swain_trunk()` which auto-detects from git worktree state rather than hardcoding "main". See EPIC-029 for the cross-cutting detection mechanism.
 
 ## Event Schema
 
@@ -159,7 +159,7 @@ None yet — specs to be decomposed when this EPIC transitions to Active.
 
 ## Key Dependencies
 
-- **EPIC-029** (Configurable Trunk Branch) — the event bus must use `git.trunk` for compilation target and worktree enforcement, not hardcoded "main"
+- **EPIC-029** (Auto-Detecting Trunk Branch) — the event bus must use `swain_trunk()` for compilation target and worktree enforcement, not hardcoded "main"
 
 ## Lifecycle
 

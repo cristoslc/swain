@@ -63,7 +63,7 @@ The fragmentation across specgraph, tk, and manual prose coordination creates bl
 
 | Epic | Title | Status | Depends On |
 |------|-------|--------|------------|
-| EPIC-029 | Configurable Trunk Branch | Proposed | — |
+| EPIC-029 | Auto-Detecting Trunk Branch | Proposed | — |
 | EPIC-025 | Event Bus | Proposed | EPIC-029 |
 | EPIC-026 | Query Layer | Proposed | EPIC-025 |
 | EPIC-027 | Orchestrator Integration | Proposed | EPIC-026 |
@@ -72,14 +72,14 @@ The fragmentation across specgraph, tk, and manual prose coordination creates bl
 ## Dependency Graph
 
 ```
-EPIC-029 (Configurable Trunk Branch)
+EPIC-029 (Auto-Detecting Trunk Branch)
     └── EPIC-025 (Event Bus)
             └── EPIC-026 (Query Layer)
                     ├── EPIC-027 (Orchestrator Integration)
                     └── EPIC-028 (Status Integration)
 ```
 
-EPIC-029 is the prerequisite for EPIC-025 — the event bus must use configurable trunk, not hardcoded "main". EPIC-027 and EPIC-028 are independent of each other; both depend on EPIC-026.
+EPIC-029 is the prerequisite for EPIC-025 — the event bus must auto-detect trunk from git state, not hardcode "main". EPIC-027 and EPIC-028 are independent of each other; both depend on EPIC-026.
 
 ## Small Work (Epic-less Specs)
 
