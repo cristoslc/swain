@@ -5,13 +5,18 @@
 # With no argument, uses $PWD as the project root.
 # With a path argument, uses that directory as the project root.
 #
+# Sandbox scoping: One sandbox per project directory (named claude-<dirname>).
+# Git worktrees do NOT get separate sandboxes — they share the project's
+# sandbox. If you need per-worktree isolation, run swain-box from the
+# worktree's directory to create a distinct sandbox for it.
+#
 # Authentication: On first launch, run /login inside the sandbox to
 # authenticate with your Claude subscription (Pro/Max). Credentials are
 # stored inside the sandbox and reused on subsequent runs.
 #
-# Note: docker sandbox does NOT forward host shell environment variables.
-# ANTHROPIC_API_KEY in ~/.zshrc is read by the sandbox daemon on Docker
-# Desktop restart, but OAuth via /login is the recommended path.
+# Note: docker sandbox does NOT forward host shell environment variables
+# from the current session. The sandbox daemon reads env vars from your
+# shell profile (~/.zshrc) on Docker Desktop startup only.
 #
 # Requires Docker Desktop 4.58+ (for the 'docker sandbox' subcommand).
 

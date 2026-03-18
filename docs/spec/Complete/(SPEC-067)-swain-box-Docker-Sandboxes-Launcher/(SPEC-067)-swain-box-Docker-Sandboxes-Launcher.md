@@ -123,15 +123,16 @@ Sandboxes are persistent (not `--rm`). Operators manage them with:
 - Then Docker Sandboxes reconnects to the existing sandbox rather than erroring or creating a duplicate
 
 **AC-7: ANTHROPIC_API_KEY forwarding**
-- Given `ANTHROPIC_API_KEY` is set in the host environment
+- Given `ANTHROPIC_API_KEY` is set in the host shell profile (`~/.zshrc`) and Docker Desktop has been restarted
 - When the sandbox starts and Claude Code runs inside it
 - Then Claude Code can make API calls without requiring `claude login`
+- Note: `docker sandbox` reads env vars from the shell profile at Docker Desktop startup, NOT from the current shell session. Env vars set via `export` in the running shell are not forwarded.
 
 **AC-8: Max subscription credential path**
 - Given the operator uses Claude Max subscription (OAuth, not API key)
-- When `CLAUDE_CODE_OAUTH_TOKEN` is exported in `~/.zshrc` and Docker Desktop has been restarted to pick it up
-- Then Claude Code inside the sandbox authenticates without prompting for login
-- Note: `CLAUDE_CODE_OAUTH_REFRESH_TOKEN` may also be set for automatic token refresh. The token is extracted from the macOS Keychain (service: `Claude Code-credentials`) via `security find-generic-password -s "Claude Code-credentials" -w`.
+- When the operator runs `/login` inside the sandbox on first launch
+- Then Claude Code authenticates via OAuth and credentials persist inside the sandbox for subsequent runs
+- Note: The sandbox proxy previously injected `apiKeyHelper: "echo proxy-managed"` (docker/for-mac#7842) which overrode OAuth credentials. swain-box includes a pre-flight check that removes this stale injection from existing sandboxes.
 
 **AC-9: Tier 2 removal from claude-sandbox**
 - Given the updated `scripts/claude-sandbox`
@@ -181,8 +182,10 @@ Sandboxes are persistent (not `--rm`). Operators manage them with:
 - Documentation update (README or setup guide) with `swain-box` shell function
 - SPEC-049 transitioned to Superseded
 
+**Sandbox scoping:** One sandbox per project directory path (`claude-<dirname>`). Worktrees do not get separate sandboxes — they share the project's sandbox. To isolate a worktree, run `swain-box /path/to/worktree` explicitly.
+
 **Out of scope:**
-- Worktree integration — sandbox-per-worktree is a separate concern
+- Per-worktree sandbox isolation — would require swain-do or worktree hooks to auto-create distinct sandboxes
 - Windows support — Docker Sandboxes on Windows (Hyper-V) is experimental; not tested here
 - Network policy configuration — `docker sandbox network` policies are operator-managed, not scripted
 - CI/CD integration — this is for local interactive use

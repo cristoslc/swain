@@ -112,22 +112,26 @@ Optional:
 ./swain-box ~/my-project    # open sandbox for a specific project
 ```
 
+### Sandbox scoping
+
+Each sandbox is scoped to a **project directory**, not a git worktree. The sandbox name is `claude-<dirname>` (e.g., `claude-swain` for `~/Documents/code/swain`). Key implications:
+
+- Running `./swain-box` from the same project root always reconnects to the same sandbox
+- Git worktrees do not get separate sandboxes — they share the project's sandbox
+- To isolate a worktree, run `./swain-box /path/to/worktree` to create a distinct sandbox for that directory
+
 ### Sandbox management
 
 ```sh
 docker sandbox ls           # list all sandboxes
-docker sandbox rm <name>    # remove a sandbox
+docker sandbox rm <name>    # remove a sandbox (destroy and rebuild)
 ```
 
 ### Credentials
 
-If using an API key, set `ANTHROPIC_API_KEY` in your environment — Docker Sandboxes injects it via its host-side proxy. If using a Claude Max subscription (OAuth), export the token in `~/.zshrc` and restart Docker Desktop to pick it up:
+On first launch, run `/login` inside the sandbox to authenticate with your Claude subscription (Pro/Max). Credentials are stored inside the sandbox and reused on subsequent runs.
 
-```sh
-export CLAUDE_CODE_OAUTH_TOKEN="$(security find-generic-password -s "Claude Code-credentials" -w)"
-```
-
-Restart Docker Desktop after adding this so the sandbox proxy picks up the new environment variable.
+> **Note:** `docker sandbox` does not forward environment variables from the current shell session. The sandbox daemon reads env vars from your shell profile (`~/.zshrc`) only at Docker Desktop startup. Setting `ANTHROPIC_API_KEY` in your profile and restarting Docker Desktop is an alternative to `/login`, but OAuth via `/login` is recommended.
 
 ### Native sandboxing (lighter alternative)
 
