@@ -17,6 +17,9 @@ __pycache__/
 .agents/specwatch.log
 .agents/specwatch-ignore
 
+# Skill eval workspaces
+*-workspace/
+
 # OS files
 .DS_Store
 Thumbs.db
