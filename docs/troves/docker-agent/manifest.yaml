@@ -1,0 +1,47 @@
+trove: docker-agent
+created: 2026-03-17
+refreshed: 2026-03-17
+tags:
+  - docker
+  - agent
+  - multi-agent
+  - llm
+  - mcp
+  - orchestration
+  - yaml
+  - coding-agent
+  - oci
+
+freshness-ttl:
+  web: 7d
+
+history:
+  - event: created
+    date: 2026-03-17
+    commit: "--"
+    sources: 3
+
+sources:
+  - source-id: docker-agent-overview
+    type: web
+    url: "https://docs.docker.com/ai/docker-agent/"
+    fetched: 2026-03-17T00:00:00Z
+    title: "Docker Agent | Docker Docs"
+    hash: "86f1d40c6f9ceb704a54aa9edc8bfc1fb7eaf4100ca13c8d7501fddff2f296d9"
+    notes: "Overview page — concept, install, YAML structure, OCI sharing"
+
+  - source-id: docker-agent-best-practices
+    type: web
+    url: "https://docs.docker.com/ai/docker-agent/best-practices/"
+    fetched: 2026-03-17T00:00:00Z
+    title: "Best practices | Docker Agent Docs"
+    hash: "30fb6976d7e17122080c6804bdf4f85415a522e625ec14c24bf2f6b6756b06c9"
+    notes: "Patterns: large output handling, agent team structure, RAG optimization, model selection"
+
+  - source-id: docker-agent-tutorial-coding-agent
+    type: web
+    url: "https://docs.docker.com/ai/docker-agent/tutorial/"
+    fetched: 2026-03-17T00:00:00Z
+    title: "Building a coding agent | Docker Agent Docs"
+    hash: "632df0c3aaea7a0b1a73eb003ba05bdea55b5a8f8ad4682b3715e55abbc5761f"
+    notes: "Step-by-step: minimal agent → tools → structured instructions → multi-agent composition"
