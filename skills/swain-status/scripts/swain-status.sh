@@ -293,23 +293,47 @@ collect_tasks() {
     return
   fi
 
-  local in_progress recent total raw
+  # Extract the first H1 heading from a ticket file as the title.
+  # tk stores titles as markdown H1 headings in the body, not as a frontmatter key.
+  get_ticket_title() {
+    local id="$1"
+    local file="$tickets_dir/$id.md"
+    if [[ -f "$file" ]]; then
+      grep -m1 '^# ' "$file" | sed 's/^# //'
+    else
+      echo "$id"
+    fi
+  }
+
+  # Build a JSON array from tq JSONL output, enriching each record with the H1 title.
+  build_task_json() {
+    local jsonl="$1"
+    local result="[]"
+    if [[ -n "$jsonl" ]]; then
+      while IFS= read -r line; do
+        local id title
+        id=$(echo "$line" | jq -r '.id')
+        title=$(get_ticket_title "$id")
+        result=$(echo "$result" | jq \
+          --arg id "$id" \
+          --arg title "$title" \
+          '. + [{id: $id, title: $title}]')
+      done <<< "$jsonl"
+    fi
+    echo "$result"
+  }
+
+  local in_progress recent total
 
   # In-progress tasks
-  raw=$(TICKETS_DIR="$tickets_dir" "$tq_bin" '.status == "in_progress"' 2>/dev/null | jq -c '{id: .id, title: .title}' 2>/dev/null) || true
-  if [[ -n "$raw" ]]; then
-    in_progress=$(echo "$raw" | jq -s '.' 2>/dev/null || echo "[]")
-  else
-    in_progress="[]"
-  fi
+  local ip_raw
+  ip_raw=$(TICKETS_DIR="$tickets_dir" "$tq_bin" '.status == "in_progress"' 2>/dev/null) || true
+  in_progress=$(build_task_json "$ip_raw")
 
   # Recently completed (last 5)
-  raw=$(TICKETS_DIR="$tickets_dir" "$tq_bin" '.status == "closed"' 2>/dev/null | jq -c '{id: .id, title: .title}' 2>/dev/null | head -5) || true
-  if [[ -n "$raw" ]]; then
-    recent=$(echo "$raw" | jq -s '.' 2>/dev/null || echo "[]")
-  else
-    recent="[]"
-  fi
+  local closed_raw
+  closed_raw=$(TICKETS_DIR="$tickets_dir" "$tq_bin" '.status == "closed"' 2>/dev/null | head -5) || true
+  recent=$(build_task_json "$closed_raw")
 
   # Total count
   total=$(TICKETS_DIR="$tickets_dir" "$tq_bin" 2>/dev/null | wc -l | tr -d ' ') || true
