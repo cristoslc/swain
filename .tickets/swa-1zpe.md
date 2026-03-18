@@ -2,7 +2,7 @@
 id: swa-1zpe
 status: open
 deps: []
-links: []
+links: [swa-govf]
 created: 2026-03-16T03:44:31Z
 type: epic
 priority: 2

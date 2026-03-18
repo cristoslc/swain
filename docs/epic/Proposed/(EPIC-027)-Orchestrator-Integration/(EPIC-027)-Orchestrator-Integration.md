@@ -65,6 +65,56 @@ Migrate governance from the AGENTS.md prose chaining table to subscriptions.json
 | EPIC terminal state | swain-design -> swain-retro | `artifact.phase_transition` to Complete for EPIC |
 | Claiming work complete | verification-before-completion | `task.completion_claimed` |
 
+## Test Plan
+
+### T1 — Migration map completeness
+- For each row in the current AGENTS.md chaining table, verify a corresponding entry exists in `subscriptions.json`
+- Verify the subscription's event type, filter, handler, mode, and prompt_seed correctly encode the prose row's semantics
+- At migration completion, verify the AGENTS.md prose table is empty or removed
+
+### T2 — Gradual adoption dual-path
+- Set up state: 3 of 6 chains migrated to subscriptions.json, 3 still in AGENTS.md prose table
+- Trigger an event that matches a migrated subscription — verify the orchestrator handles it
+- Trigger a chain that's still in prose table — verify the LLM falls back to AGENTS.md and executes it
+- Verify no chain fires twice (once from each path)
+
+### T3 — Interactive vs delegable dispatch
+- Register one subscription with `mode: interactive` and one with `mode: delegable`
+- Trigger both
+- Verify the interactive handler's recommendation includes "requires operator presence" / waits for operator
+- Verify the delegable handler's recommendation is flagged as background-safe
+
+### T4 — Model routing and prompt seeds
+- Register a subscription with `model_hint: opus` and a `prompt_seed` template containing `{artifact}` placeholder
+- Trigger the matching event for artifact SPEC-042
+- Verify the orchestrator output includes the model hint and the prompt seed with `{artifact}` resolved to `SPEC-042`
+
+### T5 — Superpowers chain migration
+- Migrate the "Creating Vision/Initiative/Persona → brainstorming" chain to subscriptions.json
+- Create a new Vision artifact and verify the brainstorming subscription fires
+- Migrate the "SPEC implementation → brainstorming → writing-plans → swain-do" chain
+- Transition a SPEC to Active and verify the full chain recommendation is emitted in the correct order
+
+### T6 — Third-party skill registration
+- Add a subscriptions.json entry for a fictional third-party skill (e.g., `custom-linter`) without modifying AGENTS.md
+- Trigger the matching event and verify the orchestrator dispatches to the custom handler
+- Verify no governance file (AGENTS.md) was modified
+
+### T7 — Recommender output format (cross-runtime)
+- Trigger a subscription and capture the orchestrator output
+- Verify it follows the documented format: `ACTION: <what> / CONTEXT: <why> / MODE: <interactive|delegable>`
+- Verify the output is plain text (no Claude-Code-specific skill invocations) — parseable by any runtime
+
+### T8 — Idempotency and error handling
+- Process the same event twice — verify the handler is not re-dispatched
+- Register a subscription with a handler that doesn't exist — verify the orchestrator reports the error and continues processing other subscriptions
+- Feed an event with a malformed payload — verify graceful error reporting, not a crash
+
+### T9 — Migration completion gate
+- Migrate all rows from AGENTS.md prose table to subscriptions.json
+- Run a validation check that confirms zero remaining prose table rows
+- Verify the orchestrator operates in event-only mode (no prose fallback path)
+
 ## Child Specs
 
 None yet — specs to be decomposed when this EPIC transitions to Active.
