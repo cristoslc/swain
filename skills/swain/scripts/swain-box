@@ -75,4 +75,4 @@ ABSOLUTE_PATH="$(cd "$TARGET_PATH" && pwd)" || {
 }
 
 # --- Launch ---
-exec docker sandbox run claude "$ABSOLUTE_PATH"
+exec docker sandbox run claude "$ABSOLUTE_PATH" --dangerously-skip-permissions
