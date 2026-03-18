@@ -1,26 +1,26 @@
 #!/bin/sh
 # swain-box — Run Claude Code in a Docker Desktop sandbox (SPEC-067)
-# Usage: ./swain-box [--api-key] [path]
+# Usage: ./swain-box [path]
 #
 # With no argument, uses $PWD as the project root.
 # With a path argument, uses that directory as the project root.
 #
-# Credentials (default): uses CLAUDE_CODE_OAUTH_TOKEN (Claude Max subscription).
-#   ANTHROPIC_API_KEY is unset before launch to prevent it from overriding OAuth.
-#   If CLAUDE_CODE_OAUTH_TOKEN is not set, attempts to fetch it from macOS Keychain.
+# Authentication: On first launch, run /login inside the sandbox to
+# authenticate with your Claude subscription (Pro/Max). Credentials are
+# stored inside the sandbox and reused on subsequent runs.
 #
-# --api-key: opt into API key mode — keeps ANTHROPIC_API_KEY, skips OAuth handling.
+# Note: docker sandbox does NOT forward host shell environment variables.
+# ANTHROPIC_API_KEY in ~/.zshrc is read by the sandbox daemon on Docker
+# Desktop restart, but OAuth via /login is the recommended path.
 #
 # Requires Docker Desktop 4.58+ (for the 'docker sandbox' subcommand).
 
 set -eu
 
 # --- Argument parsing ---
-USE_API_KEY=0
 TARGET_PATH=""
 for arg in "$@"; do
     case "$arg" in
-        --api-key) USE_API_KEY=1 ;;
         *) TARGET_PATH="$arg" ;;
     esac
 done
@@ -40,34 +40,6 @@ if ! docker sandbox --help >/dev/null 2>&1; then
     exit 1
 fi
 
-# --- Credential handling ---
-if [ "$USE_API_KEY" = "1" ]; then
-    # API key mode: use ANTHROPIC_API_KEY as-is
-    if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-        echo "swain-box: ERROR: --api-key specified but ANTHROPIC_API_KEY is not set." >&2
-        exit 1
-    fi
-    echo "swain-box: using API key mode (--api-key)." >&2
-else
-    # OAuth mode (default): unset API key to prevent fallback
-    unset ANTHROPIC_API_KEY 2>/dev/null || true
-
-    # Pass OAuth token via environment variable (full JSON object required)
-    if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-        # Try to fetch from macOS Keychain
-        _token_json=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null || true)
-        if [ -n "$_token_json" ]; then
-            # Keychain stores the full JSON object with accessToken, refreshToken, expiresAt
-            export CLAUDE_CODE_OAUTH_TOKEN="$_token_json"
-            echo "swain-box: CLAUDE_CODE_OAUTH_TOKEN set from Keychain." >&2
-        else
-            echo "swain-box: NOTE: CLAUDE_CODE_OAUTH_TOKEN not set and not found in Keychain." >&2
-            echo "  You may need to run 'claude login' inside the sandbox on first launch." >&2
-        fi
-    fi
-    echo "swain-box: using OAuth mode (env var)." >&2
-fi
-
 # --- Resolve target path ---
 TARGET_PATH="${TARGET_PATH:-$PWD}"
 
@@ -76,6 +48,24 @@ ABSOLUTE_PATH="$(cd "$TARGET_PATH" && pwd)" || {
     echo "swain-box: path does not exist or is not accessible: $TARGET_PATH" >&2
     exit 1
 }
+
+# --- Derive sandbox name (matches docker sandbox's default: agent-workdir) ---
+WORKDIR_NAME="$(basename "$ABSOLUTE_PATH")"
+SANDBOX_NAME="claude-${WORKDIR_NAME}"
+
+# --- Fix apiKeyHelper injection (docker/for-mac#7842) ---
+# Docker Desktop < 4.60.1 injected 'apiKeyHelper: "echo proxy-managed"' into
+# sandbox settings, which overrides OAuth and forces API key mode.
+# Clean it up if the sandbox already exists.
+if docker sandbox ls --format '{{.Sandbox}}' 2>/dev/null | grep -qx "$SANDBOX_NAME"; then
+    _has_helper=$(docker sandbox exec "$SANDBOX_NAME" \
+        grep -c '"apiKeyHelper"' ~/.claude/settings.json 2>/dev/null || echo "0")
+    if [ "$_has_helper" != "0" ]; then
+        echo "swain-box: removing stale apiKeyHelper injection (docker/for-mac#7842)..." >&2
+        docker sandbox exec "$SANDBOX_NAME" \
+            sed -i '/"apiKeyHelper"/d' ~/.claude/settings.json 2>/dev/null || true
+    fi
+fi
 
 # --- Launch ---
 exec docker sandbox run claude "$ABSOLUTE_PATH" --dangerously-skip-permissions
