@@ -5,12 +5,11 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "filed EPIC-030 + SPEC-068/069/070 + DESIGN-002 for swain-box multi-agent runtime support",
+    "note": "Created VISION-002, INITIATIVE-010/011/012/013, reattached EPIC-005/030 and SPEC-067",
     "files": [
-      "docs/epic/Proposed",
-      "docs/spec/Proposed",
-      "docs/design/Active"
+      "docs/vision/Active/(VISION-002)-Safe-Autonomy/",
+      "docs/initiative/"
     ],
-    "timestamp": "2026-03-18T16:39:05Z"
+    "timestamp": "2026-03-19T02:28:15Z"
   }
 }

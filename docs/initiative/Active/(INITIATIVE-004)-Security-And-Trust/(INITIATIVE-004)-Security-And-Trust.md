@@ -16,7 +16,6 @@ linked-artifacts:
   - EPIC-012
   - EPIC-017
   - EPIC-023
-  - EPIC-030
 ---
 
 # Security & Trust
@@ -37,11 +36,10 @@ Prevent leaks and enforce safety gates across the swain workflow. Security is no
 - EPIC-012: End-to-End Sync Workflow (Complete)
 - EPIC-017: Security Vulnerability Scanning Skill (Proposed)
 - EPIC-023: Security Gates in swain-do Execution Flow (Proposed)
-- EPIC-030: swain-box Multi-Agent Runtime Support (Proposed)
 
 ## Small Work (Epic-less Specs)
 
-- SPEC-067: swain-box Docker Sandboxes Launcher (Proposed) — supersedes SPEC-049; pivots Tier 2 isolation from plain `docker run` to microVM-backed `docker sandbox run claude`
+None.
 
 ## Key Dependencies
 
@@ -52,3 +50,4 @@ Prevent leaks and enforce safety gates across the swain workflow. Security is no
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-15 | — | Retroactive creation during initiative migration; EPIC-012 complete, two epics proposed |
+| 2026-03-18 | — | EPIC-030 and SPEC-067 reattached to INITIATIVE-010/012 under VISION-002 |

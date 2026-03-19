@@ -11,7 +11,6 @@ success-criteria:
   - Agents can operate in isolated environments (containers, sandboxes)
   - Background agent dispatch via GitHub Issues is reliable
 linked-artifacts:
-  - EPIC-005
   - EPIC-010
   - EPIC-015
   - EPIC-016
@@ -32,7 +31,7 @@ Enable parallel agent execution through isolated environments and dispatch mecha
 
 ## Child Epics
 
-- EPIC-005: Isolated Claude Code Environment (Complete)
+- EPIC-005: Isolated Claude Code Environment (Complete) — reattached to INITIATIVE-010 under VISION-002
 - EPIC-010: Agent Dispatch Via GitHub Issues (Complete)
 
 ## Small Work (Epic-less Specs)
@@ -48,3 +47,4 @@ None.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Complete | 2026-03-15 | — | Retroactive creation during initiative migration; both child epics already complete |
+| 2026-03-18 | — | EPIC-005 reattached to INITIATIVE-010 under VISION-002 |

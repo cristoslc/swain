@@ -6,8 +6,8 @@ status: Complete
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-12
-parent-vision: VISION-001
-parent-initiative: INITIATIVE-006
+parent-vision: VISION-002
+parent-initiative: INITIATIVE-010
 success-criteria:
   - A single command in the project root launches Claude Code inside an isolated ephemeral environment
   - The environment has full read/write access to the project directory via filesystem binding

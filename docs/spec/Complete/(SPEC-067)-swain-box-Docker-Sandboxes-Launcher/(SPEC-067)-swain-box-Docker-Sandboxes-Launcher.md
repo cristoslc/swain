@@ -8,7 +8,8 @@ created: 2026-03-17
 last-updated: 2026-03-18
 type: enhancement
 parent-epic: ""
-parent-initiative: INITIATIVE-004
+parent-vision: VISION-002
+parent-initiative: INITIATIVE-010
 linked-artifacts:
   - SPEC-049
   - SPEC-048

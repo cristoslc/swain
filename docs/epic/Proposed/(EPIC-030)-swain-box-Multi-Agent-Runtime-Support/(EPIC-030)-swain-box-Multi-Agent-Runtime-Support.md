@@ -6,8 +6,8 @@ status: Proposed
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
-parent-vision: VISION-001
-parent-initiative: INITIATIVE-004
+parent-vision: VISION-002
+parent-initiative: INITIATIVE-012
 priority-weight: medium
 success-criteria:
   - swain-box detects installed agent runtimes at startup and presents a selection menu when more than one is available
