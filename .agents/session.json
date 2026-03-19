@@ -5,14 +5,13 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed VISION-003/INITIATIVE-014/SPIKE-028-030 portability research. Report at docs/vision/Active/(VISION-003)-Swain-Everywhere/portability-research-report.md",
+    "note": "Updated SPIKE-030 with corrected MCP capability analysis, created EPIC-032 (docs) and EPIC-033 (MCP server) under INITIATIVE-014",
     "files": [
-      "docs/vision/Active/(VISION-003)-Swain-Everywhere/portability-research-report.md",
-      "docs/research/Active/(SPIKE-028)-Claude-Web-Desktop-Extension-Model/(SPIKE-028)-Claude-Web-Desktop-Extension-Model.md",
-      "docs/research/Active/(SPIKE-029)-Cross-Runtime-Portability-Substrate/(SPIKE-029)-Cross-Runtime-Portability-Substrate.md",
-      "docs/research/Active/(SPIKE-030)-MCP-as-Distribution-Layer/(SPIKE-030)-MCP-as-Distribution-Layer.md"
+      "docs/research/Active/(SPIKE-030)-MCP-as-Distribution-Layer/(SPIKE-030)-MCP-as-Distribution-Layer.md",
+      "docs/epic/Proposed/(EPIC-032)-Cross-Runtime-Documentation/(EPIC-032)-Cross-Runtime-Documentation.md",
+      "docs/epic/Proposed/(EPIC-033)-Swain-MCP-Server/(EPIC-033)-Swain-MCP-Server.md"
     ],
-    "timestamp": "2026-03-19T02:59:26Z"
+    "timestamp": "2026-03-19T03:18:05Z"
   },
   "focus_lane": "VISION-002"
 }

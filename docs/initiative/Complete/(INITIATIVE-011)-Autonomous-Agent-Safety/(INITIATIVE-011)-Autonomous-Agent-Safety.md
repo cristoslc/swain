@@ -2,7 +2,7 @@
 title: "Autonomous Agent Safety"
 artifact: INITIATIVE-011
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
@@ -12,7 +12,10 @@ success-criteria:
   - Credential scoping analysis complete for each sandbox type
   - Docker Sandboxes OAuth limitation documented with workaround or resolution path
   - Unattended agent can run without inheriting the operator's full credential set
-linked-artifacts: []
+linked-artifacts:
+  - SPIKE-031
+  - SPIKE-032
+  - SPEC-071
 depends-on-artifacts:
   - INITIATIVE-010
 addresses: []
@@ -41,7 +44,9 @@ None yet — scope may be small enough for epic-less specs.
 
 ## Small Work (Epic-less Specs)
 
-None yet.
+- SPIKE-031: Credential Scoping Analysis Across Sandbox Types (Complete — Conditional Go)
+- SPIKE-032: Docker Sandboxes OAuth Limitation Workaround (Complete — Conditional Go)
+- SPEC-071: Credential-Scoped Sandbox Launcher (Complete — env -i wrapper + --credentials flag)
 
 ## Key Dependencies
 
@@ -53,3 +58,4 @@ None yet.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-18 | — | Created during VISION-002 decomposition |
+| Complete | 2026-03-19 | — | All success criteria met: credential scoping analyzed, OAuth workaround documented, env -i scoping implemented |

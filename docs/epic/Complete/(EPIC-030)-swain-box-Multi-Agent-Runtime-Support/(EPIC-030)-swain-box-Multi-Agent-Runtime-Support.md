@@ -2,7 +2,7 @@
 title: "swain-box Multi-Agent Runtime Support"
 artifact: EPIC-030
 track: container
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
@@ -59,3 +59,4 @@ This epic extends swain-box to: (1) detect which agent runtimes are available in
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-18 | — | Initial creation; extends SPEC-067 to multi-runtime |
+| Complete | 2026-03-19 | — | All 3 specs complete — multi-runtime detection, selection, and credential handling |

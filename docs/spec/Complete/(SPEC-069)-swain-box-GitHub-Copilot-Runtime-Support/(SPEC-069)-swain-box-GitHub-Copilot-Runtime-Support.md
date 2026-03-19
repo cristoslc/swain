@@ -2,7 +2,7 @@
 title: "swain-box: GitHub Copilot Runtime Support"
 artifact: SPEC-069
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
@@ -114,3 +114,4 @@ TDD cycles:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-18 | — | Initial creation; Copilot auth passthrough and isolation for EPIC-030 |
+| Complete | 2026-03-19 | — | Copilot credential passthrough implemented in swain-box |

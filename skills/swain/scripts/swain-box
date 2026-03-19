@@ -1,11 +1,17 @@
 #!/bin/sh
-# swain-box — Run Claude Code in a Docker Desktop sandbox (SPEC-067)
-# Usage: ./swain-box [path]
+# swain-box — Run an agent in a Docker Desktop sandbox (SPEC-067 + SPEC-068 + SPEC-071)
+# Usage: ./swain-box [--runtime=NAME] [--credentials=MODE] [path]
 #
 # With no argument, uses $PWD as the project root.
 # With a path argument, uses that directory as the project root.
 #
-# Sandbox scoping: One sandbox per project directory (named claude-<dirname>).
+# --runtime=NAME     : skip detection and use this runtime (claude|copilot|codex)
+# --credentials=MODE : credential scoping mode (minimal|full, default: minimal)
+#   Docker Sandboxes always isolates credentials via MITM proxy (credentials
+#   never enter the VM). This flag is accepted for API symmetry with
+#   claude-sandbox but has no functional effect — the proxy manages scoping.
+#
+# Sandbox scoping: One sandbox per project directory (named <runtime>-<dirname>).
 # Git worktrees do NOT get separate sandboxes — they share the project's
 # sandbox. If you need per-worktree isolation, run swain-box from the
 # worktree's directory to create a distinct sandbox for it.
@@ -15,7 +21,7 @@
 #   (docker/desktop-feedback#198). The proxy cannot tunnel traffic to
 #   api.claude.ai — it MITMs the TLS connection, which the upstream
 #   server rejects. This means ANTHROPIC_API_KEY (API billing) is the
-#   only working auth path in Docker Sandboxes.
+#   only working auth path for Claude in Docker Sandboxes.
 #
 #   Set ANTHROPIC_API_KEY in ~/.zshrc BEFORE starting Docker Desktop.
 #   The sandbox daemon reads env vars from the shell profile at startup,
@@ -28,10 +34,17 @@
 
 set -eu
 
+# Known runtimes in preference order (SPEC-068 / DESIGN-002)
+KNOWN_RUNTIMES="claude copilot codex"
+
 # --- Argument parsing ---
 TARGET_PATH=""
+CRED_MODE="minimal"
+EXPLICIT_RUNTIME=""
 for arg in "$@"; do
     case "$arg" in
+        --runtime=*) EXPLICIT_RUNTIME="${arg#--runtime=}" ;;
+        --credentials=*) CRED_MODE="${arg#--credentials=}" ;;
         *) TARGET_PATH="$arg" ;;
     esac
 done
@@ -60,56 +73,186 @@ ABSOLUTE_PATH="$(cd "$TARGET_PATH" && pwd)" || {
     exit 1
 }
 
-# --- Derive sandbox name (matches docker sandbox's default: agent-workdir) ---
-WORKDIR_NAME="$(basename "$ABSOLUTE_PATH")"
-SANDBOX_NAME="claude-${WORKDIR_NAME}"
+# ============================================================
+# Runtime detection and selection (SPEC-068 / DESIGN-002)
+# ============================================================
 
-# --- Max/OAuth warning (docker/desktop-feedback#198) ---
-# Docker Sandboxes' MITM proxy cannot tunnel to api.claude.ai, so OAuth
-# (Max/Pro subscription) does not work. Only ANTHROPIC_API_KEY works.
-# Detect when no API key is available and warn before launch.
-_has_api_key=0
-# Check current shell (won't be forwarded, but indicates user intent)
-[ -n "${ANTHROPIC_API_KEY:-}" ] && _has_api_key=1
-# Check shell profile (what Docker Desktop actually reads)
-if [ "$_has_api_key" = "0" ]; then
-    for _profile in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
-        if [ -f "$_profile" ] && grep -q 'ANTHROPIC_API_KEY' "$_profile" 2>/dev/null; then
-            _has_api_key=1
-            break
-        fi
+# --- Detect available runtimes ---
+AVAILABLE_RUNTIMES=""
+AVAILABLE_COUNT=0
+for _rt in $KNOWN_RUNTIMES; do
+    if docker sandbox run "$_rt" --version >/dev/null 2>&1; then
+        AVAILABLE_RUNTIMES="${AVAILABLE_RUNTIMES:+$AVAILABLE_RUNTIMES }$_rt"
+        AVAILABLE_COUNT=$((AVAILABLE_COUNT + 1))
+    fi
+done
+
+# --- Handle --runtime flag (bypass detection) ---
+SELECTED_RUNTIME=""
+if [ -n "$EXPLICIT_RUNTIME" ]; then
+    # Validate against available runtimes
+    _found=0
+    for _rt in $AVAILABLE_RUNTIMES; do
+        [ "$_rt" = "$EXPLICIT_RUNTIME" ] && _found=1 && break
     done
-fi
-if [ "$_has_api_key" = "0" ]; then
-    echo "" >&2
-    echo "swain-box: WARNING — No ANTHROPIC_API_KEY detected." >&2
-    echo "" >&2
-    echo "  Docker Sandboxes cannot use Claude Max/Pro subscriptions (OAuth)." >&2
-    echo "  The MITM proxy breaks api.claude.ai traffic (docker/desktop-feedback#198)." >&2
-    echo "  You will see 'Credit balance too low' errors without an API key." >&2
-    echo "" >&2
-    echo "  To fix: export ANTHROPIC_API_KEY in ~/.zshrc, then restart Docker Desktop." >&2
-    echo "  For Max/Pro without API billing, use the Tier 1 native launcher instead:" >&2
-    echo "    scripts/claude-sandbox" >&2
-    echo "" >&2
+    if [ "$_found" = "0" ]; then
+        echo "swain-box: Runtime '$EXPLICIT_RUNTIME' is not available in Docker Sandboxes." >&2
+        if [ "$AVAILABLE_COUNT" -gt 0 ]; then
+            echo "  Available runtimes: $AVAILABLE_RUNTIMES" >&2
+        else
+            echo "  No supported agent runtimes found." >&2
+        fi
+        exit 1
+    fi
+    SELECTED_RUNTIME="$EXPLICIT_RUNTIME"
 fi
 
-# --- Fix apiKeyHelper injection (docker/for-mac#7842) ---
-# Docker Desktop < 4.60.1 injected 'apiKeyHelper: "echo proxy-managed"' into
-# sandbox settings, which overrides OAuth and forces API key mode.
-# Clean it up if the sandbox already exists.
-# NOTE: Use sh -c with $HOME — tilde (~) expands on the HOST, not inside the
-# sandbox, so ~/.claude/ resolves to /Users/<host-user>/.claude/ which doesn't
-# exist at /home/agent/.claude/ inside the VM.
-if docker sandbox ls --format '{{.Sandbox}}' 2>/dev/null | grep -qx "$SANDBOX_NAME"; then
-    _has_helper=$(docker sandbox exec "$SANDBOX_NAME" \
-        sh -c 'grep -c "\"apiKeyHelper\"" "$HOME/.claude/settings.json"' 2>/dev/null || echo "0")
-    if [ "$_has_helper" != "0" ]; then
-        echo "swain-box: removing stale apiKeyHelper injection (docker/for-mac#7842)..." >&2
-        docker sandbox exec "$SANDBOX_NAME" \
-            sh -c 'sed -i "/\"apiKeyHelper\"/d" "$HOME/.claude/settings.json"' 2>/dev/null || true
+# --- Selection logic (when no --runtime flag) ---
+if [ -z "$SELECTED_RUNTIME" ]; then
+    if [ "$AVAILABLE_COUNT" = "0" ]; then
+        # AC-1: No runtimes available
+        echo "swain-box: No supported agent runtimes found in Docker Sandboxes." >&2
+        echo "  Ensure at least one of: $KNOWN_RUNTIMES is installed." >&2
+        exit 1
+    elif [ "$AVAILABLE_COUNT" = "1" ]; then
+        # AC-2: Single runtime auto-selected
+        SELECTED_RUNTIME="$AVAILABLE_RUNTIMES"
+        echo "swain-box: using $SELECTED_RUNTIME." >&2
+    else
+        # AC-3/AC-6: Multiple runtimes
+        if [ -t 0 ]; then
+            # Interactive — show selection menu (DESIGN-002)
+            echo "swain-box: Multiple agent runtimes available. Select one:"
+            _i=1
+            for _rt in $AVAILABLE_RUNTIMES; do
+                echo "  $_i) $_rt"
+                _i=$((_i + 1))
+            done
+
+            # Read selection with default and re-prompt (AC-4, AC-5)
+            _attempts=0
+            while [ "$_attempts" -lt 2 ]; do
+                printf "Choice [1]: "
+                read -r _choice
+                _choice="${_choice:-1}"
+
+                # Validate numeric and in range
+                case "$_choice" in
+                    *[!0-9]*) ;;
+                    *)
+                        if [ "$_choice" -ge 1 ] 2>/dev/null && [ "$_choice" -le "$AVAILABLE_COUNT" ] 2>/dev/null; then
+                            _i=1
+                            for _rt in $AVAILABLE_RUNTIMES; do
+                                if [ "$_i" = "$_choice" ]; then
+                                    SELECTED_RUNTIME="$_rt"
+                                    break
+                                fi
+                                _i=$((_i + 1))
+                            done
+                            break
+                        fi
+                        ;;
+                esac
+
+                _attempts=$((_attempts + 1))
+                if [ "$_attempts" -lt 2 ]; then
+                    echo "Invalid selection. Try again:"
+                else
+                    echo "swain-box: invalid selection after 2 attempts." >&2
+                    exit 1
+                fi
+            done
+            echo "swain-box: using $SELECTED_RUNTIME." >&2
+        else
+            # Non-interactive — auto-select first (AC-6)
+            # Get first word from AVAILABLE_RUNTIMES
+            SELECTED_RUNTIME="${AVAILABLE_RUNTIMES%% *}"
+            echo "swain-box: WARNING: multiple runtimes available; auto-selected $SELECTED_RUNTIME (non-interactive mode). Use --runtime=<name> to specify." >&2
+        fi
     fi
 fi
 
-# --- Launch ---
-exec docker sandbox run claude "$ABSOLUTE_PATH" -- --dangerously-skip-permissions
+# ============================================================
+# Credential handling and launch
+# ============================================================
+
+# --- Derive sandbox name ---
+WORKDIR_NAME="$(basename "$ABSOLUTE_PATH")"
+SANDBOX_NAME="${SELECTED_RUNTIME}-${WORKDIR_NAME}"
+
+# --- Max/OAuth warning (docker/desktop-feedback#198) — Claude-specific ---
+if [ "$SELECTED_RUNTIME" = "claude" ]; then
+    _has_api_key=0
+    [ -n "${ANTHROPIC_API_KEY:-}" ] && _has_api_key=1
+    if [ "$_has_api_key" = "0" ]; then
+        for _profile in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
+            if [ -f "$_profile" ] && grep -q 'ANTHROPIC_API_KEY' "$_profile" 2>/dev/null; then
+                _has_api_key=1
+                break
+            fi
+        done
+    fi
+    if [ "$_has_api_key" = "0" ]; then
+        echo "" >&2
+        echo "swain-box: WARNING — No ANTHROPIC_API_KEY detected." >&2
+        echo "" >&2
+        echo "  Docker Sandboxes cannot use Claude Max/Pro subscriptions (OAuth)." >&2
+        echo "  The MITM proxy breaks api.claude.ai traffic (docker/desktop-feedback#198)." >&2
+        echo "  You will see 'Credit balance too low' errors without an API key." >&2
+        echo "" >&2
+        echo "  To fix: export ANTHROPIC_API_KEY in ~/.zshrc, then restart Docker Desktop." >&2
+        echo "  For Max/Pro without API billing, use the Tier 1 native launcher instead:" >&2
+        echo "    scripts/claude-sandbox" >&2
+        echo "" >&2
+    fi
+fi
+
+# --- Fix apiKeyHelper injection (docker/for-mac#7842) — Claude-specific ---
+if [ "$SELECTED_RUNTIME" = "claude" ]; then
+    if docker sandbox ls --format '{{.Sandbox}}' 2>/dev/null | grep -qx "$SANDBOX_NAME"; then
+        _has_helper=$(docker sandbox exec "$SANDBOX_NAME" \
+            sh -c 'grep -c "\"apiKeyHelper\"" "$HOME/.claude/settings.json"' 2>/dev/null || echo "0")
+        if [ "$_has_helper" != "0" ]; then
+            echo "swain-box: removing stale apiKeyHelper injection (docker/for-mac#7842)..." >&2
+            docker sandbox exec "$SANDBOX_NAME" \
+                sh -c 'sed -i "/\"apiKeyHelper\"/d" "$HOME/.claude/settings.json"' 2>/dev/null || true
+        fi
+    fi
+fi
+
+# --- Copilot credential passthrough (SPEC-069) ---
+if [ "$SELECTED_RUNTIME" = "copilot" ]; then
+    _has_gh_token=0
+    [ -n "${GITHUB_TOKEN:-}" ] && _has_gh_token=1
+    if [ "$_has_gh_token" = "0" ] && [ -n "${GH_TOKEN:-}" ]; then
+        _has_gh_token=1
+    fi
+    if [ "$_has_gh_token" = "0" ] && command -v gh >/dev/null 2>&1; then
+        _gh_token=$(gh auth token 2>/dev/null || true)
+        if [ -n "$_gh_token" ]; then
+            export GITHUB_TOKEN="$_gh_token"
+            _has_gh_token=1
+            echo "swain-box: GITHUB_TOKEN set from gh auth." >&2
+        fi
+    fi
+    if [ "$_has_gh_token" = "0" ]; then
+        echo "swain-box: NOTE: GITHUB_TOKEN not set. GitHub Copilot may require authentication inside the sandbox." >&2
+    fi
+fi
+
+# --- Codex credential passthrough (SPEC-070) ---
+if [ "$SELECTED_RUNTIME" = "codex" ]; then
+    if [ -z "${OPENAI_API_KEY:-}" ]; then
+        echo "swain-box: NOTE: OPENAI_API_KEY not set. OpenAI Codex may require authentication inside the sandbox." >&2
+    fi
+fi
+
+# --- Credential scope info (SPEC-071) ---
+echo "swain-box: credential scope — proxy-managed (credentials never enter sandbox VM)" >&2
+if [ "$CRED_MODE" = "full" ]; then
+    echo "swain-box: NOTE — --credentials=full has no effect in Docker Sandboxes." >&2
+    echo "  The MITM proxy always manages credential injection. This is the strongest posture." >&2
+fi
+
+# --- Launch (AC-9) ---
+exec docker sandbox run "$SELECTED_RUNTIME" "$ABSOLUTE_PATH" -- --dangerously-skip-permissions

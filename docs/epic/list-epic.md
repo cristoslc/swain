@@ -16,7 +16,8 @@
 | EPIC-027 | Orchestrator Integration | 2026-03-17 | — |
 | EPIC-028 | Status Integration | 2026-03-17 | — |
 | EPIC-029 | Auto-Detecting Trunk Branch | 2026-03-17 | — |
-| EPIC-030 | swain-box Multi-Agent Runtime Support | 2026-03-18 | — |
+| EPIC-032 | Cross-Runtime Documentation | 2026-03-18 | — |
+| EPIC-033 | Swain MCP Server | 2026-03-18 | — |
 
 ## Active
 
@@ -24,6 +25,7 @@
 |----------|-------|-------------|--------|
 | EPIC-017 | Security Vulnerability Scanning Skill | 2026-03-17 | 648d4a7 |
 | EPIC-023 | Security Gates in swain-do Execution Flow | 2026-03-17 | 648d4a7 |
+| EPIC-031 | Skill Audit Remediation | 2026-03-18 | — |
 
 ## Complete
 
@@ -43,6 +45,7 @@
 | EPIC-013 | Specgraph Python Rewrite | 2026-03-14 | 621416b |
 | EPIC-014 | Artifact Workflow Efficiency | 2026-03-14 | 9bc896b |
 | EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | 30116841a602a022632075525db90283f2c85e6b |
+| EPIC-030 | swain-box Multi-Agent Runtime Support | 2026-03-18 | — |
 
 ## Superseded
 

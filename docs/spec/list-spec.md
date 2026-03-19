@@ -12,9 +12,6 @@
 | SPEC-063 | Pre-Claim Security Briefing | 2026-03-17 | b32f7db |
 | SPEC-064 | Post-Implementation Security Gate | 2026-03-17 | b32f7db |
 | SPEC-065 | External Security Skill Hook Interface | 2026-03-17 | b32f7db |
-| SPEC-068 | swain-box: Agent Runtime Detection & Selection Menu | 2026-03-18 | — |
-| SPEC-069 | swain-box: GitHub Copilot Runtime Support | 2026-03-18 | — |
-| SPEC-070 | swain-box: OpenAI Codex Runtime Support | 2026-03-18 | — |
 
 ## Active
 
@@ -26,6 +23,11 @@
 | SPEC-055 | Trove Analysis Layer | 2026-03-16 | — |
 | SPEC-056 | Tmux Pane-Aware Session Naming | 2026-03-16 | — |
 | SPEC-057 | tk close Must Release Claim Lock | 2026-03-17 | — |
+| SPEC-072 | Universal find-based script discovery | 2026-03-18 | — |
+| SPEC-073 | Description enrichment | 2026-03-18 | — |
+| SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-18 | — |
+| SPEC-075 | Fix swain-sync functional bugs | 2026-03-18 | — |
+| SPEC-077 | allowed-tools hygiene sweep | 2026-03-18 | — |
 
 ## Complete
 
@@ -83,6 +85,10 @@
 | SPEC-051 | Batch Repository Ingestion for swain-search | 2026-03-15 | — |
 | SPEC-066 | Tmux as Strongly Recommended Dependency | 2026-03-18 | 30b5a1a |
 | SPEC-067 | swain-box: Docker Sandboxes Launcher | 2026-03-18 | e8eea3a |
+| SPEC-068 | swain-box: Agent Runtime Detection & Selection Menu | 2026-03-18 | — |
+| SPEC-069 | swain-box: GitHub Copilot Runtime Support | 2026-03-18 | — |
+| SPEC-070 | swain-box: OpenAI Codex Runtime Support | 2026-03-18 | — |
+| SPEC-071 | Credential-Scoped Sandbox Launcher | 2026-03-19 | — |
 
 ## Superseded
 

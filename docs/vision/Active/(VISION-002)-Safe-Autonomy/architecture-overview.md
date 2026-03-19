@@ -50,10 +50,21 @@ The core security property: an agent should receive only the credentials it need
 
 | Sandbox type | Credential mechanism | Scoping | Status |
 |---|---|---|---|
-| Native (Seatbelt/Landlock) | Inherits host environment | No scoping — shares operator's full env | Working, but leaky |
-| Docker Sandboxes | MITM proxy injects per-request | Strong scoping — credentials never enter VM | Working for API keys; broken for OAuth (docker/desktop-feedback#198) |
+| Native (Seatbelt/Landlock) | Inherits host environment | No scoping — shares operator's full env | Leaky without wrapper (SPIKE-031) |
+| Native + `env -i` wrapper | `env -i` strips env, allowlists specific vars | Application-level scoping — ≤3 credential keys forwarded | **Implemented** (SPEC-071) via `--credentials=minimal` |
+| Docker Sandboxes | MITM proxy injects per-request | Strong scoping — credentials never enter VM | Working for API keys; broken for OAuth (SPIKE-032) |
 | Custom Docker image | Explicit `-e` env vars at launch | Manual scoping — operator controls what's passed | Not yet built |
 | Apple Containers | TBD | TBD | Not yet available |
+
+### Scoping Strength by Tier
+
+| Property | Native bare | Native + env -i | Docker Sandboxes |
+|---|---|---|---|
+| Env var isolation | None | Allowlist (process-level) | Complete (proxy-managed) |
+| Credentials in agent memory | All host vars | Only allowlisted | Never |
+| File-based credentials | Accessible | Accessible | Not accessible |
+| Exfiltration via network | Possible | Possible (allowlisted vars) | Proxy-filtered |
+| OAuth support | Yes | Yes | No (MITM breaks TLS) |
 
 ## Runtime Compatibility Matrix
 

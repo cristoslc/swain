@@ -19,7 +19,7 @@ evidence-pool: ""
 
 ## Summary
 
-**Conditional Go.** MCP can technically express swain's full artifact lifecycle (proven by lifecycle-mcp and spec-workflow-mcp in production). However, the strongest architecture is **hybrid**: skills for orchestration and operator UX, MCP server for persistence and deterministic enforcement. Going MCP-only would lose skill chaining, inline context injection, and zero-friction distribution. Going skills-only keeps the current Claude Code lock-in. The hybrid model — bundled as a Claude Code plugin — is the recommended path, with the MCP server portable to other clients independently.
+**Go.** MCP can serve as swain's primary distribution layer. All three MCP primitives (Tools, Prompts, Resources) map to swain's skill capabilities, and Sampling with Tools (SEP-1577) enables server-controlled orchestration that is strictly more powerful than skill chaining. The initial report understated MCP's capability — skill chaining is replicable via tool-returned instructional content and MCP Prompts. The recommended near-term architecture is **hybrid** (skills for Claude Code ergonomics, MCP for persistence + portability), transitioning to **MCP-primary** as Sampling client support matures.
 
 ## Question
 
@@ -57,11 +57,31 @@ The protocol places no ceiling on handler complexity. A tool handler is arbitrar
 | Portability | Claude Code + compatible runtimes | Any MCP-compliant client |
 | Testing | No standard framework | Standard unit/integration tests |
 
-**What skills do better:** Encoding methodology and decision trees, inline context injection, zero-friction installation, operator-readable governance (it's just markdown), skill-to-skill chaining.
+**What skills do better today:** Inline context injection at higher instruction authority (system-prompt-adjacent vs tool-result level), zero-friction installation, operator-readable governance (it's just markdown), Claude Code-native ergonomics (slash commands, chaining, hooks).
 
-**What MCP does better:** Deterministic constraint enforcement (refuse invalid transitions), persistent state across sessions (SQLite), structured data queries (all epics with specs complete), multi-client portability, testable business logic.
+**What MCP does better:** Deterministic constraint enforcement (refuse invalid transitions), persistent state across sessions (SQLite), structured data queries (all epics with specs complete), multi-client portability, testable business logic, server-controlled orchestration via Sampling.
 
-**The sweet spot:** Skills remain the operator-facing interface. The MCP server is the persistence and enforcement layer. Skills call MCP tools when they need to read/write artifact state. This is exactly how Claude Code's own plugin system is designed — `plugin.json` bundles skills alongside MCP server config.
+**The sweet spot (near-term):** Skills remain the operator-facing interface in Claude Code. The MCP server provides persistence and enforcement. Skills call MCP tools when they need to read/write artifact state. This is exactly how Claude Code's plugin system is designed — `plugin.json` bundles skills alongside MCP server config.
+
+**The trajectory (medium-term):** As MCP Sampling with Tools matures and gains client support, the MCP server can absorb orchestration responsibilities. The `load_methodology` tool pattern (returning instructional text from the server) provides skill-chaining-equivalent behavior today. MCP Prompts surface as slash commands (`/mcp__swain__design`) — the direct analog of skill invocation. The long-term architecture is MCP-primary, not hybrid-forever.
+
+### Corrected Capability Analysis (v2)
+
+The initial analysis (v1) incorrectly listed "skill chaining" and "inline context injection" as capabilities MCP cannot replicate. Corrected mapping:
+
+| Skill Capability | MCP Mechanism | Status |
+|-----------------|---------------|--------|
+| Methodology loading (SKILL.md injection) | Tool results returning instructional text | Works today |
+| Slash-command invocation (`/swain-design`) | MCP Prompts as `/mcp__swain__design` | Works today in Claude Code |
+| Skill-to-skill chaining | `load_methodology` tool returning next skill's instructions | Works today |
+| Progressive context loading | Tool Search (deferred) + Prompts (on invocation) | Works today |
+| Bundled scripts and templates | Server-side code + embedded Resources | Works today, more powerful |
+| Cross-skill shared state | Single MCP server maintains state across all tools | Works today, stronger than skills |
+| System-prompt-level instruction authority | Sampling `systemPrompt` parameter | Requires Sampling client support |
+| `context: fork` (isolated subagent) | Sampling (separate LLM completion) | Requires Sampling client support |
+| Conditional chains (check availability) | Tool logic checks server state | Works today |
+
+**Key remaining gap:** Tool results have lower instruction-following authority than system-prompt-level injection. In practice, frontier models follow tool-returned instructions reliably, but the authority difference exists. Sampling's `systemPrompt` parameter resolves this — when client support arrives.
 
 ### Distribution Options
 
@@ -85,12 +105,19 @@ A typical MCP setup (5 servers, 58 tools) consumes ~55K tokens before conversati
 
 ### Go / No-Go Assessment
 
-**Conditional Go** with the following conditions:
-1. Build the MCP server as the persistence/enforcement layer, NOT as a full replacement for skills
-2. Bundle as a Claude Code plugin for the primary audience
-3. Separately package as .mcpb for Claude Desktop Chat and npm for other MCP clients
-4. Keep tool count under 15 for token budget reasons
-5. Defer remote hosting (Claude web Connector) until local MCP proves value
+**Go** with the following phasing:
+
+**Near-term (hybrid):**
+1. Build the MCP server with artifact CRUD, lifecycle transitions, chart queries, and a `load_methodology` tool for portable skill chaining
+2. Bundle as a Claude Code plugin (skills + MCP) for the primary audience
+3. Package the MCP server independently as .mcpb (Desktop) and npm (any client)
+4. Keep tool count under 15 for token budget
+5. Expose MCP Prompts for key workflows (`design`, `do`, `status`, `session`)
+
+**Medium-term (MCP-primary):**
+6. When Sampling with Tools has Claude Code support, migrate orchestration from skill instructions to server-controlled flows
+7. Skills become thin wrappers or are replaced entirely by MCP Prompts
+8. Remote hosting for Claude web Connector (only after local MCP proves value)
 
 ## Lifecycle
 

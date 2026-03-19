@@ -42,7 +42,8 @@ The core question: how much of swain's value can be projected onto each surface,
 
 ## Child Epics
 
-_To be created after research spikes complete and approach is selected._
+- **EPIC-032** — Cross-Runtime Documentation (Proposed): test and document swain's existing cross-runtime compatibility
+- **EPIC-033** — Swain MCP Server (Proposed): build the MCP server with Tools, Prompts, and Resources for portable artifact lifecycle management
 
 ## Small Work (Epic-less Specs)
 

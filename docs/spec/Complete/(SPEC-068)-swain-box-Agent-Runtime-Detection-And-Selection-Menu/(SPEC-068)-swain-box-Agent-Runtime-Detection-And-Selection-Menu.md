@@ -2,7 +2,7 @@
 title: "swain-box: Agent Runtime Detection & Selection Menu"
 artifact: SPEC-068
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
@@ -159,3 +159,5 @@ TDD cycles:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-18 | — | Initial creation; detection + selection UX for EPIC-030 |
+| Active | 2026-03-19 | — | INITIATIVE-011 complete; implementing runtime detection and selection |
+| Complete | 2026-03-19 | — | Runtime detection and selection menu implemented in swain-box |

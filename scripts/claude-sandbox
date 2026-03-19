@@ -1,13 +1,16 @@
 #!/bin/sh
-# claude-sandbox — Isolated Claude Code launcher (SPEC-048 + SPEC-049)
-# Usage: ./scripts/claude-sandbox [--here|--project=DIR] [extra claude args...]
+# claude-sandbox — Isolated Claude Code launcher (SPEC-048 + SPEC-049 + SPEC-071)
+# Usage: ./scripts/claude-sandbox [--here|--project=DIR] [--credentials=MODE] [extra claude args...]
 #
 # Tier 1 (default): claude --sandbox with native platform sandboxing
 #   macOS: sandbox-exec (Seatbelt kernel profiles)
 #   Linux: Landlock (default) or bubblewrap
 #
-# --here          : mount $PWD as the project root instead of the swain repo
-# --project=DIR   : mount DIR as the project root
+# --here              : mount $PWD as the project root instead of the swain repo
+# --project=DIR       : mount DIR as the project root
+# --credentials=MODE  : credential scoping mode (minimal|full, default: minimal)
+#   minimal — launches with env -i; only essential vars + auth credentials forwarded
+#   full    — inherits the operator's full environment (legacy behavior)
 
 set -eu
 
@@ -17,14 +20,26 @@ SETTINGS_FILE="$REPO_ROOT/swain.settings.json"
 
 # --- Argument parsing ---
 PROJECT_DIR=""
+CRED_MODE="minimal"
 EXTRA_ARGS=""
 for arg in "$@"; do
     case "$arg" in
         --here) PROJECT_DIR="$PWD" ;;
         --project=*) PROJECT_DIR="${arg#--project=}" ;;
+        --credentials=*) CRED_MODE="${arg#--credentials=}" ;;
         *) EXTRA_ARGS="$EXTRA_ARGS $arg" ;;
     esac
 done
+
+# Validate credential mode
+case "$CRED_MODE" in
+    minimal|full) ;;
+    *)
+        echo "claude-sandbox: invalid --credentials mode: $CRED_MODE" >&2
+        echo "  Valid modes: minimal, full" >&2
+        exit 1
+        ;;
+esac
 
 # Default project dir to repo root (original behaviour)
 if [ -z "$PROJECT_DIR" ]; then
@@ -67,13 +82,47 @@ if ! claude --help 2>&1 | grep -q -- '--sandbox'; then
 fi
 
 # --- Launch ---
-echo "claude-sandbox: launching Claude Code in Tier 1 native sandbox"
-echo "  Platform : $PLATFORM"
-echo "  Project  : $PROJECT_DIR"
+echo "claude-sandbox: launching Claude Code in Tier 1 native sandbox" >&2
+echo "  Platform    : $PLATFORM" >&2
+echo "  Project     : $PROJECT_DIR" >&2
+echo "  Credentials : $CRED_MODE" >&2
 if [ -n "$ALLOWED_DOMAINS" ]; then
-    echo "  Domains  : $ALLOWED_DOMAINS"
+    echo "  Domains     : $ALLOWED_DOMAINS" >&2
 fi
-echo ""
+echo "" >&2
 
 cd "$PROJECT_DIR"
-exec claude --sandbox $EXTRA_ARGS
+
+if [ "$CRED_MODE" = "minimal" ]; then
+    # SPEC-071: env -i wrapper strips all inherited env vars, then passes only
+    # the essentials. This prevents the agent from accessing credentials beyond
+    # what is explicitly granted. See SPIKE-031 for analysis.
+    #
+    # Shell essentials (required for basic operation):
+    ENV_ARGS="HOME=$HOME PATH=$PATH TERM=${TERM:-xterm-256color} LANG=${LANG:-en_US.UTF-8} USER=${USER:-$(whoami)} SHELL=${SHELL:-/bin/sh}"
+    # Add TMPDIR if set (macOS uses per-user temp dirs)
+    [ -n "${TMPDIR:-}" ] && ENV_ARGS="$ENV_ARGS TMPDIR=$TMPDIR"
+    # Auth credentials (only forward what's available):
+    [ -n "${ANTHROPIC_API_KEY:-}" ]         && ENV_ARGS="$ENV_ARGS ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY"
+    [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]   && ENV_ARGS="$ENV_ARGS CLAUDE_CODE_OAUTH_TOKEN=$CLAUDE_CODE_OAUTH_TOKEN"
+    [ -n "${GH_TOKEN:-}" ]                  && ENV_ARGS="$ENV_ARGS GH_TOKEN=$GH_TOKEN"
+    [ -n "${GITHUB_TOKEN:-}" ]              && ENV_ARGS="$ENV_ARGS GITHUB_TOKEN=$GITHUB_TOKEN"
+
+    # Count forwarded auth credentials for operator awareness
+    _cred_count=0
+    [ -n "${ANTHROPIC_API_KEY:-}" ]       && _cred_count=$((_cred_count + 1))
+    [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && _cred_count=$((_cred_count + 1))
+    [ -n "${GH_TOKEN:-}" ]                && _cred_count=$((_cred_count + 1))
+    [ -n "${GITHUB_TOKEN:-}" ]            && _cred_count=$((_cred_count + 1))
+    echo "claude-sandbox: credential scope — $_cred_count auth credential(s) forwarded" >&2
+
+    if [ "$_cred_count" = "0" ]; then
+        echo "claude-sandbox: WARNING — no auth credentials detected in environment." >&2
+        echo "  Set ANTHROPIC_API_KEY or run 'claude login' before launching." >&2
+    fi
+
+    # shellcheck disable=SC2086
+    exec env -i $ENV_ARGS claude --sandbox $EXTRA_ARGS
+else
+    exec claude --sandbox $EXTRA_ARGS
+fi

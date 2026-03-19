@@ -2,7 +2,7 @@
 title: "Unified Runtime Architecture"
 artifact: INITIATIVE-012
 track: container
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
@@ -55,3 +55,5 @@ None yet.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-18 | — | Created during VISION-002 decomposition; needs spike before implementation |
+| Active | 2026-03-19 | — | INITIATIVE-011 complete; proceeding with multi-runtime support |
+| Complete | 2026-03-19 | — | EPIC-030 complete — swain-box supports Claude, Copilot, and Codex runtimes |

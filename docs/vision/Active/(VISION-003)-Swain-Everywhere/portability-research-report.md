@@ -77,23 +77,22 @@ Actions:
 
 **What users get:** Swain's instructions as context. No skill chaining, no session management, no automated transitions — but the artifact model, lifecycle rules, and decision-support patterns are available as plain markdown guidance.
 
-### Phase 2: "MCP Persistence Layer" (2–6 weeks)
+### Phase 2: "Swain MCP Server" (2–6 weeks)
 
-**Goal:** Build a swain MCP server that provides the artifact lifecycle engine as portable tools.
+**Goal:** Build a swain MCP server that provides the artifact lifecycle engine, orchestration, and methodology loading as portable MCP primitives.
 
 Actions:
-- Build `swain-mcp` server (TypeScript or Python) with 10–15 tools:
-  - `artifact_list`, `artifact_read`, `artifact_create`
-  - `lifecycle_transition`, `lifecycle_status`
-  - `chart_query` (hierarchy, ready, recommend, debt views)
-  - `status_dashboard` (aggregated project status)
-  - `tk_query`, `tk_update` (task tracking bridge)
+- Build `swain-mcp` server with 10–15 Tools + Prompts + Resources:
+  - **Tools:** `artifact_list`, `artifact_read`, `artifact_create`, `lifecycle_transition`, `lifecycle_status`, `chart_query`, `status_dashboard`, `tk_query`, `tk_update`, `load_methodology` (the portable skill-chaining mechanism)
+  - **Prompts:** `design`, `do`, `status`, `session` (surfaced as `/mcp__swain__*` slash commands — direct analog of current skill invocation)
+  - **Resources:** `swain://definitions/{type}`, `swain://templates/{type}`, `swain://artifacts/{id}`, `swain://chart` (reference materials available via @ mention)
 - Back with SQLite for persistent state (proven pattern from lifecycle-mcp)
 - Bundle as Claude Code plugin (`plugin.json` with skills + MCP config)
 - Package as Desktop Extension (.mcpb) for Claude Desktop Chat tab
 - Publish as npm package for any MCP client
+- Language: either TypeScript or Python — both work in plugins (the manifest just specifies the command to run; plugin system is language-agnostic for the MCP server component)
 
-**What users get:** Deterministic artifact lifecycle enforcement. Persistent state across sessions. Status queries from any MCP-compatible IDE (VS Code, Cursor, JetBrains). Claude Code users get the full skill experience plus MCP-backed persistence.
+**What users get:** Artifact lifecycle enforcement across any MCP-compatible client. Methodology loading via `load_methodology` tool replicates skill chaining portably. MCP Prompts provide the `/swain-design` experience in any client that supports them. Claude Code users get skills + MCP (best of both); everyone else gets MCP-only (still powerful).
 
 ### Phase 3: "Claude Web Project" (4–8 weeks, can overlap with Phase 2)
 
@@ -130,7 +129,7 @@ Actions:
 | Claude web Connectors too limited for write ops | Low | Accept advisory-only mode for web; don't fight the platform |
 | Maintenance burden of N runtime bundles | High | Phase 4 is optional; only build bundles with proven demand |
 | AGENTS.md standard drift | Low | Linux Foundation governance; swain's patterns already aligned |
-| Skills-only features not portable (chaining, hooks) | Medium | Accept graceful degradation; document per-runtime experience |
+| Skill chaining authority gap (tool results vs system prompt) | Low | Frontier models follow tool-returned instructions reliably; Sampling resolves when available |
 
 ---
 
@@ -164,10 +163,21 @@ Actions:
 
 ---
 
-## Next Steps (Pending Operator Review)
+## Operator Feedback & Resolutions
 
-- [ ] Review this report and the three spike verdicts
-- [ ] Decide whether to proceed with Phase 1 (testing + documentation) immediately
-- [ ] Decide on Phase 2 scope: full MCP server, or start with a subset of tools?
-- [ ] Choose MCP server language: TypeScript (plugin-aligned) or Python (specgraph-aligned)?
-- [ ] Determine whether to create Epics for Phase 1 and Phase 2 under INITIATIVE-014
+**Phase 1 — "are we not already there?"**
+Yes. You've already used swain in Copilot and OpenCode. Phase 1 is documentation + re-testing on current versions (Gemini CLI untested, OpenCode needs retest). Epic created to track.
+
+**Phase 2 — "why can't MCP provide skill chaining?"**
+Corrected. SPIKE-030 v2 analysis confirms MCP CAN replicate skill chaining via: (1) `load_methodology` tool returning instructional text, (2) MCP Prompts as methodology templates surfaced as slash commands, (3) Sampling with Tools for server-controlled orchestration (when client support arrives). The original report understated MCP's capability. Architecture updated to hybrid-now, MCP-primary-later.
+
+**Language — "Do plugins work with python?"**
+Yes. Plugins are language-agnostic — the `plugin.json` manifest just specifies the command to run. TypeScript and Python both work. Python has FastMCP ergonomics + alignment with swain's existing specgraph package. TypeScript has stronger .mcpb tooling.
+
+## Next Steps
+
+- [x] Review report and spike verdicts
+- [x] Proceed with Phase 1
+- [x] Create Epics for Phase 1 and Phase 2
+- [ ] Decide Phase 2 MCP server language (TypeScript or Python)
+- [ ] Scope Phase 2 tool/prompt/resource set (draft in Epic)
