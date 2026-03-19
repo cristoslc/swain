@@ -1,6 +1,6 @@
 ---
 name: swain-release
-description: Cut a release — detect versioning context, generate a changelog from conventional commits, bump versions, and create a git tag. Use when the user says "release", "cut a release", "tag a release", "bump the version", "create a changelog", or any variation of shipping/publishing a version. This skill is intentionally generic and works across any repo — it infers context from git history and project structure rather than assuming a specific setup.
+description: Cut a release — detect versioning context, generate a changelog from conventional commits, bump versions, and create a git tag. Use when the user says "release", "cut a release", "tag a release", "bump the version", "create a changelog", "ship a version", "publish", or any variation of shipping/publishing a version. This skill is intentionally generic and works across any repo — it infers context from git history and project structure rather than assuming a specific setup.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:

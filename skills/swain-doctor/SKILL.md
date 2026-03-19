@@ -1,6 +1,6 @@
 ---
 name: swain-doctor
-description: "ALWAYS invoke this skill at the START of every session before doing any other work. Validates project health: governance rules, tool availability, memory directory, settings files, script permissions, .agents directory, and .tickets/ validation. Auto-migrates stale .beads/ directories to .tickets/ and removes them. Remediates issues across all swain skills. Idempotent — safe to run every session."
+description: "Auto-invoked at session start when swain-preflight detects issues. Also user-invocable for on-demand health checks. Validates project health: governance rules, tool availability, memory directory, settings files, script permissions, .agents directory, and .tickets/ validation. Auto-migrates stale .beads/ directories to .tickets/ and removes them. Remediates issues across all swain skills. Idempotent — safe to run any time."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
@@ -159,8 +159,8 @@ done
 
 1. List each old directory and its artifact count.
 2. Explain: "ADR-003 normalized artifact lifecycle phases into three tracks. Old phase directories need migration."
-3. Check for the migration script: `skills/swain-design/scripts/migrate-lifecycle-dirs.py`
-   - If available: offer to run `uv run python3 skills/swain-design/scripts/migrate-lifecycle-dirs.py --dry-run` first, then the real migration.
+3. Check for the migration script: `$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/migrate-lifecycle-dirs.py' -print -quit 2>/dev/null)`
+   - If available: offer to run `uv run python3 "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/migrate-lifecycle-dirs.py' -print -quit 2>/dev/null)" --dry-run` first, then the real migration.
    - If unavailable: provide manual `git mv` instructions using the phase mapping from ADR-003.
 4. After migration, clean up empty old directories.
 
@@ -290,7 +290,8 @@ If any EPICs are found without `parent-initiative`:
 Run the scan helper to list all epics without `parent-initiative`, grouped by `parent-vision`:
 
 ```bash
-bash skills/swain-doctor/scripts/swain-initiative-scan.sh
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-doctor/scripts/swain-initiative-scan.sh"
 ```
 
 Analyze the output and propose initiative clusters. For example:
@@ -346,8 +347,8 @@ They can defer — everything defaults to `medium` and the system works without 
 Run specgraph to verify the new hierarchy looks correct:
 
 ```bash
-bash skills/swain-design/scripts/chart.sh
-bash skills/swain-design/scripts/chart.sh recommend
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" recommend
 ```
 
 Check that initiatives appear in the tree and that recommendations reflect the new structure.
@@ -366,8 +367,8 @@ Detect unmigrated evidence pools:
 - If any artifact frontmatter contains `evidence-pool:`: warn and offer migration
 - If both `docs/troves/` and `docs/evidence-pools/` exist: warn about incomplete migration
 
-Migration script: `bash skills/swain-search/scripts/migrate-to-troves.sh`
-Dry run first: `bash skills/swain-search/scripts/migrate-to-troves.sh --dry-run`
+Migration script: `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-search/scripts/migrate-to-troves.sh' -print -quit 2>/dev/null)"`
+Dry run first: `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-search/scripts/migrate-to-troves.sh' -print -quit 2>/dev/null)" --dry-run`
 
 ## Summary report
 

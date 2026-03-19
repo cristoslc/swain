@@ -1,6 +1,6 @@
 ---
 name: swain-design
-description: Create, validate, and transition documentation artifacts (Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, initiative creation, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Chains into swain-do for implementation tracking on SPEC; decomposes EPIC/VISION/INITIATIVE/JOURNEY into children first.
+description: Create, validate, and transition documentation artifacts (Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Design, Journey) through lifecycle phases. Handles spec writing, feature planning, epic creation, initiative creation, ADR drafting, research spikes, persona definition, runbook creation, design capture, architecture docs, phase transitions, implementation planning, cross-reference validation, and audits. Also invoke to update frontmatter fields, re-parent an artifact under a different epic or initiative, or set priority on a Vision or Initiative. Chains into swain-do for implementation tracking on SPEC; decomposes EPIC/VISION/INITIATIVE/JOURNEY into children first.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Skill
 metadata:
@@ -60,7 +60,7 @@ When the operator asks to update a field on an existing artifact (e.g., "set VIS
 1. Read the artifact's definition file to confirm the field name and valid values
 2. Edit the frontmatter field directly (e.g., `priority-weight: high`)
 3. Update the `last-updated` date
-4. Run `bash skills/swain-design/scripts/chart.sh build` to refresh the graph cache
+4. Run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" build` to refresh the graph cache
 5. Commit the change
 
 **Common updates:**
@@ -105,10 +105,10 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
    - **Agent-suggested → `Proposed`**: if the agent creates the artifact on its own initiative (e.g., suggesting a SPIKE while the user asked for an EPIC, decomposing a Vision into child Epics), create it in `Proposed`. The user hasn't explicitly committed — `Proposed` signals "here's what I recommend, please confirm."
    - **Fully developed in-session → later phase**: an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
 7. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
-8. **ADR compliance check** — run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before proceeding.
-8a. **Alignment check** — *(skip for fast-path tier)* run `bash skills/swain-design/scripts/chart.sh scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
+8. **ADR compliance check** — run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/adr-check.sh' -print -quit 2>/dev/null)" <artifact-path>`. Review any findings with the user before proceeding.
+8a. **Alignment check** — *(skip for fast-path tier)* run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
 8b. **Unanchored check** — after validating parent references, check if the new artifact has a path to a Vision via parent edges. If not, warn: `⚠ No Vision ancestry — this artifact will appear as Unanchored in swain chart`. Offer to attach to an existing Initiative or Epic. Do not block creation.
-9. **Post-operation scan** — *(skip for fast-path tier)* run `skills/swain-design/scripts/specwatch.sh scan`. Fix any stale references before committing.
+9. **Post-operation scan** — *(skip for fast-path tier)* run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/specwatch.sh' -print -quit 2>/dev/null)" scan`. Fix any stale references before committing.
 10. **Index refresh step** — *(skip for fast-path tier; batch refresh at session end via `rebuild-index.sh`)* update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
 
 ## Superpowers integration
@@ -145,12 +145,12 @@ SPECs link to GitHub Issues via the `source-issue` frontmatter field. During pha
 <!-- swain-model-hint: sonnet, effort: low — status queries are data aggregation -->
 ## Status overview
 
-For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates swain chart + tk + git + GitHub issues). For artifact-specific graph queries, use `bash skills/swain-design/scripts/chart.sh` — see [skills/swain-design/references/specgraph-guide.md](skills/swain-design/references/specgraph-guide.md). The default output is a vision-rooted hierarchy tree; lenses (`ready`, `recommend`, `debt`, `unanchored`, etc.) filter and annotate the tree for different decision contexts.
+For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates swain chart + tk + git + GitHub issues). For artifact-specific graph queries, use `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"` — see [skills/swain-design/references/specgraph-guide.md](skills/swain-design/references/specgraph-guide.md). The default output is a vision-rooted hierarchy tree; lenses (`ready`, `recommend`, `debt`, `unanchored`, etc.) filter and annotate the tree for different decision contexts.
 
 <!-- swain-model-hint: opus, effort: high — audits require deep cross-artifact analysis -->
 ## Auditing artifacts
 
-When the user requests an audit, read [references/auditing.md](references/auditing.md) for the full two-phase procedure (pre-scan + parallel audit agents including ADR compliance). Include an **unanchored check** pass: run `bash skills/swain-design/scripts/chart.sh unanchored` and report any artifacts without Vision ancestry as domain-level findings alongside alignment and ADR compliance results.
+When the user requests an audit, read [references/auditing.md](references/auditing.md) for the full two-phase procedure (pre-scan + parallel audit agents including ADR compliance). Include an **unanchored check** pass: run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" unanchored` and report any artifacts without Vision ancestry as domain-level findings alongside alignment and ADR compliance results.
 
 ## Implementation plans
 

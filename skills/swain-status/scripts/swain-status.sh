@@ -24,11 +24,20 @@ PROJECT_NAME="$(basename "$REPO_ROOT")"
 SETTINGS_PROJECT="$REPO_ROOT/swain.settings.json"
 SETTINGS_USER="${XDG_CONFIG_HOME:-$HOME/.config}/swain/settings.json"
 
-# Memory directory (Claude Code convention — slug derived from repo path)
-_PROJECT_SLUG=$(echo "$REPO_ROOT" | tr '/' '-')
-MEMORY_DIR="${SWAIN_MEMORY_DIR:-$HOME/.claude/projects/${_PROJECT_SLUG}/memory}"
-CACHE_FILE="$MEMORY_DIR/status-cache.json"
+# Cache location: project-local .agents/ directory
+CACHE_FILE="${SWAIN_CACHE_FILE:-$REPO_ROOT/.agents/status-cache.json}"
 SESSION_FILE="$REPO_ROOT/.agents/session.json"
+
+# Migration: if new cache absent but old global cache exists, seed from old location
+if [[ ! -f "$CACHE_FILE" ]]; then
+  _PROJECT_SLUG=$(echo "$REPO_ROOT" | tr '/' '-')
+  _OLD_CACHE="$HOME/.claude/projects/${_PROJECT_SLUG}/memory/status-cache.json"
+  if [[ -f "$_OLD_CACHE" ]]; then
+    mkdir -p "$(dirname "$CACHE_FILE")"
+    cp "$_OLD_CACHE" "$CACHE_FILE"
+  fi
+  unset _PROJECT_SLUG _OLD_CACHE
+fi
 
 # GitHub remote
 GH_REMOTE_URL="$(git remote get-url origin 2>/dev/null || echo "")"

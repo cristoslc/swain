@@ -1,6 +1,6 @@
 ---
 name: swain-stage
-description: "Tmux workspace manager — creates layout presets (review, browse, focus), opens editor/browser/shell panes, runs an animated MOTD status panel, and lets the agent directly manage panes during work. Only activates in tmux sessions."
+description: "Tmux workspace manager — invoke to set up workspace layout, manage panes, or update MOTD status. Creates layout presets (review, browse, focus), opens editor/browser/shell panes, and runs an animated MOTD status panel. Use when the user says 'set up workspace', 'open layout', 'start MOTD', 'split pane', 'open file browser', or 'open review pane'. Only activates in tmux sessions."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
@@ -40,9 +40,10 @@ Apply a named layout. Available presets are in `skills/swain-stage/references/la
 | **browse** | Agent + file browser + MOTD |
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh layout review
-bash skills/swain-stage/scripts/swain-stage.sh layout browse
-bash skills/swain-stage/scripts/swain-stage.sh layout focus
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" layout review
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" layout browse
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" layout focus
 ```
 
 The default layout is configured in `swain.settings.json` under `stage.defaultLayout` (default: `focus`).
@@ -54,11 +55,12 @@ Users can override layout definitions in `swain.settings.json` under `stage.layo
 Open a specific pane type without applying a full layout:
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh pane editor file1.py file2.py   # editor with specific files
-bash skills/swain-stage/scripts/swain-stage.sh pane browser                      # file browser at repo root
-bash skills/swain-stage/scripts/swain-stage.sh pane browser /some/path           # file browser at specific path
-bash skills/swain-stage/scripts/swain-stage.sh pane motd                         # MOTD status panel
-bash skills/swain-stage/scripts/swain-stage.sh pane shell                        # plain shell
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane editor file1.py file2.py   # editor with specific files
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane browser                      # file browser at repo root
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane browser /some/path           # file browser at specific path
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane motd                         # MOTD status panel
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane shell                        # plain shell
 ```
 
 ### MOTD management
@@ -74,38 +76,46 @@ The MOTD pane shows a dynamic status panel with:
 - Assigned GitHub issue count
 - Count of touched files
 
-The MOTD is a Textual TUI app (`swain-motd.py`) launched via `uv run`. It reads project data from `status-cache.json` (written by swain-status) when available, falling back to direct git/tk queries when the cache is absent or stale (>5 min). Agent state (spinner, context) is always read from `stage-status.json` for real-time responsiveness. Textual handles Unicode width correctly, provides proper box drawing with rounded corners, and supports color theming.
+The MOTD is a Textual TUI app (`swain-motd.py`) launched via `uv run`. It reads project data from `.agents/status-cache.json` (written by swain-status) when available, falling back to direct git/tk queries when the cache is absent or stale (>5 min). Agent state (spinner, context) is always read from `.agents/stage-status.json` for real-time responsiveness. Textual handles Unicode width correctly, provides proper box drawing with rounded corners, and supports color theming.
 
-**Reactive status via hooks:** `stage-status-hook.sh` is configured as a Claude Code hook (PostToolUse, Stop, SubagentStart, SubagentStop) in `.claude/settings.json`. It writes `stage-status.json` automatically so the MOTD spinner reflects real agent activity without manual `motd update` calls.
+**State file locations:**
+- `.agents/status-cache.json` — swain-status cache (epic progress, ready items, task data); written by `swain-status.sh`
+- `.agents/stage-status.json` — live agent state (spinner activity, current context); written by `stage-status-hook.sh`
+
+**Reactive status via hooks:** `stage-status-hook.sh` is configured as a Claude Code hook (PostToolUse, Stop, SubagentStart, SubagentStop) in `.claude/settings.json`. It writes `.agents/stage-status.json` automatically so the MOTD spinner reflects real agent activity without manual `motd update` calls.
 
 Control the MOTD:
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh motd start                        # start MOTD in a new pane
-bash skills/swain-stage/scripts/swain-stage.sh motd stop                         # kill the MOTD pane
-bash skills/swain-stage/scripts/swain-stage.sh motd update "reviewing auth module"  # update context
-bash skills/swain-stage/scripts/swain-stage.sh motd update "idle"                # mark as idle
-bash skills/swain-stage/scripts/swain-stage.sh motd update "done"                # mark as done/idle
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd start                        # start MOTD in a new pane
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd stop                         # kill the MOTD pane
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "reviewing auth module"  # update context
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "idle"                # mark as idle
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "done"                # mark as done/idle
 ```
 
 ### Close panes
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh close right     # close the right pane
-bash skills/swain-stage/scripts/swain-stage.sh close bottom    # close the bottom pane
-bash skills/swain-stage/scripts/swain-stage.sh close all       # reset to single pane
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" close right     # close the right pane
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" close bottom    # close the bottom pane
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" close all       # reset to single pane
 ```
 
 ### Status
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh status          # show current layout info
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" status          # show current layout info
 ```
 
 ### Reset
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh reset           # kill all panes except current
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" reset           # kill all panes except current
 ```
 
 ## Agent-triggered pane operations
@@ -117,8 +127,9 @@ The agent should use swain-stage directly during work. Recommended patterns:
 When you've finished modifying files, open them for the user to review:
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh motd update "changes ready for review"
-bash skills/swain-stage/scripts/swain-stage.sh pane editor file1.py file2.py
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "changes ready for review"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane editor file1.py file2.py
 ```
 
 ### During research — open file browser
@@ -126,7 +137,8 @@ bash skills/swain-stage/scripts/swain-stage.sh pane editor file1.py file2.py
 When exploring the codebase:
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh pane browser src/components/
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane browser src/components/
 ```
 
 ### Update context as you work
@@ -134,16 +146,18 @@ bash skills/swain-stage/scripts/swain-stage.sh pane browser src/components/
 Keep the MOTD informed of what you're doing:
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh motd update "analyzing test failures"
-bash skills/swain-stage/scripts/swain-stage.sh motd update "writing migration script"
-bash skills/swain-stage/scripts/swain-stage.sh motd update "done"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "analyzing test failures"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "writing migration script"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "done"
 ```
 
 ### Clean up when done
 
 ```bash
-bash skills/swain-stage/scripts/swain-stage.sh close right
-bash skills/swain-stage/scripts/swain-stage.sh motd update "idle"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" close right
+bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "idle"
 ```
 
 ## Settings

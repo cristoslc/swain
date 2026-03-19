@@ -1,9 +1,9 @@
 ---
 name: swain-retro
-description: "Automated retrospectives — captures learnings at EPIC completion and on manual invocation. EPIC-scoped retros embed a Retrospective section in the EPIC artifact. Cross-epic and time-based retros produce standalone retro docs. Triggers on: 'retro', 'retrospective', 'what did we learn', 'reflect', or automatically after EPIC terminal transitions."
+description: "Automated retrospectives — captures learnings at EPIC completion and on manual invocation. EPIC-scoped retros embed a Retrospective section in the EPIC artifact. Cross-epic and time-based retros produce standalone retro docs. Triggers on: 'retro', 'retrospective', 'post-mortem', 'lessons learned', 'debrief', 'what worked', 'what didn't work', 'what did we learn', 'reflect', or automatically after EPIC terminal transitions."
 user-invocable: true
 license: MIT
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: Structured retrospectives at natural completion points
   version: 2.0.0
@@ -42,7 +42,7 @@ Collect evidence of what happened during the work period.
 
 ```bash
 # Get the EPIC and its children
-bash skills/swain-design/scripts/chart.sh deps <EPIC-ID>
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" deps <EPIC-ID>
 
 # Get closed tasks linked to child specs
 TK_BIN="$(cd skills/swain-do/bin && pwd)"
@@ -68,7 +68,7 @@ export PATH="$TK_BIN:$PATH"
 ticket-query '.status == "closed"' 2>/dev/null | head -20
 
 # Recently transitioned artifacts
-bash skills/swain-design/scripts/chart.sh status 2>/dev/null
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" status 2>/dev/null
 ```
 
 Also check:
@@ -133,6 +133,8 @@ Write to the project memory directory:
 ```
 ~/.claude/projects/<project-slug>/memory/feedback_retro_{topic}.md
 ```
+
+The project slug is the project path with slashes replaced by dashes (e.g., `/Users/cristos/Documents/code/swain` → `-Users-cristos-Documents-code-swain`). These files live in Claude's memory system (not swain's `.agents/` state), which is intentional — retro learnings persist across all Claude Code sessions for this project.
 
 Update `MEMORY.md` index.
 

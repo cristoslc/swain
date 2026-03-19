@@ -1,9 +1,9 @@
 ---
 name: swain-search
-description: "Trove collection and normalization for swain-design artifacts. Collects sources from the web, local files, and media (video/audio), normalizes them to markdown, and caches them in reusable troves. Use when researching a topic for a spike, ADR, vision, or any artifact that needs structured research. Also use to refresh stale troves or extend existing ones with new sources. Triggers on: 'research X', 'gather sources for', 'build a trove', 'search for sources about', 'refresh the trove', 'what do we know about X', or when swain-design needs research inputs for a spike or ADR."
+description: "Trove collection and normalization for swain-design artifacts. Collects sources from the web, local files, and media (video/audio), normalizes them to markdown, and caches them in reusable troves. Use when researching a topic for a spike, ADR, vision, or any artifact that needs structured research. Also use to refresh stale troves or extend existing ones with new sources. Triggers on: 'research X', 'gather sources for', 'compile research on', 'search for sources about', 'refresh the trove', 'find existing research on X', or when swain-design needs research inputs for a spike or ADR."
 user-invocable: true
 license: MIT
-allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Skill, WebSearch, WebFetch
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Skill, WebSearch, WebFetch, AskUserQuestion
 metadata:
   short-description: Trove collection and normalization
   version: 1.0.0

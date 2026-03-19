@@ -1,8 +1,8 @@
 ---
 name: swain-do
-description: Bootstrap, install, and operate an external task-management CLI as the source of truth for agent execution tracking (instead of built-in todos). Provides the abstraction layer between swain-design intent (implementation plans and tasks) and concrete CLI commands. MUST be invoked when any implementation-tier artifact (SPEC) comes up for implementation — create a tracked plan before writing code. Optional but recommended for complex SPIKEs. For coordination-tier artifacts (EPIC, VISION, JOURNEY), swain-design must decompose into implementable children first — this skill tracks the children, not the container. Also use for standalone tasks that require backend portability, persistent progress across agent runtimes, or external supervision. Use this skill whenever the user asks to track tasks, create an implementation plan, check what to work on next, see task status, manage dependencies between work items, or close/abandon tasks — even if they don't mention "execution tracking" explicitly.
+description: Operate the external task-management CLI (tk) as source of truth for agent execution tracking. Invoke when any SPEC comes up for implementation, when the user asks to track tasks, check what to work on next, see task status, manage work dependencies, or close/abandon tasks. For coordination-tier artifacts (EPIC, VISION, JOURNEY), swain-design must decompose into child SPECs first — this skill tracks the children, not the container.
 license: UNLICENSED
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
   short-description: Bootstrap and operate external task tracking
   version: 3.1.0
@@ -83,11 +83,11 @@ When work cannot proceed as designed, abandon tasks and escalate to swain-design
 
 ## "What's next?" flow
 
-Run `tk ready` for unblocked tasks and `ticket-query '.status == "in_progress"'` for in-flight work. If `.tickets/` is empty or missing, defer to `bash skills/swain-design/scripts/chart.sh ready` for artifact-level guidance.
+Run `tk ready` for unblocked tasks and `ticket-query '.status == "in_progress"'` for in-flight work. If `.tickets/` is empty or missing, defer to `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" ready` for artifact-level guidance.
 
 ## Context on claim
 
-When claiming a task tagged with `spec:<ID>`, show the Vision ancestry breadcrumb to provide strategic context. Run `bash skills/swain-design/scripts/chart.sh scope <SPEC-ID> 2>/dev/null | head -5` to display the parent chain. This tells the agent/operator how the current task connects to project strategy.
+When claiming a task tagged with `spec:<ID>`, show the Vision ancestry breadcrumb to provide strategic context. Run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" scope <SPEC-ID> 2>/dev/null | head -5` to display the parent chain. This tells the agent/operator how the current task connects to project strategy.
 
 ## Artifact/tk reconciliation
 
@@ -171,12 +171,15 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 2. After entering, re-run tab naming to reflect the new branch:
    ```bash
-   bash skills/swain-session/scripts/swain-tab-name.sh --path "$(pwd)" --auto
+   REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+   bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" --path "$(pwd)" --auto
    ```
 
 3. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin implementation work.
 
 **Note:** swain-session auto-enters a worktree at startup (Step 1.5), so this preamble is a fallback for sessions that skipped isolation or where the operator exited the worktree mid-session.
+
+When all tasks in the plan complete, or when the operator requests, call `ExitWorktree` to return to the main checkout.
 
 ## Fallback
 

@@ -1,8 +1,8 @@
 ---
 name: swain-keys
-description: "Per-project SSH key provisioning for git signing and authentication. Generates ed25519 keys, configures git signing, registers on GitHub, and sets up SSH host aliases to bypass global agents (e.g., 1Password)."
+description: "Per-project SSH key provisioning for git signing and authentication. Invoke to configure git signing, set up SSH keys for this project, bypass 1Password for git operations, add a key to GitHub, troubleshoot 1Password git prompts, or check key status. Generates ed25519 keys, configures git signing, registers keys on GitHub, and sets up SSH host aliases to bypass global SSH agents."
 user-invocable: true
-allowed-tools: Bash, Read, Edit, Glob
+allowed-tools: Bash, Read, Edit, Glob, AskUserQuestion
 metadata:
   short-description: SSH key provisioning for projects
   version: 1.0.0

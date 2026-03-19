@@ -1,8 +1,8 @@
 ---
 name: swain-update
-description: "Update swain skills to the latest version. Use when the user says 'update swain', 'upgrade swain', 'pull latest swain', or wants to refresh their swain skills installation. Runs the skills package manager (npx) with a git-clone fallback, then invokes swain-doctor to reconcile governance and validate project health."
+description: "Update swain skills to the latest version. Use when the user says 'update swain', 'upgrade swain', 'pull latest swain', 'reinstall swain', 'refresh skills', or wants to update their swain skills installation. Uses npx to pull the latest swain release from GitHub, with a git-clone fallback, then invokes swain-doctor to reconcile governance and validate project health."
 user-invocable: true
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob
+allowed-tools: Bash, Read, Glob
 metadata:
   short-description: Update swain skills to latest
   version: 1.4.0
@@ -81,10 +81,11 @@ Before installing, detect which agent platforms are present on the system. This 
 Read the agent platform data from `skills/swain-update/references/agent-platforms.json`. Each entry in the `agents` array has a `name` (skills CLI identifier), an optional `command` (CLI binary), and a `detection` path (HOME config directory). A platform is detected if either check succeeds. Entries in `always_include` are added unconditionally.
 
 ```bash
+SKILL_DIR="$(find . .claude skills -path '*/swain-update/references' -print -quit 2>/dev/null | sed 's|/references$||')"
 detected_agents=()
 
 # Always-include platforms (we're running inside claude-code)
-for name in $(jq -r '.always_include[]' "SKILL_DIR/references/agent-platforms.json"); do
+for name in $(jq -r '.always_include[]' "$SKILL_DIR/references/agent-platforms.json"); do
   detected_agents+=("$name")
 done
 
@@ -108,10 +109,8 @@ while IFS= read -r entry; do
   fi
 
   $found && detected_agents+=("$name")
-done < <(jq -c '.agents[]' "SKILL_DIR/references/agent-platforms.json")
+done < <(jq -c '.agents[]' "$SKILL_DIR/references/agent-platforms.json")
 ```
-
-*(Replace `SKILL_DIR` with the actual path to this skill's directory.)*
 
 Build the `-a` flags from detected agents:
 
@@ -140,7 +139,10 @@ If `npx` fails (command not found, network error, or non-zero exit), fall back t
 ```bash
 tmp=$(mktemp -d)
 git clone --depth 1 https://github.com/cristoslc/swain.git "$tmp/swain"
-cp -r "$tmp/swain/skills/"* .claude/skills/
+# Detect skill install location
+INSTALL_DIR=$(find . -maxdepth 2 -name "swain-doctor" -type d -print -quit 2>/dev/null | sed 's|/swain-doctor$||')
+INSTALL_DIR="${INSTALL_DIR:-.claude/skills}"
+cp -r "$tmp/swain/skills/"* "$INSTALL_DIR/"
 rm -rf "$tmp"
 ```
 

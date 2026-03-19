@@ -1,6 +1,6 @@
 ---
 name: swain-dispatch
-description: "Dispatch swain artifacts to background agents via GitHub Issues. Creates a GitHub Issue with the artifact content and triggers the Claude Code Action workflow for autonomous implementation. Use when the user wants to offload work to a background agent."
+description: "Dispatch a swain artifact to a GitHub Actions runner for autonomous implementation via Claude Code Action. Creates a GitHub Issue with the artifact content and triggers the workflow for background execution. Use when the user says 'dispatch', 'send to background agent', 'run this autonomously', 'GitHub Actions', or wants to hand off a SPEC for autonomous implementation."
 user-invocable: true
 allowed-tools: Bash, Read, Grep, Glob
 metadata:
@@ -51,6 +51,8 @@ HAS_KEY=$(gh api "repos/${OWNER_REPO}/actions/secrets" --jq '.secrets[].name' 2>
 > name: Claude Code
 >
 > on:
+>   repository_dispatch:
+>     types: [agent-dispatch]
 >   issue_comment:
 >     types: [created]
 >   pull_request_review_comment:
@@ -123,7 +125,7 @@ Defaults:
 ```bash
 gh issue create \
   --title "[dispatch] ${ARTIFACT_TITLE}" \
-  --body "$(cat <<'EOF'
+  --body "$(cat <<EOF
 ## Dispatched Artifact: ${ARTIFACT_ID}
 
 This issue was created by `swain-dispatch` for background agent execution.

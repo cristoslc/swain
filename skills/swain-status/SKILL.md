@@ -1,6 +1,6 @@
 ---
 name: swain-status
-description: "Cross-cutting project status dashboard. Shows active epics with progress ratios, actionable next steps, blocked items, in-progress tasks, GitHub issues, and session context. Produces rich terminal output with clickable links. Triggers on: 'status', 'progress', 'what's next', 'dashboard', 'overview', 'where are we', 'what should I work on'."
+description: "Cross-cutting project status dashboard. Shows active epics with progress ratios, actionable next steps, blocked items, in-progress tasks, GitHub issues, and session context. Produces rich terminal output with clickable links. Triggers on: 'project status', 'swain status', 'what's next', 'dashboard', 'overview', 'where are we', 'what should I work on', 'am I blocked', 'what needs review', 'show me priorities'."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Glob, Grep
@@ -34,7 +34,7 @@ The script's terminal output uses OSC 8 hyperlinks for clickable artifact links.
 
 The script collects from five data sources:
 
-1. **Artifacts** — `swain chart` vision-rooted hierarchy (epic progress, ready/blocked items, dependency info). Use `bash skills/swain-design/scripts/chart.sh recommend` for ranked artifact view; respects focus lane automatically.
+1. **Artifacts** — `swain chart` vision-rooted hierarchy (epic progress, ready/blocked items, dependency info). Use `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" recommend` for ranked artifact view; respects focus lane automatically.
 2. **Tasks** — tk (in-progress, recently completed)
 3. **Git** — branch, working tree state, recent commits
 4. **GitHub** — open issues, issues assigned to the user
@@ -45,17 +45,18 @@ The script collects from five data sources:
 The script supports `--compact` for consumption by swain-stage's MOTD panel:
 
 ```bash
-bash skills/swain-status/scripts/swain-status.sh --compact
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-status/scripts/swain-status.sh" --compact
 ```
 
 This outputs 4-5 lines suitable for the MOTD box: branch, active epic progress, current task, ready count, assigned issue count.
 
 ## Cache
 
-The script writes a JSON cache to the Claude Code memory directory:
+The script writes a JSON cache to the project-local agents directory:
 
 ```
-~/.claude/projects/<project-slug>/memory/status-cache.json
+.agents/status-cache.json
 ```
 
 - **TTL:** 120 seconds (configurable via `status.cacheTTL` in settings)
@@ -63,6 +64,8 @@ The script writes a JSON cache to the Claude Code memory directory:
 - **JSON access:** `--json` flag outputs raw cache for programmatic use
 
 The MOTD can read this cache cheaply between full refreshes.
+
+**Migration:** If `.agents/status-cache.json` does not exist but `~/.claude/projects/<project-path-slug>/memory/status-cache.json` does, read the old location once and write to the new location going forward.
 
 ## Recommendation
 

@@ -1,8 +1,8 @@
 ---
 name: swain-sync
-description: "Fetch upstream, rebase, stage all changes, run ADR compliance check on modified artifacts, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream. Handles merge conflicts by preferring local changes for config/project files and upstream for scaffolding."
+description: "Fetch upstream, rebase, stage all changes, enforce gitignore hygiene, run ADR compliance checking on modified artifacts, rebuild stale artifact indexes, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream. Handles merge conflicts by preferring local changes for config/project files and upstream for scaffolding."
 user-invocable: true
-allowed-tools: Bash, Read, Edit
+allowed-tools: Bash, Read, Edit, Write, Glob
 metadata:
   short-description: Fetch, stage, commit, and push
   version: 1.4.0
@@ -151,7 +151,7 @@ If `.gitignore` contains `# swain-sync: allow <pattern>` for a given pattern, tr
 If modified files include any swain artifacts (`docs/spec/`, `docs/epic/`, `docs/vision/`, `docs/research/`, `docs/journey/`, `docs/persona/`, `docs/runbook/`, `docs/design/`), run an ADR compliance check against each modified artifact:
 
 ```bash
-bash skills/swain-design/scripts/adr-check.sh <artifact-path>
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/adr-check.sh' -print -quit 2>/dev/null)" <artifact-path>
 ```
 
 For each artifact with findings (exit code 1 — DEAD_REF or STALE), collect the output and present a single consolidated warning after all checks complete:
@@ -248,9 +248,10 @@ If this push is rejected with a non-fast-forward error:
 
 After a successful push or PR creation, remove the worktree:
 ```bash
-WORKTREE_PATH=$(git worktree list --porcelain | grep -B2 "HEAD" | awk '/worktree/{print $2}' | grep -v "$(git rev-parse --git-common-dir | sed 's|/.git$||')")
-git -C "$(git rev-parse --show-toplevel 2>/dev/null || git rev-parse --git-common-dir | sed 's|/.git||')" worktree remove --force "$WORKTREE_PATH" 2>/dev/null || true
-git -C "$(git rev-parse --git-common-dir | sed 's|/.git||')" worktree prune 2>/dev/null || true
+WORKTREE_PATH=$(pwd)
+MAIN_REPO=$(git rev-parse --git-common-dir | sed 's|/.git$||')
+git -C "$MAIN_REPO" worktree remove --force "$WORKTREE_PATH" 2>/dev/null || true
+git -C "$MAIN_REPO" worktree prune 2>/dev/null || true
 ```
 
 **If `IN_WORKTREE=no`** (main worktree, normal case):

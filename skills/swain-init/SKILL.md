@@ -1,9 +1,9 @@
 ---
 name: swain-init
-description: "One-time project onboarding for swain. Migrates existing CLAUDE.md content to AGENTS.md (with the @AGENTS.md include pattern), verifies vendored tk (ticket) for task tracking, configures pre-commit security hooks (gitleaks default), and offers to add swain governance rules. Run once when adopting swain in a new project — use swain-doctor for ongoing per-session health checks."
+description: "One-time project onboarding for swain. Invoke to set up swain, onboard this project, initialize swain, or migrate CLAUDE.md. Migrates existing CLAUDE.md content to AGENTS.md (with the @AGENTS.md include pattern), verifies vendored tk (ticket) for task tracking, configures pre-commit security hooks (gitleaks default), and offers to add swain governance rules. Use swain-doctor for ongoing per-session health checks."
 user-invocable: true
 license: MIT
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion, Skill
 metadata:
   short-description: One-time swain project onboarding
   version: 3.1.0

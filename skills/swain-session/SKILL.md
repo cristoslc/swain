@@ -1,9 +1,9 @@
 ---
 name: swain-session
-description: "Session management — restores terminal tab name, user preferences, and context bookmarks on session start. Auto-invoked at session start via AGENTS.md. Also invokable manually to change preferences or bookmark context for the next session."
+description: "Session management — restores terminal tab name, user preferences, and context bookmarks on session start. Auto-invoked at session start via AGENTS.md. Also invokable manually to set focus, bookmark context, remember where I am, check session info, rename the tmux tab, or update session state for the next session. Manages worktree auto-isolation and focus lane persistence."
 user-invocable: true
 license: MIT
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
   short-description: Session state and identity management
   version: 1.2.0
@@ -31,7 +31,8 @@ When invoked manually, the user can change preferences or bookmark context.
 Check if `$TMUX` is set. If yes, run the tab-naming script:
 
 ```bash
-bash skills/swain-session/scripts/swain-tab-name.sh --auto
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" --auto
 ```
 
 Use the project root to locate the script. The script reads `swain.settings.json` for the tab name format (default: `{project} @ {branch}`).
@@ -45,7 +46,8 @@ If this fails (e.g., not in a git repo), set a fallback title of "swain".
 When an agent enters a worktree or switches branches, the tmux pane's tracked CWD does not update (agent commands run in subshells). **Any agent** that changes its working context MUST re-run the tab-naming script with `--path`:
 
 ```bash
-bash skills/swain-session/scripts/swain-tab-name.sh --path "$NEW_WORKDIR" --auto
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" --path "$NEW_WORKDIR" --auto
 ```
 
 This is agent-agnostic — it works in Claude Code, opencode, gemini cli, codex, copilot, or any other agent that reads AGENTS.md and can run bash commands. The `--path` flag takes priority over the pane's CWD.
@@ -81,10 +83,13 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 After entering the worktree, re-run tab naming to reflect the new branch:
 
 ```bash
-bash skills/swain-session/scripts/swain-tab-name.sh --path "$(pwd)" --auto
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" --path "$(pwd)" --auto
 ```
 
 **If `EnterWorktree` fails or is unavailable:** Log a warning and proceed without isolation. swain-do will attempt isolation at dispatch time as a fallback.
+
+The operator can say "exit worktree" or "back to main" at any time — call `ExitWorktree` to leave isolation.
 
 ## Step 2 — Load session preferences
 
@@ -139,7 +144,8 @@ When invoked explicitly by the user, support these operations:
 ### Set tab name
 User says something like "set tab name to X" or "rename tab":
 ```bash
-bash skills/swain-session/scripts/swain-tab-name.sh "Custom Name"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" "Custom Name"
 ```
 
 ### Bookmark context
@@ -155,39 +161,14 @@ User says "clear bookmark" or "fresh start":
 ### Show session info
 User says "session info" or "what's my session":
 - Display current tab name, branch, preferences, bookmark status
-- If the bookmark note contains an artifact ID (e.g., `SPEC-052`, `EPIC-018`), show the Vision ancestry breadcrumb for strategic context. Run `bash skills/swain-design/scripts/chart.sh scope <ID> 2>/dev/null | head -5` to get the parent chain. Display as: `Context: Swain > Operator Situational Awareness > Vision-Rooted Chart Hierarchy`
+- If the bookmark note contains an artifact ID (e.g., `SPEC-052`, `EPIC-018`), show the Vision ancestry breadcrumb for strategic context. Run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" scope <ID> 2>/dev/null | head -5` to get the parent chain. Display as: `Context: Swain > Operator Situational Awareness > Vision-Rooted Chart Hierarchy`
 
 ### Set preference
 User says "set preference X to Y":
 - Update `preferences` in session.json
 
 ## Post-operation bookmark (auto-update protocol)
-
-Other swain skills update the session bookmark after completing operations. This gives the developer a "where I left off" marker without requiring manual bookmarking.
-
-### When to update
-
-A skill should update the bookmark when it completes a **state-changing operation** — artifact transitions, task updates, commits, releases, or status checks.
-
-### How to update
-
-Use `skills/swain-session/scripts/swain-bookmark.sh`:
-
-```bash
-# Find the script
-BOOKMARK_SCRIPT="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
-
-# Basic note
-bash "$BOOKMARK_SCRIPT" "Transitioned SPEC-001 to Approved"
-
-# Note with files
-bash "$BOOKMARK_SCRIPT" "Implemented auth middleware" --files src/auth.ts src/auth.test.ts
-
-# Clear bookmark
-bash "$BOOKMARK_SCRIPT" --clear
-```
-
-The script handles session.json discovery, atomic writes, and graceful degradation (no jq = silent no-op).
+Other swain skills update the session bookmark after operations. Read [references/bookmark-protocol.md](references/bookmark-protocol.md) for the protocol, invocation patterns, and examples.
 
 ## Focus Lane
 
@@ -198,7 +179,7 @@ When the operator says "focus on security" or "I'm working on VISION-001", resol
 
 **Name-to-ID resolution:** If the operator uses a name instead of an ID (e.g., "security" instead of "VISION-001"), search Vision and Initiative artifact titles for the best match using swain chart:
 ```bash
-bash skills/swain-design/scripts/chart.sh --ids --flat 2>/dev/null | grep -i "<name>"
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" --ids --flat 2>/dev/null | grep -i "<name>"
 ```
 If exactly one match, use it. If multiple matches, ask the operator to clarify. If no match, tell the operator no Vision or Initiative matches that name and offer to create one.
 
