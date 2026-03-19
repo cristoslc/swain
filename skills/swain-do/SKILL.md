@@ -2,7 +2,7 @@
 name: swain-do
 description: Bootstrap, install, and operate an external task-management CLI as the source of truth for agent execution tracking (instead of built-in todos). Provides the abstraction layer between swain-design intent (implementation plans and tasks) and concrete CLI commands. MUST be invoked when any implementation-tier artifact (SPEC) comes up for implementation — create a tracked plan before writing code. Optional but recommended for complex SPIKEs. For coordination-tier artifacts (EPIC, VISION, JOURNEY), swain-design must decompose into implementable children first — this skill tracks the children, not the container. Also use for standalone tasks that require backend portability, persistent progress across agent runtimes, or external supervision. Use this skill whenever the user asks to track tasks, create an implementation plan, check what to work on next, see task status, manage dependencies between work items, or close/abandon tasks — even if they don't mention "execution tracking" explicitly.
 license: UNLICENSED
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree
 metadata:
   short-description: Bootstrap and operate external task tracking
   version: 3.1.0
@@ -167,17 +167,16 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **If `IN_WORKTREE=no`** (main worktree) and the operation is implementation or execution:
 
-1. Detect superpowers:
+1. Use the `EnterWorktree` tool to create an isolated worktree. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
+
+2. After entering, re-run tab naming to reflect the new branch:
    ```bash
-   ls .agents/skills/using-git-worktrees/SKILL.md .claude/skills/using-git-worktrees/SKILL.md 2>/dev/null | head -1
+   bash skills/swain-session/scripts/swain-tab-name.sh --path "$(pwd)" --auto
    ```
-2. If **superpowers absent** — stop. Report:
-   > Worktree isolation requires the `using-git-worktrees` superpowers skill. Install superpowers first, then retry.
-   Do not begin implementation work.
 
-3. If **superpowers present** — invoke the `using-git-worktrees` skill to create a linked worktree, then hand off execution into that worktree.
+3. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin implementation work.
 
-4. If **worktree creation fails** — stop. Surface the error message from `using-git-worktrees` to the operator. Do not begin implementation work.
+**Note:** swain-session auto-enters a worktree at startup (Step 1.5), so this preamble is a fallback for sessions that skipped isolation or where the operator exited the worktree mid-session.
 
 ## Fallback
 

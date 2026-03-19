@@ -5,8 +5,14 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Pushed commits to main",
-    "timestamp": "2026-03-19T02:38:04Z"
+    "note": "Completed VISION-003/INITIATIVE-014/SPIKE-028-030 portability research. Report at docs/vision/Active/(VISION-003)-Swain-Everywhere/portability-research-report.md",
+    "files": [
+      "docs/vision/Active/(VISION-003)-Swain-Everywhere/portability-research-report.md",
+      "docs/research/Active/(SPIKE-028)-Claude-Web-Desktop-Extension-Model/(SPIKE-028)-Claude-Web-Desktop-Extension-Model.md",
+      "docs/research/Active/(SPIKE-029)-Cross-Runtime-Portability-Substrate/(SPIKE-029)-Cross-Runtime-Portability-Substrate.md",
+      "docs/research/Active/(SPIKE-030)-MCP-as-Distribution-Layer/(SPIKE-030)-MCP-as-Distribution-Layer.md"
+    ],
+    "timestamp": "2026-03-19T02:59:26Z"
   },
   "focus_lane": "VISION-002"
 }

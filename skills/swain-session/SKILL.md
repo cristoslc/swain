@@ -3,7 +3,7 @@ name: swain-session
 description: "Session management — restores terminal tab name, user preferences, and context bookmarks on session start. Auto-invoked at session start via AGENTS.md. Also invokable manually to change preferences or bookmark context for the next session."
 user-invocable: true
 license: MIT
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree
 metadata:
   short-description: Session state and identity management
   version: 1.2.0
@@ -63,6 +63,28 @@ which tmux
 
 - **tmux installed but not in a session:** Show this note:
   > [note] Not in a tmux session — session tab and pane features unavailable
+
+## Step 1.5 — Worktree auto-isolation
+
+After tab naming, detect whether the agent is in the main worktree:
+
+```bash
+GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+[ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
+```
+
+**If `IN_WORKTREE=yes`:** Already isolated. Skip to Step 2.
+
+**If `IN_WORKTREE=no`:** Use the `EnterWorktree` tool to create an isolated worktree. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
+
+After entering the worktree, re-run tab naming to reflect the new branch:
+
+```bash
+bash skills/swain-session/scripts/swain-tab-name.sh --path "$(pwd)" --auto
+```
+
+**If `EnterWorktree` fails or is unavailable:** Log a warning and proceed without isolation. swain-do will attempt isolation at dispatch time as a fallback.
 
 ## Step 2 — Load session preferences
 
