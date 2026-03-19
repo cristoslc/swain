@@ -1,6 +1,6 @@
 #!/bin/sh
-# claude-sandbox — Isolated Claude Code launcher (SPEC-048 + SPEC-049 + SPEC-071)
-# Usage: ./scripts/claude-sandbox [--here|--project=DIR] [--credentials=MODE] [extra claude args...]
+# claude-sandbox — Isolated Claude Code launcher (SPEC-048 + SPEC-049 + SPEC-071 + SPEC-081)
+# Usage: ./scripts/claude-sandbox [--here|--project=DIR] [--credentials=MODE] [--no-worktree] [extra claude args...]
 #
 # Tier 1 (default): claude --sandbox with native platform sandboxing
 #   macOS: sandbox-exec (Seatbelt kernel profiles)
@@ -11,6 +11,7 @@
 # --credentials=MODE  : credential scoping mode (minimal|full, default: minimal)
 #   minimal — launches with env -i; only essential vars + auth credentials forwarded
 #   full    — inherits the operator's full environment (legacy behavior)
+# --no-worktree       : skip worktree creation; use project root directly (attended use)
 
 set -eu
 
@@ -21,12 +22,14 @@ SETTINGS_FILE="$REPO_ROOT/swain.settings.json"
 # --- Argument parsing ---
 PROJECT_DIR=""
 CRED_MODE="minimal"
+USE_WORKTREE=1
 EXTRA_ARGS=""
 for arg in "$@"; do
     case "$arg" in
         --here) PROJECT_DIR="$PWD" ;;
         --project=*) PROJECT_DIR="${arg#--project=}" ;;
         --credentials=*) CRED_MODE="${arg#--credentials=}" ;;
+        --no-worktree) USE_WORKTREE=0 ;;
         *) EXTRA_ARGS="$EXTRA_ARGS $arg" ;;
     esac
 done
@@ -79,6 +82,41 @@ fi
 if ! claude --help 2>&1 | grep -q -- '--sandbox'; then
     echo "WARN: This version of Claude Code may not support --sandbox." >&2
     echo "Proceeding anyway — update claude if the flag is unrecognized." >&2
+fi
+
+# --- Worktree isolation (SPEC-081) ---
+if [ "$USE_WORKTREE" = "1" ] && command -v git >/dev/null 2>&1 && git -C "$PROJECT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+    _sandbox_name="claude-$(basename "$PROJECT_DIR")"
+    _wt_dir="$PROJECT_DIR/.sandboxes/$_sandbox_name"
+    _wt_branch="agent/$_sandbox_name"
+
+    # Ensure .sandboxes/ is gitignored
+    if [ -f "$PROJECT_DIR/.gitignore" ]; then
+        if ! grep -qx '.sandboxes/' "$PROJECT_DIR/.gitignore" 2>/dev/null; then
+            echo '.sandboxes/' >> "$PROJECT_DIR/.gitignore"
+            echo "claude-sandbox: added .sandboxes/ to .gitignore" >&2
+        fi
+    fi
+
+    if [ -d "$_wt_dir" ]; then
+        echo "claude-sandbox: reusing worktree at $_wt_dir (branch $_wt_branch)" >&2
+    else
+        if git -C "$PROJECT_DIR" worktree add "$_wt_dir" -b "$_wt_branch" 2>/dev/null; then
+            echo "claude-sandbox: created worktree at $_wt_dir (branch $_wt_branch)" >&2
+        elif git -C "$PROJECT_DIR" worktree add "$_wt_dir" "$_wt_branch" 2>/dev/null; then
+            echo "claude-sandbox: attached worktree at $_wt_dir (existing branch $_wt_branch)" >&2
+        else
+            echo "claude-sandbox: WARNING — failed to create worktree; using project root" >&2
+        fi
+    fi
+
+    if [ -d "$_wt_dir" ]; then
+        PROJECT_DIR="$_wt_dir"
+    fi
+else
+    if [ "$USE_WORKTREE" = "0" ]; then
+        echo "claude-sandbox: worktree isolation disabled (--no-worktree)" >&2
+    fi
 fi
 
 # --- Launch ---

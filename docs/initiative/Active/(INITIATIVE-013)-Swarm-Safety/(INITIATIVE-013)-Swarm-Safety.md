@@ -2,7 +2,7 @@
 title: "Swarm Safety"
 artifact: INITIATIVE-013
 track: container
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
@@ -12,7 +12,8 @@ success-criteria:
   - Agents in a multi-agent swarm cannot clobber each other's files
   - Each agent is scoped to its own branch and cannot push to main or another agent's branch
   - A confused or chaotic agent can be terminated without affecting other agents' work
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-081
 depends-on-artifacts:
   - INITIATIVE-012
 addresses: []
@@ -39,7 +40,7 @@ None yet — scope to be defined after INITIATIVE-012 establishes the runtime ar
 
 ## Small Work (Epic-less Specs)
 
-None yet.
+- SPEC-081: Worktree-Enforced Sandbox Isolation (Active) — mechanically enforces per-agent worktrees at the sandbox boundary
 
 ## Key Dependencies
 
@@ -50,3 +51,4 @@ None yet.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-18 | — | Created during VISION-002 decomposition; future work |
+| Active | 2026-03-19 | — | INITIATIVE-012 complete; SPEC-081 covers all three success criteria |

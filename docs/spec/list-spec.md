@@ -32,6 +32,7 @@
 | SPEC-078 | State location migration | 2026-03-18 | — |
 | SPEC-079 | Progressive disclosure cleanup | 2026-03-18 | — |
 | SPEC-080 | Prune deprecated swain-push | 2026-03-18 | — |
+| SPEC-081 | Worktree-Enforced Sandbox Isolation | 2026-03-19 | — |
 
 ## Complete
 

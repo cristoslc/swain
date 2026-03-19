@@ -2,7 +2,7 @@
 title: "Cross-Runtime Portability Substrate"
 artifact: SPIKE-029
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
@@ -99,3 +99,4 @@ Gemini CLI extensions (MCP + context file + commands), Copilot plugins (MCP + ag
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-18 | | Initial creation |
+| Complete | 2026-03-18 | | Research complete, findings documented |

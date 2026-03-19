@@ -2,7 +2,7 @@
 title: "Claude Web & Desktop Extension Model"
 artifact: SPIKE-028
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
@@ -79,3 +79,4 @@ Desktop Extensions (.mcpb) are ZIP archives with a `manifest.json` that package 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-18 | | Initial creation |
+| Complete | 2026-03-18 | | Research complete, findings documented |
