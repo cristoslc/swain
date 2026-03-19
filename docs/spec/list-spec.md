@@ -27,7 +27,11 @@
 | SPEC-073 | Description enrichment | 2026-03-18 | — |
 | SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-18 | — |
 | SPEC-075 | Fix swain-sync functional bugs | 2026-03-18 | — |
+| SPEC-076 | Fix swain-update functional bugs | 2026-03-18 | — |
 | SPEC-077 | allowed-tools hygiene sweep | 2026-03-18 | — |
+| SPEC-078 | State location migration | 2026-03-18 | — |
+| SPEC-079 | Progressive disclosure cleanup | 2026-03-18 | — |
+| SPEC-080 | Prune deprecated swain-push | 2026-03-18 | — |
 
 ## Complete
 

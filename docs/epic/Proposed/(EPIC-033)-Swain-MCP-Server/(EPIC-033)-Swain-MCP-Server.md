@@ -72,9 +72,8 @@ _To be created during implementation planning. Expected specs:_
 ## Key Dependencies
 
 - SPIKE-028, SPIKE-029, SPIKE-030 — research findings inform design
-- Language decision (TypeScript or Python)
-- MCP SDK (TypeScript SDK v1.x stable or Python SDK 1.2.0+)
-- Existing specgraph Python package (if Python chosen — could be reused)
+- Python MCP SDK (FastMCP, 1.2.0+)
+- Existing specgraph Python package (reuse for chart queries and artifact graph)
 
 ## Lifecycle
 

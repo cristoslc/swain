@@ -179,5 +179,5 @@ Yes. Plugins are language-agnostic — the `plugin.json` manifest just specifies
 - [x] Review report and spike verdicts
 - [x] Proceed with Phase 1
 - [x] Create Epics for Phase 1 and Phase 2
-- [ ] Decide Phase 2 MCP server language (TypeScript or Python)
+- [x] Decide Phase 2 MCP server language → **Python** (FastMCP ergonomics + specgraph reuse)
 - [ ] Scope Phase 2 tool/prompt/resource set (draft in Epic)
