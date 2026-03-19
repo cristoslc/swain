@@ -145,3 +145,9 @@ stateDiagram-v2
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-19 | — | Initial creation |
+
+
+
+# Operator Feedback
+
+- there's a RETRO about an issue when a SPIKE's findings didn't back-propagate. TRAIN seems like it would also be affected.
