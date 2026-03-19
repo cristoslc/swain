@@ -38,7 +38,7 @@ def _ensure_cache(repo_root: str) -> dict:
     cp = cache_path(repo_root)
     docs_dir = Path(repo_root) / "docs"
     if needs_rebuild(cp, docs_dir):
-        data = build_graph(repo_root)
+        data = build_graph(Path(repo_root))
         write_cache(data, cp)
     else:
         data = read_cache(cp)

@@ -31,12 +31,33 @@ def _node_is_resolved(artifact_id: str, nodes: dict) -> bool:
     )
 
 
+_PARENT_SPECIFICITY = {"parent-epic": 3, "parent-initiative": 2, "parent-vision": 1}
+
+
 def _get_children(parent_id: str, edges: list[dict]) -> list[str]:
-    """Return artifact IDs that have parent_id as their parent."""
-    children = []
+    """Return artifact IDs whose most proximate parent is parent_id.
+
+    An epic with both parent-vision and parent-initiative is a child of the
+    initiative, not the vision.  Only the edge with the highest specificity
+    counts as the "real" parent for tree-nesting purposes.
+    """
+    candidates = []
     for e in edges:
         if e["type"] in _PARENT_EDGE_TYPES and e.get("to") == parent_id:
-            children.append(e["from"])
+            candidates.append((e["from"], e["type"]))
+
+    children = []
+    for child_id, edge_type in candidates:
+        specificity = _PARENT_SPECIFICITY.get(edge_type, 0)
+        # Skip if the child has a more specific parent edge (to any target)
+        has_more_specific = any(
+            e["from"] == child_id
+            and e["type"] in _PARENT_EDGE_TYPES
+            and _PARENT_SPECIFICITY.get(e["type"], 0) > specificity
+            for e in edges
+        )
+        if not has_more_specific:
+            children.append(child_id)
     return children
 
 
@@ -45,6 +66,8 @@ def _walk_to_vision(artifact_id: str, edges: list[dict],
     """Walk parent edges from artifact up to Vision root.
 
     Returns path [self, parent, ..., vision] (closest ancestor first).
+    Prefers the most specific parent edge so intermediate ancestors
+    (initiatives, epics) are not skipped.
     """
     if visited is None:
         visited = set()
@@ -52,11 +75,15 @@ def _walk_to_vision(artifact_id: str, edges: list[dict],
         return [artifact_id]
     visited.add(artifact_id)
     chain = [artifact_id]
-    for e in edges:
-        if e["from"] == artifact_id and e["type"] in _PARENT_EDGE_TYPES:
-            parent_chain = _walk_to_vision(e["to"], edges, visited)
-            chain.extend(parent_chain)
-            break
+    parent_edges = [e for e in edges
+                    if e["from"] == artifact_id and e["type"] in _PARENT_EDGE_TYPES]
+    if parent_edges:
+        # Pick the most specific parent edge (parent-epic > parent-initiative > parent-vision)
+        parent_edges.sort(
+            key=lambda e: _PARENT_SPECIFICITY.get(e["type"], 0), reverse=True)
+        best = parent_edges[0]
+        parent_chain = _walk_to_vision(best["to"], edges, visited)
+        chain.extend(parent_chain)
     return chain
 
 
