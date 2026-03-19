@@ -10,13 +10,19 @@
 # sandbox. If you need per-worktree isolation, run swain-box from the
 # worktree's directory to create a distinct sandbox for it.
 #
-# Authentication: On first launch, run /login inside the sandbox to
-# authenticate with your Claude subscription (Pro/Max). Credentials are
-# stored inside the sandbox and reused on subsequent runs.
+# Authentication:
+#   Docker Sandboxes' MITM proxy does NOT support Claude Max/Pro OAuth
+#   (docker/desktop-feedback#198). The proxy cannot tunnel traffic to
+#   api.claude.ai — it MITMs the TLS connection, which the upstream
+#   server rejects. This means ANTHROPIC_API_KEY (API billing) is the
+#   only working auth path in Docker Sandboxes.
 #
-# Note: docker sandbox does NOT forward host shell environment variables
-# from the current session. The sandbox daemon reads env vars from your
-# shell profile (~/.zshrc) on Docker Desktop startup only.
+#   Set ANTHROPIC_API_KEY in ~/.zshrc BEFORE starting Docker Desktop.
+#   The sandbox daemon reads env vars from the shell profile at startup,
+#   not from the current shell session.
+#
+#   For Max/Pro subscription usage without API billing, use the Tier 1
+#   native launcher instead: scripts/claude-sandbox
 #
 # Requires Docker Desktop 4.58+ (for the 'docker sandbox' subcommand).
 
@@ -58,17 +64,50 @@ ABSOLUTE_PATH="$(cd "$TARGET_PATH" && pwd)" || {
 WORKDIR_NAME="$(basename "$ABSOLUTE_PATH")"
 SANDBOX_NAME="claude-${WORKDIR_NAME}"
 
+# --- Max/OAuth warning (docker/desktop-feedback#198) ---
+# Docker Sandboxes' MITM proxy cannot tunnel to api.claude.ai, so OAuth
+# (Max/Pro subscription) does not work. Only ANTHROPIC_API_KEY works.
+# Detect when no API key is available and warn before launch.
+_has_api_key=0
+# Check current shell (won't be forwarded, but indicates user intent)
+[ -n "${ANTHROPIC_API_KEY:-}" ] && _has_api_key=1
+# Check shell profile (what Docker Desktop actually reads)
+if [ "$_has_api_key" = "0" ]; then
+    for _profile in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
+        if [ -f "$_profile" ] && grep -q 'ANTHROPIC_API_KEY' "$_profile" 2>/dev/null; then
+            _has_api_key=1
+            break
+        fi
+    done
+fi
+if [ "$_has_api_key" = "0" ]; then
+    echo "" >&2
+    echo "swain-box: WARNING — No ANTHROPIC_API_KEY detected." >&2
+    echo "" >&2
+    echo "  Docker Sandboxes cannot use Claude Max/Pro subscriptions (OAuth)." >&2
+    echo "  The MITM proxy breaks api.claude.ai traffic (docker/desktop-feedback#198)." >&2
+    echo "  You will see 'Credit balance too low' errors without an API key." >&2
+    echo "" >&2
+    echo "  To fix: export ANTHROPIC_API_KEY in ~/.zshrc, then restart Docker Desktop." >&2
+    echo "  For Max/Pro without API billing, use the Tier 1 native launcher instead:" >&2
+    echo "    scripts/claude-sandbox" >&2
+    echo "" >&2
+fi
+
 # --- Fix apiKeyHelper injection (docker/for-mac#7842) ---
 # Docker Desktop < 4.60.1 injected 'apiKeyHelper: "echo proxy-managed"' into
 # sandbox settings, which overrides OAuth and forces API key mode.
 # Clean it up if the sandbox already exists.
+# NOTE: Use sh -c with $HOME — tilde (~) expands on the HOST, not inside the
+# sandbox, so ~/.claude/ resolves to /Users/<host-user>/.claude/ which doesn't
+# exist at /home/agent/.claude/ inside the VM.
 if docker sandbox ls --format '{{.Sandbox}}' 2>/dev/null | grep -qx "$SANDBOX_NAME"; then
     _has_helper=$(docker sandbox exec "$SANDBOX_NAME" \
-        grep -c '"apiKeyHelper"' ~/.claude/settings.json 2>/dev/null || echo "0")
+        sh -c 'grep -c "\"apiKeyHelper\"" "$HOME/.claude/settings.json"' 2>/dev/null || echo "0")
     if [ "$_has_helper" != "0" ]; then
         echo "swain-box: removing stale apiKeyHelper injection (docker/for-mac#7842)..." >&2
         docker sandbox exec "$SANDBOX_NAME" \
-            sed -i '/"apiKeyHelper"/d' ~/.claude/settings.json 2>/dev/null || true
+            sh -c 'sed -i "/\"apiKeyHelper\"/d" "$HOME/.claude/settings.json"' 2>/dev/null || true
     fi
 fi
 
