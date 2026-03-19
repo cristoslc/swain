@@ -58,16 +58,19 @@ Near-term, the server complements existing skills (hybrid architecture). Medium-
 
 ## Child Specs
 
-_To be created during implementation planning. Expected specs:_
-- Core MCP server scaffold + SQLite persistence
-- Artifact CRUD tools
-- Lifecycle state machine tools
-- Chart query tools
-- `load_methodology` tool + methodology content
-- MCP Prompts for key workflows
-- MCP Resources for definitions and templates
-- Claude Code plugin packaging
-- Desktop Extension (.mcpb) packaging
+| Spec | Title | Dependencies | Status |
+|------|-------|-------------|--------|
+| SPEC-082 | MCP Server Scaffold + SQLite Persistence | — | Proposed |
+| SPEC-083 | Artifact CRUD Tools | SPEC-082 | Proposed |
+| SPEC-084 | Lifecycle State Machine Tools | SPEC-082, SPEC-083 | Proposed |
+| SPEC-085 | Chart + Status Query Tools | SPEC-082, SPEC-083 | Proposed |
+| SPEC-086 | Task Tracking Bridge Tools | SPEC-082 | Proposed |
+| SPEC-087 | Methodology Loading Tool | SPEC-082 | Proposed |
+| SPEC-088 | MCP Prompts for Key Workflows | SPEC-083, SPEC-087 | Proposed |
+| SPEC-089 | MCP Resources for Definitions and Templates | SPEC-082 | Proposed |
+| SPEC-090 | Plugin + Desktop Extension Packaging | SPEC-082–089 | Proposed |
+
+**Critical path:** SPEC-082 → SPEC-083 → SPEC-087 → SPEC-088 (scaffold → artifacts → methodology loading → prompts)
 
 ## Key Dependencies
 

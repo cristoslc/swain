@@ -5,8 +5,11 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Pushed EPIC-031 skill audit remediation artifacts",
-    "timestamp": "2026-03-19T03:35:22Z"
+    "note": "Created SPEC-082 through SPEC-090 for EPIC-033 (Swain MCP Server). Ready for implementation.",
+    "files": [
+      "docs/epic/Proposed/(EPIC-033)-Swain-MCP-Server/(EPIC-033)-Swain-MCP-Server.md"
+    ],
+    "timestamp": "2026-03-19T15:03:49Z"
   },
   "focus_lane": "VISION-002"
 }

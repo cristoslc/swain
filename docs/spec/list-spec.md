@@ -12,6 +12,15 @@
 | SPEC-063 | Pre-Claim Security Briefing | 2026-03-17 | b32f7db |
 | SPEC-064 | Post-Implementation Security Gate | 2026-03-17 | b32f7db |
 | SPEC-065 | External Security Skill Hook Interface | 2026-03-17 | b32f7db |
+| SPEC-082 | MCP Server Scaffold + SQLite Persistence | 2026-03-19 | — |
+| SPEC-083 | Artifact CRUD Tools | 2026-03-19 | — |
+| SPEC-084 | Lifecycle State Machine Tools | 2026-03-19 | — |
+| SPEC-085 | Chart + Status Query Tools | 2026-03-19 | — |
+| SPEC-086 | Task Tracking Bridge Tools | 2026-03-19 | — |
+| SPEC-087 | Methodology Loading Tool | 2026-03-19 | — |
+| SPEC-088 | MCP Prompts for Key Workflows | 2026-03-19 | — |
+| SPEC-089 | MCP Resources for Definitions and Templates | 2026-03-19 | — |
+| SPEC-090 | Plugin + Desktop Extension Packaging | 2026-03-19 | — |
 
 ## Active
 
@@ -33,6 +42,7 @@
 | SPEC-079 | Progressive disclosure cleanup | 2026-03-18 | — |
 | SPEC-080 | Prune deprecated swain-push | 2026-03-18 | — |
 | SPEC-081 | Worktree-Enforced Sandbox Isolation | 2026-03-19 | — |
+| SPEC-091 | TRAIN Artifact Type | 2026-03-19 | — |
 
 ## Complete
 
