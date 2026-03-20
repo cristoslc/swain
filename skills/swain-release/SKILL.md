@@ -158,8 +158,10 @@ Use the tag format detected in step 1 (or what the user specified).
 Ask the user if they want to push the commit and tag:
 
 ```bash
-git push && git push --tags
+git push && git push origin <tag>
 ```
+
+Push only the specific tag — `git push --tags` tries to push every local tag and produces noisy rejections for tags that already exist on the remote.
 
 Don't push without asking — the user may want to review first, or they may have a CI pipeline that triggers on tags.
 
