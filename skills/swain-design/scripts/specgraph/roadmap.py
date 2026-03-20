@@ -173,9 +173,11 @@ def collect_roadmap_items(
         for idx, item in enumerate(tier_items):
             tier_index[item["id"]] = idx
 
-    tier_ranges = {"high": (0.70, 0.95), "medium": (0.25, 0.55), "low": (0.05, 0.20)}
-    seen_positions: dict[tuple[float, float], int] = {}
+    # Y ranges must not cross the 0.5 midline (Mermaid quadrant boundary)
+    # to prevent items appearing in the wrong visual quadrant.
+    tier_ranges = {"high": (0.70, 0.95), "medium": (0.25, 0.48), "low": (0.05, 0.20)}
 
+    # First pass: compute base positions and derived fields
     for item in items:
         item["quadrant"] = _classify_eisenhower(item)
         item["quadrant_label"] = QUADRANT_LABELS[item["quadrant"]][0]
@@ -195,20 +197,37 @@ def collect_roadmap_items(
             n = tier_size[tier_name]
             idx = tier_index[item["id"]]
             base_y = y_lo + (y_hi - y_lo) * idx / (n - 1) if n > 1 else (y_lo + y_hi) / 2
-
-            key = (round(base_x, 2), round(base_y, 2))
-            count = seen_positions.get(key, 0)
-            seen_positions[key] = count + 1
-            jitter = count * 0.06
-            direction = count % 4
-            dx = jitter if direction in (0, 2) else -jitter
-            dy = jitter if direction in (0, 3) else -jitter
-            item["chart_x"] = max(0.02, min(0.98, base_x + dx))
-            item["chart_y"] = max(0.02, min(0.98, base_y + dy))
+            item["chart_x"] = base_x
+            item["chart_y"] = base_y
         else:
-            # INITIATIVE items don't appear in the quadrant chart
             item["chart_x"] = 0.0
             item["chart_y"] = 0.0
+
+    # Second pass: X-axis jitter for items sharing the same base urgency.
+    # When multiple EPICs land on the same X, alternate them left/right
+    # so labels don't stack into an illegible vertical column.
+    from collections import defaultdict
+    x_groups: dict[float, list[dict]] = defaultdict(list)
+    for item in items:
+        if item["type"] == "EPIC":
+            x_groups[round(item["chart_x"], 2)].append(item)
+
+    for base_x_rounded, group in x_groups.items():
+        if len(group) <= 1:
+            continue
+        # Spread items around their base X using a zigzag pattern.
+        # Step size scales down when there are many items so they
+        # stay within a reasonable band (~0.12 total width).
+        step = min(0.04, 0.12 / len(group))
+        for i, item in enumerate(group):
+            # Alternate: 0, +step, -step, +2*step, -2*step, ...
+            offset_idx = (i + 1) // 2
+            sign = 1 if i % 2 == 1 else -1
+            if i == 0:
+                dx = 0.0  # first item stays at base
+            else:
+                dx = sign * offset_idx * step
+            item["chart_x"] = max(0.02, min(0.98, item["chart_x"] + dx))
 
     return items
 

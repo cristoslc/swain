@@ -114,7 +114,7 @@ EXPECTED_QUADRANT = (
     "    quadrant-3 Backlog\n"
     "    quadrant-4 In Progress\n"
     "    E1: [0.88, 0.82]\n"
-    "    E2: [0.15, 0.40]"
+    "    E2: [0.15, 0.36]"
 )
 
 EXPECTED_GANTT = (
