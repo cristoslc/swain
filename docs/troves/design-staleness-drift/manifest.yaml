@@ -1,0 +1,59 @@
+id: design-staleness-drift
+created: 2026-03-19
+refreshed: 2026-03-19
+tags: [design-drift, staleness-detection, design-rationale, DDR, ADR, design-code-sync, design-system-governance]
+
+freshness-ttl:
+  web: 90d
+  forum: 90d
+
+sources:
+  - id: well-architected-ddr-guide
+    type: web
+    url: https://www.well-architected-guide.com/documents/design-decision-records-ddrs-guide/
+    fetched: 2026-03-19
+    content-hash: 7855d2c0f79f6939a39f2bd5021038e823ac39508190eb501d5aa3fa9221efa6
+
+  - id: microsoft-decision-log
+    type: web
+    url: https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/decision-log/
+    fetched: 2026-03-19
+    content-hash: e3a623d9b8d31d66159b2a1d5a805a9a885a27f0eb7d2a47340ef13e0f881096
+
+  - id: uxpin-design-drift
+    type: web
+    url: https://www.uxpin.com/studio/blog/design-drift/
+    fetched: 2026-03-19
+    content-hash: 090851fdfddf16a32eeb2ff8f9529aa7553db05512f93955fad5080ca2f48053
+
+  - id: powell-design-dev-drift
+    type: web
+    url: https://www.sebastienpowell.com/blog/solving-the-design-development-drift
+    fetched: 2026-03-19
+    content-hash: 55f1d55ec4f1f9a379a002edabd47aaedb2301b3d9221dc4665116ba87d918f4
+
+  - id: productic-designing-against-drift
+    type: web
+    url: https://www.productic.net/leadership/design-ops/designing-against-drift-when-good-products-decay/
+    fetched: 2026-03-19
+    content-hash: babd9d27eafdbf52cd4760a7b307b643fc9a2e91c8553613da3921cd8b950dd2
+
+  - id: drift-guard-cli
+    type: web
+    url: https://news.ycombinator.com/item?id=47380526
+    fetched: 2026-03-19
+    content-hash: bf5dc17aa3ec9e60992f166c74685d1cae8ae3f5b54fde0749034e8527c35aa9
+
+  - id: wikipedia-design-rationale
+    type: web
+    url: https://en.wikipedia.org/wiki/Design_rationale
+    fetched: 2026-03-19
+    content-hash: 70d92ba988cb7013bc952e560d4c9abab9bdc0ba855130e5a2375d005eb1ae03
+
+referenced-by: []
+
+history:
+  - event: created
+    date: 2026-03-19
+    commit: "--"
+    sources: 7
