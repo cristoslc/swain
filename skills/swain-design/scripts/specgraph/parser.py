@@ -188,14 +188,22 @@ def parse_artifact(filepath: Path, repo_root: Path) -> Optional[ArtifactFrontmat
 
 
 def extract_list_ids(fields: dict, key: str) -> list[str]:
-    """Extract artifact IDs (TYPE-NNN) from a frontmatter list field."""
+    """Extract artifact IDs (TYPE-NNN) from a frontmatter list field.
+
+    Handles both plain string entries and enriched dict entries
+    (where the artifact ID is in the 'artifact' key).
+    """
     val = fields.get(key, [])
     if isinstance(val, str):
         return _ARTIFACT_ID_RE.findall(val)
     if isinstance(val, list):
         ids = []
         for item in val:
-            ids.extend(_ARTIFACT_ID_RE.findall(str(item)))
+            if isinstance(item, dict):
+                artifact_val = item.get("artifact", "")
+                ids.extend(_ARTIFACT_ID_RE.findall(str(artifact_val)))
+            else:
+                ids.extend(_ARTIFACT_ID_RE.findall(str(item)))
         return ids
     return []
 
