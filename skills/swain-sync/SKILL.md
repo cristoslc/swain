@@ -1,6 +1,6 @@
 ---
 name: swain-sync
-description: "Fetch upstream, rebase, stage all changes, enforce gitignore hygiene, run ADR compliance checking on modified artifacts, rebuild stale artifact indexes, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream. Handles merge conflicts by preferring local changes for config/project files and upstream for scaffolding."
+description: "Fetch upstream, merge (worktree) or rebase (tracked branch), stage all changes, enforce gitignore hygiene, run ADR compliance checking on modified artifacts, rebuild stale artifact indexes, generate a descriptive commit message from the diff, commit, and push to the current branch's upstream. Handles merge conflicts by preferring local changes for config/project files and upstream for scaffolding."
 user-invocable: true
 allowed-tools: Bash, Read, Edit, Write, Glob
 metadata:
@@ -59,12 +59,14 @@ git stash pop       # recover stashed changes
 
 Show the user the conflicting files and stop. Do not force-push or drop changes.
 
-If there is no upstream (`@{u}` returns an error) **and** `IN_WORKTREE=yes`, the worktree branch has no remote tracking counterpart. Rebase onto `origin/main` so the commits apply cleanly as a fast-forward:
+If there is no upstream (`@{u}` returns an error) **and** `IN_WORKTREE=yes`, the worktree branch has no remote tracking counterpart. Merge `origin/trunk` to combine the agent's changes with whatever landed since the branch was created:
 
 ```bash
 git fetch origin
-git rebase origin/main
+git merge origin/trunk --no-edit
 ```
+
+If the merge has conflicts, report them and stop. Do not attempt to auto-resolve.
 
 If `origin` cannot be fetched, skip fetch/rebase and proceed to Step 2.
 
@@ -245,23 +247,42 @@ If the commit fails because a pre-commit hook rejected it:
 
 ## Step 6 — Push
 
-**If `IN_WORKTREE=yes`:** push the worktree's commits directly to `main` rather than creating a remote worktree branch:
+**If `IN_WORKTREE=yes`:** push the worktree's commits directly to `trunk` (the development branch):
 
 ```bash
-git push origin HEAD:main
+MAX_RETRIES=3
+ATTEMPT=0
+while [ $ATTEMPT -lt $MAX_RETRIES ]; do
+  git push origin HEAD:trunk && break
+  ATTEMPT=$((ATTEMPT + 1))
+  if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+    echo "Push rejected (attempt $ATTEMPT/$MAX_RETRIES). Fetching and re-merging..."
+    git fetch origin
+    git merge origin/trunk --no-edit || {
+      echo "Merge conflict during retry. Reporting to operator."
+      git merge --abort
+      break
+    }
+    # Run tests on the merged result before retrying push
+    # (project-specific test command — detect from project structure)
+  fi
+done
+
+if [ $ATTEMPT -ge $MAX_RETRIES ]; then
+  echo "Push failed after $MAX_RETRIES attempts. Reporting to operator."
+fi
 ```
 
-If this push is rejected with a non-fast-forward error:
-- Check whether the rejection message mentions branch protection rules or required reviews.
-  - If **branch protection is the cause**, open a PR instead:
-    ```bash
-    BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    SUBJECT=$(git log -1 --pretty=format:'%s')
-    BODY=$(git log -1 --pretty=format:'%b')
-    gh pr create --base main --head "$BRANCH" --title "$SUBJECT" --body "$BODY"
-    ```
-    Report the PR URL. Do not retry the push. Proceed to worktree pruning below.
-  - If **diverged history is the cause** (not branch protection), report the conflict and stop. Do not force-push.
+If the push is rejected due to branch protection rules or required reviews (check the rejection message), fall back to opening a PR instead:
+
+```bash
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+SUBJECT=$(git log -1 --pretty=format:'%s')
+BODY=$(git log -1 --pretty=format:'%b')
+gh pr create --base trunk --head "$BRANCH" --title "$SUBJECT" --body "$BODY"
+```
+
+Report the PR URL. Do not retry the push. Proceed to worktree pruning below.
 
 After a successful push or PR creation, clean up the worktree — but only if swain-sync created it. Worktrees entered via `EnterWorktree` (branch name matches `worktree-*`) must be left for `ExitWorktree` to clean up, since `ExitWorktree` properly restores the session's CWD before removal. Removing them here would leave the parent session's CWD pointing at a deleted directory, causing ENOENT on all subsequent hook spawns (SPEC-099).
 
