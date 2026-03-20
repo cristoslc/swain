@@ -1,0 +1,55 @@
+trove: nvidia-openshell-nemoclaw
+created: 2026-03-20
+refreshed: 2026-03-20
+tags:
+  - nvidia
+  - openshell
+  - nemoclaw
+  - agent-sandbox
+  - agent-security
+  - agentic
+  - tool-use
+  - policy-engine
+  - landlock
+  - seccomp
+  - inference-routing
+
+freshness-ttl:
+  repository: 30d
+  documentation-site: 7d
+
+history:
+  - event: created
+    date: 2026-03-20
+    commit: "--"
+    sources: 2
+
+sources:
+  - source-id: nvidia-openshell
+    type: repository
+    url: "https://github.com/NVIDIA/OpenShell"
+    fetched: 2026-03-20T00:00:00Z
+    title: "NVIDIA OpenShell — Safe, Private Runtime for Autonomous AI Agents"
+    hash: "769bd3919df4e5d12d0a3449bb60852c62d8909c10e4dc49ca17ddd041ffb8a7"
+    selective: true
+    highlights:
+      - "architecture/system-architecture.md"
+      - "architecture/sandbox.md"
+      - "architecture/security-policy.md"
+    notes: "Selectively ingested — architecture docs, README. Full codebase too large (~4M chars compressed)."
+
+  - source-id: nemoclaw-docs
+    type: documentation-site
+    url: "https://docs.nvidia.com/nemoclaw/latest/index.html"
+    fetched: 2026-03-20T00:00:00Z
+    title: "NVIDIA NemoClaw Developer Guide"
+    hash: "f93153c5da39c5b0555fe2a8d6a7d972add197b826100b4d6f571d17cb3b222d"
+    selective: true
+    highlights:
+      - "about/overview.md"
+      - "about/how-it-works.md"
+      - "reference/architecture.md"
+      - "reference/network-policies.md"
+      - "get-started/quickstart.md"
+      - "reference/commands.md"
+    notes: "Ingested 7 key pages from the doc site. Skipped: inference profiles, monitoring, deployment, troubleshooting, Telegram bridge."
