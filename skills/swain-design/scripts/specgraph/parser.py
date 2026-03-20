@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -65,6 +65,14 @@ def _extract_description(
     return ""
 
 
+def _parse_inline_value(val: str) -> Any:
+    """Parse an inline YAML value: [list], quoted string, or plain string."""
+    val = re.sub(r'^["\']|["\']$', "", val)
+    if val.startswith("[") and val.endswith("]"):
+        return [v.strip() for v in val[1:-1].split(",") if v.strip()]
+    return val
+
+
 def parse_frontmatter(content: str) -> Optional[dict]:
     """Parse YAML frontmatter from markdown content into a dict.
 
@@ -78,6 +86,7 @@ def parse_frontmatter(content: str) -> Optional[dict]:
     fm_text = match.group(1)
     fields: dict = {}
     current_list_key: Optional[str] = None
+    current_item_dict: Optional[dict] = None
 
     for line in fm_text.splitlines():
         # Check for list item continuation
@@ -86,12 +95,34 @@ def parse_frontmatter(content: str) -> Optional[dict]:
             val = list_match.group(1).strip()
             # Strip quotes
             val = re.sub(r'^["\']|["\']$', "", val)
-            fields[current_list_key].append(val)
+
+            # Check if this list item is a YAML mapping (e.g., "artifact: SPEC-067")
+            item_kv = re.match(r"^([a-z][a-z0-9-]*):\s+(.+)$", val)
+            if item_kv:
+                current_item_dict = {
+                    item_kv.group(1): _parse_inline_value(item_kv.group(2).strip())
+                }
+                fields[current_list_key].append(current_item_dict)
+            else:
+                current_item_dict = None
+                fields[current_list_key].append(val)
             continue
+
+        # Check for enriched item continuation (indented key: value after a mapping list item)
+        if current_item_dict is not None and current_list_key is not None:
+            indent_kv = re.match(r"^\s+([a-z][a-z0-9-]*):\s+(.+)$", line)
+            if indent_kv:
+                key = indent_kv.group(1)
+                val = _parse_inline_value(indent_kv.group(2).strip())
+                current_item_dict[key] = val
+                continue
+            else:
+                current_item_dict = None
 
         # Check for scalar field
         scalar_match = re.match(r"^([a-z][a-z0-9-]*):\s*(.*)$", line)
         if scalar_match:
+            current_item_dict = None
             key = scalar_match.group(1)
             val = scalar_match.group(2).strip()
             # Strip quotes
@@ -105,6 +136,7 @@ def parse_frontmatter(content: str) -> Optional[dict]:
                 fields[key] = val
                 current_list_key = None
         else:
+            current_item_dict = None
             # Not a recognized line, stop list accumulation
             current_list_key = None
 
