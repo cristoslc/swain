@@ -1,0 +1,126 @@
+id: multi-agent-collision-vectors
+created: 2026-03-20
+refreshed: 2026-03-20
+tags: [git-worktree, merge-queue, TOCTOU, concurrency, multi-agent, CAS, optimistic-concurrency, CI-CD, bors, merge-skew]
+referenced-by:
+  - artifact: SPIKE-022
+    path: docs/research/Active/(SPIKE-022)-Multi-Agent-Collision-Vectors/(SPIKE-022)-Multi-Agent-Collision-Vectors.md
+freshness-ttl:
+  web-page: 90d
+  documentation: 180d
+  forum-thread: never
+  repository: 30d
+sources:
+  - id: git-worktree-docs
+    type: documentation
+    title: "Git - git-worktree Documentation"
+    url: "https://git-scm.com/docs/git-worktree"
+    fetched: 2026-03-20
+    content-hash: 1d2f2fe76000ad0721c6494102ffef6ea5f24323a86fd5d8d4b78ef80bbf4505
+  - id: git-worktree-add-lock
+    type: repository
+    title: "git/git: worktree add --lock option (commit 507e6e9)"
+    url: "https://github.com/git/git/commit/507e6e9eecce5e7a2cc204c844bbb2f9b17b31e3"
+    fetched: 2026-03-20
+    content-hash: e50cb2b5dbad564b9b74fd2c344aae525e447031602afca06306ff44049b0645
+  - id: bors-pitch-graphite
+    type: web-page
+    title: "Not Rocket Science - How Bors and Google's TAP inspired modern merge queues"
+    url: "https://graphite.com/blog/bors-google-tap-merge-queue"
+    fetched: 2026-03-20
+    content-hash: 1833e09e1be714f91d05ef5b14df592995f074006fb40786a55bf808a00a1fc7
+  - id: graphite-merge-skew
+    type: web-page
+    title: "Merge Skew - Graphite Guide"
+    url: "https://graphite.com/guides/merge-skew"
+    fetched: 2026-03-20
+    content-hash: 79daa842eb37a8205605de5aebc86e63213710d52ae94250f6dceeb8a5eb434e
+  - id: github-merge-queue-docs
+    type: documentation
+    title: "Managing a merge queue - GitHub Docs"
+    url: "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue"
+    fetched: 2026-03-20
+    content-hash: 4329b25e54d92eef9eb1a89825d7edf169987e7a7046c0cdb15c050724e2e547
+  - id: aviator-pre-post-merge
+    type: web-page
+    title: "Pre and Post-Merge Tests Using a Merge Queue"
+    url: "https://www.aviator.co/blog/pre-and-post-merge-tests-using-a-merge-queue/"
+    fetched: 2026-03-20
+    content-hash: 5474295d7e4e43dc1d2cd16fff60862e695a2d092068e2b13a74a19093d59afe
+  - id: earthly-merge-queues
+    type: web-page
+    title: "Merge Queues: What You Need to Know - Earthly Blog"
+    url: "https://earthly.dev/blog/merge-queues/"
+    fetched: 2026-03-20
+    content-hash: 01e4b0e53b19ac1b29e28da1c79350f5f8117acf37a35d2d14fd77d0cc571ad9
+  - id: aviator-what-is-bors
+    type: web-page
+    title: "What's a bors, and Why (Don't) You Want It?"
+    url: "https://www.aviator.co/blog/what-is-bors/"
+    fetched: 2026-03-20
+    content-hash: 4109a242ae7ce51cebdc878839693754c84d69fe3a41140281e953fd69b419c3
+  - id: infinyon-bors-experience
+    type: web-page
+    title: "Increasing our development confidence and productivity with Bors"
+    url: "https://www.infinyon.com/blog/2021/05/bors-confident-merges/"
+    fetched: 2026-03-20
+    content-hash: 468246adb375694342972aaccfa959f65e0ede4d9347d2cc67053b6a58912549
+  - id: cwe-367-toctou
+    type: documentation
+    title: "CWE-367: Time-of-check Time-of-use (TOCTOU) Race Condition"
+    url: "https://cwe.mitre.org/data/definitions/367.html"
+    fetched: 2026-03-20
+    content-hash: 10a3ab55bb7841044cacfb9c8bfe6f35eceea89183a400e2503d553465d806a0
+  - id: bazel-concurrent-builds
+    type: documentation
+    title: "Bazel Remote Execution and Concurrent Builds"
+    url: "https://bazel.build/remote/rbe"
+    fetched: 2026-03-20
+    content-hash: cb5cc1ddcc43db8e66a3b3c513afbc4cd02b6f716cd5dac74d4f637de24f0815
+  - id: augment-multi-agent-workspace
+    type: web-page
+    title: "How to Run a Multi-Agent Coding Workspace (2026)"
+    url: "https://www.augmentcode.com/guides/how-to-run-a-multi-agent-coding-workspace"
+    fetched: 2026-03-20
+    content-hash: 4159ba8a0ded5cc6686d01cfd19881b062e7ff2268075d58e2d180855f0660b7
+  - id: upsun-worktrees-ai-agents
+    type: web-page
+    title: "Git worktrees for parallel AI coding agents - Upsun Developer Center"
+    url: "https://devcenter.upsun.com/posts/git-worktrees-for-parallel-ai-coding-agents/"
+    fetched: 2026-03-20
+    content-hash: 5cbe3279528e5c809e2175dd5aeab99b0322f9e28bc5981618d763fa831fe3da
+  - id: tick-md-coordination
+    type: web-page
+    title: "tick-md: How We Coordinate Multiple AI Agents with a Markdown File"
+    url: "https://purplehorizons.io/blog/tick-md-multi-agent-coordination-markdown"
+    fetched: 2026-03-20
+    content-hash: 76d7d5d78081f8d64595dda20cae91c1fb25fbdfbfab47201e3f1831b62caf12
+  - id: claude-code-agent-teams
+    type: documentation
+    title: "Orchestrate teams of Claude Code sessions"
+    url: "https://code.claude.com/docs/en/agent-teams"
+    fetched: 2026-03-20
+    content-hash: e078d5f1791c9cde04e5dc1d51013be42a335645cce4943420aa1e1a49c57f85
+  - id: intility-agent-teams-worktrees
+    type: web-page
+    title: "Agent Teams or: How I Learned to Stop Worrying About Merge Conflicts and Love Git Worktrees"
+    url: "https://engineering.intility.com/article/agent-teams-or-how-i-learned-to-stop-worrying-about-merge-conflicts-and-love-git-worktrees"
+    fetched: 2026-03-20
+    content-hash: b7c3594c6318f4a9ca77c52b574269803a727cf90db56f8052869dfd710ff2eb
+  - id: superset-parallel-agents
+    type: web-page
+    title: "The Complete Guide to Running Parallel AI Coding Agents"
+    url: "https://superset.sh/blog/parallel-coding-agents-guide"
+    fetched: 2026-03-20
+    content-hash: e77e58ba64b9f3f9ee0b2b60117a6afb4470dc408093c84613412a94b41b115f
+  - id: langgraph-parallel-state
+    type: web-page
+    title: "Scaling LangGraph Agents: Parallelization, Subgraphs, and Map-Reduce Trade-Offs"
+    url: "https://aipractitioner.substack.com/p/scaling-langgraph-agents-parallelization"
+    fetched: 2026-03-20
+    content-hash: 2062c3f79eea3350e42afa6caf3c0b3e61a76713c3e25b4d77dd3ce27076e3d4
+history:
+  - event: created
+    date: 2026-03-20
+    commit: "--"
+    sources: 18
