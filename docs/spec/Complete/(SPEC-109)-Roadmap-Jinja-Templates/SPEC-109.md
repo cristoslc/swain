@@ -2,7 +2,7 @@
 title: "Roadmap Jinja templates"
 artifact: SPEC-109
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -63,3 +63,4 @@ Scope is the six named templates and the roadmap.py render path. Other Python sc
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 |  | Initial creation |
+| Complete | 2026-03-20 | 35b7d1d | Jinja2 templates extracted; all renderers branch on _HAS_JINJA with fallback paths |

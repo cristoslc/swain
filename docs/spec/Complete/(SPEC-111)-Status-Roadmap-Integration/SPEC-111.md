@@ -2,7 +2,7 @@
 title: "Status roadmap integration"
 artifact: SPEC-111
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -65,3 +65,4 @@ swain-status reads the roadmap data; it does not own the roadmap generation pipe
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 |  | Initial creation |
+| Complete | 2026-03-20 | d99b8c4 | ROADMAP.md staleness check and Decisions Needed section added to swain-status |
