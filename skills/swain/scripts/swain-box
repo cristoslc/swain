@@ -94,22 +94,36 @@ _first_run_auth() {
             echo "" >&2
             echo "swain-box: Opening a shell. Run:" >&2
             echo "  $_login_command" >&2
-            echo "When done, type 'exit' to continue." >&2
+            echo "When done, type 'exit' to return here." >&2
             echo "" >&2
             case "$_target" in
                 container:*)
                     _cname="${_target#container:}"
                     docker exec -it "$_cname" /bin/bash
-                    docker exec "$_cname" touch /home/agent/.swain-box-auth-done 2>/dev/null
                     ;;
                 microvm:*)
                     _sname="${_target#microvm:}"
                     docker sandbox exec "$_sname" /bin/bash
-                    docker sandbox exec "$_sname" touch /home/agent/.swain-box-auth-done 2>/dev/null
                     ;;
             esac
             echo "" >&2
-            echo "swain-box: Login complete. Starting session..." >&2
+            printf "swain-box: Did login complete successfully? [y/N]: "
+            read -r _login_ok
+            case "$_login_ok" in
+                y|Y)
+                    case "$_target" in
+                        container:*)
+                            docker exec "${_target#container:}" touch /home/agent/.swain-box-auth-done 2>/dev/null ;;
+                        microvm:*)
+                            docker sandbox exec "${_target#microvm:}" touch /home/agent/.swain-box-auth-done 2>/dev/null ;;
+                    esac
+                    echo "swain-box: Login saved. Starting session..." >&2
+                    ;;
+                *)
+                    echo "swain-box: Login not confirmed. You can retry on next launch." >&2
+                    return 1
+                    ;;
+            esac
             ;;
         2)
             if [ -n "$_api_var" ]; then

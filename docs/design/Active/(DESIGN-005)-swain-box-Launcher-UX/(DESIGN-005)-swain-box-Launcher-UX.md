@@ -66,7 +66,25 @@ Choice [2]: 2
 swain-box: claude in container mode
 
 swain-box: creating container claude-swain
-[Claude Code interactive session begins — handles its own /login in-TUI]
+
+swain-box: First-time setup for claude — how do you authenticate?
+  1) Subscription (login inside sandbox)
+  2) API key (ANTHROPIC_API_KEY)
+
+  b) Back  q) Quit
+Choice [1]: 1
+
+swain-box: Opening a shell. Run:
+  claude /login
+When done, type 'exit' to return here.
+
+agent@claude-swain:~$ claude /login
+✓ Logged in
+agent@claude-swain:~$ exit
+
+swain-box: Did login complete successfully? [y/N]: y
+swain-box: Login saved. Starting session...
+[Claude Code interactive session begins]
 ```
 
 ### Happy path: subsequent run (reconnect)
@@ -88,42 +106,59 @@ swain-box: connecting to claude-swain
 [Claude Code interactive session begins — credentials persist from first run]
 ```
 
-### Happy path: pre-TUI login required (codex, kiro)
+### Happy path: codex in microVM
 
-Runtimes that cannot login inside their TUI get a pre-launch auth menu:
+Auth menu is shown for all runtimes on first run, including microVM mode. The sandbox is created first (VM running, agent not started), then auth runs via `docker sandbox exec`.
 
 ```
-$ ./swain-box --runtime=codex --isolation=container
-swain-box: codex in container mode
-swain-box: creating container codex-swain
+$ ./swain-box
+swain-box: Select a runtime:
+  ...
+Choice [1]: 3
+swain-box: using codex.
 
-swain-box: codex requires login before starting.
-  1) Subscription (login inside container)
+swain-box: Select isolation for codex:
+  1) Docker Sandboxes (microVM) — recommended, strongest isolation
+  2) Docker Container
+
+  b) Back  q) Quit
+Choice [1]: 1
+swain-box: codex in microvm mode
+swain-box: creating sandbox...
+✓ Created sandbox codex-sandbox-... in VM codex-swain
+
+swain-box: First-time setup for codex — how do you authenticate?
+  1) Subscription (login inside sandbox)
   2) API key (OPENAI_API_KEY)
+
+  b) Back  q) Quit
 Choice [1]: 1
 
-swain-box: Opening a shell for login. Run:
+swain-box: Opening a shell. Run:
   codex login
-When done, type 'exit' to continue.
+When done, type 'exit' to return here.
 
 agent@codex-swain:~$ codex login
 ✓ Logged in
 agent@codex-swain:~$ exit
 
-swain-box: Login complete. Starting session...
-[codex TUI starts]
+swain-box: Did login complete successfully? [y/N]: y
+swain-box: Login saved. Starting session...
+[codex starts]
 ```
 
-### Happy path: microVM (no known issues)
+### Login confirmation gate
+
+After the operator exits the login shell, swain-box asks:
 
 ```
-swain-box: Select isolation for codex:
-  1) Docker Sandboxes (microVM) — recommended, strongest isolation
-  2) Docker Container
-Choice [1]: 1
-swain-box: codex in microvm mode
-[docker sandbox run codex starts directly — Docker Sandboxes handles auth via MITM proxy]
+swain-box: Did login complete successfully? [y/N]:
 ```
+
+- **y**: writes a `.swain-box-auth-done` marker inside the sandbox/container, proceeds to agent launch
+- **N / Enter / anything else**: does NOT write the marker, returns to the top of swain-box. On next launch, auth menu will appear again since the marker is absent.
+
+This prevents false positives (operator exits shell without logging in) from permanently skipping the auth step.
 
 ### Auth flow by runtime
 
@@ -215,8 +250,9 @@ The `--cleanup` flag is a non-interactive shortcut for the delete action. The ma
 | Single runtime | Auto-selected, prints runtime name | stderr |
 | Multi-runtime menu | Numbered list + prompt | stdout |
 | Isolation menu | Two options with annotations + prompt | stdout |
-| Auth menu (first run, container only) | Subscription vs API key | stdout |
-| Login shell | Interactive bash inside container | stdout/stdin |
+| Auth menu (first run, all modes) | Subscription vs API key | stdout |
+| Login shell | Interactive bash inside sandbox/container | stdout/stdin |
+| Login confirmation | "Did login complete successfully? [y/N]" | stdout |
 | API key prompt | Single-line input | stdout |
 | Creating container | `docker run -d ... sleep infinity` | stderr |
 | Reconnecting | `docker start` + `docker exec` | stderr |
@@ -246,11 +282,11 @@ The `--cleanup` flag is a non-interactive shortcut for the delete action. The ma
 
 **Subscription auth is the default choice (ADR-008).** The auth menu defaults to option 1 (subscription/login). Subscriptions are flat-rate and don't require separate billing accounts. API key is the fallback for non-interactive environments or operators who prefer per-token billing.
 
-**Auth menu only for runtimes that need pre-TUI login.** Research shows Claude, Copilot, Gemini, and OpenCode handle authentication inside their own TUI — no swain-box intervention needed. Only Codex and Kiro require login at a bare shell before the TUI starts. The auth menu is gated on `_needs_pre_login()` to avoid unnecessary prompts.
+**Auth menu for ALL runtimes on first run.** Every runtime gets the auth menu (subscription login vs API key) on first run, regardless of isolation mode. This ensures the operator explicitly chooses their auth method. Auth state is tracked via a `.swain-box-auth-done` marker file inside the sandbox/container — absent means auth hasn't been confirmed, present means it has.
 
-**Auth menu only on first run, container mode, pre-TUI runtimes only.** The auth menu appears only when: (a) it's a new container (first run), (b) in container isolation mode, and (c) the runtime requires pre-TUI login (codex, kiro). Runtimes that handle auth in-TUI (claude, copilot, gemini, opencode) skip the auth menu entirely. After first run, credentials persist in the container — no auth menu on reconnect.
+**Login confirmation gate.** After the operator exits the login shell, swain-box asks "Did login complete successfully? [y/N]". Only `y` writes the auth marker. This prevents false positives from operators who exit the shell without actually logging in. If not confirmed, the auth menu reappears on next launch.
 
-**Per-runtime login commands.** Codex uses `codex login`, Kiro uses `kiro-cli login`. These are shown in the pre-login shell prompt. Unknown runtimes get a generic `<runtime> login` guess.
+**Per-runtime login commands.** Each runtime has its own login command shown in the auth shell prompt: `claude /login`, `codex login`, `/login` (copilot), `kiro-cli login`, `/connect` (opencode), etc. Unknown runtimes get a generic `<runtime> login` guess.
 
 **Isolation default shifts based on known issues.** When a runtime has known issues with microVM (e.g., Claude + OAuth), the default shifts to option 2 (container). When no issues exist, default is option 1 (microVM) with "recommended, strongest isolation" annotation.
 
