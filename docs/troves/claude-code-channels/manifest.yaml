@@ -7,6 +7,8 @@ tags:
   - claude-code
   - channels
   - mcp
+  - openclaw
+  - remote-control
   - automation
   - telegram
   - discord
@@ -26,6 +28,12 @@ history:
     sources: 2
     sources-added: 1
     notes: "added channels-reference (build your own channel)"
+  - event: extended
+    date: 2026-03-20
+    commit: "--"
+    sources: 4
+    sources-added: 2
+    notes: "added community coverage — byteiota tutorial, claudefast guide (competitive context, platform comparison, use cases)"
 
 sources:
   - source-id: claude-code-channels-docs
@@ -41,3 +49,17 @@ sources:
     fetched: 2026-03-20T00:00:00Z
     title: "Channels reference — Claude Code Docs"
     hash: "9193748e6cee8347800c6c9e6d1b89602520230173bbd5356f6d6f6c5e5ef7bb"
+
+  - source-id: byteiota-channels-tutorial
+    type: web
+    url: "https://byteiota.com/claude-channels-tutorial-real-time-ai-events-2026/"
+    fetched: 2026-03-20T00:00:00Z
+    title: "Claude Channels Tutorial: Real-Time AI Events 2026 — byteiota"
+    hash: "b1dde4b9fce2cb68c9342b4104c88410a1b8e3180529d649fbd961746d81cb62"
+
+  - source-id: claudefast-channels-guide
+    type: web
+    url: "https://claudefa.st/blog/guide/development/claude-code-channels"
+    fetched: 2026-03-20T00:00:00Z
+    title: "Claude Code Channels: Telegram & Discord Setup Guide (2026) — ClaudeFast"
+    hash: "5e0d22ca1ec61be2fdbb68b0c4b800b074f5fa769248f1c2878aa40f4842bfb3"
