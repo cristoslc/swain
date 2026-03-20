@@ -40,7 +40,7 @@ _image_tag() {
 _login_cmd() {
     case "$1" in
         claude)  echo "claude /login" ;;
-        codex)   echo "codex login" ;;
+        codex)   echo "codex login --device-auth" ;;
         copilot) echo "/login" ;;
         gemini)  echo "(login prompt appears on first run)" ;;
         kiro)    echo "kiro-cli login" ;;
@@ -61,92 +61,63 @@ _api_key_var() {
 }
 
 # ============================================================
-# First-run auth setup (ADR-008: subscription preferred)
-# Called on first run for ALL runtimes, ALL isolation modes
+# Apply auth (uses SELECTED_AUTH and COLLECTED_API_KEY from step 2)
+# Called after sandbox/container is created
 # ============================================================
-_first_run_auth() {
-    _rt="$1"         # runtime name
-    _target="$2"     # "container:<name>" or "microvm" (for exec context)
-    _login_command=$(_login_cmd "$_rt")
-    _api_var=$(_api_key_var "$_rt")
+_apply_auth() {
+    _target="$1"     # "container:<name>" or "microvm:<name>"
+    _login_command=$(_login_cmd "$SELECTED_RUNTIME")
 
-    if ! [ -t 0 ]; then
-        echo "swain-box: NOTE — first run requires interactive auth. Retry without piping." >&2
-        return
-    fi
-
-    echo "" >&2
-    echo "swain-box: First-time setup for $_rt — how do you authenticate?"
-    echo "  1) Subscription (login inside sandbox)"
-    if [ -n "$_api_var" ]; then
-        echo "  2) API key ($_api_var)"
-    fi
-    echo ""
-    echo "  b) Back  q) Quit"
-    printf "Choice [1]: "
-    read -r _auth_choice
-    _auth_choice="${_auth_choice:-1}"
-
-    case "$_auth_choice" in
-        q|Q) echo "swain-box: bye." >&2; exit 0 ;;
-        b|B) return 1 ;;  # caller should go back
-        1)
-            echo "" >&2
-            echo "swain-box: Opening a shell. Run:" >&2
-            echo "  $_login_command" >&2
-            echo "When done, type 'exit' to return here." >&2
-            echo "" >&2
+    if [ "$SELECTED_AUTH" = "subscription" ]; then
+        if ! [ -t 0 ]; then
+            echo "swain-box: NOTE — subscription login requires interactive mode." >&2
+            return 1
+        fi
+        echo "" >&2
+        echo "swain-box: Opening a shell. Run:" >&2
+        echo "  $_login_command" >&2
+        echo "When done, type 'exit' to return here." >&2
+        echo "" >&2
+        case "$_target" in
+            container:*)
+                docker exec -it "${_target#container:}" /bin/bash ;;
+            microvm:*)
+                docker sandbox exec -it "${_target#microvm:}" /bin/bash ;;
+        esac
+        echo "" >&2
+        printf "swain-box: Did login complete successfully? [y/N]: "
+        read -r _login_ok
+        case "$_login_ok" in
+            y|Y)
+                case "$_target" in
+                    container:*)
+                        docker exec "${_target#container:}" touch /home/agent/.swain-box-auth-done 2>/dev/null ;;
+                    microvm:*)
+                        docker sandbox exec "${_target#microvm:}" touch /home/agent/.swain-box-auth-done 2>/dev/null ;;
+                esac
+                echo "swain-box: Login saved. Starting session..." >&2
+                ;;
+            *)
+                echo "swain-box: Login not confirmed. You can retry on next launch." >&2
+                return 1
+                ;;
+        esac
+    elif [ "$SELECTED_AUTH" = "apikey" ]; then
+        _api_var=$(_api_key_var "$SELECTED_RUNTIME")
+        if [ -n "$COLLECTED_API_KEY" ] && [ -n "$_api_var" ]; then
             case "$_target" in
                 container:*)
-                    _cname="${_target#container:}"
-                    docker exec -it "$_cname" /bin/bash
+                    docker exec "${_target#container:}" sh -c "echo 'export $_api_var=$COLLECTED_API_KEY' >> /home/agent/.bashrc"
+                    docker exec "${_target#container:}" touch /home/agent/.swain-box-auth-done 2>/dev/null
                     ;;
                 microvm:*)
-                    _sname="${_target#microvm:}"
-                    docker sandbox exec "$_sname" /bin/bash
+                    docker sandbox exec "${_target#microvm:}" sh -c "echo 'export $_api_var=$COLLECTED_API_KEY' >> ~/.bashrc"
+                    docker sandbox exec "${_target#microvm:}" touch /home/agent/.swain-box-auth-done 2>/dev/null
                     ;;
             esac
-            echo "" >&2
-            printf "swain-box: Did login complete successfully? [y/N]: "
-            read -r _login_ok
-            case "$_login_ok" in
-                y|Y)
-                    case "$_target" in
-                        container:*)
-                            docker exec "${_target#container:}" touch /home/agent/.swain-box-auth-done 2>/dev/null ;;
-                        microvm:*)
-                            docker sandbox exec "${_target#microvm:}" touch /home/agent/.swain-box-auth-done 2>/dev/null ;;
-                    esac
-                    echo "swain-box: Login saved. Starting session..." >&2
-                    ;;
-                *)
-                    echo "swain-box: Login not confirmed. You can retry on next launch." >&2
-                    return 1
-                    ;;
-            esac
-            ;;
-        2)
-            if [ -n "$_api_var" ]; then
-                printf "Enter %s: " "$_api_var" >&2
-                read -r _api_key
-                if [ -n "$_api_key" ]; then
-                    case "$_target" in
-                        container:*)
-                            _cname="${_target#container:}"
-                            docker exec "$_cname" sh -c "echo 'export $_api_var=$_api_key' >> /home/agent/.bashrc"
-                            docker exec "$_cname" touch /home/agent/.swain-box-auth-done 2>/dev/null
-                            ;;
-                        microvm:*)
-                            _sname="${_target#microvm:}"
-                            docker sandbox exec "$_sname" sh -c "echo 'export $_api_var=$_api_key' >> ~/.bashrc"
-                            docker sandbox exec "$_sname" touch /home/agent/.swain-box-auth-done 2>/dev/null
-                            ;;
-                    esac
-                    echo "swain-box: API key saved." >&2
-                fi
-            fi
-            ;;
-    esac
+            echo "swain-box: API key saved." >&2
+        fi
+    fi
     return 0
 }
 
@@ -444,10 +415,57 @@ else
 fi
 
 # ============================================================
-# Step 2 — Isolation selection
+# Step 2 — Auth type selection (ADR-008: subscription default)
+# ============================================================
+SELECTED_AUTH="subscription"  # default
+_api_var=$(_api_key_var "$SELECTED_RUNTIME")
+COLLECTED_API_KEY=""
+
+if [ -t 0 ]; then
+    echo "swain-box: How do you authenticate?"
+    echo "  1) Subscription (login inside sandbox)"
+    if [ -n "$_api_var" ]; then
+        echo "  2) API key ($_api_var)"
+    fi
+    echo ""
+    echo "  b) Back  q) Quit"
+
+    _attempts=0
+    while [ "$_attempts" -lt 2 ]; do
+        printf "Choice [1]: "
+        read -r _choice
+        _choice="${_choice:-1}"
+        case "$_choice" in
+            q|Q) echo "swain-box: bye." >&2; exit 0 ;;
+            b|B) exec "$0" "$@" ;;
+            1) SELECTED_AUTH="subscription"; break ;;
+            2)
+                SELECTED_AUTH="apikey"
+                if [ -n "$_api_var" ]; then
+                    printf "Enter %s: " "$_api_var" >&2
+                    read -r COLLECTED_API_KEY
+                fi
+                break
+                ;;
+            *)
+                _attempts=$((_attempts + 1))
+                [ "$_attempts" -lt 2 ] && echo "Invalid selection. Try again:" || { echo "swain-box: invalid selection." >&2; exit 1; }
+                ;;
+        esac
+    done
+fi
+
+# ============================================================
+# Step 3 — Isolation selection (informed by auth choice)
 # ============================================================
 SELECTED_ISOLATION=""
-_issue=$(_known_issue_microvm "$SELECTED_RUNTIME")
+
+# Known issues depend on BOTH runtime and auth type
+_issue=""
+if [ "$SELECTED_AUTH" = "subscription" ]; then
+    _issue=$(_known_issue_microvm "$SELECTED_RUNTIME")
+fi
+# API key auth has no known microVM issues (MITM proxy handles api.anthropic.com fine)
 
 if [ -n "$EXPLICIT_ISOLATION" ]; then
     case "$EXPLICIT_ISOLATION" in
@@ -455,7 +473,6 @@ if [ -n "$EXPLICIT_ISOLATION" ]; then
         *) echo "swain-box: invalid --isolation mode: $EXPLICIT_ISOLATION (microvm|container)" >&2; exit 1 ;;
     esac
 else
-    # Default shifts based on known issues: container if issues, microvm if clean
     if [ -n "$_issue" ]; then
         _default=2
     else
@@ -463,10 +480,10 @@ else
     fi
 
     if [ -t 0 ]; then
-        echo "swain-box: Select isolation for $SELECTED_RUNTIME:"
+        echo "swain-box: Select isolation for $SELECTED_RUNTIME ($SELECTED_AUTH):"
         if [ -n "$_issue" ]; then
             echo "  1) Docker Sandboxes (microVM) — WARNING: $_issue"
-            echo "  2) Docker Container — OAuth/Max works via /login"
+            echo "  2) Docker Container — subscription login works"
         else
             echo "  1) Docker Sandboxes (microVM) — recommended, strongest isolation"
             echo "  2) Docker Container"
@@ -481,7 +498,7 @@ else
             _choice="${_choice:-$_default}"
             case "$_choice" in
                 q|Q) echo "swain-box: bye." >&2; exit 0 ;;
-                b|B) exec "$0" "$@" ;;  # Re-exec to restart from runtime menu
+                b|B) exec "$0" "$@" ;;
                 1) SELECTED_ISOLATION="microvm"; break ;;
                 2) SELECTED_ISOLATION="container"; break ;;
                 *)
@@ -496,11 +513,11 @@ else
         else
             SELECTED_ISOLATION="microvm"
         fi
-        echo "swain-box: auto-selected $SELECTED_ISOLATION isolation (non-interactive). Use --isolation=<mode> to specify." >&2
+        echo "swain-box: auto-selected $SELECTED_ISOLATION isolation (non-interactive)." >&2
     fi
 fi
 
-echo "swain-box: $SELECTED_RUNTIME in $SELECTED_ISOLATION mode" >&2
+echo "swain-box: $SELECTED_RUNTIME ($SELECTED_AUTH) in $SELECTED_ISOLATION mode" >&2
 
 # ============================================================
 # Derive names
@@ -540,10 +557,9 @@ if [ "$SELECTED_ISOLATION" = "microvm" ]; then
             echo "swain-box: failed to create sandbox." >&2
             exit 1
         fi
-        _first_run_auth "$SELECTED_RUNTIME" "microvm:$SANDBOX_NAME" || exec "$0" "$@"
+        _apply_auth "microvm:$SANDBOX_NAME" || exec "$0" "$@"
     elif ! _auth_done "microvm:$SANDBOX_NAME"; then
-        # Sandbox exists but auth never completed
-        _first_run_auth "$SELECTED_RUNTIME" "microvm:$SANDBOX_NAME" || exec "$0" "$@"
+        _apply_auth "microvm:$SANDBOX_NAME" || exec "$0" "$@"
     fi
     case "$SELECTED_RUNTIME" in
         claude)
@@ -571,7 +587,7 @@ else
         fi
         # Auth check — if never completed, run it now
         if ! _auth_done "container:$SANDBOX_NAME"; then
-            _first_run_auth "$SELECTED_RUNTIME" "container:$SANDBOX_NAME" || exec "$0" "$@"
+            _apply_auth "container:$SANDBOX_NAME" || exec "$0" "$@"
         fi
         echo "swain-box: connecting to $SANDBOX_NAME" >&2
         # shellcheck disable=SC2086
@@ -587,8 +603,8 @@ else
         "docker/sandbox-templates:$IMAGE_TAG" \
         sleep infinity >/dev/null 2>&1
 
-    # --- First-run auth setup (ALL runtimes, per ADR-008) ---
-    _first_run_auth "$SELECTED_RUNTIME" "container:$SANDBOX_NAME" || exec "$0" "$@"
+    # --- First-run auth (using choice from step 2) ---
+    _apply_auth "container:$SANDBOX_NAME" || exec "$0" "$@"
 
     # Launch the agent session
     # shellcheck disable=SC2086

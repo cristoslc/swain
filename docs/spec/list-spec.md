@@ -21,6 +21,8 @@
 | SPEC-088 | MCP Prompts for Key Workflows | 2026-03-19 | — |
 | SPEC-089 | MCP Resources for Definitions and Templates | 2026-03-19 | — |
 | SPEC-090 | Plugin + Desktop Extension Packaging | 2026-03-19 | — |
+| SPEC-098 | CLI Command Verification in Agent Execution | 2026-03-19 | — |
+| SPEC-099 | Container-Compatible Runtime Auth Commands | 2026-03-19 | — |
 
 ## Active
 

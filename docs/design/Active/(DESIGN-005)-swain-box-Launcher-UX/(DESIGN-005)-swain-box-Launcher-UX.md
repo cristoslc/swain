@@ -27,36 +27,30 @@ The terminal UX for `./swain-box` from invocation to agent session. Covers: runt
 ```mermaid
 flowchart TD
     invoke["./swain-box invoked"] --> pick_runtime{"Pick runtime"}
-    pick_runtime -->|"flag / auto / menu"| pick_isolation{"Pick isolation"}
+    pick_runtime -->|"flag / auto / menu"| pick_auth{"Auth type?"}
     pick_runtime -->|"'s'"| sandbox_mgmt["Manage sandboxes"]
     sandbox_mgmt --> pick_runtime
 
-    pick_isolation -->|"microVM"| create_sandbox["docker sandbox create"]
-    pick_isolation -->|"container"| check_existing{"Existing?"}
+    pick_auth -->|"subscription"| pick_isolation_sub{"Pick isolation"}
+    pick_auth -->|"API key"| prompt_key["Prompt for key"] --> pick_isolation_key{"Pick isolation"}
 
-    check_existing -->|"no"| create_container["docker run -d sleep infinity"]
-    check_existing -->|"yes, auth done"| reconnect["Reconnect"]
-    check_existing -->|"yes, no auth"| auth_existing["Auth menu"]
+    pick_isolation_sub -->|"microVM"| create_microvm["docker sandbox create"]
+    pick_isolation_sub -->|"container"| create_container["Create container"]
+    pick_isolation_key -->|"microVM"| create_microvm
+    pick_isolation_key -->|"container"| create_container
 
-    create_sandbox --> auth_check_microvm{"Auth done?"}
-    auth_check_microvm -->|"no"| auth_microvm["Auth menu"]
-    auth_check_microvm -->|"yes"| launch_microvm["docker sandbox run"]
-    auth_microvm -->|"subscription"| login_shell_microvm["Login shell → confirm"]
-    auth_microvm -->|"API key"| save_key_microvm["Save key"] --> launch_microvm
-    login_shell_microvm --> launch_microvm
+    create_microvm --> login_shell_microvm["Login shell → confirm"] --> launch_microvm["docker sandbox run"]
+    create_container --> login_shell_container["Login shell → confirm"] --> launch_container["docker exec"]
 
-    create_container --> auth_container["Auth menu"]
-    auth_container -->|"subscription"| login_shell_container["Login shell → confirm"]
-    auth_container -->|"API key"| save_key_container["Save key"] --> launch_container["docker exec runtime"]
-    login_shell_container --> launch_container
-    auth_existing --> launch_container
-
-    reconnect --> session["Agent session"]
-    launch_microvm --> session
+    launch_microvm --> session["Agent session"]
     launch_container --> session
 ```
 
-### Happy path: first run (subscription auth)
+**Key design principle:** Auth type is chosen *before* isolation because the auth choice influences which isolation modes are viable. For example, Claude + subscription → microVM is broken (MITM proxy breaks OAuth), so the isolation menu annotates accordingly. Claude + API key → microVM works fine.
+
+On reconnect (existing sandbox/container with auth marker present), steps 2–4 are skipped — the operator goes straight to the agent session.
+
+### Happy path: first run (Claude, subscription)
 
 ```
 $ ./swain-box
@@ -68,24 +62,26 @@ swain-box: Select a runtime:
   5) kiro
   6) opencode
 
-  s) Manage sandboxes
+  s) Manage sandboxes  q) Quit
 Choice [1]: 1
 swain-box: using claude.
 
-swain-box: Select isolation for claude:
-  1) Docker Sandboxes (microVM) — WARNING: OAuth/Max broken — requires ANTHROPIC_API_KEY
-  2) Docker Container — OAuth/Max works via /login
-Choice [2]: 2
-swain-box: claude in container mode
-
-swain-box: creating container claude-swain
-
-swain-box: First-time setup for claude — how do you authenticate?
+swain-box: How do you authenticate?
   1) Subscription (login inside sandbox)
   2) API key (ANTHROPIC_API_KEY)
 
   b) Back  q) Quit
 Choice [1]: 1
+
+swain-box: Select isolation for claude (subscription):
+  1) Docker Sandboxes (microVM) — WARNING: OAuth/Max broken with MITM proxy
+  2) Docker Container — OAuth/Max works via /login
+
+  b) Back  q) Quit
+Choice [2]: 2
+swain-box: claude in container mode
+
+swain-box: creating container claude-swain
 
 swain-box: Opening a shell. Run:
   claude /login
@@ -119,18 +115,20 @@ swain-box: connecting to claude-swain
 [Claude Code interactive session begins — credentials persist from first run]
 ```
 
-### Happy path: codex in microVM
-
-Auth menu is shown for all runtimes on first run, including microVM mode. The sandbox is created first (VM running, agent not started), then auth runs via `docker sandbox exec`.
+### Happy path: codex in microVM (subscription)
 
 ```
-$ ./swain-box
-swain-box: Select a runtime:
-  ...
-Choice [1]: 3
+$ ./swain-box --runtime=codex
 swain-box: using codex.
 
-swain-box: Select isolation for codex:
+swain-box: How do you authenticate?
+  1) Subscription (login inside sandbox)
+  2) API key (OPENAI_API_KEY)
+
+  b) Back  q) Quit
+Choice [1]: 1
+
+swain-box: Select isolation for codex (subscription):
   1) Docker Sandboxes (microVM) — recommended, strongest isolation
   2) Docker Container
 
@@ -140,24 +138,39 @@ swain-box: codex in microvm mode
 swain-box: creating sandbox...
 ✓ Created sandbox codex-sandbox-... in VM codex-swain
 
-swain-box: First-time setup for codex — how do you authenticate?
-  1) Subscription (login inside sandbox)
-  2) API key (OPENAI_API_KEY)
-
-  b) Back  q) Quit
-Choice [1]: 1
-
 swain-box: Opening a shell. Run:
-  codex login
+  codex login --device-auth
 When done, type 'exit' to return here.
 
-agent@codex-swain:~$ codex login
+agent@codex-swain:~$ codex login --device-auth
 ✓ Logged in
 agent@codex-swain:~$ exit
 
 swain-box: Did login complete successfully? [y/N]: y
 swain-box: Login saved. Starting session...
 [codex starts]
+```
+
+### Happy path: Claude with API key → microVM works
+
+```
+swain-box: How do you authenticate?
+  1) Subscription (login inside sandbox)
+  2) API key (ANTHROPIC_API_KEY)
+
+  b) Back  q) Quit
+Choice [1]: 2
+
+Enter ANTHROPIC_API_KEY: sk-ant-...
+
+swain-box: Select isolation for claude (API key):
+  1) Docker Sandboxes (microVM) — recommended, strongest isolation
+  2) Docker Container
+
+  b) Back  q) Quit
+Choice [1]: 1
+swain-box: claude in microvm mode
+[microVM works fine with API key — MITM proxy handles api.anthropic.com correctly]
 ```
 
 ### Login confirmation gate
@@ -181,7 +194,7 @@ This prevents false positives (operator exits shell without logging in) from per
 | copilot | Yes (`/login`) | No | — | `GH_TOKEN` |
 | gemini | Yes (on first run) | No | — | `GOOGLE_API_KEY` |
 | opencode | Yes (`/connect`) | No | — | Various |
-| codex | No | **Yes** | `codex login` | `OPENAI_API_KEY` |
+| codex | No | **Yes** | `codex login --device-auth` | `OPENAI_API_KEY` |
 | kiro | No | **Yes** | `kiro-cli login` | None |
 
 ### Happy path: single runtime
@@ -299,9 +312,9 @@ The `--cleanup` flag is a non-interactive shortcut for the delete action. The ma
 
 **Login confirmation gate.** After the operator exits the login shell, swain-box asks "Did login complete successfully? [y/N]". Only `y` writes the auth marker. This prevents false positives from operators who exit the shell without actually logging in. If not confirmed, the auth menu reappears on next launch.
 
-**Per-runtime login commands.** Each runtime has its own login command shown in the auth shell prompt: `claude /login`, `codex login`, `/login` (copilot), `kiro-cli login`, `/connect` (opencode), etc. Unknown runtimes get a generic `<runtime> login` guess.
+**Per-runtime login commands.** Each runtime has its own login command shown in the auth shell prompt: `claude /login`, `codex login --device-auth`, `/login` (copilot), `kiro-cli login`, `/connect` (opencode), etc. Unknown runtimes get a generic `<runtime> login` guess.
 
-**Isolation default shifts based on known issues.** When a runtime has known issues with microVM (e.g., Claude + OAuth), the default shifts to option 2 (container). When no issues exist, default is option 1 (microVM) with "recommended, strongest isolation" annotation.
+**Isolation annotations adapt to auth choice.** The isolation menu knows both the runtime AND the auth type. Claude + subscription → microVM gets a warning (MITM breaks OAuth). Claude + API key → microVM is recommended. The default shifts to container when the auth+runtime combo has known issues, and stays on microVM otherwise.
 
 **Container uses `sleep infinity` CMD.** The container stays alive indefinitely; agent sessions are launched via `docker exec`. This means exiting Claude doesn't kill the container, credentials persist, and multiple sessions can attach concurrently.
 
