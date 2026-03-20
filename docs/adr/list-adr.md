@@ -19,5 +19,5 @@
 | ADR-008 | Subscription Auth Preferred Over API Keys | 2026-03-19 | — |
 | ADR-009 | Multi-Vision Initiatives | 2026-03-19 | -- |
 | ADR-010 | Derive Priority From Parent Chain | 2026-03-20 | Revised:recursiveancestrysummationreplacestier-basemodel |
-| ADR-012 | Lifecycle Hashes Must Be Reachable From Main | 2026-03-20 | -- |
+| ADR-012 | Lifecycle Hashes Must Be Reachable From Main | 2026-03-20 | 94f9c94 |
 

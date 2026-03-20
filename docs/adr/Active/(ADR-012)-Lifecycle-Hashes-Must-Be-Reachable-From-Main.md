@@ -67,4 +67,4 @@ Rejected — an unreachable hash is useless for auditing. If the hash can't be r
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-20 | -- | Codified from established practice; invariant since project inception |
+| Active | 2026-03-20 | 94f9c94 | Codified from established practice; invariant since project inception |
