@@ -6,7 +6,6 @@
 |----------|-------|-------------|--------|
 | SPIKE-019 | Worktree Session Bookmark Design | 2026-03-14 | — |
 | SPIKE-021 | Scope Progress Visualization Options For Swain-Status | 2026-03-14 | — |
-| SPIKE-022 | Multi-Agent Collision Vectors | 2026-03-14 | — |
 | SPIKE-023 | Product Design Integration Strategy | 2026-03-14 | — |
 | SPIKE-024 | Postflight Summary Design | 2026-03-14 | — |
 
@@ -14,6 +13,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPIKE-022 | Multi-Agent Collision Vectors | 2026-03-20 | bd055c5 |
 | SPIKE-026 | Context Fork as Model Routing Implementation Path | 2026-03-16 | -- |
 | SPIKE-033 | Skill Routing Disambiguation | 2026-03-18 | — |
 | SPIKE-034 | Sandbox Templates In Regular Docker Containers | 2026-03-19 | — |
