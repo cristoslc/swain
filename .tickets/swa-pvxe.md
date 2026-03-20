@@ -1,12 +1,12 @@
 ---
 id: swa-pvxe
-status: open
+status: in_progress
 deps: [swa-vttz]
 links: []
 created: 2026-03-20T21:21:28Z
 type: task
 priority: 2
-assignee: Cristos L-C
+assignee: cristos
 parent: swa-3cbh
 tags: [spec:SPEC-114]
 ---
