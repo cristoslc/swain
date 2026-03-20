@@ -32,6 +32,7 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 | ADR (ADR-NNN) | Single architectural decision — context, choice, alternatives, and consequences (Nygard format). | [definition](references/adr-definition.md) | [template](references/adr-template.md.template) |
 | Runbook (RUNBOOK-NNN) | Step-by-step operational procedure (agentic or manual) with a defined trigger. | [definition](references/runbook-definition.md) | [template](references/runbook-template.md.template) |
 | Design (DESIGN-NNN) | UI/UX interaction design — wireframes, flows, and state diagrams for user-facing surfaces. | [definition](references/design-definition.md) | [template](references/design-template.md.template) |
+| Training Document (TRAIN-NNN) | Structured learning material (how-to, reference, quickstart) that teaches humans how to use a feature or workflow. Tracks alongside source artifacts via commit-pinned `linked-artifacts` for staleness detection. | [definition](references/train-definition.md) | [template](references/train-template.md.template) |
 
 ## Choosing the right artifact type
 
@@ -45,6 +46,7 @@ When the user's request doesn't name a specific type, infer it from their intent
 | One implementation unit | **Spec** | "fix this", "add a flag", "refactor", "small change", "bug" |
 | Research question | **Spike** | "should we", "investigate", "compare options", "what's the best way" |
 | Record a decision | **ADR** | "decided to", "choosing between", "why did we" |
+| Create training or documentation | **Train** | "how-to guide", "tutorial", "reference doc", "onboarding", "walkthrough", "training material", "teach someone" |
 
 **Initiative vs Epic** — the key distinction:
 - **Initiative**: a *direction* with multiple deliverables. "Harden security" is an initiative — it spans scanning, gates, policies. The operator steers it.
