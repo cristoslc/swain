@@ -3,7 +3,7 @@
 title: "{{ title }}"
 artifact: DESIGN-{{ number }}
 track: standing
-domain: {{ domain | default("interaction") }}
+domain: {{ domain | default("interaction") }}  # "interaction", "data", or "system"
 status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}
