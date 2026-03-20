@@ -17,6 +17,7 @@ _KNOWN_ARTIFACT_PREFIXES = frozenset({
 _XREF_LIST_FIELDS = (
     "depends-on-artifacts",
     "linked-artifacts",
+    "artifact-refs",
     "validates",
     "linked-research",
     "linked-adrs",

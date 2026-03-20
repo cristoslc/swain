@@ -12,17 +12,17 @@ train-type: {{ train_type | default("how-to") }}
 superseded-by: {{ superseded_by | default("") }}
 linked-artifacts:
 {%- for artifact in linked_artifacts | default([]) %}
-{%- if artifact is mapping %}
-  - artifact: {{ artifact.artifact }}
-    rel: {{ artifact.rel | default(["linked"]) }}
-{%- if artifact.commit is defined %}
-    commit: {{ artifact.commit }}
-{%- endif %}
-{%- if artifact.verified is defined %}
-    verified: {{ artifact.verified }}
-{%- endif %}
-{%- else %}
   - {{ artifact }}
+{%- endfor %}
+artifact-refs:
+{%- for ref in artifact_refs | default([]) %}
+  - artifact: {{ ref.artifact }}
+    rel: {{ ref.rel | default(["linked"]) }}
+{%- if ref.commit is defined %}
+    commit: {{ ref.commit }}
+{%- endif %}
+{%- if ref.verified is defined %}
+    verified: {{ ref.verified }}
 {%- endif %}
 {%- endfor %}
 parent-epic: {{ parent_epic | default("") }}

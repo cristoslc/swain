@@ -224,7 +224,7 @@ do_build() {
 
     # List-type relationship edges
     local list_field
-    for list_field in linked-artifacts validates; do
+    for list_field in linked-artifacts artifact-refs validates; do
       while IFS= read -r ref; do
         [ -z "$ref" ] && continue
         add_edge "$artifact" "$ref" "$list_field"

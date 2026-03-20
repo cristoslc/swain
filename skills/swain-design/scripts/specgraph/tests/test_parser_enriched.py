@@ -1,4 +1,4 @@
-"""Tests for enriched linked-artifacts parsing in specgraph parser."""
+"""Tests for enriched linked-artifacts and artifact-refs parsing in specgraph parser."""
 import sys
 from pathlib import Path
 
@@ -129,3 +129,119 @@ linked-artifacts:
     assert isinstance(la[0], dict)
     assert la[0]["artifact"] == "SPEC-042"
     assert "commit" not in la[0]
+
+
+# --- artifact-refs tests ---
+
+
+def test_artifact_refs_parsed_as_dict():
+    """artifact-refs entries with artifact/rel/commit become dicts in the list."""
+    content = """---
+title: "Test TRAIN"
+artifact: TRAIN-001
+artifact-refs:
+  - artifact: SPEC-067
+    rel: [documents]
+    commit: abc1234
+    verified: 2026-03-19
+---
+# Body
+"""
+    fields = parse_frontmatter(content)
+    assert fields is not None
+    ar = fields["artifact-refs"]
+    assert len(ar) == 1
+    assert isinstance(ar[0], dict)
+    assert ar[0]["artifact"] == "SPEC-067"
+    assert ar[0]["rel"] == ["documents"]
+    assert ar[0]["commit"] == "abc1234"
+    assert ar[0]["verified"] == "2026-03-19"
+
+
+def test_artifact_refs_extract_list_ids():
+    """extract_list_ids returns artifact IDs from artifact-refs dict entries."""
+    content = """---
+title: "Test TRAIN"
+artifact: TRAIN-001
+artifact-refs:
+  - artifact: SPEC-067
+    rel: [documents]
+    commit: abc1234
+    verified: 2026-03-19
+---
+# Body
+"""
+    fields = parse_frontmatter(content)
+    ids = extract_list_ids(fields, "artifact-refs")
+    assert "SPEC-067" in ids
+
+
+def test_artifact_refs_multiple_entries():
+    """Multiple artifact-refs entries are all parsed."""
+    content = """---
+title: "Test DESIGN"
+artifact: DESIGN-001
+artifact-refs:
+  - artifact: SPEC-067
+    rel: [aligned]
+    commit: abc1234
+    verified: 2026-03-19
+  - artifact: EPIC-005
+    rel: [aligned]
+    commit: def5678
+    verified: 2026-03-19
+---
+# Body
+"""
+    fields = parse_frontmatter(content)
+    ar = fields["artifact-refs"]
+    assert len(ar) == 2
+    ids = extract_list_ids(fields, "artifact-refs")
+    assert "SPEC-067" in ids
+    assert "EPIC-005" in ids
+
+
+def test_artifact_refs_coexists_with_linked_artifacts():
+    """artifact-refs and linked-artifacts can coexist in the same frontmatter."""
+    content = """---
+title: "Test TRAIN"
+artifact: TRAIN-001
+linked-artifacts:
+  - DESIGN-003
+artifact-refs:
+  - artifact: SPEC-067
+    rel: [documents]
+    commit: abc1234
+    verified: 2026-03-19
+---
+# Body
+"""
+    fields = parse_frontmatter(content)
+    la_ids = extract_list_ids(fields, "linked-artifacts")
+    ar_ids = extract_list_ids(fields, "artifact-refs")
+    assert "DESIGN-003" in la_ids
+    assert "SPEC-067" in ar_ids
+
+
+def test_sourcecode_refs_parsed():
+    """sourcecode-refs entries are parsed as dicts with path/blob/commit/verified."""
+    content = """---
+title: "Test DESIGN"
+artifact: DESIGN-001
+sourcecode-refs:
+  - path: src/components/Button/Button.tsx
+    blob: a1b2c3d
+    commit: def5678
+    verified: 2026-03-19
+---
+# Body
+"""
+    fields = parse_frontmatter(content)
+    assert fields is not None
+    sr = fields["sourcecode-refs"]
+    assert len(sr) == 1
+    assert isinstance(sr[0], dict)
+    assert sr[0]["path"] == "src/components/Button/Button.tsx"
+    assert sr[0]["blob"] == "a1b2c3d"
+    assert sr[0]["commit"] == "def5678"
+    assert sr[0]["verified"] == "2026-03-19"

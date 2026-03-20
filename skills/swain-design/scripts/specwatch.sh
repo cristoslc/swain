@@ -249,8 +249,8 @@ docs_dir = sys.argv[1]
 # Fields that contain artifact ID references (single-value or list)
 SINGLE_REF_FIELDS = ['parent-vision', 'parent-epic', 'superseded-by', 'fix-ref']
 LIST_REF_FIELDS = [
-    'depends-on-artifacts', 'linked-artifacts', 'addresses', 'validates',
-    'affected-artifacts'
+    'depends-on-artifacts', 'linked-artifacts', 'artifact-refs', 'addresses',
+    'validates', 'affected-artifacts'
 ]
 ALL_REF_FIELDS = SINGLE_REF_FIELDS + LIST_REF_FIELDS
 
@@ -342,6 +342,17 @@ def extract_frontmatter(filepath):
                 val = m.group(1).strip().strip('"').strip("'")
                 if val and re.match(r'^[A-Z]+-\d+', val):
                     refs.setdefault(current_list_field, []).append(val)
+                # Handle dict-style entries like "artifact: SPEC-067" in artifact-refs
+                elif val:
+                    kv = re.match(r'^artifact:\s*(.+)', val)
+                    if kv:
+                        art_val = kv.group(1).strip().strip('"').strip("'")
+                        if art_val and re.match(r'^[A-Z]+-\d+', art_val):
+                            refs.setdefault(current_list_field, []).append(art_val)
+                matched = True
+            elif re.match(r'^\s+[a-z]', line):
+                # Indented continuation of a dict entry (e.g., "    rel: [documents]")
+                # Stay in the current list field but don't extract
                 matched = True
             elif not re.match(r'^\s', line):
                 current_list_field = None

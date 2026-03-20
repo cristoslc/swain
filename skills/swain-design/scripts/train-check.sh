@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # train-check.sh — Staleness detection for TRAIN artifacts.
 #
-# Reads enriched linked-artifacts entries with rel: [documents] and commit pins.
+# Reads artifact-refs entries with rel: [documents] and commit pins.
 # Compares pinned commit hash against the documented artifact's current HEAD commit.
 #
 # Usage:
@@ -76,15 +76,15 @@ if not fm_match:
 
 fm = fm_match.group(1)
 lines = fm.splitlines()
-in_linked = False
+in_artifact_refs = False
 current_entry = None
 entries = []
 
 for line in lines:
-    if re.match(r'^linked-artifacts:', line):
-        in_linked = True
+    if re.match(r'^artifact-refs:', line):
+        in_artifact_refs = True
         continue
-    if in_linked:
+    if in_artifact_refs:
         list_match = re.match(r'^\s+-\s+(.+)$', line)
         if list_match:
             if current_entry and 'artifact' in current_entry:
@@ -104,7 +104,7 @@ for line in lines:
             current_entry[indent_kv.group(1)] = val
             continue
         if re.match(r'^[a-z]', line):
-            in_linked = False
+            in_artifact_refs = False
             if current_entry and 'artifact' in current_entry:
                 entries.append(current_entry)
             current_entry = None
