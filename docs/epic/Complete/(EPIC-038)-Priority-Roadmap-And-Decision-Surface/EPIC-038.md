@@ -2,7 +2,7 @@
 title: "Priority Roadmap and Decision Surface"
 artifact: EPIC-038
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -79,3 +79,4 @@ SPEC-107 (sibling ranking) — independent, feeds into 108's scoring
 |-------|------|--------|-------|
 | Active | 2026-03-20 | | Created with initial implementation in progress |
 | Progress | 2026-03-20 | dbd0e66 | SPEC-107 and SPEC-108 complete — 7/10 specs resolved |
+| Complete | 2026-03-20 | e87c6b8 | All 10 child specs delivered: data model (108), sort-order (107), templates (109), PNG pipeline (110), status integration (111), dep graph subgraphs (112) |
