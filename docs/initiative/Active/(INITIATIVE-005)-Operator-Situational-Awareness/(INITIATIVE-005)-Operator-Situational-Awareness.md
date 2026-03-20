@@ -18,6 +18,7 @@ linked-artifacts:
   - EPIC-011
   - EPIC-018
   - EPIC-022
+  - EPIC-035
   - SPEC-054
   - SPIKE-021
   - SPIKE-024
@@ -41,6 +42,7 @@ Help the operator see what matters — current state, progress, and what needs a
 - EPIC-011: MOTD Panel Improvements (Complete)
 - EPIC-018: Work Scope Progress Visualizations for Swain-Status (Proposed)
 - EPIC-022: Postflight Summaries (Proposed)
+- EPIC-035: Design Staleness and Drift Detection (Active)
 
 ## Small Work (Epic-less Specs)
 
