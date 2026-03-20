@@ -75,6 +75,11 @@ def build_graph(
         fields = artifact.raw_fields
         track = fields.get("track", "")
         priority_weight = fields.get("priority-weight", "")
+        sort_order = fields.get("sort-order", 0)
+        try:
+            sort_order = int(sort_order) if sort_order else 0
+        except (ValueError, TypeError):
+            sort_order = 0
         nodes[aid] = {
             "title": artifact.title,
             "status": artifact.status,
@@ -83,6 +88,7 @@ def build_graph(
             "file": artifact.file,
             "description": artifact.description,
             "priority_weight": priority_weight,
+            "sort_order": sort_order,
         }
 
         # depends-on edges

@@ -133,9 +133,10 @@ def collect_roadmap_items(
             "group_title": group_title,
             "vision_id": vision,
             "status": node.get("status", ""),
+            "sort_order": node.get("sort_order", 0),
         })
 
-    items.sort(key=lambda x: (-x["score"], x["id"]))
+    items.sort(key=lambda x: (-x["score"], -x.get("sort_order", 0), x["id"]))
     return items
 
 

@@ -118,10 +118,11 @@ def rank_recommendations(
             "vision_debt": vision_debt,
             "is_decision": _is_decision_type(node),
             "type": node.get("type", ""),
+            "sort_order": node.get("sort_order", 0),
         })
 
-    # Sort: score desc, then vision_debt desc, then is_decision desc, then id asc
-    scored.sort(key=lambda x: (-x["score"], -x["vision_debt"], -int(x["is_decision"]), x["id"]))
+    # Sort: score desc, then sort_order desc, then vision_debt desc, then is_decision desc, then id asc
+    scored.sort(key=lambda x: (-x["score"], -x["sort_order"], -x["vision_debt"], -int(x["is_decision"]), x["id"]))
     return scored
 
 
