@@ -111,4 +111,4 @@ Rejected: isolation is the point. Running implementation tasks in the main workt
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-14 | — | Approved during SPEC-039 design review |
-| Superseded | 2026-03-20 | -- | Superseded by ADR-011 |
+| Superseded | 2026-03-20 | aa9ca7b | Superseded by ADR-011 |
