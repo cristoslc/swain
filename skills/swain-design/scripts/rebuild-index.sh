@@ -34,6 +34,7 @@ rebuild_index() {
         design)   title="Designs" ;;
         vision)   title="Visions" ;;
         journey)  title="Journeys" ;;
+        train)    title="Training Documents" ;;
         *)        title="$(echo "$type" | sed 's/./\u&/')" ;;
     esac
     printf "# %s\n\n" "$title" > "$tmpfile"
