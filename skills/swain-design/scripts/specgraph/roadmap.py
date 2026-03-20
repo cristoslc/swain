@@ -15,6 +15,8 @@ Leaf level: Epic (SPECs are not rendered, but progress ratios are shown).
 """
 from __future__ import annotations
 
+import os
+
 from .queries import (
     _find_vision_ancestor,
     _node_is_resolved,
@@ -206,17 +208,23 @@ def _compute_urgency(item: dict) -> float:
 
 
 
-def render_quadrant_chart(items: list[dict]) -> str:
-    """Render a Mermaid quadrantChart with items positioned by real data.
+def _short_id(artifact_id: str) -> str:
+    """Convert EPIC-031 to E31 for compact chart labels."""
+    # Strip type prefix, remove leading zeros
+    num = artifact_id.split("-", 1)[1] if "-" in artifact_id else artifact_id
+    return f"E{num.lstrip('0') or '0'}"
 
-    X-axis = urgency (active status + unblock count)
-    Y-axis = importance (vision weight cascade)
-    Clusters of dots at similar positions = undifferentiated work (decision needed).
-    Empty quadrants = potential blind spots.
+
+def render_quadrant_chart(items: list[dict]) -> tuple[str, list[dict]]:
+    """Render a Mermaid quadrantChart with short ID labels.
+
+    Returns (mermaid_source, legend_items) where legend_items is
+    a list of dicts with {short_id, id, title, quadrant} for the legend table.
     """
     epics = [i for i in items if i["type"] == "EPIC"]
 
     lines = [
+        "%%{init: {'quadrantChart': {'chartWidth': 700, 'chartHeight': 500, 'pointLabelFontSize': 14}}}%%",
         "quadrantChart",
         "    title Priority Matrix",
         '    x-axis "Low Urgency" --> "High Urgency"',
@@ -227,10 +235,7 @@ def render_quadrant_chart(items: list[dict]) -> str:
         "    quadrant-4 In Progress",
     ]
 
-    # Spread items within their region using deterministic jitter
-    # so overlapping items fan out instead of stacking.
-    # Additionally, spread items vertically within their weight tier
-    # so items at the same importance level don't pile up.
+    # Spread items vertically within their weight tier
     weight_tiers: dict[str, list[dict]] = {"high": [], "medium": [], "low": []}
     for item in epics:
         if item["weight"] >= 3:
@@ -240,7 +245,6 @@ def render_quadrant_chart(items: list[dict]) -> str:
         else:
             weight_tiers["low"].append(item)
 
-    # Map each item to its index within its weight tier for vertical spread
     tier_index: dict[str, int] = {}
     tier_size: dict[str, int] = {}
     for tier_name, tier_items in weight_tiers.items():
@@ -248,60 +252,69 @@ def render_quadrant_chart(items: list[dict]) -> str:
         for idx, item in enumerate(tier_items):
             tier_index[item["id"]] = idx
 
-    # Weight tier Y ranges: high=0.70-0.95, medium=0.25-0.55, low=0.05-0.20
     tier_ranges = {"high": (0.70, 0.95), "medium": (0.25, 0.55), "low": (0.05, 0.20)}
 
+    legend_items: list[dict] = []
     seen_positions: dict[tuple[float, float], int] = {}
     for item in epics:
         base_x = _compute_urgency(item)
-
-        # Determine weight tier and spread Y within the tier range
-        if item["weight"] >= 3:
-            tier_name = "high"
-        elif item["weight"] >= 2:
-            tier_name = "medium"
-        else:
-            tier_name = "low"
+        tier_name = "high" if item["weight"] >= 3 else ("medium" if item["weight"] >= 2 else "low")
         y_lo, y_hi = tier_ranges[tier_name]
         n = tier_size[tier_name]
         idx = tier_index[item["id"]]
-        if n > 1:
-            base_y = y_lo + (y_hi - y_lo) * idx / (n - 1)
-        else:
-            base_y = (y_lo + y_hi) / 2
+        base_y = y_lo + (y_hi - y_lo) * idx / (n - 1) if n > 1 else (y_lo + y_hi) / 2
 
-        # Deterministic jitter based on position collision count
         key = (round(base_x, 2), round(base_y, 2))
         count = seen_positions.get(key, 0)
         seen_positions[key] = count + 1
-        # Fan out in 4 directions: right-up, left-down, right-down, left-up
         jitter = count * 0.06
         direction = count % 4
-        if direction == 0:
-            x = base_x + jitter
-            y = base_y + jitter
-        elif direction == 1:
-            x = base_x - jitter
-            y = base_y - jitter
-        elif direction == 2:
-            x = base_x + jitter
-            y = base_y - jitter
-        else:
-            x = base_x - jitter
-            y = base_y + jitter
+        dx = jitter if direction in (0, 2) else -jitter
+        dy = jitter if direction in (0, 3) else -jitter
+        x = max(0.02, min(0.98, base_x + dx))
+        y = max(0.02, min(0.98, base_y + dy))
 
-        x = max(0.02, min(0.98, x))
-        y = max(0.02, min(0.98, y))
+        short = _short_id(item["id"])
+        lines.append(f"    {short}: [{x:.2f}, {y:.2f}]")
 
-        # Shorten long titles for readability
-        title = item["title"]
-        if len(title) > 25:
-            title = title[:25]
+        q = _classify_eisenhower(item)
+        legend_items.append({
+            "short_id": short,
+            "id": item["id"],
+            "title": item["title"],
+            "quadrant": QUADRANT_LABELS[q][0],
+        })
 
-        # quadrantChart labels cannot contain parens/brackets
-        lines.append(f"    {title}: [{x:.2f}, {y:.2f}]")
+    return "\n".join(lines), legend_items
 
-    return "\n".join(lines)
+
+def _render_quadrant_png(mermaid_source: str, repo_root: str) -> str | None:
+    """Render Mermaid source to PNG via mmdc. Returns relative path or None."""
+    import shutil
+    import subprocess
+    import tempfile
+
+    if not shutil.which("mmdc"):
+        return None
+
+    assets_dir = os.path.join(repo_root, "assets")
+    os.makedirs(assets_dir, exist_ok=True)
+    png_path = os.path.join(assets_dir, "quadrant.png")
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".mmd", delete=False) as f:
+        f.write(mermaid_source)
+        mmd_path = f.name
+
+    try:
+        subprocess.run(
+            ["mmdc", "-i", mmd_path, "-o", png_path, "-w", "800", "-b", "transparent"],
+            capture_output=True, timeout=30,
+        )
+        return "assets/quadrant.png" if os.path.isfile(png_path) else None
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+    finally:
+        os.unlink(mmd_path)
 
 
 # ---------------------------------------------------------------------------
@@ -477,7 +490,11 @@ def _md_link(artifact_id: str, title: str, nodes: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def render_eisenhower_table(items: list[dict], nodes: dict) -> str:
-    """Render Eisenhower quadrant tables with hyperlinks and decision signals."""
+    """Render Eisenhower quadrant tables with initiative-first grouping.
+
+    Initiative column only shows on the first row of each initiative group.
+    Items within each initiative are consecutive, sorted by score descending.
+    """
     quadrants = classify_epics_eisenhower(items)
 
     sections = []
@@ -491,21 +508,45 @@ def render_eisenhower_table(items: list[dict], nodes: dict) -> str:
             sections.append("*(none)*")
             sections.append("")
             continue
-        sections.append("| Epic | Initiative | Progress | Unblocks | Needs |")
-        sections.append("|------|-----------|----------|----------|-------|")
+
+        # Group by initiative, sort initiatives by max score desc
+        by_init: dict[str, list[dict]] = {}
         for item in qitems:
-            progress = f"{item['children_complete']}/{item['children_total']}"
-            unblocks = item["score"] // item["weight"] if item["weight"] else 0
-            epic_link = _md_link(item["id"], item["title"], nodes)
-            if item["group"] != item["id"]:
-                init_link = _md_link(item["group"], item["group_title"], nodes)
-            else:
-                init_link = "—"
-            decision = _operator_decision(item)
-            needs = f"**{decision}**" if decision else "—"
-            sections.append(
-                f"| {epic_link} | {init_link} | {progress} | {unblocks} | {needs} |"
-            )
+            key = item["group"]
+            by_init.setdefault(key, []).append(item)
+
+        # Sort each group internally by score desc
+        for key in by_init:
+            by_init[key].sort(key=lambda i: (-i["score"], i["id"]))
+
+        # Sort initiative groups by max score desc
+        sorted_groups = sorted(
+            by_init.items(),
+            key=lambda kv: (-max(i["score"] for i in kv[1]), kv[0]),
+        )
+
+        sections.append("| Initiative | Epic | Progress | Unblocks | Needs |")
+        sections.append("|-----------|------|----------|----------|-------|")
+
+        for group_key, group_items in sorted_groups:
+            for idx, item in enumerate(group_items):
+                progress = f"{item['children_complete']}/{item['children_total']}"
+                unblocks = item["score"] // item["weight"] if item["weight"] else 0
+                epic_link = _md_link(item["id"], item["title"], nodes)
+                decision = _operator_decision(item)
+                needs = f"**{decision}**" if decision else "—"
+
+                # Only show initiative on first row of each group
+                if idx == 0 and item["group"] != item["id"]:
+                    init_link = _md_link(item["group"], item["group_title"], nodes)
+                elif idx == 0:
+                    init_link = "—"
+                else:
+                    init_link = ""
+
+                sections.append(
+                    f"| {init_link} | {epic_link} | {progress} | {unblocks} | {needs} |"
+                )
         sections.append("")
 
     return "\n".join(sections)
@@ -515,12 +556,81 @@ def render_eisenhower_table(items: list[dict], nodes: dict) -> str:
 # Markdown assembly
 # ---------------------------------------------------------------------------
 
+def _render_legend_single_row(legend_items: list[dict], nodes: dict, all_items: list[dict]) -> str:
+    """Render legend as a single-line string for one markdown table cell.
+
+    Groups by quadrant, then by initiative. Double <br> between quadrants
+    for visual breathing room. Score-ordered within each quadrant.
+    """
+    init_for_epic: dict[str, str] = {}
+    init_title: dict[str, str] = {}
+    item_score: dict[str, float] = {}
+    for item in all_items:
+        if item["type"] == "EPIC":
+            if item["group"] != item["id"]:
+                init_for_epic[item["id"]] = item["group"]
+                init_title[item["group"]] = item["group_title"]
+            item_score[item["id"]] = item["weight"] + (
+                item["score"] + 1 if item["status"] in _ACTIVE_STATUSES else item["score"]
+            )
+
+    grouped: dict[str, list[dict]] = {}
+    for item in legend_items:
+        grouped.setdefault(item["quadrant"], []).append(item)
+
+    quadrant_blocks: list[str] = []
+    for qkey in QUADRANT_ORDER:
+        qlabel = QUADRANT_LABELS[qkey][0]
+        qitems = grouped.get(qlabel, [])
+        if not qitems:
+            continue
+
+        by_init: dict[str, list[dict]] = {}
+        standalone: list[dict] = []
+        for item in qitems:
+            iid = init_for_epic.get(item["id"])
+            if iid:
+                by_init.setdefault(iid, []).append(item)
+            else:
+                standalone.append(item)
+
+        for iid in by_init:
+            by_init[iid].sort(key=lambda e: -item_score.get(e["id"], 0))
+
+        sorted_inits = sorted(
+            by_init.items(),
+            key=lambda kv: -max(item_score.get(e["id"], 0) for e in kv[1]),
+        )
+
+        parts: list[str] = [f"**{qlabel}**"]
+        for iid, epics in sorted_inits:
+            iname = init_title.get(iid, iid)
+            epic_links = ", ".join(
+                _md_link(e["id"], e["short_id"], nodes) for e in epics
+            )
+            parts.append(f"*{iname}* — {epic_links}")
+
+        for item in sorted(standalone, key=lambda e: -item_score.get(e["id"], 0)):
+            link = _md_link(item["id"], item["short_id"], nodes)
+            parts.append(f"{link} {item['title']}")
+
+        quadrant_blocks.append(" <br> ".join(parts))
+
+    return " <br> <br> ".join(quadrant_blocks)
+
+
 def render_roadmap_markdown(
     items: list[dict],
     nodes: dict,
+    repo_root: str = "",
 ) -> str:
-    """Render a full ROADMAP.md with all visual and tabular views."""
-    quadrant = render_quadrant_chart(items)
+    """Render a full ROADMAP.md with all visual and tabular views.
+
+    If mmdc is available, renders the quadrant chart to PNG and embeds it
+    in a markdown table with a side-by-side legend. Falls back to inline
+    Mermaid if mmdc is not found.
+    """
+    quadrant_src, legend_items = render_quadrant_chart(items)
     eisenhower = render_eisenhower_table(items, nodes)
     gantt = render_gantt(items, nodes)
     dep_graph = render_dependency_graph(items, nodes)
@@ -530,10 +640,29 @@ def render_roadmap_markdown(
         "",
         "<!-- Auto-generated by `chart.sh roadmap`. Do not edit manually. -->",
         "",
-        "```mermaid",
-        quadrant,
-        "```",
-        "",
+    ]
+
+    # Quadrant chart: try PNG side-by-side, fall back to inline Mermaid
+    png_path = _render_quadrant_png(quadrant_src, repo_root) if repo_root else None
+
+    if png_path:
+        legend_cell = _render_legend_single_row(legend_items, nodes, items)
+        lines.extend([
+            "| Priority Matrix | Legend |",
+            "|:---:|:---|",
+            f"| ![Priority Matrix]({png_path}) | {legend_cell} |",
+            "",
+        ])
+    else:
+        # Fallback: inline Mermaid (no side-by-side)
+        lines.extend([
+            "```mermaid",
+            quadrant_src,
+            "```",
+            "",
+        ])
+
+    lines.extend([
         eisenhower,
         "## Timeline",
         "",
@@ -541,7 +670,7 @@ def render_roadmap_markdown(
         gantt,
         "```",
         "",
-    ]
+    ])
 
     if dep_graph:
         lines.extend([
