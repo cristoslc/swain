@@ -2,6 +2,8 @@ trove: claude-code-channels
 created: 2026-03-20
 refreshed: 2026-03-20
 tags:
+  - webhooks
+  - mcp-sdk
   - claude-code
   - channels
   - mcp
@@ -18,6 +20,12 @@ history:
     date: 2026-03-20
     commit: "53d1f5f"
     sources: 1
+  - event: extended
+    date: 2026-03-20
+    commit: "--"
+    sources: 2
+    sources-added: 1
+    notes: "added channels-reference (build your own channel)"
 
 sources:
   - source-id: claude-code-channels-docs
@@ -26,3 +34,10 @@ sources:
     fetched: 2026-03-20T00:00:00Z
     title: "Push events into a running session with channels — Claude Code Docs"
     hash: "760eeff0b102d978105e25c23a03bb1dba8f1ee66fe332ce44ddf2623103421d"
+
+  - source-id: claude-code-channels-reference
+    type: web
+    url: "https://code.claude.com/docs/en/channels-reference"
+    fetched: 2026-03-20T00:00:00Z
+    title: "Channels reference — Claude Code Docs"
+    hash: "9193748e6cee8347800c6c9e6d1b89602520230173bbd5356f6d6f6c5e5ef7bb"
