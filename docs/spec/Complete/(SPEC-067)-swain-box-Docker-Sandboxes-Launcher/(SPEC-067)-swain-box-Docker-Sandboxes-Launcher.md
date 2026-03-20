@@ -15,6 +15,7 @@ linked-artifacts:
   - SPEC-048
   - EPIC-005
   - SPIKE-027
+  - SPIKE-032
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
@@ -129,11 +130,12 @@ Sandboxes are persistent (not `--rm`). Operators manage them with:
 - Then Claude Code can make API calls without requiring `claude login`
 - Note: `docker sandbox` reads env vars from the shell profile at Docker Desktop startup, NOT from the current shell session. Env vars set via `export` in the running shell are not forwarded.
 
-**AC-8: Max subscription credential path**
-- Given the operator uses Claude Max subscription (OAuth, not API key)
-- When the operator runs `/login` inside the sandbox on first launch
-- Then Claude Code authenticates via OAuth and credentials persist inside the sandbox for subsequent runs
-- Note: The sandbox proxy previously injected `apiKeyHelper: "echo proxy-managed"` (docker/for-mac#7842) which overrode OAuth credentials. swain-box includes a pre-flight check that removes this stale injection from existing sandboxes.
+**AC-8: Max subscription credential path** *(INVALIDATED by SPIKE-032)*
+- ~~Given the operator uses Claude Max subscription (OAuth, not API key)~~
+- ~~When the operator runs `/login` inside the sandbox on first launch~~
+- ~~Then Claude Code authenticates via OAuth and credentials persist inside the sandbox for subsequent runs~~
+- **SPIKE-032 finding:** OAuth does NOT work in Docker Sandboxes. The MITM proxy breaks `api.claude.ai` traffic (docker/desktop-feedback#198). Even with a valid OAuth token, inference calls fail because the proxy's forged TLS certificate is rejected by the upstream server. Only `ANTHROPIC_API_KEY` (API billing) works. swain-box now blocks launch when no API key is detected for Claude runtime.
+- Note: The `apiKeyHelper` injection bug (docker/for-mac#7842) was a separate issue, fixed in Docker Desktop 4.60.1.
 
 **AC-9: Tier 2 removal from claude-sandbox**
 - Given the updated `scripts/claude-sandbox`

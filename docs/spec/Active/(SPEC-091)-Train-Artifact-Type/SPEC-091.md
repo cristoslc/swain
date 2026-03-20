@@ -9,6 +9,7 @@ last-updated: 2026-03-19
 type:
 parent-epic:
 parent-initiative:
+parent-vision: VISION-001
 linked-artifacts: []
 depends-on-artifacts: []
 addresses: []
@@ -54,17 +55,18 @@ stateDiagram-v2
 - `status` — current lifecycle phase
 - `author` — creator
 - `audience` — target reader(s): persona references or free-text (e.g., `PERSONA-001`, "new operators", "skill authors")
-- `train-type` — one of: `guide | tutorial | reference | onboarding | faq`
-- `linked-artifacts` — SPECs, EPICs, RUNBOOKs, or other artifacts this training covers
+- `train-type` — one of: `how-to | reference | quickstart` (Diataxis MVP; additional types added when demand emerges)
+- `linked-artifacts` — enriched format supporting `rel` tags and commit pinning (see Design Decision 3 in design doc)
 - `superseded-by` — (optional) pointer to replacement TRAIN when superseded
+- `parent-epic` OR `parent-initiative` — hierarchy anchor (never both; same pattern as SPEC)
 - `created`, `last-updated` — dates
 
-**Train types:**
-- `guide` — task-oriented how-to for a specific workflow (e.g., "How to create a SPEC")
-- `tutorial` — step-by-step learning path with exercises (e.g., "Your first swain project")
-- `reference` — lookup-oriented material: glossary, cheat sheet, command reference
-- `onboarding` — structured introduction for new operators joining the project
-- `faq` — frequently asked questions with answers
+**Train types** (based on [Diataxis framework](https://diataxis.fr/)):
+- `how-to` — goal-oriented steps for a specific task, assumes competence (e.g., "How to configure credential scoping")
+- `reference` — factual lookup material: descriptive, complete, neutral (e.g., "Artifact type reference")
+- `quickstart` — compressed tutorial for time-to-first-success under 10 minutes (e.g., "Your first swain project")
+
+Key Diataxis rule: never mix types in a single document.
 
 **Content structure (template sections):**
 - Prerequisites — what the reader needs before starting
@@ -80,31 +82,57 @@ stateDiagram-v2
 - `adr-check.sh` validates TRAIN artifacts against active ADRs
 - TRAIN artifacts appear in `swain-status` under a "Documentation" section when relevant
 
-**Cross-referencing:**
-- SPECs and EPICs can reference TRAINs via `linked-artifacts` to indicate "this feature has training materials"
-- TRAINs reference the artifacts they teach via their own `linked-artifacts`
-- When a SPEC transitions to Complete, `specwatch.sh` can flag if linked TRAINs need updating
+**Cross-referencing (enriched `linked-artifacts`):**
+TRAINs use enriched `linked-artifacts` entries with `rel` tags and optional commit pinning:
+```yaml
+linked-artifacts:
+  - artifact: SPEC-067
+    rel: [documents]
+    commit: abc1234
+    verified: 2026-03-19
+  - DESIGN-003              # plain string = rel: linked (default)
+```
+- `rel: [documents]` — content dependency with commit-pinned staleness tracking
+- `train-check.sh` reads entries with `documents` in `rel`, diffs pinned commit against HEAD
+- SPECs and EPICs can reference TRAINs via plain `linked-artifacts` entries
+- When a SPEC transitions to Complete, the SPEC completion hook nudges TRAIN updates
+- When an EPIC completes with no linked TRAINs, the EPIC completion hook suggests creating one
+
+**Staleness detection:**
+- `train-check.sh` — standalone script, also called by `specwatch.sh scan`
+- Compares `commit` hashes in enriched entries against current HEAD for each documented artifact
+- Exit 0 = current, Exit 1 = drift found, Exit 2 = git unavailable (graceful degradation)
+
+**Back-propagation:**
+Step 4e in phase-transitions.md (SPIKE completion sibling scan) is extended to include TRAINs in the same Vision/Initiative scope. Semantic conflicts surfaced as `IMPLICIT_CONFLICT`.
 
 ### Files to create
 
 1. `references/train-definition.md` — artifact type definition (lifecycle, conventions, folder structure)
 2. `references/train-template.md.template` — Jinja2 structural template with frontmatter and document skeleton
-3. Updates to `swain-design/SKILL.md` — add TRAIN to the artifact type table and "Choosing the right artifact type" section
+3. `scripts/train-check.sh` — standalone staleness detection script
 
 ### Files to update
 
-4. `scripts/chart.sh` — handle `train` artifact type in graph building
-5. `scripts/specwatch.sh` — scan `docs/train/` directories
-6. `scripts/adr-check.sh` — include TRAIN in compliance scanning
+4. `swain-design/SKILL.md` — add TRAIN to the artifact type table and "Choosing the right artifact type" section
+5. `scripts/specwatch.sh` — add `train` to TYPE_DIRS; add `train-check` pass in `scan`; handle enriched `linked-artifacts`
+6. `scripts/adr-check.sh` — include `docs/train/` in compliance scanning
+7. `scripts/chart.sh` / specgraph parser — handle enriched `linked-artifacts` entries (string or object)
+8. `references/relationship-model.md` — add TRAIN node to ER diagram, add `documents` rel type
+9. `references/phase-transitions.md` — add SPEC/EPIC completion hooks, extend step 4e to include TRAINs
+10. `scripts/rebuild-index.sh` — add `train` type title mapping
 
 ## Acceptance Criteria
 
 - **Given** an operator requests a new TRAIN artifact, **When** swain-design processes the request, **Then** it creates a `docs/train/<Phase>/(TRAIN-NNN)-<Title>/` folder with a properly templated markdown file
 - **Given** a TRAIN artifact exists, **When** `chart.sh build` runs, **Then** TRAIN nodes appear in the artifact graph with correct parent/linked edges
-- **Given** a TRAIN references a SPEC via `linked-artifacts`, **When** that SPEC transitions to a new phase, **Then** `specwatch.sh scan` flags the TRAIN for review if the SPEC's scope changed
+- **Given** a TRAIN has enriched `linked-artifacts` entries with `rel: [documents]` and commit pins, **When** `train-check.sh` runs, **Then** it detects drift between pinned commits and current HEAD for each documented artifact
+- **Given** a SPEC transitions to Complete and a TRAIN documents it via `rel: [documents]`, **When** the SPEC completion hook fires, **Then** it nudges the operator to update the existing TRAIN (prefer update over create)
+- **Given** an EPIC transitions to Complete with no linked TRAINs, **When** the EPIC completion hook fires, **Then** it suggests creating documentation for the Epic's features
+- **Given** a SPIKE completes with findings that contradict a TRAIN's content, **When** step 4e back-propagation runs, **Then** the TRAIN is included in the sibling scan and surfaced as `IMPLICIT_CONFLICT`
 - **Given** a TRAIN artifact exists, **When** `adr-check.sh` runs against it, **Then** it validates the TRAIN against active ADRs (same as other artifact types)
 - **Given** an operator runs `swain-design` with intent to create documentation or training materials, **Then** the "Choosing the right artifact type" table routes them to TRAIN
-- **Given** a TRAIN with `train-type: tutorial`, **When** it is created from the template, **Then** it includes Prerequisites, Learning Objectives, step-by-step Body, Summary, and Next Steps sections
+- **Given** a TRAIN with any `train-type`, **When** it is created from the template, **Then** it includes Prerequisites, Learning Objectives, Body, Key Takeaways, and Next Steps sections
 
 ## Scope & Constraints
 
@@ -116,29 +144,45 @@ stateDiagram-v2
 
 ## Implementation Approach
 
-1. **Definition + Template (TDD: criteria 1, 6):**
+1. **Definition + Template (TDD: criteria 1, 7):**
    - Create `train-definition.md` following the pattern of `runbook-definition.md` and `design-definition.md`
-   - Create `train-template.md.template` following the Jinja2 pattern of existing templates
+   - Create `train-template.md.template` with enriched `linked-artifacts` format
    - Test: create a TRAIN artifact manually and verify structure
 
-2. **SKILL.md integration (TDD: criteria 5):**
+2. **SKILL.md integration (TDD: criteria 8):**
    - Add TRAIN row to the artifact type table
    - Add documentation/training signals to the "Choosing the right artifact type" table
-   - Test: verify swain-design routes "create training docs" to TRAIN
 
-3. **chart.sh integration (TDD: criteria 2):**
-   - Add `train` to the artifact type scanner in `chart.sh`
-   - Handle TRAIN → linked-artifact edges
-   - Test: `chart.sh build` with a TRAIN artifact present
+3. **Enriched `linked-artifacts` + specgraph parser (TDD: criteria 2):**
+   - Update specgraph parser to handle both string and object entries in `linked-artifacts`
+   - Extract `rel` tags and commit pins from enriched entries
+   - Update `relationship-model.md` with TRAIN node and `documents` rel type
+   - Test: `chart.sh build` with a TRAIN artifact using enriched `linked-artifacts`
 
-4. **specwatch.sh integration (TDD: criteria 3):**
-   - Add `docs/train/` to the scan paths
-   - Add staleness heuristic: flag TRAINs when linked SPECs change phase
-   - Test: `specwatch.sh scan` detects TRAIN with stale SPEC reference
+4. **train-check.sh (TDD: criteria 2):**
+   - Create standalone staleness detection script
+   - Read enriched `linked-artifacts`, filter for `rel: [documents]`, diff commit hashes
+   - Test: `train-check.sh` detects drift on stale pins and passes on current pins
 
-5. **adr-check.sh integration (TDD: criteria 4):**
-   - Include `docs/train/` in compliance scanning
-   - Test: `adr-check.sh` processes a TRAIN artifact
+5. **specwatch.sh integration (TDD: criteria 2, 3):**
+   - Add `train` to TYPE_DIRS for phase-fix
+   - Add `train-check` pass in `scan` subcommand
+   - Update frontmatter parser to handle enriched `linked-artifacts` object entries
+   - Test: `specwatch.sh scan` calls `train-check.sh` and reports stale TRAINs
+
+6. **Phase transition hooks (TDD: criteria 3, 4, 5):**
+   - Add SPEC completion hook: scan for TRAINs documenting the SPEC, nudge update
+   - Add EPIC completion hook: check for linked TRAINs, suggest creating if none
+   - Extend step 4e sibling scan to include TRAINs in back-propagation
+   - Test: SPEC transition fires TRAIN nudge; SPIKE completion flags contradicted TRAIN
+
+7. **adr-check.sh + rebuild-index.sh (TDD: criteria 5):**
+   - Include `docs/train/` in ADR compliance scanning
+   - Add `train` type title mapping to rebuild-index.sh
+
+8. **swain-sync integration:**
+   - Add `train` to the rebuild-index loop in swain-sync SKILL.md (hardcoded type list)
+   - Add `docs/train/` to the ADR compliance artifact path list in swain-sync SKILL.md
 
 ## Lifecycle
 
@@ -150,4 +194,4 @@ stateDiagram-v2
 
 # Operator Feedback
 
-- there's a RETRO about an issue when a SPIKE's findings didn't back-propagate. TRAIN seems like it would also be affected.
+- ~~there's a RETRO about an issue when a SPIKE's findings didn't back-propagate. TRAIN seems like it would also be affected.~~ **Resolved:** step 4e back-propagation scan extended to include TRAINs; acceptance criterion added above. See design doc Decision 4.

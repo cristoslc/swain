@@ -26,6 +26,7 @@
 | EPIC-017 | Security Vulnerability Scanning Skill | 2026-03-17 | 648d4a7 |
 | EPIC-023 | Security Gates in swain-do Execution Flow | 2026-03-17 | 648d4a7 |
 | EPIC-031 | Skill Audit Remediation | 2026-03-18 | — |
+| EPIC-034 | User Documentation System | 2026-03-19 | — |
 
 ## Complete
 

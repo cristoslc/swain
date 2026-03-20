@@ -118,7 +118,12 @@ STALE: TRAIN-001 → SPEC-067 (pinned: abc1234, current: fed9876, 3 commits behi
 
 Exit 0 = all pins current. Exit 1 = drift found.
 
-Called standalone or by specwatch during `swain-sync`.
+Called standalone, or by `specwatch.sh scan` (which adds a `train-check` pass for each TRAIN found under `docs/train/`). The `swain-sync` skill invokes `specwatch.sh scan` as part of its pipeline, so TRAINs get validated on every sync.
+
+**Caller contract:**
+- Accepts a path to a single TRAIN directory or no argument (scans all TRAINs under `docs/train/`)
+- Requires `git` to be available; if not, exits with code 2 and a warning (graceful degradation)
+- If the script is absent or not executable, specwatch skips the check with a warning (same pattern as adr-check.sh)
 
 ### Hooks
 
@@ -133,8 +138,8 @@ Called standalone or by specwatch during `swain-sync`.
 3. If not found: "EPIC-NNN completed with no linked TRAIN. Consider documenting: [title]"
 4. Agent/subagent/MCP tool drafts the TRAIN; operator reviews
 
-**Back-propagation** (extending step 4e):
-When a SPIKE completes, the existing sibling scan now also checks TRAINs in the same Vision/Initiative scope. If a TRAIN's content could be invalidated by the SPIKE's findings, surface as `IMPLICIT_CONFLICT`.
+**Back-propagation** (in-place modification of step 4e in phase-transitions.md):
+Step 4e's sibling scan currently checks SPECs and EPICs in the same Vision/Initiative scope when a SPIKE completes. Extend the artifact types it considers to include TRAINs. If a TRAIN's content could be invalidated by the SPIKE's findings, surface as `IMPLICIT_CONFLICT` alongside other sibling findings.
 
 ### Default doc granularity
 
@@ -234,12 +239,15 @@ TRAINs without Vision ancestry appear in an "Uncategorized" section.
 
 | File | Change |
 |---|---|
-| SPEC-091 | Revise to reflect brainstorming decisions |
-| `SKILL.md` (swain-design) | Add TRAIN to artifact type table |
-| `rebuild-index.sh` | Add `train` type mapping |
-| `relationship-model.md` | Add `documents` rel type, enriched format schema |
-| `phase-transitions.md` | Add SPEC/EPIC completion hooks, extend back-propagation to TRAINs |
-| specgraph parser | Handle enriched `linked-artifacts` entries |
+| SPEC-091 | Revise to reflect brainstorming decisions (train-types, parent-vision, acceptance criteria) |
+| `SKILL.md` (swain-design) | Add TRAIN to artifact type table and "Choosing the right artifact type" |
+| `rebuild-index.sh` | Add `train)  title="Training Documents" ;;` to the type title mapping (line ~37) |
+| `relationship-model.md` | Add TRAIN node to ER diagram, add `documents` rel type, document enriched format schema |
+| `phase-transitions.md` | Add SPEC/EPIC completion hooks for TRAIN nudging; modify step 4e to include TRAINs in sibling scan |
+| `adr-check.sh` | Include `docs/train/` in compliance scanning (same as other artifact types) |
+| `chart.sh` / specgraph parser | Handle enriched `linked-artifacts` entries (string or object); `chart.sh` already discovers types dynamically via frontmatter, so no type registration needed — but parser must handle enriched format |
+| `specwatch.sh` | Add `train` to `TYPE_DIRS` for phase-fix; add `train-check` pass in `scan` subcommand; update frontmatter parser to handle enriched `linked-artifacts` object entries |
+| `swain-sync` SKILL.md | Add `train` to rebuild-index type loop; add `docs/train/` to ADR compliance path list |
 | swain-stage skill | Rip and replace entirely |
 
 ## Open Questions

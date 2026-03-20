@@ -12,6 +12,15 @@ Alignment means **oriented toward the same goal** — usually the Vision at the 
 
 Things that merely do not contradict each other but are otherwise semantically distant can still align with the same goal. Alignment is about shared direction, not proximity.
 
+## When to run alignment checks
+
+| Trigger | What to check |
+|---------|---------------|
+| **Artifact creation** | Parent-child alignment, sibling conflicts (existing behavior) |
+| **Spike completion** | All artifacts in the same vision/initiative scope — do any acceptance criteria or documented behaviors contradict the spike's verdict? (see phase-transitions.md step 4e) |
+| **Runbook creation** | All validated specs referenced by the runbook — are the documented behaviors still accurate given completed spikes and known limitations? |
+| **ADR acceptance** | All artifacts that implement or depend on the decision's subject — are they consistent with the accepted approach? |
+
 ## Procedure
 
 1. Run `bash skills/swain-design/scripts/chart.sh scope <ID>` to identify the alignment scope — the parent chain, siblings, and lateral links.

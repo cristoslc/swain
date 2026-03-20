@@ -5,11 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Created SPEC-082 through SPEC-090 for EPIC-033 (Swain MCP Server). Ready for implementation.",
-    "files": [
-      "docs/epic/Proposed/(EPIC-033)-Swain-MCP-Server/(EPIC-033)-Swain-MCP-Server.md"
-    ],
-    "timestamp": "2026-03-19T15:03:49Z"
+    "note": "ingested SPEC-091 plan into tk as swa-kd71",
+    "timestamp": "2026-03-20T00:42:47Z"
   },
   "focus_lane": "VISION-002"
 }

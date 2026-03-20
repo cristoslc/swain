@@ -12,6 +12,7 @@ parent-initiative: ""
 linked-artifacts:
   - SPEC-067
   - DESIGN-002
+  - SPIKE-032
 depends-on-artifacts:
   - SPEC-067
 addresses: []

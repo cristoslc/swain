@@ -17,6 +17,13 @@ Phases listed in the artifact definition files are available waypoints, not mand
 4. **ADR compliance check** — for transitions to active phases (Active, Ready, In Progress, Complete), run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
 4c. **Alignment check** — for transitions to active phases (Active, Ready), run `bash skills/swain-design/scripts/chart.sh scope <artifact-id>` and assess per [alignment-checking.md](alignment-checking.md). Skip for implementation-phase transitions (In Progress, Needs Manual Test, Complete) unless content changed since last check. Skip for terminal-phase transitions (Abandoned, Retired, Superseded).
 4d. **Spike final pass (SPIKE only)** — for `Active → Complete` transitions, populate the `## Summary` section at the top of the spike document. Lead with the verdict (Go / No-Go / Hybrid / Conditional), then 1–3 sentences distilling the key finding and recommended next step. This reorders emphasis without changing content — Findings stay in place, but the reader reaches the decision immediately. See [spike-definition.md](spike-definition.md) for rationale.
+4e. **Spike back-propagation (SPIKE only)** — for `Active → Complete` transitions, scan for artifacts whose assumptions may be invalidated by the spike's findings. This is a semantic check, not just a structural xref:
+   1. Read the spike's verdict and key findings from `## Summary`.
+   2. Query `chart.sh scope <SPIKE-ID>` to identify sibling artifacts in the same parent-vision/parent-initiative scope.
+   3. For each sibling that is Complete or Active, check whether any acceptance criteria or documented behavior contradict the spike's findings.
+   4. Surface contradictions as `IMPLICIT_CONFLICT` findings (see [alignment-checking.md](alignment-checking.md)). Present them to the operator before proceeding.
+   5. If contradictions exist, recommend updating the affected artifacts' acceptance criteria and any downstream code/runbooks that implemented the invalidated assumptions.
+   This step is **advisory** — it does not block the spike completion — but findings must be presented, not silently skipped.
 4a. **Verification gate (SPEC only)** — for `Needs Manual Test → Complete` transitions, run `skills/swain-design/scripts/spec-verify.sh <artifact-path>`. Address gaps before proceeding.
 4b. **Code review gate (SPEC only)** — for `Needs Manual Test → Complete`, if superpowers code review skills are installed, request spec compliance + code quality reviews (see [superpowers-integration.md](superpowers-integration.md)). Not a hard gate.
 5. Commit the transition change (move + status update).

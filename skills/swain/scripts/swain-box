@@ -1,54 +1,57 @@
 #!/bin/sh
-# swain-box — Run an agent in a Docker Desktop sandbox (SPEC-067 + SPEC-068 + SPEC-071 + SPEC-081)
-# Usage: ./swain-box [--runtime=NAME] [--credentials=MODE] [--no-worktree] [--cleanup NAME] [path]
+# swain-box — Unified sandbox launcher for AI coding agents (SPEC-092)
+# Usage: ./swain-box [--runtime=NAME] [--isolation=MODE] [--prompt=TEXT] [--cleanup=NAME] [path]
 #
-# With no argument, uses $PWD as the project root.
-# With a path argument, uses that directory as the project root.
+# Two-step interactive launcher:
+#   1. Select agent runtime (claude, copilot, codex, gemini, kiro, opencode)
+#   2. Select isolation mode (microVM via Docker Sandboxes, or container via docker run)
 #
-# --runtime=NAME     : skip detection and use this runtime (claude|copilot|codex)
-# --credentials=MODE : credential scoping mode (minimal|full, default: minimal)
-# --no-worktree      : skip worktree creation; use project root directly (attended use)
-# --cleanup NAME     : remove worktree and branch for the named sandbox, then exit
+# Flags:
+#   --runtime=NAME       Skip runtime menu (claude|copilot|codex|gemini|kiro|opencode)
+#   --isolation=MODE     Skip isolation menu (microvm|container)
+#   --prompt=TEXT         Initial prompt for the agent session (default: /swain-session)
+#   --cleanup=NAME       Remove container/sandbox for the named sandbox, then exit
+#   [path]               Project directory (default: $PWD)
 #
-# Worktree isolation (SPEC-081): By default, swain-box creates a git worktree
-# at .sandboxes/<name> on branch agent/<name> and mounts THAT instead of the
-# project root. Each agent gets its own branch — no two agents can clobber
-# each other's files or push to main.
-#
-# Authentication:
-#   Docker Sandboxes' MITM proxy does NOT support Claude Max/Pro OAuth
-#   (docker/desktop-feedback#198). The proxy cannot tunnel traffic to
-#   api.claude.ai — it MITMs the TLS connection, which the upstream
-#   server rejects. This means ANTHROPIC_API_KEY (API billing) is the
-#   only working auth path for Claude in Docker Sandboxes.
-#
-#   Set ANTHROPIC_API_KEY in ~/.zshrc BEFORE starting Docker Desktop.
-#   The sandbox daemon reads env vars from the shell profile at startup,
-#   not from the current shell session.
-#
-#   For Max/Pro subscription usage without API billing, use the Tier 1
-#   native launcher instead: scripts/claude-sandbox
-#
-# Requires Docker Desktop 4.58+ (for the 'docker sandbox' subcommand).
+# Requires Docker Desktop 4.58+ (for docker sandbox subcommand).
 
 set -eu
 
-# Known runtimes in preference order (SPEC-068 / DESIGN-002)
-KNOWN_RUNTIMES="claude copilot codex"
+# ============================================================
+# Known issues table
+# Empty = no known issues; non-empty = warning text for microVM mode
+# ============================================================
+_known_issue_microvm() {
+    case "$1" in
+        claude) echo "OAuth/Max broken — requires ANTHROPIC_API_KEY" ;;
+        *)      echo "" ;;
+    esac
+}
 
-# --- Argument parsing ---
+# Image tag mapping (docker/sandbox-templates:<tag>)
+_image_tag() {
+    case "$1" in
+        claude) echo "claude-code" ;;
+        *)      echo "$1" ;;
+    esac
+}
+
+# ============================================================
+# Argument parsing
+# ============================================================
 TARGET_PATH=""
-CRED_MODE="minimal"
 EXPLICIT_RUNTIME=""
-USE_WORKTREE=1
+EXPLICIT_ISOLATION=""
+PROMPT="/swain-session"
 CLEANUP_NAME=""
+
 for arg in "$@"; do
     case "$arg" in
-        --runtime=*) EXPLICIT_RUNTIME="${arg#--runtime=}" ;;
-        --credentials=*) CRED_MODE="${arg#--credentials=}" ;;
-        --no-worktree) USE_WORKTREE=0 ;;
-        --cleanup=*) CLEANUP_NAME="${arg#--cleanup=}" ;;
-        --cleanup) CLEANUP_NAME="__next__" ;;
+        --runtime=*)    EXPLICIT_RUNTIME="${arg#--runtime=}" ;;
+        --isolation=*)  EXPLICIT_ISOLATION="${arg#--isolation=}" ;;
+        --prompt=*)     PROMPT="${arg#--prompt=}" ;;
+        --cleanup=*)    CLEANUP_NAME="${arg#--cleanup=}" ;;
+        --cleanup)      CLEANUP_NAME="__next__" ;;
         *)
             if [ "$CLEANUP_NAME" = "__next__" ]; then
                 CLEANUP_NAME="$arg"
@@ -59,264 +62,234 @@ for arg in "$@"; do
     esac
 done
 
-# --- Cleanup subcommand (SPEC-081) ---
+# ============================================================
+# Cleanup subcommand
+# ============================================================
 if [ -n "$CLEANUP_NAME" ] && [ "$CLEANUP_NAME" != "__next__" ]; then
-    _wt_path="${TARGET_PATH:-.}/.sandboxes/$CLEANUP_NAME"
-    _branch="agent/$CLEANUP_NAME"
-    if [ -d "$_wt_path" ]; then
-        git -C "${TARGET_PATH:-.}" worktree remove "$_wt_path" 2>/dev/null || \
-            git -C "${TARGET_PATH:-.}" worktree remove --force "$_wt_path" 2>/dev/null || true
-        echo "swain-box: removed worktree at $_wt_path" >&2
-    else
-        echo "swain-box: no worktree found at $_wt_path" >&2
-    fi
-    git -C "${TARGET_PATH:-.}" branch -D "$_branch" 2>/dev/null && \
-        echo "swain-box: deleted branch $_branch" >&2 || \
-        echo "swain-box: branch $_branch not found or not deleted" >&2
-    git -C "${TARGET_PATH:-.}" worktree prune 2>/dev/null
+    docker rm -f "$CLEANUP_NAME" 2>/dev/null && \
+        echo "swain-box: removed container $CLEANUP_NAME" >&2 || true
+    docker sandbox rm "$CLEANUP_NAME" 2>/dev/null && \
+        echo "swain-box: removed sandbox $CLEANUP_NAME" >&2 || true
     exit 0
 fi
 
-# --- Docker availability check ---
+# ============================================================
+# Docker checks
+# ============================================================
 if ! command -v docker >/dev/null 2>&1; then
     echo "swain-box: 'docker' not found on PATH." >&2
     echo "Install Docker Desktop: https://www.docker.com/products/docker-desktop/" >&2
     exit 1
 fi
 
-# --- docker sandbox subcommand check (Docker Desktop 4.58+) ---
 if ! docker sandbox --help >/dev/null 2>&1; then
     echo "swain-box: 'docker sandbox' subcommand is not available." >&2
     echo "Requires Docker Desktop 4.58 or later." >&2
-    echo "Download: https://www.docker.com/products/docker-desktop/" >&2
     exit 1
 fi
 
-# --- Resolve target path ---
+# ============================================================
+# Resolve project path
+# ============================================================
 TARGET_PATH="${TARGET_PATH:-$PWD}"
-
-# Resolve to absolute path without using realpath (not portable)
-ABSOLUTE_PATH="$(cd "$TARGET_PATH" && pwd)" || {
-    echo "swain-box: path does not exist or is not accessible: $TARGET_PATH" >&2
+PROJECT_PATH="$(cd "$TARGET_PATH" && pwd)" || {
+    echo "swain-box: path does not exist: $TARGET_PATH" >&2
     exit 1
 }
 
 # ============================================================
-# Runtime detection and selection (SPEC-068 / DESIGN-002)
+# Step 1 — Runtime selection
 # ============================================================
+KNOWN_RUNTIMES="claude copilot codex gemini kiro opencode"
 
-# --- Detect available runtimes ---
+# Detect available runtimes from docker sandbox create --help (instant)
+_create_help=$(docker sandbox create --help 2>&1)
 AVAILABLE_RUNTIMES=""
 AVAILABLE_COUNT=0
 for _rt in $KNOWN_RUNTIMES; do
-    if docker sandbox run "$_rt" --version >/dev/null 2>&1; then
+    if echo "$_create_help" | grep -qw "$_rt"; then
         AVAILABLE_RUNTIMES="${AVAILABLE_RUNTIMES:+$AVAILABLE_RUNTIMES }$_rt"
         AVAILABLE_COUNT=$((AVAILABLE_COUNT + 1))
     fi
 done
 
-# --- Handle --runtime flag (bypass detection) ---
 SELECTED_RUNTIME=""
+
 if [ -n "$EXPLICIT_RUNTIME" ]; then
-    # Validate against available runtimes
-    _found=0
-    for _rt in $AVAILABLE_RUNTIMES; do
-        [ "$_rt" = "$EXPLICIT_RUNTIME" ] && _found=1 && break
-    done
-    if [ "$_found" = "0" ]; then
-        echo "swain-box: Runtime '$EXPLICIT_RUNTIME' is not available in Docker Sandboxes." >&2
-        if [ "$AVAILABLE_COUNT" -gt 0 ]; then
-            echo "  Available runtimes: $AVAILABLE_RUNTIMES" >&2
-        else
-            echo "  No supported agent runtimes found." >&2
-        fi
+    # Validate
+    if ! echo "$_create_help" | grep -qw "$EXPLICIT_RUNTIME"; then
+        echo "swain-box: runtime '$EXPLICIT_RUNTIME' is not available." >&2
+        [ "$AVAILABLE_COUNT" -gt 0 ] && echo "  Available: $AVAILABLE_RUNTIMES" >&2
         exit 1
     fi
     SELECTED_RUNTIME="$EXPLICIT_RUNTIME"
-fi
+elif [ "$AVAILABLE_COUNT" = "0" ]; then
+    echo "swain-box: no supported agent runtimes found in Docker Sandboxes." >&2
+    echo "  Expected one of: $KNOWN_RUNTIMES" >&2
+    exit 1
+elif [ "$AVAILABLE_COUNT" = "1" ]; then
+    SELECTED_RUNTIME="$AVAILABLE_RUNTIMES"
+    echo "swain-box: using $SELECTED_RUNTIME." >&2
+else
+    if [ -t 0 ]; then
+        echo "swain-box: Multiple agent runtimes available. Select one:"
+        _i=1
+        for _rt in $AVAILABLE_RUNTIMES; do
+            echo "  $_i) $_rt"
+            _i=$((_i + 1))
+        done
 
-# --- Selection logic (when no --runtime flag) ---
-if [ -z "$SELECTED_RUNTIME" ]; then
-    if [ "$AVAILABLE_COUNT" = "0" ]; then
-        # AC-1: No runtimes available
-        echo "swain-box: No supported agent runtimes found in Docker Sandboxes." >&2
-        echo "  Ensure at least one of: $KNOWN_RUNTIMES is installed." >&2
-        exit 1
-    elif [ "$AVAILABLE_COUNT" = "1" ]; then
-        # AC-2: Single runtime auto-selected
-        SELECTED_RUNTIME="$AVAILABLE_RUNTIMES"
+        _attempts=0
+        while [ "$_attempts" -lt 2 ]; do
+            printf "Choice [1]: "
+            read -r _choice
+            _choice="${_choice:-1}"
+            case "$_choice" in
+                *[!0-9]*) ;;
+                *)
+                    if [ "$_choice" -ge 1 ] 2>/dev/null && [ "$_choice" -le "$AVAILABLE_COUNT" ] 2>/dev/null; then
+                        _i=1
+                        for _rt in $AVAILABLE_RUNTIMES; do
+                            [ "$_i" = "$_choice" ] && SELECTED_RUNTIME="$_rt" && break
+                            _i=$((_i + 1))
+                        done
+                        break
+                    fi
+                    ;;
+            esac
+            _attempts=$((_attempts + 1))
+            [ "$_attempts" -lt 2 ] && echo "Invalid selection. Try again:" || { echo "swain-box: invalid selection." >&2; exit 1; }
+        done
         echo "swain-box: using $SELECTED_RUNTIME." >&2
     else
-        # AC-3/AC-6: Multiple runtimes
-        if [ -t 0 ]; then
-            # Interactive — show selection menu (DESIGN-002)
-            echo "swain-box: Multiple agent runtimes available. Select one:"
-            _i=1
-            for _rt in $AVAILABLE_RUNTIMES; do
-                echo "  $_i) $_rt"
-                _i=$((_i + 1))
-            done
-
-            # Read selection with default and re-prompt (AC-4, AC-5)
-            _attempts=0
-            while [ "$_attempts" -lt 2 ]; do
-                printf "Choice [1]: "
-                read -r _choice
-                _choice="${_choice:-1}"
-
-                # Validate numeric and in range
-                case "$_choice" in
-                    *[!0-9]*) ;;
-                    *)
-                        if [ "$_choice" -ge 1 ] 2>/dev/null && [ "$_choice" -le "$AVAILABLE_COUNT" ] 2>/dev/null; then
-                            _i=1
-                            for _rt in $AVAILABLE_RUNTIMES; do
-                                if [ "$_i" = "$_choice" ]; then
-                                    SELECTED_RUNTIME="$_rt"
-                                    break
-                                fi
-                                _i=$((_i + 1))
-                            done
-                            break
-                        fi
-                        ;;
-                esac
-
-                _attempts=$((_attempts + 1))
-                if [ "$_attempts" -lt 2 ]; then
-                    echo "Invalid selection. Try again:"
-                else
-                    echo "swain-box: invalid selection after 2 attempts." >&2
-                    exit 1
-                fi
-            done
-            echo "swain-box: using $SELECTED_RUNTIME." >&2
-        else
-            # Non-interactive — auto-select first (AC-6)
-            # Get first word from AVAILABLE_RUNTIMES
-            SELECTED_RUNTIME="${AVAILABLE_RUNTIMES%% *}"
-            echo "swain-box: WARNING: multiple runtimes available; auto-selected $SELECTED_RUNTIME (non-interactive mode). Use --runtime=<name> to specify." >&2
-        fi
+        SELECTED_RUNTIME="${AVAILABLE_RUNTIMES%% *}"
+        echo "swain-box: auto-selected $SELECTED_RUNTIME (non-interactive). Use --runtime=<name> to specify." >&2
     fi
 fi
 
 # ============================================================
-# Credential handling and launch
+# Step 2 — Isolation selection
 # ============================================================
+SELECTED_ISOLATION=""
+_issue=$(_known_issue_microvm "$SELECTED_RUNTIME")
 
-# --- Derive sandbox name ---
-WORKDIR_NAME="$(basename "$ABSOLUTE_PATH")"
-SANDBOX_NAME="${SELECTED_RUNTIME}-${WORKDIR_NAME}"
-
-# --- Max/OAuth warning (docker/desktop-feedback#198) — Claude-specific ---
-if [ "$SELECTED_RUNTIME" = "claude" ]; then
-    _has_api_key=0
-    [ -n "${ANTHROPIC_API_KEY:-}" ] && _has_api_key=1
-    if [ "$_has_api_key" = "0" ]; then
-        for _profile in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
-            if [ -f "$_profile" ] && grep -q 'ANTHROPIC_API_KEY' "$_profile" 2>/dev/null; then
-                _has_api_key=1
-                break
-            fi
-        done
-    fi
-    if [ "$_has_api_key" = "0" ]; then
-        echo "" >&2
-        echo "swain-box: WARNING — No ANTHROPIC_API_KEY detected." >&2
-        echo "" >&2
-        echo "  Docker Sandboxes cannot use Claude Max/Pro subscriptions (OAuth)." >&2
-        echo "  The MITM proxy breaks api.claude.ai traffic (docker/desktop-feedback#198)." >&2
-        echo "  You will see 'Credit balance too low' errors without an API key." >&2
-        echo "" >&2
-        echo "  To fix: export ANTHROPIC_API_KEY in ~/.zshrc, then restart Docker Desktop." >&2
-        echo "  For Max/Pro without API billing, use the Tier 1 native launcher instead:" >&2
-        echo "    scripts/claude-sandbox" >&2
-        echo "" >&2
-    fi
-fi
-
-# --- Fix apiKeyHelper injection (docker/for-mac#7842) — Claude-specific ---
-if [ "$SELECTED_RUNTIME" = "claude" ]; then
-    if docker sandbox ls --format '{{.Sandbox}}' 2>/dev/null | grep -qx "$SANDBOX_NAME"; then
-        _has_helper=$(docker sandbox exec "$SANDBOX_NAME" \
-            sh -c 'grep -c "\"apiKeyHelper\"" "$HOME/.claude/settings.json"' 2>/dev/null || echo "0")
-        if [ "$_has_helper" != "0" ]; then
-            echo "swain-box: removing stale apiKeyHelper injection (docker/for-mac#7842)..." >&2
-            docker sandbox exec "$SANDBOX_NAME" \
-                sh -c 'sed -i "/\"apiKeyHelper\"/d" "$HOME/.claude/settings.json"' 2>/dev/null || true
-        fi
-    fi
-fi
-
-# --- Copilot credential passthrough (SPEC-069) ---
-if [ "$SELECTED_RUNTIME" = "copilot" ]; then
-    _has_gh_token=0
-    [ -n "${GITHUB_TOKEN:-}" ] && _has_gh_token=1
-    if [ "$_has_gh_token" = "0" ] && [ -n "${GH_TOKEN:-}" ]; then
-        _has_gh_token=1
-    fi
-    if [ "$_has_gh_token" = "0" ] && command -v gh >/dev/null 2>&1; then
-        _gh_token=$(gh auth token 2>/dev/null || true)
-        if [ -n "$_gh_token" ]; then
-            export GITHUB_TOKEN="$_gh_token"
-            _has_gh_token=1
-            echo "swain-box: GITHUB_TOKEN set from gh auth." >&2
-        fi
-    fi
-    if [ "$_has_gh_token" = "0" ]; then
-        echo "swain-box: NOTE: GITHUB_TOKEN not set. GitHub Copilot may require authentication inside the sandbox." >&2
-    fi
-fi
-
-# --- Codex credential passthrough (SPEC-070) ---
-if [ "$SELECTED_RUNTIME" = "codex" ]; then
-    if [ -z "${OPENAI_API_KEY:-}" ]; then
-        echo "swain-box: NOTE: OPENAI_API_KEY not set. OpenAI Codex may require authentication inside the sandbox." >&2
-    fi
-fi
-
-# --- Worktree isolation (SPEC-081) ---
-LAUNCH_PATH="$ABSOLUTE_PATH"
-if [ "$USE_WORKTREE" = "1" ] && command -v git >/dev/null 2>&1 && git -C "$ABSOLUTE_PATH" rev-parse --git-dir >/dev/null 2>&1; then
-    _wt_dir="$ABSOLUTE_PATH/.sandboxes/$SANDBOX_NAME"
-    _wt_branch="agent/$SANDBOX_NAME"
-
-    # Ensure .sandboxes/ is gitignored
-    if [ -f "$ABSOLUTE_PATH/.gitignore" ]; then
-        if ! grep -qx '.sandboxes/' "$ABSOLUTE_PATH/.gitignore" 2>/dev/null; then
-            echo '.sandboxes/' >> "$ABSOLUTE_PATH/.gitignore"
-            echo "swain-box: added .sandboxes/ to .gitignore" >&2
-        fi
-    fi
-
-    if [ -d "$_wt_dir" ]; then
-        echo "swain-box: reusing worktree at $_wt_dir (branch $_wt_branch)" >&2
+if [ -n "$EXPLICIT_ISOLATION" ]; then
+    case "$EXPLICIT_ISOLATION" in
+        microvm|container) SELECTED_ISOLATION="$EXPLICIT_ISOLATION" ;;
+        *) echo "swain-box: invalid --isolation mode: $EXPLICIT_ISOLATION (microvm|container)" >&2; exit 1 ;;
+    esac
+else
+    # Default shifts based on known issues: container if issues, microvm if clean
+    if [ -n "$_issue" ]; then
+        _default=2
     else
-        # Create worktree — try new branch first, fall back to existing
-        if git -C "$ABSOLUTE_PATH" worktree add "$_wt_dir" -b "$_wt_branch" 2>/dev/null; then
-            echo "swain-box: created worktree at $_wt_dir (branch $_wt_branch)" >&2
-        elif git -C "$ABSOLUTE_PATH" worktree add "$_wt_dir" "$_wt_branch" 2>/dev/null; then
-            echo "swain-box: attached worktree at $_wt_dir (existing branch $_wt_branch)" >&2
-        else
-            echo "swain-box: WARNING — failed to create worktree; falling back to project root" >&2
-        fi
+        _default=1
     fi
 
-    if [ -d "$_wt_dir" ]; then
-        LAUNCH_PATH="$_wt_dir"
+    if [ -t 0 ]; then
+        echo "swain-box: Select isolation for $SELECTED_RUNTIME:"
+        if [ -n "$_issue" ]; then
+            echo "  1) Docker Sandboxes (microVM) — WARNING: $_issue"
+            echo "  2) Docker Container — OAuth/Max works via /login"
+        else
+            echo "  1) Docker Sandboxes (microVM) — recommended, strongest isolation"
+            echo "  2) Docker Container"
+        fi
+
+        _attempts=0
+        while [ "$_attempts" -lt 2 ]; do
+            printf "Choice [$_default]: "
+            read -r _choice
+            _choice="${_choice:-$_default}"
+            case "$_choice" in
+                1) SELECTED_ISOLATION="microvm"; break ;;
+                2) SELECTED_ISOLATION="container"; break ;;
+                *)
+                    _attempts=$((_attempts + 1))
+                    [ "$_attempts" -lt 2 ] && echo "Invalid selection. Try again:" || { echo "swain-box: invalid selection." >&2; exit 1; }
+                    ;;
+            esac
+        done
+    else
+        if [ -n "$_issue" ]; then
+            SELECTED_ISOLATION="container"
+        else
+            SELECTED_ISOLATION="microvm"
+        fi
+        echo "swain-box: auto-selected $SELECTED_ISOLATION isolation (non-interactive). Use --isolation=<mode> to specify." >&2
+    fi
+fi
+
+echo "swain-box: $SELECTED_RUNTIME in $SELECTED_ISOLATION mode" >&2
+
+# ============================================================
+# Derive names
+# ============================================================
+WORKDIR_NAME="$(basename "$PROJECT_PATH")"
+SANDBOX_NAME="${SELECTED_RUNTIME}-${WORKDIR_NAME}"
+IMAGE_TAG=$(_image_tag "$SELECTED_RUNTIME")
+
+# ============================================================
+# Build agent args with prompt injection
+# ============================================================
+_build_agent_args() {
+    case "$SELECTED_RUNTIME" in
+        claude)
+            # Positional arg = first message in interactive session
+            echo "--dangerously-skip-permissions \"$PROMPT\""
+            ;;
+        *)
+            # Unknown prompt mechanism — print reminder
+            echo "swain-box: NOTE — run $PROMPT (or your runtime's equivalent) to start" >&2
+            echo ""
+            ;;
+    esac
+}
+
+AGENT_ARGS=$(_build_agent_args)
+
+# ============================================================
+# Launch
+# ============================================================
+if [ "$SELECTED_ISOLATION" = "microvm" ]; then
+    # --- Docker Sandboxes (microVM) ---
+    if [ -n "$AGENT_ARGS" ]; then
+        # shellcheck disable=SC2086
+        exec docker sandbox run "$SELECTED_RUNTIME" "$PROJECT_PATH" -- $AGENT_ARGS
+    else
+        exec docker sandbox run "$SELECTED_RUNTIME" "$PROJECT_PATH"
     fi
 else
-    if [ "$USE_WORKTREE" = "0" ]; then
-        echo "swain-box: worktree isolation disabled (--no-worktree)" >&2
+    # --- Docker Container ---
+    # Check if container already exists
+    if docker container inspect "$SANDBOX_NAME" >/dev/null 2>&1; then
+        _state=$(docker container inspect "$SANDBOX_NAME" --format '{{.State.Status}}' 2>/dev/null)
+        if [ "$_state" = "running" ]; then
+            echo "swain-box: attaching to running container $SANDBOX_NAME" >&2
+            exec docker exec -it "$SANDBOX_NAME" claude --dangerously-skip-permissions "$PROMPT"
+        else
+            echo "swain-box: restarting container $SANDBOX_NAME" >&2
+            docker start "$SANDBOX_NAME" >/dev/null 2>&1
+            exec docker exec -it "$SANDBOX_NAME" claude --dangerously-skip-permissions "$PROMPT"
+        fi
+    fi
+
+    echo "swain-box: creating container $SANDBOX_NAME" >&2
+
+    # Image has no entrypoint — CMD is ["claude", "--dangerously-skip-permissions"].
+    # We must pass the runtime command explicitly when adding args, otherwise
+    # docker interprets our args as the command to exec.
+    if [ -n "$AGENT_ARGS" ]; then
+        # shellcheck disable=SC2086
+        exec docker run -it \
+            --name "$SANDBOX_NAME" \
+            -v "$PROJECT_PATH:/home/agent/workspace" \
+            "docker/sandbox-templates:$IMAGE_TAG" \
+            claude $AGENT_ARGS
+    else
+        exec docker run -it \
+            --name "$SANDBOX_NAME" \
+            -v "$PROJECT_PATH:/home/agent/workspace" \
+            "docker/sandbox-templates:$IMAGE_TAG"
     fi
 fi
-
-# --- Credential scope info (SPEC-071) ---
-echo "swain-box: credential scope — proxy-managed (credentials never enter sandbox VM)" >&2
-if [ "$CRED_MODE" = "full" ]; then
-    echo "swain-box: NOTE — --credentials=full has no effect in Docker Sandboxes." >&2
-    echo "  The MITM proxy always manages credential injection. This is the strongest posture." >&2
-fi
-
-# --- Launch (AC-9) ---
-exec docker sandbox run "$SELECTED_RUNTIME" "$LAUNCH_PATH" -- --dangerously-skip-permissions

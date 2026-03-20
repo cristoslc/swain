@@ -43,6 +43,8 @@
 | SPEC-080 | Prune deprecated swain-push | 2026-03-18 | — |
 | SPEC-081 | Worktree-Enforced Sandbox Isolation | 2026-03-19 | — |
 | SPEC-091 | TRAIN Artifact Type | 2026-03-19 | — |
+| SPEC-092 | swain-box: Unified Sandbox Launcher | 2026-03-19 | — |
+| SPEC-093 | Documentation Viewer | 2026-03-19 | — |
 
 ## Complete
 

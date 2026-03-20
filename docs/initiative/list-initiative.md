@@ -19,6 +19,7 @@
 | INITIATIVE-010 | Isolation Foundations | 2026-03-18 | — |
 | INITIATIVE-013 | Swarm Safety | 2026-03-18 | — |
 | INITIATIVE-014 | Cross-Surface Portability | 2026-03-18 | — |
+| INITIATIVE-015 | swain-stage Redesign | 2026-03-19 | — |
 
 ## Complete
 

@@ -16,6 +16,7 @@ __pycache__/
 *.log
 .agents/specwatch.log
 .agents/specwatch-ignore
+.agents/status-cache.json
 
 # Skill eval workspaces
 *-workspace/
@@ -74,3 +75,4 @@ skills/*
 .windsurf
 .zencoder
 .superpowers
+.sandboxes/
