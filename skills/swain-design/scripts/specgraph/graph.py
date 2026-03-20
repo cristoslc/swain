@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -188,11 +190,20 @@ def needs_rebuild(cache_file: Path, docs_dir: Path) -> bool:
 
 def write_cache(data: dict, cache_file: Path) -> None:
     """Write graph data to the cache file atomically."""
-    tmp = cache_file.with_suffix(".tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-        f.write("\n")
-    tmp.rename(cache_file)
+    fd, tmp_name = tempfile.mkstemp(
+        dir=str(cache_file.parent),
+        prefix=f"{cache_file.stem}.",
+        suffix=".tmp",
+    )
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+        tmp.rename(cache_file)
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise
 
 
 def read_cache(cache_file: Path) -> Optional[dict]:

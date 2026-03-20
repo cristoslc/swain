@@ -23,6 +23,8 @@
 | SPEC-090 | Plugin + Desktop Extension Packaging | 2026-03-19 | — |
 | SPEC-098 | CLI Command Verification in Agent Execution | 2026-03-19 | — |
 | SPEC-099 | Container-Compatible Runtime Auth Commands | 2026-03-19 | — |
+| SPEC-100 | Host tmux Bridge for Sandboxed Agents | 2026-03-20 | -- |
+| SPEC-101 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 
 ## Active
 

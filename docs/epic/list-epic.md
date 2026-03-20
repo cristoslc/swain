@@ -18,6 +18,7 @@
 | EPIC-029 | Auto-Detecting Trunk Branch | 2026-03-17 | — |
 | EPIC-032 | Cross-Runtime Documentation | 2026-03-18 | — |
 | EPIC-033 | Swain MCP Server | 2026-03-18 | — |
+| EPIC-036 | Sandbox Capability Bridges | 2026-03-20 | -- |
 
 ## Active
 

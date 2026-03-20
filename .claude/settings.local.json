@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(swain-status)",
+      "Skill(swain-design)",
+      "mcp__MCP_DOCKER__webpage-to-markdown"
+    ]
+  }
+}

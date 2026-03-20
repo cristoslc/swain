@@ -1,5 +1,6 @@
 """Tests for specgraph graph builder and cache I/O."""
 
+import multiprocessing
 import json
 import sys
 from pathlib import Path
@@ -17,6 +18,23 @@ from specgraph.graph import (
     repo_hash,
     write_cache,
 )
+
+
+def _concurrent_write_worker(cache_file: str, value: int) -> str:
+    """Attempt one cache write from a separate process."""
+    try:
+        write_cache(
+            {
+                "nodes": {str(value): {}},
+                "edges": [],
+                "generated": "now",
+                "repo": "/tmp/repro",
+            },
+            Path(cache_file),
+        )
+        return "ok"
+    except Exception as exc:  # pragma: no cover - exercised via subprocess
+        return f"{type(exc).__name__}: {exc}"
 
 
 class TestRepoHash:
@@ -241,6 +259,19 @@ class TestCacheIO:
         write_cache({"test": True}, cf)
         assert cf.exists()
         assert not cf.with_suffix(".tmp").exists()
+
+    def test_concurrent_writes_do_not_fail(self, tmp_path):
+        """Concurrent cache rebuilds should not race on a shared temp filename."""
+        cf = tmp_path / "cache.json"
+        ctx = multiprocessing.get_context("fork")
+        with ctx.Pool(processes=8) as pool:
+            results = pool.starmap(
+                _concurrent_write_worker,
+                [(str(cf), i) for i in range(16)],
+            )
+
+        assert results == ["ok"] * 16
+        assert read_cache(cf) is not None
 
 
 class TestNeedsRebuild:
