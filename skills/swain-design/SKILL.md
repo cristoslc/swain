@@ -99,6 +99,7 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
 
 1. Scan `docs/<type>/` (recursively, across all phase subdirectories) to determine the next available number for the prefix.
 2. **For VISION artifacts:** Before drafting, ask the user whether this is a **competitive product** or a **personal product**. The answer determines which template sections to include and shapes the entire downstream decomposition. See the vision definition for details on each product type.
+2a. **For DESIGN artifacts:** Before drafting, prompt the operator for Design Intent content — Context (one sentence anchoring the design to its user-facing purpose), Goals (what experience we're trying to create), Constraints (reviewable boundaries), and Non-goals (what we explicitly decided not to do). This section is write-once: it is set at creation and not updated as the mutable sections evolve.
 3. Read the artifact's definition file and template from the lookup table above.
 4. Create the artifact in the correct phase subdirectory. Create the phase directory with `mkdir -p` if it doesn't exist yet. See the definition file for the exact directory structure.
 5. Populate frontmatter with the required fields for the type (see the template).

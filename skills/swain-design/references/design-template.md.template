@@ -20,6 +20,19 @@ depends-on-artifacts:
 
 # {{ title }}
 
+## Design Intent
+
+**Context:** {{ design_context | default("One sentence anchoring the design to its user-facing purpose.") }}
+
+### Goals
+{{ design_goals | default("- [What experience we're trying to create]") }}
+
+### Constraints
+{{ design_constraints | default("- [Machine-checkable or reviewable boundaries]") }}
+
+### Non-goals
+{{ design_non_goals | default("- [What we explicitly decided NOT to do]") }}
+
 ## Interaction Surface
 
 {{ interaction_surface | default("What part of the product this design covers. Scope it to a single cohesive workflow or screen area.") }}
