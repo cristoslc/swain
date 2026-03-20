@@ -86,4 +86,4 @@ _None yet._
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-20 | -- | Initial creation, informed by trove claude-code-remote-interaction@08ec2b5 |
+| Active | 2026-03-20 | a90ded8 | Initial creation, informed by trove claude-code-remote-interaction@08ec2b5 |
