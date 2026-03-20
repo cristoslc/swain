@@ -27,20 +27,33 @@ The terminal UX for `./swain-box` from invocation to agent session. Covers: runt
 ```mermaid
 flowchart TD
     invoke["./swain-box invoked"] --> pick_runtime{"Pick runtime"}
-    pick_runtime -->|"flag / auto / menu"| pick_auth{"Auth model?"}
+    pick_runtime -->|"flag / auto / menu"| pick_isolation{"Pick isolation"}
     pick_runtime -->|"'s'"| sandbox_mgmt["Manage sandboxes"]
-    pick_auth -->|"subscription"| pick_isolation{"Pick isolation"}
-    pick_auth -->|"API key"| prompt_key["Prompt for key"] --> pick_isolation
-    pick_isolation -->|"microVM"| start_microvm["docker sandbox run"]
-    pick_isolation -->|"container"| check_existing{"Existing container?"}
-    check_existing -->|"yes"| reconnect["Reconnect"]
-    check_existing -->|"no"| needs_login{"Pre-TUI login needed?"}
-    needs_login -->|"yes (codex, kiro)"| auth_then_create["Login → create container"]
-    needs_login -->|"no"| create["Create container"]
-    start_microvm --> session["Agent session"]
-    reconnect --> session
-    auth_then_create --> session
-    create --> session
+    sandbox_mgmt --> pick_runtime
+
+    pick_isolation -->|"microVM"| create_sandbox["docker sandbox create"]
+    pick_isolation -->|"container"| check_existing{"Existing?"}
+
+    check_existing -->|"no"| create_container["docker run -d sleep infinity"]
+    check_existing -->|"yes, auth done"| reconnect["Reconnect"]
+    check_existing -->|"yes, no auth"| auth_existing["Auth menu"]
+
+    create_sandbox --> auth_check_microvm{"Auth done?"}
+    auth_check_microvm -->|"no"| auth_microvm["Auth menu"]
+    auth_check_microvm -->|"yes"| launch_microvm["docker sandbox run"]
+    auth_microvm -->|"subscription"| login_shell_microvm["Login shell → confirm"]
+    auth_microvm -->|"API key"| save_key_microvm["Save key"] --> launch_microvm
+    login_shell_microvm --> launch_microvm
+
+    create_container --> auth_container["Auth menu"]
+    auth_container -->|"subscription"| login_shell_container["Login shell → confirm"]
+    auth_container -->|"API key"| save_key_container["Save key"] --> launch_container["docker exec runtime"]
+    login_shell_container --> launch_container
+    auth_existing --> launch_container
+
+    reconnect --> session["Agent session"]
+    launch_microvm --> session
+    launch_container --> session
 ```
 
 ### Happy path: first run (subscription auth)
