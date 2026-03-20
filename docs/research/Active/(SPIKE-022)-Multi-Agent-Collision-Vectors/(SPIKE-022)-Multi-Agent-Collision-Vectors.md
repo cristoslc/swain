@@ -19,7 +19,7 @@ linked-artifacts:
   - EPIC-015
   - EPIC-038
   - SPEC-113
-trove: ""
+trove: "multi-agent-collision-vectors@3568768"
 ---
 
 # Multi-Agent Collision Vectors
@@ -276,19 +276,33 @@ If `$OVERLAP` is non-empty, reject and rebase.
 
 **Assessment:** Relevant for swain-dispatch (remote agents via GitHub Issues/Actions) but **not the solution for local worktree collisions**. When swain-dispatch is used, enabling GitHub merge queue on the repository provides the same guarantees as Mechanism 1 but offloaded to CI.
 
-#### Recommended composite strategy
+#### Recommended strategy (revised)
 
-The simplest mechanism that prevents the EPIC-038 failure class is a **three-layer approach**:
+The initial analysis proposed a three-layer approach (pre-dispatch heuristic, CAS check, serialized test gate). On reflection, this is overengineered. The core insight — already proven by GitHub PRs, bors, and every merge queue — is simply: **test the merge commit, not the branch**.
 
-1. **Pre-dispatch heuristic** (Mechanism 2): When dispatching parallel specs, check for obvious file-set overlap (e.g., both specs mention the same source file in their acceptance criteria or implementation plan). Serialize overlapping specs.
+**Single mechanism: test-on-merge-commit**
 
-2. **Post-agent CAS check** (Mechanism 3): When an agent completes, before merging, check whether any files it modified were also modified on main since the agent's base commit. If overlap detected, rebase the agent branch onto main and re-run its tests before merging.
+When an agent completes on its branch, before accepting the result:
 
-3. **Serialized test gate** (Mechanism 1): After merging each agent's branch into main, run the full test suite. If tests fail, revert the merge and require rebase + retest. This is the primary safety net.
+```bash
+git checkout -b integration-test main
+git merge --no-ff agent-branch
+# run full test suite on the MERGED result
+# if green → fast-forward main to integration-test
+# if red → reject, agent must rebase onto current main and re-run
+git branch -d integration-test
+```
 
-Layer 1 reduces the frequency of collisions. Layer 2 catches same-file collisions cheaply. Layer 3 catches all remaining semantic conflicts, including cross-file interactions.
+This is ~10 lines of shell. It catches both textual and semantic conflicts because the tests run on the integrated state, not the isolated branch. No CAS check needed (the tests are a stronger guarantee). No pre-dispatch heuristic needed (it's a premature optimization that adds complexity without adding safety).
 
-**Relationship to commit-layer TOCTOU:** The commit-layer TOCTOU evidence (above) and the integration-layer TOCTOU are both instances of non-atomic read-decide-act on shared git state. The serialized test gate (Layer 3) subsumes the commit-layer issue when applied to the integration point. A unified integration queue that handles both commit serialization and merge verification may be the right long-term abstraction.
+**Why this is sufficient:** GitHub's branch protection rule "Require branches to be up to date before merging" + required status checks does exactly this — it ensures CI runs on the merge commit. The merge queue feature serializes concurrent PRs through the same gate. We're implementing the same pattern locally without assuming any specific git hosting backend.
+
+**Why the three-layer approach was overengineered:**
+- Layer 1 (pre-dispatch overlap) is a heuristic that can't catch cross-file semantic conflicts and adds dispatch-time complexity
+- Layer 2 (CAS check) is a weaker version of "just run the tests" — it detects file-level overlap but misses semantic conflicts across files
+- Layer 3 (serialized test gate) is the actual solution, and it's sufficient alone
+
+**Relationship to commit-layer TOCTOU:** The commit-layer TOCTOU (swain-sync generating messages before committing) is subsumed by this approach when applied at the integration point. If all agent results are integrated through the test-on-merge-commit gate, the commit message is generated from the verified merge result, not from a potentially-stale diff.
 
 ### Area 4: Artifact index race conditions
 
