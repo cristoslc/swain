@@ -907,7 +907,7 @@ docs_dir = sys.argv[1]
 # (folder-based have a primary .md inside; file-based are the .md directly)
 TYPE_DIRS = {
     'vision', 'journey', 'epic', 'story', 'spec',
-    'research', 'adr', 'persona', 'runbook', 'design'
+    'research', 'adr', 'persona', 'runbook', 'design', 'train'
 }
 
 def extract_frontmatter(filepath):
@@ -1077,8 +1077,16 @@ case "$cmd" in
     tk_result="${tk_result:-0}"
     scan_arch_diagrams || arch_result=$?
     arch_result="${arch_result:-0}"
-    # Exit non-zero if any check found issues
-    exit $(( scan_result > 0 || tk_result > 0 || arch_result > 0 ? 1 : 0 ))
+    # TRAIN staleness check
+    train_result=0
+    train_check_script="$(dirname "${BASH_SOURCE[0]}")/train-check.sh"
+    if [[ -x "$train_check_script" ]]; then
+        bash "$train_check_script" || train_result=$?
+        if [[ $train_result -eq 2 ]]; then
+            train_result=0  # git unavailable is not a scan failure
+        fi
+    fi
+    exit $(( scan_result > 0 || tk_result > 0 || arch_result > 0 || train_result > 0 ? 1 : 0 ))
     ;;
   tk-sync)
     log_header
