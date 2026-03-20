@@ -12,6 +12,26 @@ linked-artifacts:
 {%- for artifact in linked_artifacts | default([]) %}
   - {{ artifact }}
 {%- endfor %}
+artifact-refs:
+{%- for ref in artifact_refs | default([]) %}
+  - artifact: {{ ref.artifact }}
+    rel: {{ ref.rel | default(["linked"]) }}
+{%- if ref.commit is defined %}
+    commit: {{ ref.commit }}
+{%- endif %}
+{%- if ref.verified is defined %}
+    verified: {{ ref.verified }}
+{%- endif %}
+{%- endfor %}
+sourcecode-refs:
+{%- for ref in sourcecode_refs | default([]) %}
+  - path: {{ ref.path }}
+    blob: {{ ref.blob }}
+    commit: {{ ref.commit }}
+{%- if ref.verified is defined %}
+    verified: {{ ref.verified }}
+{%- endif %}
+{%- endfor %}
 depends-on-artifacts:
 {%- for dep in depends_on_artifacts | default([]) %}
   - {{ dep }}

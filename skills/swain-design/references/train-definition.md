@@ -33,32 +33,31 @@ Key Diataxis rule: never mix types in a single document.
   - Primary file: `(TRAIN-NNN)-<Title>.md` — the training document.
   - Supporting files: screenshots, diagrams, example configs, exercise files.
 - **Scoping rule:** One TRAIN per cohesive topic or task. A TRAIN's `train-type` determines its structure — do not mix how-to steps with reference tables in the same document. If a TRAIN grows beyond its type, split it.
-- TRAINs are *cross-cutting reference artifacts* — they link to Specs, Epics, and Designs via `linked-artifacts` but are not owned by any single one. Use `rel: [documents]` with a commit pin for content-dependent links that need staleness tracking.
+- TRAINs are *cross-cutting reference artifacts* — they link to Specs, Epics, and Designs via `linked-artifacts` but are not owned by any single one. Use `artifact-refs` with `rel: [documents]` and a commit pin for content-dependent links that need staleness tracking.
 - A TRAIN is "Active" when its content accurately reflects the current behavior of the artifacts it teaches. "Superseded" when a newer TRAIN replaces it (link via `superseded-by:` in frontmatter). "Retired" when the feature or workflow it describes no longer exists.
 - TRAINs are NOT Runbooks. Runbooks are executable procedures with pass/fail outcomes; TRAINs are educational content with learning objectives. If a document has Steps and Expected Outcomes, it's a Runbook. If it has Learning Objectives and a Summary, it's a TRAIN.
 - TRAINs are NOT READMEs, CLAUDE.md, or AGENTS.md. Those are operational configuration for agents and developers. TRAINs are structured learning materials for human operators and users.
 
 ## Staleness detection
 
-TRAINs use enriched `linked-artifacts` entries with `rel` tags and optional commit pinning for content-dependent references:
+TRAINs use `artifact-refs` entries with `rel` tags and optional commit pinning for content-dependent references:
 
 ```yaml
-linked-artifacts:
+artifact-refs:
   - artifact: SPEC-067
     rel: [documents]
     commit: abc1234
     verified: 2026-03-19
-  - DESIGN-003              # plain string = rel: linked (default)
 ```
 
 - `rel: [documents]` — content dependency with commit-pinned staleness tracking
-- `train-check.sh` reads entries with `documents` in `rel`, diffs pinned commit against HEAD for each documented artifact
+- `train-check.sh` reads `artifact-refs` entries with `documents` in `rel`, diffs pinned commit against HEAD for each documented artifact
 - Exit 0 = current, Exit 1 = drift found, Exit 2 = git unavailable (graceful degradation)
-- Plain string entries (no `rel`) default to `rel: linked` — informational cross-reference, no staleness tracking
+- Plain string entries in `linked-artifacts` (v1 flat list) remain for informational cross-references — no staleness tracking
 
 ## Integration hooks
 
-- **SPEC completion:** When a SPEC transitions to Complete and a TRAIN documents it via `rel: [documents]`, the completion hook nudges the operator to update the existing TRAIN (prefer update over create).
+- **SPEC completion:** When a SPEC transitions to Complete and a TRAIN documents it via `artifact-refs` with `rel: [documents]`, the completion hook nudges the operator to update the existing TRAIN (prefer update over create).
 - **EPIC completion:** When an EPIC transitions to Complete with no linked TRAINs, the completion hook suggests creating documentation for the Epic's features.
 - **Spike back-propagation (step 4e):** TRAIN artifacts in the same Vision/Initiative scope are included in the sibling scan. Semantic conflicts are surfaced as `IMPLICIT_CONFLICT`.
 - **specwatch scan:** Calls `train-check.sh` to detect stale commit pins across all active TRAINs.

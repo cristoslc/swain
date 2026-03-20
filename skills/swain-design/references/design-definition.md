@@ -35,6 +35,41 @@ A design artifact captures the interaction layer of a feature or system: screens
   - **Complex branches:** If a single branch is too complex to represent in a few nodes, give it its own flowchart in a subsection rather than bloating the main diagram.
 - Designs are NOT Specs. They do not define API contracts, data models, or system behavior. If a Design starts accumulating technical implementation details, those belong in a Spec that references the Design.
 
+## Structured references
+
+### `artifact-refs`
+
+Designs may use `artifact-refs` for commit-pinned cross-references with typed relationships:
+
+```yaml
+artifact-refs:
+  - artifact: SPEC-067
+    rel: [aligned]
+    commit: abc1234
+    verified: 2026-03-19
+```
+
+The `rel` field specifies the relationship type (see [relationship-model.md](relationship-model.md) for the vocabulary). Plain informational cross-references that don't need commit pinning should use `linked-artifacts` (v1 flat list) instead.
+
+### `sourcecode-refs`
+
+Designs may reference implementation files via `sourcecode-refs` -- blob-pinned file references that enable staleness detection when source code changes:
+
+```yaml
+sourcecode-refs:
+  - path: src/components/Button/Button.tsx
+    blob: a1b2c3d
+    commit: def5678
+    verified: 2026-03-19
+```
+
+- `path` -- repo-relative file path
+- `blob` -- git blob SHA for the referenced file version
+- `commit` -- commit hash where this blob was verified
+- `verified` -- date of last manual verification
+
+`sourcecode-refs` entries implicitly carry a `describes` relationship -- no explicit `rel` field. A Design "describes" the interaction surface that the source code implements.
+
 ## Design Intent section
 
 The Design Intent section provides stable criteria against which to evaluate whether implementation changes constitute drift or intentional evolution. It contains three structured subsections:
