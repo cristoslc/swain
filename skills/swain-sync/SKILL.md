@@ -163,6 +163,23 @@ This step is **advisory** — it warns but never blocks the commit. Continue to 
 
 If the `adr-check.sh` script is not found or fails with exit code 2, skip silently — the check is only available in repos with swain-design installed.
 
+## Step 3.8 — Design drift check
+
+Run `design-check.sh` with no arguments (scan all active DESIGNs) to detect design-to-code drift:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/design-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+```
+
+For each DESIGN with findings (STALE or BROKEN `sourcecode-refs`), collect the output and present a single consolidated warning after the check completes:
+
+> Design drift: N DESIGN(s) have stale or broken sourcecode-refs.
+> <condensed findings summary>
+
+This step is **advisory** — it warns but never blocks the commit. Continue to Step 4 regardless.
+
+If the `design-check.sh` script is not found or fails with exit code 2, skip silently — the check is only available in repos with swain-design installed.
+
 ## Step 4 — Generate a commit message
 
 Read the staged diff (`git --no-pager diff --cached`) and write a commit message that:
