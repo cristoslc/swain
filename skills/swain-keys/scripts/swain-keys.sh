@@ -18,6 +18,11 @@ warn()  { echo "WARN: $*" >&2; }
 ok()    { echo "OK: $*"; }
 skip()  { echo "SKIP: $*"; }
 
+# Check whether gh CLI is available AND authenticated
+gh_is_authed() {
+  command -v gh &>/dev/null && gh auth status &>/dev/null
+}
+
 # --- Derive project name ---
 
 derive_project_name() {
@@ -73,8 +78,8 @@ step_create_allowed_signers() {
 step_add_key_to_github() {
   local pub_key_path="$1" key_title="$2" key_type="$3"
 
-  if ! command -v gh &>/dev/null; then
-    warn "gh CLI not found — skipping GitHub key registration for type '$key_type'"
+  if ! gh_is_authed; then
+    warn "gh CLI not authenticated — skipping GitHub key registration for type '$key_type'"
     return 1
   fi
 
@@ -170,15 +175,6 @@ step_update_remote_url() {
   if echo "$current_url" | grep -qF "$host_alias"; then
     skip "Remote URL already uses host alias: $current_url"
     return 0
-  fi
-
-  # If remote is HTTPS and gh CLI handles auth, keep HTTPS.
-  # Commit signing works independently of the transport protocol.
-  if echo "$current_url" | grep -q "^https://"; then
-    if command -v gh &>/dev/null && gh auth status &>/dev/null; then
-      skip "Remote uses HTTPS with gh credential helper — keeping HTTPS (signing works independently)"
-      return 0
-    fi
   fi
 
   # Extract owner/repo from HTTPS or SSH URL
@@ -333,7 +329,7 @@ cmd_status() {
   echo ""
 
   # Check GitHub key registration
-  if command -v gh &>/dev/null; then
+  if gh_is_authed; then
     echo "GitHub keys:"
     local gh_keys
     gh_keys="$(gh ssh-key list 2>/dev/null || echo "(could not list)")"
@@ -349,7 +345,11 @@ cmd_status() {
       echo "  (no local key to check)"
     fi
   else
-    echo "GitHub keys:      (gh CLI not available)"
+    echo "GitHub keys:      (gh CLI not authenticated)"
+    if [[ -f "$pub_key_path" ]]; then
+      echo "  To register manually: https://github.com/settings/ssh/new"
+      echo "  Public key: $(cat "$pub_key_path")"
+    fi
   fi
 }
 
@@ -402,17 +402,33 @@ cmd_provision() {
 
   # Step 7: Verify
   echo "--- Verification ---"
-  step_verify_connectivity "$host_alias" || had_errors=true
   step_verify_signing || had_errors=true
+
+  # Only test SSH connectivity if keys were registered on GitHub
+  if [[ "$gh_auth_ok" == true ]]; then
+    step_verify_connectivity "$host_alias" || had_errors=true
+  else
+    info "Skipping SSH connectivity check — key not yet registered on GitHub"
+  fi
   echo ""
+
   echo "NOTE: GitHub signing verification requires a signed commit to be pushed."
   echo "Run 'swain-keys.sh --verify' after your next push to confirm Verified status."
   echo ""
 
   if [[ "$gh_auth_ok" == false ]]; then
-    echo "ACTION NEEDED: Some GitHub key registrations failed."
-    echo "Run:  gh auth refresh -s admin:public_key,admin:ssh_signing_key"
-    echo "Then: bash $0 --provision   (re-run is safe — idempotent)"
+    echo "ACTION NEEDED: Key not registered on GitHub (gh CLI not authenticated)."
+    echo ""
+    echo "Add this public key to GitHub for both authentication and signing:"
+    echo "  https://github.com/settings/ssh/new"
+    echo ""
+    echo "Public key:"
+    cat "$pub_key_path"
+    echo ""
+    echo "Or, if gh becomes available later:"
+    echo "  gh auth login && bash $0 --provision"
+    echo ""
+    echo "SSH push/pull will not work until the key is registered."
   fi
 
   if [[ "$had_errors" == true ]]; then
