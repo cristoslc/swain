@@ -6,7 +6,7 @@ status: Active
 product-type: personal
 author: cristos
 created: 2026-03-11
-last-updated: 2026-03-11
+last-updated: 2026-03-19
 trove: ""
 linked-artifacts:
   - PERSONA-001
@@ -27,18 +27,19 @@ depends-on-artifacts: []
 
 Swain is a decision-support and implementation-alignment system for solo developers who work with AI coding agents.
 
-**For the operator**, swain captures intent, structures it into reviewable artifacts, surfaces what needs a decision, and preserves the *why* behind choices — decision history that can't be derived from the codebase alone.
+**For the operator**, swain captures intent, structures it into reviewable artifacts, surfaces what needs a decision, and preserves the *why* behind choices — decision history that can't be derived from the codebase alone. Once a decision is made, swain protects it: downstream work is automatically checked against the decision's criteria, and violations are surfaced without re-prompting the operator for alignment they've already given.
 
 **For the agent**, swain provides alignment — acceptance criteria, scope boundaries, constraints, and dependency graphs — then verifies outcomes against those criteria. How the agent works internally is irrelevant; any agent that reads markdown can participate.
 
-Two questions drive the entire system:
+Three questions drive the entire system:
 
 1. **"What needs a decision?"** — the operator's question.
 2. **"What's ready for implementation?"** — the agent's question.
+3. **"Are my past decisions still holding?"** — the system's question.
 
 ## Problem Statement
 
-AI coding agents are fast but stateless. Without a structured system of record, decisions pile up, agents implement against stale intent, and the reasoning behind past choices is lost. The gap isn't code quality — it's the coordination layer between human decisions and agent execution.
+AI coding agents are fast but stateless. Without a structured system of record, decisions pile up, agents implement against stale intent, and the reasoning behind past choices is lost. Without decision protection, the system that was supposed to support decisions becomes a decision tax — the operator gets re-asked the same alignment questions on every derived spec, every implementation task, every session. The gap isn't code quality — it's the coordination layer between human decisions and agent execution.
 
 ## Success Metrics
 

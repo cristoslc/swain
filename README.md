@@ -6,7 +6,7 @@ AI agents can ship code fast. But the decisions that shape a project are still h
 
 Swain captures the operator's decisions as artifacts in git: what was decided and why. When the AI makes decisions, swain makes those visible too, so you can review and course-correct. You bring judgment and vision. The AI brings throughput and execution.
 
-The result is a project that maintains intent, not just one that accumulates code. The AI doesn't drift because the reasoning is right there on disk. You stop re-explaining context that should already be settled. When priorities shift, you trace back to *why* and adapt instead of starting over. Every session builds on the last.
+The result is a project that maintains intent, not just one that accumulates code. The AI doesn't drift because the reasoning is right there on disk — and swain actively protects it. Once you've made a call, downstream work is checked against that decision automatically. You're only interrupted when something might violate it. One decision up front, automated integrity checking downstream. You stop re-explaining context that should already be settled. When priorities shift, you trace back to *why* and adapt instead of starting over. Every session builds on the last.
 
 > *Swain is in early development. It's actively used in production by its author, but expect rough edges and shifting APIs. Feedback and contributions welcome.*
 
