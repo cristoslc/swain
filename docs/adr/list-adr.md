@@ -18,12 +18,13 @@
 | ADR-008 | Subscription Auth Preferred Over API Keys | 2026-03-19 | — |
 | ADR-009 | Multi-Vision Initiatives | 2026-03-19 | -- |
 | ADR-010 | Derive Priority From Parent Chain | 2026-03-20 | Revised:recursiveancestrysummationreplacestier-basemodel |
-| ADR-011 | Worktree Landing Via Merge With Retry | 2026-03-20 | — |
+| ADR-011 | Worktree Landing Via Merge With Retry | 2026-03-20 | 54e12dc |
 | ADR-012 | Lifecycle Hashes Must Be Reachable From Main | 2026-03-20 | 94f9c94 |
-| ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | — |
+| ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | 54e12dc |
 
 ## Superseded
 
-| Artifact | Title | Last Updated | Superseded By |
-|----------|-------|-------------|---------------|
-| ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-20 | ADR-011 |
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-20 | aa9ca7b |
+

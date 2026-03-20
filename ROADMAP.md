@@ -89,7 +89,7 @@ gantt
 ## Blocking Dependencies
 
 ```mermaid
-graph LR
+flowchart TD
     classDef doFirst fill:#e03131,stroke:#c92a2a,color:#fff
     classDef scheduled fill:#f59f00,stroke:#e67700,color:#000
     classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff

@@ -77,7 +77,7 @@ When agents operate in separate worktrees sharing the same `.git` directory:
 
 ### 3a. Integration atomicity (TOCTOU at merge time)
 
-**Motivated by:** [EPIC-038](../../../epic/Active/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) retro — [SPEC-107](../../../spec/Active/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) and [SPEC-108](../../../spec/Active/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md) both modified `roadmap.py` in parallel worktrees. Both agents' tests passed in isolation. After sequential checkout/merge to main, [SPEC-108](../../../spec/Active/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md)'s enrichment fields were missing — the second merge was textually clean but semantically broken.
+**Motivated by:** [EPIC-038](../../../epic/Complete/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) retro — [SPEC-107](../../../spec/Complete/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) and [SPEC-108](../../../spec/Complete/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md) both modified `roadmap.py` in parallel worktrees. Both agents' tests passed in isolation. After sequential checkout/merge to main, [SPEC-108](../../../spec/Complete/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md)'s enrichment fields were missing — the second merge was textually clean but semantically broken.
 
 **Core problem:** Git three-way merge guarantees textual conflict detection, not semantic consistency. Two agents can produce individually-correct, textually-non-overlapping changes that are semantically incompatible. No git mechanism catches this.
 
@@ -115,7 +115,7 @@ Determine what needs to be added to the architecture overview:
 
 ### Evidence: EPIC-038 worktree TOCTOU (2026-03-20)
 
-**Incident:** During [EPIC-038](../../../epic/Active/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) Phase 1, [SPEC-107](../../../spec/Active/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) (sort-order) and [SPEC-108](../../../spec/Active/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md) (data model) were dispatched to parallel worktree agents. Both modified `roadmap.py`. Both agents reported success with passing tests.
+**Incident:** During [EPIC-038](../../../epic/Complete/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) Phase 1, [SPEC-107](../../../spec/Complete/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) (sort-order) and [SPEC-108](../../../spec/Complete/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md) (data model) were dispatched to parallel worktree agents. Both modified `roadmap.py`. Both agents reported success with passing tests.
 
 **Failure mode:** After sequential checkout into main, SPEC-108's enrichment fields were missing from the merged result. The agent tested its worktree copy, not the integrated result. Git merge succeeded textually — no conflict markers — but the semantic result was incomplete.
 
@@ -123,7 +123,7 @@ Determine what needs to be added to the architecture overview:
 
 **Key insight:** This is not preventable by git's merge machinery. Textually clean merges can be semantically broken. The fix must be at a higher layer — either preventing overlapping dispatch or verifying after integration.
 
-**Source:** [EPIC-038 Phase 1 Retro](../../swain-retro/2026-03-20-epic-038-phase-1.md)
+**Source:** [EPIC-038 Phase 1 Retro](../../../epic/Complete/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md)
 
 ### Evidence: Commit-layer TOCTOU (2026-03-20)
 
