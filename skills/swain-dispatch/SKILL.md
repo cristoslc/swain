@@ -16,6 +16,8 @@ metadata:
 
 Dispatches swain-design artifacts to background agents via GitHub Issues. The agent runs autonomously using `anthropics/claude-code-action@v1` on a GitHub Actions runner.
 
+> **Note:** In projects using the trunk+release branch model (ADR-013), dispatched work targets `trunk` (the development branch), not `release` (the distribution branch).
+
 ## Prerequisites
 
 Three things must be in place before dispatch works:
