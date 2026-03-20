@@ -125,6 +125,7 @@ main() {
     fi
 
     alias_key="$(read_identity_file "$alias_file")"
+    alias_key="${alias_key/#\~/$HOME}"
     if [[ -z "$alias_key" ]]; then
       add_issue "$alias_file is missing IdentityFile for ${host_alias}"
     elif [[ ! -f "$alias_key" ]]; then
