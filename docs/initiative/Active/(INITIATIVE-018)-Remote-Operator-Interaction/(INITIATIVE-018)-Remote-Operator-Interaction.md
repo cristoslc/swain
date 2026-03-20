@@ -5,8 +5,7 @@ track: container
 status: Active
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20
-parent-vision: VISION-003
+last-updated: 2026-03-20parent-vision: VISION-001
 priority-weight: high
 success-criteria:
   - Operator can steer, monitor, and approve agent work from phone or messaging app without losing local environment context
@@ -30,12 +29,12 @@ Enable the swain operator to interact with running agent sessions from anywhere 
 
 Today, swain requires the operator to be at the terminal. Swarming sessions, long-running builds, and dispatched agents all produce decision points that stall until someone is physically present. Meanwhile, Claude Code has shipped three remote interaction modes (Channels, Remote Control, Headless/Agent SDK) that swain doesn't yet leverage.
 
-This initiative is about **using** those capabilities to extend swain's operator loop beyond the terminal. It is not about building the surfaces themselves (that's INITIATIVE-015 for the web UI) or making swain run on other AI runtimes (that's INITIATIVE-014). It's about the operator's ability to stay in the loop from wherever they are.
+This initiative is about **using** those capabilities to extend swain's operator loop beyond the terminal. It is not about building the surfaces themselves (that's INITIATIVE-015 for the web UI) or making swain run on other AI runtimes (that's INITIATIVE-014). It's about the operator's ability to stay in the loop from wherever they are. While the initial implementation targets Claude Code's channel/RC primitives, the principles are runtime-agnostic — other runtimes will provide their own remote interaction primitives that swain should leverage the same way.
 
 Core principles:
 1. **Local execution, remote steering** — agents run on the operator's machine with full filesystem/MCP/tool access. Remote surfaces are windows into that, not replacements for it.
 2. **Decision support travels** — swain-status recommendations, approval prompts, and completion notifications should reach the operator on their preferred surface.
-3. **Leverage platform primitives** — use Claude Code's Channels, Remote Control, and Agent SDK rather than building parallel infrastructure.
+3. **Leverage platform primitives** — use each runtime's native remote interaction capabilities (Claude Code's Channels/RC/Agent SDK today, others tomorrow) rather than building parallel infrastructure.
 4. **Async-first** — the operator fires off work and checks back later. The system must handle delays between "agent needs a decision" and "operator responds."
 5. **Multi-session awareness** — swain already supports swarming. Remote interaction must work across concurrent sessions, not just a single one.
 
