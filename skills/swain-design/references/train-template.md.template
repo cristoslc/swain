@@ -1,0 +1,58 @@
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+---
+title: "{{ title }}"
+artifact: TRAIN-{{ number }}
+track: standing
+status: {{ status | default("Proposed") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+audience: {{ audience | default("") }}
+train-type: {{ train_type | default("how-to") }}
+superseded-by: {{ superseded_by | default("") }}
+linked-artifacts:
+{%- for artifact in linked_artifacts | default([]) %}
+{%- if artifact is mapping %}
+  - artifact: {{ artifact.artifact }}
+    rel: {{ artifact.rel | default(["linked"]) }}
+{%- if artifact.commit is defined %}
+    commit: {{ artifact.commit }}
+{%- endif %}
+{%- if artifact.verified is defined %}
+    verified: {{ artifact.verified }}
+{%- endif %}
+{%- else %}
+  - {{ artifact }}
+{%- endif %}
+{%- endfor %}
+parent-epic: {{ parent_epic | default("") }}
+parent-initiative: {{ parent_initiative | default("") }}
+---
+
+# {{ title }}
+
+## Prerequisites
+
+{{ prerequisites | default("What the reader needs before starting: knowledge, tools, access, or artifacts already in place.") }}
+
+## Learning Objectives
+
+{{ learning_objectives | default("After completing this document, the reader will be able to:\n- [objective 1]\n- [objective 2]") }}
+
+## {{ body_heading | default("Guide") }}
+
+{{ body | default("The training content itself. Format varies by train-type:\n- how-to: numbered steps toward a specific goal\n- reference: structured tables, field descriptions, or option lists\n- quickstart: minimal steps to achieve first success in under 10 minutes") }}
+
+## Key Takeaways
+
+{{ key_takeaways | default("Recap the most important points from this document in 3–5 bullet points.") }}
+
+## Next Steps
+
+{{ next_steps | default("Where to go from here. Link to related TRAINs, artifact definitions, or workflows the reader should explore next.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Draft") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |
