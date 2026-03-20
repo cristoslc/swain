@@ -2,10 +2,11 @@
 title: "Worktree Lifecycle: swain-do Creates, swain-sync Lands"
 artifact: ADR-005
 track: standing
-status: Active
+status: Superseded
+superseded-by: ADR-011
 author: cristos
 created: 2026-03-14
-last-updated: 2026-03-14
+last-updated: 2026-03-20
 linked-artifacts:
   - SPEC-039
 depends-on-artifacts: []
@@ -110,3 +111,4 @@ Rejected: isolation is the point. Running implementation tasks in the main workt
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-14 | — | Approved during SPEC-039 design review |
+| Superseded | 2026-03-20 | -- | Superseded by ADR-011 |

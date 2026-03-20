@@ -14,7 +14,6 @@
 | ADR-002 | Replace Beads with Vendored Ticket | 2026-03-12 | — |
 | ADR-003 | Normalize Artifact Lifecycle to Three Tracks | 2026-03-13 | — |
 | ADR-004 | Rewrite Specgraph in Python | 2026-03-14 | 8783f9a |
-| ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-14 | — |
 | ADR-006 | Trove Analysis Layer | 2026-03-16 | — |
 | ADR-008 | Subscription Auth Preferred Over API Keys | 2026-03-19 | — |
 | ADR-009 | Multi-Vision Initiatives | 2026-03-19 | -- |
@@ -23,3 +22,8 @@
 | ADR-012 | Lifecycle Hashes Must Be Reachable From Main | 2026-03-20 | 94f9c94 |
 | ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | — |
 
+## Superseded
+
+| Artifact | Title | Last Updated | Superseded By |
+|----------|-------|-------------|---------------|
+| ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-20 | ADR-011 |
