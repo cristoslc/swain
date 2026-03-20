@@ -5,8 +5,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | ADR-007 | Event-Driven Orchestrator Replaces Prose Chaining Table | 2026-03-17 | — |
-| ADR-011 | Worktree Landing Via Merge With Retry | 2026-03-20 | — |
-| ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | — |
 
 ## Active
 
@@ -21,5 +19,7 @@
 | ADR-008 | Subscription Auth Preferred Over API Keys | 2026-03-19 | — |
 | ADR-009 | Multi-Vision Initiatives | 2026-03-19 | -- |
 | ADR-010 | Derive Priority From Parent Chain | 2026-03-20 | Revised:recursiveancestrysummationreplacestier-basemodel |
+| ADR-011 | Worktree Landing Via Merge With Retry | 2026-03-20 | — |
 | ADR-012 | Lifecycle Hashes Must Be Reachable From Main | 2026-03-20 | 94f9c94 |
+| ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | — |
 

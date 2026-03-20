@@ -2,7 +2,7 @@
 title: "Worktree Landing Via Merge With Retry"
 artifact: ADR-011
 track: standing
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -171,3 +171,4 @@ Agents push their worktree branches and open PRs. The hosting platform's merge q
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-20 | -- | Drafted from SPIKE-022 findings; supersedes ADR-005 |
+| Active | 2026-03-20 | -- | Adopted; supersedes ADR-005 |

@@ -27,7 +27,7 @@ swain-do: required
 
 ## Problem Statement
 
-Swain's current branch model uses `main` as both the development target and the distribution channel. [ADR-011](../../../adr/Proposed/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) replaces rebase with merge for worktree landing, which introduces merge commits on the development branch. [ADR-013](../../../adr/Proposed/(ADR-013)-Release-Branch-With-Squash-Merge.md) separates development from distribution by introducing a `trunk` + `release` branch model. This SPEC implements both decisions and the one-time migration.
+Swain's current branch model uses `main` as both the development target and the distribution channel. [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) replaces rebase with merge for worktree landing, which introduces merge commits on the development branch. [ADR-013](../../../adr/Active/(ADR-013)-Release-Branch-With-Squash-Merge.md) separates development from distribution by introducing a `trunk` + `release` branch model. This SPEC implements both decisions and the one-time migration.
 
 ## External Behavior
 

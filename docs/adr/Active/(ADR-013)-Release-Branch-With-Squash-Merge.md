@@ -2,7 +2,7 @@
 title: "Release Branch With Squash Merge From Trunk"
 artifact: ADR-013
 track: standing
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -18,7 +18,7 @@ evidence-pool: ""
 
 ## Context
 
-[ADR-011](./\(ADR-011\)-Worktree-Landing-Via-Merge-With-Retry.md) replaces rebase with merge for worktree landing. This produces merge commits on the development branch — correct for concurrent agent completion, but noisy for consumers who install swain skills via `npx skills add cristoslc/swain`.
+[ADR-011](../Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) replaces rebase with merge for worktree landing. This produces merge commits on the development branch — correct for concurrent agent completion, but noisy for consumers who install swain skills via `npx skills add cristoslc/swain`.
 
 The `npx skills add` command always pulls from the repository's default branch. There is no `--branch` flag. The git clone fallback also uses the default branch. This means whatever branch is set as default on GitHub is what every user installs.
 
@@ -144,3 +144,4 @@ Keep `main` as the clean default. Develop on `develop` or similar.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-20 | -- | Drafted alongside ADR-011 and ADR-012 |
+| Active | 2026-03-20 | -- | Adopted; trunk+release branch model |
