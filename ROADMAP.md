@@ -11,27 +11,28 @@ quadrantChart
     quadrant-2 Schedule
     quadrant-3 Backlog
     quadrant-4 In Progress
-    Worktree-Aware Session Bookmarks: [0.60, 0.40]
-    Security Vulnerability Scanning Ski: [0.88, 0.40]
-    Rename swain-design to swain-strate: [0.56, 0.44]
-    Work Scope Progress Visualizations : [0.15, 0.40]
-    Multi-Agent Workdir Safety: [0.11, 0.44]
-    Product Design Orchestrator: [0.23, 0.32]
-    Postflight Summaries: [0.03, 0.52]
-    Security Gates in swain-do Executio: [0.65, 0.40]
-    GitHub Issue Polling with Determini: [0.15, 0.80]
-    Event Bus: [0.31, 0.24]
-    Query Layer: [0.02, 0.60]
-    Orchestrator Integration: [0.39, 0.16]
-    Status Integration: [0.02, 0.68]
-    Auto-Detecting Trunk Branch: [0.11, 0.84]
-    Skill Audit Remediation: [0.65, 0.80]
-    Cross-Runtime Documentation: [0.47, 0.08]
-    Swain MCP Server: [0.23, 0.72]
-    User Documentation System: [0.61, 0.84]
-    Design Staleness and Drift Detectio: [0.61, 0.44]
-    Sandbox Capability Bridges: [0.02, 0.76]
-    PR-Only Agent Guardrails: [0.73, 0.72]
+    Worktree-Aware Session Bo: [0.60, 0.25]
+    Security Vulnerability Sc: [0.88, 0.27]
+    Rename swain-design to sw: [0.60, 0.29]
+    Work Scope Progress Visua: [0.15, 0.31]
+    Multi-Agent Workdir Safet: [0.15, 0.34]
+    Product Design Orchestrat: [0.15, 0.36]
+    Postflight Summaries: [0.15, 0.38]
+    Security Gates in swain-d: [0.65, 0.40]
+    GitHub Issue Polling with: [0.15, 0.70]
+    Event Bus: [0.15, 0.42]
+    Query Layer: [0.15, 0.44]
+    Orchestrator Integration: [0.15, 0.46]
+    Status Integration: [0.15, 0.49]
+    Auto-Detecting Trunk Bran: [0.15, 0.74]
+    Skill Audit Remediation: [0.65, 0.78]
+    Cross-Runtime Documentati: [0.15, 0.51]
+    Swain MCP Server: [0.15, 0.82]
+    User Documentation System: [0.65, 0.87]
+    Design Staleness and Drif: [0.65, 0.53]
+    Sandbox Capability Bridge: [0.15, 0.55]
+    PR-Only Agent Guardrails: [0.65, 0.91]
+    Priority Roadmap and Deci: [0.65, 0.95]
 ```
 
 ### Do First
@@ -42,6 +43,7 @@ quadrantChart
 | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | 0/9 | 0 | — |
 | [User Documentation System](docs/epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | 0/1 | 0 | — |
 | [PR-Only Agent Guardrails](docs/epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | 0/0 | 0 | **needs decomposition** |
+| [Priority Roadmap and Decision Surface](docs/epic/Active/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) | [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | 0/3 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
@@ -91,37 +93,38 @@ gantt
     Skill Audit Remediation (0/9) :active, t0, 2026-01-01, 14d
     User Documentation System (0/1) :active, t1, 2026-01-01, 14d
     PR-Only Agent Guardrails (0/0) :crit, t2, 2026-01-01, 14d
+    Priority Roadmap and Decision  (0/3) :active, t3, 2026-01-01, 14d
     section Schedule
-    GitHub Issue Polling with Deterministic Pre-Filtering (0/0) :crit, t3, 2026-01-01, 14d
-    Auto-Detecting Trunk Branch (0/0) :crit, t4, 2026-01-01, 14d
-    Swain MCP Server (0/9) :crit, t5, 2026-01-01, 14d
+    GitHub Issue Polling with Dete (0/0) :crit, t4, 2026-01-01, 14d
+    Auto-Detecting Trunk Branch (0/0) :crit, t5, 2026-01-01, 14d
+    Swain MCP Server (0/9) :crit, t6, 2026-01-01, 14d
     section In Progress
-    Worktree-Aware Session Bookmarks (0/0) :crit, t6, 2026-01-15, 14d
-    Security Vulnerability Scanning Skill (0/4) :active, t7, 2026-01-15, 14d
-    Rename swain-design to swain-strategize (0/0) :crit, t8, 2026-01-15, 14d
-    Security Gates in swain-do Execution Flow (0/4) :active, t9, after t7, 14d
-    Design Staleness and Drift Detection (0/4) :active, t10, 2026-01-29, 14d
+    Worktree-Aware Session Bookmar (0/0) :crit, t7, 2026-01-15, 14d
+    Security Vulnerability Scannin (0/4) :active, t8, 2026-01-15, 14d
+    Rename swain-design to swain-s (0/0) :crit, t9, 2026-01-15, 14d
+    Security Gates in swain-do Exe (0/4) :active, t10, after t8, 14d
+    Design Staleness and Drift Det (0/4) :active, t11, 2026-01-29, 14d
     section Backlog
-    Work Scope Progress Visualizations For Swain-Status (0/0) :crit, t11, 2026-01-29, 14d
-    Multi-Agent Workdir Safety (0/0) :crit, t12, 2026-01-29, 14d
-    Product Design Orchestrator (0/0) :crit, t13, after t8, 14d
-    Postflight Summaries (0/0) :crit, t14, 2026-01-29, 14d
-    Event Bus (0/0) :crit, t15, 2026-01-29, 14d
-    Query Layer (0/0) :crit, t16, 2026-01-29, 14d
-    Orchestrator Integration (0/0) :crit, t17, 2026-01-29, 14d
-    Status Integration (0/0) :crit, t18, 2026-01-29, 14d
-    Cross-Runtime Documentation (0/0) :crit, t19, 2026-01-29, 14d
-    Sandbox Capability Bridges (0/4) :crit, t20, after t6, 14d
+    Work Scope Progress Visualizat (0/0) :crit, t12, 2026-01-29, 14d
+    Multi-Agent Workdir Safety (0/0) :crit, t13, 2026-01-29, 14d
+    Product Design Orchestrator (0/0) :crit, t14, after t9, 14d
+    Postflight Summaries (0/0) :crit, t15, 2026-01-29, 14d
+    Event Bus (0/0) :crit, t16, 2026-01-29, 14d
+    Query Layer (0/0) :crit, t17, 2026-01-29, 14d
+    Orchestrator Integration (0/0) :crit, t18, 2026-01-29, 14d
+    Status Integration (0/0) :crit, t19, 2026-01-29, 14d
+    Cross-Runtime Documentation (0/0) :crit, t20, 2026-01-29, 14d
+    Sandbox Capability Bridges (0/4) :crit, t21, after t7, 14d
 ```
 
 ## Blocking Dependencies
 
 ```mermaid
 graph LR
-    classDef doFirst fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    classDef scheduled fill:#ffd43b,stroke:#e67700,color:#000
-    classDef inProgress fill:#74c0fc,stroke:#1971c2,color:#000
-    classDef backlog fill:#dee2e6,stroke:#868e96,color:#000
+    classDef doFirst fill:#e03131,stroke:#c92a2a,color:#fff
+    classDef scheduled fill:#f59f00,stroke:#e67700,color:#000
+    classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff
+    classDef backlog fill:#868e96,stroke:#495057,color:#fff
     EPIC_016["Worktree-Aware Session Bookmarks"]:::inProgress
     EPIC_017["Security Vulnerability Scanning Skill"]:::inProgress
     EPIC_019["Rename swain-design to swain-strategize"]:::inProgress

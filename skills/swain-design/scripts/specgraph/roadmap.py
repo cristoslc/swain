@@ -205,15 +205,6 @@ def _compute_urgency(item: dict) -> float:
         return 0.15
 
 
-def _compute_importance(item: dict) -> float:
-    """Map item weight to importance score 0.0–1.0."""
-    if item["weight"] >= 3:
-        return 0.80
-    elif item["weight"] >= 2:
-        return 0.40
-    else:
-        return 0.15
-
 
 def render_quadrant_chart(items: list[dict]) -> str:
     """Render a Mermaid quadrantChart with items positioned by real data.
@@ -237,19 +228,62 @@ def render_quadrant_chart(items: list[dict]) -> str:
     ]
 
     # Spread items within their region using deterministic jitter
-    # so overlapping items fan out instead of stacking
+    # so overlapping items fan out instead of stacking.
+    # Additionally, spread items vertically within their weight tier
+    # so items at the same importance level don't pile up.
+    weight_tiers: dict[str, list[dict]] = {"high": [], "medium": [], "low": []}
+    for item in epics:
+        if item["weight"] >= 3:
+            weight_tiers["high"].append(item)
+        elif item["weight"] >= 2:
+            weight_tiers["medium"].append(item)
+        else:
+            weight_tiers["low"].append(item)
+
+    # Map each item to its index within its weight tier for vertical spread
+    tier_index: dict[str, int] = {}
+    tier_size: dict[str, int] = {}
+    for tier_name, tier_items in weight_tiers.items():
+        tier_size[tier_name] = len(tier_items)
+        for idx, item in enumerate(tier_items):
+            tier_index[item["id"]] = idx
+
+    # Weight tier Y ranges: high=0.70-0.95, medium=0.25-0.55, low=0.05-0.20
+    tier_ranges = {"high": (0.70, 0.95), "medium": (0.25, 0.55), "low": (0.05, 0.20)}
+
     seen_positions: dict[tuple[float, float], int] = {}
     for item in epics:
         base_x = _compute_urgency(item)
-        base_y = _compute_importance(item)
+
+        # Determine weight tier and spread Y within the tier range
+        if item["weight"] >= 3:
+            tier_name = "high"
+        elif item["weight"] >= 2:
+            tier_name = "medium"
+        else:
+            tier_name = "low"
+        y_lo, y_hi = tier_ranges[tier_name]
+        n = tier_size[tier_name]
+        idx = tier_index[item["id"]]
+        if n > 1:
+            base_y = y_lo + (y_hi - y_lo) * idx / (n - 1)
+        else:
+            base_y = (y_lo + y_hi) / 2
 
         # Deterministic jitter based on position collision count
         key = (round(base_x, 2), round(base_y, 2))
         count = seen_positions.get(key, 0)
         seen_positions[key] = count + 1
-        # Fan out diagonally: odd items go up-right, even go down-left
-        jitter = count * 0.04
-        if count % 2 == 0:
+        # Fan out in 4 directions: right-up, left-down, right-down, left-up
+        jitter = count * 0.06
+        direction = count % 4
+        if direction == 0:
+            x = base_x + jitter
+            y = base_y + jitter
+        elif direction == 1:
+            x = base_x - jitter
+            y = base_y - jitter
+        elif direction == 2:
             x = base_x + jitter
             y = base_y - jitter
         else:
@@ -261,8 +295,8 @@ def render_quadrant_chart(items: list[dict]) -> str:
 
         # Shorten long titles for readability
         title = item["title"]
-        if len(title) > 35:
-            title = title[:35]
+        if len(title) > 25:
+            title = title[:25]
 
         # quadrantChart labels cannot contain parens/brackets
         lines.append(f"    {title}: [{x:.2f}, {y:.2f}]")
@@ -328,7 +362,10 @@ def render_gantt(items: list[dict], nodes: dict) -> str:
         for item in qitems:
             alias = task_alias[item["id"]]
             progress = f"{item['children_complete']}/{item['children_total']}"
-            label = _escape_mermaid_label(item["title"])
+            title_text = item["title"]
+            if len(title_text) > 30:
+                title_text = title_text[:30]
+            label = _escape_mermaid_label(title_text)
 
             # Determine marker: crit = needs decision, active = in progress
             decision = _operator_decision(item)
@@ -384,10 +421,10 @@ def render_dependency_graph(items: list[dict], nodes: dict) -> str | None:
     lines = ["graph LR"]
 
     # Style classes for quadrant membership
-    lines.append("    classDef doFirst fill:#ff6b6b,stroke:#c92a2a,color:#fff")
-    lines.append("    classDef scheduled fill:#ffd43b,stroke:#e67700,color:#000")
-    lines.append("    classDef inProgress fill:#74c0fc,stroke:#1971c2,color:#000")
-    lines.append("    classDef backlog fill:#dee2e6,stroke:#868e96,color:#000")
+    lines.append("    classDef doFirst fill:#e03131,stroke:#c92a2a,color:#fff")
+    lines.append("    classDef scheduled fill:#f59f00,stroke:#e67700,color:#000")
+    lines.append("    classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff")
+    lines.append("    classDef backlog fill:#868e96,stroke:#495057,color:#fff")
 
     qclass = {"do": "doFirst", "schedule": "scheduled",
               "delegate": "inProgress", "evaluate": "backlog"}
