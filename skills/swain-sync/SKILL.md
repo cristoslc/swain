@@ -148,7 +148,7 @@ If `.gitignore` contains `# swain-sync: allow <pattern>` for a given pattern, tr
 
 ## Step 3.7 — ADR compliance check
 
-If modified files include any swain artifacts (`docs/spec/`, `docs/epic/`, `docs/vision/`, `docs/research/`, `docs/journey/`, `docs/persona/`, `docs/runbook/`, `docs/design/`), run an ADR compliance check against each modified artifact:
+If modified files include any swain artifacts (`docs/spec/`, `docs/epic/`, `docs/vision/`, `docs/research/`, `docs/journey/`, `docs/persona/`, `docs/runbook/`, `docs/design/`, `docs/train/`), run an ADR compliance check against each modified artifact:
 
 ```bash
 bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/adr-check.sh' -print -quit 2>/dev/null)" <artifact-path>
@@ -279,7 +279,7 @@ Before committing (after staging, before Step 5), check whether any artifact ind
 REBUILD_SCRIPT="$REPO_ROOT/skills/swain-design/scripts/rebuild-index.sh"
 if [[ -x "$REBUILD_SCRIPT" ]]; then
     # Detect which types had staged changes
-    for type in spec epic spike adr persona runbook design vision journey; do
+    for type in spec epic spike adr persona runbook design vision journey train; do
         if git diff --cached --name-only | grep -q "^docs/$type/"; then
             bash "$REBUILD_SCRIPT" "$type"
             git add "docs/$type/list-${type}.md" 2>/dev/null || true
