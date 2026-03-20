@@ -236,15 +236,15 @@ For each linked worktree:
 1. **Orphaned** — directory does not exist on disk (`[ ! -d "$path" ]`):
    - WARN: "Orphaned worktree: `<path>` (directory missing). Clean up with: `git worktree prune`"
 
-2. **Stale (merged)** — directory exists and branch is fully merged into `main`:
+2. **Stale (merged)** — directory exists and branch is fully merged into `trunk`:
    ```bash
-   git merge-base --is-ancestor "$branch" origin/main
+   git merge-base --is-ancestor "$branch" origin/trunk
    ```
-   - WARN: "Stale worktree: `<path>` (branch `<branch>` already merged into main). Safe to remove:
+   - WARN: "Stale worktree: `<path>` (branch `<branch>` already merged into trunk). Safe to remove:
      `git worktree remove <path> && git branch -d <branch>`"
 
-3. **Active (unmerged)** — directory exists and branch has commits not in `main`:
-   - INFO: "Active worktree: `<path>` (branch `<branch>`, N commits ahead of main). Do not remove — work in progress."
+3. **Active (unmerged)** — directory exists and branch has commits not in `trunk`:
+   - INFO: "Active worktree: `<path>` (branch `<branch>`, N commits ahead of trunk). Do not remove — work in progress."
 
 Do not remove any worktree automatically. All output is advisory.
 

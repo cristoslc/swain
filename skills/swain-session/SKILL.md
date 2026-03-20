@@ -107,7 +107,7 @@ The session.json schema:
 
 ```json
 {
-  "lastBranch": "main",
+  "lastBranch": "trunk",
   "lastContext": "Working on swain-session skill",
   "preferences": {
     "verbosity": "concise"

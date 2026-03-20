@@ -31,7 +31,7 @@ If the terminal doesn't support OSC 8, the display text is shown as plain text â
 
 ## Pipeline
 
-Branch: **main** (clean)
+Branch: **trunk** (clean)
 Last commit: `abc123` feat(auth): add token rotation (2 hours ago)
 
 ## Active Epics
@@ -82,7 +82,7 @@ Updated: 2026-03-10T22:30:00Z
 ## Compact output layout (for MOTD)
 
 ```
-main (clean)
+trunk (clean)
 epic: EPIC-003 4/7
 task: #42 Implement auto-scaling threshold
 ready: 4 actionable
@@ -99,7 +99,7 @@ The compact format is designed for a 40-character-wide MOTD box. Each line maps 
   "repo": "/absolute/path",
   "project": "project-name",
   "git": {
-    "branch": "main",
+    "branch": "trunk",
     "dirty": false,
     "changedFiles": 0,
     "lastCommit": { "hash": "abc123", "message": "...", "age": "2 hours ago" },
