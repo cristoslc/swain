@@ -13,6 +13,11 @@ Phases listed in the artifact definition files are available waypoints, not mand
 
 1. Validate the target phase is reachable from the current phase (same or later in the sequence; intermediate phases may be skipped).
 2. **Move the artifact** to the new phase subdirectory using `git mv` (e.g., `git mv docs/epic/Proposed/(EPIC-001)-Foo/ docs/epic/Active/(EPIC-001)-Foo/`). Every artifact type uses phase subdirectories — see the artifact's definition file for the exact directory names. Phase subdirectories use PascalCase: `Proposed/`, `Ready/`, `InProgress/`, `NeedsManualTest/`, `Complete/`, `Active/`, `Retired/`, `Superseded/`, `Abandoned/`.
+2a. **Relink inbound hyperlinks** — after moving the artifact directory, inbound markdown links from other artifacts pointing to the old path are now broken. Run:
+    ```bash
+    bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/relink.sh' -print -quit 2>/dev/null)" 2>/dev/null
+    ```
+    This updates all broken `[ID](old-path)` links across docs/ to point at the artifact's new location. Stage the relinked files alongside the `git mv` in the same commit. If `relink.sh` is not found, skip silently.
 3. Update the artifact's status field in frontmatter to match the new phase.
 4. **ADR compliance check** — for transitions to active phases (Active, Ready, In Progress, Complete), run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
 4c. **Alignment check** — for transitions to active phases (Active, Ready), run `bash skills/swain-design/scripts/chart.sh scope <artifact-id>` and assess per [alignment-checking.md](alignment-checking.md). Skip for implementation-phase transitions (In Progress, Needs Manual Test, Complete) unless content changed since last check. Skip for terminal-phase transitions (Abandoned, Retired, Superseded).

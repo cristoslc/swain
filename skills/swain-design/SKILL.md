@@ -107,6 +107,15 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
    - **User-requested → `Active`**: if the user explicitly asked for this artifact (e.g., "new SPIKE about X", "write a spec for Y"), create it directly in `Active`. The user has already decided they want this work — `Proposed` adds no value.
    - **Agent-suggested → `Proposed`**: if the agent creates the artifact on its own initiative (e.g., suggesting a SPIKE while the user asked for an EPIC, decomposing a Vision into child Epics), create it in `Proposed`. The user hasn't explicitly committed — `Proposed` signals "here's what I recommend, please confirm."
    - **Fully developed in-session → later phase**: an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
+6.5. **Hyperlink bare artifact ID references in body text** — after writing the artifact body, scan all text below the closing `---` frontmatter fence for bare artifact ID references matching the pattern `(SPEC|EPIC|INITIATIVE|VISION|SPIKE|ADR|PERSONA|RUNBOOK|DESIGN|JOURNEY|TRAIN)-[0-9]+`. For each bare ID that is:
+   - **not** already inside a markdown link (`[...](...)`), and
+   - **not** inside a code fence (`` ``` `` block) or inline code (`` ` ``backtick`` ` ``),
+
+   resolve it with:
+   ```bash
+   bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/resolve-artifact-link.sh' -print -quit 2>/dev/null)" <ARTIFACT-ID> <SOURCE-FILE>
+   ```
+   Replace the bare ID with `[ARTIFACT-ID](relative-path)`. If the script returns a non-zero exit code or empty output (artifact not found), leave the bare ID as-is — do not fail the operation. Frontmatter values must remain as plain IDs (YAML compatibility); only body text gets hyperlinks.
 7. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
 7.5. **Same-type overlap check** — *(standing-track types only: DESIGN, Persona, Runbook)* scan `docs/<type>/Active/` for existing Active artifacts of the same type. Flag overlap if:
    - The new artifact's `linked-artifacts` references another artifact of the **same type** — this is a direct supersession signal.

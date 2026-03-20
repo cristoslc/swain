@@ -124,6 +124,7 @@ scan_stale_refs() {
   local mode="${1:-full}"   # "full" or "event" with artifact ID
   local event_id="${2:-}"   # artifact ID for event-driven mode (e.g., ADR-001)
   local found_stale=0
+  local found_broken_link=0
 
   load_ignore_patterns
 
@@ -230,6 +231,9 @@ PYEOF
         echo ""
       } >> "$LOG_FILE"
       found_stale=1
+      # Also emit a BROKEN_LINK entry — specifically for body-text markdown hyperlinks
+      echo "BROKEN_LINK ${rel_source}:${line_num} -> ${link_target} (file not found)" >> "$LOG_FILE"
+      found_broken_link=1
     fi
   done < "$links_tmp"
 
@@ -475,17 +479,19 @@ PYEOF
 
   rm -f "$fm_tmp"
 
-  if [ "$found_stale" -eq 0 ]; then
+  if [ "$found_stale" -eq 0 ] && [ "$found_broken_link" -eq 0 ]; then
     echo "specwatch: no stale references found."
   else
-    local stale_count warn_count
+    local stale_count warn_count broken_link_count
     stale_count=$(grep -c '^STALE' "$LOG_FILE" 2>/dev/null)
     stale_count=${stale_count:-0}
     warn_count=$(grep -c '^WARN' "$LOG_FILE" 2>/dev/null)
     warn_count=${warn_count:-0}
-    echo "specwatch: found ${stale_count} stale reference(s), ${warn_count} warning(s). See ${LOG_FILE}"
+    broken_link_count=$(grep -c '^BROKEN_LINK' "$LOG_FILE" 2>/dev/null)
+    broken_link_count=${broken_link_count:-0}
+    echo "specwatch: found ${stale_count} stale reference(s), ${warn_count} warning(s), ${broken_link_count} broken link(s). See ${LOG_FILE}"
   fi
-  return $found_stale
+  return $(( found_stale > 0 || found_broken_link > 0 ? 1 : 0 ))
 }
 
 # --- TK sync checker ---
