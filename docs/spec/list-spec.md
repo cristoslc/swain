@@ -68,7 +68,7 @@
 | SPEC-110 | Quadrant PNG pipeline | 2026-03-20 | — |
 | SPEC-111 | Status roadmap integration | 2026-03-20 | — |
 | SPEC-112 | Dependency graph initiative subgraphs | 2026-03-20 | — |
-| SPEC-113 | Reduce swain-sync latency and context disruption | 2026-03-20 | — |
+| SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
 
 ## Complete
 

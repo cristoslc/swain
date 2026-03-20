@@ -2,10 +2,10 @@
 title: "Multi-Agent Collision Vectors"
 artifact: SPIKE-022
 track: container
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-14
-last-updated: 2026-03-14
+last-updated: 2026-03-20
 question: "What are the collision vectors when multiple agents operate in the same swain project, and what mitigation strategies are appropriate for a solo-operator context?"
 gate: Pre-development
 risks-addressed:
@@ -17,6 +17,7 @@ risks-addressed:
 linked-artifacts:
   - EPIC-020
   - EPIC-015
+  - EPIC-038
 trove: ""
 ---
 
@@ -73,6 +74,19 @@ When agents operate in separate worktrees sharing the same `.git` directory:
 - How do shared refs (tags, remote tracking branches) behave under concurrent access?
 - Does `git worktree` provide any built-in locking?
 
+### 3a. Integration atomicity (TOCTOU at merge time)
+
+**Motivated by:** [EPIC-038](../../../epic/Active/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) retro — [SPEC-107](../../../spec/Active/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) and [SPEC-108](../../../spec/Active/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md) both modified `roadmap.py` in parallel worktrees. Both agents' tests passed in isolation. After sequential checkout/merge to main, [SPEC-108](../../../spec/Active/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md)'s enrichment fields were missing — the second merge was textually clean but semantically broken.
+
+**Core problem:** Git three-way merge guarantees textual conflict detection, not semantic consistency. Two agents can produce individually-correct, textually-non-overlapping changes that are semantically incompatible. No git mechanism catches this.
+
+**Investigation threads:**
+- **Serialized integration with test gates:** Can a local merge queue apply each agent's branch sequentially, running tests between each merge? (Analogous to GitHub merge queue / bors but local)
+- **File-overlap analysis at dispatch time:** Read implementation plans, infer which files each task touches, serialize tasks with overlapping file sets instead of running them in parallel
+- **Optimistic concurrency (CAS):** Record the base commit hash each agent started from; at integration time, reject if the target file was modified since that hash — forces re-run on the new base
+- **Post-merge verification as fallback:** When prevention fails, grep for key deliverables and re-run tests in main context before claiming delivery. This is detection, not prevention — acceptable as a last line of defense but not the primary strategy
+- **CI merge queue mechanisms:** Do GitHub merge queue, Mergify, or bors provide useful primitives? Could swain-dispatch integrate with them for remote agent results?
+
 ### 4. Artifact index race conditions
 
 When two agents both update a `list-*.md` index file:
@@ -98,10 +112,21 @@ Determine what needs to be added to the architecture overview:
 
 ## Findings
 
-<!-- Populated during Active phase. -->
+### Evidence: EPIC-038 worktree TOCTOU (2026-03-20)
+
+**Incident:** During [EPIC-038](../../../epic/Active/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) Phase 1, [SPEC-107](../../../spec/Active/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) (sort-order) and [SPEC-108](../../../spec/Active/(SPEC-108)-Roadmap-Data-Model/SPEC-108.md) (data model) were dispatched to parallel worktree agents. Both modified `roadmap.py`. Both agents reported success with passing tests.
+
+**Failure mode:** After sequential checkout into main, SPEC-108's enrichment fields were missing from the merged result. The agent tested its worktree copy, not the integrated result. Git merge succeeded textually — no conflict markers — but the semantic result was incomplete.
+
+**Classification:** TOCTOU — Time of Check (agent tests in isolated worktree) vs Time of Use (changes applied to main where another agent already mutated shared files).
+
+**Key insight:** This is not preventable by git's merge machinery. Textually clean merges can be semantically broken. The fix must be at a higher layer — either preventing overlapping dispatch or verifying after integration.
+
+**Source:** [EPIC-038 Phase 1 Retro](../../swain-retro/2026-03-20-epic-038-phase-1.md)
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation; informs EPIC-020 |
+| Active | 2026-03-20 | -- | Activated by EPIC-038 retro — concrete TOCTOU evidence in area 3a |
