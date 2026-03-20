@@ -100,6 +100,18 @@ if find .claude/skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -
   issues+=("scripts missing executable permission")
 fi
 
+# 9b. SSH alias readiness for repos using swain-keys host aliases
+SSH_HELPER="skills/swain-doctor/scripts/ssh-readiness.sh"
+if [[ -x "$SSH_HELPER" ]]; then
+  ssh_output="$(bash "$SSH_HELPER" --check 2>/dev/null || true)"
+  if [[ -n "$ssh_output" ]]; then
+    while IFS= read -r line; do
+      [[ -z "$line" ]] && continue
+      issues+=("${line#ISSUE: }")
+    done <<< "$ssh_output"
+  fi
+fi
+
 # 10. Superpowers detection (advisory — warn but don't fail)
 SUPERPOWERS_SKILLS="brainstorming writing-plans test-driven-development verification-before-completion subagent-driven-development executing-plans"
 sp_missing=0

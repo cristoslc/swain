@@ -1,6 +1,6 @@
 # Runtime Checks
 
-Procedural checks for memory directory, settings, script permissions, .agents directory, and status cache.
+Procedural checks for memory directory, settings, script permissions, .agents directory, status cache, and SSH alias readiness.
 
 ## Memory directory
 
@@ -106,6 +106,42 @@ Tell the user:
 > Fixed executable permissions on N script(s).
 
 If all scripts are already executable, this step is silent.
+
+## SSH alias readiness
+
+Repos that ran `swain-keys --provision` switch `origin` to a project-specific SSH alias such as `git@github.com-swain:owner/repo.git`. The alias targets `ssh.github.com:443` so it works in environments where GitHub SSH on port 22 is blocked. Sandboxes and fresh runtimes often have a different `HOME`, so the repo can point at an alias that does not exist locally even though git signing is configured.
+
+### Detection and repair
+
+Use the helper:
+
+```bash
+bash skills/swain-doctor/scripts/ssh-readiness.sh --repair
+```
+
+The helper is a no-op for repos that do not use a `github.com-<project>` alias remote.
+
+For alias remotes, it checks:
+
+- `ssh` is available on `PATH`
+- `~/.ssh/config` exists and includes `config.d/*`
+- `~/.ssh/config.d/<project>.conf` exists
+- the alias config defines `Host github.com-<project>`
+- the alias `IdentityFile` exists locally
+
+### Repair behavior
+
+`--repair` only performs safe local fixes:
+
+- creates `~/.ssh/` and `~/.ssh/config.d/`
+- creates or patches `~/.ssh/config` to include `config.d/*`
+- creates `~/.ssh/config.d/<project>.conf` when the default key `~/.ssh/<project>_signing` already exists
+
+It does **not** generate keys or install packages. If the key is missing, report:
+
+> SSH alias is configured but the local key is missing. Run `swain-keys --provision` in this runtime.
+
+If `ssh` is missing, warn and provide an install hint. Do not install automatically during doctor.
 
 ## .agents directory
 

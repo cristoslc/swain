@@ -19,6 +19,7 @@
 | SPIKE-034 | Sandbox Templates In Regular Docker Containers | 2026-03-19 | — |
 | SPIKE-035 | Container-Compatible Auth Flows Per Runtime | 2026-03-19 | — |
 | SPIKE-036 | External CLI Assumption Verification | 2026-03-19 | — |
+| SPIKE-037 | GitHub Token Scoping Mechanisms | 2026-03-20 | -- |
 
 ## Complete
 

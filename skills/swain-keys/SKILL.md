@@ -51,7 +51,7 @@ The script will:
 2. Generate `~/.ssh/<project>_signing` (ed25519, no passphrase) if not exists
 3. Create `~/.ssh/allowed_signers_<project>` with the configured git email
 4. Add the public key to GitHub via `gh ssh-key add` for both authentication and signing
-5. Create `~/.ssh/config.d/<project>.conf` with a host alias that bypasses global SSH agents
+5. Create `~/.ssh/config.d/<project>.conf` with a host alias that bypasses global SSH agents and routes GitHub SSH over `ssh.github.com:443`
 6. Update the git remote URL to use the project-specific host alias
 7. Set local git config for commit and tag signing
 8. Verify SSH connectivity and signing capability

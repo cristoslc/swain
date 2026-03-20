@@ -44,6 +44,12 @@ get_git_email() {
   git config user.email 2>/dev/null || git config --global user.email 2>/dev/null || die "No git user.email configured (local or global)"
 }
 
+get_git_email_or_placeholder() {
+  local email
+  email="$(git config user.email 2>/dev/null || git config --global user.email 2>/dev/null || true)"
+  echo "${email:-"(not set)"}"
+}
+
 # --- Step implementations ---
 
 step_generate_key() {
@@ -52,6 +58,7 @@ step_generate_key() {
     skip "Key already exists: $key_path"
     return 0
   fi
+  mkdir -p "$(dirname "$key_path")"
   info "Generating ed25519 key: $key_path"
   ssh-keygen -t ed25519 -f "$key_path" -N "" -C "swain-keys:${PROJECT_NAME}" -q
   ok "Key generated: $key_path"
@@ -120,9 +127,13 @@ step_create_ssh_config() {
   mkdir -p "$config_dir"
 
   if [[ -f "$config_path" ]]; then
-    if grep -qF "$host_alias" "$config_path" 2>/dev/null; then
+    if grep -qF "$host_alias" "$config_path" 2>/dev/null \
+      && grep -qF "HostName ssh.github.com" "$config_path" 2>/dev/null \
+      && grep -qF "Port 443" "$config_path" 2>/dev/null; then
       skip "SSH config already exists: $config_path"
       return 0
+    elif grep -qF "$host_alias" "$config_path" 2>/dev/null; then
+      info "Migrating SSH config to ssh.github.com:443: $config_path"
     fi
   fi
 
@@ -130,7 +141,8 @@ step_create_ssh_config() {
   cat > "$config_path" <<SSHEOF
 # swain-keys: per-project SSH config for ${project}
 Host ${host_alias}
-  HostName github.com
+  HostName ssh.github.com
+  Port 443
   User git
   IdentityFile ${key_path}
   IdentitiesOnly yes
@@ -287,7 +299,7 @@ cmd_status() {
   local project email key_path pub_key_path signers_path config_path host_alias
 
   project="$(derive_project_name)"
-  email="$(get_git_email 2>/dev/null || echo "(not set)")"
+  email="$(get_git_email_or_placeholder)"
   key_path="$HOME/.ssh/${project}_signing"
   pub_key_path="${key_path}.pub"
   signers_path="$HOME/.ssh/allowed_signers_${project}"

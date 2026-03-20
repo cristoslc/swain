@@ -30,6 +30,7 @@
 | EPIC-034 | User Documentation System | 2026-03-19 | — |
 | EPIC-035 | Design Staleness and Drift Detection | 2026-03-19 | -- |
 | EPIC-036 | Session-Aware Commit Atomization | 2026-03-19 | -- |
+| EPIC-037 | PR-Only Agent Guardrails | 2026-03-20 | -- |
 
 ## Complete
 

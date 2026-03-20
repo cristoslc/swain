@@ -7,7 +7,7 @@ author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
 parent-vision: VISION-002
-parent-initiative: INITIATIVE-004
+parent-initiative: INITIATIVE-017
 priority-weight: medium
 success-criteria:
   - Sandboxed agents can trigger the subset of host tmux behavior required for swain session management without direct host shell access
@@ -64,3 +64,4 @@ This epic adds narrowly scoped bridges for those capabilities. The intent is not
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-20 | -- | Initial creation for scoped host-integration work in sandboxed agent sessions |
+| — | 2026-03-20 | -- | Re-parented from INITIATIVE-004 to INITIATIVE-017 (Unattended Agent Safety) |

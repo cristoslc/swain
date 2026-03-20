@@ -22,6 +22,7 @@ These tools enable specific features. If missing, note which features are degrad
 | `gh` | `command -v gh` | swain-status (GitHub issues), swain-release | Status skips issues section; release can't create GitHub releases | `brew install gh` |
 | `tmux` | `which tmux` | swain-stage, swain-session | swain-stage and session features unavailable — offer to install | `brew install tmux` |
 | `fswatch` | `command -v fswatch` | swain-design (specwatch live mode) | Live artifact watching unavailable; on-demand `specwatch.sh scan` still works | `brew install fswatch` |
+| `ssh` | `command -v ssh` | swain-keys, git SSH alias remotes | Project-specific GitHub SSH aliases cannot be used from this runtime | `brew install openssh` |
 
 ## Reporting format
 

@@ -92,7 +92,7 @@ Check required (`git`, `jq`) and optional (`tk`, `uv`, `gh`, `tmux`, `fswatch`) 
 
 ## Runtime checks
 
-Memory directory, settings validation, script permissions, .agents directory, and status cache bootstrap. Read [references/runtime-checks.md](references/runtime-checks.md) for the full procedures and bash commands.
+Memory directory, settings validation, script permissions, `.agents` directory, status cache bootstrap, and SSH alias readiness. Read [references/runtime-checks.md](references/runtime-checks.md) for the full procedures and bash commands.
 
 ## tk health (extended .tickets checks)
 
