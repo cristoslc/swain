@@ -65,6 +65,7 @@
 | SPEC-103 | Artifact cross-reference hyperlinking | 2026-03-20 | — |
 | SPEC-103 | swain-status roadmap integration | 2026-03-20 | — |
 | SPEC-104 | Roadmap diagram legibility | 2026-03-20 | — |
+| SPEC-105 | Quadrant chart label strategy | 2026-03-20 | — |
 
 ## Complete
 
