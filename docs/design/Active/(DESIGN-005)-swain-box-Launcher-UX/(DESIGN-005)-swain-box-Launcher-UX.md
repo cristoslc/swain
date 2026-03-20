@@ -27,9 +27,15 @@ The terminal UX for `./swain-box` from invocation to agent session. Covers: runt
 ```mermaid
 flowchart TD
     invoke["./swain-box invoked"] --> pick_runtime{"Pick runtime"}
-    pick_runtime -->|"flag / auto / menu"| pick_auth{"Auth type?"}
+    pick_runtime -->|"flag / auto / menu"| check_existing{"Existing sandbox?"}
     pick_runtime -->|"'s'"| sandbox_mgmt["Manage sandboxes"]
     sandbox_mgmt --> pick_runtime
+
+    check_existing -->|"running"| reconnect["Connect to sandbox"]
+    check_existing -->|"stopped"| restart["Start sandbox"] --> reconnect
+    check_existing -->|"none"| pick_auth{"Auth type?"}
+
+    reconnect --> session["Agent session"]
 
     pick_auth -->|"subscription"| pick_isolation_sub{"Pick isolation"}
     pick_auth -->|"API key"| prompt_key["Prompt for key"] --> pick_isolation_key{"Pick isolation"}
@@ -42,13 +48,15 @@ flowchart TD
     create_microvm --> login_shell_microvm["Login shell → confirm"] --> launch_microvm["docker sandbox run"]
     create_container --> login_shell_container["Login shell → confirm"] --> launch_container["docker exec"]
 
-    launch_microvm --> session["Agent session"]
+    launch_microvm --> session
     launch_container --> session
 ```
 
-**Key design principle:** Auth type is chosen *before* isolation because the auth choice influences which isolation modes are viable. For example, Claude + subscription → microVM is broken (MITM proxy breaks OAuth), so the isolation menu annotates accordingly. Claude + API key → microVM works fine.
+**Key design principles:**
 
-On reconnect (existing sandbox/container with auth marker present), steps 2–4 are skipped — the operator goes straight to the agent session.
+1. **One sandbox per runtime.** Each runtime gets at most one sandbox (container or microVM). Selecting a runtime that already has a sandbox connects to it immediately — no auth or isolation menus.
+
+2. **Auth before isolation (first run only).** Auth type is chosen *before* isolation because the auth choice influences which isolation modes are viable. For example, Claude + subscription → microVM is broken (MITM proxy breaks OAuth), so the isolation menu annotates accordingly. Claude + API key → microVM works fine. This only applies when creating a new sandbox.
 
 ### Happy path: first run (Claude, subscription)
 
@@ -100,19 +108,28 @@ swain-box: Login saved. Starting session...
 
 ```
 $ ./swain-box
-swain-box: Multiple agent runtimes available. Select one:
-  1) claude
+swain-box: Select a runtime:
+  1) claude  ● running
+  2) codex
   ...
 Choice [1]: 1
-swain-box: using claude.
-
-swain-box: Select isolation for claude:
-  1) Docker Sandboxes (microVM) — WARNING: OAuth/Max broken — requires ANTHROPIC_API_KEY
-  2) Docker Container — OAuth/Max works via /login
-Choice [2]: 2
-
-swain-box: connecting to claude-swain
+swain-box: connecting to claude-swain...
 [Claude Code interactive session begins — credentials persist from first run]
+```
+
+The runtime menu shows a status indicator (`● running`, `○ stopped`) next to runtimes that have an existing sandbox. Selecting one connects immediately — no auth or isolation menus.
+
+### Happy path: reconnect to stopped sandbox
+
+```
+$ ./swain-box
+swain-box: Select a runtime:
+  1) claude  ○ stopped
+  ...
+Choice [1]: 1
+swain-box: starting claude-swain...
+swain-box: connecting to claude-swain...
+[Claude Code interactive session begins]
 ```
 
 ### Happy path: codex in microVM (subscription)
@@ -215,20 +232,21 @@ swain-box: connecting to claude-swain
 
 ### Sandbox management
 
-Typing `s` at the main menu enters the management screen. "Sandboxes" covers both Docker Sandboxes (microVM) and Docker Containers — they're the same concept to the user.
+Typing `s` at the main menu enters the management screen. "Sandboxes" covers both Docker Sandboxes (microVM) and Docker Containers — they're the same concept to the user. Each runtime has at most one sandbox.
 
 ```
 $ ./swain-box
 swain-box: Select a runtime:
-  1) claude
+  1) claude  ● running
+  2) codex   ○ stopped
   ...
 
-  s) Manage sandboxes
+  s) Manage sandboxes  q) Quit
 Choice [1]: s
 
-swain-box: Active sandboxes:
-  1) claude-swain      container  running   /Users/cristos/Documents/code/swain
-  2) codex-myproject   microvm    stopped   /Users/cristos/Documents/code/myproject
+swain-box: Sandboxes:
+  1) claude-swain      container  ● running
+  2) codex-swain       microvm    ○ stopped
 
   Actions: [r]estart  [s]top  [d]elete  [b]ack
 Select sandbox [1]: 1
@@ -237,23 +255,22 @@ Select sandbox [1]: 1
   Action: [r]estart  [s]top  [d]elete  [b]ack
 Action: d
   Delete claude-swain? This removes all data inside the sandbox. [y/N]: y
-  deleting claude-swain... claude-swain
-  done.
+  deleting claude-swain... done.
 
 [management screen refreshes with updated list]
 ```
 
 **Management screen behavior:**
 
-- Lists all sandboxes from both `docker sandbox ls` and `docker ps -a --filter label=com.docker.sandboxes`
-  plus containers created by swain-box (named `<runtime>-<workdir>`)
-- Shows: name, isolation type (container/microvm), status (running/stopped/exited), workspace path
+- Lists swain-box sandboxes: containers named `<runtime>-swain` and microVMs from `docker sandbox ls`
+- Shows: name, isolation type (container/microvm), status (running/stopped)
+- One sandbox per runtime — the list has at most one entry per runtime
 - Actions show progress feedback: `stopping claude-swain...`, `deleting claude-swain...` with `done.` / `failed.` suffix
 - Docker output is piped through (not suppressed) so the operator sees what's happening
 - Actions:
   - **restart** — `docker start` (container) or `docker sandbox run` (microVM). Shows progress.
   - **stop** — `docker stop` (container) or `docker sandbox stop` (microVM). Shows progress.
-  - **delete** — confirmation prompt first (`Delete <name>? This removes all data inside the sandbox. [y/N]:`), then `docker rm -f` (container) or `docker sandbox rm` (microVM). Shows Docker output.
+  - **delete** — confirmation prompt first (`Delete <name>? This removes all data inside the sandbox. [y/N]:`), then `docker rm -f` (container) or `docker sandbox rm` (microVM). Shows Docker output. Deleting a sandbox means the next launch of that runtime goes through the full first-run flow again.
   - **back** — return to main menu
 - After an action completes, the management screen refreshes (re-lists sandboxes)
 - If no sandboxes exist: "No active sandboxes." then return to main menu
@@ -299,8 +316,8 @@ The `--cleanup` flag is a non-interactive shortcut for the delete action. The ma
 | `--runtime=unknown` | Exit 1: "Runtime 'unknown' is not available." |
 | `--isolation=invalid` | Exit 1: "Invalid --isolation mode." |
 | Non-interactive (stdin not TTY) | Auto-select defaults for both menus with warnings to stderr. Auth menu skipped with advisory note. |
-| Container exists but stopped | `docker start` then `docker exec` |
-| Container exists and running | `docker exec` directly |
+| Sandbox exists but stopped | `docker start` (container) or `docker sandbox run` (microVM), then connect |
+| Sandbox exists and running | Connect directly — skip auth and isolation menus |
 | Docker daemon not running | Docker's own error message propagates |
 | Login shell: user exits without logging in | Agent session starts anyway — runtime will prompt for auth or fail with a clear message |
 

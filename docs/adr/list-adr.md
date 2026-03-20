@@ -18,4 +18,5 @@
 | ADR-006 | Trove Analysis Layer | 2026-03-16 | — |
 | ADR-008 | Subscription Auth Preferred Over API Keys | 2026-03-19 | — |
 | ADR-009 | Multi-Vision Initiatives | 2026-03-19 | -- |
+| ADR-010 | Derive Priority From Parent Chain | 2026-03-20 | Revised:recursiveancestrysummationreplacestier-basemodel |
 

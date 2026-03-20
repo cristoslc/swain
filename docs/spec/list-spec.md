@@ -56,6 +56,7 @@
 | SPEC-098 | Session Action Log | 2026-03-19 | -- |
 | SPEC-099 | Commit Atomization in swain-sync | 2026-03-19 | -- |
 | SPEC-100 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | -- |
+| SPEC-102 | swain-doctor SSH Binary Check | 2026-03-20 | — |
 
 ## Complete
 
