@@ -78,3 +78,4 @@ SPEC-107 (sibling ranking) — independent, feeds into 108's scoring
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | | Created with initial implementation in progress |
+| Progress | 2026-03-20 | dbd0e66 | SPEC-107 and SPEC-108 complete — 7/10 specs resolved |

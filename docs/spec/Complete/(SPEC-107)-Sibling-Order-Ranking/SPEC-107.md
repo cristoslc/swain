@@ -2,7 +2,7 @@
 title: "Sibling order ranking for epics and specs"
 artifact: SPEC-107
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -53,3 +53,4 @@ The current priority scoring formula (score = unblock_count x vision_weight) pro
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | | Initial creation |
+| Complete | 2026-03-20 | dbd0e66 | Sort-order tiebreaker and chart Y-axis positioning delivered |

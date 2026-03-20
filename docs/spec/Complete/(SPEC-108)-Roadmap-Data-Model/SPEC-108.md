@@ -2,7 +2,7 @@
 title: "Roadmap data model"
 artifact: SPEC-108
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -64,3 +64,4 @@ Scope is limited to the data model layer only. Rendering changes are out of scop
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 |  | Initial creation |
+| Complete | 2026-03-20 | dbd0e66 | Unified data model with pre-computed derived fields — reimplemented after worktree merge loss |
