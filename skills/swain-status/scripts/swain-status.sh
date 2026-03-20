@@ -900,6 +900,61 @@ render_full() {
     echo ""
   fi
 
+  # --- Decisions Needed (SPEC-111 roadmap integration) ---
+  # Call chart.sh roadmap --json, filter to Do First + Schedule quadrants,
+  # surface operator-decision items (Proposed, no children, or fully complete).
+  # Degrade silently if chart.sh is unavailable or returns no data.
+  local _chart_sh_path
+  _chart_sh_path="$(find "${REPO_ROOT}" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"
+  if [[ -n "$_chart_sh_path" ]]; then
+    local _roadmap_json _focus_lane_dn
+    _roadmap_json=$(bash "$_chart_sh_path" roadmap --json 2>/dev/null) || _roadmap_json=""
+    _focus_lane_dn=$(echo "$data" | jq -r '.session.focus_lane // empty' 2>/dev/null || echo "")
+
+    if [[ -n "$_roadmap_json" ]] && [[ "$_roadmap_json" != "[]" ]]; then
+      local _decisions
+      # Use a temp file for the jq filter to avoid bash double-quote conflicts
+      # with nested string literals inside the $() substitution.
+      local _jq_filter_file
+      _jq_filter_file=$(mktemp /tmp/swain-status-dn-XXXXXX.jq)
+      cat > "$_jq_filter_file" << 'JQEOF'
+# Apply focus lane filter if set
+(if $focus != "" then map(select(.vision_id == $focus)) else . end) |
+# Eisenhower: Do First (quadrant=="do") and Schedule (quadrant=="schedule")
+map(select(.quadrant == "do" or .quadrant == "schedule")) |
+# Operator decision filter: items that need a decision
+map(select(.operator_decision != "")) |
+# Top 5 by weight desc, then score desc
+sort_by(-(.weight), -(.score)) | .[0:5] |
+.[] |
+# Format as actionable prompt with priority label
+def prio: if .weight >= 3 then "high" elif .weight >= 2 then "medium" else "low" end;
+if .operator_decision == "needs decomposition" then
+  "\(.id) \(.title) — **needs decomposition** (\(.children_total) specs, \(prio) priority)"
+elif .operator_decision == "activate or drop" then
+  "\(.id) \(.title) — **activate or drop?** (\(.status), \(prio) priority)"
+elif .operator_decision == "ready to complete" then
+  "\(.id) \(.title) — **ready to complete** (\(.children_complete)/\(.children_total) specs done)"
+else
+  "\(.id) \(.title) — **\(.operator_decision)** (\(.status))"
+end
+JQEOF
+      _decisions=$(echo "$_roadmap_json" | jq -r --arg focus "$_focus_lane_dn" -f "$_jq_filter_file" 2>/dev/null) || _decisions=""
+      rm -f "$_jq_filter_file"
+      unset _jq_filter_file
+
+      if [[ -n "$_decisions" ]]; then
+        echo "## Decisions Needed"
+        echo ""
+        while IFS= read -r _line; do
+          echo "- ${_line}"
+        done <<< "$_decisions"
+        echo ""
+      fi
+    fi
+    unset _chart_sh_path _roadmap_json _focus_lane_dn _decisions
+  fi
+
   # --- Artifact counts footer ---
   local total resolved ready blocked
   total=$(echo "$data" | jq -r '.artifacts.counts.total')
@@ -992,6 +1047,18 @@ if [[ "$FORCE_REFRESH" -eq 1 ]]; then
 else
   ensure_cache
 fi
+
+# --- ROADMAP.md freshness check (SPEC-111) ---
+# Regenerate ROADMAP.md if missing or older than any doc artifact.
+# Skip gracefully if chart.sh is unavailable.
+_ROADMAP="${REPO_ROOT}/ROADMAP.md"
+_CHART_SH="$(find "${REPO_ROOT}" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"
+if [[ -n "$_CHART_SH" ]]; then
+  if [[ ! -f "$_ROADMAP" ]] || [[ -n "$(find "${REPO_ROOT}/docs" -name '*.md' -newer "$_ROADMAP" -print -quit 2>/dev/null)" ]]; then
+    bash "$_CHART_SH" roadmap >/dev/null 2>&1 || true
+  fi
+fi
+unset _ROADMAP _CHART_SH
 
 case "$MODE" in
   full)    render_full ;;
