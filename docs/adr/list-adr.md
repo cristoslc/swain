@@ -5,6 +5,8 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | ADR-007 | Event-Driven Orchestrator Replaces Prose Chaining Table | 2026-03-17 | — |
+| ADR-011 | Worktree Landing Via Merge With Retry | 2026-03-20 | — |
+| ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | — |
 
 ## Active
 
