@@ -171,4 +171,4 @@ Agents push their worktree branches and open PRs. The hosting platform's merge q
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-20 | -- | Drafted from SPIKE-022 findings; supersedes ADR-005 |
-| Active | 2026-03-20 | -- | Adopted; supersedes ADR-005 |
+| Active | 2026-03-20 | 54e12dc | Adopted; supersedes ADR-005 |
