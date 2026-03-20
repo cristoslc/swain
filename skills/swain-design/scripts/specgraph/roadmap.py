@@ -615,7 +615,7 @@ def render_dependency_graph(items: list[dict], nodes: dict) -> str | None:
             use_subgraphs=use_subgraphs,
         ).rstrip("\n")
     else:
-        lines = ["graph LR"]
+        lines = ["flowchart TD"]
 
         # Style classes for quadrant membership
         lines.append("    classDef doFirst fill:#e03131,stroke:#c92a2a,color:#fff")
@@ -986,7 +986,7 @@ def render_roadmap(
 
     if fmt == "mermaid-flowchart":
         dep = render_dependency_graph(items, nodes)
-        return dep or "graph LR\n    %% No Epic-level dependencies"
+        return dep or "flowchart TD\n    %% No Epic-level dependencies"
     elif fmt == "both":
         gantt = render_gantt(items, nodes)
         dep = render_dependency_graph(items, nodes)

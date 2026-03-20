@@ -130,7 +130,7 @@ EXPECTED_GANTT = (
 )
 
 EXPECTED_DEPS = (
-    "graph LR\n"
+    "flowchart TD\n"
     "    classDef doFirst fill:#e03131,stroke:#c92a2a,color:#fff\n"
     "    classDef scheduled fill:#f59f00,stroke:#e67700,color:#000\n"
     "    classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff\n"
@@ -200,7 +200,7 @@ def test_deps_renders_without_error():
     nodes, _, items = _make_test_graph()
     result = render_dependency_graph(items, nodes)
     assert result is not None
-    assert "graph LR" in result
+    assert "flowchart TD" in result
 
 
 def test_eisenhower_renders_without_error():

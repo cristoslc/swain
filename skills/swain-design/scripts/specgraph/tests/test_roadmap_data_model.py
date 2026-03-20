@@ -215,4 +215,4 @@ def test_renderers_accept_enriched_items():
     assert "gantt" in gantt
     dep = render_dependency_graph(items, nodes)
     assert dep is not None
-    assert "graph LR" in dep
+    assert "flowchart TD" in dep
