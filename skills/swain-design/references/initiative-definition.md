@@ -28,7 +28,7 @@ A strategic focus that coordinates multiple Epics toward a shared direction. The
   - `artifact` — INITIATIVE-NNN identifier
   - `track` — always "container"
   - `status` — lifecycle phase (Proposed, Active, Complete, Abandoned, Superseded)
-  - `parent-vision` — VISION-NNN parent (required; initiatives without a vision parent are flagged as orphans)
+  - `parent-vision` — VISION-NNN parent(s) (required; YAML list, one or more). Initiatives may serve multiple Visions per ADR-009. Priority inheritance uses highest weight among parents unless explicitly overridden. Initiatives without a vision parent are flagged as orphans.
   - `author` — person who created it
   - `created` — ISO-8601 date
   - `last-updated` — ISO-8601 date

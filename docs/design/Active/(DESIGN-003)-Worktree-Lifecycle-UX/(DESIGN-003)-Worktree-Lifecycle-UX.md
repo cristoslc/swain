@@ -11,7 +11,7 @@ linked-artifacts:
   - EPIC-015
   - EPIC-031
   - SPEC-043
-  - INITIATIVE-001
+  - INITIATIVE-013
 depends-on-artifacts: []
 ---
 

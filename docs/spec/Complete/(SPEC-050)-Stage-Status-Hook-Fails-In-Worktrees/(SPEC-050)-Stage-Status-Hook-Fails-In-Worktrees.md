@@ -8,9 +8,9 @@ created: 2026-03-15
 last-updated: 2026-03-15
 type: bug
 parent-epic: ""
-parent-initiative: INITIATIVE-001
+parent-initiative: INITIATIVE-013
 linked-artifacts:
-  - INITIATIVE-001
+  - INITIATIVE-013
   - EPIC-015
   - SPEC-041
   - SPEC-039

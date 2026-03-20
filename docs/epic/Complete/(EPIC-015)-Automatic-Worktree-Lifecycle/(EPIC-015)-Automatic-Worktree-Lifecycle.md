@@ -7,7 +7,7 @@ author: cristos
 created: 2026-03-14
 last-updated: 2026-03-14
 parent-vision: VISION-001
-parent-initiative: INITIATIVE-001
+parent-initiative: INITIATIVE-013
 success-criteria:
   - swain-do creates a worktree automatically when invoked outside one; agents never implement in the main worktree
   - swain-sync lands worktree work on main (direct push or PR), then prunes the worktree

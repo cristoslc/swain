@@ -137,6 +137,23 @@ Read [references/superpowers-integration.md](references/superpowers-integration.
 
 Phases are waypoints, not mandatory gates — artifacts may skip forward. Read [references/phase-transitions.md](references/phase-transitions.md) for phase skipping rules, the transition workflow (validate → move → commit → hash stamp), verification/review gates, and completion rules.
 
+### Supersession specwatch-ignore maintenance
+
+Whenever ANY artifact transitions to Superseded — whether via the phase transition workflow (step 5a in phase-transitions.md) or during artifact creation (same-type overlap detection) — append glob patterns to `.agents/specwatch-ignore` for the intentional backward references that the supersession creates. This prevents specwatch from flagging provenance links as warnings.
+
+1. Create `.agents/specwatch-ignore` if it doesn't exist.
+2. Append patterns for: (a) the superseded artifact path, (b) the superseding artifact path, (c) any ADR created as part of the same operation that references the superseded artifact.
+3. Each entry gets a comment: `# <OLD-ID> superseded by <NEW-ID> (<YYYY-MM-DD>)`.
+4. Deduplicate: skip patterns that already exist in the file.
+
+```
+# INITIATIVE-001 superseded by INITIATIVE-013 (2026-03-19)
+docs/initiative/Superseded/(INITIATIVE-001)*
+docs/initiative/Active/(INITIATIVE-013)*
+```
+
+This step runs **before** the post-operation specwatch scan (step 9 in the creation workflow, step 8 in phase-transitions.md) so the scan output is clean.
+
 ### DESIGN lifecycle hooks
 
 These hooks apply to DESIGN artifacts during phase transitions:

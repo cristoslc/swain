@@ -53,6 +53,9 @@
 | SPEC-095 | Design Intent Template Section | 2026-03-19 | -- |
 | SPEC-096 | design-check.sh — Blob SHA Drift Detection | 2026-03-19 | -- |
 | SPEC-097 | Integration Hooks and Decision Protection | 2026-03-19 | -- |
+| SPEC-098 | Session Action Log | 2026-03-19 | -- |
+| SPEC-099 | Commit Atomization in swain-sync | 2026-03-19 | -- |
+| SPEC-100 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | -- |
 
 ## Complete
 

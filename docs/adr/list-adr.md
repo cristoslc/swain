@@ -17,4 +17,5 @@
 | ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-14 | — |
 | ADR-006 | Trove Analysis Layer | 2026-03-16 | — |
 | ADR-008 | Subscription Auth Preferred Over API Keys | 2026-03-19 | — |
+| ADR-009 | Multi-Vision Initiatives | 2026-03-19 | -- |
 

@@ -2,10 +2,11 @@
 title: "Worktree-Safe Skill Execution"
 artifact: INITIATIVE-001
 track: container
-status: Active
+status: Superseded
+superseded-by: INITIATIVE-013
 author: cristos
 created: 2026-03-15
-last-updated: 2026-03-15
+last-updated: 2026-03-19
 parent-vision: VISION-001
 priority-weight: high
 success-criteria:
@@ -72,3 +73,4 @@ These aren't isolated bugs — they're symptoms of a missing invariant: **every 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-15 | — | Created after discovering hook path resolution failures in worktrees; EPIC-015 already complete, EPIC-016/020 Proposed |
+| Superseded | 2026-03-19 | -- | Absorbed into INITIATIVE-013 (Concurrent Session Safety) per ADR-009; child epics re-parented |

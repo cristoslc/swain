@@ -9,7 +9,7 @@ last-updated: 2026-03-18
 type: enhancement
 parent-epic: EPIC-031
 linked-artifacts:
-  - INITIATIVE-001
+  - INITIATIVE-013
   - SPEC-050
 depends-on-artifacts: []
 addresses: []

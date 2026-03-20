@@ -28,6 +28,13 @@ Phases listed in the artifact definition files are available waypoints, not mand
 4a. **Verification gate (SPEC only)** — for `Needs Manual Test → Complete` transitions, run `skills/swain-design/scripts/spec-verify.sh <artifact-path>`. Address gaps before proceeding.
 4b. **Code review gate (SPEC only)** — for `Needs Manual Test → Complete`, if superpowers code review skills are installed, request spec compliance + code quality reviews (see [superpowers-integration.md](superpowers-integration.md)). Not a hard gate.
 5. Commit the transition change (move + status update).
+5a. **specwatch-ignore maintenance (→ Superseded only)** — when the target phase is `Superseded`, append glob patterns to `.agents/specwatch-ignore` so that intentional backward references don't pollute specwatch output. Create the file if it doesn't exist. Deduplicate before appending.
+   ```
+   # <OLD-ID> superseded by <NEW-ID> (<YYYY-MM-DD>)
+   docs/<type>/Superseded/(<OLD-ID>)*
+   docs/<type>/<new-phase>/(<NEW-ID>)*
+   ```
+   Include patterns for: (a) the superseded artifact itself (its frozen outbound refs), (b) the superseding artifact (its intentional backward ref). If an ADR was created as part of the same operation, include its path too.
 6. Stamp the lifecycle table with the transition commit hash. Choose the pattern based on artifact complexity tier (see SPEC-045):
    - **Fast-path tier with no downstream dependents:** Use the inline stamp — run `git rev-parse HEAD` *before* the transition commit, pre-fill the lifecycle row hash, and include it in the single transition commit (step 5). No second commit needed.
    - **Full-ceremony tier, EPICs, or artifacts with downstream dependents:** Append a row with `--` as a placeholder hash in step 5, then commit the hash stamp as a **separate commit** (step 7). Never amend — two distinct commits keeps the stamped hash reachable in git history.
