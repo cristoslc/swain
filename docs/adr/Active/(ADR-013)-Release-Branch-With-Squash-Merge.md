@@ -144,4 +144,4 @@ Keep `main` as the clean default. Develop on `develop` or similar.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-20 | -- | Drafted alongside ADR-011 and ADR-012 |
-| Active | 2026-03-20 | -- | Adopted; trunk+release branch model |
+| Active | 2026-03-20 | 54e12dc | Adopted; trunk+release branch model |
