@@ -263,15 +263,26 @@ If this push is rejected with a non-fast-forward error:
     Report the PR URL. Do not retry the push. Proceed to worktree pruning below.
   - If **diverged history is the cause** (not branch protection), report the conflict and stop. Do not force-push.
 
-After a successful push or PR creation, restore CWD then remove the worktree:
+After a successful push or PR creation, clean up the worktree — but only if swain-sync created it. Worktrees entered via `EnterWorktree` (branch name matches `worktree-*`) must be left for `ExitWorktree` to clean up, since `ExitWorktree` properly restores the session's CWD before removal. Removing them here would leave the parent session's CWD pointing at a deleted directory, causing ENOENT on all subsequent hook spawns (SPEC-099).
+
 ```bash
 WORKTREE_PATH=$(pwd)
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
 MAIN_REPO=$(git rev-parse --git-common-dir | sed 's|/.git$||')
-# SPEC-100: Restore CWD *before* removal — otherwise the session is stuck
-# in a deleted directory and all subsequent commands (hooks, git, etc.) fail.
-cd "$MAIN_REPO" || cd "$HOME"
-git -C "$MAIN_REPO" worktree remove --force "$WORKTREE_PATH" 2>/dev/null || true
-git -C "$MAIN_REPO" worktree prune 2>/dev/null || true
+
+case "$BRANCH" in worktree-*)
+  # SPEC-099: Worktree entered via EnterWorktree — do NOT remove.
+  # ExitWorktree handles cleanup and CWD restoration.
+  echo "Worktree branch '$BRANCH' entered via EnterWorktree — skipping removal (ExitWorktree will clean up)."
+  ;;
+*)
+  # SPEC-100: Restore CWD *before* removal — otherwise the session is stuck
+  # in a deleted directory and all subsequent commands (hooks, git, etc.) fail.
+  cd "$MAIN_REPO" || cd "$HOME"
+  git -C "$MAIN_REPO" worktree remove --force "$WORKTREE_PATH" 2>/dev/null || true
+  git -C "$MAIN_REPO" worktree prune 2>/dev/null || true
+  ;;
+esac
 ```
 
 **If `IN_WORKTREE=no`** (main worktree, normal case):

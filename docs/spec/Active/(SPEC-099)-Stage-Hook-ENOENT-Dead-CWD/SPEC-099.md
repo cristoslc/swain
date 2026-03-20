@@ -14,7 +14,7 @@ linked-artifacts:
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
-source-issue: ""
+source-issue: "https://github.com/anthropics/claude-code/issues/36720"
 swain-do: required
 ---
 
