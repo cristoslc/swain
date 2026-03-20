@@ -3,7 +3,16 @@ graph LR
     classDef scheduled fill:#f59f00,stroke:#e67700,color:#000
     classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff
     classDef backlog fill:#868e96,stroke:#495057,color:#fff
-{% for node in nodes %}
+{% if use_subgraphs %}
+{% for sg in subgraphs %}
+    subgraph {{ sg.id }}["{{ sg.title }}"]
+{% for node in sg.nodes %}
+        {{ node.eid }}["{{ node.elabel }}"]:::{{ node.cls }}
+{% endfor %}
+    end
+{% endfor %}
+{% endif %}
+{% for node in standalone_nodes %}
     {{ node.eid }}["{{ node.elabel }}"]:::{{ node.cls }}
 {% endfor %}
 {% for edge in edges %}

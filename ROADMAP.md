@@ -96,12 +96,18 @@ graph LR
     classDef scheduled fill:#f59f00,stroke:#e67700,color:#000
     classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff
     classDef backlog fill:#868e96,stroke:#495057,color:#fff
-    EPIC_016["Worktree-Aware Session Bookmarks"]:::inProgress
-    EPIC_017["Security Vulnerability Scanning Skill"]:::inProgress
-    EPIC_019["Rename swain-design to swain-strategize"]:::inProgress
-    EPIC_021["Product Design Orchestrator"]:::backlog
-    EPIC_023["Security Gates in swain-do Execution Flow"]:::inProgress
-    EPIC_036["Sandbox Capability Bridges"]:::backlog
+    subgraph INITIATIVE_004["Security & Trust"]
+        EPIC_017["Security Vulnerability Scanning Skill"]:::inProgress
+        EPIC_023["Security Gates in swain-do Execution Flow"]:::inProgress
+    end
+    subgraph INITIATIVE_007["Product Design"]
+        EPIC_019["Rename swain-design to swain-strategize"]:::inProgress
+        EPIC_021["Product Design Orchestrator"]:::backlog
+    end
+    subgraph INITIATIVE_013["Concurrent Session Safety"]
+        EPIC_016["Worktree-Aware Session Bookmarks"]:::inProgress
+        EPIC_036["Sandbox Capability Bridges"]:::backlog
+    end
     EPIC_021 -->|blocks| EPIC_019
     EPIC_023 -->|blocks| EPIC_017
     EPIC_036 -->|blocks| EPIC_016

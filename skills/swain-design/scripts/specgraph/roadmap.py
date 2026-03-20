@@ -523,18 +523,23 @@ def render_dependency_graph(items: list[dict], nodes: dict) -> str | None:
     qclass = {"do": "doFirst", "schedule": "scheduled",
               "delegate": "inProgress", "evaluate": "backlog"}
 
-    if _HAS_JINJA:
-        node_list: list[dict] = []
-        for item_id in sorted(involved):
-            item = epic_map.get(item_id)
-            if item is None:
-                continue
-            node_list.append({
-                "eid": _safe_mermaid_id(item_id),
-                "elabel": _escape_mermaid_label(item["title"]),
-                "cls": qclass[item["quadrant"]],
-            })
+    # Group involved nodes by initiative
+    by_initiative: dict[str, list[dict]] = {}
+    standalone_nodes: list[dict] = []
+    for item_id in sorted(involved):
+        item = epic_map.get(item_id)
+        if item is None:
+            continue
+        if item["group"] != item["id"]:
+            by_initiative.setdefault(item["group"], []).append(item)
+        else:
+            standalone_nodes.append(item)
 
+    # Fallback: if all subgraphs are single-node, use flat layout
+    all_single = all(len(v) <= 1 for v in by_initiative.values())
+    use_subgraphs = bool(by_initiative) and not all_single
+
+    if _HAS_JINJA:
         jinja_edges: list[dict] = []
         for src_id, dst_id in sorted(edge_list):
             src = _safe_mermaid_id(src_id)
@@ -551,9 +556,45 @@ def render_dependency_graph(items: list[dict], nodes: dict) -> str | None:
 
             jinja_edges.append({"src": src, "dst": dst, "cross_boundary": cross_boundary})
 
+        subgraph_data = []
+        if use_subgraphs:
+            for init_id, init_items in sorted(by_initiative.items()):
+                init_node = nodes.get(init_id, {})
+                subgraph_data.append({
+                    "id": _safe_mermaid_id(init_id),
+                    "title": _escape_mermaid_label(init_node.get("title", init_id)),
+                    "nodes": [{
+                        "eid": _safe_mermaid_id(item["id"]),
+                        "elabel": _escape_mermaid_label(item["title"]),
+                        "cls": qclass[item["quadrant"]],
+                    } for item in init_items],
+                })
+
+        standalone_data = [{
+            "eid": _safe_mermaid_id(item["id"]),
+            "elabel": _escape_mermaid_label(item["title"]),
+            "cls": qclass[item["quadrant"]],
+        } for item in standalone_nodes]
+
+        # If not using subgraphs, put all nodes in standalone
+        if not use_subgraphs:
+            for init_items in by_initiative.values():
+                for item in init_items:
+                    standalone_data.append({
+                        "eid": _safe_mermaid_id(item["id"]),
+                        "elabel": _escape_mermaid_label(item["title"]),
+                        "cls": qclass[item["quadrant"]],
+                    })
+            standalone_data.sort(key=lambda n: n["eid"])
+
         env = _jinja_env()
         tmpl = env.get_template("deps.mmd.j2")
-        return tmpl.render(nodes=node_list, edges=jinja_edges).rstrip("\n")
+        return tmpl.render(
+            subgraphs=subgraph_data,
+            standalone_nodes=standalone_data,
+            edges=jinja_edges,
+            use_subgraphs=use_subgraphs,
+        ).rstrip("\n")
     else:
         lines = ["graph LR"]
 
@@ -563,14 +604,36 @@ def render_dependency_graph(items: list[dict], nodes: dict) -> str | None:
         lines.append("    classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff")
         lines.append("    classDef backlog fill:#868e96,stroke:#495057,color:#fff")
 
-        for item_id in sorted(involved):
-            item = epic_map.get(item_id)
-            if item is None:
-                continue
-            eid = _safe_mermaid_id(item_id)
+        if use_subgraphs:
+            for init_id, init_items in sorted(by_initiative.items()):
+                init_node_data = nodes.get(init_id, {})
+                sg_id = _safe_mermaid_id(init_id)
+                sg_title = _escape_mermaid_label(init_node_data.get("title", init_id))
+                lines.append(f'    subgraph {sg_id}["{sg_title}"]')
+                for item in init_items:
+                    eid = _safe_mermaid_id(item["id"])
+                    elabel = _escape_mermaid_label(item["title"])
+                    cls = qclass[item["quadrant"]]
+                    lines.append(f'        {eid}["{elabel}"]:::{cls}')
+                lines.append("    end")
+
+        # Standalone nodes (outside subgraphs)
+        for item in standalone_nodes:
+            eid = _safe_mermaid_id(item["id"])
             elabel = _escape_mermaid_label(item["title"])
             cls = qclass[item["quadrant"]]
             lines.append(f'    {eid}["{elabel}"]:::{cls}')
+
+        # If not using subgraphs, render all as flat
+        if not use_subgraphs:
+            for item_id in sorted(involved):
+                item = epic_map.get(item_id)
+                if item is None:
+                    continue
+                eid = _safe_mermaid_id(item_id)
+                elabel = _escape_mermaid_label(item["title"])
+                cls = qclass[item["quadrant"]]
+                lines.append(f'    {eid}["{elabel}"]:::{cls}')
 
         for src_id, dst_id in sorted(edge_list):
             src = _safe_mermaid_id(src_id)
