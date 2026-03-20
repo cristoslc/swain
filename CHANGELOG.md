@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.9.0-alpha] - 2026-03-20
+
+### Trunk+Release Branch Model
+
+swain now supports a two-branch workflow where `trunk` is the development
+branch and `release` is squash-merged at release time. A migration script
+handles the rename from `main` to `trunk`, and all skill references have been
+updated. "Merge-With-Retry Replaces Rebase-Then-Push" (ADR-011) replaces the
+fragile rebase-then-push strategy with a merge-with-retry loop for worktree
+landing, and "Trunk+Release Branch Model" (ADR-013) codifies the two-branch
+convention.
+
+### Roadmap: Level-Based Initiative Children
+
+SPECs and Spikes attached directly to an Initiative (without an Epic wrapper)
+now appear as first-class items in ROADMAP.md — visible in Eisenhower tables,
+Gantt charts, and progress counters. Previously, only Epics were rendered;
+direct-child specs were silently dropped. The filtering is now level-based
+(any 1-deep child of an Initiative) rather than type-based.
+("Roadmap Initiative children use level-based filtering, not type-based" —
+SPEC-115)
+
+### Supporting Changes
+
+- Expanded domain field guidance in DESIGN artifact template — documents valid
+  `domain` enum values (`interaction`, `data`, `system`)
+- Quadrant boundary alignment and X-axis jitter fix for roadmap scatter plot
+- Dependency graph now uses `flowchart TD` layout
+- Link corrections and ROADMAP regeneration
+
 ## [0.8.0-alpha] - 2026-03-20
 
 ### Security Scanning (EPIC-017, EPIC-023)

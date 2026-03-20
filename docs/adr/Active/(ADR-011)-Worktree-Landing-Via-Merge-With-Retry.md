@@ -20,7 +20,7 @@ evidence-pool: "multi-agent-collision-vectors"
 
 ## Context
 
-[ADR-005](../Active/(ADR-005)-swain-sync-worktree-completion-workflow/(ADR-005)-swain-sync-worktree-completion-workflow.md) established a worktree completion workflow: rebase onto `origin/main`, then `git push origin HEAD:main`. On non-fast-forward rejection, the agent stops and reports.
+[ADR-005](../Superseded/(ADR-005)-swain-sync-worktree-completion-workflow/(ADR-005)-swain-sync-worktree-completion-workflow.md) established a worktree completion workflow: rebase onto `origin/main`, then `git push origin HEAD:main`. On non-fast-forward rejection, the agent stops and reports.
 
 During EPIC-038, two parallel worktree agents (SPEC-107, SPEC-108) both modified `roadmap.py`. SPEC-107 (sort-order) landed first. SPEC-108 (data model refactor) landed second. After both landed, SPEC-108's enrichment fields were missing from main — SPEC-107's changes were intact.
 

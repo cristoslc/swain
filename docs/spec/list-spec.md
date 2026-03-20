@@ -69,6 +69,11 @@
 | SPEC-111 | Status roadmap integration | 2026-03-20 | — |
 | SPEC-112 | Dependency graph initiative subgraphs | 2026-03-20 | — |
 | SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
+
+## NeedsManualTest
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
 | SPEC-114 | Trunk + Release Branch Model With Merge-and-Retry Landing | 2026-03-20 | — |
 
 ## Complete
