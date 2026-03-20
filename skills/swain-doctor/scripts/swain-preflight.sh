@@ -139,6 +139,11 @@ if [[ -x "$SCANNER_SCRIPT" ]]; then
   fi
 fi
 
+# Check mmdc availability (SPEC-110)
+if ! command -v mmdc >/dev/null 2>&1; then
+    echo "swain-preflight: mmdc (mermaid-cli) not found — quadrant chart will use inline Mermaid instead of PNG"
+fi
+
 # 12. Lightweight security diagnostic (advisory, non-blocking) (SPEC-061)
 DOCTOR_SECURITY_SCRIPT="skills/swain-security-check/scripts/doctor_security_check.py"
 if [[ -x "$DOCTOR_SECURITY_SCRIPT" ]]; then
