@@ -49,7 +49,7 @@
 | SPEC-091 | TRAIN Artifact Type | 2026-03-19 | — |
 | SPEC-092 | swain-box: Unified Sandbox Launcher | 2026-03-19 | — |
 | SPEC-093 | Documentation Viewer | 2026-03-19 | — |
-| SPEC-094 | Frontmatter Schema — artifact-refs, sourcecode-refs, rel types | 2026-03-19 | -- |
+| SPEC-094 | Frontmatter Schema — artifact-refs, sourcecode-refs, rel types | 2026-03-20 | -- |
 | SPEC-095 | Design Intent Template Section | 2026-03-19 | -- |
 | SPEC-096 | design-check.sh — Blob SHA Drift Detection | 2026-03-19 | -- |
 | SPEC-097 | Integration Hooks and Decision Protection | 2026-03-19 | -- |
@@ -60,7 +60,11 @@
 | SPEC-100 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | -- |
 | SPEC-100 | swain-sync must restore CWD after worktree cleanup | 2026-03-20 | — |
 | SPEC-101 | ssh-readiness.sh: expand tilde in IdentityFile path before file test | 2026-03-20 | — |
+| SPEC-102 | specgraph: deterministic roadmap output based on priorities | 2026-03-20 | — |
 | SPEC-102 | swain-doctor SSH Binary Check | 2026-03-20 | — |
+| SPEC-103 | Artifact cross-reference hyperlinking | 2026-03-20 | — |
+| SPEC-103 | swain-status roadmap integration | 2026-03-20 | — |
+| SPEC-104 | Roadmap diagram legibility | 2026-03-20 | — |
 
 ## Complete
 

@@ -19,6 +19,7 @@ Reference for `chart.sh` (swain chart) and `specgraph.sh` subcommands.
 | `chart.sh debt` | Unresolved decisions (Proposed Spikes/ADRs/Epics) | strategic (2) |
 | `chart.sh unanchored` | Artifacts with no Vision ancestry | strategic (2) |
 | `chart.sh status` | All artifacts annotated with phase | strategic (2) |
+| `chart.sh roadmap` | Priority-sorted roadmap (Mermaid Gantt/flowchart) | n/a |
 
 ### Display options
 
@@ -209,6 +210,24 @@ DECISION DEBT:
 ```
 
 Use this to identify where research or decisions are delaying downstream work. `--json` outputs structured debt data keyed by Vision ID.
+
+## Roadmap output
+
+The `roadmap` command renders a deterministic, priority-sorted roadmap of Initiatives and Epics as Mermaid diagrams. It groups by Initiative (not Vision) because of multi-homing, and uses Epics as the leaf level (SPECs are too granular).
+
+```
+chart.sh roadmap [--format mermaid-gantt|mermaid-flowchart|both] [--focus VISION-ID] [--json]
+```
+
+**Default format:** `mermaid-gantt`. Items are sorted by priority score (unblock count x vision weight) descending, with artifact ID as tiebreaker for determinism.
+
+**Gantt output:** Sections correspond to Initiatives (or standalone Epics). Each Epic shows a progress ratio (complete/total child specs).
+
+**Flowchart output:** Epics under the same Initiative are grouped in a Mermaid subgraph. Dependency arrows (`depends-on`) between Epics are rendered as edges.
+
+**JSON output:** Array of `{id, title, type, score, weight, children_total, children_complete, depends_on, group, group_title, vision_id, status}` sorted by score descending.
+
+**`--focus VISION-ID`:** Limits output to Initiatives/Epics under that Vision. Falls back to the session focus lane if set.
 
 ## Attention output
 

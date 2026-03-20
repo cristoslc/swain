@@ -17,6 +17,7 @@ sys.path.insert(0, SCRIPTS_DIR)
 from specgraph.graph import cache_path, read_cache, build_graph, needs_rebuild, write_cache
 from specgraph.tree_renderer import render_vision_tree
 from specgraph.lenses import LENSES, RecommendLens, AttentionLens
+from specgraph.roadmap import render_roadmap, render_roadmap_markdown, collect_roadmap_items
 from specgraph import cli as specgraph_cli
 
 
@@ -87,6 +88,7 @@ _PASSTHROUGH_COMMANDS = {"build", "xref", "blocks", "blocked-by", "tree",
                          "mermaid", "next", "decision-debt"}
 
 
+
 def main():
     parser = argparse.ArgumentParser(
         prog="swain-chart",
@@ -106,6 +108,16 @@ def main():
         if lens_name == "attention":
             p.add_argument("--days", type=int, default=30,
                            help="Days of git history to scan")
+
+    # Roadmap command (custom rendering)
+    roadmap_p = sub.add_parser("roadmap", help="Priority-sorted roadmap")
+    roadmap_p.add_argument("--format", type=str, default=None,
+                           choices=["mermaid-gantt", "mermaid-flowchart", "both"],
+                           help="Raw Mermaid to stdout (default: write ROADMAP.md)")
+    roadmap_p.add_argument("--focus", type=str, default=None,
+                           help="Focus on a specific Vision ID")
+    roadmap_p.add_argument("--json", action="store_true", dest="json_output",
+                           help="JSON output")
 
     # Passthrough commands (delegate to specgraph CLI)
     for cmd in _PASSTHROUGH_COMMANDS:
@@ -131,6 +143,31 @@ def main():
     if command in _PASSTHROUGH_COMMANDS:
         # Delegate to specgraph's main() with the same argv
         specgraph_cli.main()
+        return
+
+    # Roadmap command (custom rendering, not lens-based)
+    if command == "roadmap":
+        repo_root = _get_repo_root()
+        data = _ensure_cache(repo_root)
+        nodes = data["nodes"]
+        edges = data["edges"]
+        focus = getattr(args, "focus", None)  # roadmap: no focus-lane fallback
+        fmt = getattr(args, "format", None)
+        json_out = getattr(args, "json_output", False)
+
+        # If --format or --json given, print raw to stdout
+        if fmt or json_out:
+            output = render_roadmap(nodes, edges, fmt=fmt or "mermaid-gantt",
+                                    focus_vision=focus, json_output=json_out)
+            print(output)
+        else:
+            # Default: write ROADMAP.md to project root
+            items = collect_roadmap_items(nodes, edges, focus)
+            md = render_roadmap_markdown(items, nodes)
+            roadmap_path = os.path.join(repo_root, "ROADMAP.md")
+            with open(roadmap_path, "w", encoding="utf-8") as f:
+                f.write(md)
+            print(f"Wrote {roadmap_path}")
         return
 
     # Lens-based tree rendering
