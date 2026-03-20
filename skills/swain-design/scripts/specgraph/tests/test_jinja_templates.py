@@ -135,8 +135,10 @@ EXPECTED_DEPS = (
     "    classDef scheduled fill:#f59f00,stroke:#e67700,color:#000\n"
     "    classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff\n"
     "    classDef backlog fill:#868e96,stroke:#495057,color:#fff\n"
-    '    EPIC_001["Authentication System"]:::doFirst\n'
-    '    EPIC_002["Data#colon;Model Redesign"]:::backlog\n'
+    '    subgraph INITIATIVE_001["Core Platform"]\n'
+    '        EPIC_001["Authentication System"]:::doFirst\n'
+    '        EPIC_002["Data#colon;Model Redesign"]:::backlog\n'
+    "    end\n"
     "    EPIC_002 -->|blocks| EPIC_001"
 )
 
