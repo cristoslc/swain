@@ -23,6 +23,22 @@ from .queries import (
 )
 from .priority import resolve_vision_weight, _compute_unblock_count
 
+try:
+    from jinja2 import Environment, FileSystemLoader
+    _HAS_JINJA = True
+except ImportError:
+    _HAS_JINJA = False
+
+
+def _jinja_env() -> "Environment":
+    template_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'templates', 'roadmap')
+    return Environment(
+        loader=FileSystemLoader(template_dir),
+        keep_trailing_newline=True,
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+
 
 _CONTAINER_TYPES = frozenset({"INITIATIVE", "EPIC"})
 _PARENT_EDGE_TYPES = frozenset({"parent-epic", "parent-vision", "parent-initiative"})
@@ -282,33 +298,36 @@ def render_quadrant_chart(items: list[dict]) -> tuple[str, list[dict]]:
     """
     epics = [i for i in items if i["type"] == "EPIC"]
 
-    lines = [
-        "%%{init: {'quadrantChart': {'chartWidth': 700, 'chartHeight': 500, 'pointLabelFontSize': 14}}}%%",
-        "quadrantChart",
-        "    title Priority Matrix",
-        '    x-axis "Low Urgency" --> "High Urgency"',
-        '    y-axis "Low Importance" --> "High Importance"',
-        "    quadrant-1 Do First",
-        "    quadrant-2 Schedule",
-        "    quadrant-3 Backlog",
-        "    quadrant-4 In Progress",
-    ]
-
     legend_items: list[dict] = []
     for item in epics:
-        x = item["chart_x"]
-        y = item["chart_y"]
-        short = item["short_id"]
-        lines.append(f"    {short}: [{x:.2f}, {y:.2f}]")
-
         legend_items.append({
-            "short_id": short,
+            "short_id": item["short_id"],
             "id": item["id"],
             "title": item["title"],
             "quadrant": item["quadrant_label"],
         })
 
-    return "\n".join(lines), legend_items
+    if _HAS_JINJA:
+        env = _jinja_env()
+        tmpl = env.get_template("quadrant.mmd.j2")
+        mermaid_src = tmpl.render(epics=epics).rstrip("\n")
+    else:
+        lines = [
+            "%%{init: {'quadrantChart': {'chartWidth': 700, 'chartHeight': 500, 'pointLabelFontSize': 14}}}%%",
+            "quadrantChart",
+            "    title Priority Matrix",
+            '    x-axis "Low Urgency" --> "High Urgency"',
+            '    y-axis "Low Importance" --> "High Importance"',
+            "    quadrant-1 Do First",
+            "    quadrant-2 Schedule",
+            "    quadrant-3 Backlog",
+            "    quadrant-4 In Progress",
+        ]
+        for item in epics:
+            lines.append(f"    {item['short_id']}: [{item['chart_x']:.2f}, {item['chart_y']:.2f}]")
+        mermaid_src = "\n".join(lines)
+
+    return mermaid_src, legend_items
 
 
 def _render_quadrant_png(mermaid_source: str, repo_root: str) -> str | None:
@@ -377,55 +396,102 @@ def render_gantt(items: list[dict], nodes: dict) -> str:
         task_alias[item["id"]] = alias
         task_start_day[item["id"]] = current_day
 
-    lines = [
-        "gantt",
-        "    title Roadmap",
-        "    dateFormat YYYY-MM-DD",
-        "    axisFormat %b %d",
-        "    tickInterval 1week",
-    ]
-
     # Group by Eisenhower quadrant for sections
     quadrants = classify_epics_eisenhower(items)
 
-    for qkey in QUADRANT_ORDER:
-        qitems = quadrants[qkey]
-        if not qitems:
-            continue
-        title, _ = QUADRANT_LABELS[qkey]
-        lines.append(f"    section {title}")
+    if _HAS_JINJA:
+        quadrant_sections: list[dict] = []
+        for qkey in QUADRANT_ORDER:
+            qitems = quadrants[qkey]
+            if not qitems:
+                continue
+            title, _ = QUADRANT_LABELS[qkey]
+            tasks: list[dict] = []
+            for item in qitems:
+                alias = task_alias[item["id"]]
+                progress = f"{item['children_complete']}/{item['children_total']}"
+                title_text = item["title"]
+                if len(title_text) > 30:
+                    title_text = title_text[:30]
+                label = _escape_mermaid_label(title_text)
 
-        for item in qitems:
-            alias = task_alias[item["id"]]
-            progress = f"{item['children_complete']}/{item['children_total']}"
-            title_text = item["title"]
-            if len(title_text) > 30:
-                title_text = title_text[:30]
-            label = _escape_mermaid_label(title_text)
+                decision = item["operator_decision"]
+                if decision:
+                    marker = "crit, "
+                elif item["status"] in _ACTIVE_STATUSES:
+                    marker = "active, "
+                else:
+                    marker = ""
 
-            # Determine marker: crit = needs decision, active = in progress
-            decision = item["operator_decision"]
-            if decision:
-                marker = "crit, "
-            elif item["status"] in _ACTIVE_STATUSES:
-                marker = "active, "
-            else:
-                marker = ""
+                dep_aliases = [
+                    task_alias[d] for d in item["depends_on"]
+                    if d in task_alias and d != item["id"]
+                ]
+                if dep_aliases:
+                    start = f"after {' '.join(dep_aliases)}"
+                else:
+                    day = task_start_day[item["id"]]
+                    start = f"2026-01-{day:02d}"
 
-            # Dependencies override start position
-            dep_aliases = [
-                task_alias[d] for d in item["depends_on"]
-                if d in task_alias and d != item["id"]
-            ]
-            if dep_aliases:
-                start = f"after {' '.join(dep_aliases)}"
-            else:
-                day = task_start_day[item["id"]]
-                start = f"2026-01-{day:02d}"
+                tasks.append({
+                    "label": label,
+                    "progress": progress,
+                    "marker": marker,
+                    "alias": alias,
+                    "start": start,
+                })
+            quadrant_sections.append({"title": title, "tasks": tasks})
 
-            lines.append(f"    {label} ({progress}) :{marker}{alias}, {start}, 14d")
+        env = _jinja_env()
+        tmpl = env.get_template("gantt.mmd.j2")
+        return tmpl.render(quadrants=quadrant_sections).rstrip("\n")
+    else:
+        lines = [
+            "gantt",
+            "    title Roadmap",
+            "    dateFormat YYYY-MM-DD",
+            "    axisFormat %b %d",
+            "    tickInterval 1week",
+        ]
 
-    return "\n".join(lines)
+        for qkey in QUADRANT_ORDER:
+            qitems = quadrants[qkey]
+            if not qitems:
+                continue
+            title, _ = QUADRANT_LABELS[qkey]
+            lines.append(f"    section {title}")
+
+            for item in qitems:
+                alias = task_alias[item["id"]]
+                progress = f"{item['children_complete']}/{item['children_total']}"
+                title_text = item["title"]
+                if len(title_text) > 30:
+                    title_text = title_text[:30]
+                label = _escape_mermaid_label(title_text)
+
+                # Determine marker: crit = needs decision, active = in progress
+                decision = item["operator_decision"]
+                if decision:
+                    marker = "crit, "
+                elif item["status"] in _ACTIVE_STATUSES:
+                    marker = "active, "
+                else:
+                    marker = ""
+
+                # Dependencies override start position
+                dep_aliases = [
+                    task_alias[d] for d in item["depends_on"]
+                    if d in task_alias and d != item["id"]
+                ]
+                if dep_aliases:
+                    start = f"after {' '.join(dep_aliases)}"
+                else:
+                    day = task_start_day[item["id"]]
+                    start = f"2026-01-{day:02d}"
+
+                lines.append(f"    {label} ({progress}) :{marker}{alias}, {start}, 14d")
+
+        return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -454,45 +520,77 @@ def render_dependency_graph(items: list[dict], nodes: dict) -> str | None:
     # Quadrant classification for cross-boundary detection
     q_rank = {"do": 0, "schedule": 1, "delegate": 2, "evaluate": 3}
 
-    lines = ["graph LR"]
-
-    # Style classes for quadrant membership
-    lines.append("    classDef doFirst fill:#e03131,stroke:#c92a2a,color:#fff")
-    lines.append("    classDef scheduled fill:#f59f00,stroke:#e67700,color:#000")
-    lines.append("    classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff")
-    lines.append("    classDef backlog fill:#868e96,stroke:#495057,color:#fff")
-
     qclass = {"do": "doFirst", "schedule": "scheduled",
               "delegate": "inProgress", "evaluate": "backlog"}
 
-    for item_id in sorted(involved):
-        item = epic_map.get(item_id)
-        if item is None:
-            continue
-        eid = _safe_mermaid_id(item_id)
-        elabel = _escape_mermaid_label(item["title"])
-        cls = qclass[item["quadrant"]]
-        lines.append(f'    {eid}["{elabel}"]:::{cls}')
-
-    for src_id, dst_id in sorted(edge_list):
-        src = _safe_mermaid_id(src_id)
-        dst = _safe_mermaid_id(dst_id)
-
-        src_item = epic_map.get(src_id)
-        dst_item = epic_map.get(dst_id)
-        if src_item and dst_item:
-            src_q = src_item["quadrant"]
-            dst_q = dst_item["quadrant"]
-            src_rank = q_rank.get(src_q, 9)
-            dst_rank = q_rank.get(dst_q, 9)
-            # Cross-boundary: blocker is lower priority than the blocked item
-            if dst_rank > src_rank:
-                lines.append(f"    {src} ==>|blocked by lower priority| {dst}")
+    if _HAS_JINJA:
+        node_list: list[dict] = []
+        for item_id in sorted(involved):
+            item = epic_map.get(item_id)
+            if item is None:
                 continue
+            node_list.append({
+                "eid": _safe_mermaid_id(item_id),
+                "elabel": _escape_mermaid_label(item["title"]),
+                "cls": qclass[item["quadrant"]],
+            })
 
-        lines.append(f"    {src} -->|blocks| {dst}")
+        jinja_edges: list[dict] = []
+        for src_id, dst_id in sorted(edge_list):
+            src = _safe_mermaid_id(src_id)
+            dst = _safe_mermaid_id(dst_id)
 
-    return "\n".join(lines)
+            cross_boundary = False
+            src_item = epic_map.get(src_id)
+            dst_item = epic_map.get(dst_id)
+            if src_item and dst_item:
+                src_rank = q_rank.get(src_item["quadrant"], 9)
+                dst_rank = q_rank.get(dst_item["quadrant"], 9)
+                if dst_rank > src_rank:
+                    cross_boundary = True
+
+            jinja_edges.append({"src": src, "dst": dst, "cross_boundary": cross_boundary})
+
+        env = _jinja_env()
+        tmpl = env.get_template("deps.mmd.j2")
+        return tmpl.render(nodes=node_list, edges=jinja_edges).rstrip("\n")
+    else:
+        lines = ["graph LR"]
+
+        # Style classes for quadrant membership
+        lines.append("    classDef doFirst fill:#e03131,stroke:#c92a2a,color:#fff")
+        lines.append("    classDef scheduled fill:#f59f00,stroke:#e67700,color:#000")
+        lines.append("    classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff")
+        lines.append("    classDef backlog fill:#868e96,stroke:#495057,color:#fff")
+
+        for item_id in sorted(involved):
+            item = epic_map.get(item_id)
+            if item is None:
+                continue
+            eid = _safe_mermaid_id(item_id)
+            elabel = _escape_mermaid_label(item["title"])
+            cls = qclass[item["quadrant"]]
+            lines.append(f'    {eid}["{elabel}"]:::{cls}')
+
+        for src_id, dst_id in sorted(edge_list):
+            src = _safe_mermaid_id(src_id)
+            dst = _safe_mermaid_id(dst_id)
+
+            src_item = epic_map.get(src_id)
+            dst_item = epic_map.get(dst_id)
+            if src_item and dst_item:
+                src_q = src_item["quadrant"]
+                dst_q = dst_item["quadrant"]
+                src_rank = q_rank.get(src_q, 9)
+                dst_rank = q_rank.get(dst_q, 9)
+                # Cross-boundary: blocker is lower priority than the blocked item
+                if dst_rank > src_rank:
+                    lines.append(f"    {src} ==>|blocked by lower priority| {dst}")
+                    continue
+
+            lines.append(f"    {src} -->|blocks| {dst}")
+
+        return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -519,59 +617,122 @@ def render_eisenhower_table(items: list[dict], nodes: dict) -> str:
     """
     quadrants = classify_epics_eisenhower(items)
 
-    sections = []
-    for qkey in QUADRANT_ORDER:
-        qitems = quadrants[qkey]
-        title, subtitle = QUADRANT_LABELS[qkey]
-        sections.append(f"### {title}")
-        sections.append(f"*{subtitle}*")
-        sections.append("")
-        if not qitems:
-            sections.append("*(none)*")
+    if _HAS_JINJA:
+        quadrant_data: list[dict] = []
+        for qkey in QUADRANT_ORDER:
+            qitems = quadrants[qkey]
+            title, subtitle = QUADRANT_LABELS[qkey]
+
+            if not qitems:
+                quadrant_data.append({
+                    "title": title,
+                    "subtitle": subtitle,
+                    "groups": [],
+                })
+                continue
+
+            by_init: dict[str, list[dict]] = {}
+            for item in qitems:
+                key = item["group"]
+                by_init.setdefault(key, []).append(item)
+
+            for key in by_init:
+                by_init[key].sort(key=lambda i: (-i["score"], i["id"]))
+
+            sorted_groups = sorted(
+                by_init.items(),
+                key=lambda kv: (-max(i["score"] for i in kv[1]), kv[0]),
+            )
+
+            groups: list[dict] = []
+            for group_key, group_items in sorted_groups:
+                rows: list[dict] = []
+                for idx, item in enumerate(group_items):
+                    progress = f"{item['children_complete']}/{item['children_total']}"
+                    unblocks = item["score"] // item["weight"] if item["weight"] else 0
+                    epic_link = _md_link(item["id"], item["title"], nodes)
+                    decision = item["operator_decision"]
+                    needs = f"**{decision}**" if decision else "—"
+
+                    if idx == 0 and item["group"] != item["id"]:
+                        init_cell = _md_link(item["group"], item["group_title"], nodes)
+                    elif idx == 0:
+                        init_cell = "—"
+                    else:
+                        init_cell = ""
+
+                    rows.append({
+                        "init_cell": init_cell,
+                        "epic_link": epic_link,
+                        "progress": progress,
+                        "unblocks": unblocks,
+                        "needs": needs,
+                    })
+                groups.append({"rows": rows})
+
+            quadrant_data.append({
+                "title": title,
+                "subtitle": subtitle,
+                "groups": groups,
+            })
+
+        env = _jinja_env()
+        tmpl = env.get_template("eisenhower.md.j2")
+        return tmpl.render(quadrants=quadrant_data).rstrip("\n") + "\n"
+    else:
+        sections = []
+        for qkey in QUADRANT_ORDER:
+            qitems = quadrants[qkey]
+            title, subtitle = QUADRANT_LABELS[qkey]
+            sections.append(f"### {title}")
+            sections.append(f"*{subtitle}*")
             sections.append("")
-            continue
+            if not qitems:
+                sections.append("*(none)*")
+                sections.append("")
+                continue
 
-        # Group by initiative, sort initiatives by max score desc
-        by_init: dict[str, list[dict]] = {}
-        for item in qitems:
-            key = item["group"]
-            by_init.setdefault(key, []).append(item)
+            # Group by initiative, sort initiatives by max score desc
+            by_init: dict[str, list[dict]] = {}
+            for item in qitems:
+                key = item["group"]
+                by_init.setdefault(key, []).append(item)
 
-        # Sort each group internally by score desc
-        for key in by_init:
-            by_init[key].sort(key=lambda i: (-i["score"], i["id"]))
+            # Sort each group internally by score desc
+            for key in by_init:
+                by_init[key].sort(key=lambda i: (-i["score"], i["id"]))
 
-        # Sort initiative groups by max score desc
-        sorted_groups = sorted(
-            by_init.items(),
-            key=lambda kv: (-max(i["score"] for i in kv[1]), kv[0]),
-        )
+            # Sort initiative groups by max score desc
+            sorted_groups = sorted(
+                by_init.items(),
+                key=lambda kv: (-max(i["score"] for i in kv[1]), kv[0]),
+            )
 
-        sections.append("| Initiative | Epic | Progress | Unblocks | Needs |")
-        sections.append("|-----------|------|----------|----------|-------|")
+            sections.append("| Initiative | Epic | Progress | Unblocks | Needs |")
+            sections.append("|-----------|------|----------|----------|-------|")
 
-        for group_key, group_items in sorted_groups:
-            for idx, item in enumerate(group_items):
-                progress = f"{item['children_complete']}/{item['children_total']}"
-                unblocks = item["score"] // item["weight"] if item["weight"] else 0
-                epic_link = _md_link(item["id"], item["title"], nodes)
-                decision = item["operator_decision"]
-                needs = f"**{decision}**" if decision else "—"
+            for group_key, group_items in sorted_groups:
+                for idx, item in enumerate(group_items):
+                    progress = f"{item['children_complete']}/{item['children_total']}"
+                    unblocks = item["score"] // item["weight"] if item["weight"] else 0
+                    epic_link = _md_link(item["id"], item["title"], nodes)
+                    decision = item["operator_decision"]
+                    needs = f"**{decision}**" if decision else "—"
 
-                # Only show initiative on first row of each group
-                if idx == 0 and item["group"] != item["id"]:
-                    init_link = _md_link(item["group"], item["group_title"], nodes)
-                elif idx == 0:
-                    init_link = "—"
-                else:
-                    init_link = ""
+                    # Only show initiative on first row of each group
+                    if idx == 0 and item["group"] != item["id"]:
+                        init_link = _md_link(item["group"], item["group_title"], nodes)
+                    elif idx == 0:
+                        init_link = "—"
+                    else:
+                        init_link = ""
 
-                sections.append(
-                    f"| {init_link} | {epic_link} | {progress} | {unblocks} | {needs} |"
-                )
-        sections.append("")
+                    sections.append(
+                        f"| {init_link} | {epic_link} | {progress} | {unblocks} | {needs} |"
+                    )
+            sections.append("")
 
-    return "\n".join(sections)
+        return "\n".join(sections)
 
 
 # ---------------------------------------------------------------------------
@@ -598,7 +759,8 @@ def _render_legend_single_row(legend_items: list[dict], nodes: dict, all_items: 
     for item in legend_items:
         grouped.setdefault(item["quadrant"], []).append(item)
 
-    quadrant_blocks: list[str] = []
+    # Build parts lists per quadrant (shared logic for both paths)
+    quadrant_parts: list[list[str]] = []
     for qkey in QUADRANT_ORDER:
         qlabel = QUADRANT_LABELS[qkey][0]
         qitems = grouped.get(qlabel, [])
@@ -634,9 +796,15 @@ def _render_legend_single_row(legend_items: list[dict], nodes: dict, all_items: 
             link = _md_link(item["id"], item["short_id"], nodes)
             parts.append(f"{link} {item['title']}")
 
-        quadrant_blocks.append(" <br> ".join(parts))
+        quadrant_parts.append(parts)
 
-    return " <br> <br> ".join(quadrant_blocks)
+    if _HAS_JINJA:
+        quadrant_blocks = [{"parts": p} for p in quadrant_parts]
+        env = _jinja_env()
+        tmpl = env.get_template("legend.md.j2")
+        return tmpl.render(quadrant_blocks=quadrant_blocks).rstrip("\n")
+    else:
+        return " <br> <br> ".join(" <br> ".join(parts) for parts in quadrant_parts)
 
 
 def render_roadmap_markdown(
@@ -655,54 +823,66 @@ def render_roadmap_markdown(
     gantt = render_gantt(items, nodes)
     dep_graph = render_dependency_graph(items, nodes)
 
-    lines = [
-        "# Roadmap",
-        "",
-        "<!-- Auto-generated by `chart.sh roadmap`. Do not edit manually. -->",
-        "",
-    ]
-
     # Quadrant chart: try PNG side-by-side, fall back to inline Mermaid
     png_path = _render_quadrant_png(quadrant_src, repo_root) if repo_root else None
+    legend_cell = _render_legend_single_row(legend_items, nodes, items) if png_path else ""
 
-    if png_path:
-        legend_cell = _render_legend_single_row(legend_items, nodes, items)
-        lines.extend([
-            "| Priority Matrix | Legend |",
-            "|:---:|:---|",
-            f"| ![Priority Matrix]({png_path}) | {legend_cell} |",
-            "",
-        ])
+    if _HAS_JINJA:
+        env = _jinja_env()
+        tmpl = env.get_template("roadmap.md.j2")
+        return tmpl.render(
+            png_path=png_path,
+            quadrant_src=quadrant_src,
+            legend_cell=legend_cell,
+            eisenhower=eisenhower,
+            gantt=gantt,
+            dep_graph=dep_graph,
+        ).rstrip("\n") + "\n"
     else:
-        # Fallback: inline Mermaid (no side-by-side)
+        lines = [
+            "# Roadmap",
+            "",
+            "<!-- Auto-generated by `chart.sh roadmap`. Do not edit manually. -->",
+            "",
+        ]
+
+        if png_path:
+            lines.extend([
+                "| Priority Matrix | Legend |",
+                "|:---:|:---|",
+                f"| ![Priority Matrix]({png_path}) | {legend_cell} |",
+                "",
+            ])
+        else:
+            # Fallback: inline Mermaid (no side-by-side)
+            lines.extend([
+                "```mermaid",
+                quadrant_src,
+                "```",
+                "",
+            ])
+
         lines.extend([
+            eisenhower,
+            "## Timeline",
+            "",
             "```mermaid",
-            quadrant_src,
+            gantt,
             "```",
             "",
         ])
 
-    lines.extend([
-        eisenhower,
-        "## Timeline",
-        "",
-        "```mermaid",
-        gantt,
-        "```",
-        "",
-    ])
+        if dep_graph:
+            lines.extend([
+                "## Blocking Dependencies",
+                "",
+                "```mermaid",
+                dep_graph,
+                "```",
+                "",
+            ])
 
-    if dep_graph:
-        lines.extend([
-            "## Blocking Dependencies",
-            "",
-            "```mermaid",
-            dep_graph,
-            "```",
-            "",
-        ])
-
-    return "\n".join(lines)
+        return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------

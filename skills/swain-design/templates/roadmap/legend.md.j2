@@ -1,0 +1,1 @@
+{% for block in quadrant_blocks %}{% if not loop.first %} <br> <br> {% endif %}{% for part in block.parts %}{% if not loop.first %} <br> {% endif %}{{ part }}{% endfor %}{% endfor %}

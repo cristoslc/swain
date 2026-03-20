@@ -1,0 +1,11 @@
+{% for quadrant in quadrants %}### {{ quadrant.title }}
+*{{ quadrant.subtitle }}*
+
+{% if not quadrant.groups %}*(none)*
+
+{% else %}| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+{% for group in quadrant.groups %}{% for item in group.rows %}| {{ item.init_cell }} | {{ item.epic_link }} | {{ item.progress }} | {{ item.unblocks }} | {{ item.needs }} |
+{% endfor %}{% endfor %}
+
+{% endif %}{% endfor %}

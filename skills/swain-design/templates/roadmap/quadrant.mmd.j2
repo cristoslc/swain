@@ -1,0 +1,12 @@
+%%{init: {'quadrantChart': {'chartWidth': 700, 'chartHeight': 500, 'pointLabelFontSize': 14}}}%%
+quadrantChart
+    title Priority Matrix
+    x-axis "Low Urgency" --> "High Urgency"
+    y-axis "Low Importance" --> "High Importance"
+    quadrant-1 Do First
+    quadrant-2 Schedule
+    quadrant-3 Backlog
+    quadrant-4 In Progress
+{% for item in epics %}
+    {{ item.short_id }}: [{{ "%.2f"|format(item.chart_x) }}, {{ "%.2f"|format(item.chart_y) }}]
+{% endfor %}

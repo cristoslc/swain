@@ -1,0 +1,11 @@
+gantt
+    title Roadmap
+    dateFormat YYYY-MM-DD
+    axisFormat %b %d
+    tickInterval 1week
+{% for quadrant in quadrants %}
+    section {{ quadrant.title }}
+{% for item in quadrant.tasks %}
+    {{ item.label }} ({{ item.progress }}) :{{ item.marker }}{{ item.alias }}, {{ item.start }}, 14d
+{% endfor %}
+{% endfor %}

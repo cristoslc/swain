@@ -1,0 +1,15 @@
+graph LR
+    classDef doFirst fill:#e03131,stroke:#c92a2a,color:#fff
+    classDef scheduled fill:#f59f00,stroke:#e67700,color:#000
+    classDef inProgress fill:#1c7ed6,stroke:#1864ab,color:#fff
+    classDef backlog fill:#868e96,stroke:#495057,color:#fff
+{% for node in nodes %}
+    {{ node.eid }}["{{ node.elabel }}"]:::{{ node.cls }}
+{% endfor %}
+{% for edge in edges %}
+{% if edge.cross_boundary %}
+    {{ edge.src }} ==>|blocked by lower priority| {{ edge.dst }}
+{% else %}
+    {{ edge.src }} -->|blocks| {{ edge.dst }}
+{% endif %}
+{% endfor %}
