@@ -1,18 +1,19 @@
-trove: claude-code-channels
+trove: claude-code-remote-interaction
 created: 2026-03-20
 refreshed: 2026-03-20
 tags:
-  - webhooks
-  - mcp-sdk
   - claude-code
-  - channels
-  - mcp
-  - openclaw
   - remote-control
+  - channels
+  - headless
+  - mcp
   - automation
   - telegram
   - discord
+  - openclaw
+  - agent-sdk
   - plugins
+  - webhooks
 
 freshness-ttl:
   web: 7d
@@ -22,6 +23,7 @@ history:
     date: 2026-03-20
     commit: "53d1f5f"
     sources: 1
+    notes: "originally created as claude-code-channels"
   - event: extended
     date: 2026-03-20
     commit: "19feb5c"
@@ -33,9 +35,16 @@ history:
     commit: "cfe97db"
     sources: 4
     sources-added: 2
-    notes: "added community coverage — byteiota tutorial, claudefast guide (competitive context, platform comparison, use cases)"
+    notes: "added community coverage — byteiota tutorial, claudefast guide"
+  - event: extended
+    date: 2026-03-20
+    commit: "--"
+    sources: 7
+    sources-added: 3
+    notes: "rescoped from channels-only to full remote interaction coverage; added remote-control docs, headless/agent-sdk docs, claudefast remote-control guide"
 
 sources:
+  # === Channels (push events into session) ===
   - source-id: claude-code-channels-docs
     type: web
     url: "https://code.claude.com/docs/en/channels"
@@ -63,3 +72,26 @@ sources:
     fetched: 2026-03-20T00:00:00Z
     title: "Claude Code Channels: Telegram & Discord Setup Guide (2026) — ClaudeFast"
     hash: "5e0d22ca1ec61be2fdbb68b0c4b800b074f5fa769248f1c2878aa40f4842bfb3"
+
+  # === Remote Control (continue local session from any device) ===
+  - source-id: claude-code-remote-control-docs
+    type: web
+    url: "https://code.claude.com/docs/en/remote-control"
+    fetched: 2026-03-20T00:00:00Z
+    title: "Continue local sessions from any device with Remote Control — Claude Code Docs"
+    hash: "cca8bd6b25725c7883685d894dc8902fbde01f924aa9b7926cefaa8325d3a88a"
+
+  - source-id: claudefast-remote-control-guide
+    type: web
+    url: "https://claudefa.st/blog/guide/development/remote-control-guide"
+    fetched: 2026-03-20T00:00:00Z
+    title: "Claude Code Remote Control: Continue Local Sessions from Your Phone — ClaudeFast"
+    hash: "aa49ecc20316cafa6b5caa20a3a193034ee39dc24d20d3c5c13fe8e539cdee2c"
+
+  # === Headless / Programmatic (non-interactive automation) ===
+  - source-id: claude-code-headless-docs
+    type: web
+    url: "https://code.claude.com/docs/en/headless"
+    fetched: 2026-03-20T00:00:00Z
+    title: "Run Claude Code programmatically — Claude Code Docs"
+    hash: "eac7a3c8e1853c7cd4ce4dd6d207f2418d1c30fea48bd66c75ecb978d5277efe"
