@@ -38,7 +38,7 @@ history:
     notes: "added community coverage — byteiota tutorial, claudefast guide"
   - event: extended
     date: 2026-03-20
-    commit: "--"
+    commit: "08ec2b5"
     sources: 7
     sources-added: 3
     notes: "rescoped from channels-only to full remote interaction coverage; added remote-control docs, headless/agent-sdk docs, claudefast remote-control guide"
