@@ -1,5 +1,104 @@
 # Changelog
 
+## [0.8.0-alpha] - 2026-03-20
+
+### Security Scanning (EPIC-017, EPIC-023)
+
+Swain now has a built-in security posture — not just "run a scanner" but a
+layered system that integrates into the existing workflow at multiple points.
+
+**swain-security-check** — a new skill that orchestrates gitleaks, osv-scanner,
+trivy, semgrep, and two built-in scanners (context file injection, threat surface
+heuristic) into a unified, severity-bucketed report. Missing scanners are skipped
+with install hints — the scan always completes. (SPEC-058, SPEC-060, SPEC-062)
+
+**Doctor integration** — swain-doctor now checks scanner availability on session
+start, so the operator knows what coverage they have before they need it.
+(SPEC-059, SPEC-061)
+
+**Workflow gates** — a post-implementation security gate runs automatically before
+claiming work is complete, and a pre-claim security briefing summarizes findings
+inline. External security skills can hook in via a documented interface.
+(SPEC-063, SPEC-064, SPEC-065)
+
+**Validation** — RUNBOOK-001 documents the end-to-end security epics test plan,
+first run 25/25 PASS.
+
+### Docker Sandbox (swain-box)
+
+swain-box grew from a proof-of-concept Docker wrapper into a real launcher with
+multi-step UX.
+
+**Unified two-step flow** — the launcher now walks through authentication first
+(OAuth token from Keychain, API key detection, login confirmation), then
+isolation (worktree-enforced sandbox with bind-mounted project files). Auth and
+isolation are separate menus, not a single flag soup. (SPEC-081, SPEC-092)
+
+**Credential handling** — a long tail of OAuth and API key bugs resolved:
+Keychain JSON extraction, config mounting, env cleanup, tilde expansion,
+apiKeyHelper injection, and the `--` separator for agent args. The launcher
+now warns clearly when credentials are missing rather than failing silently.
+
+**Planning** — EPIC-030 (multi-agent runtime), VISION-002 (Safe Autonomy), and
+capability bridge artifacts lay the groundwork for the next phase of sandbox
+work.
+
+### TRAIN Artifact Type (SPEC-091)
+
+A new artifact type for training materials, documentation guides, and onboarding
+content. TRAIN gets the full lifecycle treatment: type definition, Jinja2
+template, staleness detector (`train-check.sh`), inference routing, specwatch
+integration, phase transition hooks, and frontmatter parser support.
+
+As part of this work, "enriched linked-artifacts" were renamed to the clearer
+**artifact-refs**, and a new **sourcecode-refs** field was added for linking
+artifacts to implementation files. (SPEC-094)
+
+### Design Integrity (EPIC-035)
+
+Artifacts can now detect when their own content has drifted from what was
+reviewed and approved.
+
+**design-check.sh** — compares blob SHAs of design-critical sections against
+stamped baselines, surfacing drift in specwatch, swain-sync, and swain-design
+workflows. (SPEC-096, SPEC-097)
+
+**Design Intent** — DESIGN artifacts gain a new section for capturing the
+original design rationale, making it easier to judge whether a drift is
+intentional evolution or accidental decay. (SPEC-095)
+
+**Overlap detection** — swain-design now scans active same-type artifacts for
+scope overlap when creating new DESIGN, Persona, or Runbook artifacts,
+preventing duplicate or conflicting standing-track work.
+
+### Strategic Planning
+
+- Add VISION-002 (Safe Autonomy) and VISION-003 (Swain Everywhere) with
+  portability initiative and research spikes
+- Add INITIATIVE-017 for unattended agent safety guardrails (EPIC-037, SPIKE-037)
+- Consolidate initiative hierarchy and add session atomization epic
+- Complete INITIATIVE-011 + INITIATIVE-012 (credential scoping, multi-runtime)
+- Add INIT-009 Unified Project State Graph with 4 child EPICs
+- Add ADR-007 Event-Driven Orchestrator Replaces Prose Chaining Table
+
+### Research
+- Design staleness and drift detection trove (7 sources)
+- Docker sandboxes and docker-agent troves
+- Claude Code plugins intercom trove
+- SPIKE-028/029/030 portability findings
+
+### Supporting Changes
+- Gracefully handle unauthenticated gh CLI in swain-keys
+- Fix rebuild-index spike type mapping to docs/research/
+- Slim AGENTS.md from 220 to ~60 lines, remove deprecated artifact types
+- Add decision protection as core swain concept
+- Skill audit remediation (EPIC-031)
+- Add MCP Server specs (SPEC-082–091) for EPIC-033
+- swain-do: pre-plan implementation detection and retroactive-close (#72)
+- swain-do: fix ticket title extraction (#66), stale path resolution (#71),
+  table parser pipe artifacts (#74), bookmark non-interactivity (#64)
+- Release claim lock on close to prevent stale lock accumulation (tk)
+
 ## [0.7.0-alpha] - 2026-03-17
 
 ### New Features

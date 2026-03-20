@@ -72,7 +72,7 @@ Present the user with a release plan before executing anything. Include:
 
 - **Current version** (from latest tag, or "first release")
 - **Proposed version** (with the detected bump applied)
-- **Changelog preview** (grouped by type — see below)
+- **Changelog preview** (thematic narrative — see step 4)
 - **Files to update** (version files found in step 1, if any)
 - **Tag to create** (using the detected format)
 
@@ -80,31 +80,45 @@ Wait for the user to confirm, adjust the version, or abort. If the user wants a 
 
 ### 4. Generate the changelog
 
-Group commits by conventional-commit type. Use clear, human-readable headings:
+**Synthesize, don't transcribe.** The changelog is for humans reading release notes, not for `git log --oneline` with extra steps. Dozens of commits should collapse into a few coherent narratives.
+
+Before writing, read the existing CHANGELOG.md (if any) to match the voice, density, and structure the project already uses. The changelog should read like the same person wrote every entry.
+
+#### Thematic sections over commit-type buckets
+
+Group by *what changed for the user*, not by `feat`/`fix`/`docs` prefix. A section like "### Docker Sandbox (swain-box)" that tells the story of that feature area is far more useful than scattering its commits across "New Features", "Bug Fixes", and "Documentation".
+
+Identify the major themes by scanning commits for shared scopes, artifact IDs, and feature areas. Each theme that has 3+ commits gets its own `###` section with a descriptive heading.
+
+#### Prose for major work, bullets for small work
+
+If a theme represents significant new capability, write a **paragraph** (or a few) with bold lead-ins explaining what it is and why it matters. The reader should understand the feature without reading the commits.
 
 ```markdown
-## [1.5.0] - 2026-03-06
+### Trove Redesign (BREAKING)
 
-### New Features
-- Add superpowers plan ingestion script (#SPEC-003)
-- Add superpowers detection and routing to swain-design (#SPEC-004)
+"Evidence pool" is now "trove" — a better name for what swain-search produces,
+which ranges from research evidence to reference libraries to repo mirrors.
+`evidencewatch` becomes `trovewatch`.
 
-### Bug Fixes
-- Fix specwatch false positives on cross-directory refs
-
-### Documentation
-- Complete SPIKE-008 superpowers evaluation
-- Transition EPIC-009 to Complete
-
-### Other Changes
-- Update list-epics.md and list-specs.md indexes
+**Hierarchical sources** — sources are no longer flattened to `001-slug.md`. Each
+source gets its own directory (`sources/<source-id>/`), and repository or
+documentation-site sources mirror their original tree structure.
 ```
 
-Conventions:
-- Strip the conventional-commit prefix from the summary line (readers don't need `feat:` when it's already under "New Features")
-- Keep entries concise — one line per commit, imperative mood
-- If a commit references an artifact ID (SPEC-003, EPIC-009, etc.), keep it
-- Commits that are purely mechanical (merge commits, hash stamps, index refreshes) can be grouped under "Other Changes" or omitted if the changelog would be cleaner without them — use judgment
+For smaller themes or isolated changes, a flat bullet list is fine.
+
+#### Supporting Changes catchall
+
+Minor fixes, chore commits, refactors, and small improvements that don't fit a theme go in a `### Supporting Changes` section at the end — not interspersed with the major stories.
+
+#### What to omit
+
+Merge commits, lifecycle hash stamps, index refreshes, bookmark advances, and other mechanical commits should be omitted entirely — they add noise without information. Commit-type prefixes (`feat:`, `fix:`) should be stripped from any text that makes it into the changelog.
+
+#### Use commit prefixes for bump detection, not changelog structure
+
+Conventional-commit types determine whether it's a major/minor/patch bump (step 2). After that, forget them — the changelog reader doesn't care that something was a `feat` vs `docs`.
 
 **Where to put the changelog:**
 - If a `CHANGELOG.md` exists, prepend the new section at the top (below any header)
