@@ -280,29 +280,46 @@ If `$OVERLAP` is non-empty, reject and rebase.
 
 The initial analysis proposed a three-layer approach (pre-dispatch heuristic, CAS check, serialized test gate). On reflection, this is overengineered. The core insight — already proven by GitHub PRs, bors, and every merge queue — is simply: **test the merge commit, not the branch**.
 
-**Single mechanism: test-on-merge-commit**
+**Single mechanism: serialized merge-then-test**
 
-When an agent completes on its branch, before accepting the result:
+When agents complete, merge their results into main one at a time, testing after each merge:
 
 ```bash
-git checkout -b integration-test main
-git merge --no-ff agent-branch
-# run full test suite on the MERGED result
-# if green → fast-forward main to integration-test
-# if red → reject, agent must rebase onto current main and re-run
-git branch -d integration-test
+# Agent A finishes
+git merge --no-ff agent-A-branch
+pytest  # tests run on main with A's changes integrated
+# ✅ → keep. ❌ → git revert HEAD, agent must fix and retry
+
+# Agent B finishes (main now includes A's changes)
+git merge --no-ff agent-B-branch
+pytest  # tests run on main with BOTH A and B integrated
+# ✅ → keep. ❌ → git revert HEAD, agent must rebase onto post-A main
 ```
 
-This is ~10 lines of shell. It catches both textual and semantic conflicts because the tests run on the integrated state, not the isolated branch. No CAS check needed (the tests are a stronger guarantee). No pre-dispatch heuristic needed (it's a premature optimization that adds complexity without adding safety).
+Each merge is tested on the real integrated state. Serialization ensures each agent merges against the current main, not a stale snapshot.
 
-**Why this is sufficient:** GitHub's branch protection rule "Require branches to be up to date before merging" + required status checks does exactly this — it ensures CI runs on the merge commit. The merge queue feature serializes concurrent PRs through the same gate. We're implementing the same pattern locally without assuming any specific git hosting backend.
+**How GitHub solves this (for reference):**
+
+GitHub has two mechanisms, and only one actually works:
+
+1. **Branch protection ("require up to date")** — forces a rebase before merge is allowed, but has NO serialization. If two PRs are both "up to date" at the same moment, both can merge concurrently, producing the same TOCTOU we hit in EPIC-038. This is a known gap.
+
+2. **Merge queue** — PRs enter a serialized queue. GitHub creates a temporary merge group (base + all queued PRs), runs CI on that merged state, and only lands the group if green. Failing PRs are ejected and the group re-tests. This IS serialized merge-then-test — the queue is the serialization primitive.
+
+So GitHub's merge queue is exactly this pattern, implemented as a hosted service. We implement the same thing locally: a single coordinator (the operator or main-thread agent) merges and tests one agent result at a time. No temp branches needed — merge directly into main, revert if red.
+
+**Why serialization is the fix, not the testing:**
+
+Testing the merge commit is necessary but not sufficient. Without serialization, two agents can both merge-then-test concurrently against the same main, both pass, and both fast-forward — reproducing the TOCTOU. The serialization ensures each test sees the cumulative state of all previously-accepted merges.
+
+**Is serialization already implicit?** In swain's current architecture, worktree agents return results to the operator's main thread, which merges them. If the main thread merges sequentially (which it naturally does — it's a single process), serialization is automatic. The EPIC-038 failure happened because two agents were dispatched AND integrated without the main thread testing in between. The fix is: always test on main after each merge, before merging the next.
 
 **Why the three-layer approach was overengineered:**
-- Layer 1 (pre-dispatch overlap) is a heuristic that can't catch cross-file semantic conflicts and adds dispatch-time complexity
-- Layer 2 (CAS check) is a weaker version of "just run the tests" — it detects file-level overlap but misses semantic conflicts across files
+- Layer 1 (pre-dispatch overlap) is a premature optimization that can't catch cross-file semantic conflicts
+- Layer 2 (CAS check) is a weaker version of "just run the tests"
 - Layer 3 (serialized test gate) is the actual solution, and it's sufficient alone
 
-**Relationship to commit-layer TOCTOU:** The commit-layer TOCTOU (swain-sync generating messages before committing) is subsumed by this approach when applied at the integration point. If all agent results are integrated through the test-on-merge-commit gate, the commit message is generated from the verified merge result, not from a potentially-stale diff.
+**Relationship to commit-layer TOCTOU:** The commit-layer TOCTOU ([SPEC-113](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) — swain-sync generating messages before committing) is subsumed by this approach. If all agent results are integrated through serialized merge-then-test, the commit message is generated from the verified merge result, not from a potentially-stale diff.
 
 ### Area 4: Artifact index race conditions
 
