@@ -263,10 +263,13 @@ If this push is rejected with a non-fast-forward error:
     Report the PR URL. Do not retry the push. Proceed to worktree pruning below.
   - If **diverged history is the cause** (not branch protection), report the conflict and stop. Do not force-push.
 
-After a successful push or PR creation, remove the worktree:
+After a successful push or PR creation, restore CWD then remove the worktree:
 ```bash
 WORKTREE_PATH=$(pwd)
 MAIN_REPO=$(git rev-parse --git-common-dir | sed 's|/.git$||')
+# SPEC-100: Restore CWD *before* removal — otherwise the session is stuck
+# in a deleted directory and all subsequent commands (hooks, git, etc.) fail.
+cd "$MAIN_REPO" || cd "$HOME"
 git -C "$MAIN_REPO" worktree remove --force "$WORKTREE_PATH" 2>/dev/null || true
 git -C "$MAIN_REPO" worktree prune 2>/dev/null || true
 ```

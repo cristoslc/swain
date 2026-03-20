@@ -54,8 +54,12 @@
 | SPEC-096 | design-check.sh — Blob SHA Drift Detection | 2026-03-19 | -- |
 | SPEC-097 | Integration Hooks and Decision Protection | 2026-03-19 | -- |
 | SPEC-098 | Session Action Log | 2026-03-19 | -- |
+| SPEC-098 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-20 | — |
 | SPEC-099 | Commit Atomization in swain-sync | 2026-03-19 | -- |
+| SPEC-099 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-20 | — |
 | SPEC-100 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | -- |
+| SPEC-100 | swain-sync must restore CWD after worktree cleanup | 2026-03-20 | — |
+| SPEC-101 | ssh-readiness.sh: expand tilde in IdentityFile path before file test | 2026-03-20 | — |
 | SPEC-102 | swain-doctor SSH Binary Check | 2026-03-20 | — |
 
 ## Complete

@@ -7,6 +7,12 @@
 
 set -euo pipefail
 
+# SPEC-098: Skip when swain-stage is not active (no tmux session)
+[ -z "${TMUX:-}" ] && exit 0
+
+# SPEC-099: Ensure valid CWD (worktree may have been removed)
+cd "$HOME" 2>/dev/null || cd /
+
 # Determine output path
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 SLUG=$(echo "$REPO_ROOT" | sed 's|/|-|g')

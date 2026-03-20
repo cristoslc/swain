@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash skills/swain-stage/scripts/stage-status-hook.sh",
+            "command": "cd /Users/cristos/Documents/code/swain 2>/dev/null || cd $HOME; bash skills/swain-stage/scripts/stage-status-hook.sh",
             "timeout": 5
           }
         ]
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash skills/swain-stage/scripts/stage-status-hook.sh",
+            "command": "cd /Users/cristos/Documents/code/swain 2>/dev/null || cd $HOME; bash skills/swain-stage/scripts/stage-status-hook.sh",
             "timeout": 5
           }
         ]
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash skills/swain-stage/scripts/stage-status-hook.sh",
+            "command": "cd /Users/cristos/Documents/code/swain 2>/dev/null || cd $HOME; bash skills/swain-stage/scripts/stage-status-hook.sh",
             "timeout": 5
           }
         ]
@@ -42,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash skills/swain-stage/scripts/stage-status-hook.sh",
+            "command": "cd /Users/cristos/Documents/code/swain 2>/dev/null || cd $HOME; bash skills/swain-stage/scripts/stage-status-hook.sh",
             "timeout": 5
           }
         ]

@@ -5,12 +5,12 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Implemented SPEC-100: specwatch-ignore auto-population on supersession",
+    "note": "created SPEC-098 SPEC-099",
     "files": [
-      "skills/swain-design/SKILL.md",
-      "skills/swain-design/references/phase-transitions.md"
+      "docs/spec/Active/(SPEC-098)-Stage-Hooks-Fire-Unconditionally/SPEC-098.md",
+      "docs/spec/Active/(SPEC-099)-Stage-Hook-ENOENT-Dead-CWD/SPEC-099.md"
     ],
-    "timestamp": "2026-03-20T04:15:41Z"
+    "timestamp": "2026-03-20T12:00:16Z"
   },
   "focus_lane": "VISION-002"
 }
