@@ -20,7 +20,8 @@ Phases listed in the artifact definition files are available waypoints, not mand
 4e. **Spike back-propagation (SPIKE only)** — for `Active → Complete` transitions, scan for artifacts whose assumptions may be invalidated by the spike's findings. This is a semantic check, not just a structural xref:
    1. Read the spike's verdict and key findings from `## Summary`.
    2. Query `chart.sh scope <SPIKE-ID>` to identify sibling artifacts in the same parent-vision/parent-initiative scope.
-   3. For each sibling that is Complete or Active, check whether any acceptance criteria or documented behavior contradict the spike's findings.
+   2b. Additionally scan `docs/train/` for TRAINs whose `linked-artifacts` contain any artifact in the same parent-vision or parent-initiative scope with `rel: [documents]`.
+   3. For each sibling (SPEC, EPIC, or TRAIN) that is Complete or Active, check whether any acceptance criteria, documented behavior, or training content contradict the spike's findings.
    4. Surface contradictions as `IMPLICIT_CONFLICT` findings (see [alignment-checking.md](alignment-checking.md)). Present them to the operator before proceeding.
    5. If contradictions exist, recommend updating the affected artifacts' acceptance criteria and any downstream code/runbooks that implemented the invalidated assumptions.
    This step is **advisory** — it does not block the spike completion — but findings must be presented, not silently skipped.
@@ -80,3 +81,17 @@ When an EPIC transitions to any terminal state (`Complete`, `Abandoned`, `Supers
 **Interactive detection:** If the user is present and responding in the current session, swain-retro offers interactive reflection questions. If non-interactive (dispatched agent, batch processing), it generates the retro automatically from gathered context.
 
 This is best-effort — if swain-retro is not available, the EPIC transition still succeeds without a retro section.
+
+### TRAIN documentation hooks
+
+**On SPEC completion** (`In Progress → Needs Manual Test` or `Needs Manual Test → Complete`):
+1. Scan `docs/train/` for TRAINs whose enriched `linked-artifacts` contain this SPEC with `rel: [documents]`.
+2. If found: surface advisory — "SPEC-NNN completed. TRAIN-NNN documents this spec — review for updates." Strong preference for updating existing TRAINs over creating new ones.
+3. If not found: no action (documentation is optional per-SPEC).
+
+**On EPIC completion** (`Active → Complete`):
+1. Collect all SPECs under this EPIC.
+2. Scan `docs/train/` for TRAINs documenting any of those SPECs.
+3. If TRAINs found: surface advisory — "EPIC-NNN completed. TRAIN-NNN documents features from this epic — review for updates."
+4. If no TRAINs found: surface suggestion — "EPIC-NNN completed with no linked TRAIN artifacts. Consider documenting: [epic title]."
+5. The agent/subagent/MCP tool drafts the TRAIN; the operator reviews.
