@@ -45,6 +45,10 @@ When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), 
 
 If superpowers is not installed, superpowers chains are skipped, not blocked. Swain-to-swain chains (last three rows) always apply.
 
+## Model routing
+
+Use **sonnet or haiku** subagents for low-complexity tasks (file moves, simple edits, git operations, index rebuilds). Reserve **opus** for planning, synthesis, spec writing, and complex refactors. This reduces cost and latency without sacrificing quality where it matters.
+
 ## Session startup (AUTO-INVOKE)
 
 Run `bash .claude/skills/swain-doctor/scripts/swain-preflight.sh`. Exit 0 → skip doctor, invoke **swain-session**. Exit 1 → invoke **swain-doctor**, then **swain-session**.

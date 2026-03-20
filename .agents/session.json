@@ -5,8 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Pushed SPEC-105/106/107 and roadmap improvements",
-    "timestamp": "2026-03-20T15:43:05Z"
+    "note": "Decomposed EPIC-038: superseded 102-106, created 108-112",
+    "timestamp": "2026-03-20T15:58:45Z"
   },
   "focus_lane": "VISION-002"
 }
