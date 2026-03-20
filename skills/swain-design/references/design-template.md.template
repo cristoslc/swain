@@ -1,9 +1,31 @@
-<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed. -->
+<!-- Jinja2 structural template — uses {{ variable }} placeholders. Read as a structural reference; no rendering pipeline needed.
+
+     DOMAIN field — pick the one that matches what the design captures:
+
+       interaction  (default) — what the user sees and does. Screens, flows, states, wireframes,
+                                happy/sad paths. Answers "what does the user experience?"
+                                Example: "The skill installation flow", "The settings page"
+
+       data         — how data is shaped and moves. Entity models, schemas, storage patterns,
+                      data flows, evolution rules, invariants. Answers "what does the data look like
+                      and what must always be true about it?"
+                      Example: "The artifact metadata schema", "The task tracking data model"
+
+       system       — what callers can depend on. API boundaries, behavioral guarantees
+                      (pre/postconditions, error semantics, SLAs), integration interfaces,
+                      versioning contracts. Answers "what promises does this interface make?"
+                      Example: "The specgraph CLI interface", "The webhook contract"
+
+     When unsure between data and system: if the primary concern is the shape/flow of data
+     itself, use data. If the primary concern is what a consumer can rely on when calling
+     an interface, use system. A data DESIGN may reference an API that exposes the data,
+     but the focus is on the data model, not the API contract.
+-->
 ---
 title: "{{ title }}"
 artifact: DESIGN-{{ number }}
 track: standing
-domain: {{ domain | default("interaction") }}  # "interaction", "data", or "system"
+domain: {{ domain | default("interaction") }}
 status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}
