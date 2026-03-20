@@ -135,4 +135,4 @@ Swain's current branch model uses `main` as both the development target and the 
 |-------|------|--------|-------|
 | Active | 2026-03-20 | 88591ca | Created from ADR-011, ADR-012, ADR-013 |
 | InProgress | 2026-03-20 | -- | All 6 tasks implemented via parallel worktree agents |
-| NeedsManualTest | 2026-03-20 | -- | Migration script executed; awaiting manual verification |
+| NeedsManualTest | 2026-03-20 | af0c847 | Migration script executed; awaiting manual verification |
