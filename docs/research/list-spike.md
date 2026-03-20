@@ -7,7 +7,7 @@
 | SPIKE-019 | Worktree Session Bookmark Design | 2026-03-14 | — |
 | SPIKE-021 | Scope Progress Visualization Options For Swain-Status | 2026-03-14 | — |
 | SPIKE-022 | Multi-Agent Collision Vectors | 2026-03-14 | — |
-| SPIKE-023 | Frontend Design Integration Strategy | 2026-03-14 | — |
+| SPIKE-023 | Product Design Integration Strategy | 2026-03-14 | — |
 | SPIKE-024 | Postflight Summary Design | 2026-03-14 | — |
 
 ## Active
@@ -15,14 +15,17 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPIKE-026 | Context Fork as Model Routing Implementation Path | 2026-03-16 | -- |
-| SPIKE-027 | Claude Config Dir Mount Strategy In Docker Sandboxes | 2026-03-17 | — |
+| SPIKE-033 | Skill Routing Disambiguation | 2026-03-18 | — |
+| SPIKE-034 | Sandbox Templates In Regular Docker Containers | 2026-03-19 | — |
+| SPIKE-035 | Container-Compatible Auth Flows Per Runtime | 2026-03-19 | — |
+| SPIKE-036 | External CLI Assumption Verification | 2026-03-19 | — |
 
 ## Complete
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-001 | Replace Beads CLI With Backlog Md | 2026-03-11 | — |
-| SPIKE-002 | Backlog Md For Artifact Management | 2026-03-11 | — |
+| SPIKE-001 | Replace Beads CLI with Backlog.md | 2026-03-11 | — |
+| SPIKE-002 | Backlog.md for artifact management | 2026-03-11 | — |
 | SPIKE-003 | Enhancement Type Modeling | 2026-03-11 | 7aadee8 |
 | SPIKE-004 | Superpowers–Swain Skill Mapping | 2026-03-12 | e94bb4b |
 | SPIKE-005 | Dolt Backend Performance in Beads | 2026-03-12 | 4831536 |
@@ -38,5 +41,13 @@
 | SPIKE-015 | Pre-Commit Security Scanner Landscape | 2026-03-13 | 474f2be |
 | SPIKE-016 | Background Agent Invocation Via GitHub | 2026-03-13 | 3e54fe2 |
 | SPIKE-017 | Sync Workflow Best Practices | 2026-03-13 | ef4d358 |
-| SPIKE-018 | Artifact Authoring Latency and Ceremony Audit | 2026-03-14 | — |
-| SPIKE-020 | Security Scanning Landscape and BUILD vs BUY for swain-security-check | 2026-03-14 | — |
+| SPIKE-018 | Artifact Authoring Latency and Ceremony Audit | 2026-03-14 | 1087f03f5fb39861aa3a88a15942fbac07b11773 |
+| SPIKE-020 | Security Scanning Landscape and BUILD vs BUY for swain-security-check | 2026-03-14 | 631d356 |
+| SPIKE-025 | Authentication for Public Intake Channels | 2026-03-16 | — |
+| SPIKE-027 | Claude Config Dir Mount Strategy In Docker Sandboxes | 2026-03-17 | — |
+| SPIKE-028 | Claude Web & Desktop Extension Model | 2026-03-18 | — |
+| SPIKE-029 | Cross-Runtime Portability Substrate | 2026-03-18 | — |
+| SPIKE-030 | MCP as Distribution Layer | 2026-03-18 | — |
+| SPIKE-031 | Credential Scoping Analysis Across Sandbox Types | 2026-03-19 | — |
+| SPIKE-032 | Docker Sandboxes OAuth Limitation Workaround | 2026-03-19 | — |
+

@@ -5,8 +5,14 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Pushed SPEC-092: swain-box unified launcher with auth and sandbox management",
-    "timestamp": "2026-03-20T03:07:42Z"
+    "note": "created EPIC-036 SPEC-100 SPEC-101",
+    "files": [
+      "docs/initiative/Active/(INITIATIVE-013)-Swarm-Safety/(INITIATIVE-013)-Swarm-Safety.md",
+      "docs/epic/Proposed/(EPIC-036)-Sandbox-Capability-Bridges/(EPIC-036)-Sandbox-Capability-Bridges.md",
+      "docs/spec/Proposed/(SPEC-100)-Host-tmux-Bridge-for-Sandboxed-Agents/(SPEC-100)-Host-tmux-Bridge-for-Sandboxed-Agents.md",
+      "docs/spec/Proposed/(SPEC-101)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents/(SPEC-101)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents.md"
+    ],
+    "timestamp": "2026-03-20T03:32:20Z"
   },
   "focus_lane": "VISION-002"
 }

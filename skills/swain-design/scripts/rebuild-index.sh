@@ -11,7 +11,12 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 rebuild_index() {
     local type="$1"
-    local docs_dir="$REPO_ROOT/docs/$type"
+    # Map type names to actual directory names where they differ
+    local dir_name="$type"
+    case "$type" in
+        spike) dir_name="research" ;;
+    esac
+    local docs_dir="$REPO_ROOT/docs/$dir_name"
     local index_file="$docs_dir/list-${type}.md"
 
     if [[ ! -d "$docs_dir" ]]; then
@@ -61,9 +66,9 @@ rebuild_index() {
         printf "|----------|-------|-------------|--------|\n" >> "$tmpfile"
 
         for f in "${artifacts[@]}"; do
-            artifact="$(grep "^artifact:" "$f" 2>/dev/null | awk '{print $2}' | head -1)"
-            title="$(grep "^title:" "$f" 2>/dev/null | sed "s/^title: *//;s/^\"//;s/\"$//" | head -1)"
-            file_date="$(grep "^last-updated:" "$f" 2>/dev/null | awk '{print $2}' | head -1)"
+            artifact="$(grep "^artifact:" "$f" 2>/dev/null | awk '{print $2}' | head -1 || true)"
+            title="$(grep "^title:" "$f" 2>/dev/null | sed "s/^title: *//;s/^\"//;s/\"$//" | head -1 || true)"
+            file_date="$(grep "^last-updated:" "$f" 2>/dev/null | awk '{print $2}' | head -1 || true)"
             file_commit="$(grep "^| $phase " "$f" 2>/dev/null | tail -1 | awk -F'|' '{print $4}' | tr -d ' ' || true)"
             [[ -z "$file_commit" ]] && file_commit="—"
             [[ -z "$artifact" || -z "$title" ]] && continue
