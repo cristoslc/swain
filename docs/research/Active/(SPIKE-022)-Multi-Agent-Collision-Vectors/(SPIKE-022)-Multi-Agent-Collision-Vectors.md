@@ -129,4 +129,4 @@ Determine what needs to be added to the architecture overview:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Initial creation; informs EPIC-020 |
-| Active | 2026-03-20 | -- | Activated by EPIC-038 retro — concrete TOCTOU evidence in area 3a |
+| Active | 2026-03-20 | fa63b5a | Activated by EPIC-038 retro — concrete TOCTOU evidence in area 3a |
