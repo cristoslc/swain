@@ -2,7 +2,7 @@
 title: "Quadrant PNG pipeline"
 artifact: SPEC-110
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -64,3 +64,4 @@ Only the quadrant chart is converted to PNG in this spec. Gantt and dependency g
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 |  | Initial creation |
+| Complete | 2026-03-20 | c768cd2 | PNG pipeline verified — mmdc check added to swain-doctor |

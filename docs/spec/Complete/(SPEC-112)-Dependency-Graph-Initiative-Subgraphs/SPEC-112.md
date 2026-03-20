@@ -2,7 +2,7 @@
 title: "Dependency graph initiative subgraphs"
 artifact: SPEC-112
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -63,3 +63,4 @@ Only the dependency graph (deps.mmd.j2) is changed. Quadrant chart, legend, Gant
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 |  | Initial creation |
+| Complete | 2026-03-20 | 18546f4 | Initiative subgraphs with single-node fallback |
