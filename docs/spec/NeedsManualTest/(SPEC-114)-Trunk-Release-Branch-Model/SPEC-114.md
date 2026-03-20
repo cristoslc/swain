@@ -2,7 +2,7 @@
 title: "Trunk + Release Branch Model With Merge-and-Retry Landing"
 artifact: SPEC-114
 track: implementable
-status: Active
+status: NeedsManualTest
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -101,6 +101,13 @@ Swain's current branch model uses `main` as both the development target and the 
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Worktree landing uses merge with retry | skills/swain-sync/SKILL.md Step 1 and Step 6 updated: merge origin/trunk + retry loop (max 3) | Pending manual test |
+| AC2: Merge conflicts surface explicitly | skills/swain-sync/SKILL.md merge conflict handling: report and stop, do not auto-resolve | Pending manual test |
+| AC3: swain-release squash-merges trunk into release | skills/swain-release/SKILL.md Step 6.5 added: squash-merge when release branch exists | Pending manual test |
+| AC4: release is the GitHub default branch | Migration script executed: `gh api` confirmed default_branch=release | Pass |
+| AC5: All references updated from main to trunk | swain-sync, swain-doctor, swain-status, swain-session all updated; grep confirms no active origin/main refs | Pass |
+| AC6: swain-init configures trunk+release | skills/swain-init/SKILL.md Phase 2.5 added with branch model guidance | Pass |
+| AC7: Lifecycle hashes remain reachable | Merge-based landing preserves commits on trunk; ADR-012 codified | Pass (by design) |
 
 ## Scope & Constraints
 
@@ -127,3 +134,5 @@ Swain's current branch model uses `main` as both the development target and the 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | 88591ca | Created from ADR-011, ADR-012, ADR-013 |
+| InProgress | 2026-03-20 | -- | All 6 tasks implemented via parallel worktree agents |
+| NeedsManualTest | 2026-03-20 | -- | Migration script executed; awaiting manual verification |
