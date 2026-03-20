@@ -1,0 +1,28 @@
+trove: claude-code-channels
+created: 2026-03-20
+refreshed: 2026-03-20
+tags:
+  - claude-code
+  - channels
+  - mcp
+  - automation
+  - telegram
+  - discord
+  - plugins
+
+freshness-ttl:
+  web: 7d
+
+history:
+  - event: created
+    date: 2026-03-20
+    commit: "--"
+    sources: 1
+
+sources:
+  - source-id: claude-code-channels-docs
+    type: web
+    url: "https://code.claude.com/docs/en/channels"
+    fetched: 2026-03-20T00:00:00Z
+    title: "Push events into a running session with channels — Claude Code Docs"
+    hash: "760eeff0b102d978105e25c23a03bb1dba8f1ee66fe332ce44ddf2623103421d"
