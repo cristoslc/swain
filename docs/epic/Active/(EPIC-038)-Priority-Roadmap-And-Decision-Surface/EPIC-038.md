@@ -43,17 +43,35 @@ This principle enables a future interaction model where a visual surface (e.g., 
 **Out of scope:**
 - Calendar-based scheduling or effort estimation
 - Real-time or streaming roadmap updates
-- New frontmatter fields beyond what exists in SPEC-102
 
 ## Child Specs
 
-- SPEC-102 — specgraph: deterministic roadmap output based on priorities
-- SPEC-103 — swain-status roadmap integration
-- SPEC-104 — Roadmap diagram legibility
+- SPEC-108 — Roadmap data model (foundation — single computed model for all renderers)
+- SPEC-109 — Roadmap Jinja templates (presentation layer, depends on 108)
+- SPEC-110 — Quadrant PNG pipeline (mmdc rendering, depends on 109)
+- SPEC-111 — Status roadmap integration (swain-status reads from data model, depends on 108)
+- SPEC-112 — Dependency graph initiative subgraphs (orientability, depends on 109)
+- SPEC-107 — Sibling order ranking (scoring model tiebreaker, independent)
+
+### Superseded specs (exploratory implementation)
+
+- ~~SPEC-102~~ → SPEC-108
+- ~~SPEC-103~~ → SPEC-111
+- ~~SPEC-104~~ → SPEC-108
+- ~~SPEC-105~~ → SPEC-108
+- ~~SPEC-106~~ → SPEC-112
 
 ## Key Dependencies
 
-- SPEC-102 must be complete before SPEC-103 and SPEC-104 can be finalized, as both depend on the `chart.sh roadmap` command and ROADMAP.md format it produces.
+```
+SPEC-108 (data model)
+├── SPEC-109 (templates)
+│   ├── SPEC-110 (PNG pipeline)
+│   └── SPEC-112 (dep graph subgraphs)
+└── SPEC-111 (status integration)
+
+SPEC-107 (sibling ranking) — independent, feeds into 108's scoring
+```
 
 ## Lifecycle
 

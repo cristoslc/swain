@@ -2,7 +2,7 @@
 title: "stage-status-hook fails with ENOENT when CWD is removed"
 artifact: SPEC-099
 track: implementable
-status: Implementation
+status: Active
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -59,26 +59,31 @@ medium
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| Hook does not produce ENOENT after worktree removal | `.claude/settings.json` all four hook commands (PostToolUse, Stop, SubagentStart, SubagentStop) now prefix with `cd /Users/cristos/Documents/code/swain 2>/dev/null || cd $HOME;` — ensures a valid CWD before Node spawns `/bin/sh` | Pass |
-| Belt-and-suspenders defensive `cd` inside script | `skills/swain-stage/scripts/stage-status-hook.sh` lines 13–14: `cd "$HOME" 2>/dev/null || cd /` guards against any residual dead-CWD state once the shell is running | Pass |
-| Hook behavior unchanged in valid CWD | The `cd` prefix uses `2>/dev/null \|\| cd $HOME` fallback — if the repo root is present it resolves normally; if not, it falls back gracefully rather than failing | Pass |
+| Hook does not produce ENOENT after worktree removal | `.claude/settings.json` all four hook commands prefix with `cd /Users/cristos/Documents/code/swain 2>/dev/null || cd $HOME;` | Fail — `cd` prefix is inside the shell command, but `posix_spawn('/bin/sh')` fails *before* the shell starts when CWD is deleted |
+| Belt-and-suspenders defensive `cd` inside script | `stage-status-hook.sh` lines 13–14: `cd "$HOME" 2>/dev/null || cd /` | Fail — same reason: shell never starts |
+| Hook behavior unchanged in valid CWD | The `cd` prefix works correctly when CWD is valid | Pass |
 
 ## Scope & Constraints
 
-- The ENOENT occurs at the OS/Node level before bash even starts — the fix must be in the hook command string in `settings.json`, not just inside the script
-- Changing the hook command to `cd /Users/cristos/Documents/code/swain && bash skills/swain-stage/scripts/stage-status-hook.sh` ensures a valid CWD before shell spawn
-- Alternative: the script could `cd "$HOME" 2>/dev/null || cd /` as its first line, but this only works if `/bin/sh` can be spawned in the first place
-- The settings.json command approach is more robust since it handles the pre-spawn CWD issue
+- The ENOENT occurs at the OS/Node level when `child_process.spawn` calls `posix_spawn('/bin/sh')` with an invalid CWD. Neither shell-level `cd` prefixes nor script guards can help — the shell process never starts.
+- The settings.json `cd` prefix **does not fix the pre-spawn CWD issue** — it only helps if `/bin/sh` can be spawned in the first place. Confirmed by reproduction: after `EnterWorktree` → sync agent removes worktree → stop hook fires → same ENOENT.
+- **Root cause is in Claude Code itself**: hook commands are spawned with the session's current CWD, and there is no fallback when that CWD is deleted. This requires an upstream fix (filed as `anthropics/claude-code` issue).
+- **Mitigation path**: prevent the CWD from becoming invalid in the first place:
+  - SPEC-100 fixes swain-sync (cd before worktree removal) — but only helps when sync runs in the *same* process
+  - swain-sync should **not remove worktrees entered via `EnterWorktree`** — let `ExitWorktree` handle cleanup, since it properly restores the session's CWD
+  - SPEC-098 (tmux guard) would prevent the hook from running outside tmux, but can't execute due to the same pre-spawn failure
 
 ## Implementation Approach
 
-1. Update `.claude/settings.json` hook commands to prefix with an explicit `cd` to the repo root: `cd /Users/cristos/Documents/code/swain && bash skills/swain-stage/scripts/stage-status-hook.sh`
-2. Also add a defensive `cd` inside the script as belt-and-suspenders
-3. Verify no ENOENT after worktree cleanup
+1. ~~Update `.claude/settings.json` hook commands to prefix with an explicit `cd`~~ — insufficient (pre-spawn failure)
+2. ~~Defensive `cd` inside the script~~ — insufficient (shell never starts)
+3. **Upstream fix needed**: file Claude Code issue requesting `cwd` fallback in hook spawning — when the configured CWD doesn't exist, spawn with `$HOME` or `/` instead
+4. **Swain-side mitigation**: update swain-sync to skip worktree removal when the worktree was entered via `EnterWorktree` (detect via the tool's branch naming convention `worktree-*`), deferring cleanup to `ExitWorktree`
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | — | Initial creation — user-reported bug |
-| Implementation | 2026-03-20 | — | Two-layer fix applied: settings.json hook prefix (`cd /Users/cristos/Documents/code/swain 2>/dev/null || cd $HOME;`) on all four hooks; defensive `cd "$HOME" 2>/dev/null || cd /` at line 14 of stage-status-hook.sh |
+| Implementation | 2026-03-20 | 33119f6 | Two-layer fix applied: settings.json cd prefix + script defensive cd — insufficient, pre-spawn failure |
+| Active | 2026-03-20 | — | Reopened: `cd` prefix runs inside shell but `posix_spawn` fails before shell starts. Root cause is Claude Code spawning hooks with invalid CWD. Upstream issue filed. |

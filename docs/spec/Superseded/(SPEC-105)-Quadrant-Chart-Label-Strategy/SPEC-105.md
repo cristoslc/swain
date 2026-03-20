@@ -2,7 +2,8 @@
 title: "Quadrant chart label strategy"
 artifact: SPEC-105
 track: implementable
-status: Active
+status: Superseded
+superseded-by: SPEC-108
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -66,6 +67,21 @@ Prototyped and validated: render the quadrant chart to PNG via `mmdc` (mermaid-c
 - Mermaid theming (`pointLabelFontSize`) — reduces text size but doesn't prevent overlap at density
 - Longer labels with jitter — doesn't scale past ~8 items in a quadrant
 
+## Root Cause (identified during implementation)
+
+The chart, legend, and Eisenhower tables each compute scores/positions independently — there is no single data layer. This causes:
+- Legend ordering diverges from chart visual positions (different formulas)
+- Legend item count can differ from chart point count (different classification paths)
+- X-axis jitter lives in the renderer instead of the data model
+
+**Fix — two layers:**
+
+1. **Data layer:** Refactor `collect_roadmap_items()` to return fully-resolved items including Eisenhower quadrant, x/y chart position (with jitter), display score, initiative grouping, and operator decision. All renderers consume this single data structure.
+
+2. **Template layer:** Extract all rendering into Jinja2 templates (`skills/swain-design/templates/roadmap/`). Python code computes the data model and passes it to templates. Templates own the presentation — Mermaid syntax, markdown table structure, legend layout. This separates data computation from output formatting, making layout changes a template edit instead of a Python code change.
+
+Templates: `quadrant.mmd.j2`, `legend.md.j2`, `eisenhower.md.j2`, `gantt.mmd.j2`, `deps.mmd.j2`, `roadmap.md.j2` (outer assembly). The existing artifact templates already use Jinja-style placeholders, so this is a natural extension.
+
 ## Scope & Constraints
 
 - Must stay within Mermaid — no SVG post-processing, no image rendering
@@ -77,3 +93,4 @@ Prototyped and validated: render the quadrant chart to PNG via `mmdc` (mermaid-c
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | | Initial creation |
+| Superseded | 2026-03-20 | | Superseded by SPEC-108 — architectural decomposition |

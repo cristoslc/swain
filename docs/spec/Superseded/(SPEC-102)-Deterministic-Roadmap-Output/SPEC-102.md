@@ -2,7 +2,8 @@
 title: "specgraph: deterministic roadmap output based on priorities"
 artifact: SPEC-102
 track: implementable
-status: Active
+status: Superseded
+superseded-by: SPEC-108
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -71,3 +72,4 @@ Swain has a prioritization mechanism (priority-weight on Visions/Initiatives/Epi
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | | Promoted from gh#81 |
+| Superseded | 2026-03-20 | | Superseded by SPEC-108 — architectural decomposition |

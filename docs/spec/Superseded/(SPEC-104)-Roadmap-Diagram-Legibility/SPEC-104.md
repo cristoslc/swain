@@ -2,7 +2,8 @@
 title: "Roadmap diagram legibility"
 artifact: SPEC-104
 track: implementable
-status: Active
+status: Superseded
+superseded-by: SPEC-108
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -66,3 +67,4 @@ High-level plan that seeds the implementation plan (via swain-do). Structure as 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | | Initial creation |
+| Superseded | 2026-03-20 | | Superseded by SPEC-108 — architectural decomposition |

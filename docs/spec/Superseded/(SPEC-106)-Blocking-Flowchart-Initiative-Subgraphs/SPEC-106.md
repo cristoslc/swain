@@ -2,7 +2,8 @@
 title: "Blocking flowchart initiative subgraphs"
 artifact: SPEC-106
 track: implementable
-status: Active
+status: Superseded
+superseded-by: SPEC-112
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -48,3 +49,4 @@ The blocking dependencies flowchart in ROADMAP.md shows connected Epics as flat 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | | Initial creation |
+| Superseded | 2026-03-20 | | Superseded by SPEC-112 — architectural decomposition |

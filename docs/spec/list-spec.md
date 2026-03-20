@@ -60,14 +60,14 @@
 | SPEC-100 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | -- |
 | SPEC-100 | swain-sync must restore CWD after worktree cleanup | 2026-03-20 | — |
 | SPEC-101 | ssh-readiness.sh: expand tilde in IdentityFile path before file test | 2026-03-20 | — |
-| SPEC-102 | specgraph: deterministic roadmap output based on priorities | 2026-03-20 | — |
 | SPEC-102 | swain-doctor SSH Binary Check | 2026-03-20 | — |
 | SPEC-103 | Artifact cross-reference hyperlinking | 2026-03-20 | — |
-| SPEC-103 | swain-status roadmap integration | 2026-03-20 | — |
-| SPEC-104 | Roadmap diagram legibility | 2026-03-20 | — |
-| SPEC-105 | Quadrant chart label strategy | 2026-03-20 | — |
-| SPEC-106 | Blocking flowchart initiative subgraphs | 2026-03-20 | — |
 | SPEC-107 | Sibling order ranking for epics and specs | 2026-03-20 | — |
+| SPEC-108 | Roadmap data model | 2026-03-20 | — |
+| SPEC-109 | Roadmap Jinja templates | 2026-03-20 | — |
+| SPEC-110 | Quadrant PNG pipeline | 2026-03-20 | — |
+| SPEC-111 | Status roadmap integration | 2026-03-20 | — |
+| SPEC-112 | Dependency graph initiative subgraphs | 2026-03-20 | — |
 
 ## Complete
 
@@ -135,4 +135,9 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPEC-049 | claude-sandbox: Tier 2 Docker Container Runner | 2026-03-17 | — |
+| SPEC-102 | specgraph: deterministic roadmap output based on priorities | 2026-03-20 | — |
+| SPEC-103 | swain-status roadmap integration | 2026-03-20 | — |
+| SPEC-104 | Roadmap diagram legibility | 2026-03-20 | — |
+| SPEC-105 | Quadrant chart label strategy | 2026-03-20 | — |
+| SPEC-106 | Blocking flowchart initiative subgraphs | 2026-03-20 | — |
 
