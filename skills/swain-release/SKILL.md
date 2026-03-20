@@ -1,11 +1,11 @@
 ---
 name: swain-release
-description: Cut a release — detect versioning context, generate a changelog from conventional commits, bump versions, and create a git tag. Use when the user says "release", "cut a release", "tag a release", "bump the version", "create a changelog", "ship a version", "publish", or any variation of shipping/publishing a version. This skill is intentionally generic and works across any repo — it infers context from git history and project structure rather than assuming a specific setup.
+description: Cut a release — detect versioning context, generate a changelog from conventional commits, bump versions, create a git tag, and optionally squash-merge to a release branch. Use when the user says "release", "cut a release", "tag a release", "bump the version", "create a changelog", "ship a version", "publish", or any variation of shipping/publishing a version. This skill is intentionally generic and works across any repo — it infers context from git history and project structure rather than assuming a specific setup. Supports the trunk+release branch model (ADR-013) when a `release` branch exists.
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: Version bump, changelog, and git tag
-  version: 1.1.0
+  version: 1.2.0
   author: cristos
   source: swain
 ---
@@ -153,9 +153,42 @@ git tag -a <tag> -m "Release <tag>"
 
 Use the tag format detected in step 1 (or what the user specified).
 
+### 6.5. Squash-merge to release branch
+
+If a `release` branch exists (check with `git rev-parse --verify release 2>/dev/null`), squash-merge the current branch (trunk) into it:
+
+```bash
+# Save current branch name
+TRUNK_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Ensure we're on trunk (the development branch)
+if [ "$TRUNK_BRANCH" != "trunk" ]; then
+  echo "Warning: not on trunk ($TRUNK_BRANCH). Skipping release branch update."
+else
+  # Tag trunk first (lifecycle hashes must be reachable from trunk per ADR-012)
+  # Tag was already created in step 6
+
+  # Squash-merge trunk into release
+  git checkout release
+  git merge --squash trunk
+  git commit -m "release: <tag>"
+
+  # Return to trunk
+  git checkout trunk
+fi
+```
+
+If no `release` branch exists, skip this step silently — the project hasn't adopted the trunk+release model yet.
+
 ### 7. Offer to push
 
-Ask the user if they want to push the commit and tag:
+Ask the user if they want to push. If a release branch was updated in step 6.5:
+
+```bash
+git push origin trunk && git push origin release && git push origin <tag>
+```
+
+If no release branch exists, push as before:
 
 ```bash
 git push && git push origin <tag>
