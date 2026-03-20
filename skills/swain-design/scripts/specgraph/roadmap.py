@@ -12,6 +12,7 @@ Visual outputs:
 Grouping: by Initiative when one exists; standalone Epics as own group.
 Ordering: by computed priority score descending, then artifact ID (tiebreaker).
 Leaf level: Epic (SPECs are not rendered, but progress ratios are shown).
+Direct children of Initiatives (SPECs, Spikes) also count toward progress.
 """
 from __future__ import annotations
 
@@ -120,10 +121,16 @@ def collect_roadmap_items(
             total = complete = 0
             for child_id in _get_children(aid, edges):
                 cnode = nodes.get(child_id, {})
-                if cnode.get("type", "").upper() == "EPIC":
+                child_type = cnode.get("type", "").upper()
+                if child_type == "EPIC":
                     c, t = _spec_progress(child_id, nodes, edges)
                     complete += c
                     total += t
+                elif child_type in ("SPEC", "SPIKE"):
+                    # Direct children of an Initiative count as 1 item each
+                    total += 1
+                    if _node_is_resolved(child_id, nodes):
+                        complete += 1
         else:
             continue
 
