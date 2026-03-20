@@ -34,3 +34,17 @@ A design artifact captures the interaction layer of a feature or system: screens
   - **Multiple happy paths:** When a workflow has legitimate branches (e.g., container vs. microVM, sandbox management), show each as a branch off a decision diamond with its essential steps. Don't fully expand each branch — keep it to key steps and terminal nodes.
   - **Complex branches:** If a single branch is too complex to represent in a few nodes, give it its own flowchart in a subsection rather than bloating the main diagram.
 - Designs are NOT Specs. They do not define API contracts, data models, or system behavior. If a Design starts accumulating technical implementation details, those belong in a Spec that references the Design.
+
+## Design Intent section
+
+The Design Intent section provides stable criteria against which to evaluate whether implementation changes constitute drift or intentional evolution. It contains three structured subsections:
+
+- **Goals** answer "what experience are we trying to create?" — the desired user-facing outcome.
+- **Constraints** are machine-checkable or reviewable boundaries that the design must respect.
+- **Non-goals** prevent scope creep by explicitly recording what was decided against.
+
+### Write-once convention
+
+Design Intent is established when the DESIGN is created or transitions to Active. It is not updated when the mutable sections (flows, states, screens) evolve. If the intent itself fundamentally changes, Supersede the DESIGN and create a new one.
+
+Write-once is enforced by agent convention, not tooling. The structured format (Goals/Constraints/Non-goals) makes unintentional edits obvious in code review.
