@@ -16,7 +16,7 @@ Things that merely do not contradict each other but are otherwise semantically d
 
 | Trigger | What to check |
 |---------|---------------|
-| **Artifact creation** | Parent-child alignment, sibling conflicts (existing behavior) |
+| **Artifact creation** | Parent-child alignment, sibling conflicts, same-type overlap for standing-track types (DESIGN, Persona, Runbook) |
 | **Spike completion** | All artifacts in the same vision/initiative scope — do any acceptance criteria or documented behaviors contradict the spike's verdict? (see phase-transitions.md step 4e) |
 | **Runbook creation** | All validated specs referenced by the runbook — are the documented behaviors still accurate given completed spikes and known limitations? |
 | **ADR acceptance** | All artifacts that implement or depend on the decision's subject — are they consistent with the accepted approach? |
@@ -107,6 +107,20 @@ The artifact was aligned when created, but its parent changed since. The alignme
 **Examples:**
 - A SPEC created under an Epic that subsequently changed scope
 - An artifact linked to an ADR that was superseded
+
+### SUPERSEDED_OVERLAP (blocking — standing-track types only)
+
+A new standing-track artifact (DESIGN, Persona, Runbook) covers the same surface as an existing Active artifact of the same type. The new artifact likely supersedes the old one.
+
+**Signals (any one is sufficient):**
+- The new artifact's `linked-artifacts` references another artifact of the same type
+- The new artifact's scoping section (`Interaction Surface`, `Trigger`, `Role`) describes a surface that overlaps with or subsumes an existing Active artifact's scope
+
+**Action:** Ask the operator whether the new artifact supersedes the existing one. If yes, transition the existing artifact to Superseded as part of the same operation.
+
+**Examples:**
+- A new DESIGN for "swain-box launcher UX" created while an Active DESIGN for "swain-box agent selection" exists — the new one subsumes the old
+- A new RUNBOOK for "sandbox operations" created while an Active RUNBOOK for "sandbox cleanup" exists — the new one may supersede or complement
 
 ### IMPLICIT_CONFLICT (advisory)
 
