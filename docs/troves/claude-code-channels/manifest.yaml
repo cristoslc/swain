@@ -30,7 +30,7 @@ history:
     notes: "added channels-reference (build your own channel)"
   - event: extended
     date: 2026-03-20
-    commit: "--"
+    commit: "cfe97db"
     sources: 4
     sources-added: 2
     notes: "added community coverage — byteiota tutorial, claudefast guide (competitive context, platform comparison, use cases)"
