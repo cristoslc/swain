@@ -3,6 +3,7 @@
 title: "{{ title }}"
 artifact: DESIGN-{{ number }}
 track: standing
+domain: {{ domain | default("interaction") }}
 status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}
@@ -42,16 +43,22 @@ depends-on-artifacts:
 
 ## Design Intent
 
-**Context:** {{ design_context | default("One sentence anchoring the design to its user-facing purpose.") }}
+**Context:** {{ design_context | default("One sentence anchoring the design to its purpose.") }}
 
 ### Goals
-{{ design_goals | default("- [What experience we're trying to create]") }}
+{{ design_goals | default("- [What experience or guarantee we're trying to create]") }}
 
 ### Constraints
 {{ design_constraints | default("- [Machine-checkable or reviewable boundaries]") }}
 
 ### Non-goals
 {{ design_non_goals | default("- [What we explicitly decided NOT to do]") }}
+
+{#- ============================================================
+    DOMAIN: interaction (default)
+    UI/UX interaction design — screens, flows, states, wireframes
+    ============================================================ -#}
+{%- if domain | default("interaction") == "interaction" %}
 
 ## Interaction Surface
 
@@ -81,13 +88,107 @@ flowchart TD
 
 {{ edge_cases | default("What happens when things go wrong or the user takes an unexpected path.") }}
 
+{#- ============================================================
+    DOMAIN: data
+    Data architecture — entities, flows, schemas, evolution, invariants
+    ============================================================ -#}
+{%- elif domain == "data" %}
+
+## Data Surface
+
+{{ data_surface | default("What part of the system's data this design covers. Scope it to a single bounded data domain or data product.") }}
+
+## Entity Model
+
+{{ entity_model | default("Entities, their relationships, and cardinality. Use a mermaid ER diagram.") }}
+
+<!-- REQUIRED: ER diagram showing entities, relationships, and cardinality.
+     Rules: snake_case entity names, clear relationship labels, cardinality notation. -->
+```mermaid
+erDiagram
+    ENTITY_A ||--o{ ENTITY_B : "has many"
+    ENTITY_B }o--|| ENTITY_C : "belongs to"
+```
+
+## Data Flow
+
+{{ data_flow | default("How data moves through the system — ingestion, transformation, storage, retrieval. Use a mermaid flowchart.") }}
+
+```mermaid
+flowchart LR
+    source["Source"] --> ingest["Ingestion"]
+    ingest --> transform["Transform"]
+    transform --> store["Storage"]
+    store --> query["Query"]
+```
+
+## Schema Definitions
+
+{{ schema_definitions | default("Field-level definitions, types, constraints, nullability. Use tables for clarity.") }}
+
+| Field | Type | Nullable | Constraints | Description |
+|-------|------|----------|-------------|-------------|
+
+## Evolution Rules
+
+{{ evolution_rules | default("Backward/forward compatibility requirements, migration strategy, versioning approach.") }}
+
+## Invariants
+
+{{ invariants | default("What must always be true — business rules, referential integrity, consistency guarantees.") }}
+
+## Edge Cases and Error States
+
+{{ edge_cases | default("What happens with malformed data, missing fields, schema violations, migration failures.") }}
+
+{#- ============================================================
+    DOMAIN: system
+    System contracts — API boundaries, behavioral guarantees, integration interfaces
+    ============================================================ -#}
+{%- elif domain == "system" %}
+
+## Interface Surface
+
+{{ interface_surface | default("What boundary this design covers. Scope it to a single integration boundary or API surface.") }}
+
+## Contract Definition
+
+{{ contract_definition | default("Inputs, outputs, error semantics, idempotency. Define what callers can depend on.") }}
+
+<!-- REQUIRED: Diagram showing request/response flow or multi-party interactions.
+     Use flowchart for simple request/response, sequenceDiagram for multi-party. -->
+```mermaid
+flowchart LR
+    caller["Caller"] --> api["API Surface"]
+    api --> response["Response"]
+    api --> error["Error Response"]
+```
+
+## Behavioral Guarantees
+
+{{ behavioral_guarantees | default("Pre/postconditions, SLAs, retry semantics, ordering guarantees, idempotency properties.") }}
+
+## Integration Patterns
+
+{{ integration_patterns | default("How consumers discover and connect — protocol, auth, versioning, discovery mechanism.") }}
+
+## Evolution Rules
+
+{{ evolution_rules | default("Versioning strategy, deprecation policy, breaking change process, backward compatibility commitments.") }}
+
+## Edge Cases and Error States
+
+{{ edge_cases | default("What happens with invalid inputs, timeouts, partial failures, version mismatches.") }}
+
+{%- endif %}
+
 ## Design Decisions
 
 {{ design_decisions | default("Key choices made in this design and why. Link to ADRs if the decision has broader architectural implications.") }}
 
 ## Assets
 
-{{ assets | default("Index of supporting files in this folder: wireframes, mockups, flow diagrams, prototypes.") }}
+{{ assets | default("Index of supporting files in this folder: wireframes, mockups, flow diagrams, schema files, prototypes.") }}
 
 ## Lifecycle
 
