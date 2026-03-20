@@ -137,6 +137,63 @@ def collect_roadmap_items(
         })
 
     items.sort(key=lambda x: (-x["score"], -x.get("sort_order", 0), x["id"]))
+
+    # --- Derived fields (SPEC-108) ---
+    # Compute chart positions for EPICs (weight-tier spreading + jitter)
+    epics_for_chart = [i for i in items if i["type"] == "EPIC"]
+    weight_tiers: dict[str, list[dict]] = {"high": [], "medium": [], "low": []}
+    for item in epics_for_chart:
+        if item["weight"] >= 3:
+            weight_tiers["high"].append(item)
+        elif item["weight"] >= 2:
+            weight_tiers["medium"].append(item)
+        else:
+            weight_tiers["low"].append(item)
+
+    tier_index: dict[str, int] = {}
+    tier_size: dict[str, int] = {}
+    for tier_name, tier_items in weight_tiers.items():
+        tier_size[tier_name] = len(tier_items)
+        for idx, item in enumerate(tier_items):
+            tier_index[item["id"]] = idx
+
+    tier_ranges = {"high": (0.70, 0.95), "medium": (0.25, 0.55), "low": (0.05, 0.20)}
+    seen_positions: dict[tuple[float, float], int] = {}
+
+    for item in items:
+        item["quadrant"] = _classify_eisenhower(item)
+        item["quadrant_label"] = QUADRANT_LABELS[item["quadrant"]][0]
+        item["short_id"] = _short_id(item["id"])
+        item["operator_decision"] = _operator_decision(item)
+        item["display_score"] = item["weight"] + (
+            item["score"] + 1 if item["status"] in _ACTIVE_STATUSES else item["score"]
+        )
+
+        if item["type"] == "EPIC":
+            base_x = _compute_urgency(item)
+            tier_name = (
+                "high" if item["weight"] >= 3
+                else ("medium" if item["weight"] >= 2 else "low")
+            )
+            y_lo, y_hi = tier_ranges[tier_name]
+            n = tier_size[tier_name]
+            idx = tier_index[item["id"]]
+            base_y = y_lo + (y_hi - y_lo) * idx / (n - 1) if n > 1 else (y_lo + y_hi) / 2
+
+            key = (round(base_x, 2), round(base_y, 2))
+            count = seen_positions.get(key, 0)
+            seen_positions[key] = count + 1
+            jitter = count * 0.06
+            direction = count % 4
+            dx = jitter if direction in (0, 2) else -jitter
+            dy = jitter if direction in (0, 3) else -jitter
+            item["chart_x"] = max(0.02, min(0.98, base_x + dx))
+            item["chart_y"] = max(0.02, min(0.98, base_y + dy))
+        else:
+            # INITIATIVE items don't appear in the quadrant chart
+            item["chart_x"] = 0.0
+            item["chart_y"] = 0.0
+
     return items
 
 
@@ -162,7 +219,7 @@ def classify_epics_eisenhower(items: list[dict]) -> dict[str, list[dict]]:
     for item in items:
         if item["type"] != "EPIC":
             continue
-        quadrants[_classify_eisenhower(item)].append(item)
+        quadrants[item["quadrant"]].append(item)
     return quadrants
 
 
@@ -210,10 +267,11 @@ def _compute_urgency(item: dict) -> float:
 
 
 def _short_id(artifact_id: str) -> str:
-    """Convert EPIC-031 to E31 for compact chart labels."""
-    # Strip type prefix, remove leading zeros
+    """Convert EPIC-031 to E31 or INITIATIVE-005 to I5 for compact chart labels."""
+    prefix = artifact_id.split("-", 1)[0].upper() if "-" in artifact_id else ""
     num = artifact_id.split("-", 1)[1] if "-" in artifact_id else artifact_id
-    return f"E{num.lstrip('0') or '0'}"
+    letter = "I" if prefix == "INITIATIVE" else "E"
+    return f"{letter}{num.lstrip('0') or '0'}"
 
 
 def render_quadrant_chart(items: list[dict]) -> tuple[str, list[dict]]:
@@ -236,54 +294,18 @@ def render_quadrant_chart(items: list[dict]) -> tuple[str, list[dict]]:
         "    quadrant-4 In Progress",
     ]
 
-    # Spread items vertically within their weight tier
-    weight_tiers: dict[str, list[dict]] = {"high": [], "medium": [], "low": []}
-    for item in epics:
-        if item["weight"] >= 3:
-            weight_tiers["high"].append(item)
-        elif item["weight"] >= 2:
-            weight_tiers["medium"].append(item)
-        else:
-            weight_tiers["low"].append(item)
-
-    tier_index: dict[str, int] = {}
-    tier_size: dict[str, int] = {}
-    for tier_name, tier_items in weight_tiers.items():
-        tier_size[tier_name] = len(tier_items)
-        for idx, item in enumerate(tier_items):
-            tier_index[item["id"]] = idx
-
-    tier_ranges = {"high": (0.70, 0.95), "medium": (0.25, 0.55), "low": (0.05, 0.20)}
-
     legend_items: list[dict] = []
-    seen_positions: dict[tuple[float, float], int] = {}
     for item in epics:
-        base_x = _compute_urgency(item)
-        tier_name = "high" if item["weight"] >= 3 else ("medium" if item["weight"] >= 2 else "low")
-        y_lo, y_hi = tier_ranges[tier_name]
-        n = tier_size[tier_name]
-        idx = tier_index[item["id"]]
-        base_y = y_lo + (y_hi - y_lo) * idx / (n - 1) if n > 1 else (y_lo + y_hi) / 2
-
-        key = (round(base_x, 2), round(base_y, 2))
-        count = seen_positions.get(key, 0)
-        seen_positions[key] = count + 1
-        jitter = count * 0.06
-        direction = count % 4
-        dx = jitter if direction in (0, 2) else -jitter
-        dy = jitter if direction in (0, 3) else -jitter
-        x = max(0.02, min(0.98, base_x + dx))
-        y = max(0.02, min(0.98, base_y + dy))
-
-        short = _short_id(item["id"])
+        x = item["chart_x"]
+        y = item["chart_y"]
+        short = item["short_id"]
         lines.append(f"    {short}: [{x:.2f}, {y:.2f}]")
 
-        q = _classify_eisenhower(item)
         legend_items.append({
             "short_id": short,
             "id": item["id"],
             "title": item["title"],
-            "quadrant": QUADRANT_LABELS[q][0],
+            "quadrant": item["quadrant_label"],
         })
 
     return "\n".join(lines), legend_items
@@ -333,7 +355,7 @@ def render_gantt(items: list[dict], nodes: dict) -> str:
     q_order = {q: idx for idx, q in enumerate(QUADRANT_ORDER)}
     epics = sorted(
         [i for i in items if i["type"] == "EPIC"],
-        key=lambda i: (q_order.get(_classify_eisenhower(i), 9), -i["score"], i["id"]),
+        key=lambda i: (q_order.get(i["quadrant"], 9), -i["score"], i["id"]),
     )
 
     if not epics:
@@ -382,7 +404,7 @@ def render_gantt(items: list[dict], nodes: dict) -> str:
             label = _escape_mermaid_label(title_text)
 
             # Determine marker: crit = needs decision, active = in progress
-            decision = _operator_decision(item)
+            decision = item["operator_decision"]
             if decision:
                 marker = "crit, "
             elif item["status"] in _ACTIVE_STATUSES:
@@ -449,8 +471,7 @@ def render_dependency_graph(items: list[dict], nodes: dict) -> str | None:
             continue
         eid = _safe_mermaid_id(item_id)
         elabel = _escape_mermaid_label(item["title"])
-        q = _classify_eisenhower(item)
-        cls = qclass[q]
+        cls = qclass[item["quadrant"]]
         lines.append(f'    {eid}["{elabel}"]:::{cls}')
 
     for src_id, dst_id in sorted(edge_list):
@@ -460,8 +481,8 @@ def render_dependency_graph(items: list[dict], nodes: dict) -> str | None:
         src_item = epic_map.get(src_id)
         dst_item = epic_map.get(dst_id)
         if src_item and dst_item:
-            src_q = _classify_eisenhower(src_item)
-            dst_q = _classify_eisenhower(dst_item)
+            src_q = src_item["quadrant"]
+            dst_q = dst_item["quadrant"]
             src_rank = q_rank.get(src_q, 9)
             dst_rank = q_rank.get(dst_q, 9)
             # Cross-boundary: blocker is lower priority than the blocked item
@@ -534,7 +555,7 @@ def render_eisenhower_table(items: list[dict], nodes: dict) -> str:
                 progress = f"{item['children_complete']}/{item['children_total']}"
                 unblocks = item["score"] // item["weight"] if item["weight"] else 0
                 epic_link = _md_link(item["id"], item["title"], nodes)
-                decision = _operator_decision(item)
+                decision = item["operator_decision"]
                 needs = f"**{decision}**" if decision else "—"
 
                 # Only show initiative on first row of each group
@@ -571,9 +592,7 @@ def _render_legend_single_row(legend_items: list[dict], nodes: dict, all_items: 
             if item["group"] != item["id"]:
                 init_for_epic[item["id"]] = item["group"]
                 init_title[item["group"]] = item["group_title"]
-            item_score[item["id"]] = item["weight"] + (
-                item["score"] + 1 if item["status"] in _ACTIVE_STATUSES else item["score"]
-            )
+            item_score[item["id"]] = item["display_score"]
 
     grouped: dict[str, list[dict]] = {}
     for item in legend_items:

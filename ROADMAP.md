@@ -12,7 +12,7 @@
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
 | [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 0/9 | 0 | — |
-| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Priority Roadmap and Decision Surface](docs/epic/Active/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) | 0/5 | 0 | — |
+| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Priority Roadmap and Decision Surface](docs/epic/Active/(EPIC-038)-Priority-Roadmap-And-Decision-Surface/EPIC-038.md) | 5/10 | 0 | — |
 | [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [User Documentation System](docs/epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | 0/1 | 0 | — |
 | [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](docs/epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
 
@@ -64,16 +64,16 @@ gantt
     Skill Audit Remediation (0/9) :active, t0, 2026-01-01, 14d
     User Documentation System (0/1) :active, t1, 2026-01-01, 14d
     PR-Only Agent Guardrails (0/0) :crit, t2, 2026-01-01, 14d
-    Priority Roadmap and Decision  (0/5) :active, t3, 2026-01-01, 14d
+    Priority Roadmap and Decision  (5/10) :active, t3, 2026-01-01, 14d
     section Schedule
     GitHub Issue Polling with Dete (0/0) :crit, t4, 2026-01-01, 14d
     Auto-Detecting Trunk Branch (0/0) :crit, t5, 2026-01-01, 14d
     Swain MCP Server (0/9) :crit, t6, 2026-01-01, 14d
     section In Progress
-    Worktree-Aware Session Bookmar (0/0) :crit, t7, 2026-01-15, 14d
-    Security Vulnerability Scannin (0/4) :active, t8, 2026-01-15, 14d
+    Worktree-Aware Session Bookmar (0/0) :crit, t8, 2026-01-15, 14d
+    Security Vulnerability Scannin (0/4) :active, t7, 2026-01-15, 14d
     Rename swain-design to swain-s (0/0) :crit, t9, 2026-01-15, 14d
-    Security Gates in swain-do Exe (0/4) :active, t10, after t8, 14d
+    Security Gates in swain-do Exe (0/4) :active, t10, after t7, 14d
     Design Staleness and Drift Det (0/4) :active, t11, 2026-01-29, 14d
     section Backlog
     Work Scope Progress Visualizat (0/0) :crit, t12, 2026-01-29, 14d
@@ -85,7 +85,7 @@ gantt
     Orchestrator Integration (0/0) :crit, t18, 2026-01-29, 14d
     Status Integration (0/0) :crit, t19, 2026-01-29, 14d
     Cross-Runtime Documentation (0/0) :crit, t20, 2026-01-29, 14d
-    Sandbox Capability Bridges (0/4) :crit, t21, after t7, 14d
+    Sandbox Capability Bridges (0/4) :crit, t21, after t8, 14d
 ```
 
 ## Blocking Dependencies
