@@ -27,13 +27,15 @@ The terminal UX for `./swain-box` from invocation to agent session. Covers: runt
 ```mermaid
 flowchart TD
     invoke["./swain-box invoked"] --> pick_runtime{"Pick runtime"}
-    pick_runtime -->|"flag / auto / menu"| pick_isolation{"Pick isolation"}
+    pick_runtime -->|"flag / auto / menu"| pick_auth{"Auth model?"}
     pick_runtime -->|"'s'"| sandbox_mgmt["Manage sandboxes"]
+    pick_auth -->|"subscription"| pick_isolation{"Pick isolation"}
+    pick_auth -->|"API key"| prompt_key["Prompt for key"] --> pick_isolation
     pick_isolation -->|"microVM"| start_microvm["docker sandbox run"]
     pick_isolation -->|"container"| check_existing{"Existing container?"}
     check_existing -->|"yes"| reconnect["Reconnect"]
     check_existing -->|"no"| needs_login{"Pre-TUI login needed?"}
-    needs_login -->|"yes (codex, kiro)"| auth_then_create["Auth → create container"]
+    needs_login -->|"yes (codex, kiro)"| auth_then_create["Login → create container"]
     needs_login -->|"no"| create["Create container"]
     start_microvm --> session["Agent session"]
     reconnect --> session

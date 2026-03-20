@@ -25,44 +25,14 @@ The full enter → work → exit worktree lifecycle as experienced by the operat
 
 ```mermaid
 flowchart TD
-    session_start["Session start: swain-session runs"]
-    detect_worktree{"Already in a worktree?"}
-    enter_worktree["EnterWorktree: create isolated branch"]
-    tab_update["Tmux tab updates to branch name"]
-    working["Agent executes tasks in worktree"]
-    check_in_worktree{"IN_WORKTREE set?"}
-    fallback_enter["swain-do calls EnterWorktree as fallback"]
-    task_complete{"Task complete?"}
-    swain_sync["swain-sync: commit, push, prune worktree"]
-    pr_fallback["Push rejected: create PR instead"]
-    exit_worktree["ExitWorktree: remove worktree"]
-    tab_revert["Tmux tab reverts to main"]
-    interrupted{"Session interrupted?"}
-    doctor_detects["swain-doctor detects orphaned worktree"]
-    operator_cleanup["Operator confirms cleanup"]
-    operator_exits{"Operator says exit worktree?"}
-
-    session_start --> detect_worktree
-    detect_worktree -->|"yes"| working
-    detect_worktree -->|"no"| enter_worktree
-    enter_worktree --> tab_update
-    tab_update --> check_in_worktree
-    check_in_worktree -->|"yes"| working
-    check_in_worktree -->|"no"| fallback_enter
-    fallback_enter --> working
-    working --> interrupted
-    interrupted -->|"yes"| doctor_detects
-    doctor_detects --> operator_cleanup
-    operator_cleanup --> exit_worktree
-    interrupted -->|"no"| task_complete
-    task_complete -->|"no"| operator_exits
-    operator_exits -->|"yes"| exit_worktree
-    operator_exits -->|"no"| working
-    task_complete -->|"yes"| swain_sync
-    swain_sync -->|"push succeeds"| exit_worktree
-    swain_sync -->|"push rejected"| pr_fallback
-    pr_fallback --> exit_worktree
-    exit_worktree --> tab_revert
+    session_start["Session start"] --> in_worktree{"Already in worktree?"}
+    in_worktree -->|"yes"| work["Agent works in worktree"]
+    in_worktree -->|"no"| enter["EnterWorktree"]
+    enter --> work
+    work --> done{"Task complete?"}
+    done -->|"yes"| sync["swain-sync: commit + push"]
+    done -->|"no"| work
+    sync --> exit["ExitWorktree → back to main"]
 ```
 
 ### Operator's perspective

@@ -51,58 +51,16 @@ From the resolved path, git context is derived:
 
 ```mermaid
 flowchart TD
-    trigger_session_start["Session start\n(swain-session → --auto)"]
-    trigger_pane_focus["Pane focus-in\n(tmux hook → --auto)"]
-    trigger_agent_enter["Agent enters worktree\n(--path /worktree --auto)"]
-    trigger_agent_exit["Agent exits worktree\n(--path /main --auto)"]
-    trigger_reset["Operator/agent runs\n--reset"]
-
-    check_swain_path{"@swain_path\nset on pane?"}
-    use_swain_path["Use @swain_path"]
-    use_pane_cwd["Use #{pane_current_path}"]
-
-    set_swain_path["Set @swain_path on pane"]
-    install_hook["Install pane-focus-in\nhook (per-window)"]
-
-    resolve_git{"Run git commands\nfrom resolved path"}
-    git_success["project = repo name\nbranch = current branch"]
-    git_fail["project = unknown\nbranch = no-branch"]
-
-    in_tmux{"$TMUX set?"}
-    rename_session["Rename tmux session\n→ project @ branch"]
-    rename_window["Rename tmux window\n→ project @ branch"]
-    emit_escape["Emit terminal escape\nsequence only (no tmux)"]
-
-    reset_hook["Remove pane-focus-in hook"]
-    clear_path["Clear @swain_path"]
-    restore_rename["Re-enable automatic-rename\nRestore default title"]
-
-    trigger_session_start --> check_swain_path
-    trigger_pane_focus --> check_swain_path
-    trigger_agent_enter --> set_swain_path --> check_swain_path
-    trigger_agent_exit --> set_swain_path
-
-    check_swain_path -->|"yes"| use_swain_path
-    check_swain_path -->|"no"| use_pane_cwd
-
-    use_swain_path --> resolve_git
-    use_pane_cwd --> resolve_git
-
-    resolve_git -->|"success"| git_success
-    resolve_git -->|"failure"| git_fail
-
-    git_success --> in_tmux
-    git_fail --> in_tmux
-
-    trigger_session_start --> install_hook
-
-    in_tmux -->|"yes"| rename_session
-    rename_session --> rename_window
-    in_tmux -->|"no"| emit_escape
-
-    trigger_reset --> reset_hook
-    reset_hook --> clear_path
-    clear_path --> restore_rename
+    trigger{"Trigger"}
+    trigger -->|"session start"| resolve_path
+    trigger -->|"pane focus-in"| resolve_path
+    trigger -->|"agent enters/exits worktree"| set_path["Set @swain_path"] --> resolve_path
+    trigger -->|"--reset"| cleanup["Remove hook, clear path, restore defaults"]
+    resolve_path{"@swain_path set?"} -->|"yes"| use_swain["Use @swain_path"]
+    resolve_path -->|"no"| use_cwd["Use pane CWD"]
+    use_swain --> derive_git["Derive project @ branch"]
+    use_cwd --> derive_git
+    derive_git --> rename["Rename tmux session + window"]
 ```
 
 ### Flow 1: Session Start

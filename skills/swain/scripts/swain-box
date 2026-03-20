@@ -100,10 +100,12 @@ _first_run_auth() {
                 container:*)
                     _cname="${_target#container:}"
                     docker exec -it "$_cname" /bin/bash
+                    docker exec "$_cname" touch /home/agent/.swain-box-auth-done 2>/dev/null
                     ;;
                 microvm:*)
                     _sname="${_target#microvm:}"
                     docker sandbox exec "$_sname" /bin/bash
+                    docker sandbox exec "$_sname" touch /home/agent/.swain-box-auth-done 2>/dev/null
                     ;;
             esac
             echo "" >&2
@@ -118,11 +120,12 @@ _first_run_auth() {
                         container:*)
                             _cname="${_target#container:}"
                             docker exec "$_cname" sh -c "echo 'export $_api_var=$_api_key' >> /home/agent/.bashrc"
+                            docker exec "$_cname" touch /home/agent/.swain-box-auth-done 2>/dev/null
                             ;;
                         microvm:*)
-                            # For microVM, set in shell profile inside the sandbox
                             _sname="${_target#microvm:}"
                             docker sandbox exec "$_sname" sh -c "echo 'export $_api_var=$_api_key' >> ~/.bashrc"
+                            docker sandbox exec "$_sname" touch /home/agent/.swain-box-auth-done 2>/dev/null
                             ;;
                     esac
                     echo "swain-box: API key saved." >&2
@@ -131,6 +134,20 @@ _first_run_auth() {
             ;;
     esac
     return 0
+}
+
+# Check if auth has been completed in a sandbox/container
+_auth_done() {
+    case "$1" in
+        container:*)
+            _cname="${1#container:}"
+            docker exec "$_cname" test -f /home/agent/.swain-box-auth-done 2>/dev/null
+            ;;
+        microvm:*)
+            _sname="${1#microvm:}"
+            docker sandbox exec "$_sname" test -f /home/agent/.swain-box-auth-done 2>/dev/null
+            ;;
+    esac
 }
 
 # ============================================================
@@ -501,17 +518,17 @@ if [ "$SELECTED_ISOLATION" = "microvm" ]; then
     # --- Docker Sandboxes (microVM) ---
     # Check if this is a first run (no existing sandbox)
     if ! docker sandbox ls 2>/dev/null | grep -q "$SANDBOX_NAME"; then
-        # First run: create → auth → run
-        # `docker sandbox create` starts the VM but NOT the agent,
-        # giving us a window to exec into the sandbox for login.
+        # New sandbox: create → auth → run
         echo "swain-box: creating sandbox..." >&2
         docker sandbox create "$SELECTED_RUNTIME" "$PROJECT_PATH" 2>&1 | grep -v "^$" >&2
-        # Re-check what name was assigned (Docker uses agent-workdir pattern)
         SANDBOX_NAME=$(docker sandbox ls 2>/dev/null | grep "$SELECTED_RUNTIME" | awk '{print $1}' | head -1)
         if [ -z "$SANDBOX_NAME" ]; then
             echo "swain-box: failed to create sandbox." >&2
             exit 1
         fi
+        _first_run_auth "$SELECTED_RUNTIME" "microvm:$SANDBOX_NAME" || exec "$0" "$@"
+    elif ! _auth_done "microvm:$SANDBOX_NAME"; then
+        # Sandbox exists but auth never completed
         _first_run_auth "$SELECTED_RUNTIME" "microvm:$SANDBOX_NAME" || exec "$0" "$@"
     fi
     case "$SELECTED_RUNTIME" in
@@ -537,6 +554,10 @@ else
         if [ "$_state" != "running" ]; then
             echo "swain-box: starting container $SANDBOX_NAME" >&2
             docker start "$SANDBOX_NAME" >/dev/null 2>&1
+        fi
+        # Auth check — if never completed, run it now
+        if ! _auth_done "container:$SANDBOX_NAME"; then
+            _first_run_auth "$SELECTED_RUNTIME" "container:$SANDBOX_NAME" || exec "$0" "$@"
         fi
         echo "swain-box: connecting to $SANDBOX_NAME" >&2
         # shellcheck disable=SC2086

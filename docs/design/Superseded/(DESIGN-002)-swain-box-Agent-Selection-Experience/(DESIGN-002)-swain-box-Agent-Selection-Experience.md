@@ -2,11 +2,11 @@
 title: "swain-box Agent Selection Experience"
 artifact: DESIGN-002
 track: standing
-status: Active
+status: Superseded
 author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
-superseded-by: ""
+superseded-by: DESIGN-005
 linked-artifacts:
   - EPIC-030
   - SPEC-068
@@ -129,3 +129,4 @@ None. This design is fully expressible in prose and ASCII flows.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-18 | — | Initial creation; defines swain-box selection UX for EPIC-030 |
+| Superseded | 2026-03-19 | — | Superseded by DESIGN-005 (swain-box Launcher UX) which covers the full launcher flow |

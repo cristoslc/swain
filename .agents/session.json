@@ -5,12 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Created DESIGN-005 and ADR-008 for swain-box launcher",
-    "files": [
-      "docs/design/Active/(DESIGN-005)-swain-box-Launcher-UX/(DESIGN-005)-swain-box-Launcher-UX.md",
-      "docs/adr/Active/(ADR-008)-Subscription-Auth-Preferred-Over-API-Keys.md"
-    ],
-    "timestamp": "2026-03-20T01:45:48Z"
+    "note": "Pushed 15 commits to main",
+    "timestamp": "2026-03-20T02:31:30Z"
   },
   "focus_lane": "VISION-002"
 }
