@@ -1097,7 +1097,16 @@ case "$cmd" in
             train_result=0  # git unavailable is not a scan failure
         fi
     fi
-    exit $(( scan_result > 0 || tk_result > 0 || arch_result > 0 || train_result > 0 ? 1 : 0 ))
+    # DESIGN drift check
+    design_result=0
+    design_check_script="$(dirname "${BASH_SOURCE[0]}")/design-check.sh"
+    if [[ -x "$design_check_script" ]]; then
+        bash "$design_check_script" || design_result=$?
+        if [[ $design_result -eq 2 ]]; then
+            design_result=0  # git unavailable is not a scan failure
+        fi
+    fi
+    exit $(( scan_result > 0 || tk_result > 0 || arch_result > 0 || train_result > 0 || design_result > 0 ? 1 : 0 ))
     ;;
   tk-sync)
     log_header

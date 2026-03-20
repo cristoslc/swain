@@ -1,6 +1,6 @@
 ---
 id: e0ds-bqpb
-status: in_progress
+status: closed
 deps: []
 links: []
 created: 2026-03-20T03:03:35Z
@@ -15,3 +15,9 @@ tags: [spec:SPEC-095]
 
 Add write-once Design Intent section to DESIGN template and definition.
 
+
+## Notes
+
+**2026-03-20T03:09:43Z**
+
+SPEC-095 complete: design-template, design-definition, SKILL.md updated with Design Intent section and write-once convention.

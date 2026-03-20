@@ -115,7 +115,7 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
 8. **ADR compliance check** — run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/adr-check.sh' -print -quit 2>/dev/null)" <artifact-path>`. Review any findings with the user before proceeding.
 8a. **Alignment check** — *(skip for fast-path tier)* run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
 8b. **Unanchored check** — after validating parent references, check if the new artifact has a path to a Vision via parent edges. If not, warn: `⚠ No Vision ancestry — this artifact will appear as Unanchored in swain chart`. Offer to attach to an existing Initiative or Epic. Do not block creation.
-9. **Post-operation scan** — *(skip for fast-path tier)* run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/specwatch.sh' -print -quit 2>/dev/null)" scan`. Fix any stale references before committing.
+9. **Post-operation scan** — *(skip for fast-path tier)* run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/specwatch.sh' -print -quit 2>/dev/null)" scan`. This now also runs `design-check.sh` as part of the scan pipeline. Fix any stale references or design drift findings before committing.
 10. **Index refresh step** — *(skip for fast-path tier; batch refresh at session end via `rebuild-index.sh`)* update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
 
 ## Superpowers integration
@@ -136,6 +136,43 @@ Read [references/superpowers-integration.md](references/superpowers-integration.
 ## Phase transitions
 
 Phases are waypoints, not mandatory gates — artifacts may skip forward. Read [references/phase-transitions.md](references/phase-transitions.md) for phase skipping rules, the transition workflow (validate → move → commit → hash stamp), verification/review gates, and completion rules.
+
+### DESIGN lifecycle hooks
+
+These hooks apply to DESIGN artifacts during phase transitions:
+
+**On DESIGN creation:**
+- Validate all `sourcecode-refs` paths exist at HEAD (if any are populated). Warn on broken paths before completing creation.
+
+**On Proposed → Active transition:**
+- Run `design-check.sh` on the DESIGN — all refs must be CURRENT.
+- If any are STALE or BROKEN, warn the operator before completing the transition. Do not silently proceed with stale refs.
+
+**On Active → Superseded transition:**
+- The new (superseding) DESIGN should inherit `sourcecode-refs` from the old DESIGN with fresh pins via `--repin`.
+
+### Decision protection hooks
+
+These hooks are agent-level behavioral guidance — they are not enforced by scripts but by the agent following this skill file.
+
+**SPEC Implementation transition:**
+When a SPEC transitions to Implementation and has a linked DESIGN (via either side's `linked-artifacts` or `artifact-refs`):
+- Surface the DESIGN's Design Intent section (Goals, Constraints, Non-goals) for alignment awareness. Present this to the operator so implementation stays within design boundaries.
+
+**SPEC completion:**
+When a SPEC completes and its implementation changed files tracked by a DESIGN's `sourcecode-refs`:
+- Cross-reference changed files (from the SPEC's commits) against active DESIGNs' `sourcecode-refs`.
+- If overlap is found: nudge the operator to update the DESIGN and re-pin via `design-check.sh --repin`.
+
+**Alignment cascading:**
+When an Epic has `artifact-refs` with `rel: [aligned]` pointing to a DESIGN:
+- When child SPECs are created or modified, check scope against the DESIGN's Constraints and Non-goals.
+- Traversal path: SPEC → parent EPIC → `artifact-refs` with `rel: [aligned]` → DESIGN → Design Intent.
+- Only surface violations — silent pass for aligned SPECs.
+
+**Design-to-code drift:**
+When a DESIGN's mutable sections are modified but `sourcecode-refs` blobs haven't changed:
+- Surface: "DESIGN-NNN evolved but tracked code hasn't caught up." Nudge the operator to reconcile.
 
 ## Trove integration
 
