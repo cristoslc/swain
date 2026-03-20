@@ -14,7 +14,7 @@ success-criteria:
   - Output is lightweight — 3-5 lines, flow-preserving, not a full dashboard dump
   - The operator can request the full dashboard if they want more detail
   - Postflight supports keeping the operator in flow — surfaces just enough context to decide the next move without breaking momentum
-  - Works across all swain skills that have a meaningful completion event (swain-do, swain-commission, swain-dispatch, swain-sync, etc.)
+  - Works across all swain skills that have a meaningful completion event (swain-do, swain-strategize, swain-dispatch, swain-sync, etc.)
   - Invocation mechanism determined by SPIKE-024
 depends-on-artifacts:
   - SPIKE-024
@@ -58,7 +58,7 @@ _To be created after SPIKE-024 resolves design questions._
 Anticipated specs:
 1. Postflight mode in swain-status — recap + recommendation output
 2. Invocation protocol — how skills pass context to postflight
-3. Integration into swain-do, swain-commission, swain-dispatch, swain-sync completion paths
+3. Integration into swain-do, swain-strategize, swain-dispatch, swain-sync completion paths
 
 ## Key Dependencies
 

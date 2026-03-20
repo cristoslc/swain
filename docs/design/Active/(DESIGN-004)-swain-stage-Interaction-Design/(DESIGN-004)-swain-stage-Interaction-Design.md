@@ -126,6 +126,26 @@ The primary use case is desktop (operators working alongside their terminal), bu
 
 ## Invocation
 
+```mermaid
+flowchart TD
+    invoke["Operator invokes /swain-stage skill"]
+    scan_trains["Scan docs/train/ for TRAIN artifacts"]
+    generate_sidebar["Generate Docsify sidebar config from frontmatter"]
+    run_train_check["Run train-check.sh to detect stale TRAINs"]
+    start_server["Start local Docsify server"]
+    check_headless{"Headless environment?"}
+    open_browser["Open browser to Docsify URL"]
+    print_url["Print URL to terminal"]
+
+    invoke --> scan_trains
+    scan_trains --> generate_sidebar
+    generate_sidebar --> run_train_check
+    run_train_check --> start_server
+    start_server --> check_headless
+    check_headless -->|"yes"| print_url
+    check_headless -->|"no"| open_browser
+```
+
 The `/swain-stage` skill:
 1. Scans `docs/train/` for TRAIN artifacts
 2. Generates the Docsify sidebar configuration from frontmatter

@@ -1,15 +1,15 @@
 ---
-title: "Rename swain-design to swain-commission"
+title: "Rename swain-design to swain-strategize"
 artifact: EPIC-019
 track: container
 status: Proposed
 author: cristos
 created: 2026-03-14
-last-updated: 2026-03-14
+last-updated: 2026-03-19
 parent-vision: VISION-001
 parent-initiative: INITIATIVE-007
 success-criteria:
-  - Skill directory renamed from skills/swain-design/ to skills/swain-commission/
+  - Skill directory renamed from skills/swain-design/ to skills/swain-strategize/
   - All internal references updated (AGENTS.md, swain meta-router, swain-search, swain-do, swain-help, swain-doctor, swain-init)
   - SKILL.md name, description, and trigger patterns reflect the new name
   - swain-doctor detects stale swain-design references in adopter projects and offers migration guidance
@@ -26,13 +26,13 @@ addresses: []
 trove: ""
 ---
 
-# Rename swain-design to swain-commission
+# Rename swain-design to swain-strategize
 
 ## Goal / Objective
 
-Rename the artifact lifecycle skill from `swain-design` to `swain-commission`. The current name no longer describes the skill's scope (it manages the full artifact lifecycle, not just "design"), and the `swain-design` name is needed for a planned frontend orchestrator skill.
+Rename the artifact lifecycle skill from `swain-design` to `swain-strategize`. The current name no longer describes the skill's scope (it manages the full artifact lifecycle, not just "design"), and the `swain-design` name is needed for a planned frontend orchestrator skill.
 
-"Commission" comes from nautical terminology — formally authoring a vessel's purpose and putting it into service — which fits swain's boatswain etymology. The skill's primary identity is **authoring** artifacts that capture operator intent (visions, epics, specs, spikes, ADRs, personas, runbooks, journeys).
+"Strategize" pairs naturally with "do" — the operator strategizes (defines what to build via artifacts) then does (executes via tasks). The skill's primary identity is **defining** artifacts that capture operator intent (visions, epics, specs, spikes, ADRs, personas, runbooks, journeys).
 
 ## Scope Boundaries
 
@@ -40,7 +40,7 @@ Rename the artifact lifecycle skill from `swain-design` to `swain-commission`. T
 - Rename skill directory and all internal metadata
 - Update all cross-references in other swain skills
 - Update AGENTS.md governance rules and skill routing table
-- Update swain meta-router to route `swain-commission` instead of `swain-design`
+- Update swain meta-router to route `swain-strategize` instead of `swain-design`
 - swain-doctor detection: warn when stale `swain-design` references exist in adopter projects
 - swain-update migration: clean removal of old skill directory, install of new one
 - Release notes with migration path documentation
@@ -74,3 +74,4 @@ Anticipated specs:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-14 | — | Decision from naming brainstorm session |
+| Proposed | 2026-03-19 | — | Rename target changed: swain-commission → swain-strategize (pairs with swain-do) |

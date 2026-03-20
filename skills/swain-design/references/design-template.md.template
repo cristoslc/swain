@@ -26,7 +26,19 @@ depends-on-artifacts:
 
 ## User Flow
 
-{{ user_flow | default("The happy-path sequence: what the user does step-by-step. Use numbered steps or a flow diagram.") }}
+{{ user_flow | default("The happy-path sequence: what the user does step-by-step. Use numbered steps and a mermaid flowchart.") }}
+
+<!-- REQUIRED: Flowchart showing the decision spine — user choices and the paths they create.
+     Error/failure handling belongs in "Edge Cases and Error States" below, not here.
+     Rules: snake_case node IDs, quoted labels, optimize for scannability over completeness. -->
+```mermaid
+flowchart TD
+    invoke["User invokes"] --> choose_mode{"Which mode?"}
+    choose_mode -->|"mode A"| do_a["Key action A"]
+    choose_mode -->|"mode B"| do_b["Key action B"]
+    do_a --> done["Session starts"]
+    do_b --> done
+```
 
 ## Screen States
 

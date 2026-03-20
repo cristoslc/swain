@@ -101,7 +101,7 @@ swain-design is just a prompt enhancer — it prepends impeccable.style context 
 Evaluate how the skill connects to swain's artifact system:
 - How should the skill read JOURNEY artifacts to understand where a screen fits in a user flow?
 - Should designing a screen automatically create or update a DESIGN artifact capturing the rationale?
-- What's the right handoff between swain-commission (which creates JOURNEY and DESIGN artifacts) and swain-design (which consumes and extends them)?
+- What's the right handoff between swain-strategize (which creates JOURNEY and DESIGN artifacts) and swain-design (which consumes and extends them)?
 - Can DESIGN artifacts serve as a component inventory — tracking what's been designed, what patterns exist, what's reusable?
 
 ### 7. Graceful degradation

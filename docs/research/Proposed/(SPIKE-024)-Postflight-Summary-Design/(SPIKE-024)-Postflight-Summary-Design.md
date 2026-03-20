@@ -103,7 +103,7 @@ Which swain skills have meaningful completion events that should trigger postfli
 
 Audit each skill:
 - **swain-do**: task completion (tk close), implementation pass complete
-- **swain-commission**: artifact created, artifact transitioned
+- **swain-strategize**: artifact created, artifact transitioned
 - **swain-dispatch**: dispatch sent, dispatch completed (async — how to handle?)
 - **swain-sync**: push complete
 - **swain-search**: evidence pool collected

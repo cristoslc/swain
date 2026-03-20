@@ -18,6 +18,8 @@ linked-artifacts:
   - SPIKE-032
   - SPIKE-034
   - DESIGN-002
+  - DESIGN-005
+  - ADR-008
 depends-on-artifacts:
   - SPIKE-034
 addresses: []

@@ -23,6 +23,19 @@ The terminal UX for `scripts/swain-box` from invocation to sandbox launch. Cover
 
 ## User Flow
 
+```mermaid
+flowchart TD
+    invoke["swain-box invoked"] --> select_runtime{"--runtime flag?"}
+    select_runtime -->|"yes"| use_flag["Use specified runtime"]
+    select_runtime -->|"no"| detect["Detect runtimes"]
+    detect --> how_many{"How many found?"}
+    how_many -->|"one"| auto_select["Auto-select"]
+    how_many -->|"multiple"| show_menu["Show menu"]
+    use_flag --> launch["Launch sandbox"]
+    auto_select --> launch
+    show_menu --> launch
+```
+
 ### Happy path: single runtime
 
 ```

@@ -1,0 +1,267 @@
+---
+title: "swain-box Launcher UX"
+artifact: DESIGN-005
+track: standing
+status: Active
+author: cristos
+created: 2026-03-19
+last-updated: 2026-03-19
+superseded-by: ""
+linked-artifacts:
+  - SPEC-092
+  - DESIGN-002
+  - SPIKE-032
+  - SPIKE-034
+  - ADR-008
+depends-on-artifacts: []
+---
+
+# swain-box Launcher UX
+
+## Interaction Surface
+
+The terminal UX for `./swain-box` from invocation to agent session. Covers: runtime selection, isolation mode selection with known-issues annotations, first-run auth setup (subscription login vs API key), container reconnect, per-runtime prompt injection, and cleanup. This is a CLI-only surface — no GUI, no TUI library.
+
+## User Flow
+
+```mermaid
+flowchart TD
+    invoke["./swain-box invoked"] --> pick_runtime{"Pick runtime"}
+    pick_runtime -->|"flag / auto / menu"| pick_isolation{"Pick isolation"}
+    pick_runtime -->|"'s'"| sandbox_mgmt["Manage sandboxes"]
+    pick_isolation -->|"microVM"| start_microvm["docker sandbox run"]
+    pick_isolation -->|"container"| check_existing{"Existing container?"}
+    check_existing -->|"yes"| reconnect["Reconnect"]
+    check_existing -->|"no"| needs_login{"Pre-TUI login needed?"}
+    needs_login -->|"yes (codex, kiro)"| auth_then_create["Auth → create container"]
+    needs_login -->|"no"| create["Create container"]
+    start_microvm --> session["Agent session"]
+    reconnect --> session
+    auth_then_create --> session
+    create --> session
+```
+
+### Happy path: first run (subscription auth)
+
+```
+$ ./swain-box
+swain-box: Select a runtime:
+  1) claude
+  2) copilot
+  3) codex
+  4) gemini
+  5) kiro
+  6) opencode
+
+  s) Manage sandboxes
+Choice [1]: 1
+swain-box: using claude.
+
+swain-box: Select isolation for claude:
+  1) Docker Sandboxes (microVM) — WARNING: OAuth/Max broken — requires ANTHROPIC_API_KEY
+  2) Docker Container — OAuth/Max works via /login
+Choice [2]: 2
+swain-box: claude in container mode
+
+swain-box: creating container claude-swain
+[Claude Code interactive session begins — handles its own /login in-TUI]
+```
+
+### Happy path: subsequent run (reconnect)
+
+```
+$ ./swain-box
+swain-box: Multiple agent runtimes available. Select one:
+  1) claude
+  ...
+Choice [1]: 1
+swain-box: using claude.
+
+swain-box: Select isolation for claude:
+  1) Docker Sandboxes (microVM) — WARNING: OAuth/Max broken — requires ANTHROPIC_API_KEY
+  2) Docker Container — OAuth/Max works via /login
+Choice [2]: 2
+
+swain-box: connecting to claude-swain
+[Claude Code interactive session begins — credentials persist from first run]
+```
+
+### Happy path: pre-TUI login required (codex, kiro)
+
+Runtimes that cannot login inside their TUI get a pre-launch auth menu:
+
+```
+$ ./swain-box --runtime=codex --isolation=container
+swain-box: codex in container mode
+swain-box: creating container codex-swain
+
+swain-box: codex requires login before starting.
+  1) Subscription (login inside container)
+  2) API key (OPENAI_API_KEY)
+Choice [1]: 1
+
+swain-box: Opening a shell for login. Run:
+  codex login
+When done, type 'exit' to continue.
+
+agent@codex-swain:~$ codex login
+✓ Logged in
+agent@codex-swain:~$ exit
+
+swain-box: Login complete. Starting session...
+[codex TUI starts]
+```
+
+### Happy path: microVM (no known issues)
+
+```
+swain-box: Select isolation for codex:
+  1) Docker Sandboxes (microVM) — recommended, strongest isolation
+  2) Docker Container
+Choice [1]: 1
+swain-box: codex in microvm mode
+[docker sandbox run codex starts directly — Docker Sandboxes handles auth via MITM proxy]
+```
+
+### Auth flow by runtime
+
+| Runtime | In-TUI login? | Pre-TUI login needed? | Login command | Env var fallback |
+|---------|---------------|----------------------|---------------|------------------|
+| claude | Yes (`/login`) | No | — | `ANTHROPIC_API_KEY` |
+| copilot | Yes (`/login`) | No | — | `GH_TOKEN` |
+| gemini | Yes (on first run) | No | — | `GOOGLE_API_KEY` |
+| opencode | Yes (`/connect`) | No | — | Various |
+| codex | No | **Yes** | `codex login` | `OPENAI_API_KEY` |
+| kiro | No | **Yes** | `kiro-cli login` | None |
+
+### Happy path: single runtime
+
+```
+$ ./swain-box
+swain-box: using claude.
+[Skips runtime menu, proceeds to isolation menu]
+```
+
+### Explicit flags (skip menus)
+
+```
+$ ./swain-box --runtime=claude --isolation=container
+swain-box: claude in container mode
+swain-box: connecting to claude-swain
+```
+
+### Sandbox management
+
+Typing `s` at the main menu enters the management screen. "Sandboxes" covers both Docker Sandboxes (microVM) and Docker Containers — they're the same concept to the user.
+
+```
+$ ./swain-box
+swain-box: Select a runtime:
+  1) claude
+  ...
+
+  s) Manage sandboxes
+Choice [1]: s
+
+swain-box: Active sandboxes:
+  1) claude-swain      container  running   /Users/cristos/Documents/code/swain
+  2) codex-myproject   microvm    stopped   /Users/cristos/Documents/code/myproject
+
+  Actions: [r]estart  [s]top  [d]elete  [b]ack
+Select sandbox [1]: 1
+
+  claude-swain (container, running)
+  Action: [r]estart  [s]top  [d]elete  [b]ack
+Action: d
+  Delete claude-swain? This removes all data inside the sandbox. [y/N]: y
+  deleting claude-swain... claude-swain
+  done.
+
+[management screen refreshes with updated list]
+```
+
+**Management screen behavior:**
+
+- Lists all sandboxes from both `docker sandbox ls` and `docker ps -a --filter label=com.docker.sandboxes`
+  plus containers created by swain-box (named `<runtime>-<workdir>`)
+- Shows: name, isolation type (container/microvm), status (running/stopped/exited), workspace path
+- Actions show progress feedback: `stopping claude-swain...`, `deleting claude-swain...` with `done.` / `failed.` suffix
+- Docker output is piped through (not suppressed) so the operator sees what's happening
+- Actions:
+  - **restart** — `docker start` (container) or `docker sandbox run` (microVM). Shows progress.
+  - **stop** — `docker stop` (container) or `docker sandbox stop` (microVM). Shows progress.
+  - **delete** — confirmation prompt first (`Delete <name>? This removes all data inside the sandbox. [y/N]:`), then `docker rm -f` (container) or `docker sandbox rm` (microVM). Shows Docker output.
+  - **back** — return to main menu
+- After an action completes, the management screen refreshes (re-lists sandboxes)
+- If no sandboxes exist: "No active sandboxes." then return to main menu
+
+### Cleanup (CLI shortcut)
+
+```
+$ ./swain-box --cleanup claude-swain
+swain-box: removed container claude-swain
+swain-box: removed sandbox claude-swain
+```
+
+The `--cleanup` flag is a non-interactive shortcut for the delete action. The management screen is for interactive use.
+
+## Screen States
+
+| State | Description | Output target |
+|-------|-------------|---------------|
+| Runtime detection | Parsing `docker sandbox create --help` (instant) | none |
+| Single runtime | Auto-selected, prints runtime name | stderr |
+| Multi-runtime menu | Numbered list + prompt | stdout |
+| Isolation menu | Two options with annotations + prompt | stdout |
+| Auth menu (first run, container only) | Subscription vs API key | stdout |
+| Login shell | Interactive bash inside container | stdout/stdin |
+| API key prompt | Single-line input | stdout |
+| Creating container | `docker run -d ... sleep infinity` | stderr |
+| Reconnecting | `docker start` + `docker exec` | stderr |
+| Agent session | `docker exec -it ... <runtime> <args>` | replaces process |
+| Management list | Sandbox table with names, types, statuses | stdout |
+| Management action | Restart/stop/delete confirmation and result | stderr |
+| Cleanup | `docker rm` / `docker sandbox rm` | stderr |
+
+## Edge Cases and Error States
+
+| Scenario | Behavior |
+|----------|----------|
+| No Docker installed | Exit 1: "'docker' not found on PATH." |
+| Docker Desktop < 4.58 | Exit 1: "'docker sandbox' subcommand is not available." |
+| No runtimes detected | Exit 1: "No supported agent runtimes found." |
+| Invalid runtime menu selection (2 attempts) | Exit 1 |
+| Invalid isolation menu selection (2 attempts) | Exit 1 |
+| `--runtime=unknown` | Exit 1: "Runtime 'unknown' is not available." |
+| `--isolation=invalid` | Exit 1: "Invalid --isolation mode." |
+| Non-interactive (stdin not TTY) | Auto-select defaults for both menus with warnings to stderr. Auth menu skipped with advisory note. |
+| Container exists but stopped | `docker start` then `docker exec` |
+| Container exists and running | `docker exec` directly |
+| Docker daemon not running | Docker's own error message propagates |
+| Login shell: user exits without logging in | Agent session starts anyway — runtime will prompt for auth or fail with a clear message |
+
+## Design Decisions
+
+**Subscription auth is the default choice (ADR-008).** The auth menu defaults to option 1 (subscription/login). Subscriptions are flat-rate and don't require separate billing accounts. API key is the fallback for non-interactive environments or operators who prefer per-token billing.
+
+**Auth menu only for runtimes that need pre-TUI login.** Research shows Claude, Copilot, Gemini, and OpenCode handle authentication inside their own TUI — no swain-box intervention needed. Only Codex and Kiro require login at a bare shell before the TUI starts. The auth menu is gated on `_needs_pre_login()` to avoid unnecessary prompts.
+
+**Auth menu only on first run, container mode, pre-TUI runtimes only.** The auth menu appears only when: (a) it's a new container (first run), (b) in container isolation mode, and (c) the runtime requires pre-TUI login (codex, kiro). Runtimes that handle auth in-TUI (claude, copilot, gemini, opencode) skip the auth menu entirely. After first run, credentials persist in the container — no auth menu on reconnect.
+
+**Per-runtime login commands.** Codex uses `codex login`, Kiro uses `kiro-cli login`. These are shown in the pre-login shell prompt. Unknown runtimes get a generic `<runtime> login` guess.
+
+**Isolation default shifts based on known issues.** When a runtime has known issues with microVM (e.g., Claude + OAuth), the default shifts to option 2 (container). When no issues exist, default is option 1 (microVM) with "recommended, strongest isolation" annotation.
+
+**Container uses `sleep infinity` CMD.** The container stays alive indefinitely; agent sessions are launched via `docker exec`. This means exiting Claude doesn't kill the container, credentials persist, and multiple sessions can attach concurrently.
+
+**`/swain-session` as default initial prompt for Claude.** Triggers the full session startup chain (preflight, tab naming, bookmark restore). Other runtimes get a stderr reminder since their prompt mechanisms are unknown.
+
+## Assets
+
+None. This design is fully expressible in prose and ASCII flows.
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| Active | 2026-03-19 | — | Defines swain-box two-step launcher UX for SPEC-092 |

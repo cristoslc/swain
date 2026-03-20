@@ -43,7 +43,7 @@ And connects them to swain's artifact system:
 
 The operator invokes `swain-design` for any product design work — from "design the onboarding flow" (UX/journey-level) to "build this settings page" (component-level) — and the skill brings the right combination of thinking and tooling to bear.
 
-This skill name becomes available after EPIC-019 renames the current `swain-design` to `swain-commission`.
+This skill name becomes available after EPIC-019 renames the current `swain-design` to `swain-strategize`.
 
 ## Scope Boundaries
 
@@ -52,7 +52,7 @@ This skill name becomes available after EPIC-019 renames the current `swain-desi
 - Integration with Anthropic's frontend design plugin
 - Integration with superpowers' `frontend-design` skill
 - Integration with impeccable.style design tokens and style system
-- Integration with DESIGN and JOURNEY artifact types from swain-commission
+- Integration with DESIGN and JOURNEY artifact types from swain-strategize
 - UX-aware design: the skill considers user flows, not just individual screens
 - Routing logic: which system handles which type of request (UX flow vs. component vs. styling)
 - Style enforcement: impeccable.style decisions applied consistently across all outputs
@@ -62,7 +62,7 @@ This skill name becomes available after EPIC-019 renames the current `swain-desi
 - Modifying the underlying systems (Anthropic plugin, superpowers skill, impeccable.style itself)
 - Backend code generation
 - Design system creation (impeccable.style is the design system; this skill consumes it)
-- User research or persona creation (that's swain-commission's domain)
+- User research or persona creation (that's swain-strategize's domain)
 
 ## Child Specs
 
@@ -71,7 +71,7 @@ _To be created after SPIKE-023 resolves the integration strategy._
 ## Key Dependencies
 
 - **SPIKE-023** — must determine how the three systems integrate before implementation
-- **EPIC-019** — must complete the `swain-design` → `swain-commission` rename to free the skill name
+- **EPIC-019** — must complete the `swain-design` → `swain-strategize` rename to free the skill name
 
 ## Lifecycle
 
