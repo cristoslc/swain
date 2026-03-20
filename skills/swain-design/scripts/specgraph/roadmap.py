@@ -87,6 +87,9 @@ def collect_roadmap_items(
     """Collect Initiatives and Epics with scores and grouping."""
     items: list[dict] = []
 
+    # Track direct-child specs/spikes of initiatives for second pass
+    initiative_direct_children: list[tuple[str, str]] = []  # (child_id, parent_init_id)
+
     for aid, node in nodes.items():
         atype = node.get("type", "").upper()
         if atype not in _CONTAINER_TYPES:
@@ -127,10 +130,11 @@ def collect_roadmap_items(
                     complete += c
                     total += t
                 elif child_type in ("SPEC", "SPIKE"):
-                    # Direct children of an Initiative count as 1 item each
                     total += 1
                     if _node_is_resolved(child_id, nodes):
                         complete += 1
+                    else:
+                        initiative_direct_children.append((child_id, aid))
         else:
             continue
 
@@ -157,6 +161,41 @@ def collect_roadmap_items(
             "vision_id": vision,
             "status": node.get("status", ""),
             "sort_order": node.get("sort_order", 0),
+        })
+
+    # Second pass: emit unresolved direct-child SPECs/Spikes as items
+    # grouped under their parent Initiative (SPEC-115)
+    for child_id, parent_init_id in initiative_direct_children:
+        child_node = nodes.get(child_id, {})
+        vision = _find_vision_ancestor(child_id, nodes, edges)
+        if focus_vision and vision != focus_vision:
+            continue
+        weight = resolve_vision_weight(child_id, nodes, edges)
+        unblocks = _compute_unblock_count(child_id, nodes, edges)
+        score = unblocks * weight
+        init_node = nodes.get(parent_init_id, {})
+
+        depends_on = []
+        for e in edges:
+            if e.get("from") == child_id and e.get("type") == "depends-on":
+                target = e.get("to", "")
+                if target and not _node_is_resolved(target, nodes):
+                    depends_on.append(target)
+
+        items.append({
+            "id": child_id,
+            "title": child_node.get("title", child_id),
+            "type": child_node.get("type", "").upper(),
+            "score": score,
+            "weight": weight,
+            "children_total": 0,
+            "children_complete": 0,
+            "depends_on": sorted(depends_on),
+            "group": parent_init_id,
+            "group_title": init_node.get("title", parent_init_id),
+            "vision_id": vision,
+            "status": child_node.get("status", ""),
+            "sort_order": child_node.get("sort_order", 0),
         })
 
     items.sort(key=lambda x: (-x["score"], -x.get("sort_order", 0), x["id"]))
@@ -259,7 +298,7 @@ def _classify_eisenhower(item: dict) -> str:
 def classify_epics_eisenhower(items: list[dict]) -> dict[str, list[dict]]:
     quadrants: dict[str, list[dict]] = {q: [] for q in QUADRANT_ORDER}
     for item in items:
-        if item["type"] != "EPIC":
+        if item["type"] == "INITIATIVE":
             continue
         quadrants[item["quadrant"]].append(item)
     return quadrants
@@ -312,7 +351,8 @@ def _short_id(artifact_id: str) -> str:
     """Convert EPIC-031 to E31 or INITIATIVE-005 to I5 for compact chart labels."""
     prefix = artifact_id.split("-", 1)[0].upper() if "-" in artifact_id else ""
     num = artifact_id.split("-", 1)[1] if "-" in artifact_id else artifact_id
-    letter = "I" if prefix == "INITIATIVE" else "E"
+    _PREFIX_LETTERS = {"INITIATIVE": "I", "EPIC": "E", "SPEC": "S", "SPIKE": "SK"}
+    letter = _PREFIX_LETTERS.get(prefix, prefix[0] if prefix else "?")
     return f"{letter}{num.lstrip('0') or '0'}"
 
 
@@ -398,13 +438,13 @@ def render_gantt(items: list[dict], nodes: dict) -> str:
     left = do now, right = do later.
     """
     q_order = {q: idx for idx, q in enumerate(QUADRANT_ORDER)}
-    epics = sorted(
-        [i for i in items if i["type"] == "EPIC"],
+    leaf_items = sorted(
+        [i for i in items if i["type"] != "INITIATIVE"],
         key=lambda i: (q_order.get(i["quadrant"], 9), -i["score"], i["id"]),
     )
 
-    if not epics:
-        return "gantt\n    title Roadmap\n    %% No active Epics"
+    if not leaf_items:
+        return "gantt\n    title Roadmap\n    %% No active items"
 
     # Assign staggered start dates based on priority rank
     # Group into tiers: same score+weight = same start
@@ -413,7 +453,7 @@ def render_gantt(items: list[dict], nodes: dict) -> str:
 
     current_day = 1
     prev_key = None
-    for idx, item in enumerate(epics):
+    for idx, item in enumerate(leaf_items):
         tier_key = (item["score"], item["weight"])
         if prev_key is not None and tier_key != prev_key:
             current_day += 14  # 2-week stagger between tiers

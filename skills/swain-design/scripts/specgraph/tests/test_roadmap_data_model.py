@@ -190,7 +190,7 @@ def test_short_id_format():
     items = collect_roadmap_items(nodes, edges)
     for item in items:
         sid = item["short_id"]
-        assert sid.startswith("E") or sid.startswith("I"), f"Unexpected short_id prefix: {sid}"
+        assert sid[0] in ("E", "I", "S"), f"Unexpected short_id prefix: {sid}"
 
 
 def test_display_score_formula():
@@ -220,6 +220,24 @@ def test_initiative_counts_direct_child_specs():
     # EPIC-001 has 2 SPECs (1 complete), EPIC-002 has 0 SPECs, direct SPEC = 1 complete
     assert init_item["children_total"] == 3  # 2 from EPIC-001 + 1 direct
     assert init_item["children_complete"] == 2  # SPEC-001 + SPEC-DIRECT
+
+
+def test_initiative_direct_child_spec_appears_as_item():
+    """An active direct-child SPEC of an Initiative appears as a roadmap item."""
+    nodes, edges = _make_graph()
+    nodes["SPEC-DIRECT"] = {
+        "type": "Spec",
+        "title": "Direct Initiative Spec",
+        "status": "Active",
+    }
+    edges.append({"from": "SPEC-DIRECT", "to": "INITIATIVE-001", "type": "parent-initiative"})
+
+    items = collect_roadmap_items(nodes, edges)
+    item_ids = {i["id"] for i in items}
+    assert "SPEC-DIRECT" in item_ids, "Direct-child SPEC should appear as a roadmap item"
+    spec_item = next(i for i in items if i["id"] == "SPEC-DIRECT")
+    assert spec_item["group"] == "INITIATIVE-001"
+    assert spec_item["type"] == "SPEC"
 
 
 def test_initiative_counts_active_direct_child_spec():

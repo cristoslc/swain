@@ -11,7 +11,17 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
+| [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [swain-box: Unified Sandbox Launcher](docs/spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) | 0/0 | 5 | **needs decomposition** |
+|  | [Worktree-Enforced Sandbox Isolation](docs/spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) | 0/0 | 4 | **needs decomposition** |
+|  | [Sandbox Templates In Regular Docker Containers](docs/research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Container-Compatible Auth Flows Per Runtime](docs/research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) | 0/0 | 1 | **needs decomposition** |
 | [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 0/9 | 0 | — |
+| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Vision-Rooted Chart Hierarchy](docs/spec/Active/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Project Identity Enforcement](docs/spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Trove Analysis Layer](docs/spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Eliminate swain-sync context disruption](docs/spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Trunk + Release Branch Model With Merge-and-Retry Landing](docs/spec/Active/(SPEC-114)-Trunk-Release-Branch-Model/SPEC-114.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Roadmap Initiative children use level-based filtering, not type-based](docs/spec/Active/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) | 0/0 | 0 | **needs decomposition** |
 | [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [User Documentation System](docs/epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | 0/1 | 0 | — |
 | [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](docs/epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
 
@@ -22,6 +32,7 @@
 |-----------|------|----------|----------|-------|
 | [Automated Work Intake](docs/initiative/Active/(INITIATIVE-008)-Automated-Work-Intake/(INITIATIVE-008)-Automated-Work-Intake.md) | [GitHub Issue Polling with Deterministic Pre-Filtering](docs/epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) | 0/0 | 0 | **activate or drop** |
 | [Unified Project State Graph](docs/initiative/Proposed/(INITIATIVE-009)-Unified-Project-State-Graph/(INITIATIVE-009)-Unified-Project-State-Graph.md) | [Auto-Detecting Trunk Branch](docs/epic/Proposed/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) | 0/0 | 0 | **activate or drop** |
+| [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Stage Status Hook Fails in Worktrees](docs/spec/Complete/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees.md) | 0/0 | 0 | **activate or drop** |
 | [Cross-Surface Portability](docs/initiative/Active/(INITIATIVE-014)-Cross-Surface-Portability/(INITIATIVE-014)-Cross-Surface-Portability.md) | [Swain MCP Server](docs/epic/Proposed/(EPIC-033)-Swain-MCP-Server/(EPIC-033)-Swain-MCP-Server.md) | 0/9 | 0 | **activate or drop** |
 
 ### In Progress
@@ -33,6 +44,11 @@
 |  | [Security Gates in swain-do Execution Flow](docs/epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) | 0/4 | 0 | — |
 | [Product Design](docs/initiative/Proposed/(INITIATIVE-007)-Product-Design/(INITIATIVE-007)-Product-Design.md) | [Rename swain-design to swain-strategize](docs/epic/Proposed/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize.md) | 0/0 | 1 | **activate or drop** |
 | [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Worktree-Aware Session Bookmarks](docs/epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md) | 0/0 | 1 | **activate or drop** |
+| [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [CLI Command Verification in Agent Execution](docs/spec/Proposed/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution.md) | 0/0 | 1 | **activate or drop** |
+|  | [Documentation Viewer](docs/spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Implementation Reliability](docs/initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) | [CLI Command Verification in Agent Execution](docs/spec/Proposed/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution.md) | 0/0 | 1 | **activate or drop** |
+|  | [External CLI Assumption Verification](docs/research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) | 0/0 | 1 | **needs decomposition** |
+| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [tk close Must Release Claim Lock](docs/spec/Active/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) | 0/0 | 0 | **needs decomposition** |
 | [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](docs/epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/4 | 0 | — |
 
 ### Backlog
@@ -49,7 +65,9 @@
 |  | [Status Integration](docs/epic/Proposed/(EPIC-028)-Status-Integration/(EPIC-028)-Status-Integration.md) | 0/0 | 0 | **activate or drop** |
 | [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Multi-Agent Workdir Safety](docs/epic/Proposed/(EPIC-020)-Multi-Agent-Workdir-Safety/(EPIC-020)-Multi-Agent-Workdir-Safety.md) | 0/0 | 0 | **activate or drop** |
 |  | [Sandbox Capability Bridges](docs/epic/Proposed/(EPIC-036)-Sandbox-Capability-Bridges/(EPIC-036)-Sandbox-Capability-Bridges.md) | 0/4 | 0 | **activate or drop** |
+|  | [Container-Compatible Runtime Auth Commands](docs/spec/Proposed/(SPEC-099)-Container-Compatible-Runtime-Auth/(SPEC-093)-Container-Compatible-Runtime-Auth.md) | 0/0 | 0 | **activate or drop** |
 | [Cross-Surface Portability](docs/initiative/Active/(INITIATIVE-014)-Cross-Surface-Portability/(INITIATIVE-014)-Cross-Surface-Portability.md) | [Cross-Runtime Documentation](docs/epic/Proposed/(EPIC-032)-Cross-Runtime-Documentation/(EPIC-032)-Cross-Runtime-Documentation.md) | 0/0 | 0 | **activate or drop** |
+| [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [Container-Compatible Runtime Auth Commands](docs/spec/Proposed/(SPEC-099)-Container-Compatible-Runtime-Auth/(SPEC-093)-Container-Compatible-Runtime-Auth.md) | 0/0 | 0 | **activate or drop** |
 
 ## Timeline
 
@@ -60,30 +78,48 @@ gantt
     axisFormat %b %d
     tickInterval 1week
     section Do First
-    Skill Audit Remediation (0/9) :active, t0, 2026-01-01, 14d
-    User Documentation System (0/1) :active, t1, 2026-01-01, 14d
-    PR-Only Agent Guardrails (0/0) :crit, t2, 2026-01-01, 14d
+    swain-box#colon; Unified Sandbox Lau (0/0) :crit, t0, after t2, 14d
+    Worktree-Enforced Sandbox Isol (0/0) :crit, t1, 2026-01-15, 14d
+    Sandbox Templates In Regular D (0/0) :crit, t2, 2026-01-29, 14d
+    Container-Compatible Auth Flow (0/0) :crit, t3, 2026-01-29, 14d
+    Skill Audit Remediation (0/9) :active, t4, 2026-01-43, 14d
+    User Documentation System (0/1) :active, t5, 2026-01-43, 14d
+    PR-Only Agent Guardrails (0/0) :crit, t6, 2026-01-43, 14d
+    Vision-Rooted Chart Hierarchy (0/0) :crit, t7, 2026-01-43, 14d
+    Project Identity Enforcement (0/0) :crit, t8, 2026-01-43, 14d
+    Trove Analysis Layer (0/0) :crit, t9, 2026-01-43, 14d
+    Eliminate swain-sync context d (0/0) :crit, t10, 2026-01-43, 14d
+    Trunk + Release Branch Model W (0/0) :crit, t11, 2026-01-43, 14d
+    Roadmap Initiative children us (0/0) :crit, t12, 2026-01-43, 14d
     section Schedule
-    GitHub Issue Polling with Dete (0/0) :crit, t3, 2026-01-01, 14d
-    Auto-Detecting Trunk Branch (0/0) :crit, t4, 2026-01-01, 14d
-    Swain MCP Server (0/9) :crit, t5, 2026-01-01, 14d
+    GitHub Issue Polling with Dete (0/0) :crit, t13, 2026-01-43, 14d
+    Auto-Detecting Trunk Branch (0/0) :crit, t14, 2026-01-43, 14d
+    Swain MCP Server (0/9) :crit, t15, 2026-01-43, 14d
+    Stage Status Hook Fails in Wor (0/0) :crit, t16, 2026-01-43, 14d
     section In Progress
-    Worktree-Aware Session Bookmar (0/0) :crit, t6, 2026-01-15, 14d
-    Security Vulnerability Scannin (0/4) :active, t7, 2026-01-15, 14d
-    Rename swain-design to swain-s (0/0) :crit, t8, 2026-01-15, 14d
-    Security Gates in swain-do Exe (0/4) :active, t9, after t7, 14d
-    Design Staleness and Drift Det (0/4) :active, t10, 2026-01-29, 14d
+    Worktree-Aware Session Bookmar (0/0) :crit, t17, 2026-01-57, 14d
+    Security Vulnerability Scannin (0/4) :active, t18, 2026-01-57, 14d
+    Rename swain-design to swain-s (0/0) :crit, t19, 2026-01-57, 14d
+    CLI Command Verification in Ag (0/0) :crit, t21, after t22, 14d
+    CLI Command Verification in Ag (0/0) :crit, t21, after t22, 14d
+    External CLI Assumption Verifi (0/0) :crit, t22, 2026-01-57, 14d
+    Security Gates in swain-do Exe (0/4) :active, t23, after t18, 14d
+    Design Staleness and Drift Det (0/4) :active, t24, 2026-01-71, 14d
+    tk close Must Release Claim Lo (0/0) :crit, t25, 2026-01-71, 14d
+    Documentation Viewer (0/0) :crit, t26, 2026-01-71, 14d
     section Backlog
-    Work Scope Progress Visualizat (0/0) :crit, t11, 2026-01-29, 14d
-    Multi-Agent Workdir Safety (0/0) :crit, t12, 2026-01-29, 14d
-    Product Design Orchestrator (0/0) :crit, t13, after t8, 14d
-    Postflight Summaries (0/0) :crit, t14, 2026-01-29, 14d
-    Event Bus (0/0) :crit, t15, 2026-01-29, 14d
-    Query Layer (0/0) :crit, t16, 2026-01-29, 14d
-    Orchestrator Integration (0/0) :crit, t17, 2026-01-29, 14d
-    Status Integration (0/0) :crit, t18, 2026-01-29, 14d
-    Cross-Runtime Documentation (0/0) :crit, t19, 2026-01-29, 14d
-    Sandbox Capability Bridges (0/4) :crit, t20, after t6, 14d
+    Work Scope Progress Visualizat (0/0) :crit, t27, 2026-01-71, 14d
+    Multi-Agent Workdir Safety (0/0) :crit, t28, 2026-01-71, 14d
+    Product Design Orchestrator (0/0) :crit, t29, after t19, 14d
+    Postflight Summaries (0/0) :crit, t30, 2026-01-71, 14d
+    Event Bus (0/0) :crit, t31, 2026-01-71, 14d
+    Query Layer (0/0) :crit, t32, 2026-01-71, 14d
+    Orchestrator Integration (0/0) :crit, t33, 2026-01-71, 14d
+    Status Integration (0/0) :crit, t34, 2026-01-71, 14d
+    Cross-Runtime Documentation (0/0) :crit, t35, 2026-01-71, 14d
+    Sandbox Capability Bridges (0/4) :crit, t36, after t17, 14d
+    Container-Compatible Runtime A (0/0) :crit, t38, after t21 t3, 14d
+    Container-Compatible Runtime A (0/0) :crit, t38, after t21 t3, 14d
 ```
 
 ## Blocking Dependencies
