@@ -20,7 +20,7 @@ Run checks in the order listed below. Collect all findings into a summary table 
 
 ## Preflight integration
 
-A lightweight shell script (`skills/swain-doctor/scripts/swain-preflight.sh`) performs quick checks before invoking the full doctor. If preflight exits 0, swain-doctor is skipped for the session. If it exits 1, swain-doctor runs normally.
+A lightweight shell script (`swain-preflight.sh`, located via `find "$REPO_ROOT" -path '*/swain-doctor/scripts/swain-preflight.sh'`) performs quick checks before invoking the full doctor. If preflight exits 0, swain-doctor is skipped for the session. If it exits 1, swain-doctor runs normally.
 
 The preflight checks are a subset of this skill's checks — governance files, .agents directory, .tickets health, script permissions. It runs as pure bash with zero agent tokens. See AGENTS.md § Session startup for the invocation flow.
 
@@ -291,7 +291,8 @@ Run the scan helper to list all epics without `parent-initiative`, grouped by `p
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-doctor/scripts/swain-initiative-scan.sh"
+SCAN_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-doctor/scripts/swain-initiative-scan.sh' -print -quit 2>/dev/null)"
+[ -n "$SCAN_SCRIPT" ] && bash "$SCAN_SCRIPT" || echo "swain-initiative-scan.sh not found"
 ```
 
 Analyze the output and propose initiative clusters. For example:

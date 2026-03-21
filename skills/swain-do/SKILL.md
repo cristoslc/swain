@@ -172,7 +172,7 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 2. After entering, re-run tab naming to reflect the new branch:
    ```bash
    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-   bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" --path "$(pwd)" --auto
+   bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --auto
    ```
 
 3. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin implementation work.

@@ -32,7 +32,7 @@ Check if `$TMUX` is set. If yes, run the tab-naming script:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" --auto
+bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --auto
 ```
 
 Use the project root to locate the script. The script reads `swain.settings.json` for the tab name format (default: `{project} @ {branch}`).
@@ -47,7 +47,7 @@ When an agent enters a worktree or switches branches, the tmux pane's tracked CW
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" --path "$NEW_WORKDIR" --auto
+bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --path "$NEW_WORKDIR" --auto
 ```
 
 This is agent-agnostic — it works in Claude Code, opencode, gemini cli, codex, copilot, or any other agent that reads AGENTS.md and can run bash commands. The `--path` flag takes priority over the pane's CWD.
@@ -84,7 +84,7 @@ After entering the worktree, re-run tab naming to reflect the new branch:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" --path "$(pwd)" --auto
+bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --auto
 ```
 
 **If `EnterWorktree` fails or is unavailable:** Log a warning and proceed without isolation. swain-do will attempt isolation at dispatch time as a fallback.
@@ -145,7 +145,7 @@ When invoked explicitly by the user, support these operations:
 User says something like "set tab name to X" or "rename tab":
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-session/scripts/swain-tab-name.sh" "Custom Name"
+bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" "Custom Name"
 ```
 
 ### Bookmark context
