@@ -1,0 +1,49 @@
+trove: google-stitch-sdk
+created: 2026-03-21
+refreshed: 2026-03-21
+tags:
+  - google
+  - stitch
+  - sdk
+  - ai
+  - ui-design
+  - mcp
+  - agents
+  - vercel-ai-sdk
+  - tutorial
+
+freshness-ttl:
+  web: 7d
+  media: never
+
+history:
+  - event: created
+    date: 2026-03-21
+    commit: "--"
+    sources: 3
+    notes: "SDK README (full API ref), NxCode comprehensive guide, SiliconANGLE news coverage. stitch.withgoogle.com/docs/sdk/tutorial/ was JS SPA — could not fetch."
+
+sources:
+  - source-id: stitch-sdk-github-readme
+    type: web
+    url: "https://github.com/google-labs-code/stitch-sdk"
+    fetched: 2026-03-21T00:00:00Z
+    title: "@google/stitch-sdk — GitHub README"
+    hash: "4363ba1b09dd0f45498e72d6a4f61e96485c263a5c364f43044530b8e41fe230"
+    notes: "Full SDK documentation including Quick Start, API Reference, AI SDK Integration, StitchProxy MCP server, configuration, and error handling."
+
+  - source-id: nxcode-stitch-complete-guide
+    type: web
+    url: "https://www.nxcode.io/resources/news/google-stitch-complete-guide-vibe-design-2026"
+    fetched: 2026-03-21T00:00:00Z
+    title: "Google Stitch Complete Guide: Vibe Design, Voice Canvas & Free AI UI Tool (2026)"
+    hash: "d86aa50c244f9f42442fb1b2c52d971e396f0a1170bac2db5e7e06aa55414266"
+    notes: "Comprehensive third-party guide covering Stitch platform evolution, features, getting started, export integrations, and limitations."
+
+  - source-id: siliconangle-stitch-upgrade
+    type: web
+    url: "https://siliconangle.com/2026/03/19/google-upgrades-stitch-ai-interface-development-tool/"
+    fetched: 2026-03-21T00:00:00Z
+    title: "Google upgrades its Stitch AI interface development tool"
+    hash: "d49868e032a7bb980e8cdf0ef011c5584a7914e93e95ff85ce4df3b10018f92f"
+    notes: "News coverage of March 2026 update — infinite canvas, multi-screen generation, MCP integration, DESIGN.md export, Figma market impact."
