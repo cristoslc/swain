@@ -19,7 +19,7 @@ freshness-ttl:
 history:
   - event: created
     date: 2026-03-21
-    commit: "--"
+    commit: "cb99eed"
     sources: 3
     notes: "SDK README (full API ref), NxCode comprehensive guide, SiliconANGLE news coverage. stitch.withgoogle.com/docs/sdk/tutorial/ was JS SPA — could not fetch."
 
