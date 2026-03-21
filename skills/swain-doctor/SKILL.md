@@ -137,38 +137,7 @@ fi
 
 ## Lifecycle directory migration
 
-Detect old phase directories from before ADR-003's three-track normalization. Old directory names: `Draft/`, `Planned/`, `Review/`, `Approved/`, `Testing/`, `Implemented/`, `Adopted/`, `Deprecated/`, `Archived/`, `Sunset/`, `Validated/`.
-
-### Detection
-
-```bash
-OLD_PHASES="Draft Planned Review Approved Testing Implemented Adopted Deprecated Archived Sunset Validated"
-for dir in docs/*/; do
-  for phase in $OLD_PHASES; do
-    if [[ -d "${dir}${phase}" ]]; then
-      # Check for non-empty (ignore hidden files)
-      if find "${dir}${phase}" -maxdepth 1 -not -name '.*' -print -quit 2>/dev/null | grep -q .; then
-        echo "  Old directory: ${dir}${phase}"
-      fi
-    fi
-  done
-done
-```
-
-### Remediation
-
-1. List each old directory and its artifact count.
-2. Explain: "ADR-003 normalized artifact lifecycle phases into three tracks. Old phase directories need migration."
-3. Check for the migration script: `$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/migrate-lifecycle-dirs.py' -print -quit 2>/dev/null)`
-   - If available: offer to run `uv run python3 "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/migrate-lifecycle-dirs.py' -print -quit 2>/dev/null)" --dry-run` first, then the real migration.
-   - If unavailable: provide manual `git mv` instructions using the phase mapping from ADR-003.
-4. After migration, clean up empty old directories.
-
-### Status values
-
-- **ok** — no old directories found
-- **repaired** — migration script ran successfully
-- **warning** — old directories found, user chose not to migrate now
+Detect old phase directories from before ADR-003's three-track normalization. Read [references/lifecycle-migration.md](references/lifecycle-migration.md) for detection commands, remediation steps, and status values.
 
 ## Superpowers detection
 
@@ -213,45 +182,7 @@ Superpowers is strongly recommended but not required. Declining is always allowe
 
 ## Stale worktree detection
 
-Enumerate all linked worktrees and classify their health. **Skip if the repo has no linked worktrees** (i.e., `git worktree list --porcelain` returns only the main worktree entry) — this check produces no output in a clean repo.
-
-### Detection
-
-```bash
-git worktree list --porcelain
-```
-
-Parse each linked worktree (exclude the main worktree — the first entry in the output):
-
-```bash
-git worktree list --porcelain | awk '
-  /^worktree / { path=$2 }
-  /^branch /   { branch=$2 }
-  /^$/         { if (path != "") print path, branch; path=""; branch="" }
-' | tail -n +2
-```
-
-For each linked worktree:
-
-1. **Orphaned** — directory does not exist on disk (`[ ! -d "$path" ]`):
-   - WARN: "Orphaned worktree: `<path>` (directory missing). Clean up with: `git worktree prune`"
-
-2. **Stale (merged)** — directory exists and branch is fully merged into `trunk`:
-   ```bash
-   git merge-base --is-ancestor "$branch" origin/trunk
-   ```
-   - WARN: "Stale worktree: `<path>` (branch `<branch>` already merged into trunk). Safe to remove:
-     `git worktree remove <path> && git branch -d <branch>`"
-
-3. **Active (unmerged)** — directory exists and branch has commits not in `trunk`:
-   - INFO: "Active worktree: `<path>` (branch `<branch>`, N commits ahead of trunk). Do not remove — work in progress."
-
-Do not remove any worktree automatically. All output is advisory.
-
-### Status values
-
-- **ok** — no linked worktrees, or all are active
-- **warning** — one or more stale or orphaned worktrees found (provide cleanup commands per item)
+Enumerate all linked worktrees and classify their health. **Skip if the repo has no linked worktrees.** Read [references/worktree-detection.md](references/worktree-detection.md) for the detection commands, classification rules, and status values.
 
 ## Epics without parent-initiative (migration advisory)
 
@@ -283,78 +214,7 @@ If any EPICs are found without `parent-initiative`:
 
 ### Guided migration workflow
 
-**When the operator asks to run the migration** (or says "how do I fix the initiative migration?"), guide them through these steps:
-
-#### Step 1: Scan and group
-
-Run the scan helper to list all epics without `parent-initiative`, grouped by `parent-vision`:
-
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-SCAN_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-doctor/scripts/swain-initiative-scan.sh' -print -quit 2>/dev/null)"
-[ -n "$SCAN_SCRIPT" ] && bash "$SCAN_SCRIPT" || echo "swain-initiative-scan.sh not found"
-```
-
-Analyze the output and propose initiative clusters. For example:
-
-> "Under VISION-001, you have 8 epics. I'd suggest grouping them into 2-3 initiatives based on theme:
-> - **Security Hardening**: EPIC-017, EPIC-023 (both security-related)
-> - **Developer Experience**: EPIC-016, EPIC-019, EPIC-022 (workflow improvements)
-> - **Product Design**: EPIC-021 (standalone strategic bet)
->
-> Does this grouping work, or would you like to adjust?"
-
-Proposals are suggestions, not commitments. Base clustering on epic titles, descriptions, and shared themes visible in the scan output.
-
-#### Step 2: Operator decides
-
-The operator approves, adjusts, or rejects each proposed cluster. This is a vision-mode decision — don't rush it. Present one vision's worth of clusters at a time if there are many.
-
-#### Step 3: Create initiatives
-
-For each approved cluster, invoke swain-design to create an Initiative artifact:
-
-- Set `parent-vision` to the vision these epics belong to
-- Set `priority-weight` if the operator specifies one (otherwise omit — it inherits from the vision)
-- List the child epics in the "Child Epics" section of the initiative document
-
-#### Step 4: Re-parent epics
-
-For each epic in an approved cluster, add `parent-initiative: INITIATIVE-NNN` to its frontmatter. During the migration period, `parent-vision` can remain alongside `parent-initiative` — specgraph accepts both and resolves the vision ancestor through whichever path exists.
-
-```yaml
-# Before
-parent-vision: VISION-001
-
-# After (during migration — both fields coexist)
-parent-vision: VISION-001
-parent-initiative: INITIATIVE-001
-```
-
-#### Step 5: Set vision weights
-
-Prompt the operator to set `priority-weight` on their visions if not already set:
-
-```yaml
-priority-weight: high    # active strategic focus
-priority-weight: medium  # maintained, progressing (default if omitted)
-priority-weight: low     # parked, not abandoned
-```
-
-They can defer — everything defaults to `medium` and the system works without weights.
-
-#### Step 6: Verify
-
-Run specgraph to verify the new hierarchy looks correct:
-
-```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" recommend
-```
-
-Check that initiatives appear in the tree and that recommendations reflect the new structure.
-
-**Migration is incremental.** The operator can migrate one vision's epics at a time. Unmigrated epics continue to work — they just show this advisory on each session start.
+Read [references/initiative-migration.md](references/initiative-migration.md) for the full 6-step guided migration workflow (scan, cluster, create initiatives, re-parent, set weights, verify).
 
 ### Status values
 
