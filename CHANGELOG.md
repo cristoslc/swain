@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.13.0-alpha] - 2026-03-21
+
+### Features
+
+#### Universal find-based script discovery
+
+All swain skills now resolve script paths using find-based discovery instead of hardcoded relative paths. Previously, $REPO_ROOT/skills/... paths silently failed when agents ran from linked worktrees because git rev-parse --show-toplevel returns the worktree root, not the main repo root where skills live. Eight SKILL.md files updated: swain-doctor, swain-status, swain-security-check, swain-session, swain-do, swain-stage, swain-sync, swain-retro.
+- swain-doctor reduced from 406 to 266 lines by extracting lifecycle migration, worktree detection, and initiative migration into reference files with one-line pointers
+
+### Planned
+- Roadmap legend epic name visibility — when an initiative has a single child epic, the legend will show both names instead of hiding the epic behind the initiative grouping
+
+### Research
+- Skill routing disambiguation (SPIKE-033) — investigated overlap between swain-help and swain-design trigger phrases. Found the problem narrower than the audit suggested: Claude Code's description-based routing plus enriched descriptions handle most cases. Recommended No-Go on a disambiguation framework; added one routing hint to the meta-router instead.
+
+### Supporting Changes
+- EPIC-031 Skill Audit Remediation completed — 7 of 9 specs verified as already done, 2 implemented, retro captured
+
 ## [0.12.1-alpha] - 2026-03-21
 
 ### Supporting Changes
