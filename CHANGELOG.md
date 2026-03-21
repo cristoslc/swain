@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.12.0-alpha] - 2026-03-21
+
+### Features
+
+#### Contract-driven changelog pipeline
+
+The changelog generation pipeline is now governed by a data contract (changelog-contract.yaml) that defines per-field interpretation rules instead of scattering them across SKILL.md prose. Each field has a semantic (what it means), source (where data comes from), and quality block (rules, anti-patterns with explanations, good/bad examples). The agent reads the contract before classifying commits, producing better-structured data for the Jinja2 template to render.
+- "Coming Next" section replaces "Roadmap" in changelogs — forward-looking previews of planned work instead of artifact state transitions
+
+### Research
+- Data contract standards — surveyed ODCS v3.1.0, datacontract.com spec v0.9.0, and OpenMetadata Data Contract entity to inform ADR-014
+
 ## [0.11.0-alpha] - 2026-03-21
 
 ### Features

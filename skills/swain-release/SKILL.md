@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: Version bump, changelog, and git tag
-  version: 1.4.0
+  version: 1.5.0
   author: cristos
   source: swain
 ---
