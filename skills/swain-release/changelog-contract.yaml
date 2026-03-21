@@ -1,0 +1,198 @@
+kind: DataContract
+version: "1.0"
+
+product:
+  name: release-changelog
+  owner: swain-release
+  description: >
+    Structured changelog data for human-readable release notes.
+    Produced by agent classification of git commits.
+    Consumed by Jinja2 template for markdown rendering.
+
+source:
+  description: >
+    Git commits between the last release tag and HEAD.
+    Obtain via: git log <last-tag>..HEAD --oneline --no-decorate
+  filtering:
+    exclude:
+      - merge commits
+      - "lifecycle hash stamps (commits whose only purpose is back-filling a commit hash)"
+      - "index refreshes (list-*.md updates)"
+      - "bookmark advances (swain-bookmark updates)"
+      - "session.json updates"
+
+schema:
+  version:
+    type: string
+    required: true
+    semantic: >
+      The semver version being released.
+    source: >
+      Tag history + bump detection from conventional commit prefixes.
+
+  date:
+    type: string
+    required: true
+    semantic: >
+      The release date in YYYY-MM-DD format.
+    source: >
+      Current date at release time.
+
+  features:
+    type: array
+    required: true
+    items:
+      oneOf:
+        - type: object
+          properties:
+            heading: { type: string }
+            body: { type: string }
+        - type: object
+          properties:
+            text: { type: string }
+
+    semantic: >
+      Shipped capability the user can use today because it landed in this release.
+      Each item answers: "what can the user do now that they couldn't before?"
+
+    source: >
+      Commits that change user-visible behavior — new skills, CLI flags, scripts,
+      bug fixes that change UX, refactors with user-facing impact.
+
+    quality:
+      rules:
+        - Use heading/body for major work that deserves a narrative paragraph
+        - Use text for one-liners and minor items
+        - Write as a user-facing narrative, not a commit log transcription
+        - Strip commit-type prefixes (feat:, fix:) — the reader doesn't care
+      anti-patterns:
+        - pattern: "feat(epic-029): implement auto-detecting trunk branch"
+          why: >
+            Raw commit message, not a narrative. The reader doesn't know
+            what epic-029 is and shouldn't have to parse conventional-commit syntax.
+        - pattern: "Planning artifacts (SPECs, EPICs, ADRs created)"
+          why: >
+            Creating a SPEC describes future work, not shipped capability.
+            Those belong in roadmap (if forward-looking) or are omitted (if noise).
+      examples:
+        good:
+          - value:
+              heading: "Auto-detecting trunk branch"
+              body: "swain-trunk.sh detects the development branch from git state..."
+            why: >
+              Tells the reader what capability exists and how it benefits them.
+        bad:
+          - value:
+              text: "SPEC-118, SPEC-119, SPEC-120 implemented"
+            why: >
+              Artifact IDs mean nothing to the reader. Describe the capability, not the tracking.
+
+  roadmap:
+    type: array
+    required: false
+    items:
+      oneOf:
+        - type: object
+          properties:
+            heading: { type: string }
+            body: { type: string }
+        - type: object
+          properties:
+            text: { type: string }
+        - type: string
+
+    semantic: >
+      Forward-looking previews of planned work that the reader would care about.
+      Each item answers: "what is being planned and why would I care?"
+      Omit this field entirely if no planning decisions were made in this release,
+      or if the only planning was internal bookkeeping.
+
+    source: >
+      Commits that create or modify planning artifacts (visions, initiatives,
+      epics, specs, ADRs, designs) for work that has NOT shipped in this release.
+      If the planned work also shipped, it belongs in features, not here.
+
+    quality:
+      rules:
+        - Write as a forward-looking preview, not a state transition report
+        - The reader should understand what's coming and why they'd care
+        - Omit entirely rather than include noise — an empty section is better than a useless one
+      anti-patterns:
+        - pattern: "EPIC-029 activated with 3 child SPECs (SPEC-118, SPEC-119, SPEC-120)"
+          why: >
+            Describes artifact state transitions — internal bookkeeping that only
+            matters to the project maintainer. The reader doesn't know or care
+            what "activated" means in the swain lifecycle.
+        - pattern: "New SPEC-118 through SPEC-123 for session facilitation"
+          why: >
+            Artifact ID soup. The reader has no context for what these IDs represent.
+            Describe the direction, not the tracking artifacts.
+        - pattern: "ADR-014 adopted"
+          why: >
+            State change on a decision document. Irrelevant to someone reading
+            release notes — they want to know what was decided, not that a document changed status.
+      examples:
+        good:
+          - value: "Trunk detection is being generalized so swain works on any branch name without configuration"
+            why: >
+              Tells the reader what direction the project is heading and why it matters to them.
+          - value:
+              heading: "Session facilitation rebuild"
+              body: "Rethinking how swain helps the operator maintain focus and recover context across sessions."
+            why: >
+              Describes a direction with enough context to understand the motivation.
+        bad:
+          - value: "VISION-004, INITIATIVE-019, EPIC-039, and 6 supporting SPECs created"
+            why: >
+              Pure artifact bookkeeping. No reader outside the project team gains
+              anything from knowing these IDs exist.
+
+  research:
+    type: array
+    required: false
+    items: { type: string }
+
+    semantic: >
+      Evidence gathered, sources collected, analysis produced during this release.
+      Each item names the topic and scope of the research.
+
+    source: >
+      Commits touching troves, spikes, or research artifacts.
+
+    quality:
+      rules:
+        - Name the topic and scope, not just the artifact
+        - Include what was learned or collected, not just that research happened
+      anti-patterns:
+        - pattern: "SPIKE-037 completed"
+          why: >
+            Artifact state transition. Describe what was researched and found.
+      examples:
+        good:
+          - value: "GitHub token scoping — surveyed fine-grained PAT, OAuth app, and GitHub App auth models across 7 sources"
+            why: Names the topic, method, and scope.
+        bad:
+          - value: "Research spike completed"
+            why: Says nothing about what was researched or learned.
+
+  supporting:
+    type: array
+    required: false
+    items: { type: string }
+
+    semantic: >
+      Everything else — chores, refactors, dependency bumps, CI changes,
+      cross-reference enrichment, tooling improvements.
+
+    source: >
+      Commits not classified into features, roadmap, or research.
+
+    quality:
+      rules:
+        - Keep brief — one line per item
+        - If it changes user-visible behavior, it belongs in features
+        - Group related chores when possible rather than listing each commit
+      anti-patterns:
+        - pattern: "Commit abc1234: fix typo in README"
+          why: >
+            Commit hash and trivial changes. Group into "documentation cleanup" or omit entirely.
