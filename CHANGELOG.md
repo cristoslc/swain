@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.13.1-alpha] - 2026-03-21
+
+### Features
+
+#### Cross-session title isolation
+
+Fixed a bug where tmux tab names bled across iTerm tabs when multiple sessions ran on the same tmux server. The root cause: when a pane-focus-in hook fires via run-shell, tmux's display-message and untargeted rename commands resolve to the calling client's session — not the hook's session. All sessions were writing OSC title escapes to the wrong TTY. The fix passes session name, pane path, and pane ID as environment variables that tmux expands at hook fire time, then uses explicit -t targeting for every tmux command.
+
+### Supporting Changes
+- Full-project retrospective covering v0.1.0 through v0.13.0 (14 days, 730 commits, 13 releases)
+
 ## [0.13.0-alpha] - 2026-03-21
 
 ### Features
