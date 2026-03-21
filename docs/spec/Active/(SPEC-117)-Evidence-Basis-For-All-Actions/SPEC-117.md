@@ -107,4 +107,4 @@ The git history provides the backing store — the index contains pointers, not 
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-20 | -- | From SPIKE-022-to-SPEC-114 retro |
+| Active | 2026-03-20 | ec9842d | From SPIKE-022-to-SPEC-114 retro |
