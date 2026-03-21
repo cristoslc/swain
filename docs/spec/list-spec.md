@@ -69,6 +69,8 @@
 | SPEC-111 | Status roadmap integration | 2026-03-20 | — |
 | SPEC-112 | Dependency graph initiative subgraphs | 2026-03-20 | — |
 | SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
+| SPEC-116 | Read Before Reasoning | 2026-03-20 | — |
+| SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | — |
 
 ## Complete
 
