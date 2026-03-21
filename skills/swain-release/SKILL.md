@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: Version bump, changelog, and git tag
-  version: 1.3.0
+  version: 1.4.0
   author: cristos
   source: swain
 ---
@@ -93,11 +93,13 @@ The changelog is rendered from a Jinja2 template (`templates/changelog.md.j2`) f
 | Bucket | What belongs here | What does NOT belong here |
 |--------|-------------------|--------------------------|
 | `features` | Shipped capability: new skills, CLI flags, scripts, bug fixes that change behavior, refactors that change UX | Planning artifacts that describe future work |
-| `roadmap` | New/changed planning artifacts (visions, initiatives, epics, specs, ADRs, designs) that describe *future* work | Work that actually shipped in this release |
+| `roadmap` | Forward-looking previews of planned work — what's coming and why it matters to the user. Write as "X is being planned/designed because Y" not "SPEC-NNN created". Omit artifact IDs unless the reader would search for them. Skip items that are pure internal housekeeping. | Artifact state transitions ("EPIC activated", "SPEC created"), anything that shipped (that's features) |
 | `research` | Trove collections, spike completions, research artifacts, evidence gathered | Specs that resulted from research (those are roadmap) |
 | `supporting` | Chores, dependency bumps, cross-ref enrichment, minor refactors, CI changes | Anything that changes user-visible behavior (that's features) |
 
 The key distinction agents get wrong: **creating a SPEC or EPIC is a roadmap change, not a feature.** A feature is something the operator can use *today* because it shipped in this release. A SPEC is a plan for something that will ship *later*.
+
+**Roadmap anti-pattern:** "EPIC-029 activated with 3 child SPECs (SPEC-118, SPEC-119, SPEC-120)" is noise — it describes artifact state transitions that only matter to the project maintainer. Instead write: "Trunk detection is being generalized so swain works on any branch name without configuration." The reader should understand *what's coming and why they'd care*, not which internal tracking artifacts changed state.
 
 Omit mechanical commits entirely: merge commits, lifecycle hash stamps, index refreshes, bookmark advances.
 
@@ -111,13 +113,13 @@ Omit mechanical commits entirely: merge commits, lifecycle hash stamps, index re
     {"heading": "CLI Roadmap Renderer", "body": "chart.sh roadmap --cli produces deterministic, terminal-friendly\noutput grouped by Eisenhower quadrant with all first-degree children\nnested under their parent initiative. New swain-roadmap skill wraps\nit as the user-facing entry point: regenerate, open, display."},
     {"text": "Dependency graph rendering switched to flowchart TD for clearer layout"}
   ],
-  "roadmap": ["New SPEC-118 through SPEC-123 for session facilitation"],
+  "roadmap": ["Session facilitation rebuild — rethinking how swain helps the operator maintain focus, make decisions, and recover context across sessions"],
   "research": ["Google Stitch SDK trove — 7 sources collected"],
   "supporting": ["Cross-reference enrichment across ~100 doc files"]
 }
 ```
 
-Feature items use `{"heading": "Title", "body": "Narrative..."}` for major work (renders as `#### Title` with a narrative paragraph — tell the story of the feature area, not just what changed) or `{"text": "..."}` for smaller bullets. Use headings when a feature area has enough substance for a paragraph; use bullets for one-liners. The other three sections are flat string arrays. Empty arrays are fine — the template omits empty sections.
+Feature and roadmap items use `{"heading": "Title", "body": "Narrative..."}` for major work (renders as `#### Title` with a narrative paragraph) or `{"text": "..."}` for smaller bullets. Roadmap items can also be plain strings for one-liners. Use headings when a topic has enough substance for a paragraph; use bullets for one-liners. Research and supporting sections are flat string arrays. Empty arrays are fine — the template omits empty sections.
 
 **Step 4c — Render.** Run the render script:
 

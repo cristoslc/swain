@@ -5,7 +5,7 @@ user-invocable: true
 allowed-tools: Bash, Read, Edit, Write, Glob
 metadata:
   short-description: Fetch, stage, commit, and push
-  version: 1.4.0
+  version: 1.5.0
   author: cristos
   license: MIT
   source: swain

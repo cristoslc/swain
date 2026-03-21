@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session-start health checks and repair
-  version: 2.5.0
+  version: 2.6.0
   author: cristos
   source: swain
 ---

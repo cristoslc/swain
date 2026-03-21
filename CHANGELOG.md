@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.11.0-alpha] - 2026-03-21
+
+### Features
+
+#### Auto-detecting trunk branch
+
+swain-trunk.sh detects the development branch from git worktree state instead of hardcoding it. Repos on develop, main, trunk, or any branch are supported automatically with zero configuration. All runtime skills (swain-sync, swain-doctor, swain-release) now use dynamic detection via a $TRUNK variable sourced at workflow start. An optional git.trunk override in swain.settings.json handles edge cases like detached HEAD, but is never required for normal operation.
+- Doctor and preflight now detect whether the trunk+release model is configured and advise on migration
+
+### Coming Next
+- Data contracts for agent-produced data — a lightweight schema+semantics+quality contract format that gives agents scoped per-field interpretation rules instead of unstructured prose. The changelog pipeline is the first consumer; future skills will follow the same pattern.
+
+### Supporting Changes
+- Jinja2 changelog template with H4 feature headings for swain-release
+- Changelog pipeline rewritten to be contract-driven — interpretation rules now live in changelog-contract.yaml instead of SKILL.md prose
+- v0.10.0-alpha release retrospective
+
 ## [0.10.0-alpha] - 2026-03-21
 
 ### Features

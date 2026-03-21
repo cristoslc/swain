@@ -15,9 +15,18 @@
 {% endif %}
 {% if roadmap %}
 
-### Roadmap
+### Coming Next
 {% for item in roadmap %}
+{% if item is mapping and item.heading %}
+
+#### {{ item.heading }}
+
+{{ item.body }}
+{% elif item is mapping and item.text %}
+- {{ item.text }}
+{% else %}
 - {{ item }}
+{% endif %}
 {% endfor %}
 {% endif %}
 {% if research %}
