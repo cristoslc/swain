@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.12.1-alpha] - 2026-03-21
+
+### Supporting Changes
+- Retrospective changelog rewrite for 0.7.0–0.10.0 — applied ADR-014 data contract quality rules to remove artifact ID soup, replace commit-type buckets with thematic narratives, and rename "Roadmap"/"Coming Next" to "Planned"
+
 ## [0.12.0-alpha] - 2026-03-21
 
 ### Features
