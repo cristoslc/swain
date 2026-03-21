@@ -29,7 +29,7 @@ history:
     notes: "SDK README (full API ref), NxCode comprehensive guide, SiliconANGLE news coverage. stitch.withgoogle.com/docs/sdk/tutorial/ was JS SPA — could not fetch."
   - event: extended
     date: 2026-03-21
-    commit: "--"
+    commit: "f14a7f2"
     sources: 7
     sources-added: 4
     notes: "Added official stitch-skills repo, davideast/stitch-mcp CLI, Geeky Gadgets MCP+Skills overview, Google Codelab design-to-code tutorial."
