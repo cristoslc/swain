@@ -1,0 +1,28 @@
+trove: pm-ai-exponential
+created: 2026-03-21
+refreshed: 2026-03-21
+tags:
+  - product-management
+  - ai
+  - exponential-change
+  - claude
+  - anthropic
+  - claude-code
+  - workflow
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-03-21
+    commit: "--"
+    sources: 1
+
+sources:
+  - source-id: claude-blog-pm-ai-exponential
+    type: web
+    url: "https://claude.com/blog/product-management-on-the-ai-exponential"
+    fetched: 2026-03-21T00:00:00Z
+    title: "Product management on the AI exponential"
+    hash: "585c6150533b14856fe6e604a46b765a6b251f110385f55a80feb84dd0bfa300"
