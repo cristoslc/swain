@@ -156,6 +156,26 @@ Update version strings in the files identified in step 1. Be surgical — only c
 
 If a file has multiple version-like strings and it's ambiguous which one to update, ask the user rather than guessing.
 
+### 5.5. Security gate
+
+Before tagging, run the security scanner to catch secrets, dependency vulnerabilities, and static analysis issues. Invoke the **swain-security-check** skill (or run the scanner script directly if the skill isn't available):
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SCANNER="$(find "$REPO_ROOT" -path '*/swain-security-check/scripts/security-scan.sh' -print -quit 2>/dev/null)"
+if [[ -n "$SCANNER" ]]; then
+  bash "$SCANNER"
+fi
+```
+
+If any **critical** or **high** severity findings are reported, stop the release and present them to the user. The user can choose to:
+- Fix the issues and resume
+- Acknowledge the findings and proceed anyway (their call, not yours)
+
+Medium and lower findings should be reported but do not block the release.
+
+If the security scanner is not installed, note the gap and proceed — don't block on a missing tool.
+
 ### 6. Commit and tag
 
 Stage the changed files (changelog + version bumps) and commit:

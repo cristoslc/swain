@@ -38,6 +38,7 @@ When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), 
 | SPEC comes up for implementation | swain-design → **brainstorming** → **writing-plans** → swain-do |
 | Executing implementation tasks | swain-do → **test-driven-development** per task |
 | Dispatching parallel work | swain-do → **subagent-driven-development** or **executing-plans** |
+| Cutting a release | swain-release → **swain-security-check** before tagging |
 | Claiming work is complete | **verification-before-completion** before any success claim |
 | All tasks in a plan complete | swain-do → **swain-design** (transition SPEC to Complete) |
 | All child SPECs in an EPIC complete | swain-design checks parent EPIC → transition if ready |
