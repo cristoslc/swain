@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: Version bump, changelog, and git tag
-  version: 1.2.0
+  version: 1.3.0
   author: cristos
   source: swain
 ---
@@ -84,47 +84,51 @@ Wait for the user to confirm, adjust the version, or abort. If the user wants a 
 
 Before writing, read the existing CHANGELOG.md (if any) to match the voice, density, and structure the project already uses. The changelog should read like the same person wrote every entry.
 
-#### Four fixed sections
+#### Template-driven changelog
 
-Every changelog entry uses these four `###` sections in order. Omit a section entirely if it has no entries — don't show empty headings.
+The changelog is rendered from a Jinja2 template (`templates/changelog.md.j2`) fed by a JSON data file. This separates the bucketing decision (which section does a change belong in?) from the rendering (how does the markdown look?).
 
-**### Features** — things that are built and shipped in this release. New skills, new CLI flags, new scripts, bug fixes that change behavior, refactors that change UX. The reader should understand the capability without reading the commits. Use prose paragraphs with bold lead-ins for major work, flat bullets for smaller items.
+**Step 4a — Classify commits into four buckets.** Each commit goes into exactly one:
 
-```markdown
-### Features
+| Bucket | What belongs here | What does NOT belong here |
+|--------|-------------------|--------------------------|
+| `features` | Shipped capability: new skills, CLI flags, scripts, bug fixes that change behavior, refactors that change UX | Planning artifacts that describe future work |
+| `roadmap` | New/changed planning artifacts (visions, initiatives, epics, specs, ADRs, designs) that describe *future* work | Work that actually shipped in this release |
+| `research` | Trove collections, spike completions, research artifacts, evidence gathered | Specs that resulted from research (those are roadmap) |
+| `supporting` | Chores, dependency bumps, cross-ref enrichment, minor refactors, CI changes | Anything that changes user-visible behavior (that's features) |
 
-**CLI roadmap renderer** — `chart.sh roadmap --cli` produces deterministic,
-terminal-friendly output grouped by Eisenhower quadrant with all first-degree
-children nested under their parent initiative. New `swain-roadmap` skill wraps
-it as the user-facing entry point: regenerate, open, display.
+The key distinction agents get wrong: **creating a SPEC or EPIC is a roadmap change, not a feature.** A feature is something the operator can use *today* because it shipped in this release. A SPEC is a plan for something that will ship *later*.
 
-- iTerm tab name bleed fix — OSC title escapes now target the specific client
-  terminal instead of using global `tmux set-titles` (SPEC-124)
+Omit mechanical commits entirely: merge commits, lifecycle hash stamps, index refreshes, bookmark advances.
+
+**Step 4b — Build the JSON data file.** Write a temporary JSON file with this structure:
+
+```json
+{
+  "version": "0.10.0-alpha",
+  "date": "2026-03-21",
+  "features": [
+    {"heading": "CLI Roadmap Renderer", "body": "chart.sh roadmap --cli produces deterministic, terminal-friendly\noutput grouped by Eisenhower quadrant with all first-degree children\nnested under their parent initiative. New swain-roadmap skill wraps\nit as the user-facing entry point: regenerate, open, display."},
+    {"text": "Dependency graph rendering switched to flowchart TD for clearer layout"}
+  ],
+  "roadmap": ["New SPEC-118 through SPEC-123 for session facilitation"],
+  "research": ["Google Stitch SDK trove — 7 sources collected"],
+  "supporting": ["Cross-reference enrichment across ~100 doc files"]
+}
 ```
 
-**### Roadmap** — new or changed planning artifacts (visions, initiatives, epics, specs, ADRs, designs) that describe *future* work, not work that shipped. These are decisions about direction, not delivered capability. Bullet list is usually sufficient.
+Feature items use `{"heading": "Title", "body": "Narrative..."}` for major work (renders as `#### Title` with a narrative paragraph — tell the story of the feature area, not just what changed) or `{"text": "..."}` for smaller bullets. Use headings when a feature area has enough substance for a paragraph; use bullets for one-liners. The other three sections are flat string arrays. Empty arrays are fine — the template omits empty sections.
 
-```markdown
-### Roadmap
+**Step 4c — Render.** Run the render script:
 
-- VISION-004 (Operator Cognitive Support), INITIATIVE-019, EPIC-039, and
-  6 supporting SPECs (118–123) for the session facilitation rebuild
-- SPEC-116 (Read Before Reasoning), SPEC-117 (Evidence Basis For All Actions)
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+uv run --with jinja2 python "$REPO_ROOT/skills/swain-release/scripts/render_changelog.py" /tmp/changelog_data.json
 ```
 
-**### Research** — trove collections, spike completions, and research artifacts. New evidence gathered, sources added, analysis produced.
+This prints the rendered markdown to stdout. Review it, then prepend to CHANGELOG.md.
 
-```markdown
-### Research
-
-- Google Stitch SDK trove — 7 sources collected and normalized
-```
-
-**### Supporting Changes** — chores, dependency bumps, cross-reference enrichment, minor refactors, and anything else that doesn't fit the above. Keep it brief.
-
-#### Thematic sub-sections within a section
-
-When a section has multiple distinct themes (e.g., Features has both a new skill and a bug fix area), use bold lead-ins or sub-groups — but stay within the four-section structure. Don't promote a theme to its own `###` heading.
+If jinja2 is unavailable, fall back to writing the markdown directly using the same four-section structure — the template encodes the format, not the only way to produce it.
 
 #### What to omit
 
