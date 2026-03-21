@@ -25,6 +25,7 @@ GIT_COMMON=$(git rev-parse --git-common-dir)
 GIT_DIR=$(git rev-parse --git-dir)
 IN_WORKTREE=$( [ "$GIT_COMMON" != "$GIT_DIR" ] && echo "yes" || echo "no" )
 REPO_ROOT=$(git rev-parse --show-toplevel)
+TRUNK=$(bash "$REPO_ROOT/scripts/swain-trunk.sh")
 ```
 
 `IN_WORKTREE=yes` means the current directory is inside a linked worktree (e.g., `.claude/worktrees/agent-abc123`). Use this flag in Steps 3, 6, and the session bookmark step.
@@ -59,11 +60,11 @@ git stash pop       # recover stashed changes
 
 Show the user the conflicting files and stop. Do not force-push or drop changes.
 
-If there is no upstream (`@{u}` returns an error) **and** `IN_WORKTREE=yes`, the worktree branch has no remote tracking counterpart. Merge `origin/trunk` to combine the agent's changes with whatever landed since the branch was created:
+If there is no upstream (`@{u}` returns an error) **and** `IN_WORKTREE=yes`, the worktree branch has no remote tracking counterpart. Merge the trunk branch to combine the agent's changes with whatever landed since the branch was created:
 
 ```bash
 git fetch origin
-git merge origin/trunk --no-edit
+git merge "origin/$TRUNK" --no-edit
 ```
 
 If the merge has conflicts, report them and stop. Do not attempt to auto-resolve.
@@ -253,12 +254,12 @@ If the commit fails because a pre-commit hook rejected it:
 MAX_RETRIES=3
 ATTEMPT=0
 while [ $ATTEMPT -lt $MAX_RETRIES ]; do
-  git push origin HEAD:trunk && break
+  git push origin "HEAD:$TRUNK" && break
   ATTEMPT=$((ATTEMPT + 1))
   if [ $ATTEMPT -lt $MAX_RETRIES ]; then
     echo "Push rejected (attempt $ATTEMPT/$MAX_RETRIES). Fetching and re-merging..."
     git fetch origin
-    git merge origin/trunk --no-edit || {
+    git merge "origin/$TRUNK" --no-edit || {
       echo "Merge conflict during retry. Reporting to operator."
       git merge --abort
       break
@@ -279,7 +280,7 @@ If the push is rejected due to branch protection rules or required reviews (chec
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 SUBJECT=$(git log -1 --pretty=format:'%s')
 BODY=$(git log -1 --pretty=format:'%b')
-gh pr create --base trunk --head "$BRANCH" --title "$SUBJECT" --body "$BODY"
+gh pr create --base "$TRUNK" --head "$BRANCH" --title "$SUBJECT" --body "$BODY"
 ```
 
 Report the PR URL. Do not retry the push. Proceed to worktree pruning below.

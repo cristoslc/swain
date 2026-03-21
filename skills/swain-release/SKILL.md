@@ -172,23 +172,25 @@ Use the tag format detected in step 1 (or what the user specified).
 If a `release` branch exists (check with `git rev-parse --verify release 2>/dev/null`), squash-merge the current branch (trunk) into it:
 
 ```bash
-# Save current branch name
-TRUNK_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# Detect trunk branch dynamically (EPIC-029)
+REPO_ROOT=$(git rev-parse --show-toplevel)
+TRUNK=$(bash "$REPO_ROOT/scripts/swain-trunk.sh")
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Ensure we're on trunk (the development branch)
-if [ "$TRUNK_BRANCH" != "trunk" ]; then
-  echo "Warning: not on trunk ($TRUNK_BRANCH). Skipping release branch update."
+# Ensure we're on the trunk (development) branch
+if [ "$CURRENT_BRANCH" != "$TRUNK" ]; then
+  echo "Warning: not on $TRUNK ($CURRENT_BRANCH). Skipping release branch update."
 else
   # Tag trunk first (lifecycle hashes must be reachable from trunk per ADR-012)
   # Tag was already created in step 6
 
   # Squash-merge trunk into release
   git checkout release
-  git merge --squash trunk
+  git merge --squash "$TRUNK"
   git commit -m "release: <tag>"
 
   # Return to trunk
-  git checkout trunk
+  git checkout "$TRUNK"
 fi
 ```
 
@@ -199,7 +201,7 @@ If no `release` branch exists, skip this step silently — the project hasn't ad
 Ask the user if they want to push. If a release branch was updated in step 6.5:
 
 ```bash
-git push origin trunk && git push origin release && git push origin <tag>
+git push origin "$TRUNK" && git push origin release && git push origin <tag>
 ```
 
 If no release branch exists, push as before:

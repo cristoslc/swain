@@ -26,6 +26,15 @@ The preflight checks are a subset of this skill's checks — governance files, .
 
 When invoked directly by the user (not via the auto-invoke flow), swain-doctor always runs regardless of preflight status.
 
+## Trunk branch detection
+
+Detect the trunk branch once at the start. Use it for all branch-relative checks (worktree staleness, merge-base):
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel)
+TRUNK=$(bash "$REPO_ROOT/scripts/swain-trunk.sh")
+```
+
 ## Session-start governance check
 
 1. Detect the agent platform and locate the context file:
@@ -236,15 +245,15 @@ For each linked worktree:
 1. **Orphaned** — directory does not exist on disk (`[ ! -d "$path" ]`):
    - WARN: "Orphaned worktree: `<path>` (directory missing). Clean up with: `git worktree prune`"
 
-2. **Stale (merged)** — directory exists and branch is fully merged into `trunk`:
+2. **Stale (merged)** — directory exists and branch is fully merged into the trunk branch (`$TRUNK`):
    ```bash
-   git merge-base --is-ancestor "$branch" origin/trunk
+   git merge-base --is-ancestor "$branch" "origin/$TRUNK"
    ```
-   - WARN: "Stale worktree: `<path>` (branch `<branch>` already merged into trunk). Safe to remove:
+   - WARN: "Stale worktree: `<path>` (branch `<branch>` already merged into `$TRUNK`). Safe to remove:
      `git worktree remove <path> && git branch -d <branch>`"
 
-3. **Active (unmerged)** — directory exists and branch has commits not in `trunk`:
-   - INFO: "Active worktree: `<path>` (branch `<branch>`, N commits ahead of trunk). Do not remove — work in progress."
+3. **Active (unmerged)** — directory exists and branch has commits not in `$TRUNK`:
+   - INFO: "Active worktree: `<path>` (branch `<branch>`, N commits ahead of `$TRUNK`). Do not remove — work in progress."
 
 Do not remove any worktree automatically. All output is advisory.
 
@@ -252,6 +261,28 @@ Do not remove any worktree automatically. All output is advisory.
 
 - **ok** — no linked worktrees, or all are active
 - **warning** — one or more stale or orphaned worktrees found (provide cleanup commands per item)
+
+## Trunk/release branch model check (ADR-013)
+
+Non-blocking advisory check. Verifies that the trunk+release branch model is properly configured.
+
+### Detection
+
+1. Check that `scripts/swain-trunk.sh` exists and is executable
+2. Run it and verify the detected trunk branch has a remote counterpart on origin
+3. Check whether a `release` branch exists (required by ADR-013)
+
+### Response
+
+- If `scripts/swain-trunk.sh` is missing: WARN — "Trunk detection script not found. EPIC-029 may not be installed."
+- If the detected trunk branch has no remote: WARN — "Trunk branch `<name>` has no remote counterpart on origin."
+- If no `release` branch exists: INFO — "No `release` branch found. The trunk+release model (ADR-013) is not configured. To adopt it, run: `bash scripts/migrate-to-trunk-release.sh --dry-run`"
+
+### Status values
+
+- **ok** — trunk detected, remote exists, release branch exists
+- **info** — trunk works but release branch not configured (project hasn't adopted ADR-013 yet)
+- **warning** — trunk detection fails or remote is missing
 
 ## Epics without parent-initiative (migration advisory)
 

@@ -2,10 +2,10 @@
 title: "Auto-Detecting Trunk Branch"
 artifact: EPIC-029
 track: container
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-17
-last-updated: 2026-03-17
+last-updated: 2026-03-21
 parent-initiative: INITIATIVE-009
 priority-weight: high
 success-criteria:
@@ -56,7 +56,9 @@ Replace all hardcoded "main" branch references across swain with auto-detection 
 
 ## Child Specs
 
-None yet — specs to be decomposed when this EPIC transitions to Active.
+- **SPEC-118** — swain_trunk() Auto-Detection Helper (scripts/swain-trunk.sh + tests)
+- **SPEC-119** — Parameterize Runtime Skills (swain-sync, swain-doctor, swain-release)
+- **SPEC-120** — Doctor Trunk/Release Migration Detection (preflight + doctor section)
 
 ## Test Plan
 
@@ -92,3 +94,4 @@ None — this can be done independently and should ideally land before EPIC-025.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-17 | — | Initial creation as prerequisite for EPIC-025 |
+| Active | 2026-03-21 | — | Decomposed into SPEC-118, SPEC-119, SPEC-120 |
