@@ -4,11 +4,41 @@
 **Scope:** Full project history
 **Period:** 2026-03-07 — 2026-03-21 (14 days)
 
+## What is Swain?
+
+Swain started from one premise: AI agents forget what you decided. They ship code fast, but the decisions that shape a project — what to build, what to defer, which tradeoffs to accept — are trapped in conversation context that doesn't survive the next session. So you re-explain. The agent guesses. Work drifts from intent.
+
+Swain's original answer was decision artifacts in git. Specs, epics, ADRs, spikes, visions — durable records of what was decided and why, checked into the repo where agents can read them before acting. A dependency graph (specgraph) validates that downstream work aligns with upstream decisions. The operator makes a call once; the system enforces it automatically.
+
+That artifact system is one skill (swain-design). But operating an agentic project surfaced problems beyond decision durability: sessions that lose context on window reset, project health that degrades between sessions, releases that need structure, security posture that nobody checks, research that's collected once and lost. Each problem became a skill. Swain grew to 16 skills — not by plan, but because each gap in the operational surface became apparent only after the previous one was filled.
+
+The skills rely heavily on deterministic code that ships alongside them — bash scripts, a Python dependency graph engine, shell-based health checks, a vendored task tracker (tk). This isn't a collection of markdown prompts. The markdown orchestrates; the scripts execute. This is also why swain is built as a skills framework rather than a platform-specific plugin: the same skills run in Claude Code (primary), GitHub Copilot, OpenAI Codex, and opencode. Runtime portability matters because the operator shouldn't be locked to one agent runtime.
+
+Rather than build skills for development methodology (TDD, brainstorming, code review, plan writing), swain uses [obra/superpowers](https://github.com/obra/superpowers) as a complementary install and chains into it at defined integration points — brainstorming before artifact creation, TDD during implementation, verification before completion claims.
+
+Named for the *swain* in boat**swain**, the officer who keeps the rigging tight. Built and used by a single operator. Distributed as an open-source skills package (`npx skills add cristoslc/swain`) but not yet validated for use by anyone other than its author.
+
+## How it grew: evolution by commit
+
+The timeline below traces how swain evolved from a single skill to a 16-skill framework. Measured in commits rather than calendar time, because agentic development compresses timelines in ways that dates don't convey. (The entire history spans 14 calendar days.)
+
+| Commits | Release | What was added | Why |
+|---------|---------|---------------|-----|
+| 1–13 | **v1.0.0** | Spec management, execution tracking (beads), release automation, swain- namespace, legacy cleanup | The original premise: write specs, track implementation against them, ship releases. Three skills. |
+| 14–81 | **v2.0.0** | Meta-router, swain-doctor, swain-session, swain-stage, swain-status, swain-init, swain-help, swain-search, swain-keys, specgraph, specwatch | Operating a project across sessions revealed that decision artifacts alone aren't enough — you need health checks, session continuity, research collection, onboarding, and a way to visualize the dependency graph. The skill count tripled. |
+| 82–400 | **v3.0.0 / 0.4.0** | Superpowers integration, vendored tk (replacing beads), specgraph as knowledge graph with alignment checking, sandbox launcher (claude-sandbox), worktree lifecycle, MOTD panel, model routing, agent dispatch, retrospectives, security scanning | The longest stretch. Superpowers brought in TDD/brainstorming/verification rather than building equivalents. Beads was replaced by tk when it couldn't scale. The sandbox and worktree work addressed safe autonomy — letting agents run without the operator watching. Security scanning followed because autonomous agents need guardrails. Versioning reset to 0.x to reflect alpha status. |
+| 401–442 | **0.5.0** | Initiative artifact type, priority-weight cascade, vision-weighted recommendations, attention tracking, focus lanes | The artifact graph answered "what exists?" but not "what matters most?" Initiatives added a strategic layer between visions and epics. Priority weights let the operator say "security matters more than polish" and have recommendations follow. |
+| 443–469 | **0.6.0** | Trove redesign (hierarchical sources), swain chart CLI, lens framework, VisionTree renderer | Research troves outgrew flat file lists. The chart CLI made the artifact graph inspectable from the terminal. |
+| 470–481 | **0.7.0** | Pane-aware tmux tab naming, project identity enforcement | Small release. Tmux integration matured — tabs show which repo/branch/worktree you're in per-pane. |
+| 482–621 | **0.8.0** | Security scanning (5 scanners + 2 built-in), Docker sandbox (swain-box) with multi-step auth UX, TRAIN artifact type, design integrity checking | The largest feature release. Security went from "not considered" to a layered system integrated into doctor, sync, and completion workflows. swain-box grew from a proof-of-concept into a real launcher. |
+| 622–696 | **0.9.0** | Trunk+release branch model, merge-with-retry (replacing rebase-then-push), roadmap renderer (Eisenhower quadrants, Gantt, dependency graph) | Born from a retro: parallel worktree agents were losing data during rebase. The fix (merge-with-retry) required rethinking the branch model entirely. The roadmap renderer made the prioritization layer visible. |
+| 697–732 | **0.10.0–0.13.0** | CLI roadmap, auto-detecting trunk branch, data contracts (ADR-014), Jinja2 changelog templates, universal find-based script discovery, skill audit remediation | Consolidation. Fixing what broke under velocity — scripts that assumed they knew their own path, changelogs that agents couldn't reliably categorize, skills that drifted from their specs. |
+
+**Pattern:** Each release era solved the problems created by the previous one. Decision artifacts created the need for a dependency graph. The dependency graph created the need for prioritization. Prioritization created the need for a roadmap renderer. Parallel agents created the need for safe landing. Each layer was unforeseeable until the previous layer was in use.
+
 ## Summary
 
-Swain started as a single skill for a single artifact type and grew into a framework with 18+ skills, 10 artifact types, a dependency graph engine, prioritization layer, security scanning, Docker sandboxing, tmux workspace management, research trove system, data contracts, and a trunk+release branch model. 730 non-merge commits across 13 releases.
-
-The project was built almost entirely through agentic development — the operator directing Claude Code agents, making design decisions, and reviewing output while agents handled implementation. The operator estimates this produced 10x–100x more progress than solo development would have.
+730 non-merge commits across 13 releases in 14 days, built almost entirely through agentic development — the operator directing AI agents, making design decisions, and reviewing output while agents handled implementation. The operator estimates this produced 10x–100x more progress than solo development would have.
 
 ## Artifacts
 
@@ -16,7 +46,7 @@ The project was built almost entirely through agentic development — the operat
 |--------|-------|
 | Releases | 13 (1.0.0 → 0.13.0-alpha) |
 | Non-merge commits | 730 |
-| Skills | 18+ |
+| Swain skills | 16 |
 | Artifact types | 10 (Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Design, Journey) |
 | Prior retros | 6 |
 | Active Visions | 3 (Operator Cognitive Support, Safe Autonomy, Swain) |
