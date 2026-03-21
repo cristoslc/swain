@@ -47,12 +47,12 @@ Rebuild swain-session from the ground up as the session facilitator. It owns the
 
 | Spec | Title | Status |
 |------|-------|--------|
-| SPEC-117 | SESSION-ROADMAP.md Format and Generation | Active |
-| SPEC-118 | Session Lifecycle in swain-session | Active |
-| SPEC-119 | ROADMAP.md Decision and Recommendation Sections | Active |
-| SPEC-120 | Session Detection Hooks Across All Skills | Active |
-| SPEC-121 | Absorb swain-status into swain-session | Active |
-| SPEC-122 | Skill and Script Alignment Audit | Active |
+| SPEC-118 | SESSION-ROADMAP.md Format and Generation | Active |
+| SPEC-119 | Session Lifecycle in swain-session | Active |
+| SPEC-120 | ROADMAP.md Decision and Recommendation Sections | Active |
+| SPEC-121 | Session Detection Hooks Across All Skills | Active |
+| SPEC-122 | Absorb swain-status into swain-session | Active |
+| SPEC-123 | Skill and Script Alignment Audit | Active |
 
 ## Key Dependencies
 
