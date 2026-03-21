@@ -8,7 +8,9 @@ created: 2026-03-17
 last-updated: 2026-03-17
 type: feature
 parent-epic: EPIC-023
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-062
+  - SPEC-065
 depends-on-artifacts:
   - SPEC-062
 addresses: []

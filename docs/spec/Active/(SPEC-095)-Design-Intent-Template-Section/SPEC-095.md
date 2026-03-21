@@ -9,7 +9,8 @@ last-updated: 2026-03-19
 type: ""
 parent-epic: EPIC-035
 parent-initiative: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-097
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

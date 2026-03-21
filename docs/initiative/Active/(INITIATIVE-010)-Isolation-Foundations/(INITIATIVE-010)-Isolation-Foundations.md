@@ -14,6 +14,13 @@ success-criteria:
   - Isolation mechanism research complete with documented tradeoffs
 linked-artifacts:
   - EPIC-005
+  - INITIATIVE-004
+  - INITIATIVE-006
+  - INITIATIVE-011
+  - INITIATIVE-012
+  - INITIATIVE-013
+  - SPEC-048
+  - SPEC-049
   - SPEC-067
   - SPIKE-009
   - SPIKE-027

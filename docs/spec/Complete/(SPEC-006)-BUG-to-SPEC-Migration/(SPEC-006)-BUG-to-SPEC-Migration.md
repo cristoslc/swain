@@ -11,8 +11,9 @@ addresses: []
 trove:
 swain-do: required
 linked-artifacts:
-  - SPIKE-003
+  - BUG-001
   - SPEC-007
+  - SPIKE-003
 depends-on-artifacts:
   - SPEC-004
 ---

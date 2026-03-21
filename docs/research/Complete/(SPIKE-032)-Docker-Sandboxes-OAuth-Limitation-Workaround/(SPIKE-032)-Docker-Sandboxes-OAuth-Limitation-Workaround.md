@@ -22,8 +22,9 @@ evidence-pool: |
   - anthropics/claude-code#34785: OAuth token refresh uses api.anthropic.com endpoints
   - anthropics/claude-code#1736: Docker container credential persistence patterns
 linked-artifacts:
-  - SPEC-067
   - SPEC-049
+  - SPEC-067
+  - SPEC-071
 depends-on-artifacts: []
 ---
 

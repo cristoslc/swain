@@ -18,6 +18,15 @@ depends-on-artifacts:
   - SPEC-092
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-036
+  - EPIC-037
+  - INITIATIVE-010
+  - INITIATIVE-011
+  - INITIATIVE-013
+  - SPEC-081
+  - SPEC-092
+  - SPIKE-035
 ---
 
 # Unattended Agent Safety

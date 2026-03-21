@@ -10,7 +10,11 @@ type: ""
 parent-epic: EPIC-035
 parent-initiative: ""
 linked-artifacts:
+  - DESIGN-003
+  - SPEC-067
   - SPEC-091
+  - SPEC-096
+  - SPEC-097
   - SPEC-103
 depends-on-artifacts: []
 addresses: []

@@ -18,6 +18,11 @@ acceptance-criteria:
   - State machines match definitions in skills/swain-design/references/*-definition.md
   - Transition errors include the reason and valid alternatives
 swain-do: required
+linked-artifacts:
+  - SPEC-082
+  - SPEC-083
+  - SPEC-085
+  - SPEC-090
 ---
 
 # Lifecycle State Machine Tools

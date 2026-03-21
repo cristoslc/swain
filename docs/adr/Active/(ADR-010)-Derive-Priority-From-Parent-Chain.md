@@ -7,9 +7,13 @@ author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
 linked-artifacts:
+  - ADR-009
   - INITIATIVE-001
   - INITIATIVE-008
   - INITIATIVE-010
+  - VISION-001
+  - VISION-002
+  - VISION-003
 depends-on-artifacts: []
 evidence-pool: ""
 ---

@@ -16,8 +16,12 @@ success-criteria:
   - Pending reactions from subscriptions.json are surfaced as actionable items
   - Event-enriched status provides better decision support than the current state-only snapshot
 linked-artifacts:
-  - INITIATIVE-009
+  - EPIC-014
+  - EPIC-025
   - EPIC-026
+  - EPIC-027
+  - INITIATIVE-009
+  - SPEC-012
 ---
 
 # Status Integration

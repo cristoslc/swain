@@ -13,6 +13,8 @@ linked-artifacts:
   - SPEC-102
   - SPEC-104
   - SPEC-105
+  - SPEC-109
+  - SPEC-111
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

@@ -12,6 +12,8 @@ linked-artifacts:
   - PERSONA-001
   - PERSONA-002
   - SPIKE-003
+  - VISION-003
+  - VISION-004
 
 depends-on-artifacts: []
 ---

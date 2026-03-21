@@ -1,0 +1,52 @@
+id: session-decision-support
+created: 2026-03-20
+refreshed: 2026-03-20
+tags: [cognitive-load, decision-fatigue, goal-setting, task-switching, zeigarnik, bounded-rationality, session-goals]
+
+freshness-ttl:
+  web: 90d
+
+sources:
+  - id: decision-fatigue-pmc
+    type: web
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC6119549/
+    fetched: 2026-03-20
+    content-hash: 73ff1b7c3ac376e066b1eb38e6be53e4e7b2085a3776a72fd5dffc0724833c9a
+
+  - id: cognitive-load-gcbs
+    type: web
+    url: https://gc-bs.org/articles/the-impact-of-cognitive-load-on-decision-making-efficiency/
+    fetched: 2026-03-20
+    content-hash: 6d1be6cf9b3c90b43bdba07f5630f6f38be8029f480faefc737ad6d6df6d4f69
+
+  - id: goal-setting-locke-latham
+    type: web
+    url: https://positivepsychology.com/goal-setting-theory/
+    fetched: 2026-03-20
+    content-hash: 35c196325165299d987e1b249bb79514fd1a0d884d954ae7f0c66284d0346565
+
+  - id: zeigarnik-effect
+    type: web
+    url: https://en.wikipedia.org/wiki/Zeigarnik_effect
+    fetched: 2026-03-20
+    content-hash: cff37b14acec7d9e7437657230c00a2b985e693bb5c53b4314180660db87b0f7
+
+  - id: task-switching-monsell
+    type: web
+    url: https://www.sciencedirect.com/science/article/abs/pii/S1364661303000287
+    fetched: 2026-03-20
+    content-hash: 8d51e8dfb0b3a72804d1fe03cd7952ad571c8dc0c7924abd4f16422dd1b5e4ed
+
+  - id: decision-batching-gcbs
+    type: web
+    url: https://gc-bs.org/articles/the-neuroscience-of-decision-fatigue/
+    fetched: 2026-03-20
+    content-hash: 2ace0164c46a03ab9f8af65dd4e9944d0bc67b0e876aaa9dd6464e18179dd7b5
+
+referenced-by: []
+
+history:
+  - event: created
+    date: 2026-03-20
+    commit: "01095c4"
+    sources: 6

@@ -14,6 +14,7 @@ success-criteria:
   - Bookmark format is backward-compatible — old bookmarks without a worktree field load without error
   - swain-doctor detects stale bookmarks pointing to pruned worktrees and offers cleanup
 linked-artifacts:
+  - EPIC-036
   - SPIKE-001
   - SPIKE-019
 depends-on-artifacts:

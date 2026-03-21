@@ -11,6 +11,7 @@ type: enhancement
 parent-epic: EPIC-038
 parent-initiative: ""
 linked-artifacts:
+  - SPEC-102
   - SPEC-105
 depends-on-artifacts:
   - SPEC-102

@@ -19,6 +19,7 @@ addresses:
   - JOURNEY-001.PP-01
 trove: ""
 linked-artifacts:
+  - BUG-001
   - SPEC-004
   - SPEC-005
   - SPEC-006

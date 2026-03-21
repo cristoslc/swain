@@ -15,8 +15,9 @@ risks-addressed:
   - Syntax-valid scripts fail on first real use because external commands behave differently than expected
 evidence-pool: ""
 linked-artifacts:
-  - SPEC-098
   - SPEC-092
+  - SPEC-098
+  - VISION-002
 depends-on-artifacts: []
 ---
 

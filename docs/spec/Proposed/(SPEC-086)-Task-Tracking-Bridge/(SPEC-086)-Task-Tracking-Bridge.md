@@ -17,6 +17,9 @@ acceptance-criteria:
   - Tools shell out to the tk binary (skills/swain-do/bin/tk) — no reimplementation
   - Graceful error if tk binary not found (suggest installing swain)
 swain-do: required
+linked-artifacts:
+  - SPEC-082
+  - SPEC-090
 ---
 
 # Task Tracking Bridge Tools

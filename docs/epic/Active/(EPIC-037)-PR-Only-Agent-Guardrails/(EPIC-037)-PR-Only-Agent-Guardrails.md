@@ -21,6 +21,12 @@ depends-on-artifacts:
   - SPIKE-037
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-036
+  - INITIATIVE-013
+  - SPEC-081
+  - SPEC-092
+  - SPIKE-037
 ---
 
 # PR-Only Agent Guardrails

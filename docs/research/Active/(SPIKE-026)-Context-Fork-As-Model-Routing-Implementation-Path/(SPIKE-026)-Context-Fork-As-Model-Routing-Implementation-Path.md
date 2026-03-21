@@ -13,10 +13,11 @@ risks-addressed:
   - Model routing via advisory prose depends on agent compliance — a runtime mechanism (fork + agent type) would be deterministic
   - Unknown whether context fork supports model selection per forked context — may be agent-type-only
 linked-artifacts:
-  - SPIKE-013
-  - SPIKE-014
   - EPIC-007
   - INITIATIVE-003
+  - SPEC-026
+  - SPIKE-013
+  - SPIKE-014
 trove: context-fork-claude-code
 ---
 

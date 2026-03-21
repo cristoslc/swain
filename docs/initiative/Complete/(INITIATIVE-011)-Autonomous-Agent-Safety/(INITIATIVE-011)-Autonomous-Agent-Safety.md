@@ -13,9 +13,11 @@ success-criteria:
   - Docker Sandboxes OAuth limitation documented with workaround or resolution path
   - Unattended agent can run without inheriting the operator's full credential set
 linked-artifacts:
+  - INITIATIVE-010
+  - INITIATIVE-012
+  - SPEC-071
   - SPIKE-031
   - SPIKE-032
-  - SPEC-071
 depends-on-artifacts:
   - INITIATIVE-010
 addresses: []

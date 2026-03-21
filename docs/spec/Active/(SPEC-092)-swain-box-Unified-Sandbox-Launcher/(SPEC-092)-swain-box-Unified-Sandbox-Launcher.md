@@ -11,15 +11,20 @@ parent-epic: ""
 parent-initiative: INITIATIVE-013
 parent-vision: VISION-002
 linked-artifacts:
+  - ADR-008
+  - DESIGN-002
+  - DESIGN-005
+  - EPIC-036
+  - EPIC-037
+  - INITIATIVE-017
   - SPEC-067
   - SPEC-068
   - SPEC-071
   - SPEC-081
+  - SPEC-100
+  - SPEC-101
   - SPIKE-032
   - SPIKE-034
-  - DESIGN-002
-  - DESIGN-005
-  - ADR-008
 depends-on-artifacts:
   - SPIKE-034
 addresses: []

@@ -11,10 +11,13 @@ success-criteria:
   - Agents can operate in isolated environments (containers, sandboxes)
   - Background agent dispatch via GitHub Issues is reliable
 linked-artifacts:
+  - EPIC-005
   - EPIC-010
   - EPIC-015
   - EPIC-016
   - INITIATIVE-001
+  - INITIATIVE-010
+  - VISION-002
 ---
 
 # Multi-Agent Orchestration

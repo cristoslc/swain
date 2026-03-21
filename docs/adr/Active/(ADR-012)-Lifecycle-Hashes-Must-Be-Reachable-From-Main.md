@@ -8,6 +8,7 @@ created: 2026-03-20
 last-updated: 2026-03-20
 linked-artifacts:
   - ADR-011
+  - ADR-013
   - SPIKE-022
 depends-on-artifacts: []
 ---

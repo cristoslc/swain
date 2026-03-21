@@ -22,9 +22,12 @@ success-criteria:
   - All trunk branch references use swain_trunk() auto-detection (EPIC-029)
   - State-derivation fallback cross-references tk and specgraph to synthesize events for transitions that occurred without emission
 linked-artifacts:
-  - INITIATIVE-009
   - EPIC-026
+  - EPIC-027
+  - EPIC-028
   - EPIC-029
+  - INITIATIVE-009
+  - SPEC-042
 ---
 
 # Event Bus

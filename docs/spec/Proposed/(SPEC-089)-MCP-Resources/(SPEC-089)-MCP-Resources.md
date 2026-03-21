@@ -18,6 +18,9 @@ acceptance-criteria:
   - Resource list endpoint returns all available resources with descriptions
   - Resources sourced from the project's docs/ and skills/swain-design/references/ directories
 swain-do: required
+linked-artifacts:
+  - SPEC-082
+  - SPEC-090
 ---
 
 # MCP Resources for Definitions and Templates

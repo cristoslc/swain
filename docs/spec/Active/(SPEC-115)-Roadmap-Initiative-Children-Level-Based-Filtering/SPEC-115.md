@@ -9,7 +9,8 @@ last-updated: 2026-03-20
 type: bug
 parent-epic: ""
 parent-initiative: INITIATIVE-005
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-114
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
@@ -37,7 +38,7 @@ swain-do: required
 
 ## Reproduction Steps
 
-1. Create a SPEC with `parent-initiative: INITIATIVE-005` and `parent-epic: ""` (e.g., [SPEC-114](../../NeedsManualTest/(SPEC-114)-Trunk-Release-Branch-Model/SPEC-114.md)).
+1. Create a SPEC with `parent-initiative: INITIATIVE-005` and `parent-epic: ""` (e.g., [SPEC-114](../../Complete/(SPEC-114)-Trunk-Release-Branch-Model/SPEC-114.md)).
 2. Run `bash skills/swain-design/scripts/chart.sh roadmap`.
 3. Observe that ROADMAP.md's progress ratio for INITIATIVE-005 does not include the direct-child SPEC.
 

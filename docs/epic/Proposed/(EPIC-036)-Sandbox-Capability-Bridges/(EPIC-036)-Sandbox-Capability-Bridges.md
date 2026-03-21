@@ -19,6 +19,14 @@ depends-on-artifacts:
   - SPEC-092
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-016
+  - INITIATIVE-004
+  - SPEC-056
+  - SPEC-081
+  - SPEC-092
+  - SPEC-100
+  - SPEC-101
 ---
 
 # Sandbox Capability Bridges

@@ -12,8 +12,10 @@ parent-vision: VISION-002
 depends-on-artifacts:
   - SPIKE-035
 linked-artifacts:
-  - SPEC-092
   - DESIGN-005
+  - SPEC-092
+  - SPEC-098
+  - SPIKE-035
 acceptance-criteria:
   - Every runtime in swain-box _login_cmd has a container-compatible auth command verified by SPIKE-035
   - _login_cmd table updated with device-auth or alternative commands where needed

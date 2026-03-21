@@ -18,6 +18,12 @@ depends-on-artifacts:
   - SPEC-067
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - DESIGN-002
+  - SPEC-067
+  - SPEC-068
+  - SPEC-069
+  - SPEC-070
 ---
 
 # swain-box Multi-Agent Runtime Support

@@ -25,6 +25,15 @@ acceptance-criteria:
   - Plugin persistent data uses `${CLAUDE_PLUGIN_DATA}` for SQLite database
   - Installation tested on Claude Code, Claude Desktop Chat, and one non-Anthropic client (e.g., Cursor)
 swain-do: required
+linked-artifacts:
+  - SPEC-082
+  - SPEC-083
+  - SPEC-084
+  - SPEC-085
+  - SPEC-086
+  - SPEC-087
+  - SPEC-088
+  - SPEC-089
 ---
 
 # Plugin + Desktop Extension Packaging

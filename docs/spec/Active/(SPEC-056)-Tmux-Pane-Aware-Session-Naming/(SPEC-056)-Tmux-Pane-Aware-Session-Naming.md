@@ -10,7 +10,9 @@ type: enhancement
 parent-epic: ""
 parent-initiative: ""
 linked-artifacts:
+  - DESIGN-001
   - SPEC-008
+  - SPEC-100
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

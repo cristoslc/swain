@@ -10,6 +10,8 @@ type: bug
 parent-epic: EPIC-031
 linked-artifacts:
   - SPEC-039
+  - SPEC-072
+  - SPEC-079
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

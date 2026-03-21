@@ -9,7 +9,10 @@ last-updated: 2026-03-19
 type: ""
 parent-epic: EPIC-035
 parent-initiative: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-094
+  - SPEC-095
+  - SPEC-096
 depends-on-artifacts:
   - SPEC-094
   - SPEC-095

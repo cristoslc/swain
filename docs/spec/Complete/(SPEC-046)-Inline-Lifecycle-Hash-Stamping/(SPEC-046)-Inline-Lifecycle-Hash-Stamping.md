@@ -10,6 +10,7 @@ type: enhancement
 parent-epic: EPIC-014
 linked-artifacts:
   - EPIC-014
+  - SPEC-099
 depends-on-artifacts:
   - SPIKE-018
   - SPEC-045

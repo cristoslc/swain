@@ -18,6 +18,12 @@ acceptance-criteria:
   - All tools validate inputs and return clear error messages
   - SQLite index stays in sync with filesystem (write-through)
 swain-do: required
+linked-artifacts:
+  - SPEC-082
+  - SPEC-084
+  - SPEC-085
+  - SPEC-088
+  - SPEC-090
 ---
 
 # Artifact CRUD Tools

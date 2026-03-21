@@ -9,10 +9,13 @@ last-updated: 2026-03-19
 parent-initiative: INITIATIVE-015
 superseded-by: ""
 linked-artifacts:
-  - INITIATIVE-015
   - EPIC-034
-  - SPEC-093
+  - INITIATIVE-015
+  - SPEC-067
   - SPEC-091
+  - SPEC-093
+  - VISION-001
+  - VISION-002
 depends-on-artifacts: []
 ---
 

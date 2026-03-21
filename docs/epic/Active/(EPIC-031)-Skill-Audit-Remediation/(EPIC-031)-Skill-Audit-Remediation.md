@@ -18,6 +18,20 @@ success-criteria:
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - DESIGN-003
+  - EPIC-015
+  - INITIATIVE-001
+  - SPEC-072
+  - SPEC-073
+  - SPEC-074
+  - SPEC-075
+  - SPEC-076
+  - SPEC-077
+  - SPEC-078
+  - SPEC-079
+  - SPEC-080
+  - SPIKE-033
 ---
 
 # Skill Audit Remediation

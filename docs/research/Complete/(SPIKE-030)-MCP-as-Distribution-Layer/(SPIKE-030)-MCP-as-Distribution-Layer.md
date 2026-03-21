@@ -13,6 +13,8 @@ risks-addressed:
   - Building on a protocol that doesn't have sufficient adoption or stability
   - MCP's tool model being too narrow for swain's workflow-oriented patterns
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-033
 ---
 
 # MCP as Distribution Layer

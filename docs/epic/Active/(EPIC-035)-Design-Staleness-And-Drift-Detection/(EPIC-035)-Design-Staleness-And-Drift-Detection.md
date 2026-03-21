@@ -20,6 +20,10 @@ addresses: []
 evidence-pool: design-staleness-drift@c3fd9fb
 linked-artifacts:
   - DESIGN-005
+  - SPEC-094
+  - SPEC-095
+  - SPEC-096
+  - SPEC-097
 ---
 
 # Design Staleness and Drift Detection

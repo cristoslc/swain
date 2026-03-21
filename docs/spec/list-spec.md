@@ -69,17 +69,14 @@
 | SPEC-111 | Status roadmap integration | 2026-03-20 | — |
 | SPEC-112 | Dependency graph initiative subgraphs | 2026-03-20 | — |
 | SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
-
-## NeedsManualTest
-
-| Artifact | Title | Last Updated | Commit |
-|----------|-------|-------------|--------|
-| SPEC-114 | Trunk + Release Branch Model With Merge-and-Retry Landing | 2026-03-20 | — |
+| SPEC-116 | Read Before Reasoning | 2026-03-20 | ec9842d |
+| SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | ec9842d |
 
 ## Complete
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPEC-114 | Trunk + Release Branch Model With Merge-and-Retry Landing | 2026-03-20 | — |
 | SPEC-001 | swain-search Skill | 2026-03-11 | — |
 | SPEC-002 | trovewatch Script | 2026-03-11 | — |
 | SPEC-003 | swain-design Integration | 2026-03-11 | — |

@@ -10,7 +10,11 @@ last-updated: 2026-03-20
 type: feature
 parent-epic: EPIC-038
 parent-initiative: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-103
+  - SPEC-104
+  - SPEC-105
+  - SPEC-106
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

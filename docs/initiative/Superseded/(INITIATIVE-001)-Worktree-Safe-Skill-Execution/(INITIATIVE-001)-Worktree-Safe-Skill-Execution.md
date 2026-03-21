@@ -17,6 +17,7 @@ success-criteria:
   - swain-doctor validates worktree health — detects broken hooks, stale bookmarks, orphaned worktrees, and path resolution failures
 linked-artifacts:
   - ADR-005
+  - ADR-009
   - EPIC-015
   - EPIC-016
   - EPIC-020

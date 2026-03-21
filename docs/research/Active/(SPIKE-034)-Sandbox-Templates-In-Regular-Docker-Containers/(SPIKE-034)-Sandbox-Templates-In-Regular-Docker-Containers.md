@@ -16,6 +16,7 @@ risks-addressed:
 evidence-pool: ""
 linked-artifacts:
   - SPEC-067
+  - SPEC-092
   - SPIKE-032
 depends-on-artifacts: []
 ---

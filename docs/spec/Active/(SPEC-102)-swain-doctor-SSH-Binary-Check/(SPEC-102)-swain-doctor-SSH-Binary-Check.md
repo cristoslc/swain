@@ -10,8 +10,12 @@ type: enhancement
 parent-epic: ""
 parent-initiative: INITIATIVE-013
 linked-artifacts:
-  - SPEC-092
   - EPIC-036
+  - SPEC-092
+  - SPEC-103
+  - SPEC-104
+  - SPEC-105
+  - SPEC-106
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
