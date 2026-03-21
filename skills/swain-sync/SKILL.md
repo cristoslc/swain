@@ -326,10 +326,10 @@ Run `git --no-pager status` and `git --no-pager log --oneline -3` to verify the 
 
 ## Index rebuild (SPEC-047)
 
-Before committing (after staging, before Step 5), check whether any artifact index files (`list-*.md`) are stale. If `skills/swain-design/scripts/rebuild-index.sh` exists, run it for each artifact type that had changes staged:
+Before committing (after staging, before Step 5), check whether any artifact index files (`list-*.md`) are stale. If the rebuild script exists, run it for each artifact type that had changes staged:
 
 ```bash
-REBUILD_SCRIPT="$REPO_ROOT/skills/swain-design/scripts/rebuild-index.sh"
+REBUILD_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-design/scripts/rebuild-index.sh' -print -quit 2>/dev/null)"
 if [[ -x "$REBUILD_SCRIPT" ]]; then
     # Detect which types had staged changes
     for type in spec epic spike adr persona runbook design vision journey train; do

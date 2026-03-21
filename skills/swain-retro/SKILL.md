@@ -45,7 +45,7 @@ Collect evidence of what happened during the work period.
 bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" deps <EPIC-ID>
 
 # Get closed tasks linked to child specs
-TK_BIN="$(cd skills/swain-do/bin && pwd)"
+TK_BIN="$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-do/bin/tk' -print -quit 2>/dev/null | xargs dirname 2>/dev/null)"
 export PATH="$TK_BIN:$PATH"
 ticket-query '.status == "closed"' 2>/dev/null | grep -l "<EPIC-ID>\|<SPEC-IDs>"
 ```
@@ -63,7 +63,7 @@ Also read:
 git log --oneline --since="1 week ago" --no-merges
 
 # Recently closed tasks
-TK_BIN="$(cd skills/swain-do/bin && pwd)"
+TK_BIN="$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-do/bin/tk' -print -quit 2>/dev/null | xargs dirname 2>/dev/null)"
 export PATH="$TK_BIN:$PATH"
 ticket-query '.status == "closed"' 2>/dev/null | head -20
 

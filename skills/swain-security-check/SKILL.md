@@ -22,14 +22,16 @@ Run the security check script:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-python3 "$REPO_ROOT/skills/swain-security-check/scripts/security_check.py" .
+SEC_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-security-check/scripts/security_check.py' -print -quit 2>/dev/null)"
+[ -n "$SEC_SCRIPT" ] && python3 "$SEC_SCRIPT" . || echo "security_check.py not found"
 ```
 
 For JSON output:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-python3 "$REPO_ROOT/skills/swain-security-check/scripts/security_check.py" --json .
+SEC_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-security-check/scripts/security_check.py' -print -quit 2>/dev/null)"
+[ -n "$SEC_SCRIPT" ] && python3 "$SEC_SCRIPT" --json . || echo "security_check.py not found"
 ```
 
 ## Orchestration flow

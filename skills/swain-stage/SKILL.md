@@ -41,9 +41,9 @@ Apply a named layout. Available presets are in `skills/swain-stage/references/la
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" layout review
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" layout browse
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" layout focus
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" layout review
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" layout browse
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" layout focus
 ```
 
 The default layout is configured in `swain.settings.json` under `stage.defaultLayout` (default: `focus`).
@@ -56,11 +56,11 @@ Open a specific pane type without applying a full layout:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane editor file1.py file2.py   # editor with specific files
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane browser                      # file browser at repo root
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane browser /some/path           # file browser at specific path
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane motd                         # MOTD status panel
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane shell                        # plain shell
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" pane editor file1.py file2.py   # editor with specific files
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" pane browser                      # file browser at repo root
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" pane browser /some/path           # file browser at specific path
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" pane motd                         # MOTD status panel
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" pane shell                        # plain shell
 ```
 
 ### MOTD management
@@ -88,34 +88,34 @@ Control the MOTD:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd start                        # start MOTD in a new pane
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd stop                         # kill the MOTD pane
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "reviewing auth module"  # update context
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "idle"                # mark as idle
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "done"                # mark as done/idle
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd start                        # start MOTD in a new pane
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd stop                         # kill the MOTD pane
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd update "reviewing auth module"  # update context
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd update "idle"                # mark as idle
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd update "done"                # mark as done/idle
 ```
 
 ### Close panes
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" close right     # close the right pane
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" close bottom    # close the bottom pane
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" close all       # reset to single pane
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" close right     # close the right pane
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" close bottom    # close the bottom pane
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" close all       # reset to single pane
 ```
 
 ### Status
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" status          # show current layout info
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" status          # show current layout info
 ```
 
 ### Reset
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" reset           # kill all panes except current
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" reset           # kill all panes except current
 ```
 
 ## Agent-triggered pane operations
@@ -128,8 +128,8 @@ When you've finished modifying files, open them for the user to review:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "changes ready for review"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane editor file1.py file2.py
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd update "changes ready for review"
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" pane editor file1.py file2.py
 ```
 
 ### During research — open file browser
@@ -138,7 +138,7 @@ When exploring the codebase:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" pane browser src/components/
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" pane browser src/components/
 ```
 
 ### Update context as you work
@@ -147,17 +147,17 @@ Keep the MOTD informed of what you're doing:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "analyzing test failures"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "writing migration script"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "done"
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd update "analyzing test failures"
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd update "writing migration script"
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd update "done"
 ```
 
 ### Clean up when done
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" close right
-bash "$REPO_ROOT/skills/swain-stage/scripts/swain-stage.sh" motd update "idle"
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" close right
+bash "$(find "$REPO_ROOT" -path '*/swain-stage/scripts/swain-stage.sh' -print -quit 2>/dev/null)" motd update "idle"
 ```
 
 ## Settings

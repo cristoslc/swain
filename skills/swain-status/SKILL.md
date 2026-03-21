@@ -52,7 +52,8 @@ The script supports `--compact` for consumption by swain-stage's MOTD panel:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/skills/swain-status/scripts/swain-status.sh" --compact
+STATUS_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-status/scripts/swain-status.sh' -print -quit 2>/dev/null)"
+[ -n "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --compact || echo "swain-status.sh not found"
 ```
 
 This outputs 4-5 lines suitable for the MOTD box: branch, active epic progress, current task, ready count, assigned issue count.
