@@ -1,6 +1,6 @@
 trove: google-stitch-sdk
 created: 2026-03-21
-refreshed: 2026-03-21
+refreshed: 2026-03-21T01:00:00Z
 tags:
   - google
   - stitch
@@ -11,6 +11,11 @@ tags:
   - agents
   - vercel-ai-sdk
   - tutorial
+  - skills
+  - antigravity
+  - design-to-code
+  - react
+  - cli
 
 freshness-ttl:
   web: 7d
@@ -22,6 +27,12 @@ history:
     commit: "cb99eed"
     sources: 3
     notes: "SDK README (full API ref), NxCode comprehensive guide, SiliconANGLE news coverage. stitch.withgoogle.com/docs/sdk/tutorial/ was JS SPA — could not fetch."
+  - event: extended
+    date: 2026-03-21
+    commit: "--"
+    sources: 7
+    sources-added: 4
+    notes: "Added official stitch-skills repo, davideast/stitch-mcp CLI, Geeky Gadgets MCP+Skills overview, Google Codelab design-to-code tutorial."
 
 sources:
   - source-id: stitch-sdk-github-readme
@@ -47,3 +58,35 @@ sources:
     title: "Google upgrades its Stitch AI interface development tool"
     hash: "d49868e032a7bb980e8cdf0ef011c5584a7914e93e95ff85ce4df3b10018f92f"
     notes: "News coverage of March 2026 update — infinite canvas, multi-screen generation, MCP integration, DESIGN.md export, Figma market impact."
+
+  - source-id: stitch-skills-repo
+    type: web
+    url: "https://github.com/google-labs-code/stitch-skills"
+    fetched: 2026-03-21T00:00:00Z
+    title: "google-labs-code/stitch-skills — Official Stitch Agent Skills"
+    hash: "3de301eb745e4d82bf9d128818528a6aecc0aad4ebd1d76ac31bdc12a453ce18"
+    notes: "Official skill library — 7 skills: stitch-design, stitch-loop, design-md, enhance-prompt, react-components, remotion, shadcn-ui. Follows Agent Skills open standard. 2.9k stars."
+
+  - source-id: stitch-mcp-cli
+    type: web
+    url: "https://github.com/davideast/stitch-mcp"
+    fetched: 2026-03-21T00:00:00Z
+    title: "davideast/stitch-mcp — CLI for Stitch Design-to-Dev Workflow"
+    hash: "c7f9f5c2dc8346954a007218b74ec2b55b6d68b333586c8be6989c0ef283c344"
+    notes: "Community MCP proxy + CLI. Virtual tools (build_site, get_screen_code, get_screen_image). Builds Astro sites from Stitch screens. Supports Claude Code, Cursor, VS Code, Gemini CLI."
+
+  - source-id: geeky-gadgets-mcp-skills
+    type: web
+    url: "https://www.geeky-gadgets.com/google-stitch-mcp-gemini-agent-skills/"
+    fetched: 2026-03-21T00:00:00Z
+    title: "Build Faster with Google Stitch Using MCP, Gemini CLI & Agent Skills"
+    hash: "3f0c6157bb7807137f3ef13988ed2427624b28de4957610d37d27e8f64a751e2"
+    notes: "Overview of MCP Server, Gemini CLI Extension, and Agent Skills ecosystem. Covers integration with VS Code, Cloud Code."
+
+  - source-id: codelab-design-to-code
+    type: web
+    url: "https://codelabs.developers.google.com/design-to-code-with-antigravity-stitch?hl=en"
+    fetched: 2026-03-21T00:00:00Z
+    title: "Design-to-Code with Antigravity and Stitch MCP — Google Codelab"
+    hash: "d129cd70dd83a3ecb6ff559a921b1f28b57ad952b1975fb30146e0800a127535"
+    notes: "Official step-by-step tutorial: Stitch → MCP → Antigravity → React/Tailwind. Covers API key setup, DESIGN.md generation, autonomous agent build loop."
