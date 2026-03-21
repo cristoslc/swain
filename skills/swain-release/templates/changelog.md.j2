@@ -1,0 +1,45 @@
+## [{{ version }}] - {{ date }}
+{% if features %}
+
+### Features
+{% for item in features %}
+{% if item.heading %}
+
+#### {{ item.heading }}
+
+{{ item.body }}
+{% elif item.text %}
+- {{ item.text }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if roadmap %}
+
+### Coming Next
+{% for item in roadmap %}
+{% if item is mapping and item.heading %}
+
+#### {{ item.heading }}
+
+{{ item.body }}
+{% elif item is mapping and item.text %}
+- {{ item.text }}
+{% else %}
+- {{ item }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if research %}
+
+### Research
+{% for item in research %}
+- {{ item }}
+{% endfor %}
+{% endif %}
+{% if supporting %}
+
+### Supporting Changes
+{% for item in supporting %}
+- {{ item }}
+{% endfor %}
+{% endif %}
