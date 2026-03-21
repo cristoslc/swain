@@ -84,33 +84,47 @@ Wait for the user to confirm, adjust the version, or abort. If the user wants a 
 
 Before writing, read the existing CHANGELOG.md (if any) to match the voice, density, and structure the project already uses. The changelog should read like the same person wrote every entry.
 
-#### Thematic sections over commit-type buckets
+#### Four fixed sections
 
-Group by *what changed for the user*, not by `feat`/`fix`/`docs` prefix. A section like "### Docker Sandbox (swain-box)" that tells the story of that feature area is far more useful than scattering its commits across "New Features", "Bug Fixes", and "Documentation".
+Every changelog entry uses these four `###` sections in order. Omit a section entirely if it has no entries — don't show empty headings.
 
-Identify the major themes by scanning commits for shared scopes, artifact IDs, and feature areas. Each theme that has 3+ commits gets its own `###` section with a descriptive heading.
-
-#### Prose for major work, bullets for small work
-
-If a theme represents significant new capability, write a **paragraph** (or a few) with bold lead-ins explaining what it is and why it matters. The reader should understand the feature without reading the commits.
+**### Features** — things that are built and shipped in this release. New skills, new CLI flags, new scripts, bug fixes that change behavior, refactors that change UX. The reader should understand the capability without reading the commits. Use prose paragraphs with bold lead-ins for major work, flat bullets for smaller items.
 
 ```markdown
-### Trove Redesign (BREAKING)
+### Features
 
-"Evidence pool" is now "trove" — a better name for what swain-search produces,
-which ranges from research evidence to reference libraries to repo mirrors.
-`evidencewatch` becomes `trovewatch`.
+**CLI roadmap renderer** — `chart.sh roadmap --cli` produces deterministic,
+terminal-friendly output grouped by Eisenhower quadrant with all first-degree
+children nested under their parent initiative. New `swain-roadmap` skill wraps
+it as the user-facing entry point: regenerate, open, display.
 
-**Hierarchical sources** — sources are no longer flattened to `001-slug.md`. Each
-source gets its own directory (`sources/<source-id>/`), and repository or
-documentation-site sources mirror their original tree structure.
+- iTerm tab name bleed fix — OSC title escapes now target the specific client
+  terminal instead of using global `tmux set-titles` (SPEC-124)
 ```
 
-For smaller themes or isolated changes, a flat bullet list is fine.
+**### Roadmap** — new or changed planning artifacts (visions, initiatives, epics, specs, ADRs, designs) that describe *future* work, not work that shipped. These are decisions about direction, not delivered capability. Bullet list is usually sufficient.
 
-#### Supporting Changes catchall
+```markdown
+### Roadmap
 
-Minor fixes, chore commits, refactors, and small improvements that don't fit a theme go in a `### Supporting Changes` section at the end — not interspersed with the major stories.
+- VISION-004 (Operator Cognitive Support), INITIATIVE-019, EPIC-039, and
+  6 supporting SPECs (118–123) for the session facilitation rebuild
+- SPEC-116 (Read Before Reasoning), SPEC-117 (Evidence Basis For All Actions)
+```
+
+**### Research** — trove collections, spike completions, and research artifacts. New evidence gathered, sources added, analysis produced.
+
+```markdown
+### Research
+
+- Google Stitch SDK trove — 7 sources collected and normalized
+```
+
+**### Supporting Changes** — chores, dependency bumps, cross-reference enrichment, minor refactors, and anything else that doesn't fit the above. Keep it brief.
+
+#### Thematic sub-sections within a section
+
+When a section has multiple distinct themes (e.g., Features has both a new skill and a bug fix area), use bold lead-ins or sub-groups — but stay within the four-section structure. Don't promote a theme to its own `###` heading.
 
 #### What to omit
 

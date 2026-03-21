@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.10.0-alpha] - 2026-03-21
+
+### Features
+
+**CLI roadmap renderer** — `chart.sh roadmap --cli` produces deterministic, terminal-friendly output grouped by Eisenhower quadrant with all first-degree children (EPICs, SPECs, SPIKEs) nested equally under their parent initiative. New `swain-roadmap` skill wraps it as the user-facing entry point: regenerate ROADMAP.md, open it, and display a scannable CLI summary.
+
+### Roadmap
+
+- VISION-004 (Operator Cognitive Support), INITIATIVE-019 (Session-Scoped Decision Support), EPIC-039 (Session Facilitation Rebuild), and 6 supporting SPECs (118–123) covering session lifecycle, roadmap decisions, detection hooks, and skill alignment
+- SPEC-116 (Read Before Reasoning), SPEC-117 (Evidence Basis For All Actions) — retro learnings from SPIKE-022 to SPEC-114 session
+
+### Research
+
+- Google Stitch SDK trove — 7 sources collected and normalized across 2 research sessions
+
+### Supporting Changes
+
+- iTerm tab name bleed fix — OSC title escapes now target the specific client terminal instead of using global `tmux set-titles` (SPEC-124)
+- Artifact cross-reference enrichment — ~100 doc files now have sorted, bidirectional `linked-artifacts` frontmatter
+- SPEC-114 (Worktree Landing via Merge with Retry) completed and verified
+- swain-release changelog format now uses four fixed sections: Features, Roadmap, Research, Supporting Changes
+
 ## [0.9.0-alpha] - 2026-03-20
 
 ### Trunk+Release Branch Model
