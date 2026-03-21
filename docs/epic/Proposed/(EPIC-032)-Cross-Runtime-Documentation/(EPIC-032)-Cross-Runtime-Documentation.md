@@ -19,6 +19,9 @@ depends-on-artifacts:
   - SPIKE-029
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-033
+  - SPIKE-029
 ---
 
 # Cross-Runtime Documentation

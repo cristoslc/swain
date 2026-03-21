@@ -10,6 +10,9 @@ type: feature
 parent-epic: EPIC-023
 linked-artifacts:
   - EPIC-017
+  - SPEC-060
+  - SPEC-062
+  - SPEC-065
 depends-on-artifacts:
   - SPEC-060
   - SPEC-062

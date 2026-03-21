@@ -17,6 +17,14 @@ acceptance-criteria:
   - "`status_dashboard` returns structured data: active epics with child spec counts by phase, blocked items, and a ranked recommendation"
   - Both tools work without any skill context (pure MCP, no SKILL.md dependency)
 swain-do: required
+linked-artifacts:
+  - SPEC-082
+  - SPEC-083
+  - SPEC-086
+  - SPEC-087
+  - SPEC-088
+  - SPEC-089
+  - SPEC-090
 ---
 
 # Chart + Status Query Tools

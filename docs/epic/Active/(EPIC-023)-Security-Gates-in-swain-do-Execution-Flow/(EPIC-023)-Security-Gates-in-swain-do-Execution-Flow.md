@@ -17,8 +17,13 @@ success-criteria:
   - The execution flow gates do not block tasks that have no security surface — detection must have a low false-positive rate
   - Security findings at task completion are filed as new tk issues, not silently dropped
 linked-artifacts:
-  - SPIKE-020
   - RUNBOOK-001
+  - SPEC-060
+  - SPEC-062
+  - SPEC-063
+  - SPEC-064
+  - SPEC-065
+  - SPIKE-020
 depends-on-artifacts:
   - EPIC-017
 trove: "security-skill-landscape"

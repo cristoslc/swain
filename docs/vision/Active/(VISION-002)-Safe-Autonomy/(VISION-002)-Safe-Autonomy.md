@@ -10,6 +10,11 @@ last-updated: 2026-03-18
 priority-weight: high
 depends-on-artifacts: []
 evidence-pool: ""
+linked-artifacts:
+  - INITIATIVE-004
+  - INITIATIVE-006
+  - PERSONA-001
+  - VISION-001
 ---
 
 # Safe Autonomy

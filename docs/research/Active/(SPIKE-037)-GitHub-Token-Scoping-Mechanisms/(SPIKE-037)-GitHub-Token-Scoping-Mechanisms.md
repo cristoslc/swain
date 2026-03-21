@@ -13,6 +13,8 @@ risks-addressed:
   - Relying solely on branch protection rules creates a single point of failure — misconfiguration or repo transfer could silently remove the guard
   - Token theft from a compromised sandbox could grant broader access than intended
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-037
 ---
 
 # GitHub Token Scoping Mechanisms

@@ -17,6 +17,14 @@ acceptance-criteria:
   - Health check tool returns server version and database stats
   - Server discoverable by Claude Code via `.mcp.json` config
 swain-do: required
+linked-artifacts:
+  - SPEC-083
+  - SPEC-084
+  - SPEC-085
+  - SPEC-086
+  - SPEC-087
+  - SPEC-089
+  - SPEC-090
 ---
 
 # MCP Server Scaffold + SQLite Persistence

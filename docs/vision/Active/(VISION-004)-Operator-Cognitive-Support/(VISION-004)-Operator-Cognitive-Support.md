@@ -8,9 +8,13 @@ author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
 priority-weight: high
+
 depends-on-artifacts:
   - VISION-001
 evidence-pool: session-decision-support@01095c4
+linked-artifacts:
+  - PERSONA-001
+  - VISION-001
 ---
 
 # Operator Cognitive Support

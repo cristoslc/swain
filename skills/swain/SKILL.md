@@ -15,6 +15,7 @@ Invoke the Skill tool for exactly one match. Pass the user's full prompt as args
 | swain-release | release, version, changelog, tag |
 | swain-update | update/upgrade swain |
 | swain-doctor | session init, governance, doctor, health check, gitignore |
+| swain-roadmap | roadmap, priority matrix, show roadmap, refresh roadmap |
 | swain-status | status, progress, what's next, dashboard, overview, where are we, what should I work on |
 | swain-help | help, how do I, what is, reference, cheat sheet, commands |
 | swain-init | init, onboard, setup, bootstrap (one-time project setup) |

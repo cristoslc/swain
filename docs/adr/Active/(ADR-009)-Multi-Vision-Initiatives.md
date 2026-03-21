@@ -7,8 +7,16 @@ author: cristos
 created: 2026-03-19
 last-updated: 2026-03-19
 linked-artifacts:
-  - INITIATIVE-013
+  - EPIC-015
+  - EPIC-016
+  - EPIC-020
+  - EPIC-036
   - INITIATIVE-001
+  - INITIATIVE-013
+  - SPEC-050
+  - VISION-001
+  - VISION-002
+  - VISION-003
 depends-on-artifacts: []
 evidence-pool: ""
 ---

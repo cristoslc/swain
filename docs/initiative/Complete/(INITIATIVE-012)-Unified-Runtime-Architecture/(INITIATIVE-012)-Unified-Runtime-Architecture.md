@@ -13,8 +13,10 @@ success-criteria:
   - Clear documentation of which sandbox type serves each runtime and why
   - Security promises documented per sandbox type (what's guaranteed, what's best-effort, what's out of scope)
 linked-artifacts:
-  - EPIC-030
   - DESIGN-002
+  - EPIC-030
+  - INITIATIVE-011
+  - INITIATIVE-013
 depends-on-artifacts:
   - INITIATIVE-011
 addresses: []

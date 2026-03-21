@@ -13,8 +13,10 @@ success-criteria:
   - Shell scripts produced by agents do not contain untested Docker/git/runtime invocations
   - A repeatable verification mechanism exists that agents can invoke during implementation
 linked-artifacts:
-  - SPIKE-036
+  - INITIATIVE-004
   - SPEC-098
+  - SPIKE-036
+  - VISION-002
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

@@ -9,6 +9,9 @@ last-updated: 2026-03-17
 type: feature
 parent-epic: EPIC-017
 linked-artifacts:
+  - SPEC-058
+  - SPEC-060
+  - SPEC-061
   - SPIKE-015
   - SPIKE-020
 depends-on-artifacts: []

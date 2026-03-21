@@ -11,6 +11,8 @@ parent-epic: EPIC-038
 parent-initiative: ""
 linked-artifacts:
   - SPEC-106
+  - SPEC-108
+  - SPEC-109
 depends-on-artifacts:
   - SPEC-109
 addresses: []

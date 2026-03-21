@@ -9,8 +9,12 @@ last-updated: 2026-03-20
 supersedes: ADR-005
 linked-artifacts:
   - ADR-005
-  - SPIKE-022
+  - EPIC-038
+  - SPEC-107
+  - SPEC-108
   - SPEC-113
+  - SPEC-114
+  - SPIKE-022
 depends-on-artifacts:
   - ADR-012
 evidence-pool: "multi-agent-collision-vectors"

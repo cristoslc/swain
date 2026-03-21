@@ -11,6 +11,7 @@ parent-epic: ""
 parent-initiative: INITIATIVE-005
 linked-artifacts:
   - ADR-006
+  - INITIATIVE-007
   - VISION-001
 depends-on-artifacts: []
 addresses: []

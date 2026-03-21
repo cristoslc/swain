@@ -18,6 +18,13 @@ success-criteria:
   - git log SESSION-ROADMAP.md reads as a session diary
 depends-on-artifacts: []
 evidence-pool: session-decision-support@01095c4
+linked-artifacts:
+  - SPEC-118
+  - SPEC-119
+  - SPEC-120
+  - SPEC-121
+  - SPEC-122
+  - SPEC-123
 ---
 
 # Session Facilitation Rebuild

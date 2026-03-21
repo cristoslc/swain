@@ -15,6 +15,8 @@ validates:
   - SPEC-081
 parent-epic: ""
 depends-on-artifacts: []
+linked-artifacts:
+  - VISION-002
 ---
 
 # Sandbox Launcher Operations

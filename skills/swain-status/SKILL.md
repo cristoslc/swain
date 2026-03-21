@@ -18,16 +18,9 @@ Cross-cutting project status dashboard. Aggregates data from artifact lifecycle 
 
 ## Roadmap freshness
 
-Before rendering any status output, ensure ROADMAP.md is current. If it is missing or older than any doc artifact, regenerate it:
+The status script includes a staleness check that regenerates ROADMAP.md if it is missing or older than any doc artifact. This runs automatically — no separate invocation needed.
 
-```bash
-ROADMAP="$(git rev-parse --show-toplevel)/ROADMAP.md"
-if [ ! -f "$ROADMAP" ] || [ "$(find docs -name '*.md' -newer "$ROADMAP" -print -quit 2>/dev/null)" ]; then
-  bash "$(find . -path '*/swain-design/scripts/chart.sh' -print -quit)" roadmap
-fi
-```
-
-Run this check before the status script invocation. If chart.sh is unavailable, skip and continue — the roadmap section will degrade gracefully.
+For a full roadmap refresh (unconditional regeneration), use `swain-roadmap` instead.
 
 ## When invoked
 

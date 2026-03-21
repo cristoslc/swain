@@ -21,6 +21,10 @@ acceptance-criteria:
   - Prompts embed relevant resources (artifact definitions, templates) via MCP resource references
   - Prompts include chaining hints that reference load_methodology for sub-workflows
 swain-do: required
+linked-artifacts:
+  - SPEC-083
+  - SPEC-087
+  - SPEC-090
 ---
 
 # MCP Prompts for Key Workflows

@@ -9,7 +9,12 @@ last-updated: 2026-03-20
 type: feature
 parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-118
+  - SPEC-119
+  - SPEC-120
+  - SPEC-121
+  - SPEC-122
 depends-on-artifacts:
   - SPEC-118
   - SPEC-119

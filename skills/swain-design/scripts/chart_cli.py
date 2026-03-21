@@ -118,6 +118,8 @@ def main():
                            help="Focus on a specific Vision ID")
     roadmap_p.add_argument("--json", action="store_true", dest="json_output",
                            help="JSON output")
+    roadmap_p.add_argument("--cli", action="store_true", dest="cli_output",
+                           help="CLI-friendly plain text to stdout")
 
     # Passthrough commands (delegate to specgraph CLI)
     for cmd in _PASSTHROUGH_COMMANDS:
@@ -155,8 +157,14 @@ def main():
         fmt = getattr(args, "format", None)
         json_out = getattr(args, "json_output", False)
 
-        # If --format or --json given, print raw to stdout
-        if fmt or json_out:
+        cli_out = getattr(args, "cli_output", False)
+
+        # If --format, --json, or --cli given, print to stdout
+        if cli_out:
+            from specgraph.roadmap import render_roadmap_cli
+            items = collect_roadmap_items(nodes, edges, focus)
+            print(render_roadmap_cli(items))
+        elif fmt or json_out:
             output = render_roadmap(nodes, edges, fmt=fmt or "mermaid-gantt",
                                     focus_vision=focus, json_output=json_out)
             print(output)

@@ -16,7 +16,11 @@ linked-artifacts:
   - EPIC-012
   - EPIC-017
   - EPIC-023
+  - EPIC-030
   - EPIC-036
+  - INITIATIVE-010
+  - SPEC-067
+  - VISION-002
 ---
 
 # Security & Trust

@@ -17,8 +17,18 @@ success-criteria:
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
-linked-artifacts: []
----
+linked-artifacts:
+  - SPEC-102
+  - SPEC-103
+  - SPEC-104
+  - SPEC-105
+  - SPEC-106
+  - SPEC-107
+  - SPEC-108
+  - SPEC-109
+  - SPEC-110
+  - SPEC-111
+  - SPEC-112---
 
 # Priority Roadmap and Decision Surface
 

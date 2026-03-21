@@ -9,6 +9,7 @@ last-updated: 2026-03-18
 superseded-by: DESIGN-005
 linked-artifacts:
   - EPIC-030
+  - SPEC-067
   - SPEC-068
   - SPEC-069
   - SPEC-070

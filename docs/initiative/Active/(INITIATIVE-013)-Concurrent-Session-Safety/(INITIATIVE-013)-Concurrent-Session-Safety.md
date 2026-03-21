@@ -19,8 +19,17 @@ success-criteria:
 linked-artifacts:
   - ADR-005
   - ADR-009
-  - SPEC-081
+  - EPIC-015
+  - EPIC-016
+  - EPIC-020
+  - EPIC-036
   - INITIATIVE-001
+  - INITIATIVE-010
+  - INITIATIVE-012
+  - SPEC-050
+  - SPEC-081
+  - VISION-001
+  - VISION-002
 depends-on-artifacts:
   - INITIATIVE-012
 addresses: []

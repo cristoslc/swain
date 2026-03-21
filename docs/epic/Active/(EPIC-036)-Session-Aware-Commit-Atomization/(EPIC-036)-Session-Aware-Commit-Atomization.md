@@ -19,7 +19,9 @@ success-criteria:
   - Commit ordering reflects chronological session activity
 depends-on-artifacts:
   - EPIC-016
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-098
+  - SPEC-099
 addresses: []
 evidence-pool: ""
 ---

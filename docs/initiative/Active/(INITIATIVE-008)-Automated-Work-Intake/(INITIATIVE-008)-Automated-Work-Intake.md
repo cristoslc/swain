@@ -14,9 +14,12 @@ success-criteria:
   - TOTP-authenticated issues are fast-tracked; unauthenticated issues go through structural + content filters
   - Per-project intake configuration supporting one or more repos
 linked-artifacts:
+  - EPIC-017
+  - EPIC-023
   - EPIC-024
-  - SPIKE-025
+  - INITIATIVE-004
   - SPEC-052
+  - SPIKE-025
 ---
 
 # Automated Work Intake

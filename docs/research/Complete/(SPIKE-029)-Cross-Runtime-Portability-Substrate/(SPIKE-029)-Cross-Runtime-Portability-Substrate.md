@@ -13,6 +13,10 @@ risks-addressed:
   - Building per-runtime adapters that share no common foundation
   - Targeting runtimes with unstable or nonexistent extension APIs
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-032
+  - EPIC-033
+  - SPIKE-028
 ---
 
 # Cross-Runtime Portability Substrate

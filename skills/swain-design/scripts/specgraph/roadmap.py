@@ -1043,3 +1043,81 @@ def render_roadmap(
         return "\n\n".join(parts)
     else:
         return render_gantt(items, nodes)
+
+
+def render_roadmap_cli(items: list[dict]) -> str:
+    """Render roadmap items as CLI-friendly plain text.
+
+    Groups items by quadrant, nests children (EPICs, SPECs, SPIKEs)
+    under their parent initiative. All first-degree children are shown
+    equally regardless of type.
+    """
+    from collections import defaultdict
+
+    QUADRANT_ORDER = ["Do First", "Schedule", "In Progress", "Backlog"]
+
+    # Group by quadrant, then by initiative (group field)
+    quads: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
+    for item in items:
+        ql = item.get("quadrant_label", "Backlog")
+        g = item.get("group", item["id"])
+        quads[ql][g].append(item)
+
+    lines: list[str] = []
+
+    for quad in QUADRANT_ORDER:
+        if quad not in quads:
+            continue
+        groups = quads[quad]
+
+        lines.append(quad.upper())
+
+        # Sort initiatives by max score of their members (descending)
+        sorted_groups = sorted(
+            groups.items(),
+            key=lambda kv: max(i["score"] for i in kv[1]),
+            reverse=True,
+        )
+
+        for group_id, group_items in sorted_groups:
+            # Separate initiative item from children
+            init_items = [i for i in group_items if i["type"] == "INITIATIVE"]
+            children = [i for i in group_items if i["type"] != "INITIATIVE"]
+            children.sort(key=lambda x: -x["score"])
+
+            # Initiative header
+            if init_items:
+                init = init_items[0]
+                title = init["title"]
+                short = _short_id(init["id"])
+                progress = f"{init['children_complete']}/{init['children_total']}"
+                decision = f"  {init['operator_decision']}" if init.get("operator_decision") else ""
+                lines.append(f"  {title} ({short}){' ' * max(1, 48 - len(title) - len(short))}{progress}{decision}")
+            else:
+                # No initiative item in this quadrant — use group_title from first child
+                title = group_items[0].get("group_title", group_id)
+                short = _short_id(group_id)
+                lines.append(f"  {title} ({short})")
+
+            # Children (EPICs, SPECs, SPIKEs)
+            for child in children:
+                cid = child["id"]
+                ctitle = child["title"][:40]
+                progress = f"{child['children_complete']}/{child['children_total']}"
+                decision = f"  {child['operator_decision']}" if child.get("operator_decision") else ""
+                lines.append(f"    {cid:<12s}  {ctitle:<40s}  {progress}{decision}")
+
+        lines.append("")  # blank line between quadrants
+
+    # Blocking dependencies
+    deps = []
+    for item in items:
+        for dep_id in item.get("depends_on", []):
+            deps.append((item["id"], dep_id))
+    if deps:
+        lines.append("BLOCKED")
+        for blocked, blocker in sorted(set(deps)):
+            lines.append(f"  {blocked} depends on {blocker}")
+        lines.append("")
+
+    return "\n".join(lines).rstrip()

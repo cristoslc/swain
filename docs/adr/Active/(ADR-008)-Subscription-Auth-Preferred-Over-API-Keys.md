@@ -7,11 +7,12 @@ author: cristos
 created: 2026-03-19
 last-updated: 2026-03-19
 linked-artifacts:
-  - SPEC-092
   - DESIGN-005
+  - INITIATIVE-013
+  - SPEC-092
   - SPIKE-032
   - SPIKE-034
-  - INITIATIVE-013
+  - VISION-002
 depends-on-artifacts: []
 evidence-pool: ""
 ---

@@ -16,6 +16,11 @@ success-criteria:
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - EPIC-032
+  - EPIC-033
+  - VISION-001
+  - VISION-002
 ---
 
 # Cross-Surface Portability

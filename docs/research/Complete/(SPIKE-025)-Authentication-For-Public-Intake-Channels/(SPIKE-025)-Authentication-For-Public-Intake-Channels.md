@@ -8,8 +8,9 @@ created: 2026-03-16
 last-updated: 2026-03-16
 parent-initiative: INITIATIVE-008
 linked-artifacts:
-  - INITIATIVE-008
   - EPIC-024
+  - INITIATIVE-004
+  - INITIATIVE-008
 ---
 
 # Authentication for Public Intake Channels

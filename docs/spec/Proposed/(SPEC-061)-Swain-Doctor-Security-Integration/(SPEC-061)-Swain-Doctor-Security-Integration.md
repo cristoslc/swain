@@ -8,7 +8,10 @@ created: 2026-03-17
 last-updated: 2026-03-17
 type: feature
 parent-epic: EPIC-017
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-058
+  - SPEC-059
+  - SPEC-060
 depends-on-artifacts:
   - SPEC-059
   - SPEC-060

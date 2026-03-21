@@ -9,7 +9,10 @@ last-updated: 2026-03-20
 type: feature
 parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-118
+  - SPEC-119
+  - SPEC-123
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

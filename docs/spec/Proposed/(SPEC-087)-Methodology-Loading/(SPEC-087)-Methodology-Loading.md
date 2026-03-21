@@ -18,6 +18,11 @@ acceptance-criteria:
   - Returned text includes chaining hints (e.g., "when brainstorming is complete, call load_methodology with 'writing-plans'")
   - Works in any MCP client — no Claude Code-specific dependencies in the returned text
 swain-do: required
+linked-artifacts:
+  - SPEC-082
+  - SPEC-088
+  - SPEC-089
+  - SPEC-090
 ---
 
 # Methodology Loading Tool

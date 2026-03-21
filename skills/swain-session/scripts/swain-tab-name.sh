@@ -49,9 +49,20 @@ set_title() {
     if [[ -n "$session_name" ]]; then
       tmux $TMUX_ARGS rename-session "$session_name" 2>/dev/null || true
     fi
-    # Propagate window name to the outer terminal (iTerm tab title).
-    tmux $TMUX_ARGS set-option -g set-titles on 2>/dev/null || true
-    tmux $TMUX_ARGS set-option -g set-titles-string "#W" 2>/dev/null || true
+    # Disable global set-titles — it broadcasts the focused client's window name
+    # to ALL client terminals, causing inactive iTerm tabs to show the wrong name.
+    # See SPEC-124.
+    tmux $TMUX_ARGS set-option -g set-titles off 2>/dev/null || true
+    # Instead, send OSC title escapes directly to THIS session's client terminal.
+    local session_name_resolved client_tty
+    session_name_resolved=$(tmux $TMUX_ARGS display-message -p '#{session_name}' 2>/dev/null)
+    if [[ -n "$session_name_resolved" ]]; then
+      client_tty=$(tmux $TMUX_ARGS list-clients -t "$session_name_resolved" -F '#{client_tty}' 2>/dev/null | head -1)
+    fi
+    if [[ -n "${client_tty:-}" && -w "$client_tty" ]]; then
+      printf '\033]1;%s\007' "$title" > "$client_tty" 2>/dev/null || true
+      printf '\033]0;%s\007' "$title" > "$client_tty" 2>/dev/null || true
+    fi
   elif [[ -t 1 ]]; then
     if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
       printf '\033]1;%s\007' "$title"
@@ -76,10 +87,19 @@ reset_title() {
   # Restore default behavior: remove hook, clear @swain_path, re-enable auto-rename
   if [[ -n "$TMUX" ]]; then
     tmux $TMUX_ARGS set-window-option automatic-rename on 2>/dev/null || true
-    tmux $TMUX_ARGS set-option -g set-titles-string "#W" 2>/dev/null || true
+    tmux $TMUX_ARGS set-option -g set-titles off 2>/dev/null || true
     tmux $TMUX_ARGS set-hook -uw pane-focus-in 2>/dev/null || true
     tmux $TMUX_ARGS set-option -pu @swain_path 2>/dev/null || true
     tmux $TMUX_ARGS set-option -pu @swain_path_explicit 2>/dev/null || true
+    # Reset the outer terminal title via this session's client only
+    local session_name_resolved client_tty
+    session_name_resolved=$(tmux $TMUX_ARGS display-message -p '#{session_name}' 2>/dev/null)
+    if [[ -n "$session_name_resolved" ]]; then
+      client_tty=$(tmux $TMUX_ARGS list-clients -t "$session_name_resolved" -F '#{client_tty}' 2>/dev/null | head -1)
+    fi
+    if [[ -n "${client_tty:-}" && -w "$client_tty" ]]; then
+      printf '\033]0;%s\007' "${SHELL##*/}" > "$client_tty" 2>/dev/null || true
+    fi
   fi
   printf '\033]0;%s\007' "${SHELL##*/}"
 }

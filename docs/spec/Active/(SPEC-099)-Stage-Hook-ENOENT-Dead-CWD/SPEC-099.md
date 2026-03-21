@@ -11,6 +11,7 @@ parent-epic: ""
 parent-initiative: INITIATIVE-015
 linked-artifacts:
   - SPEC-098
+  - SPEC-100
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

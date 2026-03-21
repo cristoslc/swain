@@ -10,7 +10,13 @@ type:
 parent-epic:
 parent-initiative:
 parent-vision: VISION-001
-linked-artifacts: []
+linked-artifacts:
+  - DESIGN-003
+  - EPIC-034
+  - INITIATIVE-015
+  - PERSONA-001
+  - SPEC-067
+  - SPEC-093
 depends-on-artifacts: []
 addresses: []
 evidence-pool:

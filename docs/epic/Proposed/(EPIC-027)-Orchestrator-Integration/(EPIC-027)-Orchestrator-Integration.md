@@ -17,8 +17,12 @@ success-criteria:
   - Interactive vs delegable dispatch modes work with model routing and prompt seeds
   - Superpowers skills chain correctly via subscriptions.json
 linked-artifacts:
-  - INITIATIVE-009
+  - EPIC-025
   - EPIC-026
+  - EPIC-028
+  - INITIATIVE-009
+  - SPEC-012
+  - SPEC-042
 ---
 
 # Orchestrator Integration

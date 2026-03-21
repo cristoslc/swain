@@ -8,7 +8,8 @@ created: 2026-03-18
 last-updated: 2026-03-18
 type: bug
 parent-epic: EPIC-031
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-079
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

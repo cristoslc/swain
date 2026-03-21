@@ -15,10 +15,13 @@ risks-addressed:
   - Artifact index files (list-*.md) diverging under concurrent updates
   - session.json corruption from concurrent writes
 linked-artifacts:
-  - EPIC-020
   - EPIC-015
+  - EPIC-020
   - EPIC-038
+  - SPEC-107
+  - SPEC-108
   - SPEC-113
+  - VISION-002
 trove: "multi-agent-collision-vectors@3568768"
 ---
 

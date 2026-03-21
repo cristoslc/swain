@@ -10,8 +10,11 @@ type: feature
 parent-epic: EPIC-030
 parent-initiative: ""
 linked-artifacts:
-  - SPEC-067
   - DESIGN-002
+  - INITIATIVE-011
+  - SPEC-067
+  - SPEC-069
+  - SPEC-070
   - SPIKE-032
 depends-on-artifacts:
   - SPEC-067

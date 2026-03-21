@@ -11,6 +11,7 @@ affected-artifacts:
   - swain-doctor
 swain-do: required
 linked-artifacts:
+  - BUG-001
   - SPEC-006
 
 depends-on-artifacts: []

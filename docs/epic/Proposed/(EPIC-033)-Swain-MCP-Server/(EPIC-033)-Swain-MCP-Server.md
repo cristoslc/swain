@@ -23,6 +23,19 @@ depends-on-artifacts:
   - SPIKE-030
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - SPEC-082
+  - SPEC-083
+  - SPEC-084
+  - SPEC-085
+  - SPEC-086
+  - SPEC-087
+  - SPEC-088
+  - SPEC-089
+  - SPEC-090
+  - SPIKE-028
+  - SPIKE-029
+  - SPIKE-030
 ---
 
 # Swain MCP Server
