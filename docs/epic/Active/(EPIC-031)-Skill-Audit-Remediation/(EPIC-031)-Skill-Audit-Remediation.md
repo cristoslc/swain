@@ -80,3 +80,4 @@ Resolve all findings from the 2026-03-18 full skill-creator audit of 18 swain sk
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-18 | — | Created from 2026-03-18 skill audit findings |
+| Complete | 2026-03-21 | — | All 9 specs implemented. SPEC-080/074/075/076/073/077/078 were already complete. SPEC-072 committed (find-based discovery). SPEC-079 committed (progressive disclosure). SPIKE-033 investigated (No-Go). DESIGN-003 reviewed (accurate). |
