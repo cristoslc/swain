@@ -21,7 +21,7 @@ The changelog generation pipeline is now governed by a data contract (changelog-
 swain-trunk.sh detects the development branch from git worktree state instead of hardcoding it. Repos on develop, main, trunk, or any branch are supported automatically with zero configuration. All runtime skills (swain-sync, swain-doctor, swain-release) now use dynamic detection via a $TRUNK variable sourced at workflow start. An optional git.trunk override in swain.settings.json handles edge cases like detached HEAD, but is never required for normal operation.
 - Doctor and preflight now detect whether the trunk+release model is configured and advise on migration
 
-### Coming Next
+### Planned
 - Data contracts for agent-produced data — a lightweight schema+semantics+quality contract format that gives agents scoped per-field interpretation rules instead of unstructured prose. The changelog pipeline is the first consumer; future skills will follow the same pattern.
 
 ### Supporting Changes
@@ -33,172 +33,92 @@ swain-trunk.sh detects the development branch from git worktree state instead of
 
 ### Features
 
-**CLI roadmap renderer** — `chart.sh roadmap --cli` produces deterministic, terminal-friendly output grouped by Eisenhower quadrant with all first-degree children (EPICs, SPECs, SPIKEs) nested equally under their parent initiative. New `swain-roadmap` skill wraps it as the user-facing entry point: regenerate ROADMAP.md, open it, and display a scannable CLI summary.
+#### CLI roadmap renderer
 
-### Roadmap
+`chart.sh roadmap --cli` produces deterministic, terminal-friendly output grouped by Eisenhower quadrant with all first-degree children nested under their parent initiative. New `swain-roadmap` skill wraps it as the user-facing entry point: regenerate ROADMAP.md, open it, and display a scannable CLI summary.
+- Worktree landing via merge-with-retry verified end-to-end — concurrent agents can now land work on trunk without rebasing, with automatic fetch-merge-retry on push rejection
+- iTerm tab name bleed fix — OSC title escapes now target the specific client terminal instead of using global `tmux set-titles`
 
-- VISION-004 (Operator Cognitive Support), INITIATIVE-019 (Session-Scoped Decision Support), EPIC-039 (Session Facilitation Rebuild), and 6 supporting SPECs (118–123) covering session lifecycle, roadmap decisions, detection hooks, and skill alignment
-- SPEC-116 (Read Before Reasoning), SPEC-117 (Evidence Basis For All Actions) — retro learnings from SPIKE-022 to SPEC-114 session
+### Planned
+- Session facilitation rebuild — rethinking how swain helps the operator maintain focus, make decisions, and recover context across sessions
+- Two new behavioral rules distilled from retrospective: agents must read artifacts before reasoning about them, and must produce evidence before asserting outcomes
 
 ### Research
-
 - Google Stitch SDK trove — 7 sources collected and normalized across 2 research sessions
 
 ### Supporting Changes
-
-- iTerm tab name bleed fix — OSC title escapes now target the specific client terminal instead of using global `tmux set-titles` (SPEC-124)
 - Artifact cross-reference enrichment — ~100 doc files now have sorted, bidirectional `linked-artifacts` frontmatter
-- SPEC-114 (Worktree Landing via Merge with Retry) completed and verified
-- swain-release changelog format now uses four fixed sections: Features, Roadmap, Research, Supporting Changes
+- Changelog format standardized to four fixed sections
 
 ## [0.9.0-alpha] - 2026-03-20
 
-### Trunk+Release Branch Model
+### Features
 
-swain now supports a two-branch workflow where `trunk` is the development
-branch and `release` is squash-merged at release time. A migration script
-handles the rename from `main` to `trunk`, and all skill references have been
-updated. "Merge-With-Retry Replaces Rebase-Then-Push" (ADR-011) replaces the
-fragile rebase-then-push strategy with a merge-with-retry loop for worktree
-landing, and "Trunk+Release Branch Model" (ADR-013) codifies the two-branch
-convention.
+#### Trunk+release branch model
 
-### Roadmap: Level-Based Initiative Children
-
-SPECs and Spikes attached directly to an Initiative (without an Epic wrapper)
-now appear as first-class items in ROADMAP.md — visible in Eisenhower tables,
-Gantt charts, and progress counters. Previously, only Epics were rendered;
-direct-child specs were silently dropped. The filtering is now level-based
-(any 1-deep child of an Initiative) rather than type-based.
-("Roadmap Initiative children use level-based filtering, not type-based" —
-SPEC-115)
+swain now supports a two-branch workflow where `trunk` is the development branch and `release` is the distribution branch, squash-merged at release time. Consumers installing via `npx skills add` get clean single-commit releases instead of merge noise from concurrent agent landing. A migration script handles the rename from `main` to `trunk` and configures the GitHub default branch.
+- Merge-with-retry replaces rebase-then-push for worktree landing — agents no longer need to rebase, reducing conflicts and data loss risk
+- Roadmap now shows SPECs and Spikes attached directly to Initiatives — previously only Epics were rendered, silently dropping direct-child specs from Eisenhower tables, Gantt charts, and progress counters
 
 ### Supporting Changes
-
-- Expanded domain field guidance in DESIGN artifact template — documents valid
-  `domain` enum values (`interaction`, `data`, `system`)
+- DESIGN artifact template expanded with domain field guidance (`interaction`, `data`, `system`)
 - Quadrant boundary alignment and X-axis jitter fix for roadmap scatter plot
-- Dependency graph now uses `flowchart TD` layout
-- Link corrections and ROADMAP regeneration
+- Dependency graph switched to `flowchart TD` layout for clearer rendering
 
 ## [0.8.0-alpha] - 2026-03-20
 
-### Security Scanning (EPIC-017, EPIC-023)
+### Features
 
-Swain now has a built-in security posture — not just "run a scanner" but a
-layered system that integrates into the existing workflow at multiple points.
+#### Security scanning
 
-**swain-security-check** — a new skill that orchestrates gitleaks, osv-scanner,
-trivy, semgrep, and two built-in scanners (context file injection, threat surface
-heuristic) into a unified, severity-bucketed report. Missing scanners are skipped
-with install hints — the scan always completes. (SPEC-058, SPEC-060, SPEC-062)
+Swain now has a built-in security posture — not just "run a scanner" but a layered system that integrates into the existing workflow at multiple points. **swain-security-check** orchestrates gitleaks, osv-scanner, trivy, semgrep, and two built-in scanners (context file injection, threat surface heuristic) into a unified, severity-bucketed report. Missing scanners are skipped with install hints — the scan always completes. Doctor checks scanner availability on session start. A post-implementation security gate runs automatically before claiming work is complete, and external security skills can hook in via a documented interface.
 
-**Doctor integration** — swain-doctor now checks scanner availability on session
-start, so the operator knows what coverage they have before they need it.
-(SPEC-059, SPEC-061)
+#### Docker sandbox (swain-box)
 
-**Workflow gates** — a post-implementation security gate runs automatically before
-claiming work is complete, and a pre-claim security briefing summarizes findings
-inline. External security skills can hook in via a documented interface.
-(SPEC-063, SPEC-064, SPEC-065)
+swain-box grew from a proof-of-concept Docker wrapper into a real launcher with multi-step UX. The launcher walks through authentication first (OAuth token from Keychain, API key detection, login confirmation), then isolation (worktree-enforced sandbox with bind-mounted project files). Auth and isolation are separate menus, not a single flag soup. A long tail of OAuth and API key bugs resolved — the launcher now warns clearly when credentials are missing rather than failing silently.
 
-**Validation** — RUNBOOK-001 documents the end-to-end security epics test plan,
-first run 25/25 PASS.
+#### TRAIN artifact type
 
-### Docker Sandbox (swain-box)
+A new artifact type for training materials, documentation guides, and onboarding content. TRAIN gets the full lifecycle treatment: type definition, template, staleness detector (`train-check.sh`), inference routing, specwatch integration, and phase transition hooks. As part of this work, "enriched linked-artifacts" were renamed to the clearer **artifact-refs**, and a new **sourcecode-refs** field was added for linking artifacts to implementation files.
 
-swain-box grew from a proof-of-concept Docker wrapper into a real launcher with
-multi-step UX.
+#### Design integrity
 
-**Unified two-step flow** — the launcher now walks through authentication first
-(OAuth token from Keychain, API key detection, login confirmation), then
-isolation (worktree-enforced sandbox with bind-mounted project files). Auth and
-isolation are separate menus, not a single flag soup. (SPEC-081, SPEC-092)
+Artifacts can now detect when their own content has drifted from what was reviewed and approved. `design-check.sh` compares blob SHAs of design-critical sections against stamped baselines, surfacing drift in specwatch, swain-sync, and swain-design workflows. DESIGN artifacts gain a Design Intent section for capturing original rationale, and swain-design now scans active same-type artifacts for scope overlap when creating new standing-track artifacts.
 
-**Credential handling** — a long tail of OAuth and API key bugs resolved:
-Keychain JSON extraction, config mounting, env cleanup, tilde expansion,
-apiKeyHelper injection, and the `--` separator for agent args. The launcher
-now warns clearly when credentials are missing rather than failing silently.
-
-**Planning** — EPIC-030 (multi-agent runtime), VISION-002 (Safe Autonomy), and
-capability bridge artifacts lay the groundwork for the next phase of sandbox
-work.
-
-### TRAIN Artifact Type (SPEC-091)
-
-A new artifact type for training materials, documentation guides, and onboarding
-content. TRAIN gets the full lifecycle treatment: type definition, Jinja2
-template, staleness detector (`train-check.sh`), inference routing, specwatch
-integration, phase transition hooks, and frontmatter parser support.
-
-As part of this work, "enriched linked-artifacts" were renamed to the clearer
-**artifact-refs**, and a new **sourcecode-refs** field was added for linking
-artifacts to implementation files. (SPEC-094)
-
-### Design Integrity (EPIC-035)
-
-Artifacts can now detect when their own content has drifted from what was
-reviewed and approved.
-
-**design-check.sh** — compares blob SHAs of design-critical sections against
-stamped baselines, surfacing drift in specwatch, swain-sync, and swain-design
-workflows. (SPEC-096, SPEC-097)
-
-**Design Intent** — DESIGN artifacts gain a new section for capturing the
-original design rationale, making it easier to judge whether a drift is
-intentional evolution or accidental decay. (SPEC-095)
-
-**Overlap detection** — swain-design now scans active same-type artifacts for
-scope overlap when creating new DESIGN, Persona, or Runbook artifacts,
-preventing duplicate or conflicting standing-track work.
-
-### Strategic Planning
-
-- Add VISION-002 (Safe Autonomy) and VISION-003 (Swain Everywhere) with
-  portability initiative and research spikes
-- Add INITIATIVE-017 for unattended agent safety guardrails (EPIC-037, SPIKE-037)
-- Consolidate initiative hierarchy and add session atomization epic
-- Complete INITIATIVE-011 + INITIATIVE-012 (credential scoping, multi-runtime)
-- Add INIT-009 Unified Project State Graph with 4 child EPICs
-- Add ADR-007 Event-Driven Orchestrator Replaces Prose Chaining Table
+### Planned
+- Safe autonomy direction established — unattended agent safety guardrails, credential scoping, and multi-runtime support being designed
+- Portable framework patterns being researched — how swain's skill model could work outside Claude Code
+- Unified project state graph planned — event-driven orchestration to replace prose chaining tables
 
 ### Research
-- Design staleness and drift detection trove (7 sources)
-- Docker sandboxes and docker-agent troves
-- Claude Code plugins intercom trove
-- SPIKE-028/029/030 portability findings
+- Design staleness and drift detection — 7 sources surveyed for prior art on content drift detection
+- Docker sandbox patterns and docker-agent isolation approaches
+- Claude Code plugin intercom mechanisms
+- Framework portability — surveyed Cursor, Windsurf, and generic agent patterns
 
 ### Supporting Changes
 - Gracefully handle unauthenticated gh CLI in swain-keys
-- Fix rebuild-index spike type mapping to docs/research/
-- Slim AGENTS.md from 220 to ~60 lines, remove deprecated artifact types
-- Add decision protection as core swain concept
-- Skill audit remediation (EPIC-031)
-- Add MCP Server specs (SPEC-082–091) for EPIC-033
-- swain-do: pre-plan implementation detection and retroactive-close (#72)
-- swain-do: fix ticket title extraction (#66), stale path resolution (#71),
-  table parser pipe artifacts (#74), bookmark non-interactivity (#64)
-- Release claim lock on close to prevent stale lock accumulation (tk)
+- Slim AGENTS.md from 220 to ~60 lines
+- Skill audit remediation across all skills
+- swain-do: pre-plan implementation detection, retroactive-close for already-shipped specs, and several ticket CLI fixes
+- tk: release claim lock on close to prevent stale lock accumulation
 
 ## [0.7.0-alpha] - 2026-03-17
 
-### New Features
-- Pane-aware tmux tab naming with `--path` flag and worktree support (SPEC-056)
-- SPEC-054 Project Identity Enforcement
+### Features
+
+#### Pane-aware tmux tab naming
+
+Tmux tabs now show the project name and branch for the active pane, with `--path` flag support and worktree awareness. Tab names update automatically when switching between panes that are in different repos or worktrees. Includes `resolve_path()` extraction, per-window hooks, and `SWAIN_TMUX_SOCKET` override for testability.
+- Project identity enforcement — swain-design validates that artifacts reference the correct project context
 
 ### Research
-- SPIKE-025 Authentication for Public Intake Channels — threat model, TOTP-in-the-clear assessment, auth mechanism evaluation, synthesis, integration sketch, and spike completion
+- Public intake channel authentication — threat-modeled authentication for public-facing intake channels, evaluated TOTP, OAuth, and API key mechanisms, concluded TOTP-in-the-clear is acceptable when scoped to low-value intake actions with replay mitigation
 
-### Bug Fixes
-- Use `set +e` in tab-naming script to prevent session-start failures
-- Rewrite TOTP analysis to center on replayability (SPIKE-025)
-- Close cross-reference gaps across 79 artifact files
-
-### Other Changes
-- Add THIRD_PARTY_NOTICES for vendored tk (MIT, wedow/ticket)
-- Add attribution header to `skills/swain-do/bin/tk`
-- Add acceptance test suite for tab naming
-- Refactor `swain-tab-name.sh`: extract `resolve_path()`, per-window hooks, `SWAIN_TMUX_SOCKET` override for testability
+### Supporting Changes
+- THIRD_PARTY_NOTICES and attribution header for vendored tk (MIT, wedow/ticket)
+- Cross-reference gap closure across 79 artifact files
+- Tab naming acceptance test suite
 
 ## [0.6.0-alpha] - 2026-03-16
 
