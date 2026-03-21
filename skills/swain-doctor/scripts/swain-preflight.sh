@@ -153,6 +153,25 @@ if [[ -x "$DOCTOR_SECURITY_SCRIPT" ]]; then
   fi
 fi
 
+# Trunk/release branch model detection (EPIC-029, ADR-013)
+# Check that scripts/swain-trunk.sh exists and the detected trunk branch has a remote
+TRUNK_SCRIPT="$REPO_ROOT/scripts/swain-trunk.sh"
+if [[ ! -x "$TRUNK_SCRIPT" ]]; then
+  issues+=("scripts/swain-trunk.sh missing or not executable — EPIC-029 trunk detection not installed")
+else
+  DETECTED_TRUNK=$(bash "$TRUNK_SCRIPT" 2>/dev/null || echo "")
+  if [[ -z "$DETECTED_TRUNK" ]]; then
+    issues+=("swain-trunk.sh returned empty — cannot detect trunk branch")
+  elif ! git ls-remote --heads origin "$DETECTED_TRUNK" 2>/dev/null | grep -q "$DETECTED_TRUNK"; then
+    echo "advisory: trunk branch '$DETECTED_TRUNK' has no remote counterpart on origin"
+  fi
+  # Check if release branch exists (ADR-013 trunk+release model)
+  if ! git rev-parse --verify release 2>/dev/null >/dev/null; then
+    echo "advisory: no 'release' branch found — trunk+release model (ADR-013) not configured"
+    echo "  run: bash scripts/migrate-to-trunk-release.sh --dry-run"
+  fi
+fi
+
 # Check for epics without parent-initiative (initiative migration advisory)
 EPICS_WITHOUT_INITIATIVE=0
 while IFS= read -r -d '' f; do
