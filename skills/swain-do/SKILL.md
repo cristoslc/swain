@@ -121,7 +121,16 @@ Selects serial vs. subagent-driven execution based on superpowers availability a
 
 ## Pre-plan implementation detection
 
-Before creating a plan for a SPEC, check whether it is already implemented. Perform all three steps:
+Before creating a plan for a SPEC, check whether it is already implemented. Perform all four steps:
+
+**Step 0 — Check for unmerged worktree branches:**
+```bash
+git branch --all | grep -i "<SPEC-ID>" | while read b; do
+  merged=$(git branch --merged HEAD | grep -c "${b##*/}")
+  [ "$merged" -eq 0 ] && echo "UNMERGED: $b"
+done
+```
+An unmerged branch with the spec ID in its name is a strong signal of prior work. If found, check its commits (`git log --oneline <branch> --not HEAD`) and test status before creating a new plan — the retroactive-close path is likely appropriate.
 
 **Step 1 — Check git history for the spec ID:**
 ```bash
