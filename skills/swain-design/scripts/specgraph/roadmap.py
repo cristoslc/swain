@@ -986,7 +986,7 @@ def _get_recent_commits(
                 [
                     "git", "log", "--all",
                     f"--grep={aid}", f"-{limit}",
-                    "--format=%h\t%s\t%aI\t%ar",
+                    "--format=%h\t%s\t%aI\t%as",
                 ],
                 capture_output=True, text=True, cwd=repo_root, timeout=10,
             )
