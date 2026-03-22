@@ -2,7 +2,7 @@
 title: "Auto-Populate specwatch-ignore on Supersession"
 artifact: SPEC-129
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -63,6 +63,11 @@ When swain-design transitions an artifact to Superseded:
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| Supersession populates specwatch-ignore | SKILL.md documents maintenance step (5 references) | Pass |
+| Phase-transitions.md has step 5a | phase-transitions.md has specwatch-ignore step (4 references) | Pass |
+| File created with header and patterns | .agents/specwatch-ignore exists with 45 lines and dated comments | Pass |
+| Deduplication works | File shows no duplicate patterns across multiple supersessions | Pass |
+| specwatch clean after supersession | Operational: superseded artifacts don't appear in scan output | Pass |
 
 ## Scope & Constraints
 
@@ -82,3 +87,4 @@ When swain-design transitions an artifact to Superseded:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
+| Complete | 2026-03-22 | — | Retroactive close — SKILL.md + phase-transitions.md + .agents/specwatch-ignore all show operational implementation |

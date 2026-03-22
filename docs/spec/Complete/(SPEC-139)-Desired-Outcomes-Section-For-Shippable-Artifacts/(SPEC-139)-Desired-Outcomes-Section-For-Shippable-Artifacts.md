@@ -2,7 +2,7 @@
 title: "Desired Outcomes Section for Shippable Artifacts"
 artifact: SPEC-139
 track: implementable
-status: Active
+status: Complete
 author: operator
 created: 2026-03-21
 last-updated: 2026-03-21
@@ -113,6 +113,12 @@ The audit report groups these findings under a **"Missing Desired Outcomes"** he
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| SPEC template has Desired Outcomes | spec-template.md.template contains section after Problem Statement | Pass |
+| EPIC template has Desired Outcomes | epic-template.md.template contains section after Goal/Objective | Pass |
+| INITIATIVE template has Desired Outcomes | initiative-template.md.template contains section after Strategic Focus | Pass |
+| No hard gate on missing section | Soft guidance — no phase transition blocks for missing section | Pass |
+| Audit checks for Desired Outcomes | auditing.md has 8 references to Desired Outcomes check | Pass |
+| Audit remediation workflow documented | auditing.md includes draft+review workflow for missing sections | Pass |
 
 ## Scope & Constraints
 
@@ -140,3 +146,4 @@ Template edits are single section insertions with placeholder text — minimal r
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-21 | — | Initial creation |
+| Complete | 2026-03-22 | — | Retroactive close — implementation at 3a2943f, all 6 ACs verified (templates + auditing) |
