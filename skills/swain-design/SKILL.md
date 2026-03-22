@@ -66,7 +66,7 @@ When the operator asks to update a field on an existing artifact (e.g., "set VIS
 5. Commit the change
 
 **Common updates:**
-- `priority-weight` on Visions, Initiatives, and Epics — accepts `high`, `medium`, or `low`. Cascades: Vision → Initiative (can override) → Epic (can override) → Spec (inherits nearest). Affects downstream recommendation scoring and sibling sort order in `swain chart`.
+- `priority-weight` on Visions, Initiatives, Epics, and Specs — accepts `high`, `medium`, or `low`. Cascades: Vision → Initiative (can override) → Epic (can override) → Spec (can override). Affects downstream recommendation scoring and sibling sort order in `swain chart`.
 - `parent-initiative` on Epics and Specs — re-parents them under an Initiative. A Spec can have `parent-epic` OR `parent-initiative`, never both.
 - `parent-vision` on Initiatives — attaches to a Vision.
 
