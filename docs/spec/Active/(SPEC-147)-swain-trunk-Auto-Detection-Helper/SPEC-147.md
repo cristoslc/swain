@@ -1,11 +1,11 @@
 ---
 title: "swain_trunk() Auto-Detection Helper"
-artifact: SPEC-118
+artifact: SPEC-147
 track: implementation
 status: Active
 author: cristos
 created: 2026-03-21
-last-updated: 2026-03-21
+last-updated: 2026-03-22
 parent-epic: EPIC-029
 priority-weight: high
 depends-on-artifacts: []

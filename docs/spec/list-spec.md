@@ -64,7 +64,7 @@
 | SPEC-116 | Read Before Reasoning | 2026-03-20 | ec9842d |
 | SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | ec9842d |
 | SPEC-118 | SESSION-ROADMAP.md Format and Generation | 2026-03-20 | -- |
-| SPEC-118 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
+| SPEC-147 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
 | SPEC-119 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-119 | Session Lifecycle in swain-session | 2026-03-20 | -- |
 | SPEC-120 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
