@@ -1250,10 +1250,10 @@ def render_roadmap(
     nodes: dict,
     edges: list[dict],
     fmt: str = "mermaid-gantt",
-    focus_vision: str | None = None,
+    scope: str | None = None,
     json_output: bool = False,
 ) -> str:
-    items = collect_roadmap_items(nodes, edges, focus_vision)
+    items = collect_roadmap_items(nodes, edges, scope=scope)
 
     if json_output:
         import json
