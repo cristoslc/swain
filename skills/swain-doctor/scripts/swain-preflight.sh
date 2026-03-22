@@ -153,6 +153,17 @@ if [[ -x "$DOCTOR_SECURITY_SCRIPT" ]]; then
   fi
 fi
 
+# 13. Skill change discipline (SPEC-148) — advisory, triggers doctor
+SKILL_CHECK_SCRIPT="skills/swain-doctor/scripts/check-skill-changes.sh"
+if [[ -x "$SKILL_CHECK_SCRIPT" ]]; then
+  skill_output=$(bash "$SKILL_CHECK_SCRIPT" 2>/dev/null || true)
+  skill_status=$?
+  if [[ $skill_status -ne 0 && -n "$skill_output" ]]; then
+    echo "$skill_output"
+    issues+=("non-trivial skill changes detected on trunk (use worktree branches)")
+  fi
+fi
+
 # Trunk/release branch model detection (EPIC-029, ADR-013)
 # Check that scripts/swain-trunk.sh exists and the detected trunk branch has a remote
 TRUNK_SCRIPT="$REPO_ROOT/scripts/swain-trunk.sh"

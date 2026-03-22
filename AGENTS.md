@@ -45,6 +45,10 @@ When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), 
 
 If superpowers is not installed, superpowers chains are skipped, not blocked. Swain-to-swain chains (last three rows) always apply.
 
+## Skill change discipline
+
+**Skill changes are code changes.** Skill files (`skills/`, `.claude/skills/`, `.agents/skills/`) are code written in markdown syntax. Non-trivial skill edits require worktree isolation — the same discipline applied to `.sh`, `.py`, and other code files. Trivial fixes (typo corrections, single-line doc fixes, ≤5-line diffs touching one file with no structural changes) may land directly on trunk.
+
 ## Session startup (AUTO-INVOKE)
 
 Run `bash .claude/skills/swain-doctor/scripts/swain-preflight.sh`. Exit 0 → skip doctor, invoke **swain-session**. Exit 1 → invoke **swain-doctor**, then **swain-session**.
