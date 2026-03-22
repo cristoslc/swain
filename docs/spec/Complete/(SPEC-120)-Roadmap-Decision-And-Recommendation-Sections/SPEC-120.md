@@ -2,10 +2,10 @@
 title: "ROADMAP.md Decision and Recommendation Sections"
 artifact: SPEC-120
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20
+last-updated: 2026-03-21
 type: feature
 parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
@@ -73,6 +73,11 @@ These sections use existing specgraph data (recommend, decision-debt commands). 
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Decisions above Eisenhower | ROADMAP.md line 13 ("Decisions Waiting on You") appears before Eisenhower tables; test_roadmap_markdown_decisions_before_eisenhower passes | PASS |
+| AC2: Operator vs agent buckets | ROADMAP.md has "Decisions Waiting on You" (line 13) and "Implementation Ready (agent can handle)" (line 40); test_decisions_section_proposed_epic_in_operator_bucket and test_decisions_section_active_spec_in_implementation_bucket pass | PASS |
+| AC3: Empty state | test_decisions_section_empty_state confirms "No decisions needed right now" output when no decisions exist | PASS |
+| AC4: Recommended Next | ROADMAP.md line 9 shows "Recommended Next" with top item and rationale; test_recommendation_shows_top_item and test_recommendation_includes_rationale pass | PASS |
+| AC5: Existing content unchanged | ROADMAP.md retains Timeline (line 165) and Blocking Dependencies (line 227); test_roadmap_markdown_preserves_existing_sections passes; 485/486 existing tests pass (1 pre-existing failure) | PASS |
 
 ## Scope & Constraints
 
@@ -96,3 +101,4 @@ These sections use existing specgraph data (recommend, decision-debt commands). 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
+| Complete | 2026-03-21 | -- | All ACs verified; 13 tests pass |
