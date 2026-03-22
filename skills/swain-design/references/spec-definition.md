@@ -29,6 +29,7 @@ Follow **spec-driven development** principles: an Agent Spec is a behavior contr
   - Supporting docs live alongside it in the same folder.
 - Should be scoped to something a team (or agent) can ship and validate independently.
 - **Type field:** `type: enhancement | bug` (default: unset). Informational metadata — does not affect lifecycle phases. An unset type indicates a standard spec (new capability). When `type: bug`, the template includes additional sections: Reproduction Steps, Severity, and Expected vs. Actual Behavior.
+- **Priority field:** `priority-weight: high | medium | low` (optional). When set, overrides the inherited weight from the parent Epic or Initiative for this SPEC only. Omit the field to inherit — behavior is identical to the current cascade (SPEC inherits from the nearest ancestor with a weight). Use a SPEC-level override when a single SPEC within a high-priority Epic is low-value, or vice versa.
 - **Parent-epic is optional:** SPECs can exist standalone (no parent epic) for small features, enhancements, or bugs that don't warrant epic-level coordination. Standalone SPECs appear under "Unparented" in specgraph.
 - **Tracking requirement:** All Specs carry `swain-do: required` in frontmatter. When a Spec comes up for implementation, invoke the swain-do skill to create a tracked plan before writing code (see SKILL.md § Execution tracking handoff).
 

@@ -89,6 +89,27 @@ class TestVisionWeightResolution:
         # SPEC inherits from INITIATIVE (medium=2) since EPIC has no weight
         assert resolve_vision_weight("SPEC-001", nodes, edges) == 2
 
+    def test_spec_overrides_epic_weight(self):
+        """SPEC with priority-weight overrides its parent Epic's weight."""
+        nodes = {
+            "VISION-001": {"title": "V1", "status": "Active", "type": "VISION",
+                           "priority_weight": "high", "file": "", "description": ""},
+            "EPIC-001": {"title": "E1", "status": "Active", "type": "EPIC",
+                         "priority_weight": "high", "file": "", "description": ""},
+            "SPEC-001": {"title": "S1", "status": "Ready", "type": "SPEC",
+                         "priority_weight": "low", "file": "", "description": ""},
+        }
+        edges = [
+            {"from": "EPIC-001", "to": "VISION-001", "type": "parent-vision"},
+            {"from": "SPEC-001", "to": "EPIC-001", "type": "parent-epic"},
+        ]
+        # SPEC has own weight low=1, overrides Epic's high=3
+        assert resolve_vision_weight("SPEC-001", nodes, edges) == 1
+
+    def test_spec_without_weight_still_inherits(self):
+        """SPEC with no priority-weight still inherits from parent chain (no regression)."""
+        assert resolve_vision_weight("SPEC-001", self.NODES, self.EDGES) == 3
+
 
 class TestDecisionDebt:
     """Test decision debt computation per vision."""

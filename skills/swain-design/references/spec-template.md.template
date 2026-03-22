@@ -7,6 +7,7 @@ status: {{ status | default("Proposed") }}
 author: {{ author }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
+priority-weight: ""  # optional: high | medium | low. Omit to inherit from parent Epic or Initiative.
 type: {{ type | default("") }}
 parent-epic: {{ parent_epic | default("") }}
 parent-initiative: {{ parent_initiative | default("") }}
