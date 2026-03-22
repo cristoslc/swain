@@ -89,6 +89,7 @@ def build_graph(
             "description": artifact.description,
             "priority_weight": priority_weight,
             "sort_order": sort_order,
+            "brief_description": fields.get("brief-description", ""),
         }
 
         # depends-on edges
