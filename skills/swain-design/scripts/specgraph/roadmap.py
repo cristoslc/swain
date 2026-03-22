@@ -66,6 +66,19 @@ def _get_children(parent_id: str, edges: list[dict]) -> list[str]:
     return children
 
 
+def _compute_descendants(artifact_id: str, edges: list[dict]) -> set[str]:
+    """BFS to collect all descendants (children, grandchildren, etc.), including self."""
+    visited: set[str] = {artifact_id}
+    queue = [artifact_id]
+    while queue:
+        current = queue.pop(0)
+        for child in _get_children(current, edges):
+            if child not in visited:
+                visited.add(child)
+                queue.append(child)
+    return visited
+
+
 def _spec_progress(epic_id: str, nodes: dict, edges: list[dict]) -> tuple[int, int]:
     children = _get_children(epic_id, edges)
     total = complete = 0
