@@ -96,9 +96,22 @@ def collect_roadmap_items(
     nodes: dict,
     edges: list[dict],
     focus_vision: str | None = None,
+    scope: str | None = None,
 ) -> list[dict]:
     """Collect Initiatives and Epics with scores and grouping."""
     items: list[dict] = []
+
+    # Scope filtering: compute the set of artifact IDs in scope
+    scope_ids: set[str] | None = None
+    if scope:
+        if scope not in nodes:
+            return []
+        scope_ids = _compute_descendants(scope, edges)
+    elif focus_vision:
+        # Legacy: treat as scope for backward compat during transition
+        if focus_vision not in nodes:
+            return []
+        scope_ids = _compute_descendants(focus_vision, edges)
 
     # Track direct-child specs/spikes of initiatives for second pass
     initiative_direct_children: list[tuple[str, str]] = []  # (child_id, parent_init_id)
@@ -110,9 +123,10 @@ def collect_roadmap_items(
         if _node_is_resolved(aid, nodes):
             continue
 
-        vision = _find_vision_ancestor(aid, nodes, edges)
-        if focus_vision and vision != focus_vision:
+        if scope_ids is not None and aid not in scope_ids:
             continue
+
+        vision = _find_vision_ancestor(aid, nodes, edges)
 
         weight = resolve_vision_weight(aid, nodes, edges)
         unblocks = _compute_unblock_count(aid, nodes, edges)
@@ -180,9 +194,9 @@ def collect_roadmap_items(
     # grouped under their parent Initiative (SPEC-115)
     for child_id, parent_init_id in initiative_direct_children:
         child_node = nodes.get(child_id, {})
-        vision = _find_vision_ancestor(child_id, nodes, edges)
-        if focus_vision and vision != focus_vision:
+        if scope_ids is not None and child_id not in scope_ids:
             continue
+        vision = _find_vision_ancestor(child_id, nodes, edges)
         weight = resolve_vision_weight(child_id, nodes, edges)
         unblocks = _compute_unblock_count(child_id, nodes, edges)
         score = unblocks * weight

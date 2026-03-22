@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from specgraph.roadmap import _compute_descendants, _get_children
+from specgraph.roadmap import _compute_descendants, _get_children, collect_roadmap_items
 
 
 def _make_scoped_graph():
@@ -56,3 +56,37 @@ def test_compute_descendants_initiative():
     assert "INITIATIVE-001" in desc
     assert "INITIATIVE-002" not in desc
     assert "VISION-001" not in desc
+
+
+def test_scope_vision_filters_to_subtree():
+    nodes, edges = _make_scoped_graph()
+    items = collect_roadmap_items(nodes, edges, scope="VISION-001")
+    item_ids = {i["id"] for i in items}
+    assert "INITIATIVE-001" in item_ids
+    assert "EPIC-001" in item_ids
+    assert len(items) > 0
+
+
+def test_scope_initiative_filters_to_children():
+    nodes, edges = _make_scoped_graph()
+    items = collect_roadmap_items(nodes, edges, scope="INITIATIVE-001")
+    item_ids = {i["id"] for i in items}
+    assert "EPIC-001" in item_ids
+    assert "EPIC-002" in item_ids
+    assert "SPEC-DIRECT" in item_ids
+    assert "INITIATIVE-002" not in item_ids
+
+
+def test_scope_excludes_resolved():
+    """Scoped collection still skips resolved (Complete) artifacts."""
+    nodes, edges = _make_scoped_graph()
+    items = collect_roadmap_items(nodes, edges, scope="INITIATIVE-001")
+    item_ids = {i["id"] for i in items}
+    # SPEC-001 is Complete — it should NOT appear as a roadmap item
+    assert "SPEC-001" not in item_ids
+
+
+def test_scope_invalid_id_returns_empty():
+    nodes, edges = _make_scoped_graph()
+    items = collect_roadmap_items(nodes, edges, scope="NONEXISTENT-999")
+    assert items == []
