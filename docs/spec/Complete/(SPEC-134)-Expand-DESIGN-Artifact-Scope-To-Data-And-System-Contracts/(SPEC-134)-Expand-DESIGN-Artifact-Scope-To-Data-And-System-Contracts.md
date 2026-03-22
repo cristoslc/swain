@@ -217,4 +217,4 @@ The existing DESIGN decision protection hooks in SKILL.md (SPEC implementation t
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
-| Complete | 2026-03-21 | -- | Retroactive close — all deliverables already in codebase; 413/414 tests pass |
+| Complete | 2026-03-21 | d491b1a | Retroactive close — all deliverables already in codebase; 413/414 tests pass |
