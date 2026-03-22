@@ -25,6 +25,28 @@ Collect, normalize, and cache source materials into reusable troves that swain-d
 | Trove exists and user says "refresh" or sources are past TTL | **Refresh** — re-fetch stale sources |
 | User asks "what troves do we have" or "find sources about X" | **Discover** — search existing troves by tag |
 
+## Prior art check
+
+Before creating a new trove or running web searches, scan existing troves for relevant content. This avoids duplicating research and surfaces connections to prior work.
+
+```bash
+# Search trove manifests by tag
+grep -rl "<keyword>" docs/troves/*/manifest.yaml 2>/dev/null
+
+# Search trove source content
+grep -rl "<keyword>" docs/troves/*/sources/**/*.md 2>/dev/null
+
+# Search trove syntheses
+grep -rl "<keyword>" docs/troves/*/synthesis.md 2>/dev/null
+```
+
+If existing troves contain relevant sources:
+1. **Report what was found** — show the trove ID, matching source titles, and relevant excerpts
+2. **Suggest extend over create** — if an existing trove covers the same topic, extend it rather than creating a parallel trove
+3. **Cross-link** — if the topic is adjacent but distinct, create a new trove but note the related trove in synthesis.md
+
+This step runs in all modes (Create, Extend, Discover) and before any web searches. Existing trove content is always checked first.
+
 ## Create mode
 
 Build a new trove from scratch.

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.15.1-alpha] - 2026-03-22
+
+### Features
+- swain-search now checks existing troves for relevant content before running web searches or creating new troves — avoids duplicate research and surfaces connections to prior work
+
+### Research
+- field-notes trove created — catch-all for interesting references without immediate purpose; first entry: /sclear session capture skill (devlog extraction patterns)
+
 ## [0.15.0-alpha] - 2026-03-22
 
 ### Features
