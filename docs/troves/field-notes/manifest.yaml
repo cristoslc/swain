@@ -1,0 +1,33 @@
+trove: field-notes
+created: 2026-03-22
+refreshed: 2026-03-22
+tags:
+  - reference
+  - inspiration
+  - skills
+  - session-management
+  - devlog
+
+freshness-ttl:
+  web: never
+  document: never
+  media: never
+
+history:
+  - event: created
+    date: 2026-03-22
+    commit: "--"
+    sources: 1
+    notes: "Catch-all trove for interesting references without immediate purpose"
+
+referenced-by: []
+
+sources:
+  - source-id: sclear-session-capture-skill
+    type: web
+    url: "https://gist.github.com/shines/1c280094c4e12276b2d5345178987c36"
+    fetched: 2026-03-22T12:00:00Z
+    title: "Claude Code /sclear skill — session capture & clear devlog"
+    hash: "b33daa10a9ed11f0c98e4505455ab0775be3b39bc598b7587818dd3d9de9c9a1"
+    freshness-ttl: never
+    notes: "Session capture skill by shines — devlog entries as blog raw material. Interesting patterns: disable-model-invocation, first-person voice, narrative over transcript, fail-safe clearing."
