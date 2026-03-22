@@ -2,7 +2,7 @@
 title: "Spec-Level Priority Weight"
 artifact: SPEC-141
 track: implementable
-status: Needs Manual Test
+status: Complete
 author: cristos
 created: 2026-03-21
 last-updated: 2026-03-21
@@ -168,3 +168,4 @@ def test_spec_without_weight_still_inherits(self):
 |-------|------|--------|-------|
 | Active | 2026-03-21 | c063592 | Initial creation |
 | Needs Manual Test | 2026-03-21 | 0926173 | Implementation complete; all 6 acceptance criteria verified |
+| Complete | 2026-03-21 | -- | Operator waived manual test; all criteria evidenced by automated tests |
