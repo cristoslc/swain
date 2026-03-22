@@ -16,7 +16,7 @@ freshness-ttl:
 history:
   - event: created
     date: 2026-03-22
-    commit: "--"
+    commit: "0e7b4f7"
     sources: 1
     notes: "Catch-all trove for interesting references without immediate purpose"
 
