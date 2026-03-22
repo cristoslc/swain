@@ -171,7 +171,7 @@ def main():
         else:
             # Default: write ROADMAP.md to project root
             items = collect_roadmap_items(nodes, edges, focus)
-            md = render_roadmap_markdown(items, nodes, repo_root=repo_root)
+            md = render_roadmap_markdown(items, nodes, repo_root=repo_root, edges=edges)
             roadmap_path = os.path.join(repo_root, "ROADMAP.md")
             with open(roadmap_path, "w", encoding="utf-8") as f:
                 f.write(md)
