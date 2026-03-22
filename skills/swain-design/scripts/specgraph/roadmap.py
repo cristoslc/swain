@@ -999,17 +999,16 @@ def _get_recent_commits(
                 h, msg, date_iso, date_human = parts
                 if h not in seen:
                     seen.add(h)
-                    # Trim "2026-03-21 14:32:05 -0600" → "2026-03-21 14:32"
-                    date_short = date_human.rsplit(":", 1)[0] if " " in date_human else date_human
-                    # Drop timezone offset
-                    parts2 = date_short.rsplit(" ", 1)
-                    if len(parts2) == 2 and (parts2[1].startswith("+") or parts2[1].startswith("-")):
-                        date_short = parts2[0]
+                    # Parse "2026-03-21 14:32:05 -0600" into date and time
+                    dt_parts = date_human.split(" ", 2)
+                    c_date = dt_parts[0] if len(dt_parts) >= 1 else ""
+                    c_time = dt_parts[1].rsplit(":", 1)[0] if len(dt_parts) >= 2 else ""  # drop seconds
                     commits.append({
                         "hash": h,
                         "message": msg,
                         "date": date_iso,
-                        "date_human": date_short,
+                        "c_date": c_date,
+                        "c_time": c_time,
                     })
         except (_sp.TimeoutExpired, FileNotFoundError):
             pass
@@ -1144,11 +1143,11 @@ def render_scoped_roadmap(
         ]
         if recent_commits:
             lines.extend([
-                "| When | Commit | Message |",
-                "|------|--------|---------|",
+                "| Date | Time | Commit | Message |",
+                "|------|------|--------|---------|",
             ])
             for c in recent_commits:
-                lines.append(f"| {c.get('date_human', '')} | `{c['hash']}` | {c['message']} |")
+                lines.append(f"| {c.get('c_date', '')} | {c.get('c_time', '')} | `{c['hash']}` | {c['message']} |")
         else:
             lines.append("_No recent commits reference child artifacts._")
         lines.append("")
