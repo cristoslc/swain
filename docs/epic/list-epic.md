@@ -15,10 +15,9 @@
 | EPIC-026 | Query Layer | 2026-03-17 | — |
 | EPIC-027 | Orchestrator Integration | 2026-03-17 | — |
 | EPIC-028 | Status Integration | 2026-03-17 | — |
-| EPIC-029 | Auto-Detecting Trunk Branch | 2026-03-17 | — |
 | EPIC-032 | Cross-Runtime Documentation | 2026-03-18 | — |
 | EPIC-033 | Swain MCP Server | 2026-03-18 | — |
-| EPIC-036 | Sandbox Capability Bridges | 2026-03-20 | -- |
+| EPIC-040 | Sandbox Capability Bridges | 2026-03-20 | -- |
 
 ## Active
 
@@ -26,6 +25,7 @@
 |----------|-------|-------------|--------|
 | EPIC-017 | Security Vulnerability Scanning Skill | 2026-03-17 | 648d4a7 |
 | EPIC-023 | Security Gates in swain-do Execution Flow | 2026-03-17 | 648d4a7 |
+| EPIC-029 | Auto-Detecting Trunk Branch | 2026-03-21 | — |
 | EPIC-031 | Skill Audit Remediation | 2026-03-18 | — |
 | EPIC-034 | User Documentation System | 2026-03-19 | — |
 | EPIC-035 | Design Staleness and Drift Detection | 2026-03-19 | -- |

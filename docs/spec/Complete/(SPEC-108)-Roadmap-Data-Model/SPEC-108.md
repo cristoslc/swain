@@ -10,7 +10,7 @@ type: feature
 parent-epic: EPIC-038
 parent-initiative: ""
 linked-artifacts:
-  - SPEC-102
+  - SPEC-132
   - SPEC-104
   - SPEC-105
   - SPEC-109

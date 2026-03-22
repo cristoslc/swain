@@ -16,7 +16,7 @@ risks-addressed:
 evidence-pool: ""
 linked-artifacts:
   - SPEC-092
-  - SPEC-098
+  - SPEC-126
   - VISION-002
 depends-on-artifacts: []
 ---

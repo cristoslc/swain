@@ -10,7 +10,7 @@ type: bug
 parent-epic: ""
 parent-initiative: ""
 linked-artifacts:
-  - SPEC-099
+  - SPEC-127
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
@@ -24,7 +24,7 @@ swain-do: required
 
 In swain-sync Step 6 (Push), when operating in a linked worktree (`IN_WORKTREE=yes`), the skill removes the worktree directory after pushing but never `cd`s back to the main repo. The agent's CWD becomes a deleted directory, breaking all subsequent commands — git operations, hook invocations, verification steps, and the session bookmark all fail. The session is effectively dead.
 
-This also causes SPEC-099 (ENOENT on `/bin/sh`) as a downstream symptom: Claude Code hooks can't spawn a shell when the CWD doesn't exist.
+This also causes SPEC-127 (ENOENT on `/bin/sh`) as a downstream symptom: Claude Code hooks can't spawn a shell when the CWD doesn't exist.
 
 ## External Behavior
 

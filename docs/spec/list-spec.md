@@ -21,10 +21,10 @@
 | SPEC-088 | MCP Prompts for Key Workflows | 2026-03-19 | — |
 | SPEC-089 | MCP Resources for Definitions and Templates | 2026-03-19 | — |
 | SPEC-090 | Plugin + Desktop Extension Packaging | 2026-03-19 | — |
-| SPEC-098 | CLI Command Verification in Agent Execution | 2026-03-19 | — |
-| SPEC-099 | Container-Compatible Runtime Auth Commands | 2026-03-19 | — |
-| SPEC-100 | Host tmux Bridge for Sandboxed Agents | 2026-03-20 | -- |
-| SPEC-101 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
+| SPEC-126 | CLI Command Verification in Agent Execution | 2026-03-19 | — |
+| SPEC-128 | Container-Compatible Runtime Auth Commands | 2026-03-19 | — |
+| SPEC-130 | Host tmux Bridge for Sandboxed Agents | 2026-03-20 | -- |
+| SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 
 ## Active
 
@@ -54,29 +54,38 @@
 | SPEC-096 | design-check.sh — Blob SHA Drift Detection | 2026-03-19 | -- |
 | SPEC-097 | Integration Hooks and Decision Protection | 2026-03-19 | -- |
 | SPEC-098 | Session Action Log | 2026-03-19 | -- |
-| SPEC-098 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-20 | — |
 | SPEC-099 | Commit Atomization in swain-sync | 2026-03-19 | -- |
-| SPEC-099 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-20 | — |
-| SPEC-100 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | -- |
 | SPEC-100 | swain-sync must restore CWD after worktree cleanup | 2026-03-20 | — |
 | SPEC-101 | ssh-readiness.sh: expand tilde in IdentityFile path before file test | 2026-03-20 | — |
 | SPEC-102 | swain-doctor SSH Binary Check | 2026-03-20 | — |
 | SPEC-103 | Artifact cross-reference hyperlinking | 2026-03-20 | — |
-| SPEC-107 | Sibling order ranking for epics and specs | 2026-03-20 | — |
-| SPEC-108 | Roadmap data model | 2026-03-20 | — |
-| SPEC-109 | Roadmap Jinja templates | 2026-03-20 | — |
-| SPEC-110 | Quadrant PNG pipeline | 2026-03-20 | — |
-| SPEC-111 | Status roadmap integration | 2026-03-20 | — |
-| SPEC-112 | Dependency graph initiative subgraphs | 2026-03-20 | — |
 | SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
+| SPEC-115 | Roadmap Initiative children use level-based filtering, not type-based | 2026-03-20 | — |
 | SPEC-116 | Read Before Reasoning | 2026-03-20 | ec9842d |
 | SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | ec9842d |
+| SPEC-118 | SESSION-ROADMAP.md Format and Generation | 2026-03-20 | -- |
+| SPEC-119 | Session Lifecycle in swain-session | 2026-03-20 | -- |
+| SPEC-120 | ROADMAP.md Decision and Recommendation Sections | 2026-03-20 | -- |
+| SPEC-121 | Session Detection Hooks Across All Skills | 2026-03-20 | -- |
+| SPEC-122 | Absorb swain-status into swain-session | 2026-03-20 | -- |
+| SPEC-123 | Skill and Script Alignment Audit | 2026-03-20 | -- |
+| SPEC-124 | Roadmap legend should display epic names alongside initiative names | 2026-03-21 | — |
+| SPEC-125 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-20 | — |
+| SPEC-127 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-20 | — |
+| SPEC-129 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | -- |
+| SPEC-134 | Expand DESIGN Artifact Scope to Data and System Contracts | 2026-03-20 | -- |
+| SPEC-135 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
+| SPEC-136 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
+| SPEC-137 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
+| SPEC-138 | iTerm Tab Name Bleed From Global set-titles | 2026-03-21 | — |
+| SPEC-139 | Desired Outcomes Section for Shippable Artifacts | 2026-03-21 | — |
+| SPEC-140 | Artifact ID Collision Detection | 2026-03-21 | -- |
+| SPEC-141 | Spec-Level Priority Weight | 2026-03-21 | — |
 
 ## Complete
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-114 | Trunk + Release Branch Model With Merge-and-Retry Landing | 2026-03-20 | — |
 | SPEC-001 | swain-search Skill | 2026-03-11 | — |
 | SPEC-002 | trovewatch Script | 2026-03-11 | — |
 | SPEC-003 | swain-design Integration | 2026-03-11 | — |
@@ -133,15 +142,22 @@
 | SPEC-069 | swain-box: GitHub Copilot Runtime Support | 2026-03-18 | — |
 | SPEC-070 | swain-box: OpenAI Codex Runtime Support | 2026-03-18 | — |
 | SPEC-071 | Credential-Scoped Sandbox Launcher | 2026-03-19 | — |
+| SPEC-107 | Sibling order ranking for epics and specs | 2026-03-20 | dbd0e66 |
+| SPEC-108 | Roadmap data model | 2026-03-20 | dbd0e66 |
+| SPEC-109 | Roadmap Jinja templates | 2026-03-20 | 35b7d1d |
+| SPEC-110 | Quadrant PNG pipeline | 2026-03-20 | c768cd2 |
+| SPEC-111 | Status roadmap integration | 2026-03-20 | d99b8c4 |
+| SPEC-112 | Dependency graph initiative subgraphs | 2026-03-20 | 18546f4 |
+| SPEC-114 | Trunk + Release Branch Model With Merge-and-Retry Landing | 2026-03-20 | 5c92f0b |
 
 ## Superseded
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPEC-049 | claude-sandbox: Tier 2 Docker Container Runner | 2026-03-17 | — |
-| SPEC-102 | specgraph: deterministic roadmap output based on priorities | 2026-03-20 | — |
-| SPEC-103 | swain-status roadmap integration | 2026-03-20 | — |
 | SPEC-104 | Roadmap diagram legibility | 2026-03-20 | — |
 | SPEC-105 | Quadrant chart label strategy | 2026-03-20 | — |
 | SPEC-106 | Blocking flowchart initiative subgraphs | 2026-03-20 | — |
+| SPEC-132 | specgraph: deterministic roadmap output based on priorities | 2026-03-20 | — |
+| SPEC-133 | swain-status roadmap integration | 2026-03-20 | — |
 

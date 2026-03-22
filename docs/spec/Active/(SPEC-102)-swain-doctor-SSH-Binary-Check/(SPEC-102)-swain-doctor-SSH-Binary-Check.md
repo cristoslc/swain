@@ -10,7 +10,7 @@ type: enhancement
 parent-epic: ""
 parent-initiative: INITIATIVE-013
 linked-artifacts:
-  - EPIC-036
+  - EPIC-040
   - SPEC-092
   - SPEC-103
   - SPEC-104
