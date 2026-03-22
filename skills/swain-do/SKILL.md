@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
   short-description: Bootstrap and operate external task tracking
-  version: 3.1.0
+  version: 3.2.0
   author: cristos
   source: swain
 ---
@@ -99,7 +99,7 @@ After state-changing operations, update the bookmark: `bash "$(find . .claude .a
 
 ## Superpowers skill chaining
 
-When superpowers is installed, swain-do **must** invoke these skills at the right moments — do not skip them or inline the work:
+When superpowers is installed, swain-do invokes these skills at specific points. Skipping them or inlining the work undermines the guarantees they provide — TDD catches regressions before they compound, and verification prevents false completion claims that waste downstream effort:
 
 1. **Before writing code for any task:** Invoke the `test-driven-development` skill. Write a failing test first (RED), then make it pass (GREEN), then refactor. This applies to every task, not just the first one.
 
@@ -121,48 +121,36 @@ Selects serial vs. subagent-driven execution based on superpowers availability a
 
 ## Pre-plan implementation detection
 
-Before creating a plan for a SPEC, check whether it is already implemented. Perform all four steps:
+Before creating a plan for a SPEC, scan for evidence that it's already implemented. This avoids re-implementing work that exists on unmerged branches or was done in a prior session. Run these checks in parallel — they're independent signals that feed a single decision.
 
-**Step 0 — Check for unmerged worktree branches:**
-```bash
-git branch --all | grep -i "<SPEC-ID>" | while read b; do
-  merged=$(git branch --merged HEAD | grep -c "${b##*/}")
-  [ "$merged" -eq 0 ] && echo "UNMERGED: $b"
-done
-```
-An unmerged branch with the spec ID in its name is a strong signal of prior work. If found, check its commits (`git log --oneline <branch> --not HEAD`) and test status before creating a new plan — the retroactive-close path is likely appropriate.
+### Signal scan
 
-**Step 1 — Check git history for the spec ID:**
-```bash
-git log --oneline --all | grep -i "<SPEC-ID>"
-```
-Matching commits are a strong signal.
+| Signal | Check | Why it matters |
+|--------|-------|----------------|
+| **Unmerged branches** | `git for-each-ref --format='%(refname:short) %(upstream:trackshort)' refs/heads/ \| grep -i "<SPEC-ID>"` then verify not merged: `git merge-base --is-ancestor <branch> HEAD` | Worktree branches from prior sessions are the strongest signal — they contain commits that never reached trunk. Discovering this mid-plan-creation is disruptive; catching it here is cheap. |
+| **Git history** | `git log --oneline --all \| grep -i "<SPEC-ID>"` | Commits referencing the spec ID indicate implementation happened somewhere in the repo's history. |
+| **Deliverable files** | Read the spec to identify described outputs (scripts, modules, configs). Check whether they exist on HEAD via `ls` or Glob. | Files on disk without matching commits may indicate partial or uncommitted work. |
+| **Tests pass** | Re-run the spec's tests now and read the output. Prior results are not evidence — only fresh execution counts. | This is the critical gate. Agents are prone to rationalizing that "tests passed before" without re-running. The reason this matters: code changes between sessions can silently break previously-passing tests. |
 
-**Step 2 — Check whether deliverable files exist:**
-Read the spec artifact to identify described deliverables (files, scripts, configs). Check whether those files exist using `ls` or `Glob`.
+### Decision
 
-**Step 3 — Re-run tests fresh (REQUIRED if tests are mentioned in the spec):**
-Do NOT trust any prior claim or cached result. Run the tests now and read the actual output. This is the critical evidence gate.
-
-**Decision:**
-- **2 or more signals confirm implementation** → offer the retroactive-close path (below)
+- **2+ signals** → take the retroactive-close path (below)
 - **1 signal** → proceed with normal plan creation; note the signal in the first task's description
 - **0 signals** → proceed normally
 
-**Retroactive-close path:**
-1. Do NOT create a full task decomposition.
-2. Create a single tracking task: `tk create "Retroactive verification: <SPEC-ID>" -t task --external-ref <SPEC-ID>`
-3. Claim it: `tk claim <id>`
-4. Run `verification-before-completion` (if superpowers installed) or re-run the spec's tests manually.
-5. If verification passes: add a note with the evidence, close the task, then invoke swain-design to transition the spec to Complete.
-6. If verification fails: fall back to normal plan creation — the prior implementation was incomplete.
+### Retroactive-close path
 
-**Anti-rationalization safeguard (CRITICAL):**
-The agent MUST re-run tests during detection — it cannot assume prior passing results are current. "Tests passed before" or "I implemented this earlier" is NOT evidence. Fresh test execution output is evidence.
+When evidence confirms prior implementation, skip full task decomposition:
+
+1. Create a single tracking task: `tk create "Retroactive verification: <SPEC-ID>" -t task --external-ref <SPEC-ID>`
+2. Claim it: `tk claim <id>`
+3. Run `verification-before-completion` (if superpowers installed) or re-run the spec's tests manually.
+4. If verification passes: add a note with the evidence, close the task, then invoke swain-design to transition the spec to Complete.
+5. If verification fails: fall back to normal plan creation — the prior implementation was incomplete.
 
 ## Worktree isolation preamble
 
-Before any implementation or execution operation (plan creation, task claim, code writing, execution handoff), run this detection:
+Implementation work happens in a worktree so that concurrent agents don't collide on shared files and half-finished changes stay off trunk until verified. Before any implementation or execution operation (plan creation, task claim, code writing, execution handoff), run this detection:
 
 ```bash
 GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
