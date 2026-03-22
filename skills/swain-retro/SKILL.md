@@ -175,6 +175,7 @@ Append a `## Retrospective` section to the EPIC markdown file, **before** the `#
 
 **Terminal state:** {Complete | Abandoned | Superseded}
 **Period:** {activation date} — {terminal date}
+**Related artifacts:** {SPEC-NNN}, {SPEC-NNN}, ...
 
 ### Summary
 
@@ -192,6 +193,8 @@ Append a `## Retrospective` section to the EPIC markdown file, **before** the `#
 | project_retro_y.md | project | ... |
 ```
 
+Hyperlink the artifact IDs in `Related artifacts` using Step 4.5.
+
 ### Cross-epic / time-based: standalone retro doc (required)
 
 For manual retros not scoped to a single EPIC, a standalone doc is **required** — no single artifact owns the scope.
@@ -203,11 +206,19 @@ mkdir -p docs/swain-retro
 File: `docs/swain-retro/YYYY-MM-DD-{topic-slug}.md`
 
 ```markdown
-# Retro: {title}
+---
+title: "Retro: {title}"
+artifact: RETRO-{YYYY-MM-DD}-{topic-slug}
+type: retro
+date: {YYYY-MM-DD}
+scope: "{description of what's covered}"
+period: "{start} — {end}"
+related-artifacts:
+  - {ARTIFACT-ID-1}
+  - {ARTIFACT-ID-2}
+---
 
-**Date:** {YYYY-MM-DD}
-**Scope:** {description of what's covered}
-**Period:** {start} — {end}
+# Retro: {title}
 
 ## Summary
 
@@ -240,6 +251,17 @@ File: `docs/swain-retro/YYYY-MM-DD-{topic-slug}.md`
 | feedback_retro_x.md | feedback | ... |
 | project_retro_y.md | project | ... |
 ```
+
+## Step 4.5 — Hyperlink artifact references
+
+After writing the retro output (standalone doc or embedded EPIC section), scan all body text for bare artifact ID references matching `(SPEC|EPIC|INITIATIVE|VISION|SPIKE|ADR|PERSONA|RUNBOOK|DESIGN|JOURNEY|TRAIN)-[0-9]+`. For each bare ID not already inside a markdown link or code fence, resolve and replace:
+
+```bash
+RESOLVE="$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/resolve-artifact-link.sh' -print -quit 2>/dev/null)"
+bash "$RESOLVE" <ARTIFACT-ID> <RETRO-FILE>
+```
+
+Replace bare IDs with `[ARTIFACT-ID](relative-path)`. If the script returns non-zero or empty output (artifact not found), leave the bare ID as-is. Frontmatter `related-artifacts` values stay as plain IDs (YAML compatibility).
 
 ## Step 5 — Update session bookmark
 
