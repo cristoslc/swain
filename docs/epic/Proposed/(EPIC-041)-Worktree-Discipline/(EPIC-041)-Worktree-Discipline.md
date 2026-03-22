@@ -56,6 +56,10 @@ Agents and the operator get consistent isolation guarantees across all code-like
 - [ADR-011](../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md): Worktree Landing Via Merge With Retry — the merge workflow that worktree branches use to land on trunk.
 - [SPEC-043](../../spec/Complete/(SPEC-043)-swain-do-automatic-worktree-creation/(SPEC-043)-swain-do-automatic-worktree-creation.md): swain-do automatic worktree creation — the existing mechanism for entering worktrees during implementation.
 
+## Notes
+
+SPEC-148 implementation and this EPIC creation both live on branch `worktree-spec-148-worktree-discipline`. Merge this branch to land SPEC-148's implementation (governance principle, check-skill-changes.sh, preflight integration) and both artifact definitions.
+
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
