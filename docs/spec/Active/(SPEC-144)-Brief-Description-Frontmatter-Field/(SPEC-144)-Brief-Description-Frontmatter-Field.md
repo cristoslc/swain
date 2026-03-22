@@ -59,7 +59,7 @@ Existing Vision and Initiative artifacts should be backfilled with `brief-descri
 
 ### Consumer integration
 
-Once this field exists, [SPEC-143](../(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices.md)'s scoped roadmap generator should prefer `brief-description` over agent-authored summaries for the intent line.
+Once this field exists, [SPEC-143](../../Complete/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices.md)'s scoped roadmap generator should prefer `brief-description` over agent-authored summaries for the intent line.
 
 ## Acceptance Criteria
 

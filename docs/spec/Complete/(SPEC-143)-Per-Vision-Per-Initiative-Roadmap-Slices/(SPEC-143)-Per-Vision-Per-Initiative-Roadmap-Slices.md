@@ -2,10 +2,10 @@
 title: "Per-Vision and Per-Initiative Roadmap Slices"
 artifact: SPEC-143
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-21
-last-updated: 2026-03-21
+last-updated: 2026-03-22
 type: feature
 parent-epic: ""
 parent-initiative: INITIATIVE-005
@@ -42,7 +42,7 @@ The vision definition's expectation of a manual `roadmap.md` per Vision folder i
 
 **Output:** A `roadmap.md` file written to the artifact's folder (e.g., `docs/vision/Active/(VISION-001)-Foo/roadmap.md`) containing:
 
-1. **Intent summary** — the artifact's title followed by a `{{INTENT}}` placeholder. The agent generating the slice reads the source artifact (Value Proposition for Visions, Goal/Objective for Initiatives) and replaces the placeholder with a one-sentence summary. Future: when a `brief-description` frontmatter field exists (see SPEC-144), the generator should prefer that field over agent-authored summaries.
+1. **Intent summary** — the artifact's title followed by a one-line description. The script checks for a `brief-description` frontmatter field (SPEC-144) first; if absent, writes a `{{INTENT: <ARTIFACT-ID>}}` placeholder. The swain-roadmap skill post-processes placeholders by reading source artifacts and replacing them with extracted summaries.
 2. **Child artifact table** — clickable links to all direct children (Initiatives for Visions; Epics and direct SPECs for Initiatives), with current phase and progress ratio.
 3. **Progress indicator** — aggregate completion ratio (e.g., `3/7 children complete`) and a simple text-based progress bar.
 4. **Recent activity** — the last 3 git commits whose messages reference any child artifact ID (via `git log --oneline --all --grep`).
@@ -99,7 +99,13 @@ This SPEC supersedes the manual `roadmap.md` expectation. After implementation:
 **When** this SPEC is complete,
 **Then** the vision definition is updated to reference auto-generated `roadmap.md` slices via `chart.sh roadmap --scope`.
 
-### AC7: Existing manual roadmaps backed up
+### AC7: --focus flag replaced by --scope
+
+**Given** the existing `--focus` argument on `chart.sh roadmap`,
+**When** this SPEC is complete,
+**Then** `--focus` is removed and `--scope` covers its use case (Vision-level filtering with the new slice output).
+
+### AC8: Existing manual roadmaps backed up
 
 **Given** a Vision folder contains a manually-written `roadmap.md`,
 **When** `chart.sh roadmap --scope` writes to that folder for the first time,
@@ -109,13 +115,23 @@ This SPEC supersedes the manual `roadmap.md` expectation. After implementation:
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Scoped Vision roadmap | `chart.sh roadmap --scope` writes roadmap.md to Vision folder with intent, child table, progress, commits | PASS |
+| AC2: Scoped Initiative roadmap | render_scoped_roadmap handles Initiative children (Epics + direct SPECs) | PASS |
+| AC3: Project-wide regenerates slices | `_write_all_slices()` called from no-scope path in chart_cli.py | PASS |
+| AC4: Progress accuracy | Progress indicator computed from child completion ratios | PASS |
+| AC5: Recent activity | `_get_recent_commits()` greps git log for child artifact IDs | PASS |
+| AC6: Vision definition harmonized | vision-definition.md updated to reference auto-generated slices | PASS |
+| AC7: --focus replaced by --scope | `--scope` flag in chart_cli.py; `collect_roadmap_items` uses scope param | PASS |
+| AC8: Manual roadmap backup | `_write_scoped_slice` backs up non-generated roadmap.md before overwriting | PASS |
 
 ## Scope & Constraints
 
 **In scope:**
 - `chart.sh roadmap --scope <ID>` subcommand for Visions and Initiatives
-- Integration into the project-wide `chart.sh roadmap` run
-- `swain-roadmap` skill `--scope` pass-through
+- Replacement of existing `--focus` flag with `--scope`
+- All-slices regeneration on project-wide `chart.sh roadmap` run (no opt-out)
+- Intent summary: `brief-description` field > `{{INTENT}}` placeholder (swain-roadmap post-processes)
+- `swain-roadmap` skill `--scope` pass-through and `{{INTENT}}` replacement
 - Vision definition update (harmonization)
 - One-time backup of existing manual roadmaps
 
@@ -135,7 +151,7 @@ This SPEC supersedes the manual `roadmap.md` expectation. After implementation:
 1. **RED:** Write tests for `chart.sh roadmap --scope VISION-NNN` — verify it produces a `roadmap.md` in the correct folder with required sections.
 2. **GREEN:** Add `--scope` flag parsing to chart.sh roadmap subcommand. Filter `collect_roadmap_items()` output to the subtree rooted at the scoped artifact. Generate the slice with intent summary, child table, progress bar, recent commits, and Eisenhower subset.
 3. **RED:** Write tests for Initiative-scoped slices — verify direct SPECs (not just Epics) appear in the child table.
-4. **GREEN:** Ensure the Initiative path handles both Epic children and direct SPEC children (leveraging [SPEC-115](../(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md)'s level-based filtering).
+4. **GREEN:** Ensure the Initiative path handles both Epic children and direct SPEC children (leveraging [SPEC-115](../../Active/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md)'s level-based filtering).
 5. **RED:** Write tests for project-wide regeneration triggering all slices.
 6. **GREEN:** In the no-`--scope` path, iterate all Visions and Initiatives and call the scoped generator for each.
 7. **Harmonize:** Update vision-definition.md to reference auto-generated slices. Add backup logic for existing manual roadmaps.
@@ -146,3 +162,4 @@ This SPEC supersedes the manual `roadmap.md` expectation. After implementation:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-21 | — | Initial creation from gh#84 |
+| Complete | 2026-03-22 | -- | Retroactive close — implemented on worktree branch, merged with SPEC-120 conflict resolution |
