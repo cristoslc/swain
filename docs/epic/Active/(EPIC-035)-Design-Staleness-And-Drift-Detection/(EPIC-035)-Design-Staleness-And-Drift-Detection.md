@@ -24,6 +24,8 @@ linked-artifacts:
   - SPEC-095
   - SPEC-096
   - SPEC-097
+  - SPEC-145
+  - SPEC-146
 ---
 
 # Design Staleness and Drift Detection
