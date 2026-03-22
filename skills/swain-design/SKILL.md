@@ -31,7 +31,7 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 | Persona (PERSONA-NNN) | Archetypal user profile that informs journeys and specs. | [definition](references/persona-definition.md) | [template](references/persona-template.md.template) |
 | ADR (ADR-NNN) | Single architectural decision — context, choice, alternatives, and consequences (Nygard format). | [definition](references/adr-definition.md) | [template](references/adr-template.md.template) |
 | Runbook (RUNBOOK-NNN) | Step-by-step operational procedure (agentic or manual) with a defined trigger. | [definition](references/runbook-definition.md) | [template](references/runbook-template.md.template) |
-| Design (DESIGN-NNN) | UI/UX interaction design — wireframes, flows, and state diagrams for user-facing surfaces. | [definition](references/design-definition.md) | [template](references/design-template.md.template) |
+| Design (DESIGN-NNN) | Standing design document covering interaction (UI/UX), data architecture, or system contracts. Domain selected via `domain: interaction \| data \| system` frontmatter field. | [definition](references/design-definition.md) | [template](references/design-template.md.template) |
 | Training Document (TRAIN-NNN) | Structured learning material (how-to, reference, quickstart) that teaches humans how to use a feature or workflow. Tracks alongside source artifacts via commit-pinned `linked-artifacts` for staleness detection. | [definition](references/train-definition.md) | [template](references/train-template.md.template) |
 
 ## Choosing the right artifact type
@@ -66,7 +66,7 @@ When the operator asks to update a field on an existing artifact (e.g., "set VIS
 5. Commit the change
 
 **Common updates:**
-- `priority-weight` on Visions, Initiatives, and Epics — accepts `high`, `medium`, or `low`. Cascades: Vision → Initiative (can override) → Epic (can override) → Spec (inherits nearest). Affects downstream recommendation scoring and sibling sort order in `swain chart`.
+- `priority-weight` on Visions, Initiatives, Epics, and Specs — accepts `high`, `medium`, or `low`. Cascades: Vision → Initiative (can override) → Epic (can override) → Spec (can override). Affects downstream recommendation scoring and sibling sort order in `swain chart`.
 - `parent-initiative` on Epics and Specs — re-parents them under an Initiative. A Spec can have `parent-epic` OR `parent-initiative`, never both.
 - `parent-vision` on Initiatives — attaches to a Vision.
 
@@ -161,7 +161,16 @@ docs/initiative/Superseded/(INITIATIVE-001)*
 docs/initiative/Active/(INITIATIVE-013)*
 ```
 
-This step runs **before** the post-operation specwatch scan (step 9 in the creation workflow, step 8 in phase-transitions.md) so the scan output is clean.
+This step runs **before** the back-reference update (step 5b) and specwatch scan (step 9 in the creation workflow, step 8 in phase-transitions.md) so the scan output is clean.
+
+### Back-reference update on supersession
+
+After specwatch-ignore maintenance (step 5a), update all non-terminal artifacts that reference the superseded artifact in frontmatter (`linked-artifacts`, `depends-on-artifacts`, `addresses`). See step 5b in [phase-transitions.md](references/phase-transitions.md) for the full procedure. Key points:
+
+- **Check alignment before updating** — supersession often changes scope. Read the referencing artifact's context and compare against the successor. If the relationship doesn't hold for the successor, flag it for the operator instead of silently repointing.
+- **Dedup** — if the successor is already in the list, remove the old entry instead of adding a duplicate.
+- **Commit message provenance** — record what changed (e.g., "update EPIC-031 linked-artifacts: INITIATIVE-001 → INITIATIVE-013") so git history preserves the original reference.
+- **Provenance links** from the superseding artifact itself go to specwatch-ignore, not rewritten.
 
 ### DESIGN lifecycle hooks
 

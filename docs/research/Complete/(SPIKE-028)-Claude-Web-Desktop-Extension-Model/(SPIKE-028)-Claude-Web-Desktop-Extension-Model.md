@@ -39,7 +39,7 @@ If Claude web/desktop extensibility is too limited, pivot to MCP-first approach 
 
 ## Findings
 
-Evidence pool: [claude-web-desktop-extensions.md](../../troves/claude-web-desktop-extensions.md)
+Evidence pool: claude-web-desktop-extensions (trove archived)
 
 ### Claude Web (claude.ai)
 

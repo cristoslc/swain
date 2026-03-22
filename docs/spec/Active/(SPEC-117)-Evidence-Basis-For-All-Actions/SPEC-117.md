@@ -10,7 +10,7 @@ type: feature
 parent-epic: ""
 parent-initiative: INITIATIVE-005
 linked-artifacts:
-  - ADR-005
+  - ADR-011
   - SPEC-114
   - SPIKE-022
 depends-on-artifacts: []

@@ -60,7 +60,7 @@ set_title() {
     fi
     # Disable global set-titles — it broadcasts the focused client's window name
     # to ALL client terminals, causing inactive iTerm tabs to show the wrong name.
-    # See SPEC-124.
+    # See SPEC-138.
     tmux $TMUX_ARGS set-option -g set-titles off 2>/dev/null || true
     # Instead, send OSC title escapes directly to THIS session's client terminal.
     local client_tty
@@ -87,7 +87,7 @@ install_hook() {
   # IMPORTANT: Pass hook context via env vars. tmux expands #{...} format strings
   # at hook fire time, giving the script the correct session/pane context. Without
   # this, the script's tmux commands resolve to the "current client" (whichever
-  # session last had input), not the session where the hook fired. See SPEC-124.
+  # session last had input), not the session where the hook fired. See SPEC-138.
   if [[ -z "$TMUX" ]]; then
     return
   fi

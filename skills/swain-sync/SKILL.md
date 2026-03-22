@@ -285,7 +285,7 @@ gh pr create --base "$TRUNK" --head "$BRANCH" --title "$SUBJECT" --body "$BODY"
 
 Report the PR URL. Do not retry the push. Proceed to worktree pruning below.
 
-After a successful push or PR creation, clean up the worktree — but only if swain-sync created it. Worktrees entered via `EnterWorktree` (branch name matches `worktree-*`) must be left for `ExitWorktree` to clean up, since `ExitWorktree` properly restores the session's CWD before removal. Removing them here would leave the parent session's CWD pointing at a deleted directory, causing ENOENT on all subsequent hook spawns (SPEC-099).
+After a successful push or PR creation, clean up the worktree — but only if swain-sync created it. Worktrees entered via `EnterWorktree` (branch name matches `worktree-*`) must be left for `ExitWorktree` to clean up, since `ExitWorktree` properly restores the session's CWD before removal. Removing them here would leave the parent session's CWD pointing at a deleted directory, causing ENOENT on all subsequent hook spawns (SPEC-127).
 
 ```bash
 WORKTREE_PATH=$(pwd)
@@ -293,7 +293,7 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 MAIN_REPO=$(git rev-parse --git-common-dir | sed 's|/.git$||')
 
 case "$BRANCH" in worktree-*)
-  # SPEC-099: Worktree entered via EnterWorktree — do NOT remove.
+  # SPEC-127: Worktree entered via EnterWorktree — do NOT remove.
   # ExitWorktree handles cleanup and CWD restoration.
   echo "Worktree branch '$BRANCH' entered via EnterWorktree — skipping removal (ExitWorktree will clean up)."
   ;;

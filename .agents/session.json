@@ -5,8 +5,11 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed full-project retro v1.0–v0.13 — 5 patterns, 2 learnings captured",
-    "timestamp": "2026-03-21T18:30:44Z"
+    "note": "SPEC-134 Complete (retroactive close) — domain expansion already shipped",
+    "files": [
+      "docs/spec/Complete/(SPEC-134)-Expand-DESIGN-Artifact-Scope-To-Data-And-System-Contracts/(SPEC-134)-Expand-DESIGN-Artifact-Scope-To-Data-And-System-Contracts.md"
+    ],
+    "timestamp": "2026-03-22T03:36:28Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

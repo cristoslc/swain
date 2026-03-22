@@ -1,0 +1,88 @@
+trove: pm-ai-exponential
+created: 2026-03-21
+refreshed: 2026-03-21
+tags:
+  - product-management
+  - ai
+  - exponential-change
+  - claude
+  - anthropic
+  - claude-code
+  - workflow
+  - spec-driven-development
+  - vibe-coding
+  - documentation
+  - agents-md
+  - adr
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-03-21
+    commit: "a7b4f3b"
+    sources: 1
+  - event: extended
+    date: 2026-03-21
+    commit: "4ff599b"
+    sources: 8
+    sources-added: 7
+    notes: "added 4 PM workflow sources + 3 docs-vs-code tension sources"
+
+sources:
+  - source-id: claude-blog-pm-ai-exponential
+    type: web
+    url: "https://claude.com/blog/product-management-on-the-ai-exponential"
+    fetched: 2026-03-21T00:00:00Z
+    title: "Product management on the AI exponential"
+    hash: "585c6150533b14856fe6e604a46b765a6b251f110385f55a80feb84dd0bfa300"
+
+  - source-id: medium-ai-powered-pm-orchestrator-to-creator
+    type: web
+    url: "https://medium.com/@fabio.piazza59/the-rise-of-the-ai-powered-pm-from-orchestrator-to-creator-02c23e7ca680"
+    fetched: 2026-03-21T00:00:00Z
+    title: "The Rise of the AI-Powered PM: From Orchestrator to Creator"
+    hash: "2be38419bd4cd07b0dc7c84ade626142b832e3cbd1195e472836bdf977ded911"
+
+  - source-id: autonomyai-pm-product-builders
+    type: web
+    url: "https://autonomyai.io/business/how-to-turn-product-managers-into-product-builders-in-the-ai-era/"
+    fetched: 2026-03-21T00:00:00Z
+    title: "How to Turn Product Managers Into Product Builders (In the AI Era)"
+    hash: "5592349eaf3feafb2e68e73350768ad0f7814eef6b0e909497a9d1fd441e4d91"
+
+  - source-id: pendo-every-pm-ai-pm
+    type: web
+    url: "https://www.pendo.io/pendo-blog/why-every-product-manager-is-now-an-ai-product-manager/"
+    fetched: 2026-03-21T00:00:00Z
+    title: "Why every product manager is now an AI product manager"
+    hash: "d61a523badde010866b88397f6932ad451747aa9d9c11746b58fa349bbb7a0d1"
+
+  - source-id: aipmtools-future-ai-pm-2026-2030
+    type: web
+    url: "https://aipmtools.org/articles/future-of-ai-product-management"
+    fetched: 2026-03-21T00:00:00Z
+    title: "The Future of AI in Product Management: 2026-2030 Predictions"
+    hash: "ff768af6f88b73c6027107c44972ffd423c2a564f63d0cd3afd6580aeae4a081"
+
+  - source-id: thoughtworks-spec-driven-dev
+    type: web
+    url: "https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices"
+    fetched: 2026-03-21T00:00:00Z
+    title: "Spec-driven development: Unpacking one of 2025's key new AI-assisted engineering practices"
+    hash: "b133aa07cb6810629f5562a5eba0cfd91cfcf263120ce0f4a220311e1c8e5d86"
+
+  - source-id: gopubby-agents-md-new-adr
+    type: web
+    url: "https://ai.gopubby.com/agents-md-is-the-ew-architecture-decision-record-adr-3cfb6bdd6f2c"
+    fetched: 2026-03-21T00:00:00Z
+    title: "AGENTS.md is the New Architecture Decision Record (ADR)"
+    hash: "5bbcd82db4f8eb03b331c35a81420342386a6deb8763388f64e46edb3eba6809"
+
+  - source-id: techchampion-vibe-coding-debt
+    type: web
+    url: "https://tech-champion.com/general/the-vibe-coding-debt-logic-vs-correctness-in-ai-code/"
+    fetched: 2026-03-21T00:00:00Z
+    title: "The 'Vibe Coding' Debt: Logic vs. Correctness in AI Code"
+    hash: "6fb6ac03b9912465ca8b6d9d59df32abdc96dadef0cf88d664768e7f6c514257"

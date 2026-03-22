@@ -179,7 +179,56 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **Note:** swain-session auto-enters a worktree at startup (Step 1.5), so this preamble is a fallback for sessions that skipped isolation or where the operator exited the worktree mid-session.
 
-When all tasks in the plan complete, or when the operator requests, call `ExitWorktree` to return to the main checkout.
+When all tasks in the plan complete, or when the operator requests, run the plan completion handoff (see below) before exiting the worktree.
+
+## Plan completion and handoff
+
+When all tasks under a plan epic are closed (or the operator declares the work done), execute this chain **before** exiting the worktree. This ensures retros, SPEC transitions, and EPIC cascades fire consistently.
+
+### Step 1 — Detect plan completion
+
+```bash
+TK_BIN="$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-do/bin/tk' -print -quit 2>/dev/null | xargs dirname 2>/dev/null)"
+export PATH="$TK_BIN:$PATH"
+# Check if any tasks under the plan epic are still open
+OPEN_COUNT=$(ticket-query ".parent == \"<epic-id>\" and .status != \"closed\"" 2>/dev/null | wc -l | tr -d ' ')
+```
+
+If `OPEN_COUNT > 0`, the plan is not complete — continue working or ask the operator. If `OPEN_COUNT == 0`, proceed.
+
+### Step 2 — Invoke swain-design for SPEC transition
+
+Identify the SPEC linked to the plan epic (via `--external-ref`):
+
+```bash
+tk show <epic-id> 2>/dev/null  # external_ref field contains the SPEC ID
+```
+
+Invoke **swain-design** to transition the SPEC forward. The target phase depends on the spec's current state and whether verification is complete:
+- If all acceptance criteria have evidence → transition to `Complete`
+- If acceptance criteria need manual verification → transition to `Needs Manual Test`
+- If implementation is done but untested → transition to `In Progress` (if not already)
+
+swain-design handles the downstream chain automatically:
+- Checks whether the parent EPIC should also transition (all child SPECs complete → EPIC Complete)
+- If the EPIC reaches a terminal state → invokes **swain-retro** to capture the retrospective
+
+### Step 3 — Offer merge and cleanup
+
+After the SPEC transition completes, offer to merge and clean up:
+
+> All tasks closed. SPEC-NNN transitioned to {phase}. Merge this branch into {base-branch} and clean up the worktree?
+
+If the operator accepts:
+1. Ensure all changes are committed
+2. Call `ExitWorktree` to return to the main checkout
+3. The worktree cleanup is handled by the ExitWorktree tool
+
+If the operator declines, call `ExitWorktree` without merging — the branch is preserved for later.
+
+### Skipping the chain
+
+The operator can say "just exit" or "skip the handoff" to bypass steps 2–3 and go directly to `ExitWorktree`. Log a note on the plan epic: `tk add-note <epic-id> "Exited worktree without completion handoff"`.
 
 ## Fallback
 

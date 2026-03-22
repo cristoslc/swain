@@ -7,7 +7,6 @@ author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
 linked-artifacts:
-  - ADR-005
   - ADR-011
   - ADR-012
   - SPEC-114

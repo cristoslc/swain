@@ -20,7 +20,7 @@ Spawn seven agents in a single turn:
 |-------|---------------|
 | **Lifecycle auditor** | Check every artifact in `docs/` for valid status field, lifecycle table with hash stamps, and matching row in the appropriate `list-<type>.md` index. |
 | **Cross-reference checker** | Verify all `parent-*`, `depends-on`, `linked-*`, and `addresses` frontmatter values resolve to existing artifact files. Flag dangling references. |
-| **Naming & structure validator** | Confirm directory/file names follow `(TYPE-NNN)-Title` convention, templates have required frontmatter fields, and folder-type artifacts contain a primary `.md` file. Additionally, every artifact must have a `track` field set to one of `implementable`, `container`, or `standing` (as defined in [lifecycle-tracks.md](lifecycle-tracks.md)). Missing or invalid `track` fields are errors. |
+| **Naming & structure validator** | Confirm directory/file names follow `(TYPE-NNN)-Title` convention, templates have required frontmatter fields, and folder-type artifacts contain a primary `.md` file. Additionally, every artifact must have a `track` field set to one of `implementable`, `container`, or `standing` (as defined in [lifecycle-tracks.md](lifecycle-tracks.md)). Missing or invalid `track` fields are errors. For SPEC, EPIC, and INITIATIVE artifacts: check that the document body contains a `## Desired Outcomes` heading (advisory finding, not blocking — see [Desired Outcomes check](#desired-outcomes-check) below). |
 | **Phase/folder alignment** | Confirm `specwatch.sh phase-fix` from the pre-scan left no remaining mismatches. Flag any artifacts that could not be auto-moved. |
 | **Dependency coherence auditor** | Validate that `depends-on` edges are logically sound, not just syntactically valid. See checks below. |
 | **ADR compliance auditor** | Run `scripts/adr-check.sh` against every non-ADR artifact in `docs/`. Collect all RELEVANT, DEAD_REF, and stale findings into a single table. For each RELEVANT finding, read both documents and assess content-level compliance (see [adr-check-guide.md](adr-check-guide.md)). |
@@ -51,6 +51,35 @@ The alignment auditor checks that artifacts are semantically oriented toward the
 4. Report findings with severity (MISALIGNED, SCOPE_LEAK, GOAL_DRIFT, STALE_ALIGNMENT, IMPLICIT_CONFLICT).
 
 Present findings as a table with: source artifact, related artifact, finding type, evidence (quote or summary), and recommended action. Apply the noise reduction rules from alignment-checking.md — only report findings that would change what a developer decides.
+
+### Desired Outcomes check
+
+The Naming & structure validator checks every active SPEC, EPIC, and INITIATIVE artifact for a `## Desired Outcomes` heading in the document body. Missing sections are **advisory** findings — they do not block the audit or fail validation.
+
+**Detection:** grep for `^## Desired Outcomes` in the artifact's primary `.md` file. Only check artifacts whose `track` is `implementable` or `container` AND whose type prefix is SPEC, EPIC, or INITIATIVE.
+
+**Reporting:** Group missing-section findings under a **"Missing Desired Outcomes"** heading in the audit report with this table format:
+
+| Artifact | Type | Status | Parent | Suggested action |
+|----------|------|--------|--------|-----------------|
+| SPEC-042 | SPEC | Active | EPIC-012 | Draft from Problem Statement + EPIC-012 Goal |
+| EPIC-023 | EPIC | Active | INITIATIVE-004 | Draft from Goal/Objective + INITIATIVE-004 Strategic Focus |
+
+The "Suggested action" column tells the remediator which existing sections to draw from when drafting.
+
+### Desired Outcomes remediation workflow
+
+When audit findings include missing Desired Outcomes sections, the audit agent offers batch remediation:
+
+1. **Read context:** For each artifact missing the section, read its existing outcome-adjacent content:
+   - SPEC: Problem Statement + parent Epic's Goal/Objective or parent Initiative's Strategic Focus
+   - EPIC: Goal/Objective + parent Initiative's Strategic Focus or parent Vision's Success Metrics
+   - INITIATIVE: Strategic Focus + parent Vision's goals
+2. **Draft:** Write a Desired Outcomes section following the content guidance (Who benefits? What changes for them? How does this advance aspirations?). Reference personas by ID when applicable.
+3. **Present for review:** Show all drafted sections to the operator in batch — do not auto-commit. Each draft should show the artifact ID, the drafted text, and the source sections it drew from.
+4. **Apply approved drafts:** Insert approved sections at the correct position (after Problem Statement for SPECs, after Goal/Objective for EPICs, after Strategic Focus for INITIATIVEs) and commit.
+
+Remediation is optional — the operator may decline individual drafts or skip remediation entirely. The advisory findings remain in the audit report regardless.
 
 ### Reporting
 

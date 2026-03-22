@@ -22,7 +22,7 @@ depends-on-artifacts:
 addresses: []
 evidence-pool: ""
 linked-artifacts:
-  - EPIC-036
+  - EPIC-040
   - INITIATIVE-013
   - SPEC-081
   - SPEC-092
@@ -68,7 +68,7 @@ _Child specs to be created after SPIKE-037 completes and the token scoping mecha
 - **SPIKE-037** (GitHub Token Scoping Mechanisms) — must complete before the token provisioning spec can be written; determines fine-grained PAT vs GitHub App vs deploy key
 - **SPEC-081** (Worktree-Enforced Sandbox Isolation) — provides the worktree creation primitives
 - **SPEC-092** (swain-box Unified Sandbox Launcher) — integration point for startup-time enforcement
-- **EPIC-036** (Sandbox Capability Bridges) — sibling epic; bridges provide the channels through which scoped credentials and GitHub access reach the sandbox
+- **EPIC-040** (Sandbox Capability Bridges) — sibling epic; bridges provide the channels through which scoped credentials and GitHub access reach the sandbox
 
 ## Lifecycle
 

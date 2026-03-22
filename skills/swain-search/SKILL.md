@@ -155,6 +155,12 @@ git commit -m "docs(<trove-id>): stamp history hash ${TROVE_HASH:0:7}"
 
 If no referencing artifact exists yet (standalone research), Commit B still stamps the history entry — report the hash so it can be referenced later.
 
+**Push** — after Commit B, push to `origin/trunk` so the trove is immediately available to other agents and sessions:
+
+```bash
+git push origin trunk
+```
+
 ### Step 6 — Report
 
 Tell the user what was created:
@@ -182,6 +188,7 @@ Add new sources to an existing trove.
    - **Commit A**: `git commit -m "research(<trove-id>): extend with N new sources"`
    - Capture `TROVE_HASH=$(git rev-parse HEAD)`
    - **Commit B**: back-fill hash in history entry, update referencing artifact frontmatter (if artifact exists)
+   - **Push**: `git push origin trunk`
 9. Report what was added, including the new commit hash
 
 ## Refresh mode
@@ -203,6 +210,7 @@ Re-fetch stale sources and update changed content.
    - **Commit A**: `git commit -m "research(<trove-id>): refresh N sources (M changed)"`
    - Capture `TROVE_HASH=$(git rev-parse HEAD)`
    - **Commit B**: back-fill hash in history entry, update referencing artifact(s) frontmatter — check `referenced-by` in manifest for all dependents
+   - **Push**: `git push origin trunk`
 8. Report: "Refreshed N sources. M had changed content, K were unchanged. New hash: `<TROVE_HASH:0:7>`."
 
 For sources with `freshness-ttl: never`, skip them during refresh.

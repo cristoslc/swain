@@ -3,7 +3,7 @@
 Implements the recommendation algorithm from the prioritization layer design spec:
   score = unblock_count × vision_weight
 
-Vision weight cascades: Vision → Initiative (can override) → Epic → Spec.
+Vision weight cascades: Vision → Initiative (can override) → Epic (can override) → Spec (can override).
 """
 
 from __future__ import annotations
@@ -29,12 +29,10 @@ def resolve_vision_weight(
     if node is None:
         return DEFAULT_WEIGHT
 
-    # Check self first (Vision, Initiative, or Epic with explicit weight)
+    # Check self first — honor own weight for any artifact type
     own_weight = node.get("priority_weight", "")
     if own_weight and own_weight in WEIGHT_MAP:
-        node_type = node.get("type", "").upper()
-        if node_type in ("VISION", "INITIATIVE", "EPIC"):
-            return WEIGHT_MAP[own_weight]
+        return WEIGHT_MAP[own_weight]
 
     # Walk parent chain and find the nearest weight
     # Cascade: Epic override > Initiative override > Vision default

@@ -1,0 +1,550 @@
+kind: DataContract
+version: "1.0"
+
+product:
+  name: artifact-frontmatter
+  owner: swain-design
+  description: >
+    YAML frontmatter schema for all swain artifact types. Consumed by
+    specgraph (queries.py, priority.py), specwatch, design-check.sh,
+    rebuild-index.sh, and all skill workflows. This contract is the
+    single source of truth for field names, types, and semantics.
+
+source:
+  description: >
+    Frontmatter is authored by agents and operators in markdown files
+    under docs/. Templates in skills/swain-design/references/ define
+    the initial field set per type. Parsers in specgraph/ extract
+    fields via YAML front matter parsing (PyYAML).
+
+# ─────────────────────────────────────────────────────────────────
+# UNIVERSAL FIELDS — present on every artifact type
+# ─────────────────────────────────────────────────────────────────
+
+schema:
+  title:
+    type: string
+    required: true
+    semantic: >
+      Human-readable name for the artifact. Used in index tables,
+      specgraph tree output, and commit messages.
+    source: >
+      Set by the author at creation. Updated on scope changes.
+    quality:
+      rules:
+        - Concise — fits in a table cell without truncation
+        - Sentence case, no trailing punctuation
+      anti-patterns:
+        - pattern: "Title contains the artifact ID prefix"
+          why: "The ID is in the `artifact` field; duplicating it in the title wastes space and creates update hazards"
+
+  artifact:
+    type: string
+    required: true
+    semantic: >
+      Unique identifier for the artifact. Format: TYPE-NNN where TYPE
+      is the uppercase prefix and NNN is a zero-padded or unpadded
+      integer. This is the canonical reference used in cross-links,
+      commit messages, and task tags.
+    source: >
+      Assigned at creation by scanning docs/<type>/ for the next
+      available number.
+    quality:
+      rules:
+        - Must match pattern: (VISION|INITIATIVE|EPIC|SPEC|SPIKE|ADR|PERSONA|RUNBOOK|DESIGN|JOURNEY|TRAIN|RETRO)-[0-9]+
+        - Must be unique across all artifacts of the same type
+      anti-patterns:
+        - pattern: "Reusing a number from an Abandoned artifact"
+          why: "Abandoned artifacts retain their IDs for traceability; reuse breaks git history references"
+
+  track:
+    type: string
+    required: true
+    semantic: >
+      Lifecycle track that determines which phase sequences are valid.
+      Three tracks exist: implementable (build-and-ship), container
+      (coordinate children), standing (living document).
+    source: >
+      Fixed per artifact type — set by the template, never changed.
+    quality:
+      rules:
+        - Must be one of: implementable, container, standing
+      examples:
+        good:
+          - value: "implementable"
+            why: "SPEC uses the implementable track (Proposed → Ready → InProgress → NeedsManualTest → Complete)"
+        bad:
+          - value: "lifecycle"
+            why: "Not a valid track name"
+
+  status:
+    type: string
+    required: true
+    semantic: >
+      Current lifecycle phase of the artifact. Valid values depend on
+      the artifact's track. Used by specgraph to determine resolution
+      state and by the filesystem (artifacts live in phase subdirectories).
+    source: >
+      Set at creation, updated on phase transitions. Must match the
+      subdirectory the artifact lives in.
+    quality:
+      rules:
+        - Must be a valid phase for the artifact's track
+        - Must match the artifact's directory location
+      anti-patterns:
+        - pattern: "Status says 'Active' but artifact is in docs/spec/Complete/"
+          why: "Status and directory must agree — specgraph reads status, humans read directories"
+
+  author:
+    type: string
+    required: true
+    semantic: >
+      The operator or agent who created the artifact. Attribution, not
+      ownership — any agent can modify any artifact.
+    source: >
+      Set at creation from the operator's identity.
+
+  created:
+    type: string
+    required: true
+    semantic: >
+      ISO 8601 date (YYYY-MM-DD) when the artifact was first created.
+      Immutable after creation.
+    source: >
+      Set once at creation. Never updated.
+    quality:
+      rules:
+        - Format: YYYY-MM-DD
+        - Must not change after initial commit
+      anti-patterns:
+        - pattern: "Updating created date on phase transitions"
+          why: "created is immutable — use last-updated for modification tracking"
+
+  last-updated:
+    type: string
+    required: true
+    semantic: >
+      ISO 8601 date (YYYY-MM-DD) of the most recent substantive change.
+      Updated on any frontmatter or content modification.
+    source: >
+      Set at creation, updated on every edit.
+    quality:
+      rules:
+        - Format: YYYY-MM-DD
+        - Must be >= created date
+
+# ─────────────────────────────────────────────────────────────────
+# HIERARCHY FIELDS — parent chain and cross-references
+# ─────────────────────────────────────────────────────────────────
+
+  parent-vision:
+    type: string
+    required: false
+    semantic: >
+      Links this artifact to its parent Vision. Used by specgraph to
+      build the vision-rooted hierarchy tree.
+    source: >
+      Set at creation or when re-parenting. Used by INITIATIVE and
+      EPIC types. JOURNEY requires this field.
+    quality:
+      rules:
+        - Format: VISION-NNN
+        - Referenced Vision must exist
+      anti-patterns:
+        - pattern: "Multiple parent-vision values"
+          why: "An artifact has exactly one parent vision (or none). Use linked-artifacts for non-hierarchical relationships."
+
+  parent-initiative:
+    type: string
+    required: false
+    semantic: >
+      Links this artifact to its parent Initiative. SPECs and EPICs
+      can attach here. A SPEC can have parent-epic OR parent-initiative,
+      never both.
+    source: >
+      Set at creation or when re-parenting.
+    quality:
+      rules:
+        - Format: INITIATIVE-NNN
+        - Referenced Initiative must exist
+        - Mutually exclusive with parent-epic on SPECs
+
+  parent-epic:
+    type: string
+    required: false
+    semantic: >
+      Links this artifact to its parent Epic. SPECs attach here for
+      standard epic-scoped work.
+    source: >
+      Set at creation or when re-parenting.
+    quality:
+      rules:
+        - Format: EPIC-NNN
+        - Referenced Epic must exist
+        - Mutually exclusive with parent-initiative on SPECs
+
+  linked-artifacts:
+    type: array
+    items: string
+    required: false
+    semantic: >
+      Non-hierarchical references to related artifacts. Informational —
+      does not affect the dependency graph or resolution state. Used by
+      specwatch to validate cross-references.
+    source: >
+      Set at creation or updated when relationships are discovered.
+    quality:
+      rules:
+        - Each item must be a valid artifact ID
+        - No duplicates within the list
+
+  depends-on-artifacts:
+    type: array
+    items: string
+    required: false
+    semantic: >
+      Hard ordering dependencies. This artifact is blocked until every
+      artifact in this list is resolved. Creates edges in specgraph's
+      dependency graph, affects the ready set computation.
+    source: >
+      Set when a blocking relationship is identified.
+    quality:
+      rules:
+        - Each item must be a valid artifact ID
+        - Must not create circular dependencies
+      anti-patterns:
+        - pattern: "Using depends-on for informational references"
+          why: "depends-on creates blocking edges — use linked-artifacts for non-blocking references"
+
+  addresses:
+    type: array
+    items: string
+    required: false
+    semantic: >
+      Pain points or journey stages this artifact addresses. Supports
+      sub-path format (JOURNEY-NNN.PP-NN) to reference specific pain
+      points within a journey.
+    source: >
+      Set when linking implementation work to user pain points.
+    quality:
+      rules:
+        - Format: ARTIFACT-ID or ARTIFACT-ID.PP-NN for sub-paths
+        - Referenced artifact must exist
+
+# ─────────────────────────────────────────────────────────────────
+# PRIORITY AND SCORING FIELDS
+# ─────────────────────────────────────────────────────────────────
+
+  priority-weight:
+    type: string
+    required: false
+    semantic: >
+      Priority override for recommendation scoring. Cascades down the
+      hierarchy: Vision → Initiative → Epic → Spec. When set, overrides
+      the inherited value from the parent chain. When empty or absent,
+      inherits from the nearest ancestor with a weight. Default: medium (2).
+    source: >
+      Set by the operator. Consumed by priority.py resolve_vision_weight().
+    quality:
+      rules:
+        - Must be one of: high, medium, low (or empty string to inherit)
+      examples:
+        good:
+          - value: "low"
+            why: "A low-value SPEC in a high-priority Epic — explicit override"
+        bad:
+          - value: "critical"
+            why: "Not a valid weight value — only high/medium/low accepted"
+
+  sort_order:
+    type: integer
+    required: false
+    semantic: >
+      Tiebreaker for recommendation ranking when scores are equal.
+      Higher values sort first. Not present in templates — set
+      programmatically when needed.
+    source: >
+      Computed or set by tooling.
+
+# ─────────────────────────────────────────────────────────────────
+# EVIDENCE AND PROVENANCE FIELDS
+# ─────────────────────────────────────────────────────────────────
+
+  evidence-pool:
+    type: string
+    required: false
+    semantic: >
+      Reference to a research trove that informed this artifact.
+      Format: trove-slug or trove-slug@commit-hash for pinned versions.
+    source: >
+      Set when linking to research collected via swain-search.
+
+  source-issue:
+    type: string
+    required: false
+    semantic: >
+      GitHub Issue number or URL that originated this artifact. Used
+      by the GitHub Issues integration for bidirectional sync —
+      comments posted on transitions, issue closed on completion.
+    source: >
+      Set when promoting a GitHub Issue to a SPEC.
+
+  superseded-by:
+    type: string
+    required: false
+    semantic: >
+      Artifact ID of the successor that replaces this one. Set when
+      transitioning to the Superseded phase. Creates a forward pointer
+      so readers of the old artifact can find the current version.
+    source: >
+      Set during supersession transitions.
+    quality:
+      rules:
+        - Format: valid artifact ID
+        - Referenced artifact must exist and not itself be superseded
+
+# ─────────────────────────────────────────────────────────────────
+# DESIGN-SPECIFIC FIELDS (sourcecode-refs, artifact-refs)
+# ─────────────────────────────────────────────────────────────────
+
+  artifact-refs:
+    type: array
+    items:
+      type: object
+      properties:
+        artifact: string
+        rel: array[string]
+        commit: string
+        verified: string
+    required: false
+    semantic: >
+      Typed cross-references with relationship semantics. Each entry
+      names an artifact and its relationship type(s). Used by DESIGN
+      and TRAIN types for alignment cascading and staleness detection.
+    source: >
+      Set at creation or updated when relationships change.
+    quality:
+      rules:
+        - rel values must be from vocabulary: linked, documents, aligned
+        - artifact must be a valid artifact ID
+      anti-patterns:
+        - pattern: "Using artifact-refs without a rel type"
+          why: "Untyped refs belong in linked-artifacts — artifact-refs exist for typed relationships"
+
+  sourcecode-refs:
+    type: array
+    items:
+      type: object
+      properties:
+        path: string
+        blob: string
+        commit: string
+        verified: string
+    required: false
+    semantic: >
+      Blob-pinned references to source files that this DESIGN describes.
+      design-check.sh compares current blob SHAs against pinned values
+      to detect drift (CURRENT, STALE, MOVED, BROKEN states).
+    source: >
+      Set at DESIGN creation or updated via design-check.sh --repin.
+    quality:
+      rules:
+        - path must be a valid file path relative to repo root
+        - blob must be a git blob SHA (or empty on initial creation)
+
+# ─────────────────────────────────────────────────────────────────
+# TYPE-SPECIFIC FIELDS
+# ─────────────────────────────────────────────────────────────────
+
+  swain-do:
+    type: string
+    required: false
+    semantic: >
+      Execution tracking requirement. When set to "required", the
+      swain-do skill must create a tracked plan before implementation
+      begins. Present only on SPEC artifacts.
+    source: >
+      Set by the spec template. Literal value: "required".
+    quality:
+      rules:
+        - Only valid value is "required"
+        - Only present on SPEC artifacts
+
+  type:
+    type: string
+    required: false
+    semantic: >
+      Sub-type classifier for SPECs. Affects template sections (bug
+      type adds Reproduction Steps, Severity, Expected vs Actual).
+      Informational metadata — does not affect lifecycle phases.
+    source: >
+      Set at SPEC creation based on the nature of the work.
+    quality:
+      rules:
+        - Values: enhancement, bug (or empty for standard capability)
+
+  domain:
+    type: string
+    required: false
+    semantic: >
+      Design domain for DESIGN artifacts. Determines which template
+      sections are rendered and which scoping guidance applies.
+    source: >
+      Set at DESIGN creation. Defaults to "interaction" if omitted.
+    quality:
+      rules:
+        - Must be one of: interaction, data, system
+        - Only present on DESIGN artifacts
+
+  product-type:
+    type: string
+    required: false
+    semantic: >
+      Product classification for VISION artifacts. Determines which
+      template sections are included (competitive analysis vs personal
+      product framing).
+    source: >
+      Set at VISION creation after asking the operator.
+    quality:
+      rules:
+        - Must be one of: competitive, personal
+        - Only present on VISION artifacts
+
+  question:
+    type: string
+    required: false
+    semantic: >
+      The research question a SPIKE is investigating. Present only on
+      SPIKE artifacts. Defines the completion gate — the spike is done
+      when this question is answered.
+    source: >
+      Set at SPIKE creation.
+
+  success-criteria:
+    type: array
+    items: string
+    required: false
+    semantic: >
+      Measurable conditions for EPIC and INITIATIVE completion. All
+      criteria must be met before transitioning to Complete.
+    source: >
+      Set at creation, refined during Active phase.
+
+  gate:
+    type: string
+    required: false
+    semantic: >
+      Decision gate for SPIKE artifacts. Indicates when the spike's
+      findings are needed (e.g., Pre-MVP, Pre-Launch).
+    source: >
+      Set at SPIKE creation.
+
+  mode:
+    type: string
+    required: false
+    semantic: >
+      Execution mode for RUNBOOK artifacts. Determines whether the
+      procedure is manual, agentic, or hybrid.
+    source: >
+      Set at RUNBOOK creation.
+    quality:
+      rules:
+        - Values: manual, agentic, hybrid
+
+  trigger:
+    type: string
+    required: false
+    semantic: >
+      Activation condition for RUNBOOK artifacts. Defines when the
+      runbook should be executed.
+    source: >
+      Set at RUNBOOK creation.
+
+  validates:
+    type: array
+    items: string
+    required: false
+    semantic: >
+      Artifact IDs that this RUNBOOK validates. Creates edges in
+      specgraph linking runbooks to the artifacts they test.
+    source: >
+      Set at RUNBOOK creation.
+
+  train-type:
+    type: string
+    required: false
+    semantic: >
+      Content format for TRAIN artifacts. Shapes the template
+      structure and reader expectations.
+    source: >
+      Set at TRAIN creation.
+    quality:
+      rules:
+        - Must be one of: how-to, reference, quickstart
+
+  audience:
+    type: string
+    required: false
+    semantic: >
+      Target reader for TRAIN artifacts. Guides content depth and
+      assumed knowledge level.
+    source: >
+      Set at TRAIN creation.
+
+  scope:
+    type: string
+    required: false
+    semantic: >
+      Description of what a RETRO covers. Scoping context for
+      standalone retrospective documents.
+    source: >
+      Set at RETRO creation.
+
+  period:
+    type: string
+    required: false
+    semantic: >
+      Time range covered by a RETRO. Format: "YYYY-MM-DD — YYYY-MM-DD".
+    source: >
+      Set at RETRO creation from gathered context.
+
+# ─────────────────────────────────────────────────────────────────
+# FIELD PRESENCE BY ARTIFACT TYPE
+# ─────────────────────────────────────────────────────────────────
+# R = required, O = optional, - = not applicable
+#
+# Field              | VIS | INI | EPC | SPC | SPK | ADR | DES | PER | JRN | RUN | TRN | RET
+# -------------------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|----
+# title              |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
+# artifact           |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
+# track              |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
+# status             |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
+# author             |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  O
+# created            |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
+# last-updated       |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
+# parent-vision      |  -  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  R  |  -  |  -  |  -
+# parent-initiative  |  -  |  -  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -
+# parent-epic        |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  -  |  -  |  O  |  O  |  -
+# linked-artifacts   |  -  |  -  |  O  |  O  |  -  |  O  |  O  |  O  |  O  |  -  |  O  |  O
+# depends-on-artif.  |  O  |  O  |  O  |  O  |  -  |  O  |  O  |  O  |  O  |  O  |  -  |  -
+# addresses          |  -  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# priority-weight    |  O  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# evidence-pool      |  O  |  O  |  O  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -
+# source-issue       |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# superseded-by      |  -  |  -  |  -  |  -  |  -  |  O  |  O  |  -  |  -  |  -  |  O  |  -
+# artifact-refs      |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  O  |  -
+# sourcecode-refs    |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  -  |  -
+# swain-do           |  -  |  -  |  -  |  R  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# type               |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# domain             |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  -  |  -
+# product-type       |  R  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# question           |  -  |  -  |  -  |  -  |  R  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# success-criteria   |  -  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# gate               |  -  |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -
+# mode               |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -  |  -
+# trigger            |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -  |  -
+# validates          |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -  |  -
+# train-type         |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -
+# audience           |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -
+# scope              |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  O
+# period             |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  O

@@ -19,7 +19,7 @@ depends-on-artifacts: []
 linked-artifacts:
   - INITIATIVE-009
   - EPIC-025
-  - ADR-005
+  - ADR-011
   - SPEC-039
   - SPEC-044
 ---
@@ -56,7 +56,7 @@ Replace all hardcoded "main" branch references across swain with auto-detection 
 
 ## Child Specs
 
-- **SPEC-118** — swain_trunk() Auto-Detection Helper (scripts/swain-trunk.sh + tests)
+- **SPEC-147** — swain_trunk() Auto-Detection Helper (scripts/swain-trunk.sh + tests)
 - **SPEC-119** — Parameterize Runtime Skills (swain-sync, swain-doctor, swain-release)
 - **SPEC-120** — Doctor Trunk/Release Migration Detection (preflight + doctor section)
 
@@ -94,4 +94,4 @@ None — this can be done independently and should ideally land before EPIC-025.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-17 | — | Initial creation as prerequisite for EPIC-025 |
-| Active | 2026-03-21 | — | Decomposed into SPEC-118, SPEC-119, SPEC-120 |
+| Active | 2026-03-21 | — | Decomposed into SPEC-147, SPEC-119, SPEC-120 |

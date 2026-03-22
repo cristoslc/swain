@@ -22,7 +22,13 @@ from .queries import (
     _find_vision_ancestor,
     _node_is_resolved,
 )
-from .priority import resolve_vision_weight, _compute_unblock_count
+from .priority import (
+    resolve_vision_weight,
+    _compute_unblock_count,
+    _is_decision_type,
+    rank_recommendations,
+    compute_decision_debt,
+)
 
 try:
     from jinja2 import Environment, FileSystemLoader
@@ -66,6 +72,19 @@ def _get_children(parent_id: str, edges: list[dict]) -> list[str]:
     return children
 
 
+def _compute_descendants(artifact_id: str, edges: list[dict]) -> set[str]:
+    """BFS to collect all descendants (children, grandchildren, etc.), including self."""
+    visited: set[str] = {artifact_id}
+    queue = [artifact_id]
+    while queue:
+        current = queue.pop(0)
+        for child in _get_children(current, edges):
+            if child not in visited:
+                visited.add(child)
+                queue.append(child)
+    return visited
+
+
 def _spec_progress(epic_id: str, nodes: dict, edges: list[dict]) -> tuple[int, int]:
     children = _get_children(epic_id, edges)
     total = complete = 0
@@ -83,9 +102,22 @@ def collect_roadmap_items(
     nodes: dict,
     edges: list[dict],
     focus_vision: str | None = None,
+    scope: str | None = None,
 ) -> list[dict]:
     """Collect Initiatives and Epics with scores and grouping."""
     items: list[dict] = []
+
+    # Scope filtering: compute the set of artifact IDs in scope
+    scope_ids: set[str] | None = None
+    if scope:
+        if scope not in nodes:
+            return []
+        scope_ids = _compute_descendants(scope, edges)
+    elif focus_vision:
+        # Legacy: treat as scope for backward compat during transition
+        if focus_vision not in nodes:
+            return []
+        scope_ids = _compute_descendants(focus_vision, edges)
 
     # Track direct-child specs/spikes of initiatives for second pass
     initiative_direct_children: list[tuple[str, str]] = []  # (child_id, parent_init_id)
@@ -97,9 +129,10 @@ def collect_roadmap_items(
         if _node_is_resolved(aid, nodes):
             continue
 
-        vision = _find_vision_ancestor(aid, nodes, edges)
-        if focus_vision and vision != focus_vision:
+        if scope_ids is not None and aid not in scope_ids:
             continue
+
+        vision = _find_vision_ancestor(aid, nodes, edges)
 
         weight = resolve_vision_weight(aid, nodes, edges)
         unblocks = _compute_unblock_count(aid, nodes, edges)
@@ -167,9 +200,9 @@ def collect_roadmap_items(
     # grouped under their parent Initiative (SPEC-115)
     for child_id, parent_init_id in initiative_direct_children:
         child_node = nodes.get(child_id, {})
-        vision = _find_vision_ancestor(child_id, nodes, edges)
-        if focus_vision and vision != focus_vision:
+        if scope_ids is not None and child_id not in scope_ids:
             continue
+        vision = _find_vision_ancestor(child_id, nodes, edges)
         weight = resolve_vision_weight(child_id, nodes, edges)
         unblocks = _compute_unblock_count(child_id, nodes, edges)
         score = unblocks * weight
@@ -936,10 +969,374 @@ def _render_legend_single_row(legend_items: list[dict], nodes: dict, all_items: 
         return " <br> <br> ".join(" <br> ".join(parts) for parts in quadrant_parts)
 
 
+def render_decisions_section(
+    items: list[dict],
+    nodes: dict,
+    edges: list[dict],
+) -> str:
+    """Render the Decisions section for ROADMAP.md.
+
+    Buckets ready items into "Decisions Waiting on You" (operator-gated)
+    and "Implementation Ready (agent can handle)" (agent-delegatable).
+    Returns markdown string. Shows empty-state message when no decisions exist.
+    """
+    recommendations = rank_recommendations(nodes, edges)
+    rec_by_id = {r["id"]: r for r in recommendations}
+
+    # Only include items that are in the ready set (from recommendations)
+    ready_ids = set(rec_by_id.keys())
+
+    operator_items: list[dict] = []
+    impl_items: list[dict] = []
+
+    for rec in recommendations:
+        rid = rec["id"]
+        node = nodes.get(rid, {})
+        title = node.get("title", rid)
+        unblocks = rec["unblock_count"]
+
+        entry = {
+            "id": rid,
+            "title": title,
+            "unblocks": unblocks,
+            "score": rec["score"],
+        }
+
+        if rec["is_decision"]:
+            operator_items.append(entry)
+        else:
+            impl_items.append(entry)
+
+    # Sort by unblocks descending, then score descending
+    operator_items.sort(key=lambda x: (-x["unblocks"], -x["score"], x["id"]))
+    impl_items.sort(key=lambda x: (-x["unblocks"], -x["score"], x["id"]))
+
+    lines: list[str] = []
+
+    if not operator_items and not impl_items:
+        lines.append("## Decisions")
+        lines.append("")
+        lines.append("No decisions needed right now.")
+        lines.append("")
+        return "\n".join(lines)
+
+    if operator_items:
+        lines.append("## Decisions Waiting on You")
+        lines.append("")
+        lines.append("| Artifact | Unblocks |")
+        lines.append("|----------|----------|")
+        for item in operator_items:
+            unblocks_str = str(item["unblocks"]) if item["unblocks"] > 0 else "—"
+            lines.append(f"| {item['id']}: {item['title']} | {unblocks_str} |")
+        lines.append("")
+
+    if impl_items:
+        lines.append("## Implementation Ready (agent can handle)")
+        lines.append("")
+        lines.append("| Artifact | Unblocks |")
+        lines.append("|----------|----------|")
+        for item in impl_items:
+            unblocks_str = str(item["unblocks"]) if item["unblocks"] > 0 else "—"
+            lines.append(f"| {item['id']}: {item['title']} | {unblocks_str} |")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def render_recommendation_section(
+    items: list[dict],
+    nodes: dict,
+    edges: list[dict],
+) -> str:
+    """Render the Recommended Next callout for ROADMAP.md.
+
+    Shows the single highest-leverage item with a one-line rationale.
+    Returns empty string when no ready items exist.
+    """
+    recommendations = rank_recommendations(nodes, edges)
+    if not recommendations:
+        return ""
+
+    top = recommendations[0]
+    node = nodes.get(top["id"], {})
+    title = node.get("title", top["id"])
+    weight_label = {3: "high", 2: "medium", 1: "low"}.get(top["vision_weight"], "medium")
+
+    rationale_parts = []
+    if top["unblock_count"] > 0:
+        rationale_parts.append(f"unblocks {top['unblock_count']} item{'s' if top['unblock_count'] != 1 else ''}")
+    rationale_parts.append(f"weight: {weight_label}")
+    if top["score"] > 0:
+        rationale_parts.append(f"score: {top['score']}")
+    rationale = ", ".join(rationale_parts)
+
+    lines = [
+        "## Recommended Next",
+        "",
+        f"> **{top['id']}**: {title} — {rationale}",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+_AUTO_GENERATED_MARKER = "<!-- Auto-generated by chart.sh roadmap --scope. Do not edit. -->"
+
+
+def _get_recent_commits(
+    artifact_ids: list[str], repo_root: str, limit: int = 3
+) -> list[dict]:
+    """Get the last N git commits whose messages reference any of the given artifact IDs.
+
+    Returns dicts with hash, message, date (ISO), date_human (relative).
+    Sorted newest first by author date.
+    """
+    if not repo_root or not artifact_ids:
+        return []
+    import subprocess as _sp
+
+    commits: list[dict] = []
+    seen: set[str] = set()
+    for aid in artifact_ids:
+        try:
+            result = _sp.run(
+                [
+                    "git", "log", "--all",
+                    f"--grep={aid}", f"-{limit}",
+                    "--format=%h\t%s\t%aI\t%ai",
+                ],
+                capture_output=True, text=True, cwd=repo_root, timeout=10,
+            )
+            for line in result.stdout.strip().splitlines():
+                if not line:
+                    continue
+                parts = line.split("\t", 3)
+                if len(parts) < 4:
+                    continue
+                h, msg, date_iso, date_human = parts
+                if h not in seen:
+                    seen.add(h)
+                    # Parse "2026-03-21 14:32:05 -0600" into date and time
+                    dt_parts = date_human.split(" ", 2)
+                    c_date = dt_parts[0] if len(dt_parts) >= 1 else ""
+                    c_time = dt_parts[1].rsplit(":", 1)[0] if len(dt_parts) >= 2 else ""  # drop seconds
+                    commits.append({
+                        "hash": h,
+                        "message": msg,
+                        "date": date_iso,
+                        "c_date": c_date,
+                        "c_time": c_time,
+                    })
+        except (_sp.TimeoutExpired, FileNotFoundError):
+            pass
+    # Sort newest first by date
+    commits.sort(key=lambda c: c.get("date", ""), reverse=True)
+    return commits[:limit]
+
+
+def render_scoped_roadmap(
+    artifact_id: str,
+    nodes: dict,
+    edges: list[dict],
+    repo_root: str = "",
+) -> str:
+    """Render a scoped roadmap slice for a single Vision or Initiative."""
+    node = nodes.get(artifact_id, {})
+    title = node.get("title", artifact_id)
+
+    # Intent: prefer brief_description, fall back to placeholder
+    brief = node.get("brief_description", "")
+    intent = brief if brief else f"{{{{INTENT: {artifact_id}}}}}"
+
+    # Build children tree (one level of nesting)
+    _RESOLVED_PHASES = {"Complete", "Superseded", "Archived"}
+    artifact_file = node.get("file", "")
+    children_ids = _get_children(artifact_id, edges)
+    children: list[dict] = []
+    complete = 0
+    total = 0
+
+    def _make_child_entry(cid: str) -> dict | None:
+        cnode = nodes.get(cid, {})
+        if not cnode:
+            return None
+        ctype = cnode.get("type", "").upper()
+        cstatus = cnode.get("status", "")
+        child_file = cnode.get("file", "")
+        link = os.path.relpath(child_file, os.path.dirname(artifact_file)) if (child_file and artifact_file) else cid
+        if ctype == "EPIC":
+            c, t = _spec_progress(cid, nodes, edges)
+            progress_str = f"{c}/{t}" if t > 0 else "\u2014"
+        elif _node_is_resolved(cid, nodes):
+            progress_str = "done"
+        else:
+            progress_str = "in progress"
+        return {
+            "id": cid,
+            "title": cnode.get("title", cid),
+            "phase": cstatus,
+            "progress": progress_str,
+            "link": link,
+            "type": ctype,
+            "children": [],
+        }
+
+    for cid in sorted(children_ids):
+        entry = _make_child_entry(cid)
+        if entry is None:
+            continue
+
+        # Count this child
+        total += 1
+        if _node_is_resolved(cid, nodes):
+            complete += 1
+
+        # Nest grandchildren (one level deep) and count them too
+        grandchild_ids = _get_children(cid, edges)
+        for gcid in sorted(grandchild_ids):
+            gc_entry = _make_child_entry(gcid)
+            if gc_entry is not None:
+                entry["children"].append(gc_entry)
+                total += 1
+                if _node_is_resolved(gcid, nodes):
+                    complete += 1
+        # Sort grandchildren: active first
+        entry["children"].sort(
+            key=lambda c: (1 if c["phase"] in _RESOLVED_PHASES else 0, c["id"])
+        )
+        children.append(entry)
+
+    # Group children by phase of the direct child (highest ancestor in the tree)
+    _PHASE_ORDER = ["Active", "In Progress", "Proposed", "Complete", "Superseded", "Archived"]
+    _phase_rank = {p: i for i, p in enumerate(_PHASE_ORDER)}
+    children.sort(key=lambda c: (_phase_rank.get(c["phase"], 99), c["id"]))
+
+    from collections import OrderedDict
+    children_by_phase: OrderedDict[str, list[dict]] = OrderedDict()
+    for c in children:
+        phase = c["phase"] or "Unknown"
+        children_by_phase.setdefault(phase, []).append(c)
+
+    # Progress bar
+    pct = round(100 * complete / total) if total > 0 else 0
+    bar_filled = round(pct / 100 * 12)
+    progress_bar = "\u2588" * bar_filled + "\u2591" * (12 - bar_filled)
+
+    # Recent commits referencing child artifact IDs
+    recent_commits = _get_recent_commits(children_ids, repo_root)
+
+    # Eisenhower subset: collect items in scope and render
+    scoped_items = collect_roadmap_items(nodes, edges, scope=artifact_id)
+    eisenhower_subset = render_eisenhower_table(scoped_items, nodes) if scoped_items else ""
+
+    if _HAS_JINJA:
+        env = _jinja_env()
+        tmpl = env.get_template("roadmap-slice.md.j2")
+        return tmpl.render(
+            artifact_id=artifact_id,
+            title=title,
+            intent=intent,
+            children_by_phase=children_by_phase,
+            progress_bar=progress_bar,
+            complete=complete,
+            total=total,
+            pct=pct,
+            recent_commits=recent_commits,
+            eisenhower_subset=eisenhower_subset,
+        ).rstrip("\n") + "\n"
+    else:
+        lines = [
+            _AUTO_GENERATED_MARKER,
+            f"# {artifact_id}: {title}",
+            "",
+            f"> {intent}",
+            "",
+            "## Progress",
+            "",
+            f"{progress_bar} {complete}/{total} complete ({pct}%)",
+            "",
+            "## Recent Activity",
+            "",
+        ]
+        if recent_commits:
+            lines.extend([
+                "| Date | Time | Commit | Message |",
+                "|------|------|--------|---------|",
+            ])
+            for c in recent_commits:
+                lines.append(f"| {c.get('c_date', '')} | {c.get('c_time', '')} | `{c['hash']}` | {c['message']} |")
+        else:
+            lines.append("_No recent commits reference child artifacts._")
+        lines.append("")
+        if eisenhower_subset:
+            lines.extend(["## Priority Subset", "", eisenhower_subset, ""])
+        lines.append("## Children")
+        lines.append("")
+        for phase, phase_children in children_by_phase.items():
+            lines.append(f"### {phase}")
+            lines.append("")
+            for c in phase_children:
+                prog = f", {c['progress']}" if c.get("progress") else ""
+                lines.append(f"- [{c['id']}]({c['link']}) \u2014 {c['title']}{prog}")
+                for gc in c.get("children", []):
+                    gprog = f", {gc['progress']}" if gc.get("progress") else ""
+                    lines.append(f"  - [{gc['id']}]({gc['link']}) \u2014 {gc['title']} ({gc['phase']}{gprog})")
+            lines.append("")
+        return "\n".join(lines) + "\n"
+
+
+def _write_scoped_slice(
+    artifact_id: str,
+    nodes: dict,
+    edges: list[dict],
+    repo_root: str,
+) -> str | None:
+    """Write a scoped roadmap slice to the artifact's folder. Returns path or None."""
+    node = nodes.get(artifact_id)
+    if not node or not node.get("file"):
+        return None
+
+    artifact_file = os.path.join(repo_root, node["file"])
+    artifact_dir = os.path.dirname(artifact_file)
+    roadmap_path = os.path.join(artifact_dir, "roadmap.md")
+
+    # Backup existing manual roadmap
+    if os.path.exists(roadmap_path):
+        with open(roadmap_path, "r", encoding="utf-8") as f:
+            existing = f.read()
+        if _AUTO_GENERATED_MARKER not in existing:
+            backup_path = os.path.join(artifact_dir, "roadmap.manual-backup.md")
+            if not os.path.exists(backup_path):
+                import shutil
+                shutil.copy2(roadmap_path, backup_path)
+
+    md = render_scoped_roadmap(artifact_id, nodes, edges, repo_root)
+    os.makedirs(artifact_dir, exist_ok=True)
+    with open(roadmap_path, "w", encoding="utf-8") as f:
+        f.write(md)
+    return roadmap_path
+
+
+def _write_all_slices(
+    nodes: dict,
+    edges: list[dict],
+    repo_root: str,
+) -> int:
+    """Regenerate all per-Vision and per-Initiative roadmap slices. Returns count."""
+    count = 0
+    for aid, node in sorted(nodes.items()):
+        atype = node.get("type", "").upper()
+        if atype in ("VISION", "INITIATIVE"):
+            result = _write_scoped_slice(aid, nodes, edges, repo_root)
+            if result:
+                count += 1
+    return count
+
+
 def render_roadmap_markdown(
     items: list[dict],
     nodes: dict,
     repo_root: str = "",
+    edges: list[dict] | None = None,
 ) -> str:
     """Render a full ROADMAP.md with all visual and tabular views.
 
@@ -952,6 +1349,10 @@ def render_roadmap_markdown(
     gantt = render_gantt(items, nodes)
     dep_graph = render_dependency_graph(items, nodes)
 
+    # Decision and recommendation sections (SPEC-120)
+    decisions = render_decisions_section(items, nodes, edges or [])
+    recommendation = render_recommendation_section(items, nodes, edges or [])
+
     # Quadrant chart: try PNG side-by-side, fall back to inline Mermaid
     png_path = _render_quadrant_png(quadrant_src, repo_root) if repo_root else None
     legend_cell = _render_legend_single_row(legend_items, nodes, items) if png_path else ""
@@ -963,6 +1364,8 @@ def render_roadmap_markdown(
             png_path=png_path,
             quadrant_src=quadrant_src,
             legend_cell=legend_cell,
+            recommendation=recommendation,
+            decisions=decisions,
             eisenhower=eisenhower,
             gantt=gantt,
             dep_graph=dep_graph,
@@ -990,6 +1393,12 @@ def render_roadmap_markdown(
                 "```",
                 "",
             ])
+
+        # Decision and recommendation sections before Eisenhower tables
+        if recommendation:
+            lines.append(recommendation)
+        if decisions:
+            lines.append(decisions)
 
         lines.extend([
             eisenhower,
@@ -1022,10 +1431,10 @@ def render_roadmap(
     nodes: dict,
     edges: list[dict],
     fmt: str = "mermaid-gantt",
-    focus_vision: str | None = None,
+    scope: str | None = None,
     json_output: bool = False,
 ) -> str:
-    items = collect_roadmap_items(nodes, edges, focus_vision)
+    items = collect_roadmap_items(nodes, edges, scope=scope)
 
     if json_output:
         import json

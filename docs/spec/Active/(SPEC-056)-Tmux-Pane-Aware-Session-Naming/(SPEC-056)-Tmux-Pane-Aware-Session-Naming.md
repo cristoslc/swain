@@ -12,7 +12,7 @@ parent-initiative: ""
 linked-artifacts:
   - DESIGN-001
   - SPEC-008
-  - SPEC-100
+  - SPEC-130
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

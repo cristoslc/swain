@@ -9,7 +9,7 @@ last-updated: 2026-03-21
 parent-epic: EPIC-029
 priority-weight: medium
 depends-on-artifacts:
-  - SPEC-118
+  - SPEC-147
 linked-artifacts:
   - EPIC-029
   - ADR-013

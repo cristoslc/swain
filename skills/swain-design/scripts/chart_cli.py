@@ -114,12 +114,17 @@ def main():
     roadmap_p.add_argument("--format", type=str, default=None,
                            choices=["mermaid-gantt", "mermaid-flowchart", "both"],
                            help="Raw Mermaid to stdout (default: write ROADMAP.md)")
-    roadmap_p.add_argument("--focus", type=str, default=None,
-                           help="Focus on a specific Vision ID")
+    roadmap_p.add_argument("--scope", type=str, default=None,
+                           help="Generate scoped roadmap for a Vision or Initiative ID")
     roadmap_p.add_argument("--json", action="store_true", dest="json_output",
                            help="JSON output")
     roadmap_p.add_argument("--cli", action="store_true", dest="cli_output",
                            help="CLI-friendly plain text to stdout")
+
+    # Session command (SPEC-118: SESSION-ROADMAP.md)
+    session_p = sub.add_parser("session", help="Generate SESSION-ROADMAP.md for a focus lane")
+    session_p.add_argument("--focus", type=str, default=None,
+                           help="Initiative or Vision ID to scope the session")
 
     # Passthrough commands (delegate to specgraph CLI)
     for cmd in _PASSTHROUGH_COMMANDS:
@@ -153,29 +158,65 @@ def main():
         data = _ensure_cache(repo_root)
         nodes = data["nodes"]
         edges = data["edges"]
-        focus = getattr(args, "focus", None)  # roadmap: no focus-lane fallback
+        scope = getattr(args, "scope", None)
         fmt = getattr(args, "format", None)
         json_out = getattr(args, "json_output", False)
-
         cli_out = getattr(args, "cli_output", False)
 
-        # If --format, --json, or --cli given, print to stdout
-        if cli_out:
+        if scope:
+            # Scoped mode: write slice to artifact folder
+            from specgraph.roadmap import _write_scoped_slice
+            result = _write_scoped_slice(scope, nodes, edges, repo_root)
+            if result:
+                print(f"Wrote {result}")
+            else:
+                print(f"Error: could not find artifact {scope}", file=sys.stderr)
+                sys.exit(1)
+        elif cli_out:
             from specgraph.roadmap import render_roadmap_cli
-            items = collect_roadmap_items(nodes, edges, focus)
+            items = collect_roadmap_items(nodes, edges)
             print(render_roadmap_cli(items))
         elif fmt or json_out:
             output = render_roadmap(nodes, edges, fmt=fmt or "mermaid-gantt",
-                                    focus_vision=focus, json_output=json_out)
+                                    json_output=json_out)
             print(output)
         else:
-            # Default: write ROADMAP.md to project root
-            items = collect_roadmap_items(nodes, edges, focus)
-            md = render_roadmap_markdown(items, nodes, repo_root=repo_root)
+            # Default: write ROADMAP.md + all per-artifact slices
+            items = collect_roadmap_items(nodes, edges)
+            md = render_roadmap_markdown(items, nodes, repo_root=repo_root, edges=edges)
             roadmap_path = os.path.join(repo_root, "ROADMAP.md")
             with open(roadmap_path, "w", encoding="utf-8") as f:
                 f.write(md)
             print(f"Wrote {roadmap_path}")
+            from specgraph.roadmap import _write_all_slices
+            count = _write_all_slices(nodes, edges, repo_root)
+            if count:
+                print(f"Wrote {count} per-artifact roadmap slice(s)")
+        return
+
+    # Session command (SPEC-118: SESSION-ROADMAP.md)
+    if command == "session":
+        repo_root = _get_repo_root()
+        data = _ensure_cache(repo_root)
+        nodes = data["nodes"]
+        edges = data["edges"]
+        focus = getattr(args, "focus", None) or _read_focus_lane(repo_root)
+
+        if not focus:
+            print("Error: --focus is required (or set a focus lane via swain-session)",
+                  file=sys.stderr)
+            sys.exit(1)
+
+        if focus not in nodes:
+            print(f"Error: artifact {focus} not found in the graph", file=sys.stderr)
+            sys.exit(1)
+
+        from specgraph.session_roadmap import render_session_roadmap
+        md = render_session_roadmap(focus, nodes, edges, repo_root=repo_root)
+        session_path = os.path.join(repo_root, "SESSION-ROADMAP.md")
+        with open(session_path, "w", encoding="utf-8") as f:
+            f.write(md)
+        print(f"Wrote {session_path}")
         return
 
     # Lens-based tree rendering

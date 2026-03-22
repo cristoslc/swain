@@ -17,7 +17,7 @@ evidence-pool: ""
 linked-artifacts:
   - SPEC-092
   - SPEC-093
-  - SPEC-099
+  - SPEC-128
   - SPIKE-032
   - SPIKE-034
 depends-on-artifacts: []

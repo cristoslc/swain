@@ -19,7 +19,7 @@ depends-on-artifacts:
 addresses: []
 evidence-pool: ""
 linked-artifacts:
-  - EPIC-036
+  - EPIC-040
   - EPIC-037
   - INITIATIVE-010
   - INITIATIVE-011
@@ -64,7 +64,7 @@ This initiative is specifically about **trust infrastructure** — the primitive
 
 | Epic | Title | Status |
 |------|-------|--------|
-| EPIC-036 | Sandbox Capability Bridges | Proposed |
+| EPIC-040 | Sandbox Capability Bridges | Proposed |
 | EPIC-037 | PR-Only Agent Guardrails | Active |
 
 ## Small Work (Epic-less Specs)
