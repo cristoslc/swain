@@ -209,11 +209,13 @@ File: `docs/swain-retro/YYYY-MM-DD-{topic-slug}.md`
 ---
 title: "Retro: {title}"
 artifact: RETRO-{YYYY-MM-DD}-{topic-slug}
-type: retro
-date: {YYYY-MM-DD}
+track: standing
+status: Active
+created: {YYYY-MM-DD}
+last-updated: {YYYY-MM-DD}
 scope: "{description of what's covered}"
 period: "{start} — {end}"
-related-artifacts:
+linked-artifacts:
   - {ARTIFACT-ID-1}
   - {ARTIFACT-ID-2}
 ---
