@@ -2,7 +2,7 @@
 title: "iTerm Tab Name Bleed From Global set-titles"
 artifact: SPEC-138
 track: implementable
-status: Active
+status: Complete
 author: operator
 created: 2026-03-21
 last-updated: 2026-03-21
@@ -62,7 +62,10 @@ medium
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| | | |
+| tmux set-titles off disables global broadcast | swain-tab-name.sh has `set-titles off` (2 refs) | PASS |
+| client_tty detection via list-clients | swain-tab-name.sh client_tty isolation (9 refs) | PASS |
+| OSC escape writes directly to client tty | swain-tab-name.sh per-client OSC escape writes | PASS |
+| --reset turns off set-titles globally for cleanup | swain-tab-name.sh reset function disables global set-titles | PASS |
 
 ## Scope & Constraints
 
@@ -95,3 +98,4 @@ medium
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-21 | — | Initial creation |
+| Complete | 2026-03-22 | — | Retroactive close — per-client tty isolation in swain-tab-name.sh, set-titles off, commits 5779f38 and 25aaaf3 |

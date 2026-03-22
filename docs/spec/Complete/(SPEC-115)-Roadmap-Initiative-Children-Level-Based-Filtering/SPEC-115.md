@@ -2,7 +2,7 @@
 title: "Roadmap Initiative children use level-based filtering, not type-based"
 artifact: SPEC-115
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -56,6 +56,9 @@ medium
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| roadmap.py counts direct Initiative children in progress ratio | `roadmap.py` initiative_direct_children tracking (6 references) | PASS |
+| Direct-child SPECs of Initiatives appear in roadmap items | Commits 8f1bcbc and c644092 implementing level-based filtering | PASS |
+| Complete direct-child SPECs count toward children_complete | roadmap.py counts resolved direct children toward completion | PASS |
 
 ## Scope & Constraints
 
@@ -75,3 +78,4 @@ medium
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | — | Initial creation |
+| Complete | 2026-03-22 | — | Retroactive close — roadmap.py initiative_direct_children tracking implemented in commits 8f1bcbc and c644092 |
