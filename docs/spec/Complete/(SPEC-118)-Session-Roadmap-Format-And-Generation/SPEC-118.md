@@ -2,10 +2,10 @@
 title: "SESSION-ROADMAP.md Format and Generation"
 artifact: SPEC-118
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20
+last-updated: 2026-03-22
 type: feature
 parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
@@ -80,6 +80,11 @@ The file is committed on session close. `git log -p SESSION-ROADMAP.md` serves a
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: chart.sh session generates SESSION-ROADMAP.md | `chart.sh session --focus INITIATIVE-005` produces SESSION-ROADMAP.md in project root | Pass |
+| AC2: All 7 sections present | Generated file contains evidence basis, decision set, recommended next, session goal, progress, decision records, walk-away signal | Pass |
+| AC3: Valid markdown | SESSION-ROADMAP.md renders cleanly with no broken syntax in markdown viewers | Pass |
+| AC4: Lightweight evidence pointers | Evidence basis uses artifact ID + commit hash pointers, no content copies | Pass |
+| AC5: Decision set filtered to focus lane | Decision set contains only children of the specified focus lane initiative | Pass |
 
 ## Scope & Constraints
 
@@ -104,3 +109,4 @@ The file is committed on session close. `git log -p SESSION-ROADMAP.md` serves a
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
+| Complete | 2026-03-22 | -- | 17 tests pass, all 7 sections verified |
