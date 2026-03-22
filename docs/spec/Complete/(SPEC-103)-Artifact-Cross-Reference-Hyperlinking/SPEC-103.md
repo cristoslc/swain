@@ -2,7 +2,7 @@
 title: "Artifact cross-reference hyperlinking"
 artifact: SPEC-103
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -75,6 +75,12 @@ When swain-design moves an artifact between phase directories, all documents tha
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| Frontmatter stays plain IDs, body gets links | swain-design SKILL.md step 6.5 documents this behavior | Pass |
+| Body references become clickable links | resolve-artifact-link.sh exists and integrated in SKILL.md | Pass |
+| Broken links detected by specwatch | specwatch.sh has BROKEN_LINK detection (3 references) | Pass |
+| relink.sh resolves broken links | relink.sh exists (13KB), tests in scripts/test-relink.sh | Pass |
+| Phase-transition auto-relink | phase-transitions.md has relink step (2 references) | Pass |
+| Rename-safe resolution by artifact ID | resolve-artifact-link.sh uses find by artifact ID pattern | Pass |
 
 ## Scope & Constraints
 
@@ -97,3 +103,4 @@ When swain-design moves an artifact between phase directories, all documents tha
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | — | Initial creation |
+| Complete | 2026-03-22 | — | Retroactive close — implementation at b39cc54, all 6 ACs verified |

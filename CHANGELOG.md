@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.15.0-alpha] - 2026-03-22
+
+### Features
+
+#### Skill change discipline
+
+Non-trivial skill file changes now trigger an advisory warning at session start via swain-preflight. A new governance principle ("Skill changes are code changes") in AGENTS.md instructs agents to use worktree isolation for structural skill edits — the same discipline applied to .sh and .py files. Trivial fixes (typos, single-line corrections, ≤5-line diffs) remain trunk-eligible. Detection script: check-skill-changes.sh scans the last 10 trunk commits for non-trivial skill diffs.
+- swain-do pre-plan step now checks for unmerged worktree branches before creating implementation plans, catching already-done work early
+
+### Planned
+- Worktree discipline epic (EPIC-041) — generalizing trunk change detection beyond skill files to cover all code-like files (scripts, tests, tooling)
+
+### Supporting Changes
+- Retroactive close of 9 implemented-but-untracked specs: SPEC-052 (vision-rooted chart), SPEC-057 (tk close lock), SPEC-091 (TRAIN type), SPEC-103 (cross-ref hyperlinking), SPEC-115 (roadmap initiative filtering), SPEC-129 (specwatch-ignore), SPEC-138 (tab name bleed), SPEC-139 (Desired Outcomes), SPEC-142 (completion/retro chain)
+- swain-do skill audit and quality rectification (v3.2.0)
+
 ## [0.14.0-alpha] - 2026-03-22
 
 ### Features

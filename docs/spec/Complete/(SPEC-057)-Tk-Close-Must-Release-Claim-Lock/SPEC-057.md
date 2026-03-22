@@ -2,7 +2,7 @@
 title: "tk close Must Release Claim Lock"
 artifact: SPEC-057
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-17
 last-updated: 2026-03-17
@@ -52,6 +52,10 @@ medium — No data loss, but stale locks accumulate across sessions, trigger pre
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1 — close removes lock | Live test: claim → close → lock directory removed | Pass |
+| AC2 — close without lock succeeds | Live test: create → close (no claim) → no error | Pass |
+| AC3 — reopen does not restore lock | Live test: close → reopen → no lock directory created | Pass |
+| AC4 — stale locks cleaned | `.tickets/.locks/` contains no stale lock directories | Pass |
 
 ## Scope & Constraints
 
@@ -75,3 +79,4 @@ medium — No data loss, but stale locks accumulate across sessions, trigger pre
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-17 | | Direct to Active — clear root cause, operator-requested |
+| Complete | 2026-03-22 | | Retroactive close — implementation found at commit a549105, all 4 ACs verified live |
