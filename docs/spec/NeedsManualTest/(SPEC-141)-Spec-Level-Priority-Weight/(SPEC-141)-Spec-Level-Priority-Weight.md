@@ -167,4 +167,4 @@ def test_spec_without_weight_still_inherits(self):
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-21 | c063592 | Initial creation |
-| Needs Manual Test | 2026-03-21 | -- | Implementation complete; all 6 acceptance criteria verified |
+| Needs Manual Test | 2026-03-21 | 0926173 | Implementation complete; all 6 acceptance criteria verified |
