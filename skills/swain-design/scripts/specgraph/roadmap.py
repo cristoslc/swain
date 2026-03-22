@@ -1055,8 +1055,14 @@ def render_scoped_roadmap(
         ctype = entry["type"]
         if ctype == "EPIC":
             c, t = _spec_progress(cid, nodes, edges)
-            complete += c
-            total += t
+            if t > 0:
+                complete += c
+                total += t
+            else:
+                # Epic with no child SPECs: count the Epic itself
+                total += 1
+                if _node_is_resolved(cid, nodes):
+                    complete += 1
         else:
             total += 1
             if _node_is_resolved(cid, nodes):
