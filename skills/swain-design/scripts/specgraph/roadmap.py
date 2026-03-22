@@ -22,7 +22,13 @@ from .queries import (
     _find_vision_ancestor,
     _node_is_resolved,
 )
-from .priority import resolve_vision_weight, _compute_unblock_count
+from .priority import (
+    resolve_vision_weight,
+    _compute_unblock_count,
+    _is_decision_type,
+    rank_recommendations,
+    compute_decision_debt,
+)
 
 try:
     from jinja2 import Environment, FileSystemLoader
@@ -936,10 +942,121 @@ def _render_legend_single_row(legend_items: list[dict], nodes: dict, all_items: 
         return " <br> <br> ".join(" <br> ".join(parts) for parts in quadrant_parts)
 
 
+def render_decisions_section(
+    items: list[dict],
+    nodes: dict,
+    edges: list[dict],
+) -> str:
+    """Render the Decisions section for ROADMAP.md.
+
+    Buckets ready items into "Decisions Waiting on You" (operator-gated)
+    and "Implementation Ready (agent can handle)" (agent-delegatable).
+    Returns markdown string. Shows empty-state message when no decisions exist.
+    """
+    recommendations = rank_recommendations(nodes, edges)
+    rec_by_id = {r["id"]: r for r in recommendations}
+
+    # Only include items that are in the ready set (from recommendations)
+    ready_ids = set(rec_by_id.keys())
+
+    operator_items: list[dict] = []
+    impl_items: list[dict] = []
+
+    for rec in recommendations:
+        rid = rec["id"]
+        node = nodes.get(rid, {})
+        title = node.get("title", rid)
+        unblocks = rec["unblock_count"]
+
+        entry = {
+            "id": rid,
+            "title": title,
+            "unblocks": unblocks,
+            "score": rec["score"],
+        }
+
+        if rec["is_decision"]:
+            operator_items.append(entry)
+        else:
+            impl_items.append(entry)
+
+    # Sort by unblocks descending, then score descending
+    operator_items.sort(key=lambda x: (-x["unblocks"], -x["score"], x["id"]))
+    impl_items.sort(key=lambda x: (-x["unblocks"], -x["score"], x["id"]))
+
+    lines: list[str] = []
+
+    if not operator_items and not impl_items:
+        lines.append("## Decisions")
+        lines.append("")
+        lines.append("No decisions needed right now.")
+        lines.append("")
+        return "\n".join(lines)
+
+    if operator_items:
+        lines.append("## Decisions Waiting on You")
+        lines.append("")
+        lines.append("| Artifact | Unblocks |")
+        lines.append("|----------|----------|")
+        for item in operator_items:
+            unblocks_str = str(item["unblocks"]) if item["unblocks"] > 0 else "—"
+            lines.append(f"| {item['id']}: {item['title']} | {unblocks_str} |")
+        lines.append("")
+
+    if impl_items:
+        lines.append("## Implementation Ready (agent can handle)")
+        lines.append("")
+        lines.append("| Artifact | Unblocks |")
+        lines.append("|----------|----------|")
+        for item in impl_items:
+            unblocks_str = str(item["unblocks"]) if item["unblocks"] > 0 else "—"
+            lines.append(f"| {item['id']}: {item['title']} | {unblocks_str} |")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def render_recommendation_section(
+    items: list[dict],
+    nodes: dict,
+    edges: list[dict],
+) -> str:
+    """Render the Recommended Next callout for ROADMAP.md.
+
+    Shows the single highest-leverage item with a one-line rationale.
+    Returns empty string when no ready items exist.
+    """
+    recommendations = rank_recommendations(nodes, edges)
+    if not recommendations:
+        return ""
+
+    top = recommendations[0]
+    node = nodes.get(top["id"], {})
+    title = node.get("title", top["id"])
+    weight_label = {3: "high", 2: "medium", 1: "low"}.get(top["vision_weight"], "medium")
+
+    rationale_parts = []
+    if top["unblock_count"] > 0:
+        rationale_parts.append(f"unblocks {top['unblock_count']} item{'s' if top['unblock_count'] != 1 else ''}")
+    rationale_parts.append(f"weight: {weight_label}")
+    if top["score"] > 0:
+        rationale_parts.append(f"score: {top['score']}")
+    rationale = ", ".join(rationale_parts)
+
+    lines = [
+        "## Recommended Next",
+        "",
+        f"> **{top['id']}**: {title} — {rationale}",
+        "",
+    ]
+    return "\n".join(lines)
+
+
 def render_roadmap_markdown(
     items: list[dict],
     nodes: dict,
     repo_root: str = "",
+    edges: list[dict] | None = None,
 ) -> str:
     """Render a full ROADMAP.md with all visual and tabular views.
 
@@ -952,6 +1069,10 @@ def render_roadmap_markdown(
     gantt = render_gantt(items, nodes)
     dep_graph = render_dependency_graph(items, nodes)
 
+    # Decision and recommendation sections (SPEC-120)
+    decisions = render_decisions_section(items, nodes, edges or [])
+    recommendation = render_recommendation_section(items, nodes, edges or [])
+
     # Quadrant chart: try PNG side-by-side, fall back to inline Mermaid
     png_path = _render_quadrant_png(quadrant_src, repo_root) if repo_root else None
     legend_cell = _render_legend_single_row(legend_items, nodes, items) if png_path else ""
@@ -963,6 +1084,8 @@ def render_roadmap_markdown(
             png_path=png_path,
             quadrant_src=quadrant_src,
             legend_cell=legend_cell,
+            recommendation=recommendation,
+            decisions=decisions,
             eisenhower=eisenhower,
             gantt=gantt,
             dep_graph=dep_graph,
@@ -990,6 +1113,12 @@ def render_roadmap_markdown(
                 "```",
                 "",
             ])
+
+        # Decision and recommendation sections before Eisenhower tables
+        if recommendation:
+            lines.append(recommendation)
+        if decisions:
+            lines.append(decisions)
 
         lines.extend([
             eisenhower,
