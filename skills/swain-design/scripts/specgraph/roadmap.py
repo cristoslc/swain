@@ -986,7 +986,7 @@ def _get_recent_commits(
                 [
                     "git", "log", "--all",
                     f"--grep={aid}", f"-{limit}",
-                    "--format=%h\t%s\t%aI\t%as",
+                    "--format=%h\t%s\t%aI\t%ai",
                 ],
                 capture_output=True, text=True, cwd=repo_root, timeout=10,
             )
@@ -999,11 +999,17 @@ def _get_recent_commits(
                 h, msg, date_iso, date_human = parts
                 if h not in seen:
                     seen.add(h)
+                    # Trim "2026-03-21 14:32:05 -0600" → "2026-03-21 14:32"
+                    date_short = date_human.rsplit(":", 1)[0] if " " in date_human else date_human
+                    # Drop timezone offset
+                    parts2 = date_short.rsplit(" ", 1)
+                    if len(parts2) == 2 and (parts2[1].startswith("+") or parts2[1].startswith("-")):
+                        date_short = parts2[0]
                     commits.append({
                         "hash": h,
                         "message": msg,
                         "date": date_iso,
-                        "date_human": date_human,
+                        "date_human": date_short,
                     })
         except (_sp.TimeoutExpired, FileNotFoundError):
             pass
