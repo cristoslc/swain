@@ -101,4 +101,4 @@ These sections use existing specgraph data (recommend, decision-debt commands). 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
-| Complete | 2026-03-21 | -- | All ACs verified; 13 tests pass |
+| Complete | 2026-03-21 | c933d46 | All ACs verified; 13 tests pass |
