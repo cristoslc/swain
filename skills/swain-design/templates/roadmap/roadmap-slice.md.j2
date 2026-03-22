@@ -3,14 +3,6 @@
 
 > {{ intent }}
 
-## Children
-
-| Artifact | Title | Phase | Progress |
-|----------|-------|-------|----------|
-{% for child in children %}
-| [{{ child.id }}]({{ child.link }}) | {{ child.title }} | {{ child.phase }} | {{ child.progress }} |
-{% endfor %}
-
 ## Progress
 
 {{ progress_bar }} {{ complete }}/{{ total }} complete ({{ pct }}%)
@@ -30,3 +22,17 @@ _No recent commits reference child artifacts._
 
 {{ eisenhower_subset }}
 {% endif %}
+
+## Children
+
+{% for phase, phase_children in children_by_phase.items() %}
+### {{ phase }}
+
+{% for child in phase_children %}
+- [{{ child.id }}]({{ child.link }}) — {{ child.title }}{% if child.progress %} ({{ child.progress }}){% endif %}
+
+{% for gc in child.children %}
+  - [{{ gc.id }}]({{ gc.link }}) — {{ gc.title }} ({{ gc.phase }}{% if gc.progress %}, {{ gc.progress }}{% endif %})
+{% endfor %}
+{% endfor %}
+{% endfor %}

@@ -1013,45 +1013,77 @@ def render_scoped_roadmap(
     brief = node.get("brief_description", "")
     intent = brief if brief else f"{{{{INTENT: {artifact_id}}}}}"
 
-    # Collect direct children
+    # Build children tree (one level of nesting)
+    _RESOLVED_PHASES = {"Complete", "Superseded", "Archived"}
+    artifact_file = node.get("file", "")
     children_ids = _get_children(artifact_id, edges)
     children: list[dict] = []
     complete = 0
     total = 0
-    for cid in sorted(children_ids):
+
+    def _make_child_entry(cid: str) -> dict | None:
         cnode = nodes.get(cid, {})
         if not cnode:
-            continue
+            return None
         ctype = cnode.get("type", "").upper()
         cstatus = cnode.get("status", "")
-
+        child_file = cnode.get("file", "")
+        link = os.path.relpath(child_file, os.path.dirname(artifact_file)) if (child_file and artifact_file) else cid
         if ctype == "EPIC":
             c, t = _spec_progress(cid, nodes, edges)
             progress_str = f"{c}/{t}" if t > 0 else "\u2014"
-            complete += c
-            total += t
+        elif _node_is_resolved(cid, nodes):
+            progress_str = "done"
         else:
-            total += 1
-            is_done = _node_is_resolved(cid, nodes)
-            if is_done:
-                complete += 1
-            progress_str = "done" if is_done else "in progress"
-
-        # Compute relative link from artifact folder to child file
-        child_file = cnode.get("file", "")
-        artifact_file = node.get("file", "")
-        if child_file and artifact_file:
-            link = os.path.relpath(child_file, os.path.dirname(artifact_file))
-        else:
-            link = cid
-
-        children.append({
+            progress_str = "in progress"
+        return {
             "id": cid,
             "title": cnode.get("title", cid),
             "phase": cstatus,
             "progress": progress_str,
             "link": link,
-        })
+            "type": ctype,
+            "children": [],
+        }
+
+    for cid in sorted(children_ids):
+        entry = _make_child_entry(cid)
+        if entry is None:
+            continue
+
+        # Count progress at the top level
+        ctype = entry["type"]
+        if ctype == "EPIC":
+            c, t = _spec_progress(cid, nodes, edges)
+            complete += c
+            total += t
+        else:
+            total += 1
+            if _node_is_resolved(cid, nodes):
+                complete += 1
+
+        # Nest grandchildren (one level deep)
+        grandchild_ids = _get_children(cid, edges)
+        for gcid in sorted(grandchild_ids):
+            gc_entry = _make_child_entry(gcid)
+            if gc_entry is not None:
+                entry["children"].append(gc_entry)
+        # Sort grandchildren: active first
+        entry["children"].sort(
+            key=lambda c: (1 if c["phase"] in _RESOLVED_PHASES else 0, c["id"])
+        )
+        children.append(entry)
+
+    # Group children by phase of the direct child (highest ancestor in the tree)
+    _PHASE_ORDER = ["Active", "In Progress", "Proposed", "Complete", "Superseded", "Archived"]
+    _phase_rank = {p: i for i, p in enumerate(_PHASE_ORDER)}
+    children.sort(key=lambda c: (_phase_rank.get(c["phase"], 99), c["id"]))
+
+    from collections import OrderedDict
+    children_by_phase: OrderedDict[str, list[dict]] = OrderedDict()
+    for c in children:
+        phase = c["phase"] or "Unknown"
+        children_by_phase.setdefault(phase, []).append(c)
 
     # Progress bar
     pct = round(100 * complete / total) if total > 0 else 0
@@ -1072,7 +1104,7 @@ def render_scoped_roadmap(
             artifact_id=artifact_id,
             title=title,
             intent=intent,
-            children=children,
+            children_by_phase=children_by_phase,
             progress_bar=progress_bar,
             complete=complete,
             total=total,
@@ -1087,24 +1119,13 @@ def render_scoped_roadmap(
             "",
             f"> {intent}",
             "",
-            "## Children",
-            "",
-            "| Artifact | Title | Phase | Progress |",
-            "|----------|-------|-------|----------|",
-        ]
-        for c in children:
-            lines.append(
-                f"| [{c['id']}]({c['link']}) | {c['title']} | {c['phase']} | {c['progress']} |"
-            )
-        lines.extend([
-            "",
             "## Progress",
             "",
             f"{progress_bar} {complete}/{total} complete ({pct}%)",
             "",
             "## Recent Activity",
             "",
-        ])
+        ]
         if recent_commits:
             for c in recent_commits:
                 lines.append(f"- `{c['hash']}` {c['message']}")
@@ -1112,7 +1133,19 @@ def render_scoped_roadmap(
             lines.append("_No recent commits reference child artifacts._")
         lines.append("")
         if eisenhower_subset:
-            lines.extend(["## Priority Subset", "", eisenhower_subset])
+            lines.extend(["## Priority Subset", "", eisenhower_subset, ""])
+        lines.append("## Children")
+        lines.append("")
+        for phase, phase_children in children_by_phase.items():
+            lines.append(f"### {phase}")
+            lines.append("")
+            for c in phase_children:
+                prog = f", {c['progress']}" if c.get("progress") else ""
+                lines.append(f"- [{c['id']}]({c['link']}) \u2014 {c['title']}{prog}")
+                for gc in c.get("children", []):
+                    gprog = f", {gc['progress']}" if gc.get("progress") else ""
+                    lines.append(f"  - [{gc['id']}]({gc['link']}) \u2014 {gc['title']} ({gc['phase']}{gprog})")
+            lines.append("")
         return "\n".join(lines) + "\n"
 
 
