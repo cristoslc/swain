@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.14.0-alpha] - 2026-03-22
+
+### Features
+
+#### Per-artifact roadmap slices
+
+chart.sh roadmap --scope generates focused roadmap slices for individual Visions and Initiatives, written directly to each artifact's folder. Each slice shows an intent summary, a children tree grouped by lifecycle phase, a progress bar counting all descendants, a recent activity table with absolute timestamps, and an Eisenhower priority subset. The project-wide chart.sh roadmap now regenerates all slices automatically alongside ROADMAP.md. The swain-roadmap skill accepts an optional artifact ID to generate and open a single slice. Replaces the old --focus flag.
+
+#### Roadmap decision and recommendation sections
+
+ROADMAP.md now opens with a Decisions section (bucketed into operator-facing vs agent-handleable) and a Recommended Next callout showing the single highest-leverage item. When no decisions are pending, the section explicitly states so rather than being absent.
+
+#### SPEC-level priority-weight override
+
+SPECs can now carry their own priority-weight in frontmatter, overriding the inherited weight from their parent Epic or Initiative. The priority cascade is Vision > Initiative > Epic > Spec, with each level able to override its ancestor.
+- Desired Outcomes section added to SPEC, EPIC, and INITIATIVE templates — connects shipping to user impact
+- Artifact frontmatter schema contract (ADR-014, DESIGN-006) — formalizes which fields each artifact type must carry
+- Retro docs now hyperlink bare artifact IDs automatically
+- brief-description field parsed into specgraph node schema (forward-compat for SPEC-144)
+
+### Planned
+- Per-artifact roadmap slices will gain agent-authored intent summaries once the brief-description frontmatter field (SPEC-144) is implemented — currently shows a placeholder that swain-roadmap post-processes
+- Design creation prompts and design coverage audit lens being specified to improve how DESIGN artifacts are authored and validated
+- Worktree ticket isolation bug (SPEC-142) identified — tk tickets created in worktrees get orphaned when the worktree is removed
+
+### Research
+- PM-in-the-age-of-AI trove — 8 sources collected covering how product management practices are evolving with AI tooling
+
+### Supporting Changes
+- Plan completion handoff in swain-do now triggers the retro chain consistently
+- Full project retro expanded with narrative history and evolution timeline
+- SPEC-120, SPEC-134, SPEC-141, SPEC-143 transitioned to Complete with verification evidence
+
 ## [0.13.1-alpha] - 2026-03-21
 
 ### Features
