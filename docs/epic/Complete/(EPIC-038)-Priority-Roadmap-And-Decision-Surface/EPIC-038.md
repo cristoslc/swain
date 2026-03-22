@@ -18,8 +18,8 @@ depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
 linked-artifacts:
-  - SPEC-102
-  - SPEC-103
+  - SPEC-132
+  - SPEC-133
   - SPEC-104
   - SPEC-105
   - SPEC-106
@@ -65,8 +65,8 @@ This principle enables a future interaction model where a visual surface (e.g., 
 
 ### Superseded specs (exploratory implementation)
 
-- ~~SPEC-102~~ → SPEC-108
-- ~~SPEC-103~~ → SPEC-111
+- ~~SPEC-132~~ → SPEC-108
+- ~~SPEC-133~~ → SPEC-111
 - ~~SPEC-104~~ → SPEC-108
 - ~~SPEC-105~~ → SPEC-108
 - ~~SPEC-106~~ → SPEC-112

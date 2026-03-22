@@ -11,13 +11,13 @@ parent-epic: ""
 parent-initiative: INITIATIVE-013
 parent-vision: VISION-002
 linked-artifacts:
-  - EPIC-036
+  - EPIC-040
   - EPIC-037
   - INITIATIVE-017
   - SPEC-067
   - SPEC-068
   - SPEC-071
-  - SPEC-100
+  - SPEC-130
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

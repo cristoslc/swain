@@ -14,7 +14,7 @@ success-criteria:
   - A repeatable verification mechanism exists that agents can invoke during implementation
 linked-artifacts:
   - INITIATIVE-004
-  - SPEC-098
+  - SPEC-126
   - SPIKE-036
   - VISION-002
 depends-on-artifacts: []
@@ -43,7 +43,7 @@ None — scope is likely small enough for epic-less specs.
 ## Small Work (Epic-less Specs)
 
 - SPIKE-036: External CLI Assumption Verification (Active) — research what verification mechanisms agents can use
-- SPEC-098: CLI Command Verification in Agent Execution (Proposed) — implement findings into swain-do workflow
+- SPEC-126: CLI Command Verification in Agent Execution (Proposed) — implement findings into swain-do workflow
 
 ## Key Dependencies
 
