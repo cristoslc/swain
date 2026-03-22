@@ -10,8 +10,10 @@
 ## Recent Activity
 
 {% if recent_commits %}
+| When | Commit | Message |
+|------|--------|---------|
 {% for c in recent_commits %}
-- `{{ c.hash }}` {{ c.message }}
+| {{ c.date_human }} | `{{ c.hash }}` | {{ c.message }} |
 {% endfor %}
 {% else %}
 _No recent commits reference child artifacts._
