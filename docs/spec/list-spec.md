@@ -64,7 +64,10 @@
 | SPEC-116 | Read Before Reasoning | 2026-03-20 | ec9842d |
 | SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | ec9842d |
 | SPEC-118 | SESSION-ROADMAP.md Format and Generation | 2026-03-20 | -- |
+| SPEC-118 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
+| SPEC-119 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-119 | Session Lifecycle in swain-session | 2026-03-20 | -- |
+| SPEC-120 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
 | SPEC-120 | ROADMAP.md Decision and Recommendation Sections | 2026-03-20 | -- |
 | SPEC-121 | Session Detection Hooks Across All Skills | 2026-03-20 | -- |
 | SPEC-122 | Absorb swain-status into swain-session | 2026-03-20 | -- |
@@ -81,6 +84,10 @@
 | SPEC-139 | Desired Outcomes Section for Shippable Artifacts | 2026-03-21 | — |
 | SPEC-140 | Artifact ID Collision Detection | 2026-03-21 | -- |
 | SPEC-141 | Spec-Level Priority Weight | 2026-03-21 | — |
+| SPEC-142 | swain-do isn't consistently capturing retros on completion | 2026-03-21 | -- |
+| SPEC-142 | Worktree Ticket Isolation | 2026-03-21 | — |
+| SPEC-143 | Per-Vision and Per-Initiative Roadmap Slices | 2026-03-21 | — |
+| SPEC-144 | Brief Description Frontmatter Field | 2026-03-21 | — |
 
 ## Complete
 

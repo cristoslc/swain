@@ -8,7 +8,7 @@ created: 2026-03-21
 last-updated: 2026-03-21
 type: enhancement
 parent-epic: ""
-parent-initiative: ""
+parent-initiative: INITIATIVE-005
 linked-artifacts:
 depends-on-artifacts:
 addresses:

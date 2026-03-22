@@ -40,6 +40,16 @@ Phases listed in the artifact definition files are available waypoints, not mand
    docs/<type>/<new-phase>/(<NEW-ID>)*
    ```
    Include patterns for: (a) the superseded artifact itself (its frozen outbound refs), (b) the superseding artifact (its intentional backward ref). If an ADR was created as part of the same operation, include its path too.
+5b. **Back-reference update (→ Superseded only)** — after suppressing the superseded artifact's own refs (5a), find all *other* non-terminal artifacts that still reference the superseded artifact in frontmatter fields (`linked-artifacts`, `depends-on-artifacts`, `addresses`). Run:
+   ```bash
+   grep -rl '<OLD-ID>' docs/ | grep -v Superseded/ | grep -v Abandoned/
+   ```
+   For each non-terminal result:
+   1. **Alignment check**: Read the referencing artifact's context (problem statement, scope, goals) and compare it against the successor `<NEW-ID>`. Supersession often changes scope — the successor may have different goals, constraints, or boundaries than the original. If the referencing artifact's relationship was specific to the *old* artifact's scope and doesn't hold for the successor, flag it for the operator rather than silently updating.
+   2. **If aligned**: replace `<OLD-ID>` with `<NEW-ID>` in frontmatter fields. If `<NEW-ID>` is already present (dedup), remove the old entry instead. Record what changed in the commit message (e.g., "update EPIC-031 linked-artifacts: INITIATIVE-001 → INITIATIVE-013").
+   3. **If misaligned or uncertain**: present the finding to the operator — "SPEC-NNN references `<OLD-ID>` which was superseded by `<NEW-ID>`, but the successor's scope diverges. Should this reference update, be removed, or remain (with specwatch-ignore suppression)?"
+   4. **Provenance links**: if the referencing artifact is the superseding artifact itself (intentional provenance), add it to specwatch-ignore (step 5a) instead of rewriting.
+   5. **Frozen sources**: references from Complete or Superseded source artifacts are handled by specwatch-ignore in step 5a — this step only updates Active, Proposed, or InProgress artifacts.
 6. Stamp the lifecycle table with the transition commit hash. Choose the pattern based on artifact complexity tier (see SPEC-045):
    - **Fast-path tier with no downstream dependents:** Use the inline stamp — run `git rev-parse HEAD` *before* the transition commit, pre-fill the lifecycle row hash, and include it in the single transition commit (step 5). No second commit needed.
    - **Full-ceremony tier, EPICs, or artifacts with downstream dependents:** Append a row with `--` as a placeholder hash in step 5, then commit the hash stamp as a **separate commit** (step 7). Never amend — two distinct commits keeps the stamped hash reachable in git history.

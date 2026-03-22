@@ -40,7 +40,7 @@ If no common substrate exists, deprioritize cross-runtime portability in favor o
 
 ## Findings
 
-Evidence pools: [agent-runtime-extensions.md](../../troves/agent-runtime-extensions.md), [portable-framework-patterns.md](../../troves/portable-framework-patterns.md)
+Evidence pools: agent-runtime-extensions, portable-framework-patterns (troves archived)
 
 ### Three Shared Substrate Layers
 

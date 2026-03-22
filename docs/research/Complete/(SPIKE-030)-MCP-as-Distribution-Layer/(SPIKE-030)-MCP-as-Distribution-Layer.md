@@ -38,7 +38,7 @@ If MCP is insufficient, fall back to surface-specific packaging: system prompts 
 
 ## Findings
 
-Evidence pool: [mcp-distribution-layer.md](../../troves/mcp-distribution-layer.md)
+Evidence pool: mcp-distribution-layer (trove archived)
 
 ### MCP Can Do Everything Swain Needs
 

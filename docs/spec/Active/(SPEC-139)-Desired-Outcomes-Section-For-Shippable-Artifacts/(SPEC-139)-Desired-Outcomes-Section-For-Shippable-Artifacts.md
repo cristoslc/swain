@@ -51,7 +51,7 @@ A new body section titled **"Desired Outcomes"** is added to three artifact temp
 
 The Desired Outcomes section answers:
 
-1. **Who benefits?** — Name the personas, stakeholders, or user segments affected. Reference [PERSONA-001](../../persona/Active/(PERSONA-001)-Swain-Project-Developer/(PERSONA-001)-Swain-Project-Developer.md) and [PERSONA-002](../../persona/Active/(PERSONA-002)-AI-Coding-Agent/(PERSONA-002)-AI-Coding-Agent.md) by ID when applicable.
+1. **Who benefits?** — Name the personas, stakeholders, or user segments affected. Reference [PERSONA-001](../../../persona/Active/(PERSONA-001)-Swain-Project-Developer/(PERSONA-001)-Swain-Project-Developer.md) and [PERSONA-002](../../../persona/Active/(PERSONA-002)-AI-Coding-Agent/(PERSONA-002)-AI-Coding-Agent.md) by ID when applicable.
 2. **What changes for them?** — Describe the qualitative improvement in their experience, capability, or confidence. This is aspirational, not metric-driven — though metrics may support the narrative.
 3. **How does this drive us toward our aspirations?** — Connect the artifact's completion to the parent Vision or Initiative's direction. For standalone artifacts, articulate the aspiration directly.
 

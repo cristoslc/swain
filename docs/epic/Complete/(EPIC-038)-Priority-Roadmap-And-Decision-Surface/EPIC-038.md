@@ -28,7 +28,7 @@ linked-artifacts:
   - SPEC-109
   - SPEC-110
   - SPEC-111
-  - SPEC-112---
+  - SPEC-112
 
 # Priority Roadmap and Decision Surface
 

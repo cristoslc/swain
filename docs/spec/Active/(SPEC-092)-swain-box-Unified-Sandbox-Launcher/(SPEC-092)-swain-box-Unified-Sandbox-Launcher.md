@@ -12,7 +12,6 @@ parent-initiative: INITIATIVE-013
 parent-vision: VISION-002
 linked-artifacts:
   - ADR-008
-  - DESIGN-002
   - DESIGN-005
   - EPIC-040
   - EPIC-037

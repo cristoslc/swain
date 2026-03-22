@@ -33,7 +33,7 @@ Artifact references throughout the docs tree — in frontmatter fields (`linked-
 
 When swain-design creates or transitions an artifact, artifact ID references in **body text** (everything below the frontmatter fence) are emitted as relative markdown links:
 
-- **Body text:** `[SPEC-045](../../spec/Active/(SPEC-045)-Whatever/SPEC-045.md)`
+- **Body text:** `[SPEC-045](../../Complete/(SPEC-045)-Fast-Path-Authoring-Mode/(SPEC-045)-Fast-Path-Authoring-Mode.md)`
 
 Paths are relative from the referencing artifact's directory to the referenced artifact's current location on disk.
 

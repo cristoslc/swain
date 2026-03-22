@@ -22,6 +22,7 @@ linked-artifacts:
   - SPEC-054
   - SPIKE-021
   - SPIKE-024
+  - SPEC-141
 ---
 
 # Operator Situational Awareness

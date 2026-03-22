@@ -5,11 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Implemented SPEC-142: plan completion retro chain in swain-do",
-    "files": [
-      "skills/swain-do/SKILL.md docs/spec/Active/(SPEC-142)-swain-do-completion-retro-chain.md"
-    ],
-    "timestamp": "2026-03-22T03:09:59Z"
+    "note": "Created SPEC-144 Brief Description Frontmatter Field",
+    "timestamp": "2026-03-22T03:23:49Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

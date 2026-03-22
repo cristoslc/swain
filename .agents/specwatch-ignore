@@ -15,3 +15,31 @@ docs/spec/Superseded/(SPEC-105)*
 # SPEC-106 superseded by SPEC-112 (2026-03-20)
 docs/spec/Superseded/(SPEC-106)*
 docs/spec/Active/(SPEC-112)*
+
+# SPEC-124 false positives — (...) placeholder syntax in code examples (2026-03-22)
+docs/spec/Active/(SPEC-124)*
+
+# Plan file references to skill-relative paths, not navigable links (2026-03-22)
+docs/superpowers/plans/2026-03-19-train-artifact-type.md
+
+# BUG-001 legacy artifact type — retired in SPEC-006 (2026-03-22)
+docs/spec/Complete/(SPEC-006)*
+docs/spec/Complete/(SPEC-007)*
+docs/epic/Complete/(EPIC-002)*
+
+# INITIATIVE-013 intentionally references superseded INITIATIVE-001 (provenance) (2026-03-22)
+docs/initiative/Active/(INITIATIVE-013)*
+
+# DESIGN-005 intentionally references superseded DESIGN-002 (provenance) (2026-03-22)
+docs/design/Active/(DESIGN-005)*
+
+# Complete spikes link to Proposed follow-on epics — frozen provenance (2026-03-22)
+docs/research/Complete/(SPIKE-030)*
+docs/research/Complete/(SPIKE-029)*
+docs/research/Complete/(SPIKE-028)*
+docs/research/Complete/(SPIKE-025)*
+
+# Complete/Superseded sources with Proposed targets — frozen provenance (2026-03-22)
+docs/epic/Complete/(EPIC-015)*
+docs/initiative/Superseded/(INITIATIVE-001)*
+docs/initiative/Complete/(INITIATIVE-006)*

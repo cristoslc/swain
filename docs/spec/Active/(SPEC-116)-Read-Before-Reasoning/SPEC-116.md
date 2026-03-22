@@ -12,7 +12,7 @@ parent-initiative: INITIATIVE-005
 linked-artifacts:
   - SPEC-114
   - SPIKE-022
-  - ADR-005
+  - ADR-011
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

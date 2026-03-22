@@ -2,10 +2,10 @@
 title: "Expand DESIGN Artifact Scope to Data and System Contracts"
 artifact: SPEC-134
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20
+last-updated: 2026-03-21
 type: enhancement
 parent-epic: ""
 parent-initiative: ""
@@ -162,6 +162,13 @@ The existing DESIGN decision protection hooks in SKILL.md (SPEC implementation t
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| definition covers all 3 domains without exclusion language | `design-definition.md` lines 22–28: domain table lists interaction/data/system; no "Designs are NOT Specs" text | Pass |
+| `domain: data` template has data-specific sections | `design-template.md.template` lines 117–164: Entity Model, Data Flow, Schema Definitions, Evolution Rules, Invariants | Pass |
+| `domain: system` template has system-specific sections | `design-template.md.template` lines 170+: Contract Definition, Behavioral Guarantees, Integration Patterns, Evolution Rules | Pass |
+| `design-check.sh` works identically for `domain: data` | design-check.sh is domain-agnostic (blob-pinned sourcecode-refs); no changes needed | Pass |
+| existing DESIGNs without `domain` treated as `interaction` | template uses `{{ domain \| default("interaction") }}`; 413 tests pass | Pass |
+| `list-design.md` includes domain column | `docs/design/list-design.md` header confirmed: `\| Domain \|` | Pass |
+| template has domain-conditional sections with guidance comments | Jinja2 `{%- if domain == "data" %}` / `{%- elif domain == "system" %}` blocks with comment headers | Pass |
 
 ## Scope & Constraints
 
@@ -210,3 +217,4 @@ The existing DESIGN decision protection hooks in SKILL.md (SPEC implementation t
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
+| Complete | 2026-03-21 | -- | Retroactive close — all deliverables already in codebase; 413/414 tests pass |

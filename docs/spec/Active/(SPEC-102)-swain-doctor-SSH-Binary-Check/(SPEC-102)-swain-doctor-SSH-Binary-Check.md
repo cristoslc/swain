@@ -13,9 +13,8 @@ linked-artifacts:
   - EPIC-040
   - SPEC-092
   - SPEC-103
-  - SPEC-104
-  - SPEC-105
-  - SPEC-106
+  - SPEC-108
+  - SPEC-112
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

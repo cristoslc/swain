@@ -19,7 +19,7 @@ depends-on-artifacts: []
 linked-artifacts:
   - INITIATIVE-009
   - EPIC-025
-  - ADR-005
+  - ADR-011
   - SPEC-039
   - SPEC-044
 ---
