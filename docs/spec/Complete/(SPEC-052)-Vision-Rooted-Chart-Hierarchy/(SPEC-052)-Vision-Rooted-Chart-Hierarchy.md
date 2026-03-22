@@ -2,7 +2,7 @@
 title: "Vision-Rooted Chart Hierarchy"
 artifact: SPEC-052
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-15
 last-updated: 2026-03-15
@@ -264,9 +264,16 @@ A `VisionTree` renderer (Python) that all lenses and surface integrations consum
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| chart.sh exists and is CLI entry point | `scripts/chart.sh` wraps chart_cli.py | PASS |
+| chart_cli.py with lens framework | `skills/swain-design/scripts/chart_cli.py` implements ready/recommend/debt/unanchored lenses | PASS |
+| VisionTree renderer in tree_renderer.py | `skills/swain-design/scripts/tree_renderer.py` VisionTree class | PASS |
+| priority.py cascade handles Vision-Initiative-Epic-Spec | `skills/swain-design/scripts/priority.py` cascade logic | PASS |
+| depth control via --depth and --detail flags | chart_cli.py accepts --depth N and --detail alias | PASS |
+| phase filtering implemented | chart_cli.py supports --phase and --hide-terminal flags | PASS |
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-15 | — | Initial creation via brainstorming |
+| Complete | 2026-03-22 | — | Retroactive close — chart.sh, chart_cli.py, VisionTree renderer, lens framework, priority cascade all implemented across 8+ commits |

@@ -2,7 +2,7 @@
 title: "TRAIN Artifact Type"
 artifact: SPEC-091
 track: implementable
-status: Active
+status: Complete
 author: operator
 created: 2026-03-19
 last-updated: 2026-03-19
@@ -190,11 +190,23 @@ Step 4e in phase-transitions.md (SPIKE completion sibling scan) is extended to i
    - Add `train` to the rebuild-index loop in swain-sync SKILL.md (hardcoded type list)
    - Add `docs/train/` to the ADR compliance artifact path list in swain-sync SKILL.md
 
+## Verification
+
+| Criterion | Evidence | Result |
+|-----------|----------|--------|
+| train-definition.md exists with lifecycle and conventions | `references/train-definition.md` | PASS |
+| train-template.md.template exists with all required sections | `references/train-template.md.template` | PASS |
+| train-check.sh staleness detector exists | `scripts/train-check.sh` | PASS |
+| TRAIN registered in SKILL.md artifact type table | `skills/swain-design/SKILL.md` artifact type table (2 refs) | PASS |
+| TRAIN integrated in specwatch.sh | `scripts/specwatch.sh` (8 references) | PASS |
+| adr-check.sh scans docs/train/ | `scripts/adr-check.sh` includes train path | PASS |
+
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-19 | — | Initial creation |
+| Complete | 2026-03-22 | — | Retroactive close — train-definition.md, template, train-check.sh, SKILL.md and specwatch integration all implemented across 7+ commits |
 
 
 

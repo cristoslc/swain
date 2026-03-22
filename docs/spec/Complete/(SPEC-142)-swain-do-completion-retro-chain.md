@@ -2,7 +2,7 @@
 title: "swain-do isn't consistently capturing retros on completion"
 artifact: SPEC-142
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-21
 last-updated: 2026-03-21
@@ -75,3 +75,4 @@ high
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-21 | -- | Created from gh#86; bug — swain-do missing completion→retro chain |
+| Complete | 2026-03-22 | — | Retroactive close — SKILL.md plan completion handoff section with 3-step chain, commit 2f2b923 |
