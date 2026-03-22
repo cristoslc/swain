@@ -33,6 +33,10 @@ evidence-pool: {{ evidence_pool | default("") }}
 
 {{ strategic_focus | default("What direction is this initiative pursuing? What problem does it address and why now?") }}
 
+## Desired Outcomes
+
+{{ desired_outcomes | default("How does completing this initiative advance our personas toward their aspirations? What does the world look like for our stakeholders when this direction is fully realized?") }}
+
 ## Scope Boundaries
 
 {{ scope | default("What is in scope and what is explicitly out of scope.") }}

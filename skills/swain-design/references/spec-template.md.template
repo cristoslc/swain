@@ -33,6 +33,10 @@ swain-do: required
 
 {{ problem_statement | default("What problem this spec addresses — scoped from the parent Epic's goal.") }}
 
+## Desired Outcomes
+
+{{ desired_outcomes | default("How does shipping this spec make our personas better off? Who benefits and what changes for them? Connect to the parent epic/initiative's aspirations, or articulate the aspiration directly for standalone specs.") }}
+
 ## External Behavior
 
 {{ external_behavior | default("Inputs, outputs, preconditions, postconditions, constraints, and interfaces.") }}

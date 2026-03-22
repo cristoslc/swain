@@ -31,6 +31,10 @@ evidence-pool: {{ evidence_pool | default("") }}
 
 {{ goal | default("What this epic aims to achieve.") }}
 
+## Desired Outcomes
+
+{{ desired_outcomes | default("Who benefits when this epic ships, and how? What qualitative improvements do our personas experience? How does this advance the parent initiative or vision's direction?") }}
+
 ## Scope Boundaries
 
 {{ scope | default("What is in scope and what is explicitly out of scope.") }}
