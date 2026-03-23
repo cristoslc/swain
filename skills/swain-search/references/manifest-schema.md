@@ -58,6 +58,7 @@ path: "path/to/file.pdf"          # Relative to project root
 # Optional
 hash: "a1b2c3d4e5f6..."          # Bare hex SHA-256 digest (no sha256: prefix)
 freshness-ttl: 14d                 # Per-source override
+proxy-used: freedium               # Which paywall proxy delivered the content (omit if direct fetch)
 duration: "45:32"                  # For media sources — total duration
 speakers:                          # For media sources — identified speakers
   - "Alice"
