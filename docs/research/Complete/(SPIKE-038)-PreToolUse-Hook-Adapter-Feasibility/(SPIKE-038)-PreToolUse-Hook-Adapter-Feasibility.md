@@ -195,4 +195,4 @@ Codex CLI lacks a general PreToolUse hook. Enforcement relies on:
 |-------|------|--------|-------|
 | Proposed | 2026-03-22 | 730b957 | Initial creation |
 | Active | 2026-03-23 | 9293866 | Activated for Claude Code hook testing |
-| Complete | 2026-03-23 | -- | Go: 4/5 platforms validated with working prototypes |
+| Complete | 2026-03-23 | 09d824a | Go: 4/5 platforms validated with working prototypes |
