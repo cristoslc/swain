@@ -88,16 +88,49 @@ If PreToolUse is insufficient, pivot to post-hoc audit only ([SPIKE-040](../../P
 3. **Governance file protection** — deny edits to AGENTS.md, skill files (better done via deny rules, but hooks can provide richer error messages)
 4. **Spec-read enforcement** — requires session state (SPIKE-039); hook alone can only check if spec file was modified, not if it was read
 
-### Gemini CLI — BeforeTool Hook (not yet tested)
+### Gemini CLI — BeforeTool Hook (validated 2026-03-23)
 
-Trove data suggests BeforeTool hooks are structurally equivalent to Claude Code's PreToolUse. Key differences:
-- Matcher is a regex on tool name (e.g., `write_file|replace`)
-- Can rewrite `tool_input` via `hookSpecificOutput.tool_input`
-- Exit code 2 is an "emergency brake" — stronger than JSON deny
-- Policy engine provides a declarative alternative for simple deny rules (no script needed)
-- Hook fingerprinting adds security (warns on modified hooks)
+**Verdict: Go.** BeforeTool hooks on Gemini CLI work for process governance gates. Live-tested with `gemini -p` headless mode.
 
-**Next step:** Install test hooks on Gemini CLI and validate the same ADR-gate pattern.
+**What works:**
+- Hook configured in `.gemini/settings.json` with `matcher: "run_shell_command"` — fires on every shell command
+- Allow path confirmed: `accept: 1, reject: 0` in tool usage stats for non-commit commands
+- Deny path confirmed: model retried for 2+ minutes against deny hook, command never executed — deterministic block
+- Hook uses `decision: "allow"` / `decision: "deny"` (vs Claude Code's `permissionDecision`) — minor field name difference
+- `$GEMINI_PROJECT_DIR` env var correctly resolves hook script path
+
+**Prototype implementation:** `.gemini/hooks/adr-gate.sh` + `.gemini/settings.json`
+
+**Configuration:**
+```json
+{
+  "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "name": "adr-gate",
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/adr-gate.sh",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Key differences from Claude Code:**
+- `decision` field instead of `permissionDecision`
+- Matcher is regex on tool name (can match `write_file|replace` for broader gating)
+- Hook fingerprinting: Gemini warns if a project hook's name or command changes — protects against agent self-modification
+- Policy engine available as a declarative alternative for simple deny rules (no script needed, TOML-based)
+- Exit code 2 = emergency brake (stronger signal than JSON deny)
+- Model retries on deny (unlike Claude Code which denies once) — the hook must be idempotent
+
+**Adapter portability:** The hook script logic is nearly identical to Claude Code's — only the JSON field name differs (`decision` vs `permissionDecision`). A single script could serve both with a platform detection preamble, or use two thin wrappers calling a shared core.
 
 ### Codex CLI — No PreToolUse Hook (structural limitation)
 
