@@ -17,12 +17,12 @@ freshness-ttl:
 history:
   - event: created
     date: 2026-03-22
-    commit: "--"
+    commit: 463a776
     sources: 5
 
 referenced-by:
   - artifact: SPIKE-042
-    commit: "--"
+    commit: 463a776
 
 sources:
   - source-id: wikipedia-cpm
