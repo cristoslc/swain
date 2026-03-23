@@ -48,12 +48,10 @@ Replace the ad-hoc "scan `docs/<type>/` and pick the next number" pattern in swa
 
 ## Child Specs
 
-_Updated as Agent Specs are created under this epic._
-
-- **SPEC-TBD:** `next-artifact-number.sh` — core allocator script with worktree-safe branch query
-- **SPEC-TBD:** swain-design SKILL.md integration — replace step 1 with script call
-- **SPEC-TBD:** Collision detection — specwatch or pre-commit check for duplicate numbers
-- **SPEC-TBD:** Migrate existing callers — update `migrate-bugs.sh` and any other scripts
+- [SPEC-156](../../../spec/Complete/(SPEC-156)-Next-Artifact-Number-Script/(SPEC-156)-Next-Artifact-Number-Script.md) — `next-artifact-number.sh` core allocator with cross-worktree scanning (Complete)
+- [SPEC-157](../../../spec/Complete/(SPEC-157)-SKILL-MD-Allocator-Integration/(SPEC-157)-SKILL-MD-Allocator-Integration.md) — swain-design SKILL.md step 1 integration (Complete)
+- [SPEC-158](../../../spec/Complete/(SPEC-158)-Artifact-Number-Collision-Detection/(SPEC-158)-Artifact-Number-Collision-Detection.md) — Collision detection + renumber tools + swain-sync gate (Complete)
+- [SPEC-159](../../../spec/Complete/(SPEC-159)-Migrate-Existing-Number-Callers/(SPEC-159)-Migrate-Existing-Number-Callers.md) — Migrate `migrate-bugs.sh` to centralized allocator (Complete)
 
 ## Key Dependencies
 
