@@ -171,7 +171,7 @@ do_build() {
     track=$(get_field "$file" "track")
     if [ -z "$track" ]; then
       case "$atype" in
-        VISION|JOURNEY|PERSONA|ADR|RUNBOOK|DESIGN) track="standing" ;;
+        VISION|JOURNEY|PERSONA|ADR|RUNBOOK|DESIGN|TRAIN|RETRO) track="standing" ;;
         EPIC|SPIKE) track="container" ;;
         *) track="implementable" ;;
       esac

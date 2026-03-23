@@ -5,11 +5,11 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "SPEC-134 Complete (retroactive close) — domain expansion already shipped",
+    "note": "created EPIC-043",
     "files": [
-      "docs/spec/Complete/(SPEC-134)-Expand-DESIGN-Artifact-Scope-To-Data-And-System-Contracts/(SPEC-134)-Expand-DESIGN-Artifact-Scope-To-Data-And-System-Contracts.md"
+      "docs/epic/Active/(EPIC-043)-Centralized-Artifact-Number-Allocation/(EPIC-043)-Centralized-Artifact-Number-Allocation.md"
     ],
-    "timestamp": "2026-03-22T03:36:28Z"
+    "timestamp": "2026-03-23T02:55:43Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

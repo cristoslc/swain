@@ -34,6 +34,7 @@
 | EPIC-037 | PR-Only Agent Guardrails | 2026-03-20 | -- |
 | EPIC-039 | Session Facilitation Rebuild | 2026-03-20 | — |
 | EPIC-042 | Retro Session Intelligence | 2026-03-22 | — |
+| EPIC-043 | Centralized Artifact Number Allocation | 2026-03-22 | — |
 
 ## Complete
 
