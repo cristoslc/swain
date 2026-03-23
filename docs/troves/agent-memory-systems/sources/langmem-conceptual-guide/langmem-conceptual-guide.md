@@ -4,7 +4,7 @@ title: "Long-term Memory in LLM Applications — LangMem Conceptual Guide"
 type: web
 url: "https://langchain-ai.github.io/langmem/concepts/conceptual_guide/#memory-types"
 fetched: 2026-03-23T00:00:00Z
-hash: "fddbff35add8920589e459c1e776d499341dd27fa94162c8c56304389262903e"
+hash: "08408b2f822ae6635b0cb954e9c8204d2614c5d52bc18ed32b4a4dc2852e387d"
 ---
 
 # Long-term Memory in LLM Applications

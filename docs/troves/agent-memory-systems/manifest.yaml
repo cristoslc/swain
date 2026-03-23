@@ -1,0 +1,77 @@
+trove: agent-memory-systems
+created: 2026-03-23
+refreshed: 2026-03-23
+tags:
+  - agent-memory
+  - llm-memory
+  - memory-architecture
+  - semantic-memory
+  - episodic-memory
+  - procedural-memory
+  - claude-code
+  - codex
+  - gemini-cli
+  - opencode
+  - langmem
+  - memory-taxonomy
+  - coding-agents
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-03-23
+    commit: 2951507
+    sources: 1
+    notes: "initial langmem source"
+  - event: extended
+    date: 2026-03-23
+    commit: "--"
+    sources: 6
+    sources-added: 5
+    notes: "renamed from langmem-memory-types; added Claude Code, Codex, Gemini CLI, OpenCode, and general taxonomy sources"
+
+sources:
+  - source-id: langmem-conceptual-guide
+    type: web
+    url: "https://langchain-ai.github.io/langmem/concepts/conceptual_guide/#memory-types"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Long-term Memory in LLM Applications — LangMem Conceptual Guide"
+    hash: "28f6b8d08761c89304c0355a798fd2ce1d6168c5a88e5c014277edbf5892e025"
+
+  - source-id: claude-code-memory
+    type: web
+    url: "https://code.claude.com/docs/en/memory"
+    fetched: 2026-03-23T00:00:00Z
+    title: "How Claude Remembers Your Project — Claude Code Docs"
+    hash: "4453a4b8de303a4d639eb36f39bc50408a9723f38579f32790d5a8e2fe3948e4"
+
+  - source-id: codex-memory-system
+    type: web
+    url: "https://deepwiki.com/openai/codex/3.7-memory-system"
+    fetched: 2026-03-23T00:00:00Z
+    title: "OpenAI Codex Memory System — DeepWiki Analysis"
+    hash: "bac9e42a02b734601e903b0e28ac6e97e0a24faba82277f952405151d26f0b63"
+
+  - source-id: gemini-cli-memory
+    type: web
+    url: "https://geminicli.com/docs/cli/tutorials/memory-management/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Gemini CLI Memory Management and save_memory Tool"
+    hash: "716eb674a4d95002c006dc9bf3cfcd6b678611ae5bd3637b53e64d5a2efb3534"
+
+  - source-id: opencode-rules-context
+    type: web
+    url: "https://opencode.ai/docs/rules/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "OpenCode Rules and Context Persistence"
+    hash: "0a79771885bb53cfca25764378e0b2cd66cded530d0d245545b563ca55314b30"
+    notes: "OpenCode has no native cross-session memory. Content synthesized from official docs and community discussion."
+
+  - source-id: emergentmind-memory-taxonomy
+    type: web
+    url: "https://www.emergentmind.com/topics/memory-mechanisms-in-llm-based-agents"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Memory Mechanisms in LLM Agents — EmergentMind Survey"
+    hash: "9845aa6223372eab928ffadee1f6906c30b4d6282e93e72cc506dab52704a1dc"
