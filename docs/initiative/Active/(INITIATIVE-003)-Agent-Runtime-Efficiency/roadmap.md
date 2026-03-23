@@ -22,7 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 0/9 | 0 | — |
+| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 0/9 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
@@ -34,7 +34,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [tk close Must Release Claim Lock](docs/spec/Active/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [tk close Must Release Claim Lock](../../../spec/Complete/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -56,7 +56,7 @@
   - [SPEC-078](../../../spec/Active/(SPEC-078)-State-Location-Migration/(SPEC-078)-State-Location-Migration.md) — State location migration (Active, in progress)
   - [SPEC-079](../../../spec/Active/(SPEC-079)-Progressive-Disclosure-Cleanup/(SPEC-079)-Progressive-Disclosure-Cleanup.md) — Progressive disclosure cleanup (Active, in progress)
   - [SPEC-080](../../../spec/Active/(SPEC-080)-Prune-Deprecated-Swain-Push/(SPEC-080)-Prune-Deprecated-Swain-Push.md) — Prune deprecated swain-push (Active, in progress)
-- [SPEC-057](../../../spec/Active/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) — tk close Must Release Claim Lock (in progress)
+- [SPEC-057](../../../spec/Complete/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) — tk close Must Release Claim Lock (in progress)
 ### Complete
 
 - [EPIC-004](../../../epic/Complete/(EPIC-004)-Superpowers-Integration-Assessment/(EPIC-004)-Superpowers-Integration-Assessment.md) — Superpowers Integration Assessment (1/1)
@@ -69,4 +69,4 @@
   - [SPEC-026](../../../spec/Complete/(SPEC-026)-Model-Tier-Annotations-And-Routing/(SPEC-026)-Model-Tier-Annotations-And-Routing.md) — Model Tier Annotations and Routing (Complete, done)
 ### Superseded
 
-- [SPEC-103](../../../spec/Superseded/(SPEC-103)-Status-Roadmap-Integration/SPEC-103.md) — swain-status roadmap integration (done)
+- [SPEC-103](../../../spec/Complete/(SPEC-103)-Artifact-Cross-Reference-Hyperlinking/SPEC-103.md) — swain-status roadmap integration (done)

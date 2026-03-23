@@ -26,6 +26,10 @@
 | SPEC-130 | Host tmux Bridge for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
+| SPEC-156 | next-artifact-number.sh — Core Allocator Script | 2026-03-22 | — |
+| SPEC-157 | swain-design SKILL.md Allocator Integration | 2026-03-22 | — |
+| SPEC-158 | Artifact Number Collision Detection | 2026-03-22 | — |
+| SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-22 | — |
 
 ## Active
 
@@ -83,7 +87,7 @@
 | SPEC-152 | swain-retro: session summary generation | 2026-03-22 | — |
 | SPEC-153 | swain-doctor: retro flat-file migration | 2026-03-22 | — |
 | SPEC-154 | Superpowers chain skips artifact creation | 2026-03-22 | — |
-| SPEC-155 | Paywall Proxy Fallback for swain-search | 2026-03-22 | -- |
+| SPEC-155 | Paywall Proxy Fallback for swain-search | 2026-03-22 | 0284169 |
 
 ## Complete
 

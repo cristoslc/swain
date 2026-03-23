@@ -31,8 +31,8 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Implementation Reliability](docs/initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) | [CLI Command Verification in Agent Execution](docs/spec/Proposed/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution.md) | 0/0 | 1 | **activate or drop** |
-|  | [External CLI Assumption Verification](docs/research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) | 0/0 | 1 | **needs decomposition** |
+| [Agent Implementation Reliability]((INITIATIVE-016)-Agent-Implementation-Reliability.md) | [CLI Command Verification in Agent Execution](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) | 0/0 | 1 | **activate or drop** |
+|  | [External CLI Assumption Verification](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) | 0/0 | 1 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -47,4 +47,4 @@
 - [SPIKE-036](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) — External CLI Assumption Verification (in progress)
 ### Proposed
 
-- [SPEC-098](../../../spec/Proposed/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution.md) — CLI Command Verification in Agent Execution (in progress)
+- [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (in progress)

@@ -178,7 +178,7 @@ The canonical schema is defined in `skills/swain-design/frontmatter-contract.yam
 
 ### State machine definitions
 
-These state machines define the **legal transitions** for the `status` field. Tooling (`resolved.py`, `specgraph.sh`, and the lifecycle MCP server per [SPEC-084](../../spec/Proposed/(SPEC-084)-Lifecycle-State-Machine/(SPEC-084)-Lifecycle-State-Machine.md)) must derive transition rules from this section rather than hardcoding them. The definition files in `skills/swain-design/references/*-definition.md` contain the same diagrams — this section is the canonical machine-readable reference.
+These state machines define the **legal transitions** for the `status` field. Tooling (`resolved.py`, `specgraph.sh`, and the lifecycle MCP server per [SPEC-084](../../../spec/Proposed/(SPEC-084)-Lifecycle-State-Machine/(SPEC-084)-Lifecycle-State-Machine.md)) must derive transition rules from this section rather than hardcoding them. The definition files in `skills/swain-design/references/*-definition.md` contain the same diagrams — this section is the canonical machine-readable reference.
 
 #### Implementable track (SPEC)
 

@@ -2,10 +2,10 @@
 title: "PreToolUse Hook Adapter Feasibility"
 artifact: SPIKE-038
 track: container
-status: Proposed
+status: Active
 author: cristos
 created: 2026-03-22
-last-updated: 2026-03-22
+last-updated: 2026-03-23
 question: "Can swain implement process governance gates (spec-read check, ADR compliance, skill invocation mandate) via PreToolUse hooks on each target platform, and what does the adapter look like?"
 gate: Pre-MVP
 parent-initiative: INITIATIVE-020
@@ -34,7 +34,7 @@ Can swain implement process governance gates (spec-read check, ADR compliance, s
 
 ## Pivot Recommendation
 
-If PreToolUse is insufficient, pivot to post-hoc audit only ([SPIKE-040](../(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md)) and accept that enforcement is reactive rather than preventive. Alternatively, investigate MCP-server-side validation (intercept tool calls at the MCP layer rather than the platform hook layer).
+If PreToolUse is insufficient, pivot to post-hoc audit only ([SPIKE-040](../../Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md)) and accept that enforcement is reactive rather than preventive. Alternatively, investigate MCP-server-side validation (intercept tool calls at the MCP layer rather than the platform hook layer).
 
 ## Findings
 
@@ -43,3 +43,4 @@ If PreToolUse is insufficient, pivot to post-hoc audit only ([SPIKE-040](../(SPI
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-22 | 730b957 | Initial creation |
+| Active | 2026-03-23 | -- | Activated for Claude Code hook testing |

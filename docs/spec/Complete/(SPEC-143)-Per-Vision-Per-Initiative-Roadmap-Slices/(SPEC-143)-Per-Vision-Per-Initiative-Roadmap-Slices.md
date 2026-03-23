@@ -151,7 +151,7 @@ This SPEC supersedes the manual `roadmap.md` expectation. After implementation:
 1. **RED:** Write tests for `chart.sh roadmap --scope VISION-NNN` — verify it produces a `roadmap.md` in the correct folder with required sections.
 2. **GREEN:** Add `--scope` flag parsing to chart.sh roadmap subcommand. Filter `collect_roadmap_items()` output to the subtree rooted at the scoped artifact. Generate the slice with intent summary, child table, progress bar, recent commits, and Eisenhower subset.
 3. **RED:** Write tests for Initiative-scoped slices — verify direct SPECs (not just Epics) appear in the child table.
-4. **GREEN:** Ensure the Initiative path handles both Epic children and direct SPEC children (leveraging [SPEC-115](../../Active/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md)'s level-based filtering).
+4. **GREEN:** Ensure the Initiative path handles both Epic children and direct SPEC children (leveraging [SPEC-115](../(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md)'s level-based filtering).
 5. **RED:** Write tests for project-wide regeneration triggering all slices.
 6. **GREEN:** In the no-`--scope` path, iterate all Visions and Initiatives and call the scoped generator for each.
 7. **Harmonize:** Update vision-definition.md to reference auto-generated slices. Add backup logic for existing manual roadmaps.

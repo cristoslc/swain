@@ -22,14 +22,14 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Vision-Rooted Chart Hierarchy](docs/spec/Active/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Project Identity Enforcement](docs/spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Trove Analysis Layer](docs/spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Eliminate swain-sync context disruption](docs/spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Roadmap Initiative children use level-based filtering, not type-based](docs/spec/Active/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Read Before Reasoning](docs/spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Evidence Basis For All Actions](docs/spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
-|  | [iTerm Tab Name Bleed From Global set-titles](docs/spec/Active/(SPEC-124)-iTerm-Tab-Name-Bleed-From-Global-set-titles/(SPEC-124)-iTerm-Tab-Name-Bleed-From-Global-set-titles.md) | 0/0 | 0 | **needs decomposition** |
+| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Vision-Rooted Chart Hierarchy](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Project Identity Enforcement](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Trove Analysis Layer](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Eliminate swain-sync context disruption](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Roadmap Initiative children use level-based filtering, not type-based](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Read Before Reasoning](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Evidence Basis For All Actions](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
+|  | [iTerm Tab Name Bleed From Global set-titles](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -41,15 +41,15 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](docs/epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/4 | 0 | — |
+| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/4 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Work Scope Progress Visualizations For Swain-Status](docs/epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) | 0/0 | 0 | **activate or drop** |
-|  | [Postflight Summaries](docs/epic/Proposed/(EPIC-022)-Postflight-Summaries/(EPIC-022)-Postflight-Summaries.md) | 0/0 | 0 | **activate or drop** |
+| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Work Scope Progress Visualizations For Swain-Status](../../../epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) | 0/0 | 0 | **activate or drop** |
+|  | [Postflight Summaries](../../../epic/Proposed/(EPIC-022)-Postflight-Summaries/(EPIC-022)-Postflight-Summaries.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
@@ -61,14 +61,14 @@
   - [SPEC-095](../../../spec/Active/(SPEC-095)-Design-Intent-Template-Section/SPEC-095.md) — Design Intent Template Section (Active, in progress)
   - [SPEC-096](../../../spec/Active/(SPEC-096)-design-check-Blob-SHA-Drift-Detection/SPEC-096.md) — design-check.sh — Blob SHA Drift Detection (Active, in progress)
   - [SPEC-097](../../../spec/Active/(SPEC-097)-Integration-Hooks-And-Decision-Protection/SPEC-097.md) — Integration Hooks and Decision Protection (Active, in progress)
-- [SPEC-052](../../../spec/Active/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy (in progress)
+- [SPEC-052](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy (in progress)
 - [SPEC-054](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) — Project Identity Enforcement (in progress)
 - [SPEC-055](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) — Trove Analysis Layer (in progress)
 - [SPEC-113](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) — Eliminate swain-sync context disruption (in progress)
-- [SPEC-115](../../../spec/Active/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based (in progress)
+- [SPEC-115](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based (in progress)
 - [SPEC-116](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) — Read Before Reasoning (in progress)
 - [SPEC-117](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) — Evidence Basis For All Actions (in progress)
-- [SPEC-124](../../../spec/Active/(SPEC-124)-iTerm-Tab-Name-Bleed-From-Global-set-titles/(SPEC-124)-iTerm-Tab-Name-Bleed-From-Global-set-titles.md) — iTerm Tab Name Bleed From Global set-titles (in progress)
+- [SPEC-124](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) — iTerm Tab Name Bleed From Global set-titles (in progress)
 ### Proposed
 
 - [EPIC-018](../../../epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) — Work Scope Progress Visualizations For Swain-Status (—)

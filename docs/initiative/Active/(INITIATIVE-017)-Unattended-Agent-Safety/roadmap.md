@@ -22,7 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](docs/epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
+| [Unattended Agent Safety]((INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -39,7 +39,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Sandbox Capability Bridges](docs/epic/Proposed/(EPIC-036)-Sandbox-Capability-Bridges/(EPIC-036)-Sandbox-Capability-Bridges.md) | 0/4 | 0 | **activate or drop** |
+| [Concurrent Session Safety](../(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Sandbox Capability Bridges](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) | 0/4 | 0 | **activate or drop** |
 
 
 ## Children
@@ -49,8 +49,8 @@
 - [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails (—)
 ### Proposed
 
-- [EPIC-036](../../../epic/Proposed/(EPIC-036)-Sandbox-Capability-Bridges/(EPIC-036)-Sandbox-Capability-Bridges.md) — Sandbox Capability Bridges (0/4)
-  - [SPEC-098](../../../spec/Proposed/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution/(SPEC-098)-CLI-Command-Verification-In-Agent-Execution.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
-  - [SPEC-099](../../../spec/Proposed/(SPEC-099)-Container-Compatible-Runtime-Auth/(SPEC-093)-Container-Compatible-Runtime-Auth.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
-  - [SPEC-100](../../../spec/Proposed/(SPEC-100)-Host-tmux-Bridge-for-Sandboxed-Agents/(SPEC-100)-Host-tmux-Bridge-for-Sandboxed-Agents.md) — Host tmux Bridge for Sandboxed Agents (Proposed, in progress)
-  - [SPEC-101](../../../spec/Proposed/(SPEC-101)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents/(SPEC-101)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (Proposed, in progress)
+- [EPIC-036](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) — Sandbox Capability Bridges (0/4)
+  - [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
+  - [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
+  - [SPEC-100](../../../spec/Active/(SPEC-100)-Sync-Must-Restore-CWD-After-Worktree-Cleanup/SPEC-100.md) — Host tmux Bridge for Sandboxed Agents (Proposed, in progress)
+  - [SPEC-101](../../../spec/Active/(SPEC-101)-SSH-Readiness-Tilde-Expansion/SPEC-101.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (Proposed, in progress)

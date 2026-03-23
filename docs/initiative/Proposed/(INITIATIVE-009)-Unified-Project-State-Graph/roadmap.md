@@ -22,7 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unified Project State Graph](docs/initiative/Proposed/(INITIATIVE-009)-Unified-Project-State-Graph/(INITIATIVE-009)-Unified-Project-State-Graph.md) | [Auto-Detecting Trunk Branch](docs/epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) | 0/3 | 0 | — |
+| [Unified Project State Graph]((INITIATIVE-009)-Unified-Project-State-Graph.md) | [Auto-Detecting Trunk Branch](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) | 0/3 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
@@ -39,10 +39,10 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unified Project State Graph](docs/initiative/Proposed/(INITIATIVE-009)-Unified-Project-State-Graph/(INITIATIVE-009)-Unified-Project-State-Graph.md) | [Event Bus](docs/epic/Proposed/(EPIC-025)-Event-Bus/(EPIC-025)-Event-Bus.md) | 0/0 | 0 | **activate or drop** |
-|  | [Query Layer](docs/epic/Proposed/(EPIC-026)-Query-Layer/(EPIC-026)-Query-Layer.md) | 0/0 | 0 | **activate or drop** |
-|  | [Orchestrator Integration](docs/epic/Proposed/(EPIC-027)-Orchestrator-Integration/(EPIC-027)-Orchestrator-Integration.md) | 0/0 | 0 | **activate or drop** |
-|  | [Status Integration](docs/epic/Proposed/(EPIC-028)-Status-Integration/(EPIC-028)-Status-Integration.md) | 0/0 | 0 | **activate or drop** |
+| [Unified Project State Graph]((INITIATIVE-009)-Unified-Project-State-Graph.md) | [Event Bus](../../../epic/Proposed/(EPIC-025)-Event-Bus/(EPIC-025)-Event-Bus.md) | 0/0 | 0 | **activate or drop** |
+|  | [Query Layer](../../../epic/Proposed/(EPIC-026)-Query-Layer/(EPIC-026)-Query-Layer.md) | 0/0 | 0 | **activate or drop** |
+|  | [Orchestrator Integration](../../../epic/Proposed/(EPIC-027)-Orchestrator-Integration/(EPIC-027)-Orchestrator-Integration.md) | 0/0 | 0 | **activate or drop** |
+|  | [Status Integration](../../../epic/Proposed/(EPIC-028)-Status-Integration/(EPIC-028)-Status-Integration.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
@@ -50,9 +50,9 @@
 ### Active
 
 - [EPIC-029](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) — Auto-Detecting Trunk Branch (0/3)
-  - [SPEC-118](../../../spec/Active/(SPEC-118)-swain-trunk-Auto-Detection-Helper/SPEC-118.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
+  - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
   - [SPEC-119](../../../spec/Active/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) — Session Lifecycle in swain-session (Active, in progress)
-  - [SPEC-120](../../../spec/Active/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Active, in progress)
+  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Active, in progress)
 ### Proposed
 
 - [EPIC-025](../../../epic/Proposed/(EPIC-025)-Event-Bus/(EPIC-025)-Event-Bus.md) — Event Bus (—)

@@ -74,7 +74,7 @@ _None yet._
 
 ## Key Dependencies
 
-- Research spikes ([SPIKE-038](../../../research/Proposed/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility.md) through [SPIKE-041](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md)) must complete before implementation epics are scoped
+- Research spikes ([SPIKE-038](../../../research/Active/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility.md) through [SPIKE-041](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md)) must complete before implementation epics are scoped
 - [INITIATIVE-014](../../Active/(INITIATIVE-014)-Cross-Surface-Portability/(INITIATIVE-014)-Cross-Surface-Portability.md) (Cross-Surface Portability) provides the distribution substrate; this initiative provides the enforcement substrate
 - Platform hook APIs are evolving rapidly — OpenCode's subagent bypass (#5894) and Codex's nascent hooks engine may change the feasibility picture
 

@@ -25,7 +25,7 @@ swain-do: required
 
 ## Problem Statement
 
-[SPEC-148](../../spec/NeedsManualTest/(SPEC-148)-Worktree-Discipline-For-Skill-Changes/(SPEC-148)-Worktree-Discipline-For-Skill-Changes.md) introduced `check-skill-changes.sh` to detect non-trivial skill file changes on trunk. However, the detection only covers `skills/`, `.claude/skills/`, and `.agents/skills/` directories. Non-trivial changes to other code-like files — project scripts (`scripts/*.sh`), standalone Python tooling, and test files outside skill directories — can still bypass worktree isolation without any advisory signal.
+[SPEC-148](../../NeedsManualTest/(SPEC-148)-Worktree-Discipline-For-Skill-Changes/(SPEC-148)-Worktree-Discipline-For-Skill-Changes.md) introduced `check-skill-changes.sh` to detect non-trivial skill file changes on trunk. However, the detection only covers `skills/`, `.claude/skills/`, and `.agents/skills/` directories. Non-trivial changes to other code-like files — project scripts (`scripts/*.sh`), standalone Python tooling, and test files outside skill directories — can still bypass worktree isolation without any advisory signal.
 
 ## Desired Outcomes
 
