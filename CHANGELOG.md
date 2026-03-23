@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.16.1-alpha] - 2026-03-23
+
+### Features
+
+#### Paywall proxy fallback for swain-search
+
+swain-search now automatically detects paywalled Medium articles and tries proxy services before falling back to truncated content. A YAML registry maps domains to ordered proxy lists with truncation signals, and a deterministic shell script handles URL matching without spending LLM tokens. Ships with freedium-mirror (primary) and freedium (fallback) for medium.com. Extensible to other paywalled domains by editing the registry — no skill file changes needed.
+- Superpowers chain routing fixed — brainstorming now correctly chains through swain-design for artifact creation instead of skipping it
+
+### Research
+- PreToolUse hook adapter feasibility validated — Claude Code's hook system can gate tool calls, enabling runtime governance enforcement
+
+### Supporting Changes
+- AGENTS.md reconciled from canonical AGENTS.content.md source
+- swain-dispatch deprecated (requires API billing, incompatible with Max/Pro)
+
 ## [0.16.0-alpha] - 2026-03-23
 
 ### Features
