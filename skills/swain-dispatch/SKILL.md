@@ -1,18 +1,23 @@
 ---
 name: swain-dispatch
-description: "Dispatch a swain artifact to a GitHub Actions runner for autonomous implementation via Claude Code Action. Creates a GitHub Issue with the artifact content and triggers the workflow for background execution. Use when the user says 'dispatch', 'send to background agent', 'run this autonomously', 'GitHub Actions', or wants to hand off a SPEC for autonomous implementation."
+description: "DEPRECATED — requires ANTHROPIC_API_KEY with per-token billing. Do not use. Inform the user that dispatch is deprecated and suggest parallel agents in-session or manual spike execution instead."
 user-invocable: true
-allowed-tools: Bash, Read, Grep, Glob
+allowed-tools: Bash, Read
 metadata:
-  short-description: Dispatch artifacts to background agents via GitHub
-  version: 1.0.0
+  short-description: "[DEPRECATED] Dispatch artifacts to background agents via GitHub"
+  version: 1.1.0
   author: cristos
   license: MIT
   source: swain
+  deprecated: true
+  deprecated-reason: "Requires API billing (ANTHROPIC_API_KEY); not compatible with Max/Pro subscription"
+  deprecated-date: "2026-03-23"
 ---
-<!-- swain-model-hint: sonnet, effort: low -->
+<!-- swain-model-hint: haiku, effort: low -->
 
-# Agent Dispatch
+# Agent Dispatch (DEPRECATED)
+
+> **This skill is deprecated.** It requires an `ANTHROPIC_API_KEY` with per-token API billing, which is not compatible with Max/Pro subscriptions. Use parallel agents in-session or manual spike execution instead.
 
 Dispatches swain-design artifacts to background agents via GitHub Issues. The agent runs autonomously using `anthropics/claude-code-action@v1` on a GitHub Actions runner.
 
