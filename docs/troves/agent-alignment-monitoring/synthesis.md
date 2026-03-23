@@ -60,6 +60,8 @@ The vk4-swain audit found the inverse: the governance prompts in AGENTS.md were 
 - **Governance must be executable, not documentary.** All sources converge on this. (yizhou-agentic-engineering-2026, arsanjani-agentic-maturity-model, aiteacher-compliance-auditability-agentic)
 - **Audit trails must capture intent and reasoning, not just outputs.** (aiteacher-compliance-auditability-agentic, openai-monitor-coding-agents-misalignment)
 - **The compliance gap is an engineering problem, not a model capability problem.** (yizhou-agentic-engineering-2026)
+- **"Decade of the Agent" framing:** autonomy requires a generational shift from capability to discipline, analogous to civil → software → autonomous systems engineering. (yizhou-agentic-engineering-2026)
+- **Agents need defined failure modes.** When hallucinations occur, systems need graceful degradation, rollback, and human-in-the-loop safeguards — not silent continuation. (yizhou-agentic-engineering-2026)
 
 ## Points of Disagreement
 

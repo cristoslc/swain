@@ -60,8 +60,8 @@ sources:
     url: "https://medium.com/generative-ai-revolution-ai-native-transformation/2025-overpromised-ai-agents-2026-demands-agentic-engineering-5fbf914a9106"
     fetched: 2026-03-22
     title: "2025 Overpromised AI Agents. 2026 Demands Agentic Engineering."
-    hash: "1d8de8097d220214ecdca50e2df8279ef1151e7c87f49ae68d378a3867b0ec98"
-    notes: "Member-only article; content from search snippets and visible intro"
+    hash: "e895710d5f5bca9783283455663d5ee930631e0529f156a5c14d392540a65789"
+    notes: "Full article retrieved via Freedium proxy"
 
 history:
   - event: created
@@ -74,3 +74,8 @@ history:
     sources: 5
     sources-added: 4
     notes: "added process alignment sources: vk4-swain compliance audit, maturity model, compliance/auditability framework, executable governance thesis"
+  - event: refreshed
+    date: 2026-03-22
+    commit: "--"
+    sources-changed: 1
+    notes: "yizhou-agentic-engineering-2026: replaced snippet-based content with full article via Freedium proxy"
