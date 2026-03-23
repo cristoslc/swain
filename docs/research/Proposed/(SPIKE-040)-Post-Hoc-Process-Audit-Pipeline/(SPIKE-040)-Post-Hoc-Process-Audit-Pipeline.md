@@ -42,4 +42,4 @@ If post-hoc audit is insufficient, the enforcement strategy must be pre-executio
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-22 | -- | Initial creation |
+| Proposed | 2026-03-22 | 730b957 | Initial creation |

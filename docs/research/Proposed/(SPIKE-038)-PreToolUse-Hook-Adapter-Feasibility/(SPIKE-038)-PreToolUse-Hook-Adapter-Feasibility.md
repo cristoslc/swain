@@ -42,4 +42,4 @@ If PreToolUse is insufficient, pivot to post-hoc audit only ([SPIKE-040](../(SPI
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-22 | -- | Initial creation |
+| Proposed | 2026-03-22 | 730b957 | Initial creation |

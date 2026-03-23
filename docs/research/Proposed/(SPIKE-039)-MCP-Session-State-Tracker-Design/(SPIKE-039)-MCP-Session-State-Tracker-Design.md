@@ -44,4 +44,4 @@ If an MCP server is too heavy, investigate:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-22 | -- | Initial creation |
+| Proposed | 2026-03-22 | 730b957 | Initial creation |

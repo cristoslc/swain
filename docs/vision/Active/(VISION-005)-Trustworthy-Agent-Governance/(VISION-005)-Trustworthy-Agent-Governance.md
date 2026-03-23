@@ -79,4 +79,4 @@ Low per platform. Each platform adapter is a thin shell script or config file th
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-22 | -- | Initial creation |
+| Active | 2026-03-22 | 730b957 | Initial creation |
