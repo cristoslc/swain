@@ -21,13 +21,13 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [swain_trunk() Auto-Detection Helper](docs/spec/Active/(SPEC-118)-swain-trunk-Auto-Detection-Helper/SPEC-118.md) | 0/0 | 3 | **needs decomposition** |
-|  | [Session Lifecycle in swain-session](docs/spec/Active/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) | 0/0 | 1 | **needs decomposition** |
-|  | [ROADMAP.md Decision and Recommendation Sections](docs/spec/Active/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Session Detection Hooks Across All Skills](docs/spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Absorb swain-status into swain-session](docs/spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Session Facilitation Rebuild](docs/epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) | 0/6 | 0 | — |
-|  | [Skill and Script Alignment Audit](docs/spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) | 0/0 | 0 | **needs decomposition** |
+| [Session-Scoped Decision Support](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [swain_trunk() Auto-Detection Helper](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) | 0/0 | 3 | **needs decomposition** |
+|  | [Session Lifecycle in swain-session](../../../spec/Active/(SPEC-119)-Parameterize-Runtime-Skills/SPEC-119.md) | 0/0 | 1 | **needs decomposition** |
+|  | [ROADMAP.md Decision and Recommendation Sections](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Session Detection Hooks Across All Skills](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Absorb swain-status into swain-session](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Session Facilitation Rebuild](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) | 0/6 | 0 | — |
+|  | [Skill and Script Alignment Audit](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -50,17 +50,17 @@
 ### Active
 
 - [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (0/6)
-  - [SPEC-118](../../../spec/Active/(SPEC-118)-swain-trunk-Auto-Detection-Helper/SPEC-118.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
+  - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
   - [SPEC-119](../../../spec/Active/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) — Session Lifecycle in swain-session (Active, in progress)
-  - [SPEC-120](../../../spec/Active/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Active, in progress)
+  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Active, in progress)
   - [SPEC-121](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Active, in progress)
   - [SPEC-122](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) — Absorb swain-status into swain-session (Active, in progress)
   - [SPEC-123](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) — Skill and Script Alignment Audit (Active, in progress)
 - [INITIATIVE-019](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) — Session-Scoped Decision Support (in progress)
   - [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (Active, 0/6)
-  - [SPEC-118](../../../spec/Active/(SPEC-118)-swain-trunk-Auto-Detection-Helper/SPEC-118.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
+  - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
   - [SPEC-119](../../../spec/Active/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) — Session Lifecycle in swain-session (Active, in progress)
-  - [SPEC-120](../../../spec/Active/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Active, in progress)
+  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Active, in progress)
   - [SPEC-121](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Active, in progress)
   - [SPEC-122](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) — Absorb swain-status into swain-session (Active, in progress)
   - [SPEC-123](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) — Skill and Script Alignment Audit (Active, in progress)

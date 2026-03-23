@@ -8,15 +8,15 @@
 | SPIKE-021 | Scope Progress Visualization Options For Swain-Status | 2026-03-14 | — |
 | SPIKE-023 | Product Design Integration Strategy | 2026-03-14 | — |
 | SPIKE-024 | Postflight Summary Design | 2026-03-14 | — |
-| SPIKE-038 | PreToolUse Hook Adapter Feasibility | 2026-03-22 | -- |
-| SPIKE-039 | MCP Session-State Tracker Design | 2026-03-22 | -- |
-| SPIKE-040 | Post-Hoc Process Audit Pipeline | 2026-03-22 | -- |
-| SPIKE-041 | Cross-Platform Deny-Rule Portability | 2026-03-22 | -- |
+| SPIKE-039 | MCP Session-State Tracker Design | 2026-03-22 | 730b957 |
+| SPIKE-040 | Post-Hoc Process Audit Pipeline | 2026-03-22 | 730b957 |
+| SPIKE-041 | Cross-Platform Deny-Rule Portability | 2026-03-22 | 730b957 |
 
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
+| SPIKE-001 | Task Management Decision Framework Integration | 2026-03-22 | -- |
 | SPIKE-022 | Multi-Agent Collision Vectors | 2026-03-20 | fa63b5a |
 | SPIKE-026 | Context Fork as Model Routing Implementation Path | 2026-03-16 | -- |
 | SPIKE-033 | Skill Routing Disambiguation | 2026-03-18 | — |
@@ -24,6 +24,7 @@
 | SPIKE-035 | Container-Compatible Auth Flows Per Runtime | 2026-03-19 | — |
 | SPIKE-036 | External CLI Assumption Verification | 2026-03-19 | — |
 | SPIKE-037 | GitHub Token Scoping Mechanisms | 2026-03-20 | -- |
+| SPIKE-042 | Critical Path Analysis for Swain | 2026-03-22 | — |
 
 ## Complete
 
@@ -55,4 +56,5 @@
 | SPIKE-030 | MCP as Distribution Layer | 2026-03-18 | — |
 | SPIKE-031 | Credential Scoping Analysis Across Sandbox Types | 2026-03-19 | — |
 | SPIKE-032 | Docker Sandboxes OAuth Limitation Workaround | 2026-03-19 | — |
+| SPIKE-038 | PreToolUse Hook Adapter Feasibility | 2026-03-23 | -- |
 

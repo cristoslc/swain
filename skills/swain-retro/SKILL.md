@@ -44,10 +44,9 @@ Collect evidence of what happened during the work period.
 # Get the EPIC and its children
 bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" deps <EPIC-ID>
 
-# Get closed tasks linked to child specs
-TK_BIN="$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-do/bin/tk' -print -quit 2>/dev/null | xargs dirname 2>/dev/null)"
-export PATH="$TK_BIN:$PATH"
-ticket-query '.status == "closed"' 2>/dev/null | grep -l "<EPIC-ID>\|<SPEC-IDs>"
+# Session log — the primary evidence source for retros (ADR-015)
+# Contains decisions, pivots, rationale, and operator feedback
+cat .agents/session.json 2>/dev/null | grep -i "<EPIC-ID>\|<SPEC-IDs>"
 ```
 
 Also read:
@@ -56,16 +55,16 @@ Also read:
 - Any ADRs created during the work
 - Git log for commits between EPIC activation and completion dates
 
+**Note (ADR-015):** Do not use tickets (`tk` / `.tickets/`) as retro evidence. Tickets are ephemeral execution scaffolding — they record task status, not decisions or rationale. The session log (`.agents/session.json` JSONL) captures the actual conversation: what was tried, what pivoted, why, and what the operator said. Build the retro narrative from session logs and git history.
+
 ### For manual (unscoped) retros
 
 ```bash
 # Recent git activity
 git log --oneline --since="1 week ago" --no-merges
 
-# Recently closed tasks
-TK_BIN="$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-do/bin/tk' -print -quit 2>/dev/null | xargs dirname 2>/dev/null)"
-export PATH="$TK_BIN:$PATH"
-ticket-query '.status == "closed"' 2>/dev/null | head -20
+# Session log — primary evidence source (ADR-015)
+cat .agents/session.json 2>/dev/null | tail -100
 
 # Recently transitioned artifacts
 bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" status 2>/dev/null

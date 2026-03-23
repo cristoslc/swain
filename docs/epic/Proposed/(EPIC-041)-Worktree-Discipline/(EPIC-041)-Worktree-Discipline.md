@@ -24,7 +24,7 @@ evidence-pool: ""
 
 ## Goal / Objective
 
-Establish consistent worktree isolation discipline for all code-like changes — not just `.sh` and `.py` files, but also skill files (markdown-as-code), scripts, and tests. Non-trivial changes should go through worktree branches and land via the merge-with-retry workflow ([ADR-011](../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md)), while trivial fixes remain fast-path on trunk.
+Establish consistent worktree isolation discipline for all code-like changes — not just `.sh` and `.py` files, but also skill files (markdown-as-code), scripts, and tests. Non-trivial changes should go through worktree branches and land via the merge-with-retry workflow ([ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md)), while trivial fixes remain fast-path on trunk.
 
 ## Desired Outcomes
 
@@ -48,13 +48,13 @@ Agents and the operator get consistent isolation guarantees across all code-like
 
 ## Child Specs
 
-- [SPEC-148](../../spec/NeedsManualTest/(SPEC-148)-Worktree-Discipline-For-Skill-Changes/(SPEC-148)-Worktree-Discipline-For-Skill-Changes.md): Worktree Discipline for Skill Changes — governance principle, skill-file detection in swain-doctor, preflight integration. Status: Needs Manual Test.
-- [SPEC-149](../../spec/Proposed/(SPEC-149)-Generalize-Trunk-Change-Detection/(SPEC-149)-Generalize-Trunk-Change-Detection.md): Generalize Trunk Change Detection — extend check-skill-changes.sh to detect non-trivial code changes beyond skill directories (project scripts, standalone tooling, test files). Status: Proposed.
+- [SPEC-148](../../../spec/NeedsManualTest/(SPEC-148)-Worktree-Discipline-For-Skill-Changes/(SPEC-148)-Worktree-Discipline-For-Skill-Changes.md): Worktree Discipline for Skill Changes — governance principle, skill-file detection in swain-doctor, preflight integration. Status: Needs Manual Test.
+- [SPEC-149](../../../spec/Proposed/(SPEC-149)-Generalize-Trunk-Change-Detection/(SPEC-149)-Generalize-Trunk-Change-Detection.md): Generalize Trunk Change Detection — extend check-skill-changes.sh to detect non-trivial code changes beyond skill directories (project scripts, standalone tooling, test files). Status: Proposed.
 
 ## Key Dependencies
 
-- [ADR-011](../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md): Worktree Landing Via Merge With Retry — the merge workflow that worktree branches use to land on trunk.
-- [SPEC-043](../../spec/Complete/(SPEC-043)-swain-do-automatic-worktree-creation/(SPEC-043)-swain-do-automatic-worktree-creation.md): swain-do automatic worktree creation — the existing mechanism for entering worktrees during implementation.
+- [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md): Worktree Landing Via Merge With Retry — the merge workflow that worktree branches use to land on trunk.
+- [SPEC-043](../../../spec/Complete/(SPEC-043)-swain-do-automatic-worktree-creation/(SPEC-043)-swain-do-automatic-worktree-creation.md): swain-do automatic worktree creation — the existing mechanism for entering worktrees during implementation.
 
 ## Notes
 

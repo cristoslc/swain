@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "name": "adr-gate",
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/adr-gate.sh",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+trove: phase-complexity-model
+created: 2026-03-23
+refreshed: 2026-03-23
+tags:
+  - complexity
+  - stacey-matrix
+  - cynefin
+  - ceremony
+  - process-selection
+  - autonomy
+  - model-selection
+
+freshness-ttl:
+  web: 30d
+
+history:
+  - event: created
+    date: 2026-03-23
+    commit: "6a19583"
+    sources: 4
+
+referenced-by:
+  - artifact: SPIKE-043
+    commit: "6a19583"
+
+sources:
+  - source-id: "praxis-stacey-matrix"
+    type: web
+    fetched: 2026-03-23T12:00:00Z
+    title: "Stacey Matrix — Praxis Framework"
+    url: "https://www.praxisframework.org/en/library/stacey-matrix"
+    hash: "467e2749935bef8a82106a9d72d1cca72aa498768d67d7a82e0030a9e317dcec"
+
+  - source-id: "wikipedia-cynefin-framework"
+    type: web
+    fetched: 2026-03-23T12:00:00Z
+    title: "Cynefin framework — Wikipedia"
+    url: "https://en.wikipedia.org/wiki/Cynefin_framework"
+    hash: "2f10740035d0cc20df241b5ff6e1f3ed353a7a800cb73e57240a2a38670887b4"
+
+  - source-id: "agilityportal-stacey-matrix"
+    type: web
+    fetched: 2026-03-23T12:00:00Z
+    title: "Understanding The Stacey Matrix & How It Helps Manage Complexities"
+    url: "https://agilityportal.io/blog/stacey-matrix"
+    hash: "f309642caef61bb8daeeb6a348587bfeeee1388509588cdbded8d24dd8dd38d9"
+
+  - source-id: "pmi-complexity-rigor"
+    type: web
+    fetched: 2026-03-23T12:00:00Z
+    title: "Using Project Complexity Determinations to Establish Required Levels of Project Rigor"
+    url: "https://www.pmi.org/learning/library/project-complexity-determine-rigor-9874"
+    hash: "3bb76bc79833ec8a3ab82e58e4407a11e7da2b347ff16544b7443d1c0a8a7c08"
+    notes: "Paywalled; content from search snippets and OSTI.gov abstract only"

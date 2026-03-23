@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.17.0-alpha] - 2026-03-23
+
+### Features
+
+#### Centralized artifact number allocation
+
+EPIC-043 delivered. next-artifact-number.sh scans all worktrees to allocate globally unique artifact IDs without collisions. detect-duplicate-numbers.sh catches conflicts with 13 test cases, and swain-sync now gates on collision-free state before pushing. migrate-bugs.sh and all SKILL.md step-1 instructions migrated to use the centralized allocator.
+
+#### Ephemeral ticket lifecycle (ADR-015)
+
+Tickets are now treated as disposable execution scaffolding rather than permanent records. swain-do and swain-retro updated to match — tickets track in-flight work and are cleaned up after completion.
+
+### Research
+- Platform hooks validation completed (SPIKE-038) — 4 of 5 platforms validated (Claude Code, Gemini CLI, Copilot CLI, OpenCode) with working prototypes for each; findings written to INITIATIVE-020
+- Phase complexity model (SPIKE-043) — Stacey Matrix adaptation for swain, 4 sources collected
+
+### Supporting Changes
+- Retro learnings routing corrected — findings go into skill files, not memory
+- EPIC-043 and SPIKE-038 lifecycle completions
+
 ## [0.16.1-alpha] - 2026-03-23
 
 ### Features

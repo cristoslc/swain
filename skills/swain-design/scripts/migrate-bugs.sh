@@ -53,22 +53,29 @@ map_phase() {
 }
 
 # --- Determine next available SPEC number ---
+# Delegates to the centralized allocator (SPEC-156 / EPIC-043).
+# Falls back to local scan if the script is not found.
+ALLOCATOR="$(find "$REPO_ROOT" -path '*/swain-design/scripts/next-artifact-number.sh' -print -quit 2>/dev/null)"
 get_next_spec_number() {
-  local max_num=0
-  local num
-  while IFS= read -r -d '' f; do
-    local bname
-    bname="$(basename "$f")"
-    if [[ "$bname" =~ SPEC-([0-9]+) ]]; then
-      num="${BASH_REMATCH[1]}"
-      # Strip leading zeros for arithmetic
-      num=$((10#$num))
-      if (( num > max_num )); then
-        max_num=$num
+  if [[ -n "$ALLOCATOR" ]] && [[ -x "$ALLOCATOR" ]]; then
+    bash "$ALLOCATOR" SPEC
+  else
+    # Fallback: local scan (pre-SPEC-156 behavior)
+    local max_num=0
+    local num
+    while IFS= read -r -d '' f; do
+      local bname
+      bname="$(basename "$f")"
+      if [[ "$bname" =~ SPEC-([0-9]+) ]]; then
+        num="${BASH_REMATCH[1]}"
+        num=$((10#$num))
+        if (( num > max_num )); then
+          max_num=$num
+        fi
       fi
-    fi
-  done < <(find "$SPEC_DIR" -name '*.md' -not -name 'list-*' -print0 2>/dev/null)
-  echo $(( max_num + 1 ))
+    done < <(find "$SPEC_DIR" -name '*.md' -not -name 'list-*' -print0 2>/dev/null)
+    printf "%03d" $(( max_num + 1 ))
+  fi
 }
 
 # --- Extract frontmatter field value ---

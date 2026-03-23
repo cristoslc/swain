@@ -2,10 +2,10 @@
 title: "next-artifact-number.sh — Core Allocator Script"
 artifact: SPEC-156
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-22
-last-updated: 2026-03-22
+last-updated: 2026-03-23
 priority-weight: ""
 type: feature
 parent-epic: EPIC-043
@@ -68,6 +68,13 @@ Where `<TYPE>` is one of: `SPEC`, `EPIC`, `INITIATIVE`, `VISION`, `SPIKE`, `ADR`
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| Outputs 156 for SPEC-001..155 on trunk | `test-next-artifact-number.sh` Test 4: local working tree scan | Pass |
+| Sees SPEC-160 in other worktree, returns 161 | `test-next-artifact-number.sh` Test 5: cross-worktree scan (main→wt) | Pass |
+| From worktree itself, also returns 161 | `test-next-artifact-number.sh` Test 5: cross-worktree scan (wt→wt) | Pass |
+| Returns 001 for empty type (TRAIN) | `test-next-artifact-number.sh` Test 3: no existing artifacts | Pass |
+| Invalid type exits non-zero | `test-next-artifact-number.sh` Test 1: invalid type | Pass |
+| Outside git repo exits non-zero | `test-next-artifact-number.sh` Test 8: outside git repo | Pass |
+| All 11 real artifact types return correct next number | Cross-check: `find docs/<type>/` max vs script output for all types | Pass |
 
 ## Scope & Constraints
 
@@ -90,3 +97,5 @@ Where `<TYPE>` is one of: `SPEC`, `EPIC`, `INITIATIVE`, `VISION`, `SPIKE`, `ADR`
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-22 | — | Agent-suggested decomposition of EPIC-043 |
+| NeedsManualTest | 2026-03-23 | — | Implementation complete; 10/10 unit tests, 11/11 real-repo validation |
+| Complete | 2026-03-23 | — | All 7 acceptance criteria verified with evidence |

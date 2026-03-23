@@ -162,7 +162,7 @@ Before tagging, run the security scanner to catch secrets, dependency vulnerabil
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-SCANNER="$(find "$REPO_ROOT" -path '*/swain-security-check/scripts/security-scan.sh' -print -quit 2>/dev/null)"
+SCANNER="$(find "$REPO_ROOT" -path '*/swain-security-check/scripts/security-scan.sh' -type f -print -quit 2>/dev/null)"
 if [[ -n "$SCANNER" ]]; then
   bash "$SCANNER"
 fi

@@ -34,7 +34,7 @@ Can swain build a CI-integrated or commit-hook-integrated pipeline that validate
 
 ## Pivot Recommendation
 
-If post-hoc audit is insufficient, the enforcement strategy must be pre-execution only ([SPIKE-038](../../Active/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility.md) + [SPIKE-039](../(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md)), accepting that platforms without good hook support get no enforcement. The alignment trove's "option 4: accept the gap" becomes the explicit fallback.
+If post-hoc audit is insufficient, the enforcement strategy must be pre-execution only ([SPIKE-038](../../Complete/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility.md) + [SPIKE-039](../(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md)), accepting that platforms without good hook support get no enforcement. The alignment trove's "option 4: accept the gap" becomes the explicit fallback.
 
 ## Findings
 

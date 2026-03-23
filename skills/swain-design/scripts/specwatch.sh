@@ -1112,7 +1112,17 @@ case "$cmd" in
             design_result=0  # git unavailable is not a scan failure
         fi
     fi
-    exit $(( scan_result > 0 || tk_result > 0 || arch_result > 0 || train_result > 0 || design_result > 0 ? 1 : 0 ))
+    # Duplicate artifact number check (SPEC-158)
+    dup_result=0
+    dup_check_script="$(dirname "${BASH_SOURCE[0]}")/detect-duplicate-numbers.sh"
+    if [[ -x "$dup_check_script" ]]; then
+        dup_output=$(bash "$dup_check_script" 2>/dev/null) || dup_result=$?
+        if [[ $dup_result -ne 0 ]] && [[ -n "$dup_output" ]]; then
+            echo "specwatch duplicate-numbers: found collision(s):"
+            echo "$dup_output"
+        fi
+    fi
+    exit $(( scan_result > 0 || tk_result > 0 || arch_result > 0 || train_result > 0 || design_result > 0 || dup_result > 0 ? 1 : 0 ))
     ;;
   tk-sync)
     log_header

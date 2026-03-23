@@ -58,6 +58,10 @@ tk accepts exactly three status values: `open`, `in_progress`, `closed`. Use the
 
 To express abandonment, use `tk add-note <id> "Abandoned: ..."` then `tk close <id>` — see [Escalation](#escalation).
 
+## Ticket lifecycle (ADR-015)
+
+Tickets are **ephemeral execution scaffolding** — they exist to help agents track and resume work during SPEC implementation. Once the parent SPEC transitions to a terminal state (Complete, Abandoned), its tickets may be discarded. Tickets are not committed to trunk, not used as retro evidence, and should not block worktree cleanup. The session log (`.agents/session.json` JSONL) is the archival record of what happened; tickets are the live dashboard of what's in progress.
+
 ## Operating rules
 
 1. **Always include `--description`** (or `-d`) when creating issues — a title alone loses the "why" behind a task. Future agents (or your future self) picking up this work need enough context to act without re-researching.
@@ -222,6 +226,8 @@ If the operator accepts:
 3. The worktree cleanup is handled by the ExitWorktree tool
 
 If the operator declines, call `ExitWorktree` without merging — the branch is preserved for later.
+
+**Note (ADR-015):** `.tickets/` files in the worktree are ephemeral scaffolding and should not block removal. When ExitWorktree warns about uncommitted files that are only tickets, it is safe to proceed with `discard_changes: true` — tickets have no archival value after SPEC completion.
 
 ### Skipping the chain
 

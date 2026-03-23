@@ -2,7 +2,7 @@
 title: "PreToolUse Hook Adapter Feasibility"
 artifact: SPIKE-038
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-22
 last-updated: 2026-03-23
@@ -22,6 +22,8 @@ linked-artifacts:
 # PreToolUse Hook Adapter Feasibility
 
 ## Summary
+
+**Go.** 4 of 5 target platforms support PreToolUse hooks capable of implementing process governance gates. Claude Code, Gemini CLI, Copilot CLI, and OpenCode all validated with working prototypes that block git commits unless ADR compliance passes. Codex CLI lacks a general PreToolUse hook (structural limitation — relies on Starlark execpolicy instead). The hook adapter is highly portable: only JSON field names differ across platforms. A shared core script with thin platform wrappers is viable. Critical finding: OpenCode's subagent hook bypass (#5894) is fixed in v1.2.20. Regex bypass risk discovered on OpenCode (agent inserted flags to evade `/git\s+commit\b/`) — use `/\bgit\b.*\bcommit\b/` across all platforms.
 
 ## Question
 
@@ -88,16 +90,49 @@ If PreToolUse is insufficient, pivot to post-hoc audit only ([SPIKE-040](../../P
 3. **Governance file protection** — deny edits to AGENTS.md, skill files (better done via deny rules, but hooks can provide richer error messages)
 4. **Spec-read enforcement** — requires session state (SPIKE-039); hook alone can only check if spec file was modified, not if it was read
 
-### Gemini CLI — BeforeTool Hook (not yet tested)
+### Gemini CLI — BeforeTool Hook (validated 2026-03-23)
 
-Trove data suggests BeforeTool hooks are structurally equivalent to Claude Code's PreToolUse. Key differences:
-- Matcher is a regex on tool name (e.g., `write_file|replace`)
-- Can rewrite `tool_input` via `hookSpecificOutput.tool_input`
-- Exit code 2 is an "emergency brake" — stronger than JSON deny
-- Policy engine provides a declarative alternative for simple deny rules (no script needed)
-- Hook fingerprinting adds security (warns on modified hooks)
+**Verdict: Go.** BeforeTool hooks on Gemini CLI work for process governance gates. Live-tested with `gemini -p` headless mode.
 
-**Next step:** Install test hooks on Gemini CLI and validate the same ADR-gate pattern.
+**What works:**
+- Hook configured in `.gemini/settings.json` with `matcher: "run_shell_command"` — fires on every shell command
+- Allow path confirmed: `accept: 1, reject: 0` in tool usage stats for non-commit commands
+- Deny path confirmed: model retried for 2+ minutes against deny hook, command never executed — deterministic block
+- Hook uses `decision: "allow"` / `decision: "deny"` (vs Claude Code's `permissionDecision`) — minor field name difference
+- `$GEMINI_PROJECT_DIR` env var correctly resolves hook script path
+
+**Prototype implementation:** `.gemini/hooks/adr-gate.sh` + `.gemini/settings.json`
+
+**Configuration:**
+```json
+{
+  "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "name": "adr-gate",
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/adr-gate.sh",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Key differences from Claude Code:**
+- `decision` field instead of `permissionDecision`
+- Matcher is regex on tool name (can match `write_file|replace` for broader gating)
+- Hook fingerprinting: Gemini warns if a project hook's name or command changes — protects against agent self-modification
+- Policy engine available as a declarative alternative for simple deny rules (no script needed, TOML-based)
+- Exit code 2 = emergency brake (stronger signal than JSON deny)
+- Model retries on deny (unlike Claude Code which denies once) — the hook must be idempotent
+
+**Adapter portability:** The hook script logic is nearly identical to Claude Code's — only the JSON field name differs (`decision` vs `permissionDecision`). A single script could serve both with a platform detection preamble, or use two thin wrappers calling a shared core.
 
 ### Codex CLI — No PreToolUse Hook (structural limitation)
 
@@ -108,21 +143,51 @@ Codex CLI lacks a general PreToolUse hook. Enforcement relies on:
 
 **Implication:** Codex requires a different enforcement strategy — either post-hoc audit (SPIKE-040) or an MCP-server-side gate that validates before returning results.
 
-### Copilot — PreToolUse Hook (not yet tested)
+### Copilot CLI — PreToolUse Hook (validated 2026-03-23)
 
-Trove data confirms PreToolUse hooks exist in both VS Code agent mode and Copilot CLI. Same protocol as Claude Code (stdin JSON, stdout JSON with `permissionDecision`). Key differences:
-- Hosted coding agent has structural enforcement (draft PR only, branch restrictions) that doesn't need hooks
-- VS Code agent can edit hook scripts during a session — self-modification risk
+**Verdict: Go.** Copilot CLI v1.0.10 auto-discovers hooks from `.github/hooks/pre-tool-use.json` and enforces deny decisions.
 
-**Next step:** Test hook installation and deny behavior on Copilot CLI.
+**What works:**
+- Hook auto-discovered from `.github/hooks/` — no config file changes needed
+- `permissionDecision: "deny"` blocks tool calls deterministically
+- Same `permissionDecision` / `permissionDecisionReason` field names as Claude Code
+- Headless mode (`copilot -p "..." --allow-all-tools -s`) fires hooks identically to interactive
+- 9/9 unit tests pass, 2/2 integration tests pass (allow + deny paths)
 
-### OpenCode — tool.execute.before Plugin Hook (not yet tested)
+**Input format differences from Claude Code:**
 
-Plugin hooks exist but have a critical subagent bypass (#5894). Testing needed to confirm:
-- Whether the bypass is still present in v1.2.20
-- Whether permission-system deny rules (which are separate from hooks) cover the gap
+| Field | Claude Code | Copilot CLI |
+|---|---|---|
+| Tool name | `tool_name` | `toolName` |
+| Tool arguments | `tool_input` (object) | `toolArgs` (JSON string — needs extra parse) |
+| Permission decision | `permissionDecision` | `permissionDecision` (same) |
 
-**Next step:** Test plugin hook + permission deny on OpenCode.
+**Prototype:** `.github/hooks/adr-gate.sh` + `.github/hooks/pre-tool-use.json`
+
+**Notable:** Hosted coding agent (GitHub Actions) doesn't need hooks — it has structural enforcement (draft PR only, branch restrictions, validation pipeline). Hooks are for the CLI and VS Code surfaces.
+
+### OpenCode — tool.execute.before Plugin Hook (validated 2026-03-23)
+
+**Verdict: Go.** OpenCode v1.2.20 plugin hooks work for process governance. Subagent bypass (#5894) is **fixed**.
+
+**What works:**
+- Plugins in `.opencode/plugins/*.ts` auto-discovered and loaded (Bun/TypeScript native)
+- Throwing from `tool.execute.before` blocks tool execution — error surfaced to model
+- Model sees the error and adjusts behavior (deterministic block confirmed)
+- **Subagent hook coverage confirmed** — hooks fire for BOTH primary agent and subagent tool calls (two different session IDs intercepted). The #5894 bypass is fixed in v1.2.20.
+
+**Trove correction — hook signature:**
+- Trove research was wrong: handler takes `(input, output)`, not `(input)`
+- `input` contains: `{ tool, sessionID, callID }` — tool name and session metadata
+- `output` contains: `{ args: { command, description } }` — actual tool arguments
+- Must read `output.args.command` not `input.args.command`
+
+**Regex bypass risk discovered:**
+- The agent circumvented `/git\s+commit\b/` by inserting flags: `git -c core.hooksPath=/dev/null commit`
+- Robust pattern needed: `/\bgit\b.*\bcommit\b/` instead of `/git\s+commit\b/`
+- This risk applies to ALL platforms, not just OpenCode
+
+**Prototype:** `.opencode/plugins/adr-gate.ts`
 
 ## Lifecycle
 
@@ -130,3 +195,4 @@ Plugin hooks exist but have a critical subagent bypass (#5894). Testing needed t
 |-------|------|--------|-------|
 | Proposed | 2026-03-22 | 730b957 | Initial creation |
 | Active | 2026-03-23 | 9293866 | Activated for Claude Code hook testing |
+| Complete | 2026-03-23 | 09d824a | Go: 4/5 platforms validated with working prototypes |
