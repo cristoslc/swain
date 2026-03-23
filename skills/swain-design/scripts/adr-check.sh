@@ -3,15 +3,16 @@
 # Deterministic frontmatter checks: linkage relevance, retired/superseded deps,
 # date-based staleness. Content-level review is left to the calling agent.
 #
-# Output goes to stdout in a structured format. Exit 0 = clean or advisory only,
-# exit 1 = findings that need attention, exit 2 = usage error.
+# Output goes to stdout in a structured format.
+# Exit 0 = clean (no findings), exit 1 = advisory (non-stale RELEVANT only),
+# exit 2 = actionable (DEAD_REF or stale RELEVANT), exit 3 = usage error.
 
 set -euo pipefail
 
 # --- Resolve repo root ---
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   echo "Error: not inside a git repository" >&2
-  exit 2
+  exit 3
 }
 DOCS_DIR="$REPO_ROOT/docs"
 ADR_ADOPTED_DIR="$DOCS_DIR/adr/Adopted"
@@ -43,22 +44,23 @@ Output format:
     action: review artifact against decision adopted since last edit
 
 Exit codes:
-  0  No findings (or advisory only)
-  1  Findings that need attention
-  2  Usage error
+  0  No findings
+  1  Advisory — non-stale RELEVANT findings only
+  2  Actionable — DEAD_REF or stale RELEVANT findings
+  3  Usage error
 USAGE
 }
 
 if [ $# -lt 1 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
   usage
-  exit 2
+  exit 3
 fi
 
 ARTIFACT_PATH="$1"
 
 if [ ! -f "$ARTIFACT_PATH" ]; then
   echo "Error: artifact not found: $ARTIFACT_PATH" >&2
-  exit 2
+  exit 3
 fi
 
 # --- Python does all the heavy lifting ---
@@ -339,5 +341,5 @@ for f in findings:
             print(f"  action: reassess without backing decision")
         print()
 
-sys.exit(1 if has_actionable else 0)
+sys.exit(2 if has_actionable else 1)
 PYEOF

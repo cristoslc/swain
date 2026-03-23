@@ -27,7 +27,7 @@ _TERMINAL_STATUSES = frozenset(
 
 # Standing-track types used for migration fallback when `track` field is absent
 _STANDING_TYPES = frozenset(
-    {"VISION", "JOURNEY", "PERSONA", "ADR", "RUNBOOK", "DESIGN"}
+    {"VISION", "JOURNEY", "PERSONA", "ADR", "RUNBOOK", "DESIGN", "TRAIN", "RETRO"}
 )
 
 # Container-track types for migration fallback

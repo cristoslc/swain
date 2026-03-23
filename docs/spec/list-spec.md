@@ -25,17 +25,20 @@
 | SPEC-128 | Container-Compatible Runtime Auth Commands | 2026-03-19 | — |
 | SPEC-130 | Host tmux Bridge for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
+| SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
+| SPEC-156 | next-artifact-number.sh — Core Allocator Script | 2026-03-22 | — |
+| SPEC-157 | swain-design SKILL.md Allocator Integration | 2026-03-22 | — |
+| SPEC-158 | Artifact Number Collision Detection | 2026-03-22 | — |
+| SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-22 | — |
 
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPEC-052 | Vision-Rooted Chart Hierarchy | 2026-03-15 | — |
 | SPEC-053 | Namespace Swain Docs Directory | 2026-03-15 | — |
 | SPEC-054 | Project Identity Enforcement | 2026-03-16 | — |
 | SPEC-055 | Trove Analysis Layer | 2026-03-16 | — |
 | SPEC-056 | Tmux Pane-Aware Session Naming | 2026-03-16 | — |
-| SPEC-057 | tk close Must Release Claim Lock | 2026-03-17 | — |
 | SPEC-072 | Universal find-based script discovery | 2026-03-18 | — |
 | SPEC-073 | Description enrichment | 2026-03-18 | — |
 | SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-18 | — |
@@ -46,7 +49,6 @@
 | SPEC-079 | Progressive disclosure cleanup | 2026-03-18 | — |
 | SPEC-080 | Prune deprecated swain-push | 2026-03-18 | — |
 | SPEC-081 | Worktree-Enforced Sandbox Isolation | 2026-03-19 | — |
-| SPEC-091 | TRAIN Artifact Type | 2026-03-19 | — |
 | SPEC-092 | swain-box: Unified Sandbox Launcher | 2026-03-19 | — |
 | SPEC-093 | Documentation Viewer | 2026-03-19 | — |
 | SPEC-094 | Frontmatter Schema — artifact-refs, sourcecode-refs, rel types | 2026-03-20 | -- |
@@ -58,36 +60,34 @@
 | SPEC-100 | swain-sync must restore CWD after worktree cleanup | 2026-03-20 | — |
 | SPEC-101 | ssh-readiness.sh: expand tilde in IdentityFile path before file test | 2026-03-20 | — |
 | SPEC-102 | swain-doctor SSH Binary Check | 2026-03-20 | — |
-| SPEC-103 | Artifact cross-reference hyperlinking | 2026-03-20 | — |
 | SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
-| SPEC-115 | Roadmap Initiative children use level-based filtering, not type-based | 2026-03-20 | — |
 | SPEC-116 | Read Before Reasoning | 2026-03-20 | ec9842d |
 | SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | ec9842d |
-| SPEC-118 | SESSION-ROADMAP.md Format and Generation | 2026-03-20 | -- |
-| SPEC-147 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
 | SPEC-119 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-119 | Session Lifecycle in swain-session | 2026-03-20 | -- |
 | SPEC-120 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
-| SPEC-120 | ROADMAP.md Decision and Recommendation Sections | 2026-03-20 | -- |
 | SPEC-121 | Session Detection Hooks Across All Skills | 2026-03-20 | -- |
 | SPEC-122 | Absorb swain-status into swain-session | 2026-03-20 | -- |
 | SPEC-123 | Skill and Script Alignment Audit | 2026-03-20 | -- |
 | SPEC-124 | Roadmap legend should display epic names alongside initiative names | 2026-03-21 | — |
 | SPEC-125 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-20 | — |
 | SPEC-127 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-20 | — |
-| SPEC-129 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | -- |
-| SPEC-134 | Expand DESIGN Artifact Scope to Data and System Contracts | 2026-03-20 | -- |
 | SPEC-135 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
 | SPEC-136 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-137 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
-| SPEC-138 | iTerm Tab Name Bleed From Global set-titles | 2026-03-21 | — |
-| SPEC-139 | Desired Outcomes Section for Shippable Artifacts | 2026-03-21 | — |
 | SPEC-140 | Artifact ID Collision Detection | 2026-03-21 | -- |
 | SPEC-141 | Spec-Level Priority Weight | 2026-03-21 | — |
-| SPEC-142 | swain-do isn't consistently capturing retros on completion | 2026-03-21 | -- |
 | SPEC-142 | Worktree Ticket Isolation | 2026-03-21 | — |
-| SPEC-143 | Per-Vision and Per-Initiative Roadmap Slices | 2026-03-21 | — |
 | SPEC-144 | Brief Description Frontmatter Field | 2026-03-21 | — |
+| SPEC-145 | Design Creation Prompts | 2026-03-21 | -- |
+| SPEC-146 | Design Coverage Audit Lens | 2026-03-21 | -- |
+| SPEC-147 | swain_trunk() Auto-Detection Helper | 2026-03-22 | — |
+| SPEC-150 | swain-security-check: JSONL scrub mode | 2026-03-22 | — |
+| SPEC-151 | swain-retro: folder structure, manifest, + JSONL capture | 2026-03-22 | — |
+| SPEC-152 | swain-retro: session summary generation | 2026-03-22 | — |
+| SPEC-153 | swain-doctor: retro flat-file migration | 2026-03-22 | — |
+| SPEC-154 | Superpowers chain skips artifact creation | 2026-03-22 | — |
+| SPEC-155 | Paywall Proxy Fallback for swain-search | 2026-03-22 | 0284169 |
 
 ## Complete
 
@@ -143,12 +143,16 @@
 | SPEC-048 | claude-sandbox: Tier 1 Native Sandbox Launcher | 2026-03-14 | 0eb40a8 |
 | SPEC-050 | Stage Status Hook Fails in Worktrees | 2026-03-15 | — |
 | SPEC-051 | Batch Repository Ingestion for swain-search | 2026-03-15 | — |
+| SPEC-052 | Vision-Rooted Chart Hierarchy | 2026-03-15 | — |
+| SPEC-057 | tk close Must Release Claim Lock | 2026-03-17 | — |
 | SPEC-066 | Tmux as Strongly Recommended Dependency | 2026-03-18 | 30b5a1a |
 | SPEC-067 | swain-box: Docker Sandboxes Launcher | 2026-03-18 | e8eea3a |
 | SPEC-068 | swain-box: Agent Runtime Detection & Selection Menu | 2026-03-18 | — |
 | SPEC-069 | swain-box: GitHub Copilot Runtime Support | 2026-03-18 | — |
 | SPEC-070 | swain-box: OpenAI Codex Runtime Support | 2026-03-18 | — |
 | SPEC-071 | Credential-Scoped Sandbox Launcher | 2026-03-19 | — |
+| SPEC-091 | TRAIN Artifact Type | 2026-03-19 | — |
+| SPEC-103 | Artifact cross-reference hyperlinking | 2026-03-20 | — |
 | SPEC-107 | Sibling order ranking for epics and specs | 2026-03-20 | dbd0e66 |
 | SPEC-108 | Roadmap data model | 2026-03-20 | dbd0e66 |
 | SPEC-109 | Roadmap Jinja templates | 2026-03-20 | 35b7d1d |
@@ -156,6 +160,16 @@
 | SPEC-111 | Status roadmap integration | 2026-03-20 | d99b8c4 |
 | SPEC-112 | Dependency graph initiative subgraphs | 2026-03-20 | 18546f4 |
 | SPEC-114 | Trunk + Release Branch Model With Merge-and-Retry Landing | 2026-03-20 | 5c92f0b |
+| SPEC-115 | Roadmap Initiative children use level-based filtering, not type-based | 2026-03-20 | — |
+| SPEC-118 | SESSION-ROADMAP.md Format and Generation | 2026-03-22 | d1846d8 |
+| SPEC-120 | ROADMAP.md Decision and Recommendation Sections | 2026-03-21 | c933d46 |
+| SPEC-129 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | — |
+| SPEC-134 | Expand DESIGN Artifact Scope to Data and System Contracts | 2026-03-21 | d491b1a |
+| SPEC-138 | iTerm Tab Name Bleed From Global set-titles | 2026-03-21 | — |
+| SPEC-139 | Desired Outcomes Section for Shippable Artifacts | 2026-03-21 | — |
+| SPEC-141 | Spec-Level Priority Weight | 2026-03-21 | bae2db9 |
+| SPEC-142 | swain-do isn't consistently capturing retros on completion | 2026-03-21 | — |
+| SPEC-143 | Per-Vision and Per-Initiative Roadmap Slices | 2026-03-22 | fb1601b |
 
 ## Superseded
 

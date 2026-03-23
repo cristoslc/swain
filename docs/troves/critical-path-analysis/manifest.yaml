@@ -1,0 +1,66 @@
+trove: critical-path-analysis
+created: 2026-03-22
+refreshed: 2026-03-22
+tags:
+  - critical-path
+  - cpm
+  - dependency-graph
+  - dag
+  - scheduling
+  - stakeholder-communication
+  - longest-path
+  - project-management
+
+freshness-ttl:
+  web: 30d
+
+history:
+  - event: created
+    date: 2026-03-22
+    commit: 463a776
+    sources: 5
+
+referenced-by:
+  - artifact: SPIKE-042
+    commit: 463a776
+
+sources:
+  - source-id: wikipedia-cpm
+    type: web
+    url: "https://en.wikipedia.org/wiki/Critical_path_method"
+    fetched: 2026-03-22T00:00:00Z
+    title: "Critical path method - Wikipedia"
+    hash: "9650965a7bf9aec75804b502ee375731351949577e8f4e0fec2db1270fbf1094"
+    notes: "Canonical reference — history, algorithm components, drag analysis, expansion to resource leveling, critical chain"
+
+  - source-id: mountain-goat-agile-critical-path
+    type: web
+    url: "https://www.mountaingoatsoftware.com/blog/the-critical-path-on-agile-projects"
+    fetched: 2026-03-22T00:00:00Z
+    title: "The Critical Path on Agile Projects - Mountain Goat Software"
+    hash: "c3f5d27648a824b5c508a789b69da9289f6582b2f2a86543d71f6a8324504d8f"
+    notes: "Mike Cohn on CPM in agile — within-iteration vs project-level critical path, rolling lookahead planning"
+
+  - source-id: meegle-cpm-stakeholder-communication
+    type: web
+    url: "https://www.meegle.com/en_us/topics/critical-path-method/critical-path-method-for-stakeholder-communication"
+    fetched: 2026-03-22T00:00:00Z
+    title: "Critical Path Method For Stakeholder Communication - Meegle"
+    hash: "09e8cb211242f81c20cc0a687311ad74f4c8bf104e60f7d11b01044bfeef3a04"
+    notes: "CPM as stakeholder communication instrument — workflow, challenges, do's and don'ts"
+
+  - source-id: cio-wiki-cpa
+    type: web
+    url: "https://cio-wiki.org/wiki/Critical_Path_Analysis"
+    fetched: 2026-03-22T00:00:00Z
+    title: "Critical Path Analysis - CIO Wiki"
+    hash: "33e5ed7e8a64353339b9679adc2e844d234c51db22402ea4666d30ffe17eba8b"
+    notes: "Benefits catalog — project visibility, cross-team collaboration, accountability, cost control"
+
+  - source-id: algocademy-longest-path-dag
+    type: web
+    url: "https://algocademy.com/blog/longest-path-in-a-dag-mastering-graph-algorithms-for-technical-interviews/"
+    fetched: 2026-03-22T00:00:00Z
+    title: "Longest Path in a DAG: Mastering Graph Algorithms - AlgoCademy"
+    hash: "aec47520ec7b14de1bcea1d35064e02927076040bfd3e71e74ccfc5805fe2812"
+    notes: "Algorithm reference — topological sort + DP, O(V+E) complexity, real-world applications including CPM"

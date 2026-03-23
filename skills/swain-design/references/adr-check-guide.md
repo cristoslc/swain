@@ -10,6 +10,8 @@ The script outputs structured findings:
 - **`DEAD_REF`** — The artifact references a Retired or Superseded ADR. If superseded, review against the replacement. If retired with no replacement, assess whether the artifact's design still holds.
 - **`stale` flag on RELEVANT** — The ADR became Active after the artifact was last updated. The artifact may need revision to align with the newer decision.
 
+Exit codes: `0` = clean (no findings), `1` = advisory (non-stale RELEVANT only), `2` = actionable (DEAD_REF or stale RELEVANT), `3` = usage error.
+
 Content-level review (does the artifact actually comply?) requires reading both documents — the script identifies *which* ADRs to check, the agent applies judgment.
 
 ## Content-level review procedure

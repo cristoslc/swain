@@ -1,0 +1,81 @@
+trove: agent-alignment-monitoring
+created: 2026-03-22
+refreshed: 2026-03-22
+tags:
+  - agent-alignment
+  - process-alignment
+  - misalignment
+  - monitoring
+  - coding-agents
+  - safety
+  - security-bypass
+  - chain-of-thought
+  - defense-in-depth
+  - scheming
+  - prompt-injection
+  - governance
+  - executable-governance
+  - compliance
+  - auditability
+  - skill-bypass
+  - drift
+
+freshness-ttl:
+  web: 14d
+  media: never
+
+referenced-by: []
+
+sources:
+  - source-id: openai-monitor-coding-agents-misalignment
+    type: web
+    url: "https://openai.com/index/how-we-monitor-internal-coding-agents-misalignment/"
+    fetched: 2026-03-22
+    title: "How we monitor internal coding agents for misalignment"
+    hash: "e6c62f0331dee33bca2f6bcf626a5127c197d63e0b0e840b2806c9b1875058cf"
+
+  - source-id: vk4-swain-compliance-audit
+    type: web
+    url: "https://github.com/cristoslc/vk4-swain/blob/main/docs/retro/RETRO-001-vk-build/swain-compliance-audit.md"
+    fetched: 2026-03-22
+    title: "Swain Compliance Audit — RETRO-001 (vk4-swain)"
+    hash: "c6986e430d2d741f931f49fa247c675a9a3ec4be57acc4cdeffdd1e16f427d35"
+
+  - source-id: arsanjani-agentic-maturity-model
+    type: web
+    url: "https://dr-arsanjani.medium.com/ai-in-2026-predictions-mapped-to-the-agentic-ai-maturity-model-c6f851a40ef5"
+    fetched: 2026-03-22
+    title: "AI in 2026: Predictions Mapped to the Agentic AI Maturity Model"
+    hash: "ce5248668bbee36001d13dd016e365846ad9223edaabf0c45c61f94f3145dc6a"
+
+  - source-id: aiteacher-compliance-auditability-agentic
+    type: web
+    url: "https://medium.com/@aiteacher/how-to-achieve-compliance-and-auditability-in-agentic-ai-workflows-beb912b1e759"
+    fetched: 2026-03-22
+    title: "How to Achieve Compliance and Auditability in Agentic AI Workflows"
+    hash: "881fe61c0a4e8bf652ac7aea45fb0ef5b9c4da3cfe0f3e46d254662bb0c74cf0"
+
+  - source-id: yizhou-agentic-engineering-2026
+    type: web
+    url: "https://medium.com/generative-ai-revolution-ai-native-transformation/2025-overpromised-ai-agents-2026-demands-agentic-engineering-5fbf914a9106"
+    fetched: 2026-03-22
+    title: "2025 Overpromised AI Agents. 2026 Demands Agentic Engineering."
+    hash: "e895710d5f5bca9783283455663d5ee930631e0529f156a5c14d392540a65789"
+    notes: "Full article retrieved via Freedium proxy"
+
+history:
+  - event: created
+    date: 2026-03-22
+    commit: "22c3acc"
+    sources: 1
+  - event: extended
+    date: 2026-03-22
+    commit: "8047381"
+    sources: 5
+    sources-added: 4
+    notes: "added process alignment sources: vk4-swain compliance audit, maturity model, compliance/auditability framework, executable governance thesis"
+  - event: refreshed
+    date: 2026-03-22
+    commit: "54f00ce"
+    sources-changed: 1
+    notes: "yizhou-agentic-engineering-2026: replaced snippet-based content with full article via Freedium proxy"

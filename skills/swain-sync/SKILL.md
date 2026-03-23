@@ -157,14 +157,14 @@ If modified files include any swain artifacts (`docs/spec/`, `docs/epic/`, `docs
 bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/adr-check.sh' -print -quit 2>/dev/null)" <artifact-path>
 ```
 
-For each artifact with findings (exit code 1 — DEAD_REF or STALE), collect the output and present a single consolidated warning after all checks complete:
+For each artifact with findings (exit code 1 = advisory RELEVANT findings, exit code 2 = actionable DEAD_REF or STALE findings), collect the output and present a single consolidated warning after all checks complete:
 
 > ADR compliance: N artifact(s) have findings that may need attention.
 > <condensed findings summary>
 
 This step is **advisory** — it warns but never blocks the commit. Continue to Step 4 regardless.
 
-If the `adr-check.sh` script is not found or fails with exit code 2, skip silently — the check is only available in repos with swain-design installed.
+If the `adr-check.sh` script is not found or fails with exit code 3, skip silently — the check is only available in repos with swain-design installed.
 
 ## Step 3.8 — Design drift check
 

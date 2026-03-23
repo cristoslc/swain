@@ -1,0 +1,61 @@
+trove: task-management-systems
+created: 2026-03-22
+refreshed: 2026-03-22
+tags:
+  - task-management
+  - task-tracking
+  - prioritization
+  - agent-native
+  - dependencies
+  - claude-code
+  - mcp
+  - project-management
+
+freshness-ttl:
+  web: 14d
+  local: 30d
+
+history:
+  - event: created
+    date: 2026-03-22
+    commit: "a120d0b"
+    sources: 5
+
+referenced-by: []
+
+sources:
+  - source-id: task-tracking-evaluation
+    type: local
+    path: "/Users/cristos/Downloads/task-tracking-evaluation.md"
+    fetched: 2026-03-22T00:00:00Z
+    title: "Task Tracking & Prioritization in Claude Code: Evaluation Rubric"
+    hash: "d43afa116ac0137cc1cb2bc8c6a0a8626e328792159f73f043222c526e89bd3c"
+    notes: "Evaluation rubric from the original evaluator comparing 8 task management approaches for AI agent use"
+
+  - source-id: saga-mcp
+    type: web
+    url: "https://github.com/spranab/saga-mcp"
+    fetched: 2026-03-22T00:00:00Z
+    title: "saga-mcp — A Jira-like project tracker MCP server for AI agents"
+    hash: "6109eb4d83c362a3a62f242e3c435d2d796fc291396a5407676d28a583c7d33f"
+
+  - source-id: claude-task-master
+    type: web
+    url: "https://github.com/eyaltoledano/claude-task-master"
+    fetched: 2026-03-22T00:00:00Z
+    title: "Claude Task Master (task-master-ai) — AI-powered task management for development"
+    hash: "c4f7fc32393e68dc75632138b80a1d282994569b525e934620c694992158b5e8"
+
+  - source-id: blizzy78-mcp-task-manager
+    type: web
+    url: "https://github.com/blizzy78/mcp-task-manager"
+    fetched: 2026-03-22T00:00:00Z
+    title: "blizzy78/mcp-task-manager — Task Manager MCP Server with critical path tracking"
+    hash: "e6e81b33f892334d3e8a6ef8297baed8e4d8bbb6d216da177af6629d6b717e69"
+
+  - source-id: mcp-server-taskwarrior
+    type: web
+    url: "https://github.com/awwaiid/mcp-server-taskwarrior"
+    fetched: 2026-03-22T00:00:00Z
+    title: "awwaiid/mcp-server-taskwarrior — MCP Server for TaskWarrior"
+    hash: "a07647e2e86cadafea7a9c6c9c77516f0fa150ac3d69a0d347e2726c51e57041"

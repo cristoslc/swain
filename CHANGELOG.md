@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.16.0-alpha] - 2026-03-23
+
+### Features
+
+#### Retro session intelligence
+
+New epic (EPIC-042) with four child specs defining how swain-retro will evolve: structured retro data extraction, cross-session pattern detection, retro-driven backlog generation, and retro quality scoring. The design spec covers the full architecture.
+
+#### Paywall proxy fallback for swain-search
+
+When swain-search encounters a paywalled or inaccessible page, it now falls back to a proxy chain (archive.org, Google cache, etc.) to retrieve content before giving up. Includes an implementation plan for the full proxy stack.
+- State machine definitions added to the artifact frontmatter schema design (DESIGN-006) — formalizes lifecycle transitions for all artifact types
+- adr-check.sh exit codes fixed to properly distinguish missing vs. malformed ADR files
+- Superpowers chain bug fixed — artifact creation was being skipped when superpowers skills were chained during swain-design workflows
+
+### Planned
+
+#### Trustworthy agent governance
+
+A new vision and initiative exploring how swain can help operators verify agent behavior — including alignment monitoring, platform hooks validation, task management system evaluation, and decision framework integration.
+- Centralized artifact number allocation being planned — ensuring artifact IDs are globally unique and conflict-free across concurrent agent sessions
+- swain-dispatch deprecated — requires API billing, incompatible with Max/Pro subscription plans
+
+### Research
+- Agent alignment monitoring — 6 sources collected covering runtime verification, constitutional AI enforcement, and behavioral drift detection techniques
+- Platform hooks validation — 5 sources on Claude Code, Cursor, and Windsurf hook/rule systems for constraining agent behavior
+- Task management systems — 5 sources surveying structured task tracking approaches for AI-assisted development, plus swain ecosystem analysis
+- Critical path analysis — 5 sources on dependency-aware scheduling and bottleneck identification for multi-agent project planning
+
+### Supporting Changes
+- Lifecycle hash stamps and index refreshes for new artifacts
+- Swain ecosystem analysis rewritten in terse format with honest traceability scoring
+
 ## [0.15.1-alpha] - 2026-03-22
 
 ### Features

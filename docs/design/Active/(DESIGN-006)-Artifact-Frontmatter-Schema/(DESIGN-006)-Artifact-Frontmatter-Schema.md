@@ -10,6 +10,7 @@ last-updated: 2026-03-22
 superseded-by: ""
 linked-artifacts:
   - ADR-014
+  - SPEC-084
   - SPEC-094
   - SPEC-134
 artifact-refs:
@@ -175,6 +176,69 @@ The canonical schema is defined in `skills/swain-design/frontmatter-contract.yam
 | `container` | Coordinate children: Proposed → Active → Complete | EPIC, INITIATIVE, SPIKE |
 | `standing` | Living document: Proposed → Active → Retired/Superseded | VISION, ADR, DESIGN, PERSONA, JOURNEY, RUNBOOK, TRAIN, RETRO |
 
+### State machine definitions
+
+These state machines define the **legal transitions** for the `status` field. Tooling (`resolved.py`, `specgraph.sh`, and the lifecycle MCP server per [SPEC-084](../../../spec/Proposed/(SPEC-084)-Lifecycle-State-Machine/(SPEC-084)-Lifecycle-State-Machine.md)) must derive transition rules from this section rather than hardcoding them. The definition files in `skills/swain-design/references/*-definition.md` contain the same diagrams — this section is the canonical machine-readable reference.
+
+#### Implementable track (SPEC)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Proposed
+    Proposed --> Ready
+    Ready --> InProgress
+    InProgress --> NeedsManualTest
+    NeedsManualTest --> Complete
+    Proposed --> Abandoned
+    Ready --> Abandoned
+    InProgress --> Abandoned
+    NeedsManualTest --> Abandoned
+    Complete --> Abandoned
+```
+
+**Terminal phases:** Complete, Abandoned
+
+**Notes:** `NeedsManualTest` is the acceptance-verification gate — entered when all swain-do tasks are done, exited only when every AC has documented evidence.
+
+#### Container track (EPIC, INITIATIVE, SPIKE)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Proposed
+    Proposed --> Active
+    Active --> Complete
+    Proposed --> Abandoned
+    Active --> Abandoned
+```
+
+**Terminal phases:** Complete, Abandoned, Superseded
+
+**Notes:** All three types share identical transitions. Container artifacts resolve when all children resolve.
+
+#### Standing track (VISION, ADR, DESIGN, PERSONA, JOURNEY, RUNBOOK, TRAIN, RETRO)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Proposed
+    Proposed --> Active
+    Active --> Retired
+    Active --> Superseded
+    Proposed --> Abandoned
+    Active --> Abandoned
+```
+
+**Terminal phases:** Retired, Superseded, Abandoned
+
+**Resolution rule:** `Active` is **resolved** for standing-track artifacts — it means "adopted / in effect," not "work in progress." This is the key semantic difference from the other two tracks.
+
+#### Legacy terminal aliases
+
+For backward compatibility with older artifacts, these status values are treated as resolved by parsers:
+
+`Implemented`, `Adopted`, `Validated`, `Archived`, `Sunset`, `Deprecated`, `Verified`, `Declined`
+
+New artifacts must not use these values. They exist only so that pre-migration artifacts resolve correctly.
+
 ## Evolution Rules
 
 1. **Adding a new field**: Add to the contract YAML with full semantic/source/quality documentation. Update the field presence matrix. Update the relevant template(s). No migration needed — new fields default to empty.
@@ -208,3 +272,4 @@ The canonical schema is defined in `skills/swain-design/frontmatter-contract.yam
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-22 | -- | Initial creation alongside frontmatter-contract.yaml |
+| Active | 2026-03-22 | -- | Added state machine definitions per track (addresses GH #54) |
