@@ -43,4 +43,4 @@ If PreToolUse is insufficient, pivot to post-hoc audit only ([SPIKE-040](../../P
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-22 | 730b957 | Initial creation |
-| Active | 2026-03-23 | -- | Activated for Claude Code hook testing |
+| Active | 2026-03-23 | 9293866 | Activated for Claude Code hook testing |
