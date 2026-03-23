@@ -1,0 +1,22 @@
+# Paywall proxy registry — many-to-many mapping of domains to proxy strategies.
+# Proxies are tried in list order per domain until one returns full content.
+#
+# NOTE: Pattern and signal values MUST be double-quoted for the resolve-proxy.sh
+# parser. Unquoted values will silently fail to match.
+
+domains:
+  - pattern: "medium.com"
+    match: host-or-subdomain  # matches medium.com and *.medium.com
+    proxies: [freedium-mirror, freedium]
+    truncation-signals:
+      - "Member-only story"
+      - "You have 2 free member-only stories left"
+      - "Sign up to discover human stories"
+
+proxies:
+  freedium-mirror:
+    url-template: "https://freedium-mirror.cfd/{url}"
+    notes: "Freedium mirror — more reliable than primary domain. Try first."
+  freedium:
+    url-template: "https://freedium.cfd/{url}"
+    notes: "Freedium primary domain. DNS intermittently unreachable."
