@@ -18,6 +18,7 @@
 | EPIC-032 | Cross-Runtime Documentation | 2026-03-18 | — |
 | EPIC-033 | Swain MCP Server | 2026-03-18 | — |
 | EPIC-040 | Sandbox Capability Bridges | 2026-03-20 | -- |
+| EPIC-041 | Worktree Discipline | 2026-03-22 | — |
 
 ## Active
 
@@ -32,6 +33,7 @@
 | EPIC-036 | Session-Aware Commit Atomization | 2026-03-19 | -- |
 | EPIC-037 | PR-Only Agent Guardrails | 2026-03-20 | -- |
 | EPIC-039 | Session Facilitation Rebuild | 2026-03-20 | — |
+| EPIC-042 | Retro Session Intelligence | 2026-03-22 | — |
 
 ## Complete
 
