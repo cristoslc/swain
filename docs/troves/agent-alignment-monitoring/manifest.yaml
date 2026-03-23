@@ -1,0 +1,34 @@
+trove: agent-alignment-monitoring
+created: 2026-03-22
+refreshed: 2026-03-22
+tags:
+  - agent-alignment
+  - misalignment
+  - monitoring
+  - coding-agents
+  - safety
+  - security-bypass
+  - chain-of-thought
+  - defense-in-depth
+  - scheming
+  - prompt-injection
+
+freshness-ttl:
+  web: 14d
+  media: never
+
+referenced-by: []
+
+sources:
+  - source-id: openai-monitor-coding-agents-misalignment
+    type: web
+    url: "https://openai.com/index/how-we-monitor-internal-coding-agents-misalignment/"
+    fetched: 2026-03-22
+    title: "How we monitor internal coding agents for misalignment"
+    hash: "627167d2bae50335a934a77fb658950287a5878993c99d73cdc7b98f4aeec79a"
+
+history:
+  - event: created
+    date: 2026-03-22
+    commit: "--"
+    sources: 1
