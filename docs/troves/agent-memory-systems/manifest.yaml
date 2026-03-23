@@ -27,7 +27,7 @@ history:
     notes: "initial langmem source"
   - event: extended
     date: 2026-03-23
-    commit: "--"
+    commit: "abbf31c"
     sources: 6
     sources-added: 5
     notes: "renamed from langmem-memory-types; added Claude Code, Codex, Gemini CLI, OpenCode, and general taxonomy sources"
