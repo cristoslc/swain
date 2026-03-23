@@ -2,7 +2,7 @@
 title: "Centralized Artifact Number Allocation"
 artifact: EPIC-043
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-22
 last-updated: 2026-03-22
