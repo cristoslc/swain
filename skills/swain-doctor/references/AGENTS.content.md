@@ -33,7 +33,8 @@ When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), 
 | Trigger | Chain |
 |---------|-------|
 | Creating a Vision, Initiative, or Persona | swain-design → **brainstorming** → draft artifact |
-| SPEC comes up for implementation | swain-design → **brainstorming** → **writing-plans** → swain-do |
+| New feature or multi-spec work | **brainstorming** → swain-design (create artifacts) → per-spec **writing-plans** → swain-do |
+| Existing SPEC comes up for implementation | swain-design → **writing-plans** → swain-do |
 | Executing implementation tasks | swain-do → **test-driven-development** per task |
 | Dispatching parallel work | swain-do → **subagent-driven-development** or **executing-plans** |
 | Claiming work is complete | **verification-before-completion** before any success claim |

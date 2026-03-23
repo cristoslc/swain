@@ -82,6 +82,24 @@ For each source, use the appropriate capability. Read `skills/swain-search/refer
 3. Normalize to markdown per the web page format
 4. If fetch fails, record the URL in manifest with a `failed: true` flag and move on
 
+**Paywall proxy fallback:**
+
+After fetching a web page, check if a paywall proxy is available for the URL's domain:
+
+1. Run `skills/swain-search/scripts/resolve-proxy.sh <url>`
+   - **Exit 1**: no proxy configured — use the direct fetch content as-is
+   - **Exit 0**: outputs `PROXY:<name>:<proxy-url>` and `SIGNAL:<text>` lines
+2. If exit 0, check the fetched content for each `SIGNAL` text (case-sensitive literal match)
+3. If any signal matches (or the article body is under ~200 words):
+   - Log: "Paywall detected for `<url>` — trying proxy fallback"
+   - Try each `PROXY` URL in order, fetching via the same page-fetching capability used for web pages
+   - First proxy that returns substantive content (more than the truncated original) wins
+   - Set `proxy-used: <name>` and `notes: "Full article retrieved via <name> proxy"` in the manifest entry
+4. If no signals match: use the direct fetch content as-is (no proxy needed)
+5. If all proxies fail: keep the original truncated content, set `notes: "Paywalled; proxies exhausted — content from direct fetch only"`
+
+The registry lives at `skills/swain-search/references/paywall-proxies.yaml`. Add new domains or proxies there — no skill file changes needed.
+
 **Video/audio URLs:**
 1. Use a media transcription capability to get the transcript
 2. Normalize to markdown per the media format (timestamps, speaker labels, key points)
@@ -258,6 +276,7 @@ The skill references capabilities generically. When a capability isn't available
 | Browser / page fetcher | Try basic URL fetch. If that fails: "Can't fetch this URL — paste the content or provide a local file." |
 | Media transcription | "No transcription capability available — provide a pre-made transcript file, or add a media conversion tool." |
 | Document conversion | "Can't convert this file type — provide a markdown version, or add a document conversion tool." |
+| Paywall proxy | Keep truncated content. Note in manifest: "Paywalled; proxies exhausted." Suggest user provide content manually. |
 
 Never fail the entire run because one capability is missing. Collect what you can, skip what you can't, and report clearly.
 

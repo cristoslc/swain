@@ -8,4 +8,8 @@
 | VISION-002 | Safe Autonomy | 2026-03-18 | — |
 | VISION-003 | Swain Everywhere | 2026-03-18 | — |
 | VISION-004 | Operator Cognitive Support | 2026-03-20 | — |
+| VISION-005 | Trustworthy Agent Governance | 2026-03-22 | -- |
+
+
+
 
