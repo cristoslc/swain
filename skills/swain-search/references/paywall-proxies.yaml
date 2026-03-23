@@ -7,13 +7,16 @@
 domains:
   - pattern: "medium.com"
     match: host-or-subdomain  # matches medium.com and *.medium.com
-    proxies: [freedium]
+    proxies: [freedium-mirror, freedium]
     truncation-signals:
       - "Member-only story"
       - "You have 2 free member-only stories left"
       - "Sign up to discover human stories"
 
 proxies:
+  freedium-mirror:
+    url-template: "https://freedium-mirror.cfd/{url}"
+    notes: "Freedium mirror — more reliable than primary domain. Try first."
   freedium:
     url-template: "https://freedium.cfd/{url}"
-    notes: "Mirrors Medium member-only articles. May be intermittent."
+    notes: "Freedium primary domain. DNS intermittently unreachable."

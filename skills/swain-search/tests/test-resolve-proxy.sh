@@ -119,6 +119,24 @@ fi
 
 rm -rf "$TMPDIR_REG"
 
+# --- Integration: Default registry outputs mirror first ---
+echo ""
+echo "--- Integration: freedium-mirror before freedium in default registry ---"
+output="$(bash "$RESOLVE_PROXY" "https://medium.com/test-article" 2>&1)"
+first_proxy="$(echo "$output" | grep "^PROXY:" | head -1)"
+if [[ "$first_proxy" == *"freedium-mirror"* ]]; then
+  pass "Integration: freedium-mirror is first proxy"
+else
+  fail "Integration: first proxy" "expected freedium-mirror, got: $first_proxy"
+fi
+
+proxy_count="$(echo "$output" | grep -c "^PROXY:")"
+if [[ $proxy_count -eq 2 ]]; then
+  pass "Integration: 2 proxy lines output"
+else
+  fail "Integration: proxy count" "expected 2, got $proxy_count"
+fi
+
 # --- Edge: No arguments ---
 echo ""
 echo "--- Edge: No arguments exits 1 ---"
