@@ -1,0 +1,72 @@
+trove: platform-hooks-validation
+created: 2026-03-22
+refreshed: 2026-03-22
+tags:
+  - hooks
+  - validation
+  - deterministic
+  - enforcement
+  - process-compliance
+  - claude-code
+  - gemini-cli
+  - codex-cli
+  - copilot
+  - opencode
+  - governance
+  - executable-governance
+  - pre-tool-hooks
+  - policy-engine
+  - approval-modes
+  - lifecycle-gates
+
+freshness-ttl:
+  web: 14d
+
+referenced-by: []
+
+sources:
+  - source-id: claude-code-hooks-validation
+    type: web
+    url: "https://code.claude.com/docs/en/hooks"
+    fetched: 2026-03-22
+    title: "Claude Code — Hooks, Permissions, and Validation Mechanisms"
+    hash: "8d74e5b4e05a561aee635cb18907756e5c77fc1944fd6affabbd9a9927f73147"
+    notes: "Composite source: hooks docs, permissions docs, sandbox docs, MCP docs, plugin docs"
+
+  - source-id: gemini-cli-hooks-validation
+    type: web
+    url: "https://geminicli.com/docs/hooks/"
+    fetched: 2026-03-22
+    title: "Gemini CLI — Hooks, Policy Engine, and Validation Mechanisms"
+    hash: "f46f4c9cd0c131335a178937c693b3515ea082127b1468dc9ba808a78a679162"
+    notes: "Composite source: hooks docs, policy engine docs, sandbox docs, extensions docs, configuration docs"
+
+  - source-id: codex-cli-hooks-validation
+    type: web
+    url: "https://developers.openai.com/codex/concepts/sandboxing"
+    fetched: 2026-03-22
+    title: "OpenAI Codex CLI — Sandbox, Approval, and Validation Mechanisms"
+    hash: "65ff191a82dfe0b33767f86fde23360eaf6eeabc685b92767ad89a9d7292ef63"
+    notes: "Composite source: sandbox docs, approval docs, execpolicy docs, hooks PR, config reference"
+
+  - source-id: copilot-hooks-validation
+    type: web
+    url: "https://docs.github.com/en/copilot/reference/hooks-configuration"
+    fetched: 2026-03-22
+    title: "GitHub Copilot — Hooks, Policies, and Validation Mechanisms"
+    hash: "755f4f6eac5471b7282a6e0ac7a238c577406479e43b4a1e3ed1f43a4124596e"
+    notes: "Composite source: hooks config, agent mode docs, coding agent docs, MCP docs, security docs, custom agents docs"
+
+  - source-id: opencode-hooks-validation
+    type: web
+    url: "https://opencode.ai/docs/plugins/"
+    fetched: 2026-03-22
+    title: "OpenCode — Plugin Hooks, Permissions, and Validation Mechanisms"
+    hash: "27a742f0477d0671162fb0e96b1e9e053e2bcfa01e97abc618931792d0729780"
+    notes: "Composite source: plugins docs, permissions docs, tools docs, config docs, MCP docs, sandbox plugin"
+
+history:
+  - event: created
+    date: 2026-03-22
+    commit: "--"
+    sources: 5
