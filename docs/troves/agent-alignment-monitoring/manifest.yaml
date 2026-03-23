@@ -76,6 +76,6 @@ history:
     notes: "added process alignment sources: vk4-swain compliance audit, maturity model, compliance/auditability framework, executable governance thesis"
   - event: refreshed
     date: 2026-03-22
-    commit: "--"
+    commit: "54f00ce"
     sources-changed: 1
     notes: "yizhou-agentic-engineering-2026: replaced snippet-based content with full article via Freedium proxy"
