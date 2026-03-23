@@ -43,7 +43,7 @@ history:
     notes: "renamed from langmem-memory-types; added Claude Code, Codex, Gemini CLI, OpenCode, and general taxonomy sources"
   - event: extended
     date: 2026-03-23
-    commit: "--"
+    commit: "a824a13"
     sources: 11
     sources-added: 5
     notes: "added OSS frameworks (Mem0, Letta/MemGPT, Cognee), graph memory (Zep/Graphiti), and MCP memory servers (Basic Memory)"
