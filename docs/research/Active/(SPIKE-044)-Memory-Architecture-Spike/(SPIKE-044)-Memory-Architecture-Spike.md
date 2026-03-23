@@ -107,4 +107,4 @@ If Conditional: Create specs for approved areas only. Document rejected areas in
 
 | Phase | Date | Hash |
 |-------|------|------|
-| Active | 2026-03-23 | — |
+| Active | 2026-03-23 | 944a30f |
