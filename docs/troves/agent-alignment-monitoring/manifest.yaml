@@ -70,7 +70,7 @@ history:
     sources: 1
   - event: extended
     date: 2026-03-22
-    commit: "--"
+    commit: "8047381"
     sources: 5
     sources-added: 4
     notes: "added process alignment sources: vk4-swain compliance audit, maturity model, compliance/auditability framework, executable governance thesis"
