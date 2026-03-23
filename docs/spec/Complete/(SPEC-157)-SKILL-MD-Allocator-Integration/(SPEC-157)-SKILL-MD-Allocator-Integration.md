@@ -2,10 +2,10 @@
 title: "swain-design SKILL.md Allocator Integration"
 artifact: SPEC-157
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-22
-last-updated: 2026-03-22
+last-updated: 2026-03-23
 priority-weight: ""
 type: enhancement
 parent-epic: EPIC-043
@@ -54,6 +54,9 @@ swain-design SKILL.md step 1 currently instructs the agent to "Scan `docs/<type>
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| Step 1 is a single script invocation | SKILL.md line 100: `bash ... next-artifact-number.sh <TYPE>` | Pass |
+| Fallback note included | SKILL.md line 103: "If the script is not found, fall back to scanning..." | Pass |
+| Same code path for all types | Script accepts TYPE arg, handles all 11 types uniformly | Pass |
 
 ## Scope & Constraints
 
@@ -72,3 +75,4 @@ swain-design SKILL.md step 1 currently instructs the agent to "Scan `docs/<type>
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-22 | — | Agent-suggested decomposition of EPIC-043 |
+| Complete | 2026-03-23 | — | SKILL.md step 1 replaced with script call + fallback |

@@ -2,7 +2,7 @@
 title: "Artifact Number Collision Detection"
 artifact: SPEC-158
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-22
 last-updated: 2026-03-23

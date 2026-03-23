@@ -2,10 +2,10 @@
 title: "Migrate Existing Number Allocation Callers"
 artifact: SPEC-159
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-22
-last-updated: 2026-03-22
+last-updated: 2026-03-23
 priority-weight: ""
 type: enhancement
 parent-epic: EPIC-043
@@ -48,6 +48,9 @@ swain-do: required
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| migrate-bugs.sh calls next-artifact-number.sh | `migrate-bugs.sh` line 62: delegates to `$ALLOCATOR` when available | Pass |
+| No duplicate allocation logic outside allocator | `grep -rn get_next_spec_number skills/` — only in migrate-bugs.sh fallback | Pass |
+| Fallback preserved for missing allocator | `migrate-bugs.sh` lines 63-77: retains original scan as else branch | Pass |
 
 ## Scope & Constraints
 
@@ -66,3 +69,4 @@ swain-do: required
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-22 | — | Agent-suggested decomposition of EPIC-043 |
+| Complete | 2026-03-23 | — | migrate-bugs.sh delegates to allocator; no other callers found |

@@ -183,6 +183,26 @@ This step is **advisory** — it warns but never blocks the commit. Continue to 
 
 If the `design-check.sh` script is not found or fails with exit code 2, skip silently — the check is only available in repos with swain-design installed.
 
+## Step 3.9 — Artifact number collision check
+
+Run `detect-duplicate-numbers.sh` to find duplicate artifact numbers introduced by merges or concurrent worktree work:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/detect-duplicate-numbers.sh' -print -quit 2>/dev/null)" 2>/dev/null
+```
+
+If collisions are found (exit code 1), this step is **blocking** — do not commit until resolved:
+
+> Artifact number collision detected:
+> <collision output>
+>
+> Auto-fix available: run `fix-collisions.sh` to renumber the newer artifact(s).
+> Or run `fix-collisions.sh --dry-run` to preview changes first.
+
+Offer to run `fix-collisions.sh` automatically. If the operator accepts, run it, stage the changes, and continue to Step 4. If the operator declines, **stop execution** — do not commit with duplicate numbers.
+
+If the script is not found, skip silently — the check is only available in repos with swain-design installed.
+
 ## Step 4 — Generate a commit message
 
 Read the staged diff (`git --no-pager diff --cached`) and write a commit message that:
