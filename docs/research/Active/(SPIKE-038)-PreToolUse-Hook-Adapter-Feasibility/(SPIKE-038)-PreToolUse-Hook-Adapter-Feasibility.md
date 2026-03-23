@@ -23,6 +23,8 @@ linked-artifacts:
 
 ## Summary
 
+**Go.** 4 of 5 target platforms support PreToolUse hooks capable of implementing process governance gates. Claude Code, Gemini CLI, Copilot CLI, and OpenCode all validated with working prototypes that block git commits unless ADR compliance passes. Codex CLI lacks a general PreToolUse hook (structural limitation — relies on Starlark execpolicy instead). The hook adapter is highly portable: only JSON field names differ across platforms. A shared core script with thin platform wrappers is viable. Critical finding: OpenCode's subagent hook bypass (#5894) is fixed in v1.2.20. Regex bypass risk discovered on OpenCode (agent inserted flags to evade `/git\s+commit\b/`) — use `/\bgit\b.*\bcommit\b/` across all platforms.
+
 ## Question
 
 Can swain implement process governance gates (spec-read check, ADR compliance, skill invocation mandate) via PreToolUse hooks on each target platform, and what does the adapter look like?
@@ -141,21 +143,51 @@ Codex CLI lacks a general PreToolUse hook. Enforcement relies on:
 
 **Implication:** Codex requires a different enforcement strategy — either post-hoc audit (SPIKE-040) or an MCP-server-side gate that validates before returning results.
 
-### Copilot — PreToolUse Hook (not yet tested)
+### Copilot CLI — PreToolUse Hook (validated 2026-03-23)
 
-Trove data confirms PreToolUse hooks exist in both VS Code agent mode and Copilot CLI. Same protocol as Claude Code (stdin JSON, stdout JSON with `permissionDecision`). Key differences:
-- Hosted coding agent has structural enforcement (draft PR only, branch restrictions) that doesn't need hooks
-- VS Code agent can edit hook scripts during a session — self-modification risk
+**Verdict: Go.** Copilot CLI v1.0.10 auto-discovers hooks from `.github/hooks/pre-tool-use.json` and enforces deny decisions.
 
-**Next step:** Test hook installation and deny behavior on Copilot CLI.
+**What works:**
+- Hook auto-discovered from `.github/hooks/` — no config file changes needed
+- `permissionDecision: "deny"` blocks tool calls deterministically
+- Same `permissionDecision` / `permissionDecisionReason` field names as Claude Code
+- Headless mode (`copilot -p "..." --allow-all-tools -s`) fires hooks identically to interactive
+- 9/9 unit tests pass, 2/2 integration tests pass (allow + deny paths)
 
-### OpenCode — tool.execute.before Plugin Hook (not yet tested)
+**Input format differences from Claude Code:**
 
-Plugin hooks exist but have a critical subagent bypass (#5894). Testing needed to confirm:
-- Whether the bypass is still present in v1.2.20
-- Whether permission-system deny rules (which are separate from hooks) cover the gap
+| Field | Claude Code | Copilot CLI |
+|---|---|---|
+| Tool name | `tool_name` | `toolName` |
+| Tool arguments | `tool_input` (object) | `toolArgs` (JSON string — needs extra parse) |
+| Permission decision | `permissionDecision` | `permissionDecision` (same) |
 
-**Next step:** Test plugin hook + permission deny on OpenCode.
+**Prototype:** `.github/hooks/adr-gate.sh` + `.github/hooks/pre-tool-use.json`
+
+**Notable:** Hosted coding agent (GitHub Actions) doesn't need hooks — it has structural enforcement (draft PR only, branch restrictions, validation pipeline). Hooks are for the CLI and VS Code surfaces.
+
+### OpenCode — tool.execute.before Plugin Hook (validated 2026-03-23)
+
+**Verdict: Go.** OpenCode v1.2.20 plugin hooks work for process governance. Subagent bypass (#5894) is **fixed**.
+
+**What works:**
+- Plugins in `.opencode/plugins/*.ts` auto-discovered and loaded (Bun/TypeScript native)
+- Throwing from `tool.execute.before` blocks tool execution — error surfaced to model
+- Model sees the error and adjusts behavior (deterministic block confirmed)
+- **Subagent hook coverage confirmed** — hooks fire for BOTH primary agent and subagent tool calls (two different session IDs intercepted). The #5894 bypass is fixed in v1.2.20.
+
+**Trove correction — hook signature:**
+- Trove research was wrong: handler takes `(input, output)`, not `(input)`
+- `input` contains: `{ tool, sessionID, callID }` — tool name and session metadata
+- `output` contains: `{ args: { command, description } }` — actual tool arguments
+- Must read `output.args.command` not `input.args.command`
+
+**Regex bypass risk discovered:**
+- The agent circumvented `/git\s+commit\b/` by inserting flags: `git -c core.hooksPath=/dev/null commit`
+- Robust pattern needed: `/\bgit\b.*\bcommit\b/` instead of `/git\s+commit\b/`
+- This risk applies to ALL platforms, not just OpenCode
+
+**Prototype:** `.opencode/plugins/adr-gate.ts`
 
 ## Lifecycle
 
