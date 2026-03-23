@@ -17,7 +17,7 @@ linked-artifacts:
   - INITIATIVE-017
   - INITIATIVE-019
   - SPEC-045
-evidence-pool: ""
+evidence-pool: "phase-complexity-model@6a19583"
 ---
 
 # Phase Complexity Model for Adaptive Ceremony and Autonomy
