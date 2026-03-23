@@ -60,6 +60,44 @@ _Updated as Agent Specs are created under this epic._
 - Relies on `git show <branch>:<path>` or `git worktree list` for cross-worktree queries — standard git, no external deps.
 - swain-design SKILL.md is the primary consumer — changes there affect every artifact creation.
 
+## Retrospective
+
+**Terminal state:** Complete
+**Period:** 2026-03-22 — 2026-03-23 (single session)
+**Related artifacts:** SPEC-156, SPEC-157, SPEC-158, SPEC-159, SPIKE-043, ADR-015
+
+### Summary
+
+All 5 success criteria met. Delivered a centralized allocator script (`next-artifact-number.sh`) that scans all worktrees + trunk, integrated it into SKILL.md step 1, built collision detection + renumber tools, and migrated existing callers. The detection script found 3 real number collisions already in the repo (SPEC-119, SPEC-120, SPIKE-001), retroactively validating the EPIC's premise.
+
+Side outputs: SPIKE-043 (Phase Complexity Model) emerged from observing that not everything needs manual testing — produced a Stacey Matrix-based model for adaptive ceremony. ADR-015 (Ephemeral Tickets) emerged from the worktree cleanup experience — formalized that tickets are scaffolding, not records.
+
+### Reflection
+
+**What went well:**
+- Critical-path ordering (SPEC-156 first, then fan out) kept all work unblocked
+- TDD caught two platform-specific bugs (bash 3.2 associative arrays, `find -name` glob pattern) that manual testing would have missed
+- The allocator was dogfooded immediately for SPIKE-043 creation
+- Side quests (SPIKE-043, ADR-015) landed as durable artifacts rather than ephemeral observations
+
+**What was surprising:**
+- 3 real collisions existed in the repo already — the problem was more urgent than anticipated
+- SPEC-158 scope grew during execution (renumber tools, swain-sync gate) and the expansion was productive, not scope creep
+
+**Patterns observed:**
+- Brainstorming adds less value when the operator arrives with a clear mental model — the chain's value was confirming design choices, not discovering intent
+- Scope that expands from operator feedback during execution is healthy; the living-spec pattern works better than trying to nail down everything upfront
+- Side quests that produce artifacts (spikes, ADRs) are valuable, not distractions — capture insights when they're fresh
+
+**Bug found:** EPIC child specs section was never updated from `SPEC-TBD` placeholders to actual linked references. Filed as SPEC-162.
+
+### Learnings captured
+
+| Memory file | Type | Summary |
+|------------|------|---------|
+| feedback_retro_parallel_research.md | feedback | (existing) Launch parallel agents for multi-source research |
+| feedback_retro_foreign_runtime_testing.md | feedback | (existing) TDD in isolated temp repos catches platform-specific bugs |
+
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
