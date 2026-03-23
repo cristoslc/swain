@@ -62,10 +62,12 @@ Nothing about the approach. The research → artifacts → validation pipeline w
 
 **Mitigation needed:** Each platform's hook prototype should have a companion deterministic test script (e.g., `scripts/test-hooks/<platform>-test.sh`) that can be re-run without an agent. The spike produced prototypes but not repeatable test harnesses.
 
-## Learnings captured
+## Learnings to encode in skills
 
-| Memory file | Type | Summary |
-|------------|------|---------|
-| feedback_retro_parallel_research.md | feedback | Parallel agents per platform for multi-source research |
-| feedback_retro_trove_first.md | feedback | Build trove before creating artifacts — evidence base from day zero |
-| feedback_retro_foreign_runtime_testing.md | feedback | Agent-mediated foreign runtime testing needs companion test scripts |
+Behavioral changes belong in skills, not memory (per ADR convention). These learnings need skill updates:
+
+| Learning | Target skill | Change needed |
+|----------|-------------|---------------|
+| Parallel agents per platform for multi-source research | `swain-search` | Add guidance to launch parallel agents when 3+ sources/platforms are involved |
+| Build trove before creating artifacts — evidence base from day zero | `swain-search` / `swain-design` | Strengthen trove-first ordering in the research → artifact pipeline |
+| Agent-mediated foreign runtime testing needs companion test scripts | `swain-design` or new skill | When spikes test foreign runtimes, require committed test harnesses alongside prototypes |
