@@ -82,6 +82,7 @@
 | SPEC-151 | swain-retro: folder structure, manifest, + JSONL capture | 2026-03-22 | — |
 | SPEC-152 | swain-retro: session summary generation | 2026-03-22 | — |
 | SPEC-153 | swain-doctor: retro flat-file migration | 2026-03-22 | — |
+| SPEC-154 | Superpowers chain skips artifact creation | 2026-03-22 | — |
 
 ## Complete
 
