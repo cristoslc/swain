@@ -118,4 +118,4 @@ Operators get complete source content in troves without manual intervention. The
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-22 | -- | Initial creation; design validated via brainstorming |
+| Active | 2026-03-22 | 0284169 | Initial creation; design validated via brainstorming |
