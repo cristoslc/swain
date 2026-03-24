@@ -26,10 +26,6 @@
 | SPEC-130 | Host tmux Bridge for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
-| SPEC-156 | next-artifact-number.sh — Core Allocator Script | 2026-03-22 | — |
-| SPEC-157 | swain-design SKILL.md Allocator Integration | 2026-03-22 | — |
-| SPEC-158 | Artifact Number Collision Detection | 2026-03-22 | — |
-| SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-22 | — |
 
 ## Active
 
@@ -83,11 +79,16 @@
 | SPEC-146 | Design Coverage Audit Lens | 2026-03-21 | -- |
 | SPEC-147 | swain_trunk() Auto-Detection Helper | 2026-03-22 | — |
 | SPEC-150 | swain-security-check: JSONL scrub mode | 2026-03-22 | — |
-| SPEC-151 | swain-retro: folder structure, manifest, + JSONL capture | 2026-03-22 | — |
-| SPEC-152 | swain-retro: session summary generation | 2026-03-22 | — |
-| SPEC-153 | swain-doctor: retro flat-file migration | 2026-03-22 | — |
+| SPEC-151 | swain-retro: folder structure, manifest, + JSONL capture | 2026-03-23 | — |
+| SPEC-152 | swain-retro: session summary generation | 2026-03-23 | — |
+| SPEC-153 | swain-doctor: retro flat-file migration | 2026-03-23 | — |
 | SPEC-154 | Superpowers chain skips artifact creation | 2026-03-22 | — |
 | SPEC-155 | Paywall Proxy Fallback for swain-search | 2026-03-22 | 0284169 |
+| SPEC-160 | Chart Critical Path Lens | 2026-03-23 | — |
+| SPEC-161 | Computed Priority Scoring | 2026-03-23 | — |
+| SPEC-162 | EPIC Child Specs Section Not Updated on Completion | 2026-03-23 | — |
+| SPEC-163 | Unified retro model: standalone artifacts with multi-session bundling | 2026-03-23 | — |
+| SPEC-164 | PURPOSE Migration and VISION-001 Supersession | 2026-03-24 | -- |
 
 ## Complete
 
@@ -170,6 +171,10 @@
 | SPEC-141 | Spec-Level Priority Weight | 2026-03-21 | bae2db9 |
 | SPEC-142 | swain-do isn't consistently capturing retros on completion | 2026-03-21 | — |
 | SPEC-143 | Per-Vision and Per-Initiative Roadmap Slices | 2026-03-22 | fb1601b |
+| SPEC-156 | next-artifact-number.sh — Core Allocator Script | 2026-03-23 | — |
+| SPEC-157 | swain-design SKILL.md Allocator Integration | 2026-03-23 | — |
+| SPEC-158 | Artifact Number Collision Detection | 2026-03-23 | — |
+| SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-23 | — |
 
 ## Superseded
 
