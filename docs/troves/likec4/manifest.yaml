@@ -1,0 +1,131 @@
+trove: likec4
+created: 2026-03-23
+refreshed: 2026-03-23
+tags:
+  - architecture-as-code
+  - c4-model
+  - diagramming
+  - dsl
+  - architecture-modeling
+  - visualization
+  - component-catalog
+  - mcp
+
+freshness-ttl:
+  documentation-site: 14d
+  repository: 30d
+
+history:
+  - event: created
+    date: 2026-03-23
+    commit: "--"
+    sources: 15
+
+sources:
+  - source-id: likec4-repo
+    type: repository
+    url: "https://github.com/likec4/likec4"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 — Architecture as Code (GitHub Repository)"
+    hash: "6265e12b7a1c3e073f5bc7e28c586824eae5e2a88d1d62450307058d090bd406"
+    selective: true
+    highlights:
+      - "likec4-repo.md"
+
+  - source-id: likec4-tutorial
+    type: documentation-site
+    url: "https://likec4.dev/tutorial/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Getting Started Tutorial"
+    hash: "bb4beaa6fbc63272c0bae22dd7434918442adc5d1e53f2b10db9d945f6588988"
+
+  - source-id: likec4-dsl-specification
+    type: documentation-site
+    url: "https://likec4.dev/dsl/specification/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 DSL Specification Guide"
+    hash: "685f51be90feb57eb2a8dd4442f580ba5f8549deac1b5a6490816b397475521f"
+
+  - source-id: likec4-dsl-model
+    type: documentation-site
+    url: "https://likec4.dev/dsl/model/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Model Syntax Guide"
+    hash: "872524670a0ec76aaeb753f7dd7b01224a4a969f7484800f6f4073584b55b6a8"
+
+  - source-id: likec4-dsl-relationships
+    type: documentation-site
+    url: "https://likec4.dev/dsl/relationships/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Relationships Guide"
+    hash: "cdea840d9e4ab5b2aa75d47068ccd92eae37a86f9d7be6c4372681bf22932730"
+
+  - source-id: likec4-dsl-views-predicates
+    type: documentation-site
+    url: "https://likec4.dev/dsl/views/predicates/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 View Predicates Reference"
+    hash: "6604cf6730d08f7ee8f9e9041a3279e39fb7bfa14abefbe818ef554fea76aaf7"
+
+  - source-id: likec4-dsl-dynamic-views
+    type: documentation-site
+    url: "https://likec4.dev/dsl/views/dynamic/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Dynamic Views Guide"
+    hash: "62bdfab8c80ca0d36916e204091b7a560a963920792b6dd07f893659e9675fd3"
+
+  - source-id: likec4-dsl-deployment-model
+    type: documentation-site
+    url: "https://likec4.dev/dsl/deployment/model/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Deployment Models"
+    hash: "13e7969c474383ec0fa1e58ccec1de99a0915f6bd4e71c0df48cd8db367e0445"
+
+  - source-id: likec4-dsl-deployment-views
+    type: documentation-site
+    url: "https://likec4.dev/dsl/deployment/views/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Deployment Views"
+    hash: "41eb7258b2bd8e1f3ab1670a64473413033af4d5f81f97fbb53c1cd17a9a5d4b"
+
+  - source-id: likec4-dsl-styling
+    type: documentation-site
+    url: "https://likec4.dev/dsl/styling/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Styling Guide"
+    hash: "df8c62a4655407beb2455868851b74b72dbef64f7eeac622f7695cfe31bc07d7"
+
+  - source-id: likec4-dsl-extend
+    type: documentation-site
+    url: "https://likec4.dev/dsl/extend/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Extend Syntax Guide"
+    hash: "f80f9aff5bca92a6629aea414bae8d39f9aa05d872ed8c9599f5c78ecc3c4140"
+
+  - source-id: likec4-cli
+    type: documentation-site
+    url: "https://likec4.dev/tooling/cli/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 CLI Documentation"
+    hash: "9f6ca65e523312a0cdcf61ec9c67dcee2b3e12ec32bdfec8311bac11d97ba46f"
+
+  - source-id: likec4-react
+    type: documentation-site
+    url: "https://likec4.dev/tooling/react/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 React Components Documentation"
+    hash: "4d9ac05b73008497ba32d1f8cb169c47070abd8097f3c002f635270244f859b5"
+
+  - source-id: likec4-mcp-server
+    type: documentation-site
+    url: "https://likec4.dev/tooling/mcp/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 MCP Server Documentation"
+    hash: "200ca0b4880a9b189904d8698033575e7eb14e5b2cb00c781a83cc5bd149cf96"
+
+  - source-id: likec4-model-api
+    type: documentation-site
+    url: "https://likec4.dev/tooling/model-api/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "LikeC4 Model API Documentation"
+    hash: "5ab4e00ad0833ab616ce960c586e0056a1e9b617f65c6b64f0f5df6887ce063f"
