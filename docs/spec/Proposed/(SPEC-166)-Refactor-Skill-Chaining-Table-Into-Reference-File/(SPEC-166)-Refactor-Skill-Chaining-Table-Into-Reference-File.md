@@ -64,4 +64,4 @@ AGENTS.md governance lists the skills that participate in chains and points to a
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-24 | -- | Agent-suggested during SPEC-164 governance audit |
+| Proposed | 2026-03-24 | 3d696d0 | Agent-suggested during SPEC-164 governance audit |
