@@ -66,4 +66,4 @@ AI coding agents are fast but stateless. Without a structured system of record, 
 |-------|------|--------|-------|
 | Draft | 2026-03-11 | 7aadee8 | Initial creation from SPIKE-003 philosophical reframe |
 | Active | 2026-03-11 | b9d0f65 | Transition to Active |
-| Superseded | 2026-03-24 | -- | Superseded by PURPOSE.md — identity content migrated to project-root document outside artifact governance |
+| Superseded | 2026-03-24 | c088911 | Superseded by PURPOSE.md — identity content migrated to project-root document outside artifact governance |
