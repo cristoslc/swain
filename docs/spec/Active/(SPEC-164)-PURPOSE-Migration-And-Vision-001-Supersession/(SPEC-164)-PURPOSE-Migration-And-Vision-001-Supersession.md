@@ -151,28 +151,49 @@ The 68 children of VISION-001 break down as follows (from the inventory):
 
 **Active artifacts:** Re-parent to the new vision structure (see below). Leave unanchored temporarily if no vision fits — parent as new visions are created.
 
-### Vision restructuring decisions (2026-03-24 brainstorming session)
+### Vision and tenet restructuring (2026-03-24 through 2026-03-25 brainstorming)
 
-VISION-001 was superseded by PURPOSE.md. The remaining visions (002-005) will be renamed and restructured. New visions will be created. The full set of visions under PURPOSE.md:
+VISION-001 was superseded by PURPOSE.md. The remaining visions (002-005) are being restructured. Research (product-vision-frameworks trove, extended with Amazon tenets and Cagan product principles) revealed that swain's "visions" conflated three distinct concepts:
 
-**All seven visions named (2026-03-25 brainstorming continuation):**
+**Three axes (orthogonal, not hierarchical):**
+1. **Purpose** (PURPOSE.md) — why swain exists, the alignment loop. Changes = different project.
+2. **Tenets** (PURPOSE.md) — present-tense behavioral guides. Both foundational (already true) and aspirational (guide decisions before fully realized). Orthogonal to visions. "Unless you know better ones."
+3. **Visions** (VISION-NNN artifacts) — future operator experiences. Organize work. May never be fully achieved.
 
-1. **Process Compliance Is Enforced** — agents follow the rules because the runtime enforces it, not because they're asked nicely. (Evolves from VISION-005 Trustworthy Agent Governance.)
-2. **The Agent Always Recaps Its Work** — after execution, the agent provides a structured evidence briefing. The operator arrives to a summary, not a blank slate. (New vision.)
-3. **Alignment Drift Is Always Flagged** — the gap between intent and reality is continuously monitored and surfaced before it compounds. Drift is a continuous present-tense concern, not tied to any session or execution cycle. (New vision.)
-4. **Swain Identifies the Hotspots** — project priorities are surfaced in order. The operator sees what advances the project without manually triaging the backlog. (New vision.) ⚠ **Needs revisit** — "hotspots" may not be self-explanatory. The vision is about project-level intelligence and prioritization. Name may need sharpening.
-5. **Never Overwhelm the Operator** — sessions, decision clusters, and pacing are shaped by human cognitive patterns (attention, memory, fatigue). The system manages the operator's cognitive load: what to present, how to cluster it, and when to stop. (Evolves from VISION-004 Operator Cognitive Support.)
-6. **Swain Works Where You Do** — swain fits the operator's existing workspace: runtimes (Codex, Gemini, Claude Code), surfaces (phone, web, desktop), layouts (tmux, IDE), and tools (Typora, etc.). The operator doesn't change how they work to use swain. (Merges VISION-003 Swain Everywhere — previously split into operator-access and runtime-portability, now reunified under workspace ergonomics.)
-7. **Unattended Execution Is Safe** — agents run unsupervised without risk. Bounded blast radius, credential scoping, sandbox infrastructure. (Evolves from VISION-002 Safe Autonomy.)
+**Foundational tenets (already true, constrain all work):**
+- Artifacts are the single source of truth
+- Git is the persistence layer
+- Intent and evidence are separate things
+- Intent is malleable
+- Execution is where learning happens
+- Reconciliation is not blame
 
-**Temporal distinction between visions 2, 3, and 4:**
-- Recaps (#2) = past tense. "Here's what happened while you were away."
-- Drift (#3) = present continuous. "Here's where reality doesn't match intent right now."
-- Hotspots (#4) = forward-looking. "Here's what needs attention next, in priority order."
+**Aspirational tenets (guide decisions now, not yet fully realized):**
+- Governance is structural, not advisory
+- Any agent runtime with a steering mechanism can participate
+- Unattended execution is safe
+- Swain works where you do
 
-**Two kinds of ergonomics (distinct visions):**
+**Visions (operator experiences — current as of 2026-03-25):**
+
+1. **The Agent Always Recaps Its Work** — after execution, the agent provides a structured evidence briefing. The operator arrives to a summary, not a blank slate. (New vision.)
+2. **Alignment Drift Is Always Flagged** — the gap between intent and reality is continuously monitored and surfaced before it compounds. (New vision.)
+3. **Operator Intent Checked During Execution** — agent actions are verified against operator decisions in real time via hooks, gates, and policy rules. Not after the fact — during. (New vision. Work: platform hooks, enforcement infrastructure.)
+4. **Swain Identifies the Hotspots** — project priorities are surfaced in order. The operator sees what advances the project without manually triaging the backlog. (New vision.) ⚠ **Needs revisit** — "hotspots" may not be self-explanatory.
+5. **Never Overwhelm the Operator** — sessions, decision clusters, and pacing are shaped by human cognitive patterns. The system manages cognitive load: what to present, how to cluster it, when to stop. (Evolves from VISION-004.)
+6. **The Project Boundary Always Holds** — agents cannot operate outside their designated project scope. Credentials, filesystem, network — all bounded. (Evolves from VISION-002.)
+7. ??? — portability/workspace vision. Unnamed. The operator experience of swain being present on any runtime or surface without adaptation. (Evolves from VISION-003.)
+
+**Temporal distinction between visions 1, 2, and 3:**
+- Recaps (#1) = past tense. "Here's what happened while you were away."
+- Drift (#2) = present continuous. "Here's where reality doesn't match intent right now."
+- Intent checked (#3) = during execution. "The agent verified against intent before acting."
+
+**Two kinds of ergonomics (both addressed):**
 - Cognitive ergonomics (#5) — fits how you *think* (attention, memory, fatigue, decision patterns)
-- Workspace ergonomics (#6) — fits where and how you *work* (surfaces, runtimes, tools, layouts)
+- Workspace ergonomics (#7) — fits where and how you *work* (surfaces, runtimes, tools, layouts)
+
+**Key insight: aspirational tenets vs. visions.** Amazon's foundational/aspirational tenet distinction resolved a recurring muddling between principles and visions. Aspirational tenets (e.g., "governance is structural") guide today's decisions in present tense, even when infrastructure is incomplete. Visions (e.g., "Operator Intent Checked During Execution") describe the operator experience when the tenet is fully realized. Different axis, different purpose, no conflict. Work advances visions while respecting tenets.
 
 **Artifacts that don't fit any vision (cross-cutting infrastructure):**
 - EPIC-044 Swain Memory Architecture — serves recaps, ergonomics, and drift
@@ -183,15 +204,21 @@ VISION-001 was superseded by PURPOSE.md. The remaining visions (002-005) will be
 
 **Key design decisions:**
 - PURPOSE.md is the root identity document, outside the artifact system
-- Visions are future states the operator would recognize when living in them, not tasks or principles
-- Principles (e.g., "agents must be contained") belong in PURPOSE.md; visions are the strategic investment to make principles real
-- Prioritization/hotspots is separate from cognitive ergonomics — one is about project intelligence, the other is about human fit
+- Visions are future operator experiences, not tasks or principles
+- Tenets are orthogonal to visions — they constrain all work at every level
+- Foundational tenets are already true; aspirational tenets guide decisions before fully realized
+- Prioritization/hotspots is separate from cognitive ergonomics — project intelligence vs. human fit
 - Clustering related decisions is cognitive ergonomics (reduces context-switching), not prioritization
-- "Swain Runs Everywhere" reunified as workspace ergonomics after recognizing that runtime portability and operator surface access share the same principle: swain fits the operator's environment
-- All seven visions pass the test battery from product-vision-frameworks trove (elevator, sorting, stability, inspiration, specificity, concision) — see brainstorming session for details
-- Trove references: architecture-intent-evidence-loop@47664e8, product-vision-frameworks@c5f5c49
+- Trove references: architecture-intent-evidence-loop@47664e8, product-vision-frameworks@8a2a7a8
 
-**Re-parenting will proceed after operator revisits vision names with fresh eyes.** #4 (hotspots) flagged for name review. Active children of VISION-001 will be classified against the full vision set.
+**Remaining work:**
+- Name the portability/workspace vision (#7)
+- Revisit "Swain Identifies the Hotspots" (#4) name
+- Update PURPOSE.md with foundational/aspirational tenet split
+- Replace "Agents are black boxes" principle with the steering mechanism tenet
+- Create formal VISION artifacts for each named vision
+- Re-parent active children of VISION-001 against the full vision set
+- Supersede VISION-002, 003, 004, 005 with their evolved replacements
 
 ## Implementation Approach
 
