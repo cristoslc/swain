@@ -25,7 +25,7 @@ swain-do: required
 
 The superpowers skill chaining table in AGENTS.md governance is the heaviest section — 9 rows of dense routing rules that every agent parses on session start. For agents without superpowers installed, the entire table is irrelevant but must be read before reaching the escape hatch. The table mixes superpowers-only chains with always-active swain-to-swain chains, making it hard to scan.
 
-This was identified during a governance template audit as part of [SPEC-164](../Active/(SPEC-164)-PURPOSE-Migration-And-Vision-001-Supersession/(SPEC-164)-PURPOSE-Migration-And-Vision-001-Supersession.md).
+This was identified during a governance template audit as part of [SPEC-164](../../Active/(SPEC-164)-PURPOSE-Migration-And-Vision-001-Supersession/(SPEC-164)-PURPOSE-Migration-And-Vision-001-Supersession.md).
 
 ## Desired Outcomes
 

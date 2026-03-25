@@ -53,7 +53,7 @@ The `agent-memory-systems` trove surveys the landscape: coding CLI memory system
 
 ## Child Specs
 
-- [SPIKE-044](../../research/Active/(SPIKE-044)-Memory-Architecture-Spike/(SPIKE-044)-Memory-Architecture-Spike.md) — Research spike: memory architecture investigation
+- [SPIKE-044](../../../research/Active/(SPIKE-044)-Memory-Architecture-Spike/(SPIKE-044)-Memory-Architecture-Spike.md) — Research spike: memory architecture investigation
 
 *Additional child specs will be created based on the spike's recommendation.*
 

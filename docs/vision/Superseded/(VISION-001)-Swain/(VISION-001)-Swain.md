@@ -2,11 +2,12 @@
 title: "Swain"
 artifact: VISION-001
 track: standing
-status: Active
+status: Superseded
+superseded-by: PURPOSE.md
 product-type: personal
 author: cristos
 created: 2026-03-11
-last-updated: 2026-03-19
+last-updated: 2026-03-24
 trove: ""
 linked-artifacts:
   - PERSONA-001
@@ -14,6 +15,7 @@ linked-artifacts:
   - SPIKE-003
   - VISION-003
   - VISION-004
+  - SPEC-164
 
 depends-on-artifacts: []
 ---
@@ -64,3 +66,4 @@ AI coding agents are fast but stateless. Without a structured system of record, 
 |-------|------|--------|-------|
 | Draft | 2026-03-11 | 7aadee8 | Initial creation from SPIKE-003 philosophical reframe |
 | Active | 2026-03-11 | b9d0f65 | Transition to Active |
+| Superseded | 2026-03-24 | -- | Superseded by PURPOSE.md — identity content migrated to project-root document outside artifact governance |
