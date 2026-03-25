@@ -15,7 +15,7 @@ freshness-ttl:
 history:
   - event: created
     date: 2026-03-24
-    commit: "--"
+    commit: "0e5b572"
     sources: 1
 
 sources:
