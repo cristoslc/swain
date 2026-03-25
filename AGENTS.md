@@ -1,10 +1,10 @@
 # AGENTS.md
 
+Read **[PURPOSE.md](PURPOSE.md)** for this project's identity, worldview, and foundational principles.
+
 <!-- swain governance — do not edit this block manually -->
 
 ## Swain
-
-Read **[PURPOSE.md](PURPOSE.md)** for swain's identity, worldview, and foundational principles. The short version:
 
 Swain makes agentic development **safe, aligned, and sustainable** for a solo developer. Its architecture rests on the **Intent -> Execution -> Evidence -> Reconciliation** loop. Artifacts on disk — specs, epics, spikes, ADRs — encode what was decided, what to build, and what constraints apply. Read them before acting. When they're ambiguous, ask the operator rather than guessing.
 
