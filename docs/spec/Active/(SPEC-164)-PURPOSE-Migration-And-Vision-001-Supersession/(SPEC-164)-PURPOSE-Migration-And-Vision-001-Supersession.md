@@ -155,28 +155,43 @@ The 68 children of VISION-001 break down as follows (from the inventory):
 
 VISION-001 was superseded by PURPOSE.md. The remaining visions (002-005) will be renamed and restructured. New visions will be created. The full set of visions under PURPOSE.md:
 
-**Settled (names confirmed):**
+**All seven visions named (2026-03-25 brainstorming continuation):**
+
 1. **Process Compliance Is Enforced** — agents follow the rules because the runtime enforces it, not because they're asked nicely. (Evolves from VISION-005 Trustworthy Agent Governance.)
 2. **The Agent Always Recaps Its Work** — after execution, the agent provides a structured evidence briefing. The operator arrives to a summary, not a blank slate. (New vision.)
-3. **Alignment Drift Is Always Flagged** — the gap between intent and reality is continuously monitored and surfaced before it compounds. (New vision.)
-4. **Swain Identifies the Hotspots** — project priorities are surfaced in order. The operator sees what advances the project without manually triaging the backlog. (New vision.)
-5. **Every Interaction Is Cognitively Ergonomic** — sessions, decision clusters, surfaces, and pacing are shaped by human cognitive patterns (attention, memory, fatigue), not by how the system happens to work internally. (Evolves from VISION-004 Operator Cognitive Support.)
+3. **Alignment Drift Is Always Flagged** — the gap between intent and reality is continuously monitored and surfaced before it compounds. Drift is a continuous present-tense concern, not tied to any session or execution cycle. (New vision.)
+4. **Swain Identifies the Hotspots** — project priorities are surfaced in order. The operator sees what advances the project without manually triaging the backlog. (New vision.) ⚠ **Needs revisit** — "hotspots" may not be self-explanatory. The vision is about project-level intelligence and prioritization. Name may need sharpening.
+5. **Never Overwhelm the Operator** — sessions, decision clusters, and pacing are shaped by human cognitive patterns (attention, memory, fatigue). The system manages the operator's cognitive load: what to present, how to cluster it, and when to stop. (Evolves from VISION-004 Operator Cognitive Support.)
+6. **Swain Works Where You Do** — swain fits the operator's existing workspace: runtimes (Codex, Gemini, Claude Code), surfaces (phone, web, desktop), layouts (tmux, IDE), and tools (Typora, etc.). The operator doesn't change how they work to use swain. (Merges VISION-003 Swain Everywhere — previously split into operator-access and runtime-portability, now reunified under workspace ergonomics.)
+7. **Unattended Execution Is Safe** — agents run unsupervised without risk. Bounded blast radius, credential scoping, sandbox infrastructure. (Evolves from VISION-002 Safe Autonomy.)
 
-**Unsettled (need naming/scoping, parked for next session):**
-6. Containment — agents run unsupervised without risk; bounded blast radius. (Evolves from VISION-002 Safe Autonomy.)
-7. Operator access from any surface — the operator can direct swain from phone, web, desktop. (Split from VISION-003 Swain Everywhere.)
-8. Agent runtime portability — swain works across Gemini CLI, Codex, Claude Code, etc. (Split from VISION-003 Swain Everywhere.)
+**Temporal distinction between visions 2, 3, and 4:**
+- Recaps (#2) = past tense. "Here's what happened while you were away."
+- Drift (#3) = present continuous. "Here's where reality doesn't match intent right now."
+- Hotspots (#4) = forward-looking. "Here's what needs attention next, in priority order."
+
+**Two kinds of ergonomics (distinct visions):**
+- Cognitive ergonomics (#5) — fits how you *think* (attention, memory, fatigue, decision patterns)
+- Workspace ergonomics (#6) — fits where and how you *work* (surfaces, runtimes, tools, layouts)
+
+**Artifacts that don't fit any vision (cross-cutting infrastructure):**
+- EPIC-044 Swain Memory Architecture — serves recaps, ergonomics, and drift
+- INITIATIVE-003 Agent Runtime Efficiency — performance/cost, no vision covers this
+- INITIATIVE-009 Unified Project State Graph — serves hotspots AND drift
+- EPIC-021 Product Design Orchestrator — design workflow, unclear home
+- EPIC-019 Rename swain-design — housekeeping, no vision needed
 
 **Key design decisions:**
 - PURPOSE.md is the root identity document, outside the artifact system
 - Visions are future states the operator would recognize when living in them, not tasks or principles
 - Principles (e.g., "agents must be contained") belong in PURPOSE.md; visions are the strategic investment to make principles real
-- "Swain Runs Everywhere" (VISION-003) was split into two distinct visions: operator access (any surface) and agent runtime portability (any agent)
-- Cognitive ergonomics is a single vision encompassing session pacing, decision clustering, working memory fit, and attention management
 - Prioritization/hotspots is separate from cognitive ergonomics — one is about project intelligence, the other is about human fit
+- Clustering related decisions is cognitive ergonomics (reduces context-switching), not prioritization
+- "Swain Runs Everywhere" reunified as workspace ergonomics after recognizing that runtime portability and operator surface access share the same principle: swain fits the operator's environment
+- All seven visions pass the test battery from product-vision-frameworks trove (elevator, sorting, stability, inspiration, specificity, concision) — see brainstorming session for details
 - Trove references: architecture-intent-evidence-loop@47664e8, product-vision-frameworks@c5f5c49
 
-**Re-parenting will proceed after all visions are named and created.** Active children of VISION-001 will be classified against the full vision set.
+**Re-parenting will proceed after operator revisits vision names with fresh eyes.** #4 (hotspots) flagged for name review. Active children of VISION-001 will be classified against the full vision set.
 
 ## Implementation Approach
 
