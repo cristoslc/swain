@@ -1,0 +1,27 @@
+trove: claude-code-auto-mode
+created: 2026-03-24
+refreshed: 2026-03-24
+tags:
+  - claude-code
+  - auto-mode
+  - permissions
+  - safety
+  - tool-use
+  - classifier
+
+freshness-ttl:
+  web: 7d
+
+history:
+  - event: created
+    date: 2026-03-24
+    commit: "--"
+    sources: 1
+
+sources:
+  - source-id: claude-blog-auto-mode
+    type: web
+    url: "https://claude.com/blog/auto-mode"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Auto mode for Claude Code"
+    hash: "8fdca556c42227dce38e3cdb05137fafc22942536ea1db42bb0b648fabb972bb"

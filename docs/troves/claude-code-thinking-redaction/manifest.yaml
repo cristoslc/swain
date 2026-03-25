@@ -1,0 +1,29 @@
+trove: claude-code-thinking-redaction
+created: 2026-03-24
+refreshed: 2026-03-24
+tags:
+  - claude-code
+  - thinking
+  - redaction
+  - regression
+  - transparency
+  - extended-thinking
+  - showThinkingSummaries
+
+freshness-ttl:
+  forum: 7d
+
+history:
+  - event: created
+    date: 2026-03-24
+    commit: "--"
+    sources: 1
+
+sources:
+  - source-id: gh-issue-31326-thinking-empty
+    type: forum
+    url: "https://github.com/anthropics/claude-code/issues/31326"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Thinking block content empty (thinking_len=0) since v2.1.69 — only encrypted signature returned"
+    hash: "d624f04fe52328a5ae3c7ca030eeba92f5521e3382dbe58b577e7c44c9d3db9d"
+    notes: "Open issue with 12 posts including detailed reverse-engineering of the redact-thinking mechanism"
