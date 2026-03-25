@@ -95,6 +95,6 @@ history:
     sources: 7
   - event: extended
     date: 2026-03-25
-    commit: "--"
+    commit: "8a2a7a8"
     sources-added: 3
     notes: "Added product principles (Cagan) and Amazon tenets (Kindel, Doc Bar Raiser)"
