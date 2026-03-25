@@ -22,7 +22,7 @@ history:
     sources: 1
   - event: extended
     date: 2026-03-24
-    commit: "--"
+    commit: "49a8167"
     sources: 4
     sources-added: 3
     notes: "added docs page, Simon Willison analysis, classifier defaults JSON"
