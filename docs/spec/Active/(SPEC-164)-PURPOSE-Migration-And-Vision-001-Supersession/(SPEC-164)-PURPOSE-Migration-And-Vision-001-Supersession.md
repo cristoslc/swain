@@ -111,6 +111,17 @@ When it encounters artifacts with `parent-vision: VISION-001`
 Then it does not error (VISION-001 still exists, just in Superseded state)
 And the tree output shows the supersession clearly
 
+**AC-8: historical artifacts remain parented to VISION-001**
+Given historical artifacts reference VISION-001
+When specgraph or other tooling encounters their link to a superseded artifact
+Then no errors are thrown, this is a valid relationship
+
+**AC-9: approrpiate swain skills check for PURPOSE.md**
+Given a project has no PURPOSE.md
+When swain-design does an audit
+Or when swain-doctor checks project health
+Then the skill appropriately tries to articulate a vision and invokes obra/superpowers/brainstorming to validate it with the operator
+
 ## Verification
 
 | Criterion | Evidence | Result |
@@ -138,17 +149,34 @@ The 68 children of VISION-001 break down as follows (from the inventory):
 
 **Completed/Abandoned/Superseded artifacts (~35):** Keep `parent-vision: VISION-001`. These were created and finished under that framing. Rewriting history adds no value.
 
-**Active artifacts that clearly map to an existing peer vision:**
-- Security-related (EPIC-017, EPIC-023, INITIATIVE-004) → VISION-002 (Safe Autonomy) or VISION-005 (Trustworthy Agent Governance)
-- Session/cognitive (EPIC-039, EPIC-042, INITIATIVE-019) → already under VISION-004
-- Platform enforcement (INITIATIVE-020) → already under VISION-005
+**Active artifacts:** Re-parent to the new vision structure (see below). Leave unanchored temporarily if no vision fits — parent as new visions are created.
 
-**Active artifacts that are about swain's core capabilities** (artifact system, status, sync, retros, drift detection, etc.): These need a home. Options:
-1. Create a new VISION for the artifact/governance system specifically
-2. Parent them to an existing vision if the fit is clear
-3. Leave them unanchored temporarily and parent as new visions emerge
+### Vision restructuring decisions (2026-03-24 brainstorming session)
 
-The operator decides the strategy for bucket 3 during implementation. This spec provides the mechanics; the operator provides the judgment.
+VISION-001 was superseded by PURPOSE.md. The remaining visions (002-005) will be renamed and restructured. New visions will be created. The full set of visions under PURPOSE.md:
+
+**Settled (names confirmed):**
+1. **Process Compliance Is Enforced** — agents follow the rules because the runtime enforces it, not because they're asked nicely. (Evolves from VISION-005 Trustworthy Agent Governance.)
+2. **The Agent Always Recaps Its Work** — after execution, the agent provides a structured evidence briefing. The operator arrives to a summary, not a blank slate. (New vision.)
+3. **Alignment Drift Is Always Flagged** — the gap between intent and reality is continuously monitored and surfaced before it compounds. (New vision.)
+4. **Swain Identifies the Hotspots** — project priorities are surfaced in order. The operator sees what advances the project without manually triaging the backlog. (New vision.)
+5. **Every Interaction Is Cognitively Ergonomic** — sessions, decision clusters, surfaces, and pacing are shaped by human cognitive patterns (attention, memory, fatigue), not by how the system happens to work internally. (Evolves from VISION-004 Operator Cognitive Support.)
+
+**Unsettled (need naming/scoping, parked for next session):**
+6. Containment — agents run unsupervised without risk; bounded blast radius. (Evolves from VISION-002 Safe Autonomy.)
+7. Operator access from any surface — the operator can direct swain from phone, web, desktop. (Split from VISION-003 Swain Everywhere.)
+8. Agent runtime portability — swain works across Gemini CLI, Codex, Claude Code, etc. (Split from VISION-003 Swain Everywhere.)
+
+**Key design decisions:**
+- PURPOSE.md is the root identity document, outside the artifact system
+- Visions are future states the operator would recognize when living in them, not tasks or principles
+- Principles (e.g., "agents must be contained") belong in PURPOSE.md; visions are the strategic investment to make principles real
+- "Swain Runs Everywhere" (VISION-003) was split into two distinct visions: operator access (any surface) and agent runtime portability (any agent)
+- Cognitive ergonomics is a single vision encompassing session pacing, decision clustering, working memory fit, and attention management
+- Prioritization/hotspots is separate from cognitive ergonomics — one is about project intelligence, the other is about human fit
+- Trove references: architecture-intent-evidence-loop@47664e8, product-vision-frameworks@c5f5c49
+
+**Re-parenting will proceed after all visions are named and created.** Active children of VISION-001 will be classified against the full vision set.
 
 ## Implementation Approach
 
