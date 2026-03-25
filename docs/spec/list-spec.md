@@ -26,6 +26,7 @@
 | SPEC-130 | Host tmux Bridge for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
+| SPEC-166 | Refactor Skill Chaining Table Into Reference File | 2026-03-24 | -- |
 
 ## Active
 
@@ -88,7 +89,8 @@
 | SPEC-161 | Computed Priority Scoring | 2026-03-23 | — |
 | SPEC-162 | EPIC Child Specs Section Not Updated on Completion | 2026-03-23 | — |
 | SPEC-163 | Unified retro model: standalone artifacts with multi-session bundling | 2026-03-23 | — |
-| SPEC-164 | PURPOSE Migration and VISION-001 Supersession | 2026-03-24 | -- |
+| SPEC-164 | PURPOSE Migration and VISION-001 Supersession | 2026-03-24 | c39beba |
+| SPEC-165 | Worktree Isolation By Default In swain-do | 2026-03-24 | 9471d11 |
 
 ## Complete
 
