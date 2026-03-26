@@ -20,6 +20,7 @@ linked-artifacts:
   - SPEC-115
   - SPEC-138
   - SPEC-142
+  - SPEC-143
 ---
 
 # Retro: Overnight autonomous artifact sweep

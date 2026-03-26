@@ -16,7 +16,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-001 | Task Management Decision Framework Integration | 2026-03-22 | -- |
+| SPIKE-046 | Task Management Decision Framework Integration | 2026-03-22 | -- |
 | SPIKE-022 | Multi-Agent Collision Vectors | 2026-03-20 | fa63b5a |
 | SPIKE-026 | Context Fork as Model Routing Implementation Path | 2026-03-16 | -- |
 | SPIKE-033 | Skill Routing Disambiguation | 2026-03-18 | — |
@@ -30,7 +30,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-001 | Replace Beads CLI with Backlog.md | 2026-03-11 | — |
+| SPIKE-046 | Replace Beads CLI with Backlog.md | 2026-03-11 | — |
 | SPIKE-002 | Backlog.md for artifact management | 2026-03-11 | — |
 | SPIKE-003 | Enhancement Type Modeling | 2026-03-11 | 7aadee8 |
 | SPIKE-004 | Superpowers–Swain Skill Mapping | 2026-03-12 | e94bb4b |

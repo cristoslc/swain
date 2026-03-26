@@ -1,0 +1,63 @@
+trove: architecture-intent-evidence-loop
+created: 2026-03-24
+refreshed: 2026-03-24
+tags:
+  - architecture
+  - intent
+  - evidence
+  - reconciliation
+  - vision-restructuring
+  - agentic-coding
+  - amortized-derivation
+  - component-catalog
+  - philosophy
+
+freshness-ttl:
+  local: never
+
+history:
+  - event: created
+    date: 2026-03-24
+    commit: "47664e8"
+    sources: 5
+
+sources:
+  - source-id: architecture-conversation-summary
+    type: local
+    path: "Downloads/swain-architecture-conversation-summary.md"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Swain Architecture Conversation Summary — Action Graph, ADR Context, Component Catalog, Intent/Evidence Primitives"
+    hash: "80f5fe6451a84e257071cd15eeb532c1ab8b74bcb224c98e99056c41c74a1b16"
+    notes: "External conversation (2026-03-23) exploring action graph vs graph DB, ADR context assembly, component catalog, and intent/evidence as core primitives"
+
+  - source-id: session-philosophical-discussion
+    type: local
+    path: "(session transcript, 2026-03-24)"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Session Discussion — Architecture in the Age of Agentic Coding, Amortized Derivation, Vision Restructuring"
+    hash: "ec65613ec77903c904797ae1be1a6a266143e94d4a3f17666a54aaf8640e474d"
+    notes: "Session-derived. Covers: does architecture matter when tests pass, descriptive vs prescriptive diagrams, amortized derivation, relevant disciplines, vision restructuring proposal"
+
+  - source-id: four-vision-experiment
+    type: local
+    path: "(subagent output, 2026-03-24)"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Experiment — Four Distinct Visions (Intent, Execution, Evidence, Reconciliation)"
+    hash: "9caaeb8f286f1968cd63c907e00095121da2152d510b86091f61e05ffe22cbff"
+    notes: "Opus subagent stress-testing one-vision-per-leg structure"
+
+  - source-id: unified-vision-experiment
+    type: local
+    path: "(subagent output, 2026-03-24)"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Experiment — Unified Root Vision with Boundary Initiatives"
+    hash: "3dc6b0a62faf45af246106fcd2bafd37001e7d6905f26b686f09911d125e5351"
+    notes: "Opus subagent stress-testing unified vision + four boundary artifacts"
+
+  - source-id: synthesis-review
+    type: local
+    path: "(session synthesis, 2026-03-24)"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Cross-Experiment Synthesis and Review"
+    hash: "2b644ab6ea6cae75a4d2aa27c6bbf137a03da969305df785f4ce31efb11b26f3"
+    notes: "Synthesizes both experiments, identifies convergences and divergences, recommends unified structure"

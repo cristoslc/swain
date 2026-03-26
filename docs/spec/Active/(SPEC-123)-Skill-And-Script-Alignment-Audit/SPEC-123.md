@@ -11,14 +11,14 @@ parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
 linked-artifacts:
   - SPEC-118
-  - SPEC-119
-  - SPEC-120
+  - SPEC-169
+  - SPEC-170
   - SPEC-121
   - SPEC-122
 depends-on-artifacts:
   - SPEC-118
-  - SPEC-119
-  - SPEC-120
+  - SPEC-169
+  - SPEC-170
   - SPEC-121
   - SPEC-122
 addresses: []
@@ -105,7 +105,7 @@ This is the final spec -- it runs after all other specs in the epic are complete
 - New skill creation
 
 **Constraints:**
-- This spec must run last -- it depends on SPEC-118, SPEC-119, SPEC-120, SPEC-121, and SPEC-122
+- This spec must run last -- it depends on SPEC-118, SPEC-169, SPEC-170, SPEC-121, and SPEC-122
 - Must be comprehensive -- every file in the project is in scope for review
 - Changes must be backward-compatible where possible
 

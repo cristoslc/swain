@@ -10,8 +10,12 @@ parent-epic: EPIC-029
 priority-weight: high
 depends-on-artifacts: []
 linked-artifacts:
-  - EPIC-029
   - ADR-013
+  - EPIC-029
+  - SPEC-169
+  - SPEC-170
+  - SPEC-136
+  - SPEC-137
 ---
 
 # swain_trunk() Auto-Detection Helper

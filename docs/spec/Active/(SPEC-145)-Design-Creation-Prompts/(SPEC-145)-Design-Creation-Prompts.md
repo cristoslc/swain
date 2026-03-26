@@ -13,6 +13,7 @@ parent-initiative: ""
 linked-artifacts:
   - SPEC-097
   - SPEC-134
+  - SPEC-146
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

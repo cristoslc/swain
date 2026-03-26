@@ -27,7 +27,7 @@ fi
 # 2b. Governance freshness — compare installed block against canonical
 CANONICAL="skills/swain-doctor/references/AGENTS.content.md"
 if [[ -f "$CANONICAL" ]] && grep -q "swain governance" AGENTS.md CLAUDE.md 2>/dev/null; then
-  GOV_FILE=$(grep -l "swain governance" AGENTS.md CLAUDE.md 2>/dev/null | head -1)
+  GOV_FILE=$(grep -l "swain governance" AGENTS.md CLAUDE.md 2>/dev/null | head -1 || true)
   if [[ -n "$GOV_FILE" ]]; then
     # Extract content between markers (exclusive) and hash
     extract_gov() { awk '/<!-- swain governance/{f=1;next}/<!-- end swain governance/{f=0}f' "$1"; }
@@ -110,6 +110,21 @@ if [[ -x "$SSH_HELPER" ]]; then
       issues+=("${line#ISSUE: }")
     done <<< "$ssh_output"
   fi
+fi
+
+# 9c. Skill folder gitignore hygiene (advisory — non-blocking)
+# Only check vendored swain skill directories (swain/ and swain-*/), not all skills.
+# Skip if this is the swain source repo (skill folders are tracked there).
+_origin_url="$(git remote get-url origin 2>/dev/null || true)"
+if [[ "$_origin_url" != *"cristoslc/swain"* ]]; then
+  for _base in .claude/skills .agents/skills; do
+    [ -d "$_base" ] || continue
+    for _skill_path in "$_base"/swain "$_base"/swain-*/; do
+      if [[ -d "$_skill_path" ]] && ! git check-ignore -q "$_skill_path" 2>/dev/null; then
+        echo "swain-preflight: $REPO_ROOT/$_skill_path not gitignored (advisory)"
+      fi
+    done
+  done
 fi
 
 # 10. Superpowers detection (advisory — warn but don't fail)

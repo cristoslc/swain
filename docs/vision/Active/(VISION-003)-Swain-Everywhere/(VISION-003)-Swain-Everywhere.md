@@ -8,6 +8,8 @@ author: cristos
 created: 2026-03-18
 last-updated: 2026-03-18
 priority-weight: high
+linked-artifacts:
+  - VISION-005
 depends-on-artifacts:
   - VISION-001
 evidence-pool: ""

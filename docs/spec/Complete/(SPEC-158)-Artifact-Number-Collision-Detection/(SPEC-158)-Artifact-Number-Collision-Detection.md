@@ -10,7 +10,9 @@ priority-weight: ""
 type: feature
 parent-epic: EPIC-043
 parent-initiative: ""
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-010
+  - SPEC-042
 depends-on-artifacts:
   - SPEC-156
 addresses: []

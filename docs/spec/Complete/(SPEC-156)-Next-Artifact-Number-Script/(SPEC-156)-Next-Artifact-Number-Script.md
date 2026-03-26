@@ -10,7 +10,13 @@ priority-weight: ""
 type: feature
 parent-epic: EPIC-043
 parent-initiative: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-001
+  - SPEC-155
+  - SPEC-157
+  - SPEC-158
+  - SPEC-159
+  - SPEC-160
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

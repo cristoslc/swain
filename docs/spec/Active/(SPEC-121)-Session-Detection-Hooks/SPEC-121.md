@@ -11,7 +11,7 @@ parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
 linked-artifacts:
   - SPEC-118
-  - SPEC-119
+  - SPEC-169
   - SPEC-123
 depends-on-artifacts: []
 addresses: []
@@ -80,7 +80,7 @@ The check is a lightweight function call (read `.agents/session-state.json`, com
 - Skip list for read-only skills
 
 **Out of scope:**
-- Session lifecycle management (SPEC-119)
+- Session lifecycle management (SPEC-169)
 - SESSION-ROADMAP.md format (SPEC-118)
 - Automatic session creation
 

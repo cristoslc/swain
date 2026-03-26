@@ -1,0 +1,128 @@
+trove: agent-memory-systems
+created: 2026-03-23
+refreshed: 2026-03-23
+tags:
+  - agent-memory
+  - llm-memory
+  - memory-architecture
+  - semantic-memory
+  - episodic-memory
+  - procedural-memory
+  - graph-memory
+  - knowledge-graph
+  - mcp-memory
+  - claude-code
+  - codex
+  - gemini-cli
+  - opencode
+  - langmem
+  - mem0
+  - letta
+  - memgpt
+  - zep
+  - graphiti
+  - cognee
+  - basic-memory
+  - memory-taxonomy
+  - coding-agents
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-03-23
+    commit: 2951507
+    sources: 1
+    notes: "initial langmem source"
+  - event: extended
+    date: 2026-03-23
+    commit: "abbf31c"
+    sources: 6
+    sources-added: 5
+    notes: "renamed from langmem-memory-types; added Claude Code, Codex, Gemini CLI, OpenCode, and general taxonomy sources"
+  - event: extended
+    date: 2026-03-23
+    commit: "a824a13"
+    sources: 11
+    sources-added: 5
+    notes: "added OSS frameworks (Mem0, Letta/MemGPT, Cognee), graph memory (Zep/Graphiti), and MCP memory servers (Basic Memory)"
+
+sources:
+  - source-id: langmem-conceptual-guide
+    type: web
+    url: "https://langchain-ai.github.io/langmem/concepts/conceptual_guide/#memory-types"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Long-term Memory in LLM Applications — LangMem Conceptual Guide"
+    hash: "28f6b8d08761c89304c0355a798fd2ce1d6168c5a88e5c014277edbf5892e025"
+
+  - source-id: claude-code-memory
+    type: web
+    url: "https://code.claude.com/docs/en/memory"
+    fetched: 2026-03-23T00:00:00Z
+    title: "How Claude Remembers Your Project — Claude Code Docs"
+    hash: "4453a4b8de303a4d639eb36f39bc50408a9723f38579f32790d5a8e2fe3948e4"
+
+  - source-id: codex-memory-system
+    type: web
+    url: "https://deepwiki.com/openai/codex/3.7-memory-system"
+    fetched: 2026-03-23T00:00:00Z
+    title: "OpenAI Codex Memory System — DeepWiki Analysis"
+    hash: "bac9e42a02b734601e903b0e28ac6e97e0a24faba82277f952405151d26f0b63"
+
+  - source-id: gemini-cli-memory
+    type: web
+    url: "https://geminicli.com/docs/cli/tutorials/memory-management/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Gemini CLI Memory Management and save_memory Tool"
+    hash: "716eb674a4d95002c006dc9bf3cfcd6b678611ae5bd3637b53e64d5a2efb3534"
+
+  - source-id: opencode-rules-context
+    type: web
+    url: "https://opencode.ai/docs/rules/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "OpenCode Rules and Context Persistence"
+    hash: "0a79771885bb53cfca25764378e0b2cd66cded530d0d245545b563ca55314b30"
+    notes: "OpenCode has no native cross-session memory. Content synthesized from official docs and community discussion."
+
+  - source-id: emergentmind-memory-taxonomy
+    type: web
+    url: "https://www.emergentmind.com/topics/memory-mechanisms-in-llm-based-agents"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Memory Mechanisms in LLM Agents — EmergentMind Survey"
+    hash: "9845aa6223372eab928ffadee1f6906c30b4d6282e93e72cc506dab52704a1dc"
+
+  - source-id: mem0-memory-layer
+    type: web
+    url: "https://docs.mem0.ai/overview"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Mem0 — Universal Memory Layer for AI Agents"
+    hash: "d728719de36e3f8ac59b998e652a71e2c1c3b924d4e83fb58e3e5d2934ab9880"
+
+  - source-id: letta-memgpt
+    type: web
+    url: "https://docs.letta.com/concepts/memgpt/"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Letta (MemGPT) — Stateful Agents with Self-Editing Memory"
+    hash: "d3c55b2f46b47acc143a12bd43e3f942473b8aaadf880924f20a17b9e5439109"
+
+  - source-id: zep-graphiti-temporal-kg
+    type: web
+    url: "https://arxiv.org/html/2501.13956v1"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Zep — Temporal Knowledge Graph Architecture for Agent Memory"
+    hash: "d8dc7890ae0c5feb3766f146b16782a5f22fe76f4a5cd11806f47e6168d3f972"
+
+  - source-id: cognee-knowledge-engine
+    type: web
+    url: "https://github.com/topoteretes/cognee"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Cognee — Open Source Knowledge Engine for AI Agent Memory"
+    hash: "2f9e119412b38c718853e31ef05402126e8c9b956cf5d15bba2d96af01d9711e"
+
+  - source-id: basic-memory-mcp
+    type: web
+    url: "https://github.com/basicmachines-co/basic-memory"
+    fetched: 2026-03-23T00:00:00Z
+    title: "Basic Memory — Markdown Knowledge Graph MCP Server"
+    hash: "2556307b66eee63a39dcca14a4fbb30582b46465aa427a0d1d47840ebcca1df0"

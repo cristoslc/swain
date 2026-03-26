@@ -1,5 +1,46 @@
 # Changelog
 
+## [0.18.0-alpha] - 2026-03-25
+
+### Features
+
+#### Skill folder gitignore hygiene
+
+swain-doctor now verifies that vendored swain skill directories (swain/ and swain-*/ under .claude/skills/ and .agents/skills/) are gitignored in consumer projects. Consumer projects' own skills are not affected. Auto-remediates missing entries on confirmation. Skipped when running inside the swain source repo.
+
+#### Cross-reference integrity repair
+
+Resolved all cross-reference gaps and missing reciprocal edges across 45 artifacts. xref validation now catches orphaned links before they accumulate.
+
+#### Worktree isolation by default
+
+swain-do now isolates all mutating tasks into worktrees, not just implementation tasks. Prevents accidental trunk contamination during any tracked work.
+- Source renumber fix — corrected --source-dir targeting, keeper restoration, and dry-run allocation tracking
+- Superpowers detection fix — the zsh word-splitting difference from bash caused the detection loop to always report 0/6 skills found. Fixed by inlining the skill list and using file-test checks.
+
+### Planned
+
+#### PURPOSE.md and vision restructuring
+
+Swain's identity migrated from VISION-001 into a standalone PURPOSE.md, establishing a seven-vision structure split into foundational and aspirational tiers. Governance references now point to PURPOSE.md as the canonical identity source.
+
+#### Swain Memory Architecture
+
+Planning began for structured agent memory — moving beyond flat file memory toward graph-based, scoped memory that persists learnings across sessions.
+- Skill chaining table refactor proposed — extracting the superpowers chaining table from AGENTS.md into a dedicated reference file for cleaner governance
+
+### Research
+- Ollama Cloud Dispatch Worker feasibility spike — 10 sources collected across tool-calling architecture, API testing, and vLLM integration
+- Agent memory systems — trove extended with OSS frameworks, graph memory, and MCP servers (10+ sources across two collection rounds)
+- Product vision frameworks — 10 sources on tenets, Amazon principles, and intent hierarchies
+- LikeC4 architecture-as-code — 15 sources collected
+- Claude Code auto-mode and thinking redaction troves created
+
+### Supporting Changes
+- ADR-015 amended — tickets as committed coordination state, renamed to Merge Tickets To Trunk
+- Governance block reconciled to canonical AGENTS.content.md with updated heading levels and expanded description
+- Security scan findings triaged — eval removed from migration script, false-positive semgrep annotations added to hook scripts
+
 ## [0.17.0-alpha] - 2026-03-23
 
 ### Features

@@ -11,9 +11,9 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-20 | 12:22 | `ed54330` | fix(swain-sync): guard worktree removal for EnterWorktree branches (SPEC-099) |
-| 2026-03-20 | 08:13 | `33119f6` | fix(swain-stage,swain-sync): harden hooks against missing TMUX/dead CWD |
 | 2026-03-19 | 23:31 | `cd18990` | feat(swain-box): auth-before-isolation flow, login confirmation, reliability initiative |
+| 2026-03-19 | 22:31 | `b7a8fac` | feat: add swain-box launcher UX, first-run auth, and design artifacts |
+| 2026-03-19 | 20:43 | `81dcbc3` | feat(swain-box): rewrite as unified two-step sandbox launcher (SPEC-092) |
 
 ## Priority Subset
 
@@ -23,6 +23,8 @@
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
 | [swain-stage Redesign]((INITIATIVE-015)-swain-stage-Redesign.md) | [User Documentation System](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | 0/1 | 0 | — |
+|  | [swain-stage hooks fire unconditionally even when stage is not active](../../../spec/Active/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md) | 0/0 | 0 | **needs decomposition** |
+|  | [stage-status-hook fails with ENOENT when CWD is removed](../../../spec/Active/(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -34,15 +36,12 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [swain-stage Redesign]((INITIATIVE-015)-swain-stage-Redesign.md) | [CLI Command Verification in Agent Execution](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) | 0/0 | 1 | **activate or drop** |
-|  | [Documentation Viewer](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
+| [swain-stage Redesign]((INITIATIVE-015)-swain-stage-Redesign.md) | [Documentation Viewer](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
 
-| Initiative | Epic | Progress | Unblocks | Needs |
-|-----------|------|----------|----------|-------|
-| [swain-stage Redesign]((INITIATIVE-015)-swain-stage-Redesign.md) | [Container-Compatible Runtime Auth Commands](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) | 0/0 | 0 | **activate or drop** |
+*(none)*
 
 
 ## Children
@@ -53,7 +52,7 @@
 - [EPIC-034](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) — User Documentation System (0/1)
   - [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (Active, in progress)
 - [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (in progress)
-### Proposed
+- [SPEC-127](../../../spec/Active/(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md) — stage-status-hook fails with ENOENT when CWD is removed (in progress)
+### Implementation
 
-- [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (in progress)
-- [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Container-Compatible Runtime Auth Commands (in progress)
+- [SPEC-125](../../../spec/Active/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md) — swain-stage hooks fire unconditionally even when stage is not active (in progress)

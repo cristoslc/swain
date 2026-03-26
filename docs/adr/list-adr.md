@@ -21,6 +21,7 @@
 | ADR-011 | Worktree Landing Via Merge With Retry | 2026-03-20 | 54e12dc |
 | ADR-012 | Lifecycle Hashes Must Be Reachable From Main | 2026-03-20 | 94f9c94 |
 | ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | 54e12dc |
+| ADR-016 | Deprecate swain-dispatch | 2026-03-25 | — |
 
 ## Superseded
 

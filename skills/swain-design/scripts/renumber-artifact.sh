@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # renumber-artifact.sh — Rename an artifact from OLD-ID to NEW-ID
 #
-# Usage: renumber-artifact.sh <OLD-ID> <NEW-ID> [--dry-run]
+# Usage: renumber-artifact.sh <OLD-ID> <NEW-ID> [--dry-run] [--source-dir <path>]
 #   OLD-ID: e.g., SPEC-119
 #   NEW-ID: e.g., SPEC-163
+#   --source-dir: explicit directory to rename (required when OLD-ID has duplicates)
 #
 # Renames directory, updates frontmatter artifact field, rewrites
 # cross-references in all docs/ artifacts. Uses git mv for history.
@@ -19,21 +20,24 @@ git rev-parse --git-dir >/dev/null 2>&1 || {
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 DRY_RUN=false
+SOURCE_DIR=""
 
 # --- Parse args ---
 if [ $# -lt 2 ]; then
-  echo "Usage: renumber-artifact.sh <OLD-ID> <NEW-ID> [--dry-run]" >&2
+  echo "Usage: renumber-artifact.sh <OLD-ID> <NEW-ID> [--dry-run] [--source-dir <path>]" >&2
   exit 1
 fi
 
 OLD_ID="$1"
 NEW_ID="$2"
 shift 2
-for arg in "$@"; do
-  case "$arg" in
+while [ $# -gt 0 ]; do
+  case "$1" in
     --dry-run) DRY_RUN=true ;;
-    *) echo "Unknown flag: $arg" >&2; exit 1 ;;
+    --source-dir) shift; SOURCE_DIR="$1" ;;
+    *) echo "Unknown flag: $1" >&2; exit 1 ;;
   esac
+  shift
 done
 
 # --- Validate IDs ---
@@ -54,10 +58,24 @@ if [ "$OLD_TYPE" != "$NEW_TYPE" ]; then
 fi
 
 # --- Find the old artifact directory ---
-OLD_DIR=$(find "$REPO_ROOT/docs" -maxdepth 5 -type d -name "(${OLD_ID})-*" 2>/dev/null | head -1)
-if [ -z "$OLD_DIR" ]; then
-  echo "Error: artifact directory for '$OLD_ID' not found" >&2
-  exit 1
+if [ -n "$SOURCE_DIR" ]; then
+  OLD_DIR="$SOURCE_DIR"
+  if [ ! -d "$OLD_DIR" ]; then
+    echo "Error: --source-dir '$SOURCE_DIR' does not exist" >&2
+    exit 1
+  fi
+else
+  OLD_DIR=$(find "$REPO_ROOT/docs" -maxdepth 5 -type d -name "(${OLD_ID})-*" 2>/dev/null | head -1)
+  if [ -z "$OLD_DIR" ]; then
+    echo "Error: artifact directory for '$OLD_ID' not found" >&2
+    exit 1
+  fi
+  # Warn if there are duplicates and no --source-dir was given
+  dup_count=$(find "$REPO_ROOT/docs" -maxdepth 5 -type d -name "(${OLD_ID})-*" 2>/dev/null | wc -l)
+  if [ "$dup_count" -gt 1 ]; then
+    echo "Warning: $dup_count directories match '$OLD_ID' — use --source-dir to specify which one." >&2
+    echo "  Picking: $OLD_DIR" >&2
+  fi
 fi
 
 # --- Check NEW-ID doesn't already exist ---
@@ -105,6 +123,17 @@ if [ "$DRY_RUN" = true ]; then
 fi
 
 # --- Step 4: Rewrite cross-references in all docs/ .md files ---
+# When --source-dir was given, we're in a collision context — find the keeper
+# directories so we can restore their frontmatter after the global replace.
+KEEPER_DIRS=()
+if [ -n "$SOURCE_DIR" ]; then
+  while IFS= read -r dup_dir; do
+    # Skip the directory we're renaming
+    [ "$dup_dir" = "$OLD_DIR" ] && continue
+    KEEPER_DIRS+=("$dup_dir")
+  done < <(find "$REPO_ROOT/docs" -maxdepth 5 -type d -name "(${OLD_ID})-*" 2>/dev/null)
+fi
+
 REF_COUNT=0
 while IFS= read -r md_file; do
   [ -f "$md_file" ] || continue
@@ -121,6 +150,21 @@ while IFS= read -r md_file; do
     fi
   fi
 done < <(find "$REPO_ROOT/docs" -name '*.md' -not -path '*/troves/*' 2>/dev/null)
+
+# --- Step 4.5: Restore keeper artifacts' frontmatter after global replace ---
+# The global sed above replaces OLD_ID everywhere, including in the other
+# artifact(s) that legitimately keep the old number. Restore their artifact: field.
+for keeper_dir in "${KEEPER_DIRS[@]}"; do
+  keeper_md=$(find "$keeper_dir" -maxdepth 1 -name "*.md" -print -quit 2>/dev/null)
+  [ -n "$keeper_md" ] && [ -f "$keeper_md" ] || continue
+  if [ "$DRY_RUN" = true ]; then
+    rel="${keeper_md#"$REPO_ROOT/"}"
+    echo "  [dry-run] restore keeper frontmatter in: $rel (artifact: $NEW_ID → $OLD_ID)"
+  else
+    sed -i '' "s/^artifact: ${NEW_ID}$/artifact: ${OLD_ID}/" "$keeper_md"
+    git add "$keeper_md"
+  fi
+done
 
 echo "  Cross-references updated: $REF_COUNT file(s)"
 

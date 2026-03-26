@@ -5,7 +5,7 @@
 
 ## Progress
 
-░░░░░░░░░░░░ 0/6 complete (0%)
+░░░░░░░░░░░░ 0/4 complete (0%)
 
 ## Recent Activity
 
@@ -13,7 +13,6 @@
 |------|------|--------|---------|
 | 2026-03-21 | 23:03 | `c063592` | docs: renumber artifact IDs, add 3 new SPECs, complete EPIC-038 |
 | 2026-03-20 | 00:23 | `ffdf7df` | feat(safety): add INITIATIVE-017, EPIC-037, SPIKE-037 for unattended agent safety guardrails |
-| 2026-03-20 | 00:18 | `89af768` | feat(design): consolidate initiative hierarchy and add session atomization epic |
 
 ## Priority Subset
 
@@ -39,7 +38,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Concurrent Session Safety](../(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Sandbox Capability Bridges](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) | 0/4 | 0 | **activate or drop** |
+| [Unattended Agent Safety]((INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
 
 
 ## Children
@@ -49,8 +48,6 @@
 - [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails (—)
 ### Proposed
 
-- [EPIC-036](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) — Sandbox Capability Bridges (0/4)
-  - [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
-  - [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
-  - [SPEC-100](../../../spec/Active/(SPEC-100)-Sync-Must-Restore-CWD-After-Worktree-Cleanup/SPEC-100.md) — Host tmux Bridge for Sandboxed Agents (Proposed, in progress)
-  - [SPEC-101](../../../spec/Active/(SPEC-101)-SSH-Readiness-Tilde-Expansion/SPEC-101.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (Proposed, in progress)
+- [EPIC-040](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) — Sandbox Capability Bridges (0/2)
+  - [SPEC-130](../../../spec/Proposed/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents.md) — Host tmux Bridge for Sandboxed Agents (Proposed, in progress)
+  - [SPEC-131](../../../spec/Proposed/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (Proposed, in progress)

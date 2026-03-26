@@ -1,0 +1,35 @@
+trove: cog-cognitive-architecture
+created: 2026-03-25
+refreshed: 2026-03-25
+tags:
+  - cognitive-architecture
+  - claude-code
+  - persistent-memory
+  - self-reflection
+  - plain-text
+  - conventions
+  - memory-system
+  - comparable-tools
+  - agent-memory
+
+freshness-ttl:
+  repository: 30d
+
+history:
+  - event: created
+    date: 2026-03-25
+    commit: "ea445b2"
+    sources: 1
+
+sources:
+  - source-id: cog-repo
+    type: repository
+    url: "https://github.com/marciopuga/cog"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Cog — Cognitive Architecture for Claude Code"
+    hash: "f9dffdad5ef31c1afb6f3d05a9d0b382b91145ccc897f6514956bbc66f29aca2"
+    highlights:
+      - "cog-repo.md"
+      - "full-repo-dump.md"
+    selective: false
+    notes: "Full repository ingested via git-repo-to-markdown. Index file (cog-repo.md) contains structured summary; full-repo-dump.md contains all source files verbatim."

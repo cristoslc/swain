@@ -1,0 +1,101 @@
+trove: ollama-cloud-dispatch-workers
+created: 2026-03-25
+refreshed: 2026-03-25
+tags:
+  - ollama
+  - ollama-cloud
+  - dispatch
+  - workers
+  - inference
+  - agent-runtime
+  - openai-compatible
+  - tool-calling
+  - function-calling
+
+freshness-ttl:
+  web: 14d
+  forum: 14d
+  local: never
+
+history:
+  - event: created
+    date: 2026-03-25
+    commit: "a530063"
+    sources: 5
+  - event: extended
+    date: 2026-03-25
+    commit: "71ed4fc"
+    sources: 5
+
+referenced-by: []
+
+sources:
+  - source-id: "awesomeagents-ollama-cloud-review"
+    type: web
+    title: "Ollama Cloud Review: From Local LLMs to Seamless Cloud Inference"
+    url: "https://awesomeagents.ai/reviews/review-ollama-cloud/"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "49b0f38513e9b362c4fcdba9ffe99d8efb66850e33c4eccf0e0136b0f82274f4"
+
+  - source-id: "devto-beginners-guide-ollama-cloud"
+    type: web
+    title: "A Beginner's Guide to Ollama Cloud Models"
+    url: "https://dev.to/coderforfun/a-beginners-guide-to-ollama-cloud-models-3lc2"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "af77f35c52458bb259227b2c487f8c371962f747e5cd754b5ccd19aa5ba0bdd8"
+
+  - source-id: "medium-ollama-cloud-api-ready"
+    type: web
+    title: "Ollama Cloud Inference API is now ready"
+    url: "https://pbseven.medium.com/ollama-cloud-inference-api-is-now-ready-f7adf6b8ef3e"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "7224ab11a417d06c8c0a67f54e1633e3f49705a8b533827f92ecaca60bc27c37"
+
+  - source-id: "reddit-ollama-cloud-direct-access"
+    type: forum
+    title: "r/ollama: Direct cloud access — bypassing local client"
+    url: "https://www.reddit.com/r/ollama/comments/1rmew6s/direct_cloud_access/"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "3cb40790f4fd01fac4d9ac6b5de9cf38607bac641d7d711d4477aaf9d464afce"
+
+  - source-id: "ollama-launch-coding-agents"
+    type: web
+    title: "Running AI Coding Agents with Ollama Launch"
+    url: "https://atalupadhyay.wordpress.com/2026/01/27/running-ai-coding-agents-locally-with-ollama-launch/"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "8241fd8c2ff5d539adfea2ad85c3de48d545b79c41661bba1a147119a7440149"
+
+  - source-id: "opencode-ollama-tool-issues"
+    type: web
+    title: "OpenCode + Ollama Tool Calling Issues (GitHub Issues #1068, #3029, #5694)"
+    url: "https://github.com/anomalyco/opencode/issues/1068"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "ff4de44a3477e68015b9ff872b8c32f378ff146f16fa600b6f22512e4eefee3c"
+
+  - source-id: "vllm-kimi-k2-tool-calling"
+    type: web
+    title: "Chasing 100% Accuracy: Debugging Kimi K2 Tool-Calling on vLLM"
+    url: "https://vllm.ai/blog/Kimi-K2-Accuracy"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "27b1bf64b1d600af384c115287effc8ff536004cbfe70b975d8b387e11dddec9"
+
+  - source-id: "ollama-tool-calling-architecture"
+    type: web
+    title: "Ollama Tool Calling Architecture — Native vs OpenAI-Compatible"
+    url: "https://deepwiki.com/ollama/ollama/7.2-tool-calling-and-function-execution"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "970fb30aa54a8bbdef59d56325b8df292ba8fd938f23409cfbb0024210bab527"
+
+  - source-id: "ollama-cloud-api-direct-testing"
+    type: local
+    title: "SPIKE-045 Direct API Testing — Tool Calling Format Verification"
+    url: "local://spike-045-direct-testing"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "4a458f5a068a668553a22a4d73fd0a7c6c381952b1cc402af8d0e7dbfa9f7a9c"
+
+  - source-id: "qwen35-tool-call-printing-bug"
+    type: web
+    title: "qwen3.5 Sometimes Prints Tool Calls Instead of Executing Them (Ollama #14745)"
+    url: "https://github.com/ollama/ollama/issues/14745"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "611c1ce277e84b189c1b986c334cfa97eaf220cd4e76eb824db8c4937ee4d607"

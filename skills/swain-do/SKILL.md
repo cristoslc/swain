@@ -154,7 +154,7 @@ When evidence confirms prior implementation, skip full task decomposition:
 
 ## Worktree isolation preamble
 
-Implementation work happens in a worktree so that concurrent agents don't collide on shared files and half-finished changes stay off trunk until verified. Before any implementation or execution operation (plan creation, task claim, code writing, execution handoff), run this detection:
+All mutating work tracked by swain-do happens in a worktree — regardless of whether it touches source code, artifacts, skill files, or data. This prevents half-finished changes from polluting trunk and avoids collisions between parallel agents. Before any operation that will produce file changes (plan creation, task claim, code writing, artifact editing, skill file changes, spec transitions, execution handoff), run this detection:
 
 ```bash
 GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
@@ -162,11 +162,15 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 [ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
 ```
 
-**Read-only operations** (`tk ready`, `tk show`, status checks, task queries) skip this check entirely — proceed in the current context.
+**Read-only operations skip this check entirely** — proceed in the current context. The explicit read-only allowlist:
+- `tk ready`, `tk show`, `tk status`, `tk list`
+- `ticket-query` (structured queries)
+- Plan inspection (reading plan files without modifying them)
+- Status checks and task queries
 
 **If `IN_WORKTREE=yes`:** already isolated. Proceed normally.
 
-**If `IN_WORKTREE=no`** (main worktree) and the operation is implementation or execution:
+**If `IN_WORKTREE=no`** (main worktree) and the operation will produce file changes:
 
 1. Use the `EnterWorktree` tool to create an isolated worktree. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
 
@@ -176,7 +180,9 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
    bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --auto
    ```
 
-3. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin implementation work.
+3. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
+
+**Operator override:** If the operator explicitly says "work on trunk" or "don't isolate," respect the override and proceed on trunk. Log a warning: "Proceeding on trunk at operator request — changes will land directly on the development branch."
 
 **Note:** swain-session auto-enters a worktree at startup (Step 1.5), so this preamble is a fallback for sessions that skipped isolation or where the operator exited the worktree mid-session.
 

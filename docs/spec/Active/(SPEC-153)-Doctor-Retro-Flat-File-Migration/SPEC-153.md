@@ -5,13 +5,14 @@ track: implementable
 status: Active
 author: cristos
 created: 2026-03-22
-last-updated: 2026-03-22
+last-updated: 2026-03-23
 priority-weight: ""
 type: enhancement
 parent-epic: EPIC-042
 parent-initiative: ""
 linked-artifacts:
   - EPIC-042
+  - SPEC-163
 depends-on-artifacts:
   - SPEC-151
 addresses: []
@@ -38,7 +39,7 @@ Operators don't need to manually restructure existing retros. swain-doctor detec
 1. Derive retro ID: `RETRO-YYYY-MM-DD-topic`
 2. Create folder: `docs/swain-retro/RETRO-YYYY-MM-DD-topic/`
 3. Move file: `git mv docs/swain-retro/YYYY-MM-DD-topic.md docs/swain-retro/RETRO-YYYY-MM-DD-topic/RETRO-YYYY-MM-DD-topic.md`
-4. Generate a minimal `manifest.yaml` from the file's frontmatter (title, date, scope, linked-artifacts). Set `session.captured: false` (no JSONL available for historical retros) and `summary.generated: false`.
+4. Generate a minimal `manifest.yaml` from the file's frontmatter (title, date, scope, linked-artifacts). Set `sessions: []` (no JSONL available for historical retros) and `summary.generated: false`. Manifest schema follows SPEC-151/SPEC-163.
 
 **Properties:**
 - Idempotent — safe to run multiple times. Skips retros already in folders.
@@ -51,7 +52,7 @@ Operators don't need to manually restructure existing retros. swain-doctor detec
 ## Acceptance Criteria
 
 - Given flat-file retros exist in `docs/swain-retro/`, when swain-doctor runs, then each is moved to `docs/swain-retro/RETRO-<date>-<slug>/RETRO-<date>-<slug>.md`
-- Given a flat file is migrated, then a minimal `manifest.yaml` is generated in the folder with `session.captured: false`
+- Given a flat file is migrated, then a minimal `manifest.yaml` is generated in the folder with `sessions: []`
 - Given a retro is already in a folder, when swain-doctor runs, then it is not modified (idempotent)
 - Given no flat-file retros exist, when swain-doctor runs, then no migration occurs and no errors are raised
 - Given multiple flat-file retros exist, when migrated, then `git mv` is used for each and the migration is committed as a single commit
@@ -65,7 +66,7 @@ Operators don't need to manually restructure existing retros. swain-doctor detec
 ## Scope & Constraints
 
 - Migration script lives in `skills/swain-doctor/scripts/` or is added to the existing doctor check pipeline
-- The minimal manifest generated during migration is intentionally sparse — only fields derivable from the existing frontmatter are populated
+- The minimal manifest generated during migration is intentionally sparse — only fields derivable from the existing frontmatter are populated. Uses `sessions: []` per SPEC-163's unified schema.
 - Does not attempt to locate or archive historical session JSONL files
 
 ## Lifecycle

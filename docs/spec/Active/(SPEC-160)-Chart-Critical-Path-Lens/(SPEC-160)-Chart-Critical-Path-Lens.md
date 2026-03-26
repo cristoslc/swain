@@ -10,6 +10,7 @@ type: feature
 parent-epic: ""
 parent-initiative: INITIATIVE-019
 linked-artifacts:
+  - SPEC-161
   - SPIKE-042
 depends-on-artifacts: []
 addresses: []

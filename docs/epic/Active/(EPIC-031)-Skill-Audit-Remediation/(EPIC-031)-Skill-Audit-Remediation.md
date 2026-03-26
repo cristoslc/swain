@@ -21,6 +21,7 @@ evidence-pool: ""
 linked-artifacts:
   - DESIGN-003
   - EPIC-015
+  - INITIATIVE-001
   - INITIATIVE-013
   - SPEC-072
   - SPEC-073

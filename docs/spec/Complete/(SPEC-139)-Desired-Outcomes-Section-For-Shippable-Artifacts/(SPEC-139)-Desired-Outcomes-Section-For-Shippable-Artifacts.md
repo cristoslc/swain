@@ -9,7 +9,11 @@ last-updated: 2026-03-21
 type: enhancement
 parent-epic:
 parent-initiative:
-linked-artifacts: []
+linked-artifacts:
+  - EPIC-012
+  - EPIC-023
+  - INITIATIVE-004
+  - SPEC-042
 depends-on-artifacts: []
 addresses:
   - PERSONA-001

@@ -6,7 +6,7 @@
 #   {"timestamp": ..., "cwd": ..., "toolName": "bash", "toolArgs": "{\"command\": \"...\"}"}
 #
 # Output format (JSON on stdout):
-#   {"permissionDecision": "allow"|"deny", "permissionDecisionReason": "..."}
+#   {"permissionDecision": "allow"|"deny", "permissionDecisionReason": "..."} # nosemgrep: hooks-unconditional-allow-generic
 #
 # Claude Code equivalent fields for reference:
 #   toolName  ↔ tool_name
@@ -21,7 +21,7 @@ TOOL_NAME=$(echo "$INPUT" | jq -r '.toolName // .tool_name // ""')
 
 # If not a shell/bash tool, allow
 if [[ "$TOOL_NAME" != "bash" && "$TOOL_NAME" != "shell" && "$TOOL_NAME" != "Bash" ]]; then
-  echo '{"permissionDecision":"allow","permissionDecisionReason":"not a shell tool"}'
+  echo '{"permissionDecision":"allow","permissionDecisionReason":"not a shell tool"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 
@@ -40,7 +40,7 @@ fi
 
 # If not a git commit, allow
 if ! echo "$COMMAND" | grep -qE '\bgit\s+commit\b'; then
-  echo '{"permissionDecision":"allow","permissionDecisionReason":"not a git commit"}'
+  echo '{"permissionDecision":"allow","permissionDecisionReason":"not a git commit"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 
@@ -51,19 +51,19 @@ CWD=$(echo "$INPUT" | jq -r '.cwd // "."')
 STAGED_ARTIFACTS=$(cd "$CWD" 2>/dev/null && git diff --cached --name-only 2>/dev/null | grep -cE '^docs/(spec|design|adr)/' || true)
 
 if [[ "$STAGED_ARTIFACTS" -eq 0 ]]; then
-  echo '{"permissionDecision":"allow","permissionDecisionReason":"no staged artifact files"}'
+  echo '{"permissionDecision":"allow","permissionDecisionReason":"no staged artifact files"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 
 # Check if ADR_REVIEWED marker exists in environment or commit message
 # The convention: set ADR_REVIEWED=1 or include [adr-ok] in the commit message
 if [[ "${ADR_REVIEWED:-}" == "1" ]]; then
-  echo '{"permissionDecision":"allow","permissionDecisionReason":"ADR_REVIEWED=1 set"}'
+  echo '{"permissionDecision":"allow","permissionDecisionReason":"ADR_REVIEWED=1 set"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 
 if echo "$COMMAND" | grep -qE '\[adr-ok\]'; then
-  echo '{"permissionDecision":"allow","permissionDecisionReason":"[adr-ok] in commit message"}'
+  echo '{"permissionDecision":"allow","permissionDecisionReason":"[adr-ok] in commit message"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 

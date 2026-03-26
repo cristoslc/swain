@@ -16,6 +16,7 @@ risks-addressed:
 evidence-pool: "platform-hooks-validation@21aa91c"
 linked-artifacts:
   - SPIKE-038
+  - SPIKE-039
   - VISION-005
 ---
 

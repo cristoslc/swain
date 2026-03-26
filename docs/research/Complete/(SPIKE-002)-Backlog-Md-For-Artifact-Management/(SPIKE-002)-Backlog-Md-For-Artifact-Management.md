@@ -19,7 +19,7 @@ linked-artifacts:
   - EPIC-001
   - SPEC-001
   - SPEC-002
-  - SPIKE-001
+  - SPIKE-046
 ---
 
 # Backlog.md for artifact management
@@ -121,7 +121,7 @@ Custom statuses can be added to this list, but:
 
 ### Criterion 3: Graph operations — PARTIAL PASS (but not worth it)
 
-Backlog.md's internal `TaskGraph` could theoretically support `ready`/`blocked` queries (see SPIKE-001 findings). However, reimplementing specgraph's full command set (`blocks`, `blocked-by`, `tree`, `overview`, `mermaid`) against Backlog.md's data format would require:
+Backlog.md's internal `TaskGraph` could theoretically support `ready`/`blocked` queries (see SPIKE-046 findings). However, reimplementing specgraph's full command set (`blocks`, `blocked-by`, `tree`, `overview`, `mermaid`) against Backlog.md's data format would require:
 - Custom CLI commands or MCP tools (not upstream-ready since they're artifact-specific, not task-specific)
 - A translation layer between swain's artifact model and Backlog.md's task model
 - Maintaining parity between two graph implementations

@@ -10,6 +10,7 @@ last-updated: 2026-03-22
 superseded-by: ""
 linked-artifacts:
   - ADR-014
+  - SPEC-001
   - SPEC-084
   - SPEC-094
   - SPEC-134
