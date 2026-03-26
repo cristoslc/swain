@@ -1,12 +1,12 @@
 ---
 name: swain-init
-description: "One-time project onboarding for swain. Invoke to set up swain, onboard this project, initialize swain, or migrate CLAUDE.md. Migrates existing CLAUDE.md content to AGENTS.md (with the @AGENTS.md include pattern), verifies vendored tk (ticket) for task tracking, configures pre-commit security hooks (gitleaks default), and offers to add swain governance rules. Use swain-doctor for ongoing per-session health checks."
+description: "Project onboarding and session entry point for swain. On first run, performs full onboarding: migrates CLAUDE.md to AGENTS.md, verifies vendored tk, configures pre-commit security hooks, and offers swain governance rules. On subsequent runs, detects the project is already initialized and delegates directly to swain-session. Use as a single entry point — it routes automatically."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion, Skill
 metadata:
   short-description: One-time swain project onboarding
-  version: 3.1.0
+  version: 4.0.0
   author: cristos
   source: swain
 ---
@@ -16,7 +16,40 @@ metadata:
 
 One-time setup for adopting swain in a project. This skill is **not idempotent** — it migrates files and installs tools. For per-session health checks, use swain-doctor.
 
-Run all phases in order. If a phase detects its work is already done, skip it and move to the next.
+## Phase 0: Already-initialized detection
+
+Before running onboarding, check whether this project is already fully initialized. If all markers pass, skip onboarding entirely and delegate to swain-session.
+
+### Markers
+
+Run these checks:
+
+```bash
+# 1. CLAUDE.md contains @AGENTS.md include
+grep -q '@AGENTS.md' CLAUDE.md 2>/dev/null && echo "include:ok" || echo "include:missing"
+
+# 2. AGENTS.md has swain governance block
+grep -q 'swain governance' AGENTS.md 2>/dev/null && echo "governance:ok" || echo "governance:missing"
+
+# 3. tk is vendored and executable
+TK_PATH="$(find . .claude .agents -path '*/swain-do/bin/tk' -print -quit 2>/dev/null)"
+test -x "$TK_PATH" && echo "tk:ok" || echo "tk:missing"
+
+# 4. Pre-commit hooks configured
+test -f .pre-commit-config.yaml && echo "hooks:ok" || echo "hooks:missing"
+
+# 5. .agents directory exists
+test -d .agents && echo "agents-dir:ok" || echo "agents-dir:missing"
+```
+
+### Decision
+
+- **All markers pass** (all five report `:ok`): Project is already initialized. Tell the user:
+  > Project already initialized — delegating to swain-session.
+
+  Then invoke the **swain-session** skill and stop. Do not run Phases 1–6.
+
+- **Any marker fails**: Proceed with full onboarding (Phases 1–6). The individual phases will skip work that's already done.
 
 ## Phase 1: CLAUDE.md → AGENTS.md migration
 
@@ -423,8 +456,12 @@ Report what was done:
 > - tmux: [installed/skipped/already present]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
 
+### Step 6.5 — Start session
+
+After successful onboarding, invoke the **swain-session** skill to start the first session. This ensures the user lands in a fully active session regardless of whether they entered via `/swain-init` or `/swain-session`.
+
 ## Re-running init
 
-If the user runs `/swain init` on a project that's already set up, each phase will detect its work is done and skip. The only interactive phase is governance injection (Phase 5), which checks for the `<!-- swain governance -->` marker before asking.
+If the user runs `/swain-init` on a project that's already set up, Phase 0 detects all initialization markers and delegates directly to swain-session — no onboarding phases run, no interactive prompts appear. This lets users build muscle memory around `/swain-init` as a single entry point.
 
-To force a fresh governance block, delete the `<!-- swain governance -->` ... `<!-- end swain governance -->` section from AGENTS.md and re-run.
+To force re-onboarding (e.g., after removing governance or reconfiguring hooks), delete the relevant markers and re-run. Phase 0 will detect the missing marker and fall through to full onboarding.
