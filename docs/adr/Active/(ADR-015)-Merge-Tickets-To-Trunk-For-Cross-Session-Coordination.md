@@ -1,5 +1,5 @@
 ---
-title: "Tickets As Committed Coordination State"
+title: "Merge Tickets To Trunk For Cross-Session Coordination"
 artifact: ADR-015
 track: standing
 status: Active
@@ -15,7 +15,7 @@ depends-on-artifacts: []
 evidence-pool: ""
 ---
 
-# Tickets As Committed Coordination State
+# Merge Tickets To Trunk For Cross-Session Coordination
 
 ## Context
 
