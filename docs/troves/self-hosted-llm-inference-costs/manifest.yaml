@@ -1,0 +1,69 @@
+trove: self-hosted-llm-inference-costs
+created: 2026-03-26
+refreshed: 2026-03-26
+tags:
+  - self-hosted
+  - inference
+  - gpu
+  - vram
+  - cost
+  - ollama
+  - quantization
+  - hardware
+  - dispatch
+
+freshness-ttl:
+  web: 14d
+  forum: 14d
+  local: never
+
+history:
+  - event: created
+    date: 2026-03-26
+    commit: "--"
+    sources: 6
+
+referenced-by: []
+
+sources:
+  - source-id: "deepseek-v3-gpu-requirements"
+    type: web
+    title: "DeepSeek-V3.1 671B: Specifications and GPU VRAM Requirements"
+    url: "https://apxml.com/models/deepseek-v3-1"
+    fetched: 2026-03-26T03:00:00Z
+    hash: "9f62a4b8f5d637dc7c2a752353e7612a5fc0e21b472745d116c6ff7acf70db6a"
+
+  - source-id: "h100-rental-pricing-2026"
+    type: web
+    title: "H100 Rental Prices Compared: $1.49-$6.98/hr Across 15+ Cloud Providers (2026)"
+    url: "https://intuitionlabs.ai/articles/h100-rental-prices-cloud-comparison"
+    fetched: 2026-03-26T03:00:00Z
+    hash: "a1e12e92eaf1947aa92b21baae74bc532a7a95b0836a6dc35aadb1d981e88a40"
+
+  - source-id: "deepseek-v3-vram-quantization"
+    type: web
+    title: "Understanding the Requirements for DeepSeek V3 Inference"
+    url: "https://blogs.novita.ai/what-are-the-requirements-for-deepseek-v3-inference/"
+    fetched: 2026-03-26T03:00:00Z
+    hash: "79f75e72f7f18823a53d8b27f8067dd51d8a557a52d2d86258d26ee2f2a1b83c"
+
+  - source-id: "gpu-cloud-pricing-comparison"
+    type: web
+    title: "Vast.ai vs RunPod Pricing in 2026: Which GPU Cloud Is Cheaper?"
+    url: "https://medium.com/@velinxs/vast-ai-vs-runpod-pricing-in-2026-which-gpu-cloud-is-cheaper-bd4104aa591b"
+    fetched: 2026-03-26T03:00:00Z
+    hash: "d6edc4fd620715b04624a4c66a9d1429eb3590ef5648000330e58093f436b1d6"
+
+  - source-id: "deepseek-671b-8xh100-benchmarks"
+    type: web
+    title: "DeepSeek-V3/R1 671B on 8xH100: Deployment and Throughput Benchmarks"
+    url: "https://github.com/dzhsurf/deepseek-v3-r1-deploy-and-benchmarks"
+    fetched: 2026-03-26T03:00:00Z
+    hash: "c1aca20ef58f58e04d68132b1f79cb8920cee5719a2d31c24f72a93ad6057ea3"
+
+  - source-id: "self-hosted-llm-hardware-guide"
+    type: web
+    title: "Self-Hosted LLMs in 2026: Hardware Tiers, Cost, and the DeepSeek V4 Break-Even Analysis"
+    url: "https://wavespeed.ai/blog/posts/deepseek-v4-gpu-vram-requirements/"
+    fetched: 2026-03-26T03:00:00Z
+    hash: "27a39ecd9c5861e2dd750383b4d8bd213d71faf6d0ba55c80cd3c41b8fe9af83"
