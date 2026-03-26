@@ -21,13 +21,13 @@ TOOL_INPUT=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
 # Only gate Bash tool calls that look like git commit
 if [ "$TOOL_NAME" != "Bash" ]; then
-  echo '{"permissionDecision": "allow"}'
+  echo '{"permissionDecision": "allow"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 
 # Check if this is a git commit command
 if ! echo "$TOOL_INPUT" | grep -qE '^\s*git\s+commit\b'; then
-  echo '{"permissionDecision": "allow"}'
+  echo '{"permissionDecision": "allow"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 
@@ -43,7 +43,7 @@ STAGED_ARTIFACTS=$(git diff --cached --name-only 2>/dev/null | grep -E '^docs/(s
 
 if [ -z "$STAGED_ARTIFACTS" ]; then
   # No artifact files staged — allow the commit
-  echo '{"permissionDecision": "allow"}'
+  echo '{"permissionDecision": "allow"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 
@@ -54,7 +54,7 @@ if [ -f "$ADR_CHECK_STAMP" ]; then
   AGE=$(( NOW - STAMP_TIME ))
   if [ "$AGE" -lt 300 ]; then
     # ADR check passed recently — allow
-    echo '{"permissionDecision": "allow"}'
+    echo '{"permissionDecision": "allow"}' # nosemgrep: hooks-unconditional-allow-generic
     exit 0
   fi
 fi
@@ -62,7 +62,7 @@ fi
 # ADR check not run or stale. Run it now on staged artifacts.
 if [ -z "$ADR_CHECK_SCRIPT" ]; then
   # Can't find the script — warn but allow
-  echo '{"permissionDecision": "allow", "reason": "adr-check.sh not found — skipping ADR gate"}'
+  echo '{"permissionDecision": "allow", "reason": "adr-check.sh not found — skipping ADR gate"}' # nosemgrep: hooks-unconditional-allow-generic
   exit 0
 fi
 
@@ -84,5 +84,5 @@ fi
 # All checks passed — stamp and allow
 mkdir -p "$STATE_DIR"
 date > "$ADR_CHECK_STAMP"
-echo '{"permissionDecision": "allow"}'
+echo '{"permissionDecision": "allow"}' # nosemgrep: hooks-unconditional-allow-generic
 exit 0

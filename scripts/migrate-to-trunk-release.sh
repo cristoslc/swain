@@ -21,7 +21,7 @@ run() {
     echo "[dry-run] $*"
   else
     info "Running: $*"
-    eval "$@"
+    "$@"
   fi
 }
 
@@ -81,7 +81,7 @@ if git show-ref --verify --quiet refs/heads/trunk; then
   info "Local branch 'trunk' already exists — skipping local rename."
 else
   if git show-ref --verify --quiet refs/heads/main; then
-    run "git branch -m main trunk"
+    run git branch -m main trunk
   else
     info "No local 'main' branch found (already renamed?) — skipping."
   fi
@@ -91,7 +91,7 @@ fi
 if git ls-remote --heads origin trunk | grep -q trunk; then
   info "Remote branch 'trunk' already exists — skipping push."
 else
-  run "git push origin trunk"
+  run git push origin trunk
 fi
 
 # ---------------------------------------------------------------------------
@@ -104,14 +104,14 @@ info "--- Step 2: Create release branch from trunk HEAD ---"
 if git show-ref --verify --quiet refs/heads/release; then
   info "Local branch 'release' already exists — skipping creation."
 else
-  run "git branch release trunk"
+  run git branch release trunk
 fi
 
 # Push release to remote
 if git ls-remote --heads origin release | grep -q release; then
   info "Remote branch 'release' already exists — skipping push."
 else
-  run "git push origin release"
+  run git push origin release
 fi
 
 # ---------------------------------------------------------------------------
@@ -127,7 +127,7 @@ if [[ "$CURRENT_DEFAULT" == "release" ]]; then
   info "Default branch is already 'release' — skipping."
 else
   info "Current default branch: ${CURRENT_DEFAULT:-unknown}"
-  run "gh api -X PATCH 'repos/$OWNER_REPO' -f default_branch=release"
+  run gh api -X PATCH "repos/$OWNER_REPO" -f default_branch=release
 fi
 
 # ---------------------------------------------------------------------------
@@ -137,8 +137,8 @@ fi
 info ""
 info "--- Step 4: Ensure both branches are pushed ---"
 
-run "git push origin trunk"
-run "git push origin release"
+run git push origin trunk
+run git push origin release
 
 # ---------------------------------------------------------------------------
 # Step 5: Delete old main branch on the remote
@@ -148,7 +148,7 @@ info ""
 info "--- Step 5: Delete old 'main' branch on remote ---"
 
 if git ls-remote --heads origin main | grep -q main; then
-  run "git push origin --delete main"
+  run git push origin --delete main
 else
   info "Remote branch 'main' does not exist — skipping deletion."
 fi
@@ -161,7 +161,7 @@ info ""
 info "--- Step 6: Set upstream tracking for trunk ---"
 
 if [[ "$(git symbolic-ref --short HEAD 2>/dev/null)" == "trunk" ]]; then
-  run "git branch --set-upstream-to=origin/trunk trunk"
+  run git branch --set-upstream-to=origin/trunk trunk
 fi
 
 # ---------------------------------------------------------------------------

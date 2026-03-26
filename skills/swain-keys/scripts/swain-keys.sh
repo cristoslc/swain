@@ -185,7 +185,7 @@ step_update_remote_url() {
 
   # If already using the alias, skip
   if echo "$current_url" | grep -qF "$host_alias"; then
-    skip "Remote URL already uses host alias: $current_url"
+    skip "Remote URL already uses host alias: $current_url" # nosemgrep: hooks-dns-exfiltration-generic
     return 0
   fi
 

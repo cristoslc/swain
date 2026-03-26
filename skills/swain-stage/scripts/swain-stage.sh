@@ -75,7 +75,7 @@ install_hint() {
     micro:brew)  echo "brew install micro" ;;
     micro:apt)   echo "apt install micro" ;;
     micro:snap)  echo "snap install micro" ;;
-    micro:curl)  echo "curl https://getmic.ro | bash" ;;
+    micro:curl)  echo "curl https://getmic.ro | bash" ;; # nosemgrep: hooks-wget-pipe-bash-generic
     helix:brew)  echo "brew install helix" ;;
     helix:apt)   echo "add-apt-repository ppa:maveonair/helix-editor && apt install helix" ;;
     yazi:brew)   echo "brew install yazi" ;;
