@@ -12,9 +12,11 @@ parent-initiative: INITIATIVE-005
 linked-artifacts:
   - SPEC-108
   - SPEC-109
+  - SPEC-115
   - SPEC-120
   - SPEC-124
   - SPEC-144
+  - VISION-001
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

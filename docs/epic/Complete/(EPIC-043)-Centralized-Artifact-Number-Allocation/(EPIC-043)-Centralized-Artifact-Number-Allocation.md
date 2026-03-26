@@ -15,6 +15,17 @@ success-criteria:
   - swain-design SKILL.md step 1 delegates to the script instead of instructing the agent to scan
   - No duplicate artifact numbers are created across concurrent worktree sessions
   - Existing scripts that allocate numbers (migrate-bugs.sh) use the centralized allocator
+linked-artifacts:
+  - ADR-015
+  - SPEC-119
+  - SPEC-120
+  - SPEC-156
+  - SPEC-157
+  - SPEC-158
+  - SPEC-159
+  - SPEC-162
+  - SPIKE-001
+  - SPIKE-043
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

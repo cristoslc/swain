@@ -22,6 +22,8 @@ linked-artifacts:
   - SPEC-081
   - SPEC-100
   - SPEC-101
+  - SPEC-130
+  - SPEC-131
   - SPIKE-032
   - SPIKE-034
 depends-on-artifacts:

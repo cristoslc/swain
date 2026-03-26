@@ -13,6 +13,7 @@ linked-artifacts:
   - ADR-011
   - SPEC-114
   - SPIKE-022
+  - ADR-005
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

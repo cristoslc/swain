@@ -19,9 +19,13 @@ depends-on-artifacts: []
 linked-artifacts:
   - INITIATIVE-009
   - EPIC-025
+  - ADR-005
   - ADR-011
   - SPEC-039
   - SPEC-044
+  - SPEC-119
+  - SPEC-120
+  - SPEC-147
 ---
 
 # Auto-Detecting Trunk Branch

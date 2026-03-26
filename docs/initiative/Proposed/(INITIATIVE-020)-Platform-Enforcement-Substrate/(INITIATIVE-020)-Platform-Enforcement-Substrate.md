@@ -17,9 +17,14 @@ depends-on-artifacts: []
 addresses: []
 evidence-pool: "platform-hooks-validation@21aa91c"
 linked-artifacts:
-  - VISION-005
   - INITIATIVE-014
+  - SPIKE-038
+  - SPIKE-039
+  - SPIKE-040
+  - SPIKE-041
+  - VISION-002
   - VISION-003
+  - VISION-005
 ---
 
 # Platform Enforcement Substrate

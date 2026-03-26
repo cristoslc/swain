@@ -9,7 +9,8 @@ last-updated: 2026-03-21
 type: bug
 parent-epic: ""
 parent-initiative: INITIATIVE-005
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-098
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

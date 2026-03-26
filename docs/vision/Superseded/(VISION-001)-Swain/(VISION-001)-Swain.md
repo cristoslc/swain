@@ -12,10 +12,11 @@ trove: ""
 linked-artifacts:
   - PERSONA-001
   - PERSONA-002
+  - SPEC-164
   - SPIKE-003
   - VISION-003
   - VISION-004
-  - SPEC-164
+  - VISION-005
 
 depends-on-artifacts: []
 ---

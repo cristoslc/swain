@@ -12,6 +12,7 @@ parent-epic: EPIC-042
 parent-initiative: ""
 linked-artifacts:
   - EPIC-042
+  - SPEC-151
 depends-on-artifacts: []
 addresses: []
 evidence-pool: "agent-alignment-monitoring@8047381"

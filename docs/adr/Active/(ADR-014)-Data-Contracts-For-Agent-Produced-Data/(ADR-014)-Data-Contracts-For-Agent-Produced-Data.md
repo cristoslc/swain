@@ -8,6 +8,7 @@ created: 2026-03-21
 last-updated: 2026-03-21
 linked-artifacts:
   - ADR-013
+  - EPIC-029
 depends-on-artifacts: []
 evidence-pool: "data-contract-standards"
 ---

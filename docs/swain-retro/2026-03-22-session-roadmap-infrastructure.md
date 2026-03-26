@@ -9,6 +9,7 @@ scope: "SPEC-120, SPEC-143, SPEC-118 implementation + SPEC-147 renumber"
 period: "2026-03-22 — 2026-03-22"
 linked-artifacts:
   - SPEC-120
+  - SPEC-140
   - SPEC-143
   - SPEC-118
   - SPEC-147

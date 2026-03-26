@@ -16,6 +16,11 @@ linked-artifacts:
   - VISION-003
   - VISION-004
   - VISION-005
+  - EPIC-019
+  - EPIC-021
+  - EPIC-044
+  - INITIATIVE-003
+  - INITIATIVE-009
 depends-on-artifacts: []
 addresses: []
 evidence-pool: "architecture-intent-evidence-loop@47664e8"

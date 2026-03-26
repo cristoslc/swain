@@ -17,6 +17,8 @@ depends-on-artifacts: []
 addresses: []
 evidence-pool:
   - "trove: agent-memory-systems@a824a13"
+linked-artifacts:
+  - SPIKE-044
 ---
 
 # Swain Memory Architecture

@@ -10,7 +10,8 @@ priority-weight: high
 type: bug
 parent-epic: ""
 parent-initiative: ""
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-100
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
