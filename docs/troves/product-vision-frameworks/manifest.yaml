@@ -1,0 +1,100 @@
+trove: product-vision-frameworks
+created: 2026-03-24
+refreshed: 2026-03-25
+tags:
+  - vision
+  - product-management
+  - strategy
+  - svpg
+  - safe
+  - sinek
+  - mission
+  - purpose
+  - principles
+  - tenets
+  - amazon
+
+freshness-ttl:
+  web: 30d
+
+sources:
+  - source-id: svpg-vision-vs-mission
+    type: web
+    url: "https://www.svpg.com/product-vision-vs-mission/"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Marty Cagan — Product Vision vs. Mission"
+    hash: "929643b9db02c4a29c331cc66a4e61eb8b5cf0c62474a5b1870a5e41b390dd9e"
+
+  - source-id: svpg-vision-faq
+    type: web
+    url: "https://www.svpg.com/product-vision-faq/"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Marty Cagan — Product Vision FAQ"
+    hash: "edcd1089f448406088f51d49c8a4660c5b17e646a3e12854ceb2ea62a89bde94"
+
+  - source-id: svpg-vision-vs-strategy
+    type: web
+    url: "https://www.svpg.com/vision-vs-strategy/"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Marty Cagan — Vision vs. Strategy"
+    hash: "06136164c23f6b5fa5742260990487b2e8967c1d5244dbeffe7e99e6ec56bf46"
+
+  - source-id: safe-portfolio-vision
+    type: web
+    url: "https://framework.scaledagile.com/portfolio-vision"
+    fetched: 2026-03-24T00:00:00Z
+    title: "SAFe Portfolio Vision and Strategic Themes"
+    hash: "7d27d4dfb73691d871b1bcd73300fc29ae1e878a03c1e8a6dec1f6e35f5bd878"
+
+  - source-id: pichler-double-vision
+    type: web
+    url: "https://www.romanpichler.com/blog/double-vision-how-to-capture-the-product-vision/"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Roman Pichler — Double Vision: Two Approaches to Product Vision"
+    hash: "f4723bc1a9a565837af78c9b9a327da3d2bbd3ff3a0c2e0cadf1519cae2b0e1b"
+
+  - source-id: nacho-bassino-strong-vision
+    type: web
+    url: "https://productdirection.substack.com/p/how-to-craft-a-strong-product-vision"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Nacho Bassino — How to Craft a Strong Product Vision"
+    hash: "010ca367aa89791464090d7021ea11000fa5ccb9d8a5ce32c0ea99347e475282"
+
+  - source-id: martinfowler-lean-inception
+    type: web
+    url: "https://martinfowler.com/articles/lean-inception/write-product-vision.html"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Martin Fowler / Paulo Caroli — Writing Product Vision in Lean Inception"
+    hash: "661f8220989e1e3a40e16bcb733bc585bbe1e4bf7eaabbd0b11fce339ae6a233"
+
+  - source-id: cagan-product-principles
+    type: web
+    url: "https://www.joecotellese.com/posts/marty-cagan-inspired-detailed-book-summary-study-guide/"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Marty Cagan — Product Principles (INSPIRED Chapter 27)"
+    hash: "44631154987d848ca2632f16c6fdfe618e8c28ab61692b7e417ebe5a1b588e86"
+
+  - source-id: amazon-tenets-kindel
+    type: web
+    url: "https://blog.kindel.com/2020/02/10/tenets/"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Charlie Kindel — Tenets: Definition, Purpose, and Practice"
+    hash: "a552f36ddfec467d764782fb22fdc27497508f2ee448be74830952fdf8815c87"
+
+  - source-id: amazon-tenets-docbarraiser
+    type: web
+    url: "https://docbarraiser.com/tenets-the-super-decider-everyone-needs/"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Doc Bar Raiser — Tenets: The Writing Super-Decider Everyone Needs"
+    hash: "b7732b1801ef96bdb4b1d34b2367c9276ccc92622fefd63b7ecf482c92b8dab3"
+
+history:
+  - event: created
+    date: 2026-03-24
+    commit: "c5f5c49"
+    sources: 7
+  - event: extended
+    date: 2026-03-25
+    commit: "8a2a7a8"
+    sources-added: 3
+    notes: "Added product principles (Cagan) and Amazon tenets (Kindel, Doc Bar Raiser)"

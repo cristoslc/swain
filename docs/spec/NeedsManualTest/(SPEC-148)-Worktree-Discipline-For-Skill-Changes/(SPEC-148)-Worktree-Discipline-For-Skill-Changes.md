@@ -13,6 +13,7 @@ parent-initiative: ""
 linked-artifacts:
   - ADR-011
   - SPEC-043
+  - SPEC-149
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

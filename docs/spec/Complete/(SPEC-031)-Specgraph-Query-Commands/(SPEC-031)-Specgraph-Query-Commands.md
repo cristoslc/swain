@@ -13,7 +13,7 @@ linked-artifacts:
   - EPIC-001
   - SPEC-001
   - SPEC-002
-  - SPIKE-001
+  - SPIKE-046
 depends-on-artifacts:
   - SPEC-030
 addresses: []
@@ -71,7 +71,7 @@ All subcommands read from the specgraph cache (auto-rebuilding if stale) and wri
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
 | 1. Python output matches bash (modulo trailing whitespace, OSC 8) | 50 integration tests in test_integration.py — edges command matches exactly; other commands have documented intentional divergences (Python correctly filters resolved items) | ✅ |
-| 2. ready: artifact appears when all deps resolved | test_ready_returns_nodes_with_all_deps_resolved — EPIC-001 and SPIKE-001 confirmed ready; SPEC-001/SPEC-002 confirmed blocked | ✅ |
+| 2. ready: artifact appears when all deps resolved | test_ready_returns_nodes_with_all_deps_resolved — EPIC-001 and SPIKE-046 confirmed ready; SPEC-001/SPEC-002 confirmed blocked | ✅ |
 | 3. overview without --all hides resolved; --all shows all | TestOverview.test_overview_hides_resolved_by_default and test_overview_shows_resolved_with_all | ✅ |
 | 4. mermaid with --all-edges shows all edge types | TestMermaid.test_mermaid_all_edges_includes_non_core_types | ✅ |
 | 5. scope shows parent chain, siblings, laterals, architecture | TestScope — 4 sections rendered correctly | ✅ |

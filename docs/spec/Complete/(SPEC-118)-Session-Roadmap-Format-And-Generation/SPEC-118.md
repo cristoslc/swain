@@ -11,8 +11,8 @@ parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
 linked-artifacts:
   - INITIATIVE-005
-  - SPEC-119
-  - SPEC-120
+  - SPEC-169
+  - SPEC-170
   - SPEC-121
   - SPEC-123
 depends-on-artifacts: []
@@ -95,8 +95,8 @@ The file is committed on session close. `git log -p SESSION-ROADMAP.md` serves a
 - Focus lane filtering
 
 **Out of scope:**
-- Session lifecycle management (SPEC-119)
-- Changes to ROADMAP.md itself (SPEC-120)
+- Session lifecycle management (SPEC-169)
+- Changes to ROADMAP.md itself (SPEC-170)
 - Session detection hooks in other skills (SPEC-121)
 
 **Constraints:**

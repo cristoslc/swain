@@ -10,7 +10,8 @@
   "retired": {
     "update-agents-core": "swain-update",
     "skill-manager": "swain-update",
-    "remote-skill-manager": "swain-update"
+    "remote-skill-manager": "swain-update",
+    "swain-dispatch": "deprecated (requires API billing; use parallel agents in-session)"
   },
   "fingerprints": [
     "source: swain",
@@ -19,6 +20,7 @@
     "swain-design",
     "swain-do",
     "agents-core",
-    "skill-manager"
+    "skill-manager",
+    "swain-dispatch"
   ]
 }

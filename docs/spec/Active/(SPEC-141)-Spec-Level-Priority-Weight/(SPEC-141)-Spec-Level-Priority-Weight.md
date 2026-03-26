@@ -10,6 +10,10 @@ type: enhancement
 parent-epic: ""
 parent-initiative: INITIATIVE-005
 linked-artifacts:
+  - ADR-010
+  - EPIC-001
+  - SPEC-001
+  - VISION-001
 depends-on-artifacts:
 addresses:
 evidence-pool: ""

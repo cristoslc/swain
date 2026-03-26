@@ -5,15 +5,15 @@
 
 ## Progress
 
-███░░░░░░░░░ 5/19 complete (26%)
+█████░░░░░░░ 9/22 complete (41%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-21 | 23:03 | `c063592` | docs: renumber artifact IDs, add 3 new SPECs, complete EPIC-038 |
-| 2026-03-20 | 12:22 | `ed54330` | fix(swain-sync): guard worktree removal for EnterWorktree branches (SPEC-099) |
-| 2026-03-20 | 11:58 | `b8a489a` | refactor(roadmap): decompose EPIC-038 into architecture-aligned specs |
+| 2026-03-23 | 10:03 | `f86a0c1` | fix(EPIC-043): replace SPEC-TBD placeholders with linked child spec references |
+| 2026-03-23 | 09:58 | `8f2fe19` | docs: EPIC-043 retrospective + SPEC-162 child-specs-not-updated bug |
+| 2026-03-23 | 09:46 | `89cbd34` | Merge branch 'worktree-epic-043-artifact-numbers' into trunk |
 
 ## Priority Subset
 
@@ -26,6 +26,7 @@
 |  | [Worktree-Enforced Sandbox Isolation](../../../spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) | 0/0 | 4 | **needs decomposition** |
 |  | [Sandbox Templates In Regular Docker Containers](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Container-Compatible Auth Flows Per Runtime](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) | 0/0 | 1 | **needs decomposition** |
+|  | [swain-doctor SSH Binary Check](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -33,6 +34,7 @@
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
 | [Concurrent Session Safety]((INITIATIVE-013)-Concurrent-Session-Safety.md) | [Stage Status Hook Fails in Worktrees](../../../spec/Complete/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees.md) | 0/0 | 0 | **activate or drop** |
+|  | [Container-Compatible Runtime Auth Commands](../../../spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -40,6 +42,7 @@
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
 | [Concurrent Session Safety]((INITIATIVE-013)-Concurrent-Session-Safety.md) | [Worktree-Aware Session Bookmarks](../../../epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md) | 0/0 | 1 | **activate or drop** |
+|  | [Session-Aware Commit Atomization](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) | 0/2 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -47,16 +50,18 @@
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
 | [Concurrent Session Safety]((INITIATIVE-013)-Concurrent-Session-Safety.md) | [Multi-Agent Workdir Safety](../../../epic/Proposed/(EPIC-020)-Multi-Agent-Workdir-Safety/(EPIC-020)-Multi-Agent-Workdir-Safety.md) | 0/0 | 0 | **activate or drop** |
-|  | [Sandbox Capability Bridges](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) | 0/4 | 0 | **activate or drop** |
-|  | [Container-Compatible Runtime Auth Commands](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
 
 ### Active
 
+- [EPIC-036](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) — Session-Aware Commit Atomization (0/2)
+  - [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — Session Action Log (Active, in progress)
+  - [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Commit Atomization in swain-sync (Active, in progress)
 - [SPEC-081](../../../spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) — Worktree-Enforced Sandbox Isolation (in progress)
 - [SPEC-092](../../../spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) — swain-box: Unified Sandbox Launcher (in progress)
+- [SPEC-102](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) — swain-doctor SSH Binary Check (in progress)
 - [SPIKE-034](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) — Sandbox Templates In Regular Docker Containers (in progress)
 - [SPIKE-035](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) — Container-Compatible Auth Flows Per Runtime (in progress)
 ### Proposed
@@ -64,19 +69,16 @@
 - [EPIC-016](../../../epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md) — Worktree-Aware Session Bookmarks (—)
   - [SPIKE-019](../../../research/Proposed/(SPIKE-019)-Worktree-Session-Bookmark-Design/(SPIKE-019)-Worktree-Session-Bookmark-Design.md) — Worktree Session Bookmark Design (Proposed, in progress)
 - [EPIC-020](../../../epic/Proposed/(EPIC-020)-Multi-Agent-Workdir-Safety/(EPIC-020)-Multi-Agent-Workdir-Safety.md) — Multi-Agent Workdir Safety (—)
-- [EPIC-036](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) — Sandbox Capability Bridges (0/4)
-  - [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
-  - [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
-  - [SPEC-100](../../../spec/Active/(SPEC-100)-Sync-Must-Restore-CWD-After-Worktree-Cleanup/SPEC-100.md) — Host tmux Bridge for Sandboxed Agents (Proposed, in progress)
-  - [SPEC-101](../../../spec/Active/(SPEC-101)-SSH-Readiness-Tilde-Expansion/SPEC-101.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (Proposed, in progress)
 - [SPEC-050](../../../spec/Complete/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees.md) — Stage Status Hook Fails in Worktrees (in progress)
-- [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Container-Compatible Runtime Auth Commands (in progress)
+- [SPEC-128](../../../spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) — Container-Compatible Runtime Auth Commands (in progress)
 ### Complete
 
 - [EPIC-015](../../../epic/Complete/(EPIC-015)-Automatic-Worktree-Lifecycle/(EPIC-015)-Automatic-Worktree-Lifecycle.md) — Automatic Worktree Lifecycle (3/3)
   - [SPEC-039](../../../spec/Complete/(SPEC-039)-swain-sync-worktree-support/(SPEC-039)-swain-sync-worktree-support.md) — swain-sync: worktree-aware execution (Complete, done)
   - [SPEC-043](../../../spec/Complete/(SPEC-043)-swain-do-automatic-worktree-creation/(SPEC-043)-swain-do-automatic-worktree-creation.md) — swain-do: automatic worktree creation at dispatch (Complete, done)
   - [SPEC-044](../../../spec/Complete/(SPEC-044)-swain-doctor-stale-worktree-detection/(SPEC-044)-swain-doctor-stale-worktree-detection.md) — swain-doctor: stale worktree detection (Complete, done)
-### Superseded
-
-- [SPEC-102](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) — specgraph: deterministic roadmap output based on priorities (done)
+- [EPIC-043](../../../epic/Complete/(EPIC-043)-Centralized-Artifact-Number-Allocation/(EPIC-043)-Centralized-Artifact-Number-Allocation.md) — Centralized Artifact Number Allocation (4/4)
+  - [SPEC-156](../../../spec/Complete/(SPEC-156)-Next-Artifact-Number-Script/(SPEC-156)-Next-Artifact-Number-Script.md) — next-artifact-number.sh — Core Allocator Script (Complete, done)
+  - [SPEC-157](../../../spec/Complete/(SPEC-157)-SKILL-MD-Allocator-Integration/(SPEC-157)-SKILL-MD-Allocator-Integration.md) — swain-design SKILL.md Allocator Integration (Complete, done)
+  - [SPEC-158](../../../spec/Complete/(SPEC-158)-Artifact-Number-Collision-Detection/(SPEC-158)-Artifact-Number-Collision-Detection.md) — Artifact Number Collision Detection (Complete, done)
+  - [SPEC-159](../../../spec/Complete/(SPEC-159)-Migrate-Existing-Number-Callers/(SPEC-159)-Migrate-Existing-Number-Callers.md) — Migrate Existing Number Allocation Callers (Complete, done)

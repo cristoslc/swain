@@ -11,6 +11,9 @@ gate: Pre-implementation
 risks-addressed:
   - Misrouted skill invocations waste tokens and confuse users
   - Overlapping trigger phrases between swain-help, swain-design, and swain-do
+linked-artifacts:
+  - EPIC-031
+  - SPEC-073
 evidence-pool: ""
 ---
 

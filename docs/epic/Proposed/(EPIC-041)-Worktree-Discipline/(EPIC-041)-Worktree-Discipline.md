@@ -18,6 +18,11 @@ success-criteria:
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
+linked-artifacts:
+  - ADR-011
+  - SPEC-043
+  - SPEC-148
+  - SPEC-149
 ---
 
 # Worktree Discipline

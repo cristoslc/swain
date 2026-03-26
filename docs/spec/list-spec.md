@@ -26,10 +26,7 @@
 | SPEC-130 | Host tmux Bridge for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
-| SPEC-156 | next-artifact-number.sh — Core Allocator Script | 2026-03-22 | — |
-| SPEC-157 | swain-design SKILL.md Allocator Integration | 2026-03-22 | — |
-| SPEC-158 | Artifact Number Collision Detection | 2026-03-22 | — |
-| SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-22 | — |
+| SPEC-166 | Refactor Skill Chaining Table Into Reference File | 2026-03-24 | 3d696d0 |
 
 ## Active
 
@@ -41,7 +38,6 @@
 | SPEC-056 | Tmux Pane-Aware Session Naming | 2026-03-16 | — |
 | SPEC-072 | Universal find-based script discovery | 2026-03-18 | — |
 | SPEC-073 | Description enrichment | 2026-03-18 | — |
-| SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-18 | — |
 | SPEC-075 | Fix swain-sync functional bugs | 2026-03-18 | — |
 | SPEC-076 | Fix swain-update functional bugs | 2026-03-18 | — |
 | SPEC-077 | allowed-tools hygiene sweep | 2026-03-18 | — |
@@ -63,9 +59,7 @@
 | SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
 | SPEC-116 | Read Before Reasoning | 2026-03-20 | ec9842d |
 | SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | ec9842d |
-| SPEC-119 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-119 | Session Lifecycle in swain-session | 2026-03-20 | -- |
-| SPEC-120 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
 | SPEC-121 | Session Detection Hooks Across All Skills | 2026-03-20 | -- |
 | SPEC-122 | Absorb swain-status into swain-session | 2026-03-20 | -- |
 | SPEC-123 | Skill and Script Alignment Audit | 2026-03-20 | -- |
@@ -83,11 +77,21 @@
 | SPEC-146 | Design Coverage Audit Lens | 2026-03-21 | -- |
 | SPEC-147 | swain_trunk() Auto-Detection Helper | 2026-03-22 | — |
 | SPEC-150 | swain-security-check: JSONL scrub mode | 2026-03-22 | — |
-| SPEC-151 | swain-retro: folder structure, manifest, + JSONL capture | 2026-03-22 | — |
-| SPEC-152 | swain-retro: session summary generation | 2026-03-22 | — |
-| SPEC-153 | swain-doctor: retro flat-file migration | 2026-03-22 | — |
+| SPEC-151 | swain-retro: folder structure, manifest, + JSONL capture | 2026-03-23 | — |
+| SPEC-152 | swain-retro: session summary generation | 2026-03-23 | — |
+| SPEC-153 | swain-doctor: retro flat-file migration | 2026-03-23 | — |
 | SPEC-154 | Superpowers chain skips artifact creation | 2026-03-22 | — |
 | SPEC-155 | Paywall Proxy Fallback for swain-search | 2026-03-22 | 0284169 |
+| SPEC-160 | Chart Critical Path Lens | 2026-03-23 | — |
+| SPEC-161 | Computed Priority Scoring | 2026-03-23 | — |
+| SPEC-162 | EPIC Child Specs Section Not Updated on Completion | 2026-03-23 | — |
+| SPEC-163 | Unified retro model: standalone artifacts with multi-session bundling | 2026-03-23 | — |
+| SPEC-164 | PURPOSE Migration and VISION-001 Supersession | 2026-03-24 | c39beba |
+| SPEC-165 | Worktree Isolation By Default In swain-do | 2026-03-24 | 9471d11 |
+| SPEC-167 | Doctor Superpowers Detection Zsh Word-Split Bug | 2026-03-25 | — |
+| SPEC-168 | Gitignore Skill Folders Check | 2026-03-25 | — |
+| SPEC-169 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
+| SPEC-170 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
 
 ## Complete
 
@@ -170,6 +174,10 @@
 | SPEC-141 | Spec-Level Priority Weight | 2026-03-21 | bae2db9 |
 | SPEC-142 | swain-do isn't consistently capturing retros on completion | 2026-03-21 | — |
 | SPEC-143 | Per-Vision and Per-Initiative Roadmap Slices | 2026-03-22 | fb1601b |
+| SPEC-156 | next-artifact-number.sh — Core Allocator Script | 2026-03-23 | — |
+| SPEC-157 | swain-design SKILL.md Allocator Integration | 2026-03-23 | — |
+| SPEC-158 | Artifact Number Collision Detection | 2026-03-23 | — |
+| SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-23 | — |
 
 ## Superseded
 
@@ -181,4 +189,10 @@
 | SPEC-106 | Blocking flowchart initiative subgraphs | 2026-03-20 | — |
 | SPEC-132 | specgraph: deterministic roadmap output based on priorities | 2026-03-20 | — |
 | SPEC-133 | swain-status roadmap integration | 2026-03-20 | — |
+
+## Abandoned
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-25 | -- |
 

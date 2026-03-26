@@ -5,7 +5,7 @@ track: container
 status: Active
 author: cristos
 created: 2026-03-22
-last-updated: 2026-03-22
+last-updated: 2026-03-23
 parent-vision: VISION-004
 parent-initiative: INITIATIVE-019
 priority-weight: high
@@ -17,6 +17,13 @@ success-criteria:
 depends-on-artifacts: []
 addresses: []
 evidence-pool: "agent-alignment-monitoring@8047381"
+linked-artifacts:
+  - PERSONA-001
+  - SPEC-150
+  - SPEC-151
+  - SPEC-152
+  - SPEC-153
+  - SPEC-163
 ---
 
 # Retro Session Intelligence
@@ -54,6 +61,7 @@ This advances INITIATIVE-019's direction by making session decision history retr
 | SPEC-151 | swain-retro: folder structure, manifest, + JSONL capture | SPEC-150 |
 | SPEC-152 | swain-retro: session summary generation | SPEC-151 |
 | SPEC-153 | swain-doctor: retro flat-file migration | SPEC-151 |
+| SPEC-163 | Unified retro model: standalone artifacts with multi-session bundling | SPEC-151 |
 
 ## Key Dependencies
 

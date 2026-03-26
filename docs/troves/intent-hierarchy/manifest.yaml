@@ -1,0 +1,80 @@
+trove: intent-hierarchy
+created: 2026-03-25
+refreshed: 2026-03-25
+tags:
+  - purpose
+  - principles
+  - vision
+  - initiative
+  - epic
+  - hierarchy
+  - strategy
+  - intent
+
+freshness-ttl:
+  web: 60d
+
+referenced-by: []
+
+history:
+  - event: created
+    date: 2026-03-25
+    commit: 51cdccd
+    sources: 8
+
+sources:
+  - source-id: aespire-purpose-mission-vision
+    type: web
+    url: "https://www.aespire.com/blog/communications/the-difference-between-your-purpose-and-mission"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Brian Sooy / Aespire — The Difference Between Purpose, Mission, and Vision"
+    hash: "ad4fe855a8e9cfca464c2fdcbe1bc8405a98596cf31a10507f844c4426fb440d"
+
+  - source-id: ha-phan-guiding-principles
+    type: web
+    url: "https://haphan.substack.com/p/guiding-principles-for-product-and"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Ha Phan — Guiding Principles for Product & Design"
+    hash: "af1e20860ca2e249c45d17e57647601ad09a2cab4b8c615fe5fbaca84e315777"
+
+  - source-id: productplan-product-principles
+    type: web
+    url: "https://www.productplan.com/learn/product-principles/"
+    fetched: 2026-03-25T00:00:00Z
+    title: "ProductPlan — How to Define Your Product Principles"
+    hash: "45f10f3f810f9104a1f012572a0b90a3a316642a348b5e20ebc0c389bb3d33ba"
+
+  - source-id: regroup-guiding-principles
+    type: web
+    url: "https://www.regroup.co/blog/guiding-principle-the-how-behind-your-strategy"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Regroup — Guiding Principles: The 'How' Behind Your Strategy"
+    hash: "826716f7ba875bf820ebf3bfa4dc5b6797622e619fc9e34a9fd341a83115c83f"
+
+  - source-id: slack-product-principles
+    type: web
+    url: "https://slack.design/articles/why-your-organization-needs-product-principles/"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Ethan Eismann / Slack Design — Why Your Organization Needs Product Principles"
+    hash: "0bba9c8fd55967725fadde6ba7012c76ffbfeeae6a37bff42710feabcc2df1d4"
+
+  - source-id: svpg-strategy-agile
+    type: web
+    url: "https://www.svpg.com/product-strategy-in-an-agile-world/"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Marty Cagan / SVPG — Product Strategy in an Agile World"
+    hash: "4613effa998ecfd799815e789160ce48bf20216d78d99b4eeb3f82cc20641567"
+
+  - source-id: prodpad-initiative-vs-epic
+    type: web
+    url: "https://www.prodpad.com/blog/initiatives-vs-epics/"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Janna Bastow / ProdPad — Initiative vs Epic: What's the Difference?"
+    hash: "391eb83da13f9478b7103b097bfacfbd9529291d181955a3bd50fd1ecf97e821"
+
+  - source-id: atlassian-epics-stories-initiatives
+    type: web
+    url: "https://www.atlassian.com/agile/project-management/epics-stories-themes"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Atlassian — Epics, Stories, and Initiatives"
+    hash: "90bb2b25df27620deb2918f88c7fb0eb5c64f01462c93e06101ed4bedd942479"

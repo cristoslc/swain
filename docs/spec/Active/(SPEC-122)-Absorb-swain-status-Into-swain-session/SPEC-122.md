@@ -11,8 +11,8 @@ parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
 linked-artifacts:
   - SPEC-118
-  - SPEC-119
-  - SPEC-120
+  - SPEC-169
+  - SPEC-170
   - SPEC-123
 depends-on-artifacts: []
 addresses: []
@@ -80,8 +80,8 @@ swain-status and swain-session are separate skills with overlapping concerns. sw
 
 **Out of scope:**
 - SESSION-ROADMAP.md format (SPEC-118)
-- Session lifecycle (SPEC-119)
-- ROADMAP.md changes (SPEC-120)
+- Session lifecycle (SPEC-169)
+- ROADMAP.md changes (SPEC-170)
 
 **Constraints:**
 - No functionality regression -- every output swain-status provided must be available through the new surface

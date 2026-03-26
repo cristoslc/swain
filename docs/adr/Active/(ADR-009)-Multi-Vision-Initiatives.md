@@ -11,6 +11,7 @@ linked-artifacts:
   - EPIC-016
   - EPIC-020
   - EPIC-036
+  - INITIATIVE-001
   - INITIATIVE-013
   - SPEC-050
   - VISION-001

@@ -11,7 +11,7 @@ parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
 linked-artifacts:
   - SPEC-118
-  - SPEC-119
+  - SPEC-169
   - SPEC-123
 depends-on-artifacts: []
 addresses: []
@@ -88,7 +88,7 @@ These sections use existing specgraph data (recommend, decision-debt commands). 
 
 **Out of scope:**
 - SESSION-ROADMAP.md (SPEC-118)
-- Session lifecycle (SPEC-119)
+- Session lifecycle (SPEC-169)
 - New data sources or specgraph commands
 
 **Constraints:**

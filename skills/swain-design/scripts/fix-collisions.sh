@@ -45,6 +45,8 @@ for arg in "$@"; do
   esac
 done
 
+# Track allocated numbers per type so dry-run previews show distinct targets.
+# Uses _ALLOC_<TYPE> variables instead of associative arrays (bash 3.x compat).
 FIXED=0
 
 if [ -n "$EXPLICIT_IDS" ]; then
@@ -112,10 +114,18 @@ else
       echo "Error: could not allocate next number for $TYPE" >&2
       continue
     }
+    # In dry-run mode, the allocator sees unchanged state each time.
+    # Bump past any numbers we've already "allocated" this run.
+    alloc_var="_ALLOC_${TYPE}"
+    prev_alloc="${!alloc_var:-}"
+    if [ -n "$prev_alloc" ] && (( 10#$new_num <= 10#$prev_alloc )); then
+      new_num=$(printf "%03d" $(( 10#$prev_alloc + 1 )))
+    fi
+    eval "$alloc_var=$new_num"
     new_id="${TYPE}-${new_num}"
 
     echo "=== Renumbering $dup_id ($newest_title) → $new_id ==="
-    bash "$RENUMBER" "$dup_id" "$new_id" $DRY_RUN || {
+    bash "$RENUMBER" "$dup_id" "$new_id" --source-dir "$newest_dir" $DRY_RUN || {
       echo "Warning: renumber failed for $dup_id → $new_id"
       continue
     }

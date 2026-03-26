@@ -14,6 +14,7 @@ linked-artifacts:
   - SPEC-145
   - SPEC-134
   - ADR-014
+  - DESIGN-005
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""

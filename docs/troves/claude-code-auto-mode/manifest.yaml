@@ -1,0 +1,58 @@
+trove: claude-code-auto-mode
+created: 2026-03-24
+refreshed: 2026-03-24
+tags:
+  - claude-code
+  - auto-mode
+  - permissions
+  - safety
+  - tool-use
+  - classifier
+  - prompt-injection
+  - sandboxing
+  - subagents
+
+freshness-ttl:
+  web: 7d
+
+history:
+  - event: created
+    date: 2026-03-24
+    commit: "0e5b572"
+    sources: 1
+  - event: extended
+    date: 2026-03-24
+    commit: "49a8167"
+    sources: 4
+    sources-added: 3
+    notes: "added docs page, Simon Willison analysis, classifier defaults JSON"
+
+sources:
+  - source-id: claude-blog-auto-mode
+    type: web
+    url: "https://claude.com/blog/auto-mode"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Auto mode for Claude Code"
+    hash: "8fdca556c42227dce38e3cdb05137fafc22942536ea1db42bb0b648fabb972bb"
+
+  - source-id: claude-code-permission-modes-docs
+    type: web
+    url: "https://code.claude.com/docs/en/permission-modes"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Choose a permission mode — Claude Code Docs"
+    hash: "59ea1edb696832f32f859dbd65a25957569562ed3ab14bc057ae5708db206394"
+
+  - source-id: simonw-auto-mode-analysis
+    type: web
+    url: "https://simonwillison.net/2026/Mar/24/auto-mode-for-claude-code/"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Auto mode for Claude Code — Simon Willison's Weblog"
+    hash: "8ee1cebeb188365d862ce0b5e5d10dfecc966ffae59c947078e815aba14868d0"
+
+  - source-id: claude-auto-mode-classifier-defaults
+    type: web
+    url: "https://gist.githubusercontent.com/simonw/91863bfd9f7ebf916d1fabb8e6940335/raw/cda3c88e919b8238e85d3f1cc990e8ff48ad9a18/defaults.json"
+    fetched: 2026-03-24T00:00:00Z
+    title: "Claude Code Auto Mode Classifier Defaults (full JSON)"
+    hash: "63ee361cb047c0f202701c7db651d893c67c2bfdc78d035a9d53bf25e10f8e58"
+    notes: "Full classifier rules JSON extracted via `claude auto-mode defaults` command"
