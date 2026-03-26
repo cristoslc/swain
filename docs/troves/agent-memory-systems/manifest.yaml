@@ -50,7 +50,7 @@ history:
     notes: "added OSS frameworks (Mem0, Letta/MemGPT, Cognee), graph memory (Zep/Graphiti), and MCP memory servers (Basic Memory)"
   - event: extended
     date: 2026-03-25
-    commit: "--"
+    commit: "4fc8ffc"
     sources: 12
     sources-added: 1
     notes: "added Cog — convention-only cognitive architecture built on Claude Code"
