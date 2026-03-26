@@ -1,6 +1,6 @@
 # Skill Folder Gitignore Hygiene
 
-Verifies that vendored skill folders (`.claude/skills/`, `.agents/skills/`) are gitignored in consumer projects. Skips the check when the project is swain itself (skill source is tracked).
+Verifies that vendored **swain** skill directories are gitignored in consumer projects. Only targets `swain/` and `swain-*/` subdirectories — consumer projects may have their own project-specific skills in `.claude/skills/` or `.agents/skills/` that should remain tracked.
 
 ## Self-detection
 
@@ -18,16 +18,18 @@ If detected as swain: status `skipped`, message: "Swain source repo — skill fo
 
 ## Detection
 
-For each skill folder path, check whether it is covered by `.gitignore` rules:
+Enumerate vendored swain skill directories that exist on disk and check whether each is covered by `.gitignore` rules:
 
 ```bash
-SKILL_PATHS=(".claude/skills/" ".agents/skills/")
 missing=()
-for path in "${SKILL_PATHS[@]}"; do
-  # Only check if the folder actually exists on disk
-  if [[ -d "$path" ]] && ! git check-ignore -q "$path" 2>/dev/null; then
-    missing+=("$path")
-  fi
+for base in .claude/skills .agents/skills; do
+  [ -d "$base" ] || continue
+  for dir in "$base"/swain "$base"/swain-*/; do
+    [ -d "$dir" ] || continue
+    if ! git check-ignore -q "$dir" 2>/dev/null; then
+      missing+=("$dir")
+    fi
+  done
 done
 ```
 
@@ -35,8 +37,8 @@ done
 
 ## Status values
 
-- **ok** — all existing skill folders are gitignored (or no skill folders exist on disk)
-- **warning** — one or more skill folders exist but are not gitignored
+- **ok** — all vendored swain skill directories are gitignored (or none exist on disk)
+- **warning** — one or more vendored swain skill directories exist but are not gitignored
 - **skipped** — swain source repo detected; skill folders are intentionally tracked
 
 ## Remediation
@@ -46,18 +48,18 @@ When `missing` is non-empty, offer to append entries to the project's root `.git
 ```bash
 gitignore_entries="
 # Vendored swain skills (managed by swain-update)
+.claude/skills/swain/
+.claude/skills/swain-*/
+.agents/skills/swain/
+.agents/skills/swain-*/
 "
-for path in "${missing[@]}"; do
-  gitignore_entries+="$path
-"
-done
 ```
 
 If `.gitignore` doesn't exist, create it. If it exists, append the missing entries (with a blank line separator).
 
 ### Remediation message
 
-> Skill folder(s) not gitignored: `.claude/skills/`, `.agents/skills/`. These contain vendored skill dependencies and should not be committed to your repository.
+> Vendored swain skill folder(s) not gitignored: {list}. These contain vendored skill dependencies and should not be committed to your repository.
 >
 > Add gitignore entries? (yes/no)
 

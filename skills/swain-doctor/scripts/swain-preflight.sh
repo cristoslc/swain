@@ -113,13 +113,17 @@ if [[ -x "$SSH_HELPER" ]]; then
 fi
 
 # 9c. Skill folder gitignore hygiene (advisory — non-blocking)
-# Skip if this is the swain source repo (skill folders are tracked there)
+# Only check vendored swain skill directories (swain/ and swain-*/), not all skills.
+# Skip if this is the swain source repo (skill folders are tracked there).
 _origin_url="$(git remote get-url origin 2>/dev/null || true)"
 if [[ "$_origin_url" != *"cristoslc/swain"* ]]; then
-  for _skill_path in .claude/skills/ .agents/skills/; do
-    if [[ -d "$_skill_path" ]] && ! git check-ignore -q "$_skill_path" 2>/dev/null; then
-      echo "swain-preflight: $REPO_ROOT/$_skill_path not gitignored (advisory)"
-    fi
+  for _base in .claude/skills .agents/skills; do
+    [ -d "$_base" ] || continue
+    for _skill_path in "$_base"/swain "$_base"/swain-*/; do
+      if [[ -d "$_skill_path" ]] && ! git check-ignore -q "$_skill_path" 2>/dev/null; then
+        echo "swain-preflight: $REPO_ROOT/$_skill_path not gitignored (advisory)"
+      fi
+    done
   done
 fi
 

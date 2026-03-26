@@ -4,7 +4,8 @@
       "Skill(swain-status)",
       "Skill(swain-design)",
       "mcp__MCP_DOCKER__webpage-to-markdown",
-      "Skill(swain-doctor)"
+      "Skill(swain-doctor)",
+      "Skill(swain-session)"
     ]
   }
 }

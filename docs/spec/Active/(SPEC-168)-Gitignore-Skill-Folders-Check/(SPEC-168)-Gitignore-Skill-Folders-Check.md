@@ -16,13 +16,16 @@ swain-do: required
 
 ## Problem Statement
 
-When swain is installed into a consumer project, vendored skill folders (`.claude/skills/`, `.agents/skills/`) should not be committed to the consumer's repository. Today, swain-doctor has no check for this. If a consumer project lacks the appropriate `.gitignore` entries, skill dependencies silently end up in version control — bloating the repo and creating merge noise on skill updates.
+When swain is installed into a consumer project, vendored swain skill directories (`swain/`, `swain-*/` under `.claude/skills/` and `.agents/skills/`) should not be committed to the consumer's repository. Today, swain-doctor has no check for this. If a consumer project lacks the appropriate `.gitignore` entries, skill dependencies silently end up in version control — bloating the repo and creating merge noise on skill updates.
 
-The swain project itself is the exception: it tracks its own skill source code and must **not** gitignore these folders.
+Consumer projects may have their own project-specific skills in `.claude/skills/` or `.agents/skills/` that should remain tracked — only swain-vendored directories are targeted.
+
+The swain project itself is the exception: it tracks its own skill source code and must **not** gitignore these directories.
 
 ## Desired Outcomes
 
-- Consumer projects are warned (and offered remediation) when skill folders are not gitignored.
+- Consumer projects are warned (and offered remediation) when vendored swain skill directories are not gitignored.
+- Consumer projects' own skills in `.claude/skills/` or `.agents/skills/` are not affected.
 - The swain project itself is detected and the check is skipped.
 - The check follows the existing swain-doctor pattern: detection, status, remediation, reporting.
 
@@ -34,15 +37,15 @@ swain-doctor runs a new check: **Skill folder gitignore hygiene**.
 
 1. **Self-detection**: determine whether the current project is swain itself. Signal: the `origin` remote URL contains `cristoslc/swain` (or the repo root contains `PURPOSE.md` with swain's identity marker). If self-detected, skip the check with status `skipped` and message: "Swain source repo — skill folders are tracked."
 
-2. **Gitignore scan**: for each of these paths, check whether it is covered by `.gitignore`:
-   - `.claude/skills/`
-   - `.agents/skills/`
+2. **Gitignore scan**: enumerate vendored swain skill directories that exist on disk and check whether each is covered by `.gitignore`:
+   - `{.claude,.agents}/skills/swain/`
+   - `{.claude,.agents}/skills/swain-*/`
 
-   Use `git check-ignore -q <path>` to test coverage. This respects nested `.gitignore` files and global gitignore config.
+   Use `git check-ignore -q <path>` to test coverage. This respects nested `.gitignore` files and global gitignore config. Only directories matching `swain` or `swain-*` are checked — other skill directories are left alone.
 
 3. **Status**:
-   - All paths ignored → `ok`
-   - Some/all paths not ignored → `warning` with remediation offer
+   - All vendored swain directories ignored (or none exist) → `ok`
+   - Some/all vendored swain directories not ignored → `warning` with remediation offer
 
 ### Remediation
 
@@ -50,8 +53,10 @@ When paths are not ignored, offer to append the missing entries to the project's
 
 ```gitignore
 # Vendored swain skills (managed by swain-update)
-.claude/skills/
-.agents/skills/
+.claude/skills/swain/
+.claude/skills/swain-*/
+.agents/skills/swain/
+.agents/skills/swain-*/
 ```
 
 If `.gitignore` doesn't exist, create it with those entries.
@@ -62,15 +67,15 @@ Add a lightweight check to `swain-preflight.sh`: if not the swain repo and `.cla
 
 ## Acceptance Criteria
 
-1. **Given** a consumer project with `.claude/skills/` not in `.gitignore`, **when** swain-doctor runs, **then** it reports a `warning` and offers to add the gitignore entry.
+1. **Given** a consumer project with `.claude/skills/swain/` or `.claude/skills/swain-*/` not in `.gitignore`, **when** swain-doctor runs, **then** it reports a `warning` and offers to add the gitignore entries.
 
-2. **Given** a consumer project with both `.claude/skills/` and `.agents/skills/` already gitignored, **when** swain-doctor runs, **then** the check reports `ok`.
+2. **Given** a consumer project with all vendored swain skill directories already gitignored, **when** swain-doctor runs, **then** the check reports `ok`.
 
 3. **Given** the swain source repo (`origin` contains `cristoslc/swain`), **when** swain-doctor runs, **then** the check is `skipped` with an explanatory message.
 
-4. **Given** a consumer project with no `.gitignore` file, **when** the operator accepts remediation, **then** a new `.gitignore` is created with the skill folder entries.
+4. **Given** a consumer project with no `.gitignore` file, **when** the operator accepts remediation, **then** a new `.gitignore` is created with the swain skill directory entries.
 
-5. **Given** a consumer project where only one of the two paths is gitignored, **when** swain-doctor runs, **then** only the missing entry is offered for addition.
+5. **Given** a consumer project with its own skills in `.claude/skills/my-custom-skill/`, **when** swain-doctor runs, **then** the custom skill directory is not flagged — only `swain/` and `swain-*/` directories are checked.
 
 ## Verification
 

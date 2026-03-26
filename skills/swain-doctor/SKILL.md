@@ -92,7 +92,7 @@ Check required (`git`, `jq`) and optional (`tk`, `uv`, `gh`, `tmux`, `fswatch`) 
 
 ## Skill folder gitignore hygiene
 
-Verify that vendored skill folders (`.claude/skills/`, `.agents/skills/`) are gitignored in consumer projects. **Skip if the current project is swain itself** (detected via `origin` remote containing `cristoslc/swain`). Read [references/gitignore-skill-folders.md](references/gitignore-skill-folders.md) for self-detection, `git check-ignore` commands, status values, and remediation.
+Verify that vendored swain skill directories (`*/skills/swain/`, `*/skills/swain-*/`) are gitignored in consumer projects. Only targets swain-vendored directories — consumer projects' own skills remain tracked. **Skip if the current project is swain itself** (detected via `origin` remote containing `cristoslc/swain`). Read [references/gitignore-skill-folders.md](references/gitignore-skill-folders.md) for self-detection, `git check-ignore` commands, status values, and remediation.
 
 ## Runtime checks
 
@@ -148,12 +148,11 @@ Detect old phase directories from before ADR-003's three-track normalization. Re
 Check whether superpowers skills are installed:
 
 ```bash
-SUPERPOWERS_SKILLS="brainstorming writing-plans test-driven-development verification-before-completion subagent-driven-development executing-plans"
 found=0
 missing=0
 missing_names=""
-for skill in $SUPERPOWERS_SKILLS; do
-  if ls .agents/skills/$skill/SKILL.md .claude/skills/$skill/SKILL.md 2>/dev/null | head -1 | grep -q .; then
+for skill in brainstorming writing-plans test-driven-development verification-before-completion subagent-driven-development executing-plans; do
+  if [ -f ".agents/skills/$skill/SKILL.md" ] || [ -f ".claude/skills/$skill/SKILL.md" ]; then
     found=$((found + 1))
   else
     missing=$((missing + 1))

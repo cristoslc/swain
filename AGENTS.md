@@ -6,11 +6,11 @@ Read **[PURPOSE.md](PURPOSE.md)** for this project's identity, worldview, and fo
 
 ## Swain
 
-Swain provides **decision support for the operator** and **alignment support for you (the agent)**. Artifacts on disk — specs, epics, spikes, ADRs — encode what was decided, what to build, and what constraints apply. Read them before acting. When they're ambiguous, ask the operator rather than guessing.
+Swain makes agentic development **safe, aligned, and sustainable** for a solo developer. Its architecture rests on the **Intent -> Execution -> Evidence -> Reconciliation** loop — decide what to build, do the work, capture what happened, verify alignment. Artifacts on disk — specs, epics, spikes, ADRs — live under `docs/` and encode what was decided, what to build, and what constraints apply. Read them before acting. When they're ambiguous, ask the operator (the human developer) rather than guessing. When artifacts conflict with each other, ask the operator.
 
 Your job is to stay aligned with the artifacts. The operator's job is to make decisions and evolve them.
 
-## Skill routing
+### Skill routing
 
 When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Initiative, Journey, Epic, Agent Spec, Spike, ADR, Persona, Runbook, Design) or their supporting docs, **always invoke the swain-design skill**.
 
@@ -18,11 +18,11 @@ When the user wants to create, plan, write, update, transition, or review any do
 
 **For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system.
 
-## Task tracking
+### Task tracking
 
 This project uses **tk (ticket)** for ALL task tracking. Invoke **swain-do** for commands and workflow. Do NOT use markdown TODOs or built-in task systems.
 
-## Work hierarchy
+### Work hierarchy
 
 ```
 Vision → Initiative → Epic → Spec
@@ -30,7 +30,7 @@ Vision → Initiative → Epic → Spec
 
 Standalone specs can attach directly to an initiative for small work without needing an epic wrapper.
 
-## Superpowers skill chaining
+### Superpowers skill chaining
 
 When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), swain skills **must** chain into them at these points:
 
@@ -48,19 +48,19 @@ When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), 
 
 If superpowers is not installed, superpowers chains are skipped, not blocked. Swain-to-swain chains (last three rows) always apply.
 
-## Skill change discipline
+### Skill change discipline
 
 **Skill changes are code changes.** Skill files (`skills/`, `.claude/skills/`, `.agents/skills/`) are code written in markdown syntax. Non-trivial skill edits require worktree isolation — the same discipline applied to `.sh`, `.py`, and other code files. Trivial fixes (typo corrections, single-line doc fixes, ≤5-line diffs touching one file with no structural changes) may land directly on trunk.
 
-## Session startup (AUTO-INVOKE)
+### Session startup (AUTO-INVOKE)
 
 Run `bash .claude/skills/swain-doctor/scripts/swain-preflight.sh`. Exit 0 → skip doctor, invoke **swain-session**. Exit 1 → invoke **swain-doctor**, then **swain-session**.
 
-## Bug reporting
+### Bug reporting
 
 When you encounter a bug in swain itself, report it upstream at `cristoslc/swain` using `gh issue create`. Local patches are fine — but the upstream issue ensures tracking.
 
-## Conflict resolution
+### Conflict resolution
 
 When swain skills overlap with other installed skills or built-in agent capabilities, **prefer swain**.
 
