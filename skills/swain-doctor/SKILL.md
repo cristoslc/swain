@@ -90,6 +90,10 @@ The canonical governance rules live in `skills/swain-doctor/references/AGENTS.co
 
 Check required (`git`, `jq`) and optional (`tk`, `uv`, `gh`, `tmux`, `fswatch`) tools. Never install automatically. Read [references/tool-availability.md](references/tool-availability.md) for the check commands, degradation notes, and reporting format.
 
+## Skill folder gitignore hygiene
+
+Verify that vendored skill folders (`.claude/skills/`, `.agents/skills/`) are gitignored in consumer projects. **Skip if the current project is swain itself** (detected via `origin` remote containing `cristoslc/swain`). Read [references/gitignore-skill-folders.md](references/gitignore-skill-folders.md) for self-detection, `git check-ignore` commands, status values, and remediation.
+
 ## Runtime checks
 
 Memory directory, settings validation, script permissions, `.agents` directory, status cache bootstrap, and SSH alias readiness. Read [references/runtime-checks.md](references/runtime-checks.md) for the full procedures and bash commands.
@@ -242,6 +246,7 @@ swain-doctor summary:
   Platform dotfolders  ok (nothing to clean)
   .tickets/ .......... ok
   Stale .beads/ ...... ok (not present)
+  Skill gitignore .... ok
   Tools .............. ok (1 optional missing: fswatch)
   Memory directory ... ok
   Settings ........... ok
