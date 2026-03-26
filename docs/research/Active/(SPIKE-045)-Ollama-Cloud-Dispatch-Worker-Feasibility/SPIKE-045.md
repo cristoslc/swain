@@ -11,7 +11,7 @@ gate: Pre-MVP
 risks-addressed:
   - "Dispatch workers require Claude Code subscription — limits scaling and increases cost"
   - "No auth-free path for background agent execution"
-trove: ollama-cloud-dispatch-workers@a530063
+trove: ollama-cloud-dispatch-workers@71ed4fc
 linked-artifacts:
   - INITIATIVE-008
   - ADR-016
