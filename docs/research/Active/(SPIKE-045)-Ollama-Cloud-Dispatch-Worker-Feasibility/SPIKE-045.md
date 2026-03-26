@@ -70,9 +70,9 @@ If No-Go:
 4. Score each run: pass (completed correctly), partial (completed with errors), fail (could not complete)
 
 ### Models to Test
-- `qwen3-coder:480b-cloud` — largest coding-specific model
-- `deepseek-v3.1:671b-cloud` — largest general model with tool calling
-- `devstral-2:123b-cloud` — Mistral's coding model
+- `kimi-k2.5` — 256K context, newest Moonshot general model
+- `qwen3.5:397b` — 256K context, newest Qwen general model (397B params)
+- `glm-5` — 198K context, Zhipu general model
 
 ### Measurements
 - Context window effective size (can it hold AGENTS.md + spec + files?)

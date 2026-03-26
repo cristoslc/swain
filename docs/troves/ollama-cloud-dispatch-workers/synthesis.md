@@ -2,82 +2,54 @@
 
 ## Key Findings
 
-### Ollama Cloud is a viable alternative backend for dispatch workers
+### Tool calling is the critical integration point — and it's fragile
 
-Ollama Cloud (public beta since January 2026) provides OpenAI-compatible API endpoints (`https://ollama.com/v1/chat/completions`) with Bearer token authentication. This means any agent framework that speaks the OpenAI API can use Ollama Cloud without a Claude Code subscription or Anthropic API key. Workers authenticate with an `OLLAMA_API_KEY` environment variable — no interactive login required.
+The #1 technical risk for Ollama Cloud dispatch workers is not model intelligence but **tool calling reliability**. Agent frameworks like OpenCode require models to return structured `tool_calls` objects in the OpenAI format. Three independent failure modes can prevent this:
+
+1. **Context window starvation** — Ollama defaults to ~4K context, which silently breaks tool calling since tool definitions alone can consume thousands of tokens. Cloud models may have different defaults, but the failure is the same: "prompt too long" errors or truncated prompts that prevent the model from generating structured responses. (opencode-ollama-tool-issues, ollama-cloud-api-direct-testing)
+
+2. **Model-specific parser mismatches** — Each model family (Qwen, Mistral, DeepSeek, GLM, Kimi) uses different output formats for tool calls (`<tool_call>`, `[TOOL_CALLS]`, `<|tool▁calls▁begin|>`, etc.). Ollama's RENDERER/PARSER system translates these to the OpenAI-compatible format, but bugs in the translation layer cause raw tags to leak through as text content. (ollama-tool-calling-architecture, vllm-kimi-k2-tool-calling)
+
+3. **Intermittent thinking-tag interference** — Models with reasoning/thinking capabilities (qwen3.5, kimi-k2) can intermittently emit tool calls as raw text when thinking tags interleave with tool call generation. This was confirmed as an Ollama bug in versions 0.17.6–0.18.2. (qwen35-tool-call-printing-bug)
+
+### Ollama Cloud's API does return proper OpenAI-format tool calls — for some models
+
+Direct API testing (SPIKE-045, 2026-03-25) confirmed that `qwen3.5:397b` and `glm-5` return correctly structured `tool_calls` responses through the `/v1/chat/completions` endpoint. The format matches the OpenAI spec: `id`, `type: "function"`, `function.name`, `function.arguments` as a JSON string, and `finish_reason: "tool_calls"`.
+
+However, `kimi-k2.5` is completely broken on Ollama Cloud — returning "prompt too long" errors on trivial prompts, suggesting a server-side misconfiguration. (ollama-cloud-api-direct-testing)
 
 ### Authentication is simple and API-key-based
 
-1. Create an account at ollama.com
-2. Generate an API key at `ollama.com/settings`
-3. Set `OLLAMA_API_KEY` environment variable or pass `Authorization: Bearer <key>` header
-4. No interactive login, no browser auth flow, no subscription management
+Bearer token auth via API key — no interactive login, no subscription management, no 1Password dance. This makes Ollama Cloud ideal for headless dispatch workers. (awesomeagents-ollama-cloud-review, devto-beginners-guide-ollama-cloud)
 
-This makes Ollama Cloud ideal for headless dispatch workers — no 1Password, no browser-based OAuth, no subscription login dance.
+### OpenCode + Ollama has a known, widespread reliability problem
 
-### `ollama launch` enables zero-config coding agent startup
+Multiple OpenCode GitHub issues (#1068, #3029, #5694, #1034) document that Ollama models frequently fail to execute tool calls in OpenCode's agent loop. The community has identified workarounds (custom Modelfiles, explicit `num_ctx` settings, version pinning), but there is no "just works" configuration. (opencode-ollama-tool-issues)
 
-The `ollama launch` command can start coding agents directly:
-- `ollama launch opencode` — open-source coding assistant (no proprietary auth needed)
-- `ollama launch codex` — OpenAI's Codex CLI
-- `ollama launch claude-code` — still requires Anthropic auth (not useful for auth-free workers)
+### Model quality is adequate for mechanical tasks
 
-OpenCode is the most relevant for swain dispatch: it's open-source, reads AGENTS.md, and connects to Ollama Cloud via the OpenAI-compatible API.
+Available models (qwen3.5:397b, glm-5, deepseek-v3.1:671b) score well on tool-calling benchmarks. GLM-4.5 achieved 90.6% tool-calling success in benchmarks. These models are sufficient for mechanical tasks (frontmatter edits, xref updates, script generation) but likely insufficient for complex design decisions. (medium-ollama-cloud-api-ready, awesomeagents-ollama-cloud-review)
 
-### Model quality is a real tradeoff
+### Performance and pricing are viable for background work
 
-Available coding-capable models include `qwen3-coder:480b-cloud`, `deepseek-v3.1:671b-cloud`, `devstral-2:123b-cloud`, and `gpt-oss:120b-cloud`. These are strong open-source models, but none match Claude's quality for complex agentic work (multi-step artifact creation, spec authoring, design reasoning). They're suitable for:
-- Mechanical tasks (xref fixes, frontmatter updates, script generation)
-- Code implementation from detailed plans
-- Search and normalization work
-
-They're likely insufficient for:
-- Complex design decisions
-- Spec authoring requiring deep project context
-- Multi-artifact coordination
-
-### Performance is the bottleneck
-
-Shared inference: 42-95 tok/s (2-13x slower than competitors). Cold starts on niche models: 10-15 seconds. No SLA on shared tier. Dedicated endpoints ($0.80+/hr) bring latency to competitive levels (~210 tok/s).
-
-For dispatch workers that run in the background, throughput matters more than latency. A 2x slowdown is acceptable if the worker runs asynchronously; a 13x slowdown is painful even for background work.
-
-### Free tier is limited but usable for development
-
-$10/month credits (~30K requests) with hourly and weekly rate limits. Pro tier at $20/month, Max at $100/month. For a solo developer dispatching occasional background workers, the free tier covers development; Pro covers light production use.
+42–95 tok/s on shared tier. Free tier: $10/month credits (~30K requests). Pro: $20/month. For background dispatch workers that run asynchronously, throughput matters more than latency. The free tier covers development; Pro covers light production. (devto-beginners-guide-ollama-cloud)
 
 ## Points of Agreement
 
 All sources confirm:
 - OpenAI-compatible API at `ollama.com/v1/`
 - Bearer token auth via API key
-- 400+ models including large cloud-only variants
-- Seamless local-to-cloud workflow
-- Free tier available
+- Tool calling is supported but model-dependent
+- Context window configuration is critical for tool calling
 
 ## Points of Disagreement
 
-- **Quality sufficiency**: some sources treat cloud models as production-ready; the benchmark review shows significant quality and speed gaps vs. Claude/GPT-4
-- **Auth model**: one source suggests multiple accounts for key rotation to bypass rate limits, which is against spirit of ToS
+- **Cloud vs local reliability**: Some sources report better tool calling on cloud (server manages templates); others report worse (no version control, no Modelfile customization)
+- **Model selection**: Community is split on whether coding-specific models (qwen3-coder, devstral) or general models (kimi-k2, glm-5) are better for agentic tool use
 
 ## Gaps
 
-- **No source tests Ollama Cloud with swain-like agentic workflows** — all sources focus on single-turn or simple multi-turn conversations, not multi-step file-editing agent sessions
-- **Context window limitations** — OpenAI API spec through Ollama defaults to ~2K context; must create custom Modelfiles with `num_ctx` for production use, and it's unclear if this works with cloud models
-- **Tool calling reliability** — only deepseek-v3.1 and gpt-oss models support tool calling; reliability for complex tool chains is untested
-- **AGENTS.md compliance** — no source confirms whether OpenCode or other agents consistently read and follow AGENTS.md conventions when backed by Ollama Cloud models
-
-## Relevance to swain-dispatch
-
-**swain-dispatch is deprecated** (requires ANTHROPIC_API_KEY with per-token billing). Ollama Cloud could enable a different dispatch model:
-
-1. Workers run OpenCode or similar open agent with Ollama Cloud backend
-2. Workers read AGENTS.md and follow swain conventions
-3. Workers authenticate with Ollama API key (no Claude subscription)
-4. Workers handle mechanical/implementation tasks; operator handles design decisions
-
-**Open questions for a spike:**
-- Does OpenCode reliably follow AGENTS.md governance when backed by qwen3-coder or deepseek?
-- Can cloud models handle swain's artifact format (YAML frontmatter, lifecycle tables)?
-- What's the effective context window for cloud models via the OpenAI API?
-- Is the free/Pro tier rate limit sufficient for a dispatch workload?
+- **No end-to-end test of Ollama Cloud models driving a multi-step file-editing agent session** — all tool-calling tests are single-turn; the spike's trial protocol is the first multi-step test
+- **Intermittent failure rate unknown** — the qwen3.5 tool-call-printing bug is intermittent; we don't know the failure rate over 100+ tool calls in a single session
+- **OpenCode config for Ollama Cloud** — no documented working configuration for `@ai-sdk/openai-compatible` + Ollama Cloud + tool calling (community configs are all for local Ollama)
+- **Rate limit behavior under sustained tool use** — unknown how Ollama Cloud handles rapid sequential API calls from an agent loop
