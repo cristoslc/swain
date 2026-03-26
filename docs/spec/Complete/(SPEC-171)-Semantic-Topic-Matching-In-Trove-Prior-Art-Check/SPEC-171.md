@@ -2,7 +2,7 @@
 title: "Semantic Topic Matching in Trove Prior Art Check"
 artifact: SPEC-171
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-25
 last-updated: 2026-03-25
@@ -62,6 +62,11 @@ Operators get correctly routed trove placement on the first attempt. Sources abo
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Cog → finds agent-memory-systems via tag match | SKILL.md:59 — explicit example with Cog and topic keywords `agent-memory`, `memory-architecture`, `claude-code` | Pass |
+| AC2: Phase 2 searches tags/synthesis using content-derived keywords | SKILL.md:47-59 — instructions to extract 3-5 topic keywords, grep manifests and synthesis | Pass |
+| AC3: Decision gate outputs match list with trove IDs and tags | SKILL.md:63-70 — template with match counts, trove IDs, tags, and routing decision | Pass |
+| AC4: No matches → "No existing troves match topic" | SKILL.md:68 — decision gate template covers no-match case | Pass |
+| AC5: URL-only invocation defers full topic matching | SKILL.md:61-62 — defers until source is fetched | Pass |
 
 ## Scope & Constraints
 
@@ -90,3 +95,4 @@ Single change to the "Prior art check" section of swain-search's SKILL.md:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-25 | | Initial creation |
+| Complete | 2026-03-25 | | All ACs verified — Phase 2 semantic topic matching added to swain-search |
