@@ -15,6 +15,7 @@ risks-addressed:
   - "Flat-file approach may be leaving value on the table vs. graph-connected knowledge"
 evidence-pool:
   - "trove: agent-memory-systems@a824a13"
+  - "trove: cog-cognitive-architecture@ea445b2"
 trove: "agent-memory-systems@a824a13"
 ---
 
