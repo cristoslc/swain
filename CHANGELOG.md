@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.19.0-alpha] - 2026-03-25
+
+### Features
+
+#### Semantic topic matching in trove prior art check
+
+swain-search's prior art check now runs in two phases. Phase 1 searches by literal keyword (existing behavior). Phase 2 extracts topic keywords from the source's content and searches existing trove tags and synthesis summaries for semantic overlap. A forced decision gate makes every Create/Extend routing decision visible and auditable — no more silent misrouting when a source uses different vocabulary for a known topic.
+
+### Research
+- Agent memory systems trove extended with Cog (marciopuga/cog) — a convention-only cognitive architecture for Claude Code with 3-tier memory, L0/L1/L2 progressive retrieval, and a 4-stage maintenance pipeline. Synthesis rewritten as a 6-tier landscape; SPIKE-044 rewritten with full context across all 12 sources.
+- Ollama cloud subscription pricing trove — 6 sources on GPU-as-a-service costs across RunPod, Vast.ai, Lambda, and others
+
+### Supporting Changes
+- Trove misrouting retro — root cause analysis and process fix for standalone trove creation when extending was correct
+
 ## [0.18.0-alpha] - 2026-03-25
 
 ### Features
