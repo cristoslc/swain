@@ -59,9 +59,9 @@
 | SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
 | SPEC-116 | Read Before Reasoning | 2026-03-20 | ec9842d |
 | SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | ec9842d |
-| SPEC-119 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
-| SPEC-119 | Session Lifecycle in swain-session | 2026-03-20 | -- |
-| SPEC-120 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
+| SPEC-169 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
+| SPEC-169 | Session Lifecycle in swain-session | 2026-03-20 | -- |
+| SPEC-170 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
 | SPEC-121 | Session Detection Hooks Across All Skills | 2026-03-20 | -- |
 | SPEC-122 | Absorb swain-status into swain-session | 2026-03-20 | -- |
 | SPEC-123 | Skill and Script Alignment Audit | 2026-03-20 | -- |
@@ -164,7 +164,7 @@
 | SPEC-114 | Trunk + Release Branch Model With Merge-and-Retry Landing | 2026-03-20 | 5c92f0b |
 | SPEC-115 | Roadmap Initiative children use level-based filtering, not type-based | 2026-03-20 | — |
 | SPEC-118 | SESSION-ROADMAP.md Format and Generation | 2026-03-22 | d1846d8 |
-| SPEC-120 | ROADMAP.md Decision and Recommendation Sections | 2026-03-21 | c933d46 |
+| SPEC-170 | ROADMAP.md Decision and Recommendation Sections | 2026-03-21 | c933d46 |
 | SPEC-129 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | — |
 | SPEC-134 | Expand DESIGN Artifact Scope to Data and System Contracts | 2026-03-21 | d491b1a |
 | SPEC-138 | iTerm Tab Name Bleed From Global set-titles | 2026-03-21 | — |

@@ -11,7 +11,7 @@ parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
 linked-artifacts:
   - SPEC-118
-  - SPEC-120
+  - SPEC-170
   - SPEC-121
   - SPEC-123
 depends-on-artifacts: []
@@ -94,7 +94,7 @@ Session state is persisted in a lightweight file (`.agents/session-state.json` o
 
 **Out of scope:**
 - SESSION-ROADMAP.md format definition (SPEC-118)
-- ROADMAP.md changes (SPEC-120)
+- ROADMAP.md changes (SPEC-170)
 - Session detection in other skills (SPEC-121)
 
 **Constraints:**

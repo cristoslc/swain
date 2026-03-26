@@ -50,12 +50,12 @@
 ### Active
 
 - [EPIC-029](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) — Auto-Detecting Trunk Branch (1/6)
-  - [SPEC-119](../../../spec/Active/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) — Session Lifecycle in swain-session (Active, in progress)
+  - [SPEC-169](../../../spec/Active/(SPEC-169)-Session-Lifecycle-In-swain-session/SPEC-169.md) — Session Lifecycle in swain-session (Active, in progress)
   - [SPEC-135](../../../spec/Active/(SPEC-135)-swain-trunk-Auto-Detection-Helper/SPEC-135.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
   - [SPEC-136](../../../spec/Active/(SPEC-136)-Parameterize-Runtime-Skills/SPEC-136.md) — Parameterize Runtime Skills With swain_trunk() (Active, in progress)
   - [SPEC-137](../../../spec/Active/(SPEC-137)-Doctor-Trunk-Migration-Check/SPEC-137.md) — Doctor Trunk/Release Migration Detection (Active, in progress)
   - [SPEC-147](../../../spec/Active/(SPEC-147)-swain-trunk-Auto-Detection-Helper/SPEC-147.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
-  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)
+  - [SPEC-170](../../../spec/Complete/(SPEC-170)-Roadmap-Decision-And-Recommendation-Sections/SPEC-170.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)
 ### Proposed
 
 - [EPIC-025](../../../epic/Proposed/(EPIC-025)-Event-Bus/(EPIC-025)-Event-Bus.md) — Event Bus (—)

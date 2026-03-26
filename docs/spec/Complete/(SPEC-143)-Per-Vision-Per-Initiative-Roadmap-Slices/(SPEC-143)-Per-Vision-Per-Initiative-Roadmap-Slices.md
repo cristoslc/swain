@@ -13,7 +13,7 @@ linked-artifacts:
   - SPEC-108
   - SPEC-109
   - SPEC-115
-  - SPEC-120
+  - SPEC-170
   - SPEC-124
   - SPEC-144
   - VISION-001
@@ -164,4 +164,4 @@ This SPEC supersedes the manual `roadmap.md` expectation. After implementation:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-21 | — | Initial creation from gh#84 |
-| Complete | 2026-03-22 | fb1601b | Retroactive close — implemented on worktree branch, merged with SPEC-120 conflict resolution |
+| Complete | 2026-03-22 | fb1601b | Retroactive close — implemented on worktree branch, merged with SPEC-170 conflict resolution |

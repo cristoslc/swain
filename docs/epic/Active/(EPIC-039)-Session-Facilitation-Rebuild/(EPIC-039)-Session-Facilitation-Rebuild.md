@@ -20,8 +20,8 @@ depends-on-artifacts: []
 evidence-pool: session-decision-support@01095c4
 linked-artifacts:
   - SPEC-118
-  - SPEC-119
-  - SPEC-120
+  - SPEC-169
+  - SPEC-170
   - SPEC-121
   - SPEC-122
   - SPEC-123
@@ -55,8 +55,8 @@ Rebuild swain-session from the ground up as the session facilitator. It owns the
 | Spec | Title | Status |
 |------|-------|--------|
 | SPEC-118 | SESSION-ROADMAP.md Format and Generation | Active |
-| SPEC-119 | Session Lifecycle in swain-session | Active |
-| SPEC-120 | ROADMAP.md Decision and Recommendation Sections | Active |
+| SPEC-169 | Session Lifecycle in swain-session | Active |
+| SPEC-170 | ROADMAP.md Decision and Recommendation Sections | Active |
 | SPEC-121 | Session Detection Hooks Across All Skills | Active |
 | SPEC-122 | Absorb swain-status into swain-session | Active |
 | SPEC-123 | Skill and Script Alignment Audit | Active |

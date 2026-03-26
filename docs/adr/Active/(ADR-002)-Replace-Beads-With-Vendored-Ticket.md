@@ -8,7 +8,7 @@ created: 2026-03-12
 last-updated: 2026-03-12
 trove: ""
 linked-artifacts:
-  - SPIKE-001
+  - SPIKE-046
   - SPIKE-002
   - SPIKE-005
   - SPIKE-006
@@ -29,7 +29,7 @@ swain-do uses bd (beads) for task tracking. Beads uses Dolt — a git-for-databa
 
 Four spikes investigated the problem space:
 
-- **SPIKE-001**: Evaluated Backlog.md as a replacement — dependency tracking CLI commands are missing (ready/blocked/dep), blocking adoption
+- **SPIKE-046**: Evaluated Backlog.md as a replacement — dependency tracking CLI commands are missing (ready/blocked/dep), blocking adoption
 - **SPIKE-002**: Evaluated Backlog.md for artifact management — fundamental impedance mismatch, rejected
 - **SPIKE-005**: Diagnosed dolt performance — root cause is server lifecycle, not query performance. Applied workarounds (batch auto-commit, server cleanup) but the architectural overhead remains
 - **SPIKE-006**: Broadened search across 10+ candidates with 7 must-have requirements including dependency graphs, no runtime database, git-friendly storage, and multi-agent sync
@@ -70,7 +70,7 @@ Ranked #2 in SPIKE-006. Strongest multi-agent story (advisory locks, atomic writ
 Ranked #3. GraphQL engine, ETag-based concurrency, TUI. But no CLI dep commands (TUI/GraphQL only), no spec lineage tagging, doesn't accept contributions, and breaking changes are expected. Too volatile.
 
 ### Backlog.md + upstream contribution
-Blocked on missing `ready`/`blocked`/`dep` CLI commands since SPIKE-001. The internal engine supports it but the CLI doesn't expose it. Contributing upstream (~180 LOC) is possible but depends on maintainer acceptance timeline.
+Blocked on missing `ready`/`blocked`/`dep` CLI commands since SPIKE-046. The internal engine supports it but the CLI doesn't expose it. Contributing upstream (~180 LOC) is possible but depends on maintainer acceptance timeline.
 
 ### Bespoke SQLite CLI
 Would meet all requirements but requires building from scratch (~800-1200 LOC). ticket already exists and covers 5.5/7 must-haves out of the box, with the gap (atomic claims) addressable in ~20 LOC.
@@ -109,4 +109,4 @@ A migration script and documentation must be provided:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Adopted | 2026-03-12 | — | Decision made based on SPIKE-001, -002, -005, -006 findings |
+| Adopted | 2026-03-12 | — | Decision made based on SPIKE-046, -002, -005, -006 findings |

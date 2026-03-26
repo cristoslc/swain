@@ -1,6 +1,6 @@
 ---
 title: "Doctor Trunk/Release Migration Detection"
-artifact: SPEC-120
+artifact: SPEC-170
 track: implementation
 status: Active
 author: cristos

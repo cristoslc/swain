@@ -12,8 +12,8 @@ depends-on-artifacts: []
 linked-artifacts:
   - ADR-013
   - EPIC-029
-  - SPEC-119
-  - SPEC-120
+  - SPEC-169
+  - SPEC-170
   - SPEC-136
   - SPEC-137
 ---

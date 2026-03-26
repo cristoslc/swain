@@ -5,10 +5,10 @@ track: standing
 status: Active
 created: 2026-03-22
 last-updated: 2026-03-22
-scope: "SPEC-120, SPEC-143, SPEC-118 implementation + SPEC-147 renumber"
+scope: "SPEC-170, SPEC-143, SPEC-118 implementation + SPEC-147 renumber"
 period: "2026-03-22 — 2026-03-22"
 linked-artifacts:
-  - SPEC-120
+  - SPEC-170
   - SPEC-140
   - SPEC-143
   - SPEC-118
@@ -21,7 +21,7 @@ linked-artifacts:
 
 ## Summary
 
-Single-session sprint shipping three specs across the roadmap and session infrastructure. SPEC-120 (Decisions + Recommendation sections in ROADMAP.md) was implemented from scratch with TDD. SPEC-143 (per-artifact roadmap slices) was discovered already implemented on an unmerged worktree branch — retroactively verified and merged with conflict resolution. SPEC-118 (SESSION-ROADMAP.md) was implemented after resolving design questions with the operator, introducing a JSONL decision log as durable storage.
+Single-session sprint shipping three specs across the roadmap and session infrastructure. SPEC-170 (Decisions + Recommendation sections in ROADMAP.md) was implemented from scratch with TDD. SPEC-143 (per-artifact roadmap slices) was discovered already implemented on an unmerged worktree branch — retroactively verified and merged with conflict resolution. SPEC-118 (SESSION-ROADMAP.md) was implemented after resolving design questions with the operator, introducing a JSONL decision log as durable storage.
 
 Also fixed an artifact ID collision (SPEC-118 duplicated) by renumbering the trunk helper to SPEC-147, and cleaned up 15 stale worktrees + 27 orphaned branches.
 
@@ -29,7 +29,7 @@ Also fixed an artifact ID collision (SPEC-118 duplicated) by renumbering the tru
 
 | Artifact | Title | Outcome |
 |----------|-------|---------|
-| SPEC-120 | ROADMAP.md Decision and Recommendation Sections | Complete (13 new tests) |
+| SPEC-170 | ROADMAP.md Decision and Recommendation Sections | Complete (13 new tests) |
 | SPEC-143 | Per-Vision and Per-Initiative Roadmap Slices | Complete (retroactive close, 15 tests on branch) |
 | SPEC-118 | SESSION-ROADMAP.md Format and Generation | Complete (17 new tests) |
 | SPEC-147 | swain_trunk() Auto-Detection Helper | Renumbered from SPEC-118 (collision fix) |
@@ -46,7 +46,7 @@ Also fixed an artifact ID collision (SPEC-118 duplicated) by renumbering the tru
 ### What was surprising
 
 - **SPEC-118 ID collision.** Two different specs shared the same artifact ID. The collision was invisible until implementation started — `find` returned two files. Creation-date forensics (git log --diff-filter=A) resolved which was first. This validates that SPEC-140 (Artifact ID Collision Detection) is a real need, not theoretical.
-- **chart_cli.py didn't pass edges.** SPEC-120's integration test caught that `render_roadmap_markdown` was called without `edges`, causing the new sections to produce empty output despite unit tests passing. Same pattern noted in prior retros — unit fixtures don't catch wiring bugs.
+- **chart_cli.py didn't pass edges.** SPEC-170's integration test caught that `render_roadmap_markdown` was called without `edges`, causing the new sections to produce empty output despite unit tests passing. Same pattern noted in prior retros — unit fixtures don't catch wiring bugs.
 
 ### What would change
 

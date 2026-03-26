@@ -1,6 +1,6 @@
 ---
 title: "Parameterize Runtime Skills With swain_trunk()"
-artifact: SPEC-119
+artifact: SPEC-169
 track: implementation
 status: Active
 author: cristos

@@ -1,6 +1,6 @@
 ---
 title: "Task Management Decision Framework Integration"
-artifact: SPIKE-001
+artifact: SPIKE-046
 track: container
 status: Active
 author: cristos
