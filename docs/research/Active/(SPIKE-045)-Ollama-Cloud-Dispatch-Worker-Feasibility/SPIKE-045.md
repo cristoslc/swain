@@ -70,9 +70,13 @@ If No-Go:
 4. Score each run: pass (completed correctly), partial (completed with errors), fail (could not complete)
 
 ### Models to Test
-- `kimi-k2.5` — 256K context, newest Moonshot general model
 - `qwen3.5:397b` — 256K context, newest Qwen general model (397B params)
 - `glm-5` — 198K context, Zhipu general model
+- `deepseek-v3.1:671b` — 160K context, DeepSeek general model (671B params)
+
+**Eliminated models:**
+- `kimi-k2.5` — server-side bug on Ollama Cloud; "prompt too long" on trivial prompts (2026-03-25)
+- `kimi-k2-thinking` — non-standard tool call IDs (`functions.*:N`), 60-100s latency per tool call
 
 ### Measurements
 - Context window effective size (can it hold AGENTS.md + spec + files?)
@@ -82,7 +86,66 @@ If No-Go:
 
 ## Findings
 
-<!-- Populated during Active phase investigation. -->
+### Result: NO-GO for Ollama Cloud dispatch workers
+
+Ollama Cloud cannot reliably sustain multi-step agent sessions on any tier. The platform hits **3 of 4 no-go criteria**:
+
+- **No-Go #2**: Success rate 0% (0/3 trials completed). Best result was partial (73% of files edited correctly before stall).
+- **No-Go #4**: Free tier exhausted mid-session (~11 min of active work). Rate limits prevented completing a single SPEC within 30 minutes. One trial consumed the entire daily/session budget, blocking the other two models from even starting.
+- **No-Go (new)**: Platform reliability — 29.7% failure rate on qwen3.5 documented in March 2026. No SLA, no status page, no incident communication.
+
+### Model intelligence: VALIDATED
+
+The models themselves performed well when the platform allowed them to work:
+
+- **qwen3.5:397b** read AGENTS.md, found SPEC-018, read ADR-003, and made correct edits across 16 of 22 target files (73% coverage). Lifecycle phases correctly matched the three-track model. Template defaults correctly changed to "Proposed". STORY references correctly removed. Zero hallucination, zero scope creep.
+- Tool calling format works correctly for qwen3.5:397b, glm-5, and deepseek-v3.1:671b through the `/v1/chat/completions` endpoint.
+
+### Tool calling compatibility
+
+| Model | Tool calling | Format | Latency |
+|-------|-------------|--------|---------|
+| qwen3.5:397b | Works | OpenAI-standard `call_*` IDs | ~3s |
+| glm-5 | Works | OpenAI-standard `call_*` IDs | ~3s |
+| deepseek-v3.1:671b | Works | OpenAI-standard `call_*` IDs | ~3s |
+| kimi-k2.5 | Broken | N/A — "prompt too long" on all requests | N/A |
+| kimi-k2-thinking | Works | Non-standard `functions.*:N` IDs | 60-100s |
+
+### Platform limitations
+
+- **Opaque rate limits**: Usage measured in "GPU time" — no published token or request quotas. Free tier: ~1-2 hours of coding/day. Pro ($20/mo): 50x Free (but base unit undefined). Max ($100/mo): 250x Free.
+- **Concurrency**: Free=1, Pro=3, Max=10 concurrent model slots. Running two trials simultaneously would require Pro.
+- **Session/weekly resets**: Limits reset every 5 hours (session) and 7 days (weekly). At 90% usage, email notification. No graceful degradation — requests fail silently or queue indefinitely.
+- **No throughput differentiation**: All tiers share the same inference pool at 42-95 tok/s. Paying more buys capacity (GPU time budget), not speed.
+
+### Trial results
+
+| Model | Trial | Duration | Files changed | Status | Failure mode |
+|-------|-------|----------|---------------|--------|-------------|
+| kimi-k2.5 | 1 | 18s | 0 | FAIL | Server-side bug — "prompt too long" on trivial prompts |
+| qwen3.5:397b | 1 | ~35m (killed) | 16/22 | PARTIAL | API stall after ~11m active work; platform rate limit |
+| glm-5 | 1 | <1m | 0 | FAIL | Launched after usage exhausted by qwen3.5 trial |
+| deepseek-v3.1:671b | 1 | <1m | 0 | FAIL | Launched after usage exhausted by qwen3.5 trial |
+
+### Pivot recommendation
+
+**Pivot B (self-hosted Ollama) is most promising.** The models are smart enough — qwen3.5:397b proved it can follow swain conventions and edit artifacts correctly. The bottleneck is Ollama Cloud's rate limits, reliability, and opaque capacity. Self-hosting removes all three:
+
+- No rate limits or session caps
+- No shared inference pool — dedicated throughput
+- No dependency on Ollama Cloud's availability
+- Version-pinnable (avoids the qwen3.5 tool-call-printing bug in Ollama 0.17.6+)
+- Cost: ~$55/month for RTX 4090 VPS, or $0 on existing hardware with a GPU
+
+**Pivot A** (Claude SDK + Ollama inference) still requires Anthropic auth, defeating the "auth-free dispatch" goal.
+
+**Pivot C** (abandon multi-model) remains the conservative fallback if self-hosting proves impractical.
+
+### Research artifacts
+
+- **Troves**: `ollama-cloud-dispatch-workers@71ed4fc` (10 sources), `ollama-cloud-subscriptions@3b14d3e` (6 sources)
+- **Trial data**: `trial-kimi-k2.5-1.md`, `trial-qwen3.5-397b-1.md`, worktrees at `/tmp/spike045-*/`
+- **Trial runner**: `run-trial.sh` — reusable for Pivot B testing with local Ollama
 
 ## Lifecycle
 

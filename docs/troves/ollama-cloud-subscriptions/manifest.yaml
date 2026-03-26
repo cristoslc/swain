@@ -1,0 +1,67 @@
+trove: ollama-cloud-subscriptions
+created: 2026-03-25
+refreshed: 2026-03-25
+tags:
+  - ollama
+  - ollama-cloud
+  - subscriptions
+  - pricing
+  - throughput
+  - rate-limits
+  - dispatch
+
+freshness-ttl:
+  web: 14d
+  forum: 14d
+  local: never
+
+history:
+  - event: created
+    date: 2026-03-25
+    commit: "3b14d3e"
+    sources: 6
+
+referenced-by: []
+
+sources:
+  - source-id: "ollama-pricing-page"
+    type: web
+    title: "Ollama Pricing Page — Official Tier Comparison"
+    url: "https://ollama.com/pricing"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "b09364961b1a7e65e35e1b8204f604262a1013ea087b01442035f158522784f0"
+
+  - source-id: "checkthat-ollama-pricing-2026"
+    type: web
+    title: "Ollama Pricing 2026: Plans, Costs & TCO"
+    url: "https://checkthat.ai/brands/ollama/pricing"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "2fa2890043a5c04b653331f868b955c6c29ae44977f8e1590657c40b6bf51562"
+
+  - source-id: "efficienist-pro-annual-billing"
+    type: web
+    title: "Ollama Adds Annual Billing Option to Pro Plan at $200/year"
+    url: "https://efficienist.com/ollama-adds-annual-billing-option-to-pro-plan-at-200-year/"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "4aca9d18f0dce9cb5588b35e13ba40dd43ac565c7967f0c025354e1876b6043c"
+
+  - source-id: "reddit-cloud-pro-usage-limits"
+    type: forum
+    title: "r/ollama: Cloud Pro Usage Limits — Community Reports"
+    url: "https://www.reddit.com/r/ollama/comments/1r56bwg/cloud_pro_usage_limits/"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "d41c197e2c25bfcb57e89e488034f07e43ca865278d78c74891fd42d085fcc47"
+
+  - source-id: "reddit-cloud-token-limitations"
+    type: forum
+    title: "r/ollama: Cloud Plan Token Limitations and High-Volume Usage Questions"
+    url: "https://www.reddit.com/r/ollama/comments/1r2nyqv/ollamas_cloud_plan_token_limitations/"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "acdd48674c6b03f2b471cfb71b6125b70a11aa9d63725b2bdca1b396165364a0"
+
+  - source-id: "gh-issue-14673-reliability"
+    type: web
+    title: "Service Reliability Degradation: High Timeout Rates on Ollama Cloud (GitHub #14673)"
+    url: "https://github.com/ollama/ollama/issues/14673"
+    fetched: 2026-03-25T18:00:00Z
+    hash: "a363fc13a7ddc8b8c8efca969945dac888caf9340075ec5bc2a5b14a52cdd0bf"

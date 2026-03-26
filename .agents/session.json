@@ -5,8 +5,11 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Pushed commits to trunk",
-    "timestamp": "2026-03-26T02:39:07Z"
+    "note": "SPIKE-045: NO-GO on Ollama Cloud, pending glm-5/deepseek retries after session reset + self-hosted cost trove",
+    "files": [
+      "docs/research/Active/(SPIKE-045)-Ollama-Cloud-Dispatch-Worker-Feasibility/SPIKE-045.md"
+    ],
+    "timestamp": "2026-03-26T04:10:31Z"
   },
   "focus_lane": "INITIATIVE-019"
 }
