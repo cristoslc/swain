@@ -38,7 +38,6 @@
 | SPEC-056 | Tmux Pane-Aware Session Naming | 2026-03-16 | — |
 | SPEC-072 | Universal find-based script discovery | 2026-03-18 | — |
 | SPEC-073 | Description enrichment | 2026-03-18 | — |
-| SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-18 | — |
 | SPEC-075 | Fix swain-sync functional bugs | 2026-03-18 | — |
 | SPEC-076 | Fix swain-update functional bugs | 2026-03-18 | — |
 | SPEC-077 | allowed-tools hygiene sweep | 2026-03-18 | — |
@@ -177,6 +176,12 @@
 | SPEC-157 | swain-design SKILL.md Allocator Integration | 2026-03-23 | — |
 | SPEC-158 | Artifact Number Collision Detection | 2026-03-23 | — |
 | SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-23 | — |
+
+## Abandoned
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-25 | — |
 
 ## Superseded
 

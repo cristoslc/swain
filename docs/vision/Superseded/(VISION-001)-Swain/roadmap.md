@@ -5,15 +5,15 @@
 
 ## Progress
 
-█████░░░░░░░ 74/165 complete (45%)
+██████░░░░░░ 86/180 complete (48%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-21 | 23:48 | `8f2eb18` | docs(spec): SPEC-145 design creation prompts, SPEC-146 design coverage audit lens |
-| 2026-03-21 | 23:03 | `c063592` | docs: renumber artifact IDs, add 3 new SPECs, complete EPIC-038 |
-| 2026-03-21 | 14:02 | `5dd8e05` | docs: add SPEC-124 roadmap legend bug and EPIC-031 retro |
+| 2026-03-24 | 23:03 | `c088911` | docs(SPEC-164): supersede VISION-001 — identity migrated to PURPOSE.md |
+| 2026-03-23 | 13:23 | `4706d17` | docs(EPIC-044, SPIKE-044): stamp lifecycle hash 944a30f |
+| 2026-03-23 | 13:23 | `944a30f` | docs(EPIC-044, SPIKE-044): create Swain Memory Architecture epic and research spike |
 
 ## Priority Subset
 
@@ -26,17 +26,20 @@
 |  | [Worktree-Enforced Sandbox Isolation](../../../spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) | 0/0 | 4 | **needs decomposition** |
 |  | [Sandbox Templates In Regular Docker Containers](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Container-Compatible Auth Flows Per Runtime](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) | 0/0 | 1 | **needs decomposition** |
+|  | [swain-doctor SSH Binary Check](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) | 0/0 | 0 | **needs decomposition** |
 | [Agent Runtime Efficiency](../../../initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 0/9 | 0 | — |
-| [Operator Situational Awareness](../../../initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Vision-Rooted Chart Hierarchy](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Project Identity Enforcement](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
+| [Operator Situational Awareness](../../../initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Project Identity Enforcement](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Trove Analysis Layer](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Eliminate swain-sync context disruption](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Roadmap Initiative children use level-based filtering, not type-based](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Read Before Reasoning](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Evidence Basis For All Actions](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
-|  | [iTerm Tab Name Bleed From Global set-titles](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
-| [Unified Project State Graph](../../../initiative/Proposed/(INITIATIVE-009)-Unified-Project-State-Graph/(INITIATIVE-009)-Unified-Project-State-Graph.md) | [Auto-Detecting Trunk Branch](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) | 0/3 | 0 | — |
+|  | [Roadmap legend should display epic names alongside initiative names](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Artifact ID Collision Detection](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Brief Description Frontmatter Field](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) | 0/0 | 0 | **needs decomposition** |
+| [Unified Project State Graph](../../../initiative/Proposed/(INITIATIVE-009)-Unified-Project-State-Graph/(INITIATIVE-009)-Unified-Project-State-Graph.md) | [Auto-Detecting Trunk Branch](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) | 1/6 | 0 | — |
 | [swain-stage Redesign](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [User Documentation System](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | 0/1 | 0 | — |
+|  | [swain-stage hooks fire unconditionally even when stage is not active](../../../spec/Active/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md) | 0/0 | 0 | **needs decomposition** |
+|  | [stage-status-hook fails with ENOENT when CWD is removed](../../../spec/Active/(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -45,6 +48,7 @@
 |-----------|------|----------|----------|-------|
 | [Automated Work Intake](../../../initiative/Active/(INITIATIVE-008)-Automated-Work-Intake/(INITIATIVE-008)-Automated-Work-Intake.md) | [GitHub Issue Polling with Deterministic Pre-Filtering](../../../epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) | 0/0 | 0 | **activate or drop** |
 | [Concurrent Session Safety](../../../initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Stage Status Hook Fails in Worktrees](../../../spec/Complete/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees.md) | 0/0 | 0 | **activate or drop** |
+|  | [Container-Compatible Runtime Auth Commands](../../../spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -55,12 +59,13 @@
 |  | [Security Gates in swain-do Execution Flow](../../../epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) | 0/4 | 0 | — |
 | [Product Design](../../../initiative/Proposed/(INITIATIVE-007)-Product-Design/(INITIATIVE-007)-Product-Design.md) | [Rename swain-design to swain-strategize](../../../epic/Proposed/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize.md) | 0/0 | 1 | **activate or drop** |
 | [Concurrent Session Safety](../../../initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Worktree-Aware Session Bookmarks](../../../epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md) | 0/0 | 1 | **activate or drop** |
-| [swain-stage Redesign](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [CLI Command Verification in Agent Execution](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) | 0/0 | 1 | **activate or drop** |
-|  | [Documentation Viewer](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
-| [Agent Implementation Reliability](../../../initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) | [CLI Command Verification in Agent Execution](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) | 0/0 | 1 | **activate or drop** |
-|  | [External CLI Assumption Verification](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) | 0/0 | 1 | **needs decomposition** |
-| [Agent Runtime Efficiency](../../../initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [tk close Must Release Claim Lock](../../../spec/Complete/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) | 0/0 | 0 | **needs decomposition** |
-| [Operator Situational Awareness](../../../initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/4 | 0 | — |
+|  | [Session-Aware Commit Atomization](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) | 0/2 | 0 | — |
+| [Agent Implementation Reliability](../../../initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) | [External CLI Assumption Verification](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) | 0/0 | 1 | **needs decomposition** |
+| — | [Swain Memory Architecture](../../../epic/Active/(EPIC-044)-Swain-Memory-Architecture/(EPIC-044)-Swain-Memory-Architecture.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency](../../../initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
+| [Operator Situational Awareness](../../../initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/6 | 0 | — |
+| [swain-stage Redesign](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [Documentation Viewer](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -75,9 +80,7 @@
 |  | [Orchestrator Integration](../../../epic/Proposed/(EPIC-027)-Orchestrator-Integration/(EPIC-027)-Orchestrator-Integration.md) | 0/0 | 0 | **activate or drop** |
 |  | [Status Integration](../../../epic/Proposed/(EPIC-028)-Status-Integration/(EPIC-028)-Status-Integration.md) | 0/0 | 0 | **activate or drop** |
 | [Concurrent Session Safety](../../../initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Multi-Agent Workdir Safety](../../../epic/Proposed/(EPIC-020)-Multi-Agent-Workdir-Safety/(EPIC-020)-Multi-Agent-Workdir-Safety.md) | 0/0 | 0 | **activate or drop** |
-|  | [Sandbox Capability Bridges](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) | 0/4 | 0 | **activate or drop** |
-|  | [Container-Compatible Runtime Auth Commands](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) | 0/0 | 0 | **activate or drop** |
-| [swain-stage Redesign](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [Container-Compatible Runtime Auth Commands](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) | 0/0 | 0 | **activate or drop** |
+| [Agent Implementation Reliability](../../../initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) | [CLI Command Verification in Agent Execution](../../../spec/Proposed/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
@@ -97,7 +100,7 @@
 - [EPIC-031](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) — Skill Audit Remediation (0/9)
   - [SPEC-072](../../../spec/Active/(SPEC-072)-Universal-Script-Discovery/(SPEC-072)-Universal-Script-Discovery.md) — Universal find-based script discovery (Active, in progress)
   - [SPEC-073](../../../spec/Active/(SPEC-073)-Description-Enrichment/(SPEC-073)-Description-Enrichment.md) — Description enrichment (Active, in progress)
-  - [SPEC-074](../../../spec/Active/(SPEC-074)-Fix-Dispatch-Functional-Bugs/(SPEC-074)-Fix-Dispatch-Functional-Bugs.md) — Fix swain-dispatch functional bugs (Active, in progress)
+  - [SPEC-074](../../../spec/Abandoned/(SPEC-074)-Fix-Dispatch-Functional-Bugs/(SPEC-074)-Fix-Dispatch-Functional-Bugs.md) — Fix swain-dispatch functional bugs (Active, in progress)
   - [SPEC-075](../../../spec/Active/(SPEC-075)-Fix-Sync-Functional-Bugs/(SPEC-075)-Fix-Sync-Functional-Bugs.md) — Fix swain-sync functional bugs (Active, in progress)
   - [SPEC-076](../../../spec/Active/(SPEC-076)-Fix-Update-Functional-Bugs/(SPEC-076)-Fix-Update-Functional-Bugs.md) — Fix swain-update functional bugs (Active, in progress)
   - [SPEC-077](../../../spec/Active/(SPEC-077)-Allowed-Tools-Hygiene-Sweep/(SPEC-077)-Allowed-Tools-Hygiene-Sweep.md) — allowed-tools hygiene sweep (Active, in progress)
@@ -106,18 +109,27 @@
   - [SPEC-080](../../../spec/Active/(SPEC-080)-Prune-Deprecated-Swain-Push/(SPEC-080)-Prune-Deprecated-Swain-Push.md) — Prune deprecated swain-push (Active, in progress)
 - [EPIC-034](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) — User Documentation System (0/1)
   - [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (Active, in progress)
-- [EPIC-035](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) — Design Staleness and Drift Detection (0/4)
+- [EPIC-035](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) — Design Staleness and Drift Detection (0/6)
   - [SPEC-094](../../../spec/Active/(SPEC-094)-Frontmatter-Schema-artifact-refs-sourcecode-refs/SPEC-094.md) — Frontmatter Schema — artifact-refs, sourcecode-refs, rel types (Active, in progress)
   - [SPEC-095](../../../spec/Active/(SPEC-095)-Design-Intent-Template-Section/SPEC-095.md) — Design Intent Template Section (Active, in progress)
   - [SPEC-096](../../../spec/Active/(SPEC-096)-design-check-Blob-SHA-Drift-Detection/SPEC-096.md) — design-check.sh — Blob SHA Drift Detection (Active, in progress)
   - [SPEC-097](../../../spec/Active/(SPEC-097)-Integration-Hooks-And-Decision-Protection/SPEC-097.md) — Integration Hooks and Decision Protection (Active, in progress)
+  - [SPEC-145](../../../spec/Active/(SPEC-145)-Design-Creation-Prompts/(SPEC-145)-Design-Creation-Prompts.md) — Design Creation Prompts (Active, in progress)
+  - [SPEC-146](../../../spec/Active/(SPEC-146)-Design-Coverage-Audit-Lens/(SPEC-146)-Design-Coverage-Audit-Lens.md) — Design Coverage Audit Lens (Active, in progress)
+- [EPIC-036](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) — Session-Aware Commit Atomization (0/2)
+  - [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — Session Action Log (Active, in progress)
+  - [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Commit Atomization in swain-sync (Active, in progress)
+- [EPIC-044](../../../epic/Active/(EPIC-044)-Swain-Memory-Architecture/(EPIC-044)-Swain-Memory-Architecture.md) — Swain Memory Architecture (—)
+  - [SPIKE-044](../../../research/Active/(SPIKE-044)-Memory-Architecture-Spike/(SPIKE-044)-Memory-Architecture-Spike.md) — Memory Architecture Spike (Active, in progress)
 - [INITIATIVE-003](../../../initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) — Agent Runtime Efficiency (in progress)
   - [EPIC-031](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) — Skill Audit Remediation (Active, 0/9)
-  - [SPEC-057](../../../spec/Complete/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) — tk close Must Release Claim Lock (Active, in progress)
+  - [SPEC-162](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) — EPIC Child Specs Section Not Updated on Completion (Active, in progress)
+  - [SPIKE-043](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) — Phase Complexity Model for Adaptive Ceremony and Autonomy (Active, in progress)
   - [EPIC-004](../../../epic/Complete/(EPIC-004)-Superpowers-Integration-Assessment/(EPIC-004)-Superpowers-Integration-Assessment.md) — Superpowers Integration Assessment (Complete, 1/1)
   - [EPIC-006](../../../epic/Complete/(EPIC-006)-Skill-Context-Footprint-Reduction/(EPIC-006)-Skill-Context-Footprint-Reduction.md) — Skill Context Footprint Reduction (Complete, 3/3)
   - [EPIC-007](../../../epic/Complete/(EPIC-007)-Agent-Model-Routing-And-Reasoning-Effort/(EPIC-007)-Agent-Model-Routing-And-Reasoning-Effort.md) — Agent Model Routing and Reasoning Effort Steering (Complete, 1/1)
-  - [SPEC-103](../../../spec/Complete/(SPEC-103)-Artifact-Cross-Reference-Hyperlinking/SPEC-103.md) — swain-status roadmap integration (Superseded, done)
+  - [SPEC-057](../../../spec/Complete/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) — tk close Must Release Claim Lock (Complete, done)
+  - [SPEC-103](../../../spec/Complete/(SPEC-103)-Artifact-Cross-Reference-Hyperlinking/SPEC-103.md) — Artifact cross-reference hyperlinking (Complete, done)
 - [INITIATIVE-004](../../../initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) — Security & Trust (in progress)
   - [EPIC-017](../../../epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) — Security Vulnerability Scanning Skill (Active, 0/4)
   - [EPIC-023](../../../epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) — Security Gates in swain-do Execution Flow (Active, 0/4)
@@ -126,44 +138,49 @@
 - [INITIATIVE-005](../../../initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) — Operator Situational Awareness (in progress)
   - [EPIC-018](../../../epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) — Work Scope Progress Visualizations For Swain-Status (Proposed, —)
   - [EPIC-022](../../../epic/Proposed/(EPIC-022)-Postflight-Summaries/(EPIC-022)-Postflight-Summaries.md) — Postflight Summaries (Proposed, —)
-  - [EPIC-035](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) — Design Staleness and Drift Detection (Active, 0/4)
-  - [SPEC-052](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy (Active, in progress)
+  - [EPIC-035](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) — Design Staleness and Drift Detection (Active, 0/6)
   - [SPEC-054](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) — Project Identity Enforcement (Active, in progress)
   - [SPEC-055](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) — Trove Analysis Layer (Active, in progress)
   - [SPEC-113](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) — Eliminate swain-sync context disruption (Active, in progress)
-  - [SPEC-115](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based (Active, in progress)
   - [SPEC-116](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) — Read Before Reasoning (Active, in progress)
   - [SPEC-117](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) — Evidence Basis For All Actions (Active, in progress)
-  - [SPEC-124](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) — iTerm Tab Name Bleed From Global set-titles (Active, in progress)
+  - [SPEC-124](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) — Roadmap legend should display epic names alongside initiative names (Active, in progress)
+  - [SPEC-140](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) — Artifact ID Collision Detection (Active, in progress)
+  - [SPEC-144](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) — Brief Description Frontmatter Field (Active, in progress)
   - [EPIC-003](../../../epic/Complete/(EPIC-003)-README-Rewrite-for-New-User-Onboarding/(EPIC-003)-README-Rewrite-for-New-User-Onboarding.md) — README Rewrite for New User Onboarding (Complete, —)
   - [EPIC-011](../../../epic/Complete/(EPIC-011)-MOTD-Panel-Improvements/(EPIC-011)-MOTD-Panel-Improvements.md) — MOTD Panel Improvements (Complete, 3/3)
+  - [SPEC-052](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy (Complete, done)
   - [SPEC-107](../../../spec/Complete/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) — Sibling order ranking for epics and specs (Complete, done)
   - [SPEC-114](../../../spec/Complete/(SPEC-114)-Trunk-Release-Branch-Model/SPEC-114.md) — Trunk + Release Branch Model With Merge-and-Retry Landing (Complete, done)
+  - [SPEC-115](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based (Complete, done)
+  - [SPEC-141](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight (Complete, done)
+  - [SPEC-141](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight (Complete, done)
+  - [SPEC-143](../../../spec/Complete/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices.md) — Per-Vision and Per-Initiative Roadmap Slices (Complete, done)
 - [INITIATIVE-008](../../../initiative/Active/(INITIATIVE-008)-Automated-Work-Intake/(INITIATIVE-008)-Automated-Work-Intake.md) — Automated Work Intake (in progress)
   - [EPIC-024](../../../epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) — GitHub Issue Polling with Deterministic Pre-Filtering (Proposed, —)
   - [SPIKE-025](../../../research/Complete/(SPIKE-025)-Authentication-For-Public-Intake-Channels/(SPIKE-025)-Authentication-For-Public-Intake-Channels.md) — Authentication for Public Intake Channels (Complete, done)
 - [INITIATIVE-013](../../../initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) — Concurrent Session Safety (in progress)
   - [EPIC-016](../../../epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md) — Worktree-Aware Session Bookmarks (Proposed, —)
   - [EPIC-020](../../../epic/Proposed/(EPIC-020)-Multi-Agent-Workdir-Safety/(EPIC-020)-Multi-Agent-Workdir-Safety.md) — Multi-Agent Workdir Safety (Proposed, —)
-  - [EPIC-036](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) — Sandbox Capability Bridges (Proposed, 0/4)
+  - [EPIC-036](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) — Session-Aware Commit Atomization (Active, 0/2)
   - [SPEC-050](../../../spec/Complete/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees/(SPEC-050)-Stage-Status-Hook-Fails-In-Worktrees.md) — Stage Status Hook Fails in Worktrees (Proposed, in progress)
   - [SPEC-081](../../../spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) — Worktree-Enforced Sandbox Isolation (Active, in progress)
   - [SPEC-092](../../../spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) — swain-box: Unified Sandbox Launcher (Active, in progress)
-  - [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
+  - [SPEC-102](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) — swain-doctor SSH Binary Check (Active, in progress)
+  - [SPEC-128](../../../spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
   - [SPIKE-034](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) — Sandbox Templates In Regular Docker Containers (Active, in progress)
   - [SPIKE-035](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) — Container-Compatible Auth Flows Per Runtime (Active, in progress)
   - [EPIC-015](../../../epic/Complete/(EPIC-015)-Automatic-Worktree-Lifecycle/(EPIC-015)-Automatic-Worktree-Lifecycle.md) — Automatic Worktree Lifecycle (Complete, 3/3)
-  - [SPEC-102](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) — specgraph: deterministic roadmap output based on priorities (Superseded, done)
+  - [EPIC-043](../../../epic/Complete/(EPIC-043)-Centralized-Artifact-Number-Allocation/(EPIC-043)-Centralized-Artifact-Number-Allocation.md) — Centralized Artifact Number Allocation (Complete, 4/4)
 - [INITIATIVE-015](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) — swain-stage Redesign (in progress)
   - [DESIGN-004](../../../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md) — swain-stage Interaction Design (Active, done)
   - [EPIC-034](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) — User Documentation System (Active, 0/1)
   - [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (Active, in progress)
-  - [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
-  - [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
+  - [SPEC-125](../../../spec/Active/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md) — swain-stage hooks fire unconditionally even when stage is not active (Implementation, in progress)
+  - [SPEC-127](../../../spec/Active/(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md) — stage-status-hook fails with ENOENT when CWD is removed (Active, in progress)
 - [INITIATIVE-016](../../../initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) — Agent Implementation Reliability (in progress)
-  - [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
+  - [SPEC-126](../../../spec/Proposed/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
   - [SPIKE-036](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) — External CLI Assumption Verification (Active, in progress)
-- [SPEC-091](../../../spec/Complete/(SPEC-091)-Train-Artifact-Type/SPEC-091.md) — TRAIN Artifact Type (in progress)
 - [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (in progress)
 - [SPIKE-036](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) — External CLI Assumption Verification (in progress)
 ### Proposed
@@ -175,11 +192,6 @@
 - [EPIC-020](../../../epic/Proposed/(EPIC-020)-Multi-Agent-Workdir-Safety/(EPIC-020)-Multi-Agent-Workdir-Safety.md) — Multi-Agent Workdir Safety (—)
 - [EPIC-021](../../../epic/Proposed/(EPIC-021)-Frontend-Design-Orchestrator/(EPIC-021)-Frontend-Design-Orchestrator.md) — Product Design Orchestrator (—)
 - [EPIC-022](../../../epic/Proposed/(EPIC-022)-Postflight-Summaries/(EPIC-022)-Postflight-Summaries.md) — Postflight Summaries (—)
-- [EPIC-036](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) — Sandbox Capability Bridges (0/4)
-  - [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
-  - [SPEC-099](../../../spec/Active/(SPEC-099)-Commit-Atomization-In-swain-sync/(SPEC-099)-Commit-Atomization-In-swain-sync.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
-  - [SPEC-100](../../../spec/Active/(SPEC-100)-Sync-Must-Restore-CWD-After-Worktree-Cleanup/SPEC-100.md) — Host tmux Bridge for Sandboxed Agents (Proposed, in progress)
-  - [SPEC-101](../../../spec/Active/(SPEC-101)-SSH-Readiness-Tilde-Expansion/SPEC-101.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (Proposed, in progress)
 - [INITIATIVE-007](../../../initiative/Proposed/(INITIATIVE-007)-Product-Design/(INITIATIVE-007)-Product-Design.md) — Product Design (in progress)
   - [EPIC-019](../../../epic/Proposed/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize.md) — Rename swain-design to swain-strategize (Proposed, —)
   - [EPIC-021](../../../epic/Proposed/(EPIC-021)-Frontend-Design-Orchestrator/(EPIC-021)-Frontend-Design-Orchestrator.md) — Product Design Orchestrator (Proposed, —)
@@ -188,8 +200,8 @@
   - [EPIC-026](../../../epic/Proposed/(EPIC-026)-Query-Layer/(EPIC-026)-Query-Layer.md) — Query Layer (Proposed, —)
   - [EPIC-027](../../../epic/Proposed/(EPIC-027)-Orchestrator-Integration/(EPIC-027)-Orchestrator-Integration.md) — Orchestrator Integration (Proposed, —)
   - [EPIC-028](../../../epic/Proposed/(EPIC-028)-Status-Integration/(EPIC-028)-Status-Integration.md) — Status Integration (Proposed, —)
-  - [EPIC-029](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) — Auto-Detecting Trunk Branch (Active, 0/3)
-- [SPEC-098](../../../spec/Active/(SPEC-098)-Session-Action-Log/(SPEC-098)-Session-Action-Log.md) — CLI Command Verification in Agent Execution (in progress)
+  - [EPIC-029](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) — Auto-Detecting Trunk Branch (Active, 1/6)
+- [SPEC-126](../../../spec/Proposed/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution.md) — CLI Command Verification in Agent Execution (in progress)
 ### Complete
 
 - [EPIC-001](../../../epic/Complete/(EPIC-001)-Evidence-Pool-Collection-And-Normalization/(EPIC-001)-Evidence-Pool-Collection-And-Normalization.md) — Evidence Pool Collection and Normalization (3/3)
@@ -242,6 +254,11 @@
   - [SPEC-039](../../../spec/Complete/(SPEC-039)-swain-sync-worktree-support/(SPEC-039)-swain-sync-worktree-support.md) — swain-sync: worktree-aware execution (Complete, done)
   - [SPEC-043](../../../spec/Complete/(SPEC-043)-swain-do-automatic-worktree-creation/(SPEC-043)-swain-do-automatic-worktree-creation.md) — swain-do: automatic worktree creation at dispatch (Complete, done)
   - [SPEC-044](../../../spec/Complete/(SPEC-044)-swain-doctor-stale-worktree-detection/(SPEC-044)-swain-doctor-stale-worktree-detection.md) — swain-doctor: stale worktree detection (Complete, done)
+- [EPIC-043](../../../epic/Complete/(EPIC-043)-Centralized-Artifact-Number-Allocation/(EPIC-043)-Centralized-Artifact-Number-Allocation.md) — Centralized Artifact Number Allocation (4/4)
+  - [SPEC-156](../../../spec/Complete/(SPEC-156)-Next-Artifact-Number-Script/(SPEC-156)-Next-Artifact-Number-Script.md) — next-artifact-number.sh — Core Allocator Script (Complete, done)
+  - [SPEC-157](../../../spec/Complete/(SPEC-157)-SKILL-MD-Allocator-Integration/(SPEC-157)-SKILL-MD-Allocator-Integration.md) — swain-design SKILL.md Allocator Integration (Complete, done)
+  - [SPEC-158](../../../spec/Complete/(SPEC-158)-Artifact-Number-Collision-Detection/(SPEC-158)-Artifact-Number-Collision-Detection.md) — Artifact Number Collision Detection (Complete, done)
+  - [SPEC-159](../../../spec/Complete/(SPEC-159)-Migrate-Existing-Number-Callers/(SPEC-159)-Migrate-Existing-Number-Callers.md) — Migrate Existing Number Allocation Callers (Complete, done)
 - [INITIATIVE-002](../../../initiative/Complete/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) — Artifact System Maturity (done)
   - [EPIC-001](../../../epic/Complete/(EPIC-001)-Evidence-Pool-Collection-And-Normalization/(EPIC-001)-Evidence-Pool-Collection-And-Normalization.md) — Evidence Pool Collection and Normalization (Complete, 3/3)
   - [EPIC-002](../../../epic/Complete/(EPIC-002)-Artifact-Type-System-and-Issue-Integration/(EPIC-002)-Artifact-Type-System-and-Issue-Integration.md) — Artifact Type System & Issue Integration (Complete, 3/3)
@@ -250,6 +267,7 @@
   - [EPIC-014](../../../epic/Complete/(EPIC-014)-Artifact-Workflow-Efficiency/(EPIC-014)-Artifact-Workflow-Efficiency.md) — Artifact Workflow Efficiency (Complete, 5/5)
 - [INITIATIVE-006](../../../initiative/Complete/(INITIATIVE-006)-Multi-Agent-Orchestration/(INITIATIVE-006)-Multi-Agent-Orchestration.md) — Multi-Agent Orchestration (done)
   - [EPIC-010](../../../epic/Complete/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues.md) — Agent Dispatch Via GitHub Issues (Complete, 2/2)
+- [SPEC-091](../../../spec/Complete/(SPEC-091)-Train-Artifact-Type/SPEC-091.md) — TRAIN Artifact Type (done)
 ### Superseded
 
 - [EPIC-009](../../../epic/Superseded/(EPIC-009)-Secrets-Leakage-Prevention/(EPIC-009)-Secrets-Leakage-Prevention.md) — Secrets Leakage Prevention (—)

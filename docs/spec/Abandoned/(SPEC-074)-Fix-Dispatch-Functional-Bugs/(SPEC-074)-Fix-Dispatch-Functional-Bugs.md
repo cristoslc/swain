@@ -2,10 +2,10 @@
 title: "Fix swain-dispatch functional bugs"
 artifact: SPEC-074
 track: implementable
-status: Active
+status: Abandoned
 author: cristos
 created: 2026-03-18
-last-updated: 2026-03-18
+last-updated: 2026-03-25
 type: bug
 parent-epic: EPIC-031
 linked-artifacts:
@@ -54,3 +54,4 @@ Two high-severity functional bugs prevent swain-dispatch from working correctly:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-18 | — | Two high-severity bugs from audit |
+| Abandoned | 2026-03-25 | -- | swain-dispatch deprecated — requires API billing (ANTHROPIC_API_KEY); may revisit when non-API billing supported |

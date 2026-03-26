@@ -3,7 +3,8 @@
     "allow": [
       "Skill(swain-status)",
       "Skill(swain-design)",
-      "mcp__MCP_DOCKER__webpage-to-markdown"
+      "mcp__MCP_DOCKER__webpage-to-markdown",
+      "Skill(swain-doctor)"
     ]
   }
 }

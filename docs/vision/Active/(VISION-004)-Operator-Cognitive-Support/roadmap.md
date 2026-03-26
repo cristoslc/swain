@@ -5,14 +5,15 @@
 
 ## Progress
 
-░░░░░░░░░░░░ 0/15 complete (0%)
+██░░░░░░░░░░ 4/24 complete (17%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-20 | 23:39 | `ffa2da4` | feat(swain-design): add SPEC-118 through SPEC-123 for session facilitation epic |
-| 2026-03-20 | 23:21 | `942d492` | docs(session-decision-support): add VISION-004, INITIATIVE-019, EPIC-039 artifacts |
+| 2026-03-23 | 14:37 | `dcacb73` | audit(EPIC-042): move SPEC-151/152/163 to Testing — behavioral verification needed |
+| 2026-03-23 | 12:24 | `c2f589e` | docs(EPIC-042): ADR compliance + AC audit — 37/37 pass, 0 new specwatch issues |
+| 2026-03-23 | 12:20 | `1b5ea9d` | docs(EPIC-042): add SPEC-163 and amended spec/epic documents |
 
 ## Priority Subset
 
@@ -21,13 +22,14 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Session-Scoped Decision Support](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [swain_trunk() Auto-Detection Helper](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) | 0/0 | 3 | **needs decomposition** |
-|  | [Session Lifecycle in swain-session](../../../spec/Active/(SPEC-119)-Parameterize-Runtime-Skills/SPEC-119.md) | 0/0 | 1 | **needs decomposition** |
-|  | [ROADMAP.md Decision and Recommendation Sections](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) | 0/0 | 1 | **needs decomposition** |
+| [Session-Scoped Decision Support](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Session Lifecycle in swain-session](../../../spec/Active/(SPEC-119)-Parameterize-Runtime-Skills/SPEC-119.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Session Detection Hooks Across All Skills](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Absorb swain-status into swain-session](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Session Facilitation Rebuild](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) | 0/6 | 0 | — |
+|  | [Chart Critical Path Lens](../../../spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Session Facilitation Rebuild](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) | 2/6 | 0 | — |
+|  | [Retro Session Intelligence](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) | 0/5 | 0 | — |
 |  | [Skill and Script Alignment Audit](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Computed Priority Scoring](../../../spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -49,18 +51,27 @@
 
 ### Active
 
-- [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (0/6)
-  - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
+- [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (2/6)
   - [SPEC-119](../../../spec/Active/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) — Session Lifecycle in swain-session (Active, in progress)
-  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Active, in progress)
   - [SPEC-121](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Active, in progress)
   - [SPEC-122](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) — Absorb swain-status into swain-session (Active, in progress)
   - [SPEC-123](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) — Skill and Script Alignment Audit (Active, in progress)
+  - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — SESSION-ROADMAP.md Format and Generation (Complete, done)
+  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)
+- [EPIC-042](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) — Retro Session Intelligence (0/5)
+  - [SPEC-150](../../../spec/Active/(SPEC-150)-Security-Check-JSONL-Scrub-Mode/SPEC-150.md) — swain-security-check: JSONL scrub mode (Active, in progress)
+  - [SPEC-151](../../../spec/Active/(SPEC-151)-Retro-Folder-Structure-Manifest-JSONL-Capture/SPEC-151.md) — swain-retro: folder structure, manifest, + JSONL capture (Active, in progress)
+  - [SPEC-152](../../../spec/Active/(SPEC-152)-Retro-Session-Summary-Generation/SPEC-152.md) — swain-retro: session summary generation (Active, in progress)
+  - [SPEC-153](../../../spec/Active/(SPEC-153)-Doctor-Retro-Flat-File-Migration/SPEC-153.md) — swain-doctor: retro flat-file migration (Active, in progress)
+  - [SPEC-163](../../../spec/Active/(SPEC-163)-Unified-Retro-Model-Multi-Session-Bundling/SPEC-163.md) — Unified retro model: standalone artifacts with multi-session bundling (Active, in progress)
 - [INITIATIVE-019](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) — Session-Scoped Decision Support (in progress)
-  - [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (Active, 0/6)
-  - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
+  - [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (Active, 2/6)
+  - [EPIC-042](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) — Retro Session Intelligence (Active, 0/5)
   - [SPEC-119](../../../spec/Active/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) — Session Lifecycle in swain-session (Active, in progress)
-  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Active, in progress)
   - [SPEC-121](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Active, in progress)
   - [SPEC-122](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) — Absorb swain-status into swain-session (Active, in progress)
   - [SPEC-123](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) — Skill and Script Alignment Audit (Active, in progress)
+  - [SPEC-160](../../../spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) — Chart Critical Path Lens (Active, in progress)
+  - [SPEC-161](../../../spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) — Computed Priority Scoring (Active, in progress)
+  - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — SESSION-ROADMAP.md Format and Generation (Complete, done)
+  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)

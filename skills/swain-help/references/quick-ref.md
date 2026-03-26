@@ -17,7 +17,6 @@
 | **swain-stage** | `/swain-stage` | Tmux workspace layouts and animated status panel |
 | **swain-keys** | `/swain-keys` | Per-project SSH keys for git signing and auth |
 | **swain-update** | `/swain-update` or `/swain update` | Update swain to latest version |
-| **swain-dispatch** | `/swain dispatch SPEC-NNN` | Dispatch artifacts to background agents via GitHub |
 | **swain-retro** | `/swain-retro` or `/swain retro` | Capture learnings at EPIC completion or on demand |
 | **swain-help** | `/swain help` or `/swain-help` | This help system |
 

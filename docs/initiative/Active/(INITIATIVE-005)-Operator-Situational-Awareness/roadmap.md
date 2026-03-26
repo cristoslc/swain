@@ -5,15 +5,15 @@
 
 ## Progress
 
-████░░░░░░░░ 7/22 complete (32%)
+█████░░░░░░░ 12/29 complete (41%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-21 | 23:48 | `8f2eb18` | docs(spec): SPEC-145 design creation prompts, SPEC-146 design coverage audit lens |
-| 2026-03-21 | 14:40 | `25aaaf3` | fix(session): resolve cross-session title pollution in tmux hooks (SPEC-124) |
-| 2026-03-21 | 14:02 | `5dd8e05` | docs: add SPEC-124 roadmap legend bug and EPIC-031 retro |
+| 2026-03-22 | 01:50 | `d7cba68` | docs(spec): retroactive close SPEC-052, SPEC-091, SPEC-115, SPEC-138, SPEC-142 |
+| 2026-03-22 | 01:10 | `0300954` | docs(retro): session roadmap infrastructure sprint retrospective |
+| 2026-03-22 | 00:58 | `e6f4099` | docs(retro): SPEC-143 per-artifact roadmap slices retrospective |
 
 ## Priority Subset
 
@@ -22,14 +22,14 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Vision-Rooted Chart Hierarchy](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Project Identity Enforcement](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
+| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Project Identity Enforcement](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Trove Analysis Layer](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Eliminate swain-sync context disruption](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Roadmap Initiative children use level-based filtering, not type-based](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Read Before Reasoning](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Evidence Basis For All Actions](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
-|  | [iTerm Tab Name Bleed From Global set-titles](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Roadmap legend should display epic names alongside initiative names](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Artifact ID Collision Detection](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Brief Description Frontmatter Field](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -41,7 +41,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/4 | 0 | — |
+| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/6 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -56,19 +56,21 @@
 
 ### Active
 
-- [EPIC-035](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) — Design Staleness and Drift Detection (0/4)
+- [EPIC-035](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) — Design Staleness and Drift Detection (0/6)
   - [SPEC-094](../../../spec/Active/(SPEC-094)-Frontmatter-Schema-artifact-refs-sourcecode-refs/SPEC-094.md) — Frontmatter Schema — artifact-refs, sourcecode-refs, rel types (Active, in progress)
   - [SPEC-095](../../../spec/Active/(SPEC-095)-Design-Intent-Template-Section/SPEC-095.md) — Design Intent Template Section (Active, in progress)
   - [SPEC-096](../../../spec/Active/(SPEC-096)-design-check-Blob-SHA-Drift-Detection/SPEC-096.md) — design-check.sh — Blob SHA Drift Detection (Active, in progress)
   - [SPEC-097](../../../spec/Active/(SPEC-097)-Integration-Hooks-And-Decision-Protection/SPEC-097.md) — Integration Hooks and Decision Protection (Active, in progress)
-- [SPEC-052](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy (in progress)
+  - [SPEC-145](../../../spec/Active/(SPEC-145)-Design-Creation-Prompts/(SPEC-145)-Design-Creation-Prompts.md) — Design Creation Prompts (Active, in progress)
+  - [SPEC-146](../../../spec/Active/(SPEC-146)-Design-Coverage-Audit-Lens/(SPEC-146)-Design-Coverage-Audit-Lens.md) — Design Coverage Audit Lens (Active, in progress)
 - [SPEC-054](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) — Project Identity Enforcement (in progress)
 - [SPEC-055](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) — Trove Analysis Layer (in progress)
 - [SPEC-113](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) — Eliminate swain-sync context disruption (in progress)
-- [SPEC-115](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based (in progress)
 - [SPEC-116](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) — Read Before Reasoning (in progress)
 - [SPEC-117](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) — Evidence Basis For All Actions (in progress)
-- [SPEC-124](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) — iTerm Tab Name Bleed From Global set-titles (in progress)
+- [SPEC-124](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) — Roadmap legend should display epic names alongside initiative names (in progress)
+- [SPEC-140](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) — Artifact ID Collision Detection (in progress)
+- [SPEC-144](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) — Brief Description Frontmatter Field (in progress)
 ### Proposed
 
 - [EPIC-018](../../../epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) — Work Scope Progress Visualizations For Swain-Status (—)
@@ -80,5 +82,10 @@
   - [SPEC-040](../../../spec/Complete/(SPEC-040)-MOTD-Textual-TUI-Animation-Fixes/(SPEC-040)-MOTD-Textual-TUI-Animation-Fixes.md) — MOTD Textual TUI Animation Fixes (Complete, done)
   - [SPEC-041](../../../spec/Complete/(SPEC-041)-MOTD-Reactive-Agent-Status-Via-Hooks/(SPEC-041)-MOTD-Reactive-Agent-Status-Via-Hooks.md) — MOTD Reactive Agent Status via Claude Code Hooks (Complete, done)
   - [SPEC-042](../../../spec/Complete/(SPEC-042)-MOTD-Uncommitted-File-Display-And-Commit-Button/(SPEC-042)-MOTD-Uncommitted-File-Display-And-Commit-Button.md) — MOTD Uncommitted File Display and Interactive Commit Button (Complete, done)
+- [SPEC-052](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy (done)
 - [SPEC-107](../../../spec/Complete/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) — Sibling order ranking for epics and specs (done)
 - [SPEC-114](../../../spec/Complete/(SPEC-114)-Trunk-Release-Branch-Model/SPEC-114.md) — Trunk + Release Branch Model With Merge-and-Retry Landing (done)
+- [SPEC-115](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based (done)
+- [SPEC-141](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight (done)
+- [SPEC-141](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight (done)
+- [SPEC-143](../../../spec/Complete/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices.md) — Per-Vision and Per-Initiative Roadmap Slices (done)

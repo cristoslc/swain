@@ -1,0 +1,59 @@
+trove: ollama-cloud-dispatch-workers
+created: 2026-03-25
+refreshed: 2026-03-25
+tags:
+  - ollama
+  - ollama-cloud
+  - dispatch
+  - workers
+  - inference
+  - agent-runtime
+  - openai-compatible
+
+freshness-ttl:
+  web: 14d
+  forum: 14d
+
+history:
+  - event: created
+    date: 2026-03-25
+    commit: "--"
+    sources: 5
+
+referenced-by: []
+
+sources:
+  - source-id: "awesomeagents-ollama-cloud-review"
+    type: web
+    title: "Ollama Cloud Review: From Local LLMs to Seamless Cloud Inference"
+    url: "https://awesomeagents.ai/reviews/review-ollama-cloud/"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "49b0f38513e9b362c4fcdba9ffe99d8efb66850e33c4eccf0e0136b0f82274f4"
+
+  - source-id: "devto-beginners-guide-ollama-cloud"
+    type: web
+    title: "A Beginner's Guide to Ollama Cloud Models"
+    url: "https://dev.to/coderforfun/a-beginners-guide-to-ollama-cloud-models-3lc2"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "af77f35c52458bb259227b2c487f8c371962f747e5cd754b5ccd19aa5ba0bdd8"
+
+  - source-id: "medium-ollama-cloud-api-ready"
+    type: web
+    title: "Ollama Cloud Inference API is now ready"
+    url: "https://pbseven.medium.com/ollama-cloud-inference-api-is-now-ready-f7adf6b8ef3e"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "7224ab11a417d06c8c0a67f54e1633e3f49705a8b533827f92ecaca60bc27c37"
+
+  - source-id: "reddit-ollama-cloud-direct-access"
+    type: forum
+    title: "r/ollama: Direct cloud access — bypassing local client"
+    url: "https://www.reddit.com/r/ollama/comments/1rmew6s/direct_cloud_access/"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "3cb40790f4fd01fac4d9ac6b5de9cf38607bac641d7d711d4477aaf9d464afce"
+
+  - source-id: "ollama-launch-coding-agents"
+    type: web
+    title: "Running AI Coding Agents with Ollama Launch"
+    url: "https://atalupadhyay.wordpress.com/2026/01/27/running-ai-coding-agents-locally-with-ollama-launch/"
+    fetched: 2026-03-25T02:00:00Z
+    hash: "8241fd8c2ff5d539adfea2ad85c3de48d545b79c41661bba1a147119a7440149"
