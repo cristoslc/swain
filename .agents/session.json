@@ -1,12 +1,16 @@
 {
-  "lastBranch": "worktree-spec-173-tdd-self-critique",
+  "lastBranch": "worktree-session",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed retro for SPEC-172 session bootstrap — 1 learning captured (self-critique before GREEN)",
-    "timestamp": "2026-03-27T14:44:09Z"
+    "note": "created SPIKE-049, SPIKE-050 (renumbered from 046/047 to avoid collisions)",
+    "files": [
+      "docs/research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md",
+      "docs/research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md"
+    ],
+    "timestamp": "2026-03-27T15:38:43Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

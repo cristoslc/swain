@@ -16,7 +16,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-048 | Task Management Decision Framework Integration | 2026-03-22 | -- |
 | SPIKE-022 | Multi-Agent Collision Vectors | 2026-03-20 | fa63b5a |
 | SPIKE-026 | Context Fork as Model Routing Implementation Path | 2026-03-16 | -- |
 | SPIKE-033 | Skill Routing Disambiguation | 2026-03-18 | — |
@@ -25,12 +24,20 @@
 | SPIKE-036 | External CLI Assumption Verification | 2026-03-19 | — |
 | SPIKE-037 | GitHub Token Scoping Mechanisms | 2026-03-20 | -- |
 | SPIKE-042 | Critical Path Analysis for Swain | 2026-03-22 | — |
+| SPIKE-043 | Phase Complexity Model for Adaptive Ceremony and Autonomy | 2026-03-23 | — |
+| SPIKE-044 | Memory Architecture Spike | 2026-03-25 | 944a30f |
+| SPIKE-045 | Ollama Cloud Dispatch Worker Feasibility | 2026-03-25 | — |
+| SPIKE-046 | Task Management Decision Framework Integration | 2026-03-22 | -- |
+| SPIKE-047 | Agentic CLI Runtime Invocation Patterns | 2026-03-26 | — |
+| SPIKE-048 | Noisy Tool-Call Pattern Audit | 2026-03-26 | — |
+| SPIKE-049 | Doctor Single-Script Consolidation | 2026-03-27 | — |
+| SPIKE-050 | PR Queue MCP for Merge Handoff | 2026-03-27 | — |
 
 ## Complete
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| SPIKE-048 | Replace Beads CLI with Backlog.md | 2026-03-11 | — |
+| SPIKE-001 | Replace Beads CLI with Backlog.md | 2026-03-11 | — |
 | SPIKE-002 | Backlog.md for artifact management | 2026-03-11 | — |
 | SPIKE-003 | Enhancement Type Modeling | 2026-03-11 | 7aadee8 |
 | SPIKE-004 | Superpowers–Swain Skill Mapping | 2026-03-12 | e94bb4b |
@@ -56,5 +63,5 @@
 | SPIKE-030 | MCP as Distribution Layer | 2026-03-18 | — |
 | SPIKE-031 | Credential Scoping Analysis Across Sandbox Types | 2026-03-19 | — |
 | SPIKE-032 | Docker Sandboxes OAuth Limitation Workaround | 2026-03-19 | — |
-| SPIKE-038 | PreToolUse Hook Adapter Feasibility | 2026-03-23 | -- |
+| SPIKE-038 | PreToolUse Hook Adapter Feasibility | 2026-03-23 | 09d824a |
 
