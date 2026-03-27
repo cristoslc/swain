@@ -21,6 +21,8 @@ linked-artifacts:
 
 ## Summary
 
+**Go.** All five candidate runtimes (Claude Code, Gemini CLI, Codex CLI, GitHub Copilot CLI, Crush) are compatible with swain's shell launcher pattern. Four support interactive mode with an initial prompt; Crush requires AGENTS.md auto-invoke as a fallback. Decision recorded in ADR-017. Templates should be structured as `launchers/{runtime}/swain.{shell}` to accommodate the runtime x shell matrix.
+
 ## Question
 
 What are the exact CLI invocation patterns (command, flags, initial prompt mechanism, tmux compatibility) for each agentic runtime swain targets — specifically Claude Code, Gemini CLI, Codex CLI, opencode, and GitHub Copilot CLI?
@@ -114,7 +116,7 @@ If most runtimes can't accept an initial prompt, restructure the templates to la
 
 4. **Template structure implication:** Templates need a two-dimensional matrix: `{shell} x {runtime}`. Since the function body varies significantly per runtime (different flags, different prompt mechanisms), the cleanest approach is one template file per runtime containing all three shell variants, or a directory structure like `launchers/{runtime}/swain.{shell}`.
 
-5. **Crush caveat:** The interactive mode cannot accept an initial prompt. The launcher would either start Crush bare (relying on AGENTS.md for session init) or use `crush run` which is non-interactive. This may warrant a "partial support" designation.
+5. **Crush caveat:** The interactive mode cannot accept an initial prompt. Investigated thoroughly: no startup hooks, no init scripts, no config-driven auto-prompt. Issue #441 (requesting `-p` for interactive mode) was closed NOT_PLANNED. Best path: AGENTS.md auto-invoke directive ("at session start, execute /swain-init") — same pattern swain already uses for Claude Code session startup. Alternative: custom command `.crush/commands/swain-init.md` reduces friction to `/swain-init`. Crush stays at Partial support per ADR-017.
 
 ## Lifecycle
 
