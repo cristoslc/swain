@@ -129,8 +129,25 @@ elif [[ ! -f "$SESSION_FILE" ]]; then
 fi
 
 # ─── Build JSON output ───
-# Use jq if available, fall back to manual construction
-if command -v jq &>/dev/null; then
+build_fallback_json() {
+  # Minimal JSON construction without jq
+  local out='{"worktree":{"isolated":'
+  out+="$WT_ISOLATED"
+  out+='},"session":{},"warnings":['
+  local first=1
+  for w in "${WARNINGS[@]}"; do
+    [[ $first -eq 0 ]] && out+=","
+    # Escape quotes in warning text
+    out+="\"${w//\"/\\\"}\""
+    first=0
+  done
+  out+=']}'
+  echo "$out"
+}
+
+# Use jq if available and functional, fall back to manual construction
+OUTPUT=""
+if command -v jq &>/dev/null && jq -n '{}' &>/dev/null; then
   # Build warnings array
   WARNINGS_JSON="[]"
   for w in "${WARNINGS[@]}"; do
@@ -159,20 +176,13 @@ if command -v jq &>/dev/null; then
       },
       warnings: $warnings
     }
-    | if $tab != "" then .tab = $tab else . end')
-else
-  # Minimal JSON fallback without jq
+    | if $tab != "" then .tab = $tab else . end' 2>/dev/null)
+fi
+
+# If jq failed or wasn't available, use the fallback
+if [[ -z "$OUTPUT" ]]; then
   WARNINGS+=("jq not available — session fields may be incomplete")
-  OUTPUT='{"worktree":{"isolated":'
-  OUTPUT+="$WT_ISOLATED"
-  OUTPUT+='},"session":{},"warnings":['
-  first=1
-  for w in "${WARNINGS[@]}"; do
-    [[ $first -eq 0 ]] && OUTPUT+=","
-    OUTPUT+="\"$w\""
-    first=0
-  done
-  OUTPUT+=']}'
+  OUTPUT=$(build_fallback_json)
 fi
 
 echo "$OUTPUT"

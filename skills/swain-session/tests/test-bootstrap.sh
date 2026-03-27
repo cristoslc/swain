@@ -266,6 +266,214 @@ fi
 $T kill-session -t schema 2>/dev/null
 
 # ═══════════════════════════════════════════════════════════
+echo "═══ --skip-worktree flag"
+# ═══════════════════════════════════════════════════════════
+
+start_session "skipwt" "$REPO_ROOT"
+OUTPUT_SKIP_WT=$(SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  bash "$BOOTSTRAP" --path "$REPO_ROOT" --skip-worktree --auto 2>/dev/null)
+
+# When --skip-worktree is set, worktree fields should be at defaults
+WT_SKIP_ISOLATED=$(echo "$OUTPUT_SKIP_WT" | jq -r '.worktree.isolated' 2>/dev/null)
+WT_SKIP_BRANCH=$(echo "$OUTPUT_SKIP_WT" | jq -r '.worktree.branch' 2>/dev/null)
+if [[ "$WT_SKIP_ISOLATED" == "false" && "$WT_SKIP_BRANCH" == "null" ]]; then
+  pass "--skip-worktree: worktree detection skipped (isolated=false, branch=null)"
+else
+  fail "--skip-worktree: worktree detection skipped" "isolated=$WT_SKIP_ISOLATED, branch=$WT_SKIP_BRANCH"
+fi
+
+$T kill-session -t skipwt 2>/dev/null
+
+# ═══════════════════════════════════════════════════════════
+echo "═══ lastBranch write side effect"
+# ═══════════════════════════════════════════════════════════
+
+TEMP_REPO_LB="$TMPDIR_BASE/lastbranch"
+mkdir -p "$TEMP_REPO_LB/.agents"
+git -C "$TEMP_REPO_LB" init -q 2>/dev/null
+git -C "$TEMP_REPO_LB" commit --allow-empty -m "init" -q 2>/dev/null
+cat > "$TEMP_REPO_LB/.agents/session.json" <<'SESS'
+{
+  "lastBranch": "old-branch"
+}
+SESS
+
+start_session "lb" "$TEMP_REPO_LB"
+SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  bash "$BOOTSTRAP" --path "$TEMP_REPO_LB" --auto >/dev/null 2>&1
+
+# Check that session.json was updated with the current branch
+CURRENT=$(git -C "$TEMP_REPO_LB" rev-parse --abbrev-ref HEAD 2>/dev/null)
+WRITTEN=$(jq -r '.lastBranch' "$TEMP_REPO_LB/.agents/session.json" 2>/dev/null)
+if [[ "$WRITTEN" == "$CURRENT" ]]; then
+  pass "lastBranch: session.json updated to current branch ($CURRENT)"
+else
+  fail "lastBranch: session.json updated" "expected=$CURRENT, got=$WRITTEN"
+fi
+
+$T kill-session -t lb 2>/dev/null
+
+# ═══════════════════════════════════════════════════════════
+echo "═══ jq-unavailable fallback"
+# ═══════════════════════════════════════════════════════════
+
+# Hide jq by creating a wrapper that makes `command -v jq` fail.
+# We rename jq temporarily via a PATH-prefix dir with a non-executable jq.
+FAKE_BIN="$TMPDIR_BASE/fake-bin"
+mkdir -p "$FAKE_BIN"
+# Create a non-executable jq placeholder — command -v still finds executables
+# in PATH, so instead create a wrapper that always fails
+cat > "$FAKE_BIN/jq" <<'FAKE'
+#!/usr/bin/env bash
+exit 127
+FAKE
+chmod +x "$FAKE_BIN/jq"
+
+start_session "nojq" "$REPO_ROOT"
+# Prepend FAKE_BIN so our broken jq shadows the real one
+OUTPUT_NOJQ=$(SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  PATH="$FAKE_BIN:$PATH" bash "$BOOTSTRAP" --path "$REPO_ROOT" --auto 2>/dev/null)
+
+# The fallback path fires when `command -v jq` succeeds but jq calls fail.
+# Our fake jq makes command -v succeed, so the script takes the jq path but
+# jq -n fails, producing broken output. The REAL no-jq fallback requires
+# jq to be completely absent. Test what actually matters: the script doesn't crash.
+if [[ -n "$OUTPUT_NOJQ" ]]; then
+  pass "jq-unavailable: script produces output (does not crash)"
+else
+  fail "jq-unavailable: script produces output" "empty output"
+fi
+
+# Test the actual no-jq codepath by using a clean PATH
+CLEAN_PATH=""
+while IFS=: read -ra dirs; do
+  for dir in "${dirs[@]}"; do
+    if ! [[ -x "$dir/jq" ]]; then
+      CLEAN_PATH="${CLEAN_PATH:+$CLEAN_PATH:}$dir"
+    fi
+  done
+done <<< "$PATH"
+
+OUTPUT_NOJQ_REAL=$(SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  PATH="$CLEAN_PATH" bash "$BOOTSTRAP" --path "$REPO_ROOT" --auto 2>/dev/null)
+
+# The no-jq fallback constructs JSON manually — verify it's parseable
+if echo "$OUTPUT_NOJQ_REAL" | jq empty 2>/dev/null; then
+  pass "jq-unavailable (real): fallback JSON is valid"
+else
+  fail "jq-unavailable (real): fallback JSON is valid" "got: $OUTPUT_NOJQ_REAL"
+fi
+
+# Check for the jq warning in the fallback output
+if echo "$OUTPUT_NOJQ_REAL" | grep -q "jq not available"; then
+  pass "jq-unavailable (real): warning present about missing jq"
+else
+  fail "jq-unavailable (real): warning present about missing jq" "output: $OUTPUT_NOJQ_REAL"
+fi
+
+$T kill-session -t nojq 2>/dev/null
+
+# ═══════════════════════════════════════════════════════════
+echo "═══ Warnings population (missing tab-name script)"
+# ═══════════════════════════════════════════════════════════
+
+# Create a temp copy of the bootstrap script with a bogus SCRIPT_DIR
+TEMP_REPO_WARN="$TMPDIR_BASE/warn-test"
+mkdir -p "$TEMP_REPO_WARN/scripts"
+git -C "$TEMP_REPO_WARN" init -q 2>/dev/null
+git -C "$TEMP_REPO_WARN" commit --allow-empty -m "init" -q 2>/dev/null
+
+# Copy bootstrap but override SCRIPT_DIR to a dir without tab-name
+cp "$BOOTSTRAP" "$TEMP_REPO_WARN/scripts/swain-session-bootstrap.sh"
+# The script resolves SCRIPT_DIR from its own location — since tab-name.sh
+# won't exist in the temp dir, it should warn.
+
+start_session "warn" "$TEMP_REPO_WARN"
+OUTPUT_WARN=$(SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  bash "$TEMP_REPO_WARN/scripts/swain-session-bootstrap.sh" --path "$TEMP_REPO_WARN" --auto 2>/dev/null)
+
+WARN_COUNT=$(echo "$OUTPUT_WARN" | jq '.warnings | length' 2>/dev/null)
+if [[ "$WARN_COUNT" -gt 0 ]]; then
+  pass "warnings: populated when tab-name script missing ($WARN_COUNT warning(s))"
+else
+  fail "warnings: populated when tab-name script missing" "warnings array empty"
+fi
+
+HAS_TAB_WARN=$(echo "$OUTPUT_WARN" | jq -r '.warnings[]' 2>/dev/null | grep -c "tab-name")
+if [[ "$HAS_TAB_WARN" -gt 0 ]]; then
+  pass "warnings: mentions tab-name script"
+else
+  fail "warnings: mentions tab-name script" "no tab-name warning found"
+fi
+
+$T kill-session -t warn 2>/dev/null
+
+# ═══════════════════════════════════════════════════════════
+echo "═══ Idempotency (two consecutive calls)"
+# ═══════════════════════════════════════════════════════════
+
+TEMP_REPO_IDEM="$TMPDIR_BASE/idempotent"
+mkdir -p "$TEMP_REPO_IDEM/.agents"
+git -C "$TEMP_REPO_IDEM" init -q 2>/dev/null
+git -C "$TEMP_REPO_IDEM" commit --allow-empty -m "init" -q 2>/dev/null
+cat > "$TEMP_REPO_IDEM/.agents/session.json" <<'SESS'
+{
+  "lastBranch": "trunk",
+  "focus_lane": "VISION-001",
+  "bookmark": { "note": "idempotency test" }
+}
+SESS
+
+start_session "idem" "$TEMP_REPO_IDEM"
+
+# Run 1 reads stale lastBranch then writes current. Run 2+ reads the updated value.
+# Idempotency means run 2 == run 3 (after the write stabilizes).
+SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  bash "$BOOTSTRAP" --path "$TEMP_REPO_IDEM" --auto >/dev/null 2>&1  # prime the write
+
+OUTPUT_RUN2=$(SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  bash "$BOOTSTRAP" --path "$TEMP_REPO_IDEM" --auto 2>/dev/null)
+OUTPUT_RUN3=$(SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  bash "$BOOTSTRAP" --path "$TEMP_REPO_IDEM" --auto 2>/dev/null)
+
+# Normalize: strip tab field (tmux state may differ slightly) and compare core fields
+CORE2=$(echo "$OUTPUT_RUN2" | jq '{worktree, session, warnings}' 2>/dev/null)
+CORE3=$(echo "$OUTPUT_RUN3" | jq '{worktree, session, warnings}' 2>/dev/null)
+
+if [[ "$CORE2" == "$CORE3" ]]; then
+  pass "idempotency: consecutive runs after stabilization produce identical output"
+else
+  fail "idempotency: consecutive runs differ" "run2=$CORE2 run3=$CORE3"
+fi
+
+$T kill-session -t idem 2>/dev/null
+
+# ═══════════════════════════════════════════════════════════
+echo "═══ Main worktree detection (isolated=false)"
+# ═══════════════════════════════════════════════════════════
+
+# Explicitly test against the main repo root (not a worktree)
+start_session "mainwt" "$REPO_ROOT"
+OUTPUT_MAIN_WT=$(SWAIN_TMUX_SOCKET="$TMUX_SOCK" TMUX="$TMUX_SOCK,0,0" \
+  bash "$BOOTSTRAP" --path "$REPO_ROOT" --auto 2>/dev/null)
+
+MAIN_ISOLATED=$(echo "$OUTPUT_MAIN_WT" | jq -r '.worktree.isolated' 2>/dev/null)
+if [[ "$MAIN_ISOLATED" == "false" ]]; then
+  pass "main worktree: isolated is false"
+else
+  fail "main worktree: isolated is false" "got: $MAIN_ISOLATED"
+fi
+
+MAIN_BRANCH=$(echo "$OUTPUT_MAIN_WT" | jq -r '.worktree.branch' 2>/dev/null)
+if [[ -n "$MAIN_BRANCH" && "$MAIN_BRANCH" != "null" ]]; then
+  pass "main worktree: branch is populated"
+else
+  fail "main worktree: branch is populated" "got: $MAIN_BRANCH"
+fi
+
+$T kill-session -t mainwt 2>/dev/null
+
+# ═══════════════════════════════════════════════════════════
 echo ""
 echo "Results: $PASS passed, $FAIL failed, $SKIP skipped"
 [[ $FAIL -eq 0 ]] && exit 0 || exit 1
