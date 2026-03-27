@@ -19,7 +19,7 @@ linked-artifacts:
   - VISION-001
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "gh#84"
 swain-do: required
 ---

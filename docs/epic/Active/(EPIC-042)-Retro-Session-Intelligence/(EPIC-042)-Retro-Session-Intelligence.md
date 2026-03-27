@@ -16,7 +16,7 @@ success-criteria:
   - Existing flat-file retros are migrated to folder structure by swain-doctor
 depends-on-artifacts: []
 addresses: []
-evidence-pool: "agent-alignment-monitoring@8047381"
+trove: "agent-alignment-monitoring@8047381"
 linked-artifacts:
   - PERSONA-001
   - SPEC-150

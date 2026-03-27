@@ -23,7 +23,7 @@ linked-artifacts:
   - DESIGN-004
   - SPEC-091
   - SPEC-093
-evidence-pool: ""
+trove: ""
 ---
 
 # User Documentation System

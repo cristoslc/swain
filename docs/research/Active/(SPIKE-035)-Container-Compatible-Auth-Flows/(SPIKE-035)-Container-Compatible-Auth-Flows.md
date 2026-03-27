@@ -13,7 +13,7 @@ gate: Pre-MVP
 risks-addressed:
   - Browser-based OAuth cannot complete inside containers (localhost callback unreachable)
   - swain-box _login_cmd table may have commands that silently fail in sandboxed environments
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - SPEC-092
   - SPEC-093

@@ -13,7 +13,7 @@ gate: Pre-MVP
 risks-addressed:
   - Agent writes Docker/git/runtime commands based on documentation assumptions that don't match actual CLI behavior
   - Syntax-valid scripts fail on first real use because external commands behave differently than expected
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - SPEC-092
   - SPEC-126

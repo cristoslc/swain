@@ -20,7 +20,7 @@ depends-on-artifacts:
   - SPIKE-031
   - SPIKE-032
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

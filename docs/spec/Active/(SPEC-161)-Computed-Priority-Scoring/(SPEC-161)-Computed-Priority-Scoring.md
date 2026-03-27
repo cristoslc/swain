@@ -14,7 +14,7 @@ linked-artifacts:
 depends-on-artifacts:
   - SPEC-160
 addresses: []
-evidence-pool: "docs/troves/critical-path-analysis"
+trove: "docs/troves/critical-path-analysis"
 source-issue: ""
 swain-do: required
 ---

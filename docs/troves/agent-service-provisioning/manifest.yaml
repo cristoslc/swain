@@ -1,0 +1,30 @@
+trove: agent-service-provisioning
+created: 2026-03-27
+refreshed: 2026-03-27
+tags:
+  - agent-provisioning
+  - stripe-projects
+  - cli-service-setup
+  - developer-experience
+  - api-keys
+  - agent-infrastructure
+  - vibe-coding
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-03-27
+    commit: "8881e4a"
+    sources: 1
+
+referenced-by: []
+
+sources:
+  - source-id: collison-stripe-projects-announcement
+    type: web
+    url: "https://x.com/patrickc/status/2037190688950161709"
+    fetched: 2026-03-27T00:00:00Z
+    title: "Stripe Projects announcement"
+    hash: "e1e7075cfb1c551d9cdcc3ac89f269098c15c325c4f1337b30ec903d3a913c53"

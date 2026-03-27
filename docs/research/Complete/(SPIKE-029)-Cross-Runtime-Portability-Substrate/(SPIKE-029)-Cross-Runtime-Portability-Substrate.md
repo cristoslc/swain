@@ -12,7 +12,7 @@ parent-initiative: INITIATIVE-014
 risks-addressed:
   - Building per-runtime adapters that share no common foundation
   - Targeting runtimes with unstable or nonexistent extension APIs
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-032
   - EPIC-033

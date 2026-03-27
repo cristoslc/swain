@@ -18,7 +18,7 @@ success-criteria:
 depends-on-artifacts:
   - SPIKE-029
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-033
   - SPIKE-029

@@ -18,7 +18,7 @@ depends-on-artifacts:
   - SPEC-063
   - SPEC-064
 addresses: []
-evidence-pool: "security-skill-landscape"
+trove: "security-skill-landscape"
 source-issue: ""
 swain-do: required
 ---

@@ -13,7 +13,7 @@ linked-artifacts: []
 depends-on-artifacts: []
 addresses:
   - PERSONA-002
-evidence-pool:
+trove:
 source-issue:
 swain-do: required
 ---

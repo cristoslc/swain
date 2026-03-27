@@ -13,7 +13,7 @@ gate: Pre-MVP
 risks-addressed:
   - Unattended agent inherits operator's full credential set
   - No documented comparison of credential isolation properties across sandbox types
-evidence-pool: "sandbox-runtime source (anthropic-experimental/sandbox-runtime), Claude Code sandboxing docs, Docker Sandboxes architecture docs, Seatbelt SBPL reference, Landlock kernel docs, bubblewrap man pages, CVE-2025-55284, CVE-2025-59536, CVE-2026-21852"
+trove: "sandbox-runtime source (anthropic-experimental/sandbox-runtime), Claude Code sandboxing docs, Docker Sandboxes architecture docs, Seatbelt SBPL reference, Landlock kernel docs, bubblewrap man pages, CVE-2025-55284, CVE-2025-59536, CVE-2026-21852"
 linked-artifacts:
   - EPIC-005
   - SPEC-067

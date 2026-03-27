@@ -5,11 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "SPIKE-045: NO-GO on Ollama Cloud, pending glm-5/deepseek retries after session reset + self-hosted cost trove",
-    "files": [
-      "docs/research/Active/(SPIKE-045)-Ollama-Cloud-Dispatch-Worker-Feasibility/SPIKE-045.md"
-    ],
-    "timestamp": "2026-03-26T04:10:31Z"
+    "note": "Completed retro for SPEC-172 session bootstrap — 1 learning captured (self-critique before GREEN)",
+    "timestamp": "2026-03-27T14:44:09Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

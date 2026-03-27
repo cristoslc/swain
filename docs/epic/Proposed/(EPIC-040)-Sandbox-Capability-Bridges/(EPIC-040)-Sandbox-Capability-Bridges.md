@@ -18,7 +18,7 @@ depends-on-artifacts:
   - SPEC-081
   - SPEC-092
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-016
   - INITIATIVE-004

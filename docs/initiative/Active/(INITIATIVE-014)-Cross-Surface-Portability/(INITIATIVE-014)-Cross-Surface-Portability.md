@@ -15,7 +15,7 @@ success-criteria:
   - Approach selected and first surface delivered
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-032
   - EPIC-033

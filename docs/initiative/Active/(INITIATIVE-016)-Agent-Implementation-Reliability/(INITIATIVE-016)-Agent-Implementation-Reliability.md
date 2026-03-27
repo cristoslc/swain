@@ -19,7 +19,7 @@ linked-artifacts:
   - VISION-002
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Agent Implementation Reliability

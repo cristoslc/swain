@@ -17,7 +17,7 @@ success-criteria:
   - No vendored superpowers skills are modified
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - ADR-011
   - SPEC-043

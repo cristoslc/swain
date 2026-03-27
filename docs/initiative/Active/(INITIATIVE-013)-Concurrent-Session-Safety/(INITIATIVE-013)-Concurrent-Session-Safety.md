@@ -33,7 +33,7 @@ linked-artifacts:
 depends-on-artifacts:
   - INITIATIVE-012
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Concurrent Session Safety

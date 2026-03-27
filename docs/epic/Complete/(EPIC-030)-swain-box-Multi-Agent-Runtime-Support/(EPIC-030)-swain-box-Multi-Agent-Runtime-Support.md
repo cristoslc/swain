@@ -17,7 +17,7 @@ success-criteria:
 depends-on-artifacts:
   - SPEC-067
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - DESIGN-002
   - SPEC-067

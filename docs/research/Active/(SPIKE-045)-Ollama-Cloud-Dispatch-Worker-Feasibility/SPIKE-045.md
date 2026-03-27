@@ -50,10 +50,13 @@ Key unknowns: whether open-source models can reliably follow swain's AGENTS.md g
 
 ## Pivot Recommendation
 
-If No-Go:
-- **Pivot A**: Use Ollama Cloud as inference backend but pair with Claude Code Agent SDK for the agent framework (still needs Anthropic auth but gets Ollama pricing for most calls)
-- **Pivot B**: Self-host Ollama with a coding-capable model (qwen3-coder:32b) on a dedicated VPS — removes rate limits and cloud dependency at ~$55/month for an RTX 4090 build
-- **Pivot C**: Abandon multi-model dispatch; keep all agent work on Claude Code and focus on reducing per-session cost through model routing (SPIKE-026)
+If No-Go on free tier (confirmed — see Findings):
+
+- **Pivot A**: Ollama Cloud paid tier (Pro $20/mo or Max $100/mo). Same setup already built and tested — just pay for capacity. Pro gives 3 concurrent sessions and 50x the free budget; Max gives 10 concurrent and 250x. The qwen3.5 trial stall may have been purely a free-tier budget issue. **Test first**: re-run qwen3.5 trial on Pro to determine if paid tier sustains a full session. Cost: $20-100/month.
+- **Pivot B**: DeepSeek API direct ($0.27/M tokens). Cheapest per-session (~$0.01-0.03/SPEC). 671B deepseek-v3.1 with tool calling confirmed working. Needs an agent framework (no OpenCode equivalent), and adds another API key dependency. Auth-free in the 1Password sense but not zero-auth.
+- **Pivot C**: Self-host Ollama with a 32B model (qwen2.5-coder:32b) on a single-GPU VPS (~$55/month). Removes rate limits and cloud dependency. But 32B models are a fundamentally different capability tier — untested for swain convention compliance. **671B self-hosting is not viable**: requires 5-8x H100 GPUs at $3,900-17,500/month (see `self-hosted-llm-inference-costs` trove).
+- **Pivot D**: Claude Code Agent SDK + Ollama inference. Still needs Anthropic auth — defeats the auth-free dispatch goal.
+- **Pivot E**: Abandon multi-model dispatch; keep all agent work on Claude Code and focus on reducing per-session cost through model routing (SPIKE-026).
 
 ## Test Protocol
 
@@ -61,11 +64,11 @@ If No-Go:
 1. Create an Ollama Cloud account and API key
 2. Install OpenCode CLI
 3. Configure OpenCode to use `https://ollama.com/v1` as base URL with the API key
-4. Select a completed mechanical SPEC as the test case (e.g., a frontmatter fix or xref update)
+4. Select a completed mechanical SPEC as the test case — SPEC-018 (Update Artifact Definitions and Templates), 22 files, 6 ACs
 
 ### Trial Runs (5x per model)
-1. Start OpenCode in the swain repo root
-2. Prompt: "Read AGENTS.md, then implement SPEC-NNN following swain conventions"
+1. Start OpenCode in the swain repo root via `run-trial.sh <model> <trial-number>`
+2. Prompt: "Read AGENTS.md, then implement SPEC-018 following swain conventions"
 3. Record: did it read AGENTS.md? Did it find the spec? Did it correctly edit files? Did it follow conventions?
 4. Score each run: pass (completed correctly), partial (completed with errors), fail (could not complete)
 
@@ -86,9 +89,9 @@ If No-Go:
 
 ## Findings
 
-### Result: NO-GO for Ollama Cloud dispatch workers
+### Result: NO-GO for Ollama Cloud free-tier dispatch workers
 
-Ollama Cloud cannot reliably sustain multi-step agent sessions on any tier. The platform hits **3 of 4 no-go criteria**:
+Ollama Cloud free tier cannot sustain multi-step agent sessions. The platform hits **3 of 4 no-go criteria**:
 
 - **No-Go #2**: Success rate 0% (0/3 trials completed). Best result was partial (73% of files edited correctly before stall).
 - **No-Go #4**: Free tier exhausted mid-session (~11 min of active work). Rate limits prevented completing a single SPEC within 30 minutes. One trial consumed the entire daily/session budget, blocking the other two models from even starting.
@@ -123,29 +126,21 @@ The models themselves performed well when the platform allowed them to work:
 | Model | Trial | Duration | Files changed | Status | Failure mode |
 |-------|-------|----------|---------------|--------|-------------|
 | kimi-k2.5 | 1 | 18s | 0 | FAIL | Server-side bug — "prompt too long" on trivial prompts |
-| qwen3.5:397b | 1 | ~35m (killed) | 16/22 | PARTIAL | API stall after ~11m active work; platform rate limit |
+| qwen3.5:397b | 1 | ~35m (killed) | 16/22 | PARTIAL | API stall after ~11m active work; free-tier budget exhausted |
 | glm-5 | 1 | <1m | 0 | FAIL | Launched after usage exhausted by qwen3.5 trial |
 | deepseek-v3.1:671b | 1 | <1m | 0 | FAIL | Launched after usage exhausted by qwen3.5 trial |
 
-### Pivot recommendation
+### Next steps
 
-**Pivot B (self-hosted Ollama) is most promising.** The models are smart enough — qwen3.5:397b proved it can follow swain conventions and edit artifacts correctly. The bottleneck is Ollama Cloud's rate limits, reliability, and opaque capacity. Self-hosting removes all three:
-
-- No rate limits or session caps
-- No shared inference pool — dedicated throughput
-- No dependency on Ollama Cloud's availability
-- Version-pinnable (avoids the qwen3.5 tool-call-printing bug in Ollama 0.17.6+)
-- Cost: ~$55/month for RTX 4090 VPS, or $0 on existing hardware with a GPU
-
-**Pivot A** (Claude SDK + Ollama inference) still requires Anthropic auth, defeating the "auth-free dispatch" goal.
-
-**Pivot C** (abandon multi-model) remains the conservative fallback if self-hosting proves impractical.
+1. Re-run glm-5 and deepseek-v3.1 trials after Ollama session reset (pending)
+2. Consider upgrading to Pro ($20/mo) and re-running qwen3.5 to test Pivot A
+3. Update pivot section with corrected self-hosting costs (done — see `self-hosted-llm-inference-costs` trove)
 
 ### Research artifacts
 
-- **Troves**: `ollama-cloud-dispatch-workers@71ed4fc` (10 sources), `ollama-cloud-subscriptions@3b14d3e` (6 sources)
+- **Troves**: `ollama-cloud-dispatch-workers@71ed4fc` (10 sources), `ollama-cloud-subscriptions@3b14d3e` (6 sources), `self-hosted-llm-inference-costs` (6 sources)
 - **Trial data**: `trial-kimi-k2.5-1.md`, `trial-qwen3.5-397b-1.md`, worktrees at `/tmp/spike045-*/`
-- **Trial runner**: `run-trial.sh` — reusable for Pivot B testing with local Ollama
+- **Trial runner**: `run-trial.sh` — reusable for retry and Pivot A testing
 
 ## Lifecycle
 

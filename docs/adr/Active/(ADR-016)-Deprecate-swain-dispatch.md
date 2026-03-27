@@ -12,7 +12,7 @@ linked-artifacts:
   - SPEC-074
   - EPIC-010
 depends-on-artifacts: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Deprecate swain-dispatch

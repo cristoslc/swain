@@ -22,7 +22,7 @@ depends-on-artifacts:
   - SPEC-121
   - SPEC-122
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

@@ -12,7 +12,7 @@ linked-artifacts:
   - SPIKE-043
   - SPEC-165
 depends-on-artifacts: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Merge Tickets To Trunk For Cross-Session Coordination

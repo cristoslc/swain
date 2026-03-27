@@ -13,7 +13,7 @@ risks-addressed:
   - PreToolUse hooks may not cover all platforms or all process rules
   - Post-hoc enforcement accepts process violations temporarily — operator must tolerate the gap
   - Audit pipeline may produce too many false positives to be actionable
-evidence-pool: "platform-hooks-validation@21aa91c"
+trove: "platform-hooks-validation@21aa91c"
 linked-artifacts:
   - SPIKE-038
   - SPIKE-039

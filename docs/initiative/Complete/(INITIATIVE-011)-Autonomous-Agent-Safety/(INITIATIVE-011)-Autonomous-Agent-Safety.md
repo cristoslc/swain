@@ -21,7 +21,7 @@ linked-artifacts:
 depends-on-artifacts:
   - INITIATIVE-010
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Autonomous Agent Safety

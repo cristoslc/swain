@@ -13,7 +13,7 @@ risks-addressed:
   - Global swain skills unavailable inside sandbox
   - Per-project memories from unrelated projects leaking into sandboxed agent context
   - Claude Code runtime errors from read-only ~/.claude/ mount
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - SPEC-067
 ---

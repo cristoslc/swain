@@ -15,7 +15,7 @@ linked-artifacts:
   - VISION-002
   - VISION-003
 depends-on-artifacts: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Derive Priority From Parent Chain

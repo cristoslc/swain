@@ -26,7 +26,7 @@ linked-artifacts:
   - SPIKE-027
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Isolation Foundations

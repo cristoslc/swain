@@ -11,7 +11,7 @@ linked-artifacts:
   - INITIATIVE-005
   - VISION-001
 depends-on-artifacts: []
-evidence-pool: "trove:slop-creep"
+trove: "trove:slop-creep"
 ---
 
 # Trove Analysis Layer
