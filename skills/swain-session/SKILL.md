@@ -26,91 +26,61 @@ This skill is invoked automatically at session start (see AGENTS.md). When auto-
 
 When invoked manually, the user can change preferences or bookmark context.
 
-## Step 1 — Set terminal tab/session name (tmux only)
+## Steps 1–2 — Bootstrap (tab naming + worktree detection + session load)
 
-Check if `$TMUX` is set. If yes, run the tab-naming script:
-
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --auto
-```
-
-Use the project root to locate the script. The script reads `swain.settings.json` for the tab name format (default: `{project} @ {branch}`).
-
-The script renames **both** the tmux window (tab) and the tmux session. It also installs a `pane-focus-in` hook so names update automatically when the operator switches between tmux panes in different git repos/branches.
-
-If this fails (e.g., not in a git repo), set a fallback title of "swain".
-
-### Worktree / branch changes (agent-agnostic)
-
-When an agent enters a worktree or switches branches, the tmux pane's tracked CWD does not update (agent commands run in subshells). **Any agent** that changes its working context MUST re-run the tab-naming script with `--path`:
+Run the consolidated bootstrap script in a single call:
 
 ```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --path "$NEW_WORKDIR" --auto
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --auto
 ```
 
-This is agent-agnostic — it works in Claude Code, opencode, gemini cli, codex, copilot, or any other agent that reads AGENTS.md and can run bash commands. The `--path` flag takes priority over the pane's CWD.
+The script handles tab naming (tmux only), worktree isolation detection, and session.json loading atomically. It emits structured JSON:
 
-**If `$TMUX` is NOT set**, skip tab naming and check whether tmux is installed:
-
-```bash
-which tmux
+```json
+{
+  "tab": "project @ branch",
+  "worktree": { "isolated": false, "path": null, "branch": "trunk" },
+  "session": {
+    "focus": "VISION-001",
+    "bookmark": "Left off implementing the MOTD animation",
+    "lastBranch": "trunk"
+  },
+  "warnings": []
+}
 ```
 
-- **tmux not installed:** Offer to install it:
-  > tmux is not installed. Install it now? I can run `brew install tmux` for you.
+**After receiving the JSON output:**
 
-  If the user accepts, run `brew install tmux`. Session tab naming will be available on the next session start inside tmux.
+1. If `worktree.isolated` is `false`: use the `EnterWorktree` tool to create an isolated worktree. **Always pass a unique name** to avoid branch collisions when multiple sessions start concurrently — use `session-YYYYMMDD-HHmmss` (e.g., `session-20260327-143022`), or a descriptive name if the operator provided context (e.g., `spec-174-branch-collision`). Never use a static name like "session" (SPEC-174). Then re-run the bootstrap with the new path:
+   ```bash
+   bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --skip-worktree --auto
+   ```
+   If `EnterWorktree` fails or is unavailable, log a warning and proceed — swain-do will attempt isolation at dispatch time as a fallback.
 
-- **tmux installed but not in a session:** Show this note:
-  > [note] Not in a tmux session — session tab and pane features unavailable
+2. If `session.bookmark` is not null, display it:
+   > **Resuming session** — Last time: {bookmark}
 
-## Step 1.5 — Worktree auto-isolation
+3. If `session.focus` is not null, display the focus lane.
 
-After tab naming, detect whether the agent is in the main worktree:
+4. Display any `warnings` entries.
 
-```bash
-GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
-GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
-[ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
-```
-
-**If `IN_WORKTREE=yes`:** Already isolated. Skip to Step 2.
-
-**If `IN_WORKTREE=no`:** Use the `EnterWorktree` tool to create an isolated worktree. **Always pass a unique name** to avoid branch collisions when multiple sessions start concurrently. Generate the name as `session-YYYYMMDD-HHmmss` (e.g., `session-20260327-143022`). If the operator provided a task context (e.g., "working on SPEC-174"), prefer a descriptive name like `spec-174-<slug>` — but always include a disambiguator if the name could collide.
-
-```bash
-# Generate a timestamped session name
-WORKTREE_NAME="session-$(date +%Y%m%d-%H%M%S)"
-```
-
-This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
-
-After entering the worktree, re-run tab naming to reflect the new branch:
-
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --auto
-```
-
-**If `EnterWorktree` fails or is unavailable:** Log a warning and proceed without isolation. swain-do will attempt isolation at dispatch time as a fallback.
+**If `$TMUX` is NOT set** (detected by absence of `tab` in the JSON), check whether tmux is installed:
+- **tmux not installed:** Offer to install it (`brew install tmux`).
+- **tmux installed but not in a session:** Show: `[note] Not in a tmux session — session tab and pane features unavailable`
 
 The operator can say "exit worktree" or "back to main" at any time — call `ExitWorktree` to leave isolation.
 
-## Step 2 — Load session preferences
+### Worktree / branch changes (agent-agnostic)
 
-Read the session state file. The file location is:
+When an agent enters a worktree or switches branches, re-run the bootstrap with `--path` to update the tab name:
 
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --path "$NEW_WORKDIR" --skip-worktree --auto
 ```
-<project-root>/.agents/session.json
-```
 
-This keeps session state per-project, version-controlled, and visible to collaborators.
+This is agent-agnostic — works in Claude Code, opencode, gemini cli, codex, copilot, or any agent that reads AGENTS.md and can run bash commands.
 
-**Migration:** If `.agents/session.json` does not exist but the old global location (`~/.claude/projects/<project-path-slug>/memory/session.json`) does, copy it to `.agents/session.json` on first access.
-
-The session.json schema:
+### Session.json schema
 
 ```json
 {
@@ -127,14 +97,7 @@ The session.json schema:
 }
 ```
 
-If the file exists:
-- Read and apply preferences (currently informational — future skills can check these)
-- If `bookmark` exists and has a `note`, display it to the user:
-  > **Resuming session** — Last time: {note}
-  > Files: {files list, if any}
-- Update `lastBranch` to the current branch
-
-If the file does not exist, create it with defaults.
+**Migration:** If `.agents/session.json` does not exist but the old global location (`~/.claude/projects/<project-path-slug>/memory/session.json`) does, the bootstrap script copies it automatically.
 
 ## Step 3 — Suggest swain-stage (tmux only)
 

@@ -24,7 +24,7 @@ linked-artifacts:
   - SPEC-158
   - SPEC-159
   - SPEC-162
-  - SPIKE-046
+  - SPIKE-048
   - SPIKE-043
 depends-on-artifacts: []
 addresses: []
@@ -77,7 +77,7 @@ Replace the ad-hoc "scan `docs/<type>/` and pick the next number" pattern in swa
 
 ### Summary
 
-All 5 success criteria met. Delivered a centralized allocator script (`next-artifact-number.sh`) that scans all worktrees + trunk, integrated it into SKILL.md step 1, built collision detection + renumber tools, and migrated existing callers. The detection script found 3 real number collisions already in the repo (SPEC-169, SPEC-170, SPIKE-046), retroactively validating the EPIC's premise.
+All 5 success criteria met. Delivered a centralized allocator script (`next-artifact-number.sh`) that scans all worktrees + trunk, integrated it into SKILL.md step 1, built collision detection + renumber tools, and migrated existing callers. The detection script found 3 real number collisions already in the repo (SPEC-169, SPEC-170, SPIKE-048), retroactively validating the EPIC's premise.
 
 Side outputs: SPIKE-043 (Phase Complexity Model) emerged from observing that not everything needs manual testing — produced a Stacey Matrix-based model for adaptive ceremony. ADR-015 (Ephemeral Tickets) emerged from the worktree cleanup experience — formalized that tickets are scaffolding, not records.
 
