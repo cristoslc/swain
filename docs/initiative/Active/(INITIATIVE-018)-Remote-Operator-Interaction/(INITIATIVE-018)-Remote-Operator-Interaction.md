@@ -18,7 +18,7 @@ linked-artifacts:
   - INITIATIVE-015
   - INITIATIVE-005
 addresses: []
-evidence-pool: "claude-code-remote-interaction@08ec2b5"
+trove: "claude-code-remote-interaction@08ec2b5"
 ---
 
 # Remote Operator Interaction

@@ -17,7 +17,7 @@ linked-artifacts:
 depends-on-artifacts:
   - SPEC-092
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

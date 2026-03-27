@@ -17,7 +17,7 @@ linked-artifacts:
   - SPEC-106
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "gh#81"
 swain-do: required
 ---

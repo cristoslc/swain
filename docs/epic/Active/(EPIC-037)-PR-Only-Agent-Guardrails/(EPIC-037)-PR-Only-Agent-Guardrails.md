@@ -20,7 +20,7 @@ depends-on-artifacts:
   - SPEC-092
   - SPIKE-037
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-040
   - INITIATIVE-013

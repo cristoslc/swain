@@ -17,7 +17,7 @@ success-criteria:
   - Deprecated swain-push skill is pruned
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - DESIGN-003
   - EPIC-015

@@ -11,7 +11,7 @@ priority-weight: high
 depends-on-artifacts:
   - VISION-001
   - VISION-003
-evidence-pool: "platform-hooks-validation@21aa91c, agent-alignment-monitoring@8047381"
+trove: "platform-hooks-validation@21aa91c, agent-alignment-monitoring@8047381"
 linked-artifacts:
   - VISION-001
   - VISION-002

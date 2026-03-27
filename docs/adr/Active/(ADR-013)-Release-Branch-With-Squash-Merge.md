@@ -13,7 +13,7 @@ linked-artifacts:
   - SPEC-114
 depends-on-artifacts:
   - ADR-012
-evidence-pool: ""
+trove: ""
 ---
 
 # Release Branch With Squash Merge From Trunk

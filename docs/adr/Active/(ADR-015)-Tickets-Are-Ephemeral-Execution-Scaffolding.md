@@ -11,7 +11,7 @@ linked-artifacts:
   - EPIC-043
   - SPIKE-043
 depends-on-artifacts: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Tickets Are Ephemeral Execution Scaffolding

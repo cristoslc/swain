@@ -22,7 +22,7 @@ depends-on-artifacts:
   - SPIKE-029
   - SPIKE-030
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - SPEC-082
   - SPEC-083

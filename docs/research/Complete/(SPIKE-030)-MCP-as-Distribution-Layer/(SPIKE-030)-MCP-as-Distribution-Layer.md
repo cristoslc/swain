@@ -12,7 +12,7 @@ parent-initiative: INITIATIVE-014
 risks-addressed:
   - Building on a protocol that doesn't have sufficient adoption or stability
   - MCP's tool model being too narrow for swain's workflow-oriented patterns
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-033
 ---

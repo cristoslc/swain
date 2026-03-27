@@ -12,7 +12,7 @@ risks-addressed:
   - An unattended agent with an over-permissioned token could push directly to main, bypassing review
   - Relying solely on branch protection rules creates a single point of failure — misconfiguration or repo transfer could silently remove the guard
   - Token theft from a compromised sandbox could grant broader access than intended
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-037
 ---

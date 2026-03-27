@@ -15,7 +15,7 @@ success-criteria:
   - Cross-platform deny rules preventing governance file tampering on 3+ platforms
 depends-on-artifacts: []
 addresses: []
-evidence-pool: "platform-hooks-validation@21aa91c"
+trove: "platform-hooks-validation@21aa91c"
 linked-artifacts:
   - INITIATIVE-014
   - SPIKE-038

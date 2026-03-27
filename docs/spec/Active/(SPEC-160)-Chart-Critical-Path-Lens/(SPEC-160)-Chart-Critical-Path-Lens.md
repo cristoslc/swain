@@ -14,7 +14,7 @@ linked-artifacts:
   - SPIKE-042
 depends-on-artifacts: []
 addresses: []
-evidence-pool: "docs/troves/critical-path-analysis"
+trove: "docs/troves/critical-path-analysis"
 source-issue: ""
 swain-do: required
 ---

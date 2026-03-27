@@ -14,7 +14,7 @@ linked-artifacts:
   - SPIKE-034
   - VISION-002
 depends-on-artifacts: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Subscription Auth Preferred Over API Keys

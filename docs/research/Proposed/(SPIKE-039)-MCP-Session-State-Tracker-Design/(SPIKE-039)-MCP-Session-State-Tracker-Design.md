@@ -13,7 +13,7 @@ risks-addressed:
   - Stateless hooks cannot enforce session-aware process rules without an external state source
   - MCP server complexity may exceed maintenance budget for a personal tool
   - Session state tracking may introduce latency that degrades the agent experience
-evidence-pool: "platform-hooks-validation@21aa91c"
+trove: "platform-hooks-validation@21aa91c"
 linked-artifacts:
   - SPIKE-038
   - VISION-005

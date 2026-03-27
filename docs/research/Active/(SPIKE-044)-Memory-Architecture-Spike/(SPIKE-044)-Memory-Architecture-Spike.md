@@ -13,7 +13,7 @@ risks-addressed:
   - "Cross-artifact reasoning requires too many file reads, slowing agents and consuming context"
   - "Auto-memory drifts from the artifact layer, producing stale or contradictory guidance"
   - "Flat-file approach may be leaving value on the table vs. graph-connected knowledge"
-evidence-pool:
+trove:
   - "trove: agent-memory-systems@a824a13"
 trove: "agent-memory-systems@a824a13"
 ---

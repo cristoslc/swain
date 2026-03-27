@@ -13,7 +13,7 @@ linked-artifacts:
   - RETRO-2026-03-25-trove-misrouting
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

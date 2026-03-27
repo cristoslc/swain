@@ -15,7 +15,7 @@ success-criteria:
   - "If No-Go: findings documented as an ADR explaining why current approach is sufficient"
 depends-on-artifacts: []
 addresses: []
-evidence-pool:
+trove:
   - "trove: agent-memory-systems@a824a13"
 linked-artifacts:
   - SPIKE-044

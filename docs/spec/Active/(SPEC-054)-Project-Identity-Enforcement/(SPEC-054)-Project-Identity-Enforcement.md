@@ -14,7 +14,7 @@ linked-artifacts:
 depends-on-artifacts: []
 addresses:
   - INITIATIVE-005
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

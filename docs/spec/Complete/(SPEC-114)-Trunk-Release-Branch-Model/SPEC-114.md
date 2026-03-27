@@ -18,7 +18,7 @@ depends-on-artifacts:
   - ADR-011
   - ADR-013
 addresses: []
-evidence-pool: "multi-agent-collision-vectors"
+trove: "multi-agent-collision-vectors"
 source-issue: ""
 swain-do: required
 ---

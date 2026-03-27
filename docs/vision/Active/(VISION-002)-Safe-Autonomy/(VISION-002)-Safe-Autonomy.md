@@ -9,7 +9,7 @@ created: 2026-03-18
 last-updated: 2026-03-18
 priority-weight: high
 depends-on-artifacts: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - INITIATIVE-004
   - INITIATIVE-006

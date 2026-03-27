@@ -13,7 +13,7 @@ gate: Pre-MVP
 risks-addressed:
   - Docker Sandboxes' template images may depend on microVM infrastructure (proxy, daemon, workspace sync) that doesn't exist in regular containers
   - Building/maintaining a custom Claude Code Docker image adds maintenance burden
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - SPEC-067
   - SPEC-092

@@ -13,7 +13,7 @@ gate: Pre-MVP
 risks-addressed:
   - Docker Sandboxes (strongest isolation) unusable for subscription users
   - Forced fallback to weaker native sandboxing for unattended use
-evidence-pool: |
+trove: |
   - docker/desktop-feedback#198 (Open, 2026-03-15): MITM proxy breaks api.claude.ai connectivity
   - docker/for-mac#7842 (Open, 2026-01-30): apiKeyHelper injection bug, fixed in DD 4.60.1
   - Claude Code auth docs: https://code.claude.com/docs/en/authentication

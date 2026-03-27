@@ -13,7 +13,7 @@ risks-addressed:
   - "Agents sequence work by readiness, not by impact on overall completion time"
   - "Multi-agent parallelism decisions are ad-hoc — no data on which work is blocking vs. slack"
   - "Operators lack a critical-path view for stakeholder communication — cannot answer 'what's on the critical path?' or 'what slips if X slips?'"
-evidence-pool: "docs/troves/critical-path-analysis"
+trove: "docs/troves/critical-path-analysis"
 trove: critical-path-analysis@463a776
 ---
 

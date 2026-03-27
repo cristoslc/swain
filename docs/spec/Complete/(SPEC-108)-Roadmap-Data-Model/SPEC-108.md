@@ -17,7 +17,7 @@ linked-artifacts:
   - SPEC-111
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

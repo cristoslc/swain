@@ -17,7 +17,7 @@ linked-artifacts:
   - SPIKE-022
 depends-on-artifacts:
   - ADR-012
-evidence-pool: "multi-agent-collision-vectors"
+trove: "multi-agent-collision-vectors"
 ---
 
 # Worktree Landing Via Merge With Retry

@@ -15,7 +15,7 @@ linked-artifacts:
   - VISION-001
 depends-on-artifacts: []
 addresses: []
-evidence-pool: "trove:slop-creep"
+trove: "trove:slop-creep"
 source-issue: ""
 swain-do: required
 ---

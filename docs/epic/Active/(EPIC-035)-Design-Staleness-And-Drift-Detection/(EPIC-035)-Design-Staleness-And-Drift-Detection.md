@@ -17,7 +17,7 @@ success-criteria:
   - artifact-refs replaces enriched linked-artifacts v2 across TRAIN and DESIGN definitions
 depends-on-artifacts: []
 addresses: []
-evidence-pool: design-staleness-drift@c3fd9fb
+trove: design-staleness-drift@c3fd9fb
 linked-artifacts:
   - DESIGN-005
   - SPEC-094

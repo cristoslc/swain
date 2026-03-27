@@ -29,7 +29,7 @@ linked-artifacts:
 depends-on-artifacts:
   - SPIKE-034
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 supersedes: ""

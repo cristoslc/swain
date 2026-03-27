@@ -15,7 +15,7 @@ linked-artifacts:
   - SPEC-099
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

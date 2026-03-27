@@ -28,7 +28,7 @@ linked-artifacts:
   - SPIKE-043
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Centralized Artifact Number Allocation

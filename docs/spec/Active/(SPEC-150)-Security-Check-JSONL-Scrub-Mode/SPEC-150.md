@@ -15,7 +15,7 @@ linked-artifacts:
   - SPEC-151
 depends-on-artifacts: []
 addresses: []
-evidence-pool: "agent-alignment-monitoring@8047381"
+trove: "agent-alignment-monitoring@8047381"
 source-issue: ""
 swain-do: required
 ---
