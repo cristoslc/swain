@@ -1,6 +1,6 @@
 # Kanban Tools for Markdown — Synthesis
 
-Evidence pool: `kanban-tools` | 17 sources | 2026-03-15
+Evidence pool: `kanban-tools` | 18 sources | 2026-03-27
 
 ## The question
 
@@ -12,7 +12,7 @@ The research surveyed 9 existing tools across 4 categories (CLI/TUI boards, VS C
 
 ### Model 1: Board-owns-the-data (task managers)
 
-Tools: kanban-md [004], kanban-tui [008], Agent Kanban [007], Tasks.md [010], taskell [012]
+Tools: kanban-md [004], kanban-tui [008], Agent Kanban [007], Tasks.md [010], taskell [012], cline/kanban [cline-kanban]
 
 These tools **create and manage their own task files or databases**. You interact with the board, and it writes the data. The board is the source of truth. They compete with `tk` (ticket), not with daymark.
 
@@ -21,6 +21,7 @@ These tools **create and manage their own task files or databases**. You interac
 - Agent Kanban: VS Code + Copilot task workflow, directory-based lanes, own file format
 - Tasks.md: Docker-based, directory-per-lane, own file structure
 - taskell: Single-file board (headings = columns, lists = tasks)
+- cline/kanban: Browser-based board where each card is a live agent session with its own git worktree. Board-owns-the-data (tasks are board-native), but uniquely integrates worktree-per-task isolation, hook-based reactive status (`in_progress` <-> `review`), dependency chain automation, and multi-agent orchestration (Claude, Codex, Gemini, OpenCode, Droid). `npx kanban` from any repo. Apache 2.0, Research Preview.
 
 **None of these can read an existing folder of artifacts and derive a board from their frontmatter.**
 
@@ -53,6 +54,18 @@ Daymark proposes a model where:
 - **Local-first, no-database** is a strong trend. Most new tools reject cloud sync and external databases.
 - **Agent-friendliness** is a 2025-2026 differentiator. kanban-md, kanban-tui, and Agent Kanban all market agent compatibility. Daymark doesn't need to be agent-operated (swain agents use `tk` for task tracking), but it should be agent-_readable_ (its config and file state should be inspectable via CLI).
 - **File watching + live update** is table stakes. Every tool with a UI supports it.
+
+## cline/kanban: unique contributions to the landscape [cline-kanban]
+
+cline/kanban (added 2026-03-27) is the first tool in the survey that combines a kanban board with live agent orchestration. While it remains firmly Model 1 (board-owns-the-data), it introduces three patterns directly relevant to swain:
+
+1. **Worktree-per-task validation.** cline/kanban creates an ephemeral git worktree for each card, with symlinked node_modules to avoid redundant installs. This validates the same isolation pattern swain already uses for spec implementation — worktree-per-task is not a swain idiosyncrasy but an emerging industry pattern for parallel agent work.
+
+2. **Hook-based reactive status tracking.** The `to_in_progress` / `to_review` hook state machine — driven by `KANBAN_HOOK_TASK_ID`, `KANBAN_HOOK_WORKSPACE_ID`, and `KANBAN_HOOK_PORT` environment variables — is a concrete implementation of what this synthesis theorized about for the reactive loop. Where the synthesis recommended polling + frontmatter diff as the simplest path, cline/kanban shows an alternative: explicit hook callbacks from the agent runtime. This is more tightly coupled (requires agent cooperation) but lower latency and higher fidelity than filesystem watching.
+
+3. **Dependency chain automation.** Card linking with auto-start on completion is the pattern swain-do aspires to — when one spec completes, the next dependent spec should automatically become ready for work. cline/kanban proves this is implementable in a board UI with reasonable UX.
+
+**What cline/kanban does NOT do** (and daymark still must): It does not read existing files, derive columns from frontmatter, or support multi-track lifecycles. Its task state is board-native. The gap identified in the original synthesis — no tool projects existing markdown artifacts onto a kanban board — remains open.
 
 ## Points of disagreement
 

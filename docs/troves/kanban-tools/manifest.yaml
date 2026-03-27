@@ -175,3 +175,21 @@ sources:
   hash: "sha256:dea88e7d2a0dc8baad65a0f2eff83b43bfa159473c35c0c2297b45ffd3b3a63b"
   highlights: []
   selective: false
+- source-id: cline-kanban
+  type: repository
+  url: "https://github.com/cline/kanban"
+  fetched: 2026-03-27T00:00:00Z
+  title: "cline/kanban — Browser-based kanban for parallel agent orchestration"
+  hash: "sha256:4d5e12a1be6c9fb6abd9cfaac752b86134ef70463ba85f94356483c093d24e3a"
+  highlights:
+    - "Worktree-per-task isolation with symlinked node_modules"
+    - "Hook-based agent status tracking (Claude, Codex, Gemini, OpenCode, Droid)"
+    - "Dependency chain automation — card linking with auto-start"
+  selective: true
+
+history:
+  - event: extended
+    date: 2026-03-27
+    commit: "--"
+    sources-added: 1
+    note: "Added cline/kanban — browser-based agent orchestration board"
