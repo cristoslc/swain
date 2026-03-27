@@ -1,12 +1,12 @@
 ---
 name: swain-init
-description: "One-time project onboarding for swain. Invoke to set up swain, onboard this project, initialize swain, or migrate CLAUDE.md. Migrates existing CLAUDE.md content to AGENTS.md (with the @AGENTS.md include pattern), verifies vendored tk (ticket) for task tracking, configures pre-commit security hooks (gitleaks default), and offers to add swain governance rules. Use swain-doctor for ongoing per-session health checks."
+description: "Project onboarding and session entry point for swain. On first run, performs full onboarding: migrates CLAUDE.md to AGENTS.md, verifies vendored tk, configures pre-commit security hooks, and offers swain governance rules — then writes a .swain-init marker. On subsequent runs, detects the marker and delegates directly to swain-session. Use as a single entry point — it routes automatically."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion, Skill
 metadata:
   short-description: One-time swain project onboarding
-  version: 3.1.0
+  version: 4.0.0
   author: cristos
   source: swain
 ---
@@ -16,7 +16,39 @@ metadata:
 
 One-time setup for adopting swain in a project. This skill is **not idempotent** — it migrates files and installs tools. For per-session health checks, use swain-doctor.
 
-Run all phases in order. If a phase detects its work is already done, skip it and move to the next.
+## Phase 0: Already-initialized detection
+
+Before running onboarding, check for the `.swain-init` marker file:
+
+```bash
+cat .swain-init 2>/dev/null
+```
+
+### If `.swain-init` exists
+
+The project has already been initialized. Parse the file (JSON format) and check the latest entry in the `history` array:
+
+```bash
+LAST_VERSION=$(jq -r '.history[-1].version' .swain-init 2>/dev/null)
+CURRENT_VERSION=$(find . .claude .agents -path '*/swain-init/SKILL.md' -print -quit 2>/dev/null | xargs head -20 2>/dev/null | grep 'version:' | awk '{print $2}')
+```
+
+**Version comparison:**
+
+- **Same major version** (e.g., both `4.x.x`): Project is current. Tell the user:
+  > Project already initialized (swain $LAST_VERSION). Delegating to swain-session.
+
+  Invoke the **swain-session** skill and stop. Do not run Phases 1–6.
+
+- **Newer major version available** (e.g., initialized with `3.x.x`, current is `4.x.x`): Suggest upgrade. Tell the user:
+  > Project was initialized with swain $LAST_VERSION (current: $CURRENT_VERSION). Consider running `/swain update` to pick up new features.
+  > Starting session.
+
+  Invoke the **swain-session** skill and stop. Do not re-run onboarding — upgrades are handled by swain-update, not swain-init.
+
+### If `.swain-init` does not exist
+
+Proceed with full onboarding (Phases 1–6).
 
 ## Phase 1: CLAUDE.md → AGENTS.md migration
 
@@ -409,7 +441,38 @@ Invoke the **swain-doctor** skill. This validates `.tickets/` health, checks sta
 
 Invoke the **swain-help** skill in onboarding mode to give the user a guided orientation of what they just installed.
 
-### Step 6.4 — Summary
+### Step 6.4 — Write `.swain-init` marker
+
+After all onboarding phases complete, write the `.swain-init` marker file. This is the authoritative record that init has run.
+
+```bash
+CURRENT_VERSION=$(find . .claude .agents -path '*/swain-init/SKILL.md' -print -quit 2>/dev/null | xargs head -20 2>/dev/null | grep 'version:' | awk '{print $2}')
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+```
+
+If `.swain-init` already exists (partial re-init), read it and append to the history array. Otherwise create a new file:
+
+```json
+{
+  "history": [
+    {
+      "version": "4.0.0",
+      "timestamp": "2026-03-26T18:30:00Z",
+      "action": "init"
+    }
+  ]
+}
+```
+
+For upgrades (future use by swain-update), append an entry with `"action": "upgrade"` instead.
+
+Write the file and ensure it is gitignored (it's project-local state, not shared):
+
+```bash
+grep -q '.swain-init' .gitignore 2>/dev/null || echo '.swain-init' >> .gitignore
+```
+
+### Step 6.5 — Summary
 
 Report what was done:
 
@@ -422,9 +485,14 @@ Report what was done:
 > - Superpowers: [installed/skipped/already present]
 > - tmux: [installed/skipped/already present]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
+> - Init marker: written (.swain-init)
+
+### Step 6.6 — Start session
+
+After successful onboarding, invoke the **swain-session** skill to start the first session. This ensures the user lands in a fully active session regardless of whether they entered via `/swain-init` or `/swain-session`.
 
 ## Re-running init
 
-If the user runs `/swain init` on a project that's already set up, each phase will detect its work is done and skip. The only interactive phase is governance injection (Phase 5), which checks for the `<!-- swain governance -->` marker before asking.
+If the user runs `/swain-init` on a project that's already set up, Phase 0 reads `.swain-init` and delegates directly to swain-session — no onboarding phases run, no interactive prompts appear. This lets users build muscle memory around `/swain-init` as a single entry point.
 
-To force a fresh governance block, delete the `<!-- swain governance -->` ... `<!-- end swain governance -->` section from AGENTS.md and re-run.
+To force re-onboarding, delete `.swain-init` and re-run.
