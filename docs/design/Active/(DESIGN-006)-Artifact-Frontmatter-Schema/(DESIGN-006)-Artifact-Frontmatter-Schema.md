@@ -156,7 +156,7 @@ The canonical schema is defined in `skills/swain-design/frontmatter-contract.yam
 
 **Scoring fields**: `priority-weight`, `sort_order` — consumed by `priority.py` for recommendation ranking. Weight cascades down the hierarchy.
 
-**Provenance fields**: `evidence-pool`, `source-issue` — link artifacts to external sources (troves, GitHub issues).
+**Provenance fields**: `trove`, `source-issue` — link artifacts to external sources (troves, GitHub issues).
 
 **Design tracking fields**: `artifact-refs`, `sourcecode-refs` — typed relationships with blob pinning for drift detection. DESIGN and TRAIN types only.
 

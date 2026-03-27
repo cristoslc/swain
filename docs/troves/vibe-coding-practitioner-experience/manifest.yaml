@@ -20,7 +20,9 @@ history:
     commit: "8881e4a"
     sources: 1
 
-referenced-by: []
+referenced-by:
+  - artifact: PERSONA-001
+    commit: 8881e4a
 
 sources:
   - source-id: karpathy-vibe-coding-menugen
