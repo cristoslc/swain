@@ -382,7 +382,94 @@ If the install succeeds, tell the user:
 If the install fails, warn:
 > tmux installation failed. You can install it manually: `brew install tmux`
 
-If the user says **no**, note "tmux: skipped" and continue to Phase 5.
+If the user says **no**, note "tmux: skipped" and continue to Phase 4.5.
+
+## Phase 4.5: Shell launcher
+
+Goal: offer to install a `swain` shell function so the user can launch swain with a single command. Templates are stored per-runtime, per-shell in `skills/swain-init/templates/launchers/{runtime}/swain.{shell}` — inspect them to see exactly what gets added. Supported runtimes are defined in ADR-017.
+
+### Step 4.5.1 — Detect shell runtime
+
+```bash
+SHELL_NAME=$(basename "$SHELL")
+```
+
+Supported shells: `zsh`, `bash`, `fish`. If the detected shell is not in this list, tell the user:
+
+> Shell launcher templates are available for zsh, bash, and fish. Your shell ($SHELL_NAME) is not yet supported — skipping launcher setup.
+
+Skip to Phase 5.
+
+### Step 4.5.2 — Check for existing launcher
+
+Map the shell to its rc file and detection pattern:
+
+| Shell | RC file | Detection pattern |
+|-------|---------|-------------------|
+| zsh | `~/.zshrc` | `grep -q 'swain\s*()' ~/.zshrc 2>/dev/null` |
+| bash | `~/.bashrc` | `grep -q 'swain\s*()' ~/.bashrc 2>/dev/null` |
+| fish | `~/.config/fish/config.fish` | `grep -q 'function swain' ~/.config/fish/config.fish 2>/dev/null` |
+
+If the pattern matches, report "Shell launcher: already installed" and skip to Phase 5. Do not modify existing functions.
+
+### Step 4.5.3 — Detect installed agentic runtimes
+
+```bash
+RUNTIMES=""
+command -v claude >/dev/null 2>&1 && RUNTIMES="$RUNTIMES claude"
+command -v gemini >/dev/null 2>&1 && RUNTIMES="$RUNTIMES gemini"
+command -v codex >/dev/null 2>&1 && RUNTIMES="$RUNTIMES codex"
+command -v copilot >/dev/null 2>&1 && RUNTIMES="$RUNTIMES copilot"
+command -v crush >/dev/null 2>&1 && RUNTIMES="$RUNTIMES crush"
+```
+
+If no runtimes are found, tell the user:
+
+> No supported agentic CLI runtimes found (checked: claude, gemini, codex, copilot, crush). Install one first, then re-run `/swain-init`.
+
+Skip to Phase 5.
+
+### Step 4.5.4 — Select runtime
+
+- **One runtime found:** Offer it directly.
+- **Multiple runtimes found:** Present a numbered list and ask which one to use. Default to `claude` if available.
+
+Locate the template:
+
+```bash
+TEMPLATE_DIR="$(find . .claude .agents -path '*/swain-init/templates/launchers' -type d -print -quit 2>/dev/null)"
+TEMPLATE_FILE="$TEMPLATE_DIR/$SELECTED_RUNTIME/swain.$SHELL_NAME"
+```
+
+### Step 4.5.5 — Show template and offer installation
+
+Read the template file content and present it to the user:
+
+> **Shell launcher** — Add a `swain` command to your shell?
+>
+> Detected runtime: [runtime name]. Here's what will be added to `<rc-file>`:
+>
+> ```<shell>
+> <template content>
+> ```
+>
+> Install? (yes/no)
+
+For Crush templates, add a note: "Crush has partial support — it cannot accept an initial prompt, so session initialization relies on AGENTS.md auto-invoke directives."
+
+### Step 4.5.6 — Install
+
+If the user accepts, append the template content to the rc file:
+
+```bash
+cat "$TEMPLATE_FILE" >> <rc-file>
+```
+
+Tell the user:
+
+> Shell launcher installed. Run `source <rc-file>` (or restart your shell) to activate the `swain` command.
+
+If the user declines, note "Shell launcher: skipped" and continue to Phase 5.
 
 ## Phase 5: Swain governance
 
@@ -484,6 +571,7 @@ Report what was done:
 > - Pre-commit security hooks: [done/skipped/already configured]
 > - Superpowers: [installed/skipped/already present]
 > - tmux: [installed/skipped/already present]
+> - Shell launcher: [installed (runtime)/skipped/already present/no runtime found/unsupported shell]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
 > - Init marker: written (.swain-init)
 
