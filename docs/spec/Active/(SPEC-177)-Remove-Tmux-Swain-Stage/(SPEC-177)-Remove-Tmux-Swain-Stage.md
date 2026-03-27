@@ -72,4 +72,4 @@ Eliminates confusion between old tmux-stage and new browser-stage directions. Re
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-27 | -- | Initial creation — removal of dead tmux-stage code |
+| Active | 2026-03-27 | 57c7822 | Initial creation — removal of dead tmux-stage code |
