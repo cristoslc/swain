@@ -2,7 +2,7 @@
 title: "Worktree Session Branch Name Collision"
 artifact: SPEC-174
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-27
 last-updated: 2026-03-27
@@ -69,6 +69,9 @@ medium — workaround exists (manually name worktrees), but the default auto-iso
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| Two concurrent sessions get distinct branch names | Timestamped names 1s apart: unique. Same-second with random suffix: 10/10 unique. | Pass |
+| Branch name is human-readable with timestamp | `session-20260327-143022-a7f3` format confirmed | Pass |
+| EnterWorktree with explicit name still works | `EnterWorktree name: "spec-174-branch-collision"` succeeded this session | Pass |
 
 ## Scope & Constraints
 
@@ -81,3 +84,4 @@ medium — workaround exists (manually name worktrees), but the default auto-iso
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-27 | — | Initial creation |
+| Complete | 2026-03-27 | — | Fixed in swain-session + swain-do SKILL.md; verified with behavioral tests |
