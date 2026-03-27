@@ -350,7 +350,66 @@ If the install succeeds, tell the user:
 If the install fails, warn:
 > tmux installation failed. You can install it manually: `brew install tmux`
 
-If the user says **no**, note "tmux: skipped" and continue to Phase 5.
+If the user says **no**, note "tmux: skipped" and continue to Phase 4.5.
+
+## Phase 4.5: Shell launcher
+
+Goal: offer to install a `swain` shell function so the user can launch swain with a single command. Templates are stored per-runtime in `skills/swain-init/templates/launchers/` — inspect them to see exactly what gets added.
+
+### Step 4.5.1 — Detect shell runtime
+
+```bash
+SHELL_NAME=$(basename "$SHELL")
+TEMPLATE_DIR="$(find . .claude .agents -path '*/swain-init/templates/launchers' -type d -print -quit 2>/dev/null)"
+TEMPLATE_FILE="$TEMPLATE_DIR/swain.$SHELL_NAME"
+test -f "$TEMPLATE_FILE" && echo "template found: $TEMPLATE_FILE" || echo "no template for $SHELL_NAME"
+```
+
+If no template exists for the detected shell, tell the user:
+
+> Shell launcher templates are available for zsh, bash, and fish. Your shell ($SHELL_NAME) is not yet supported — skipping launcher setup.
+
+Skip to Phase 5.
+
+### Step 4.5.2 — Determine rc file and check for existing launcher
+
+Map the shell to its rc file and detection pattern:
+
+| Shell | RC file | Detection pattern |
+|-------|---------|-------------------|
+| zsh | `~/.zshrc` | `grep -q 'swain\s*()' ~/.zshrc 2>/dev/null` |
+| bash | `~/.bashrc` | `grep -q 'swain\s*()' ~/.bashrc 2>/dev/null` |
+| fish | `~/.config/fish/config.fish` | `grep -q 'function swain' ~/.config/fish/config.fish 2>/dev/null` |
+
+Run the detection. If the pattern matches, report "Shell launcher: already installed" and skip to Phase 5. Do not modify existing functions.
+
+### Step 4.5.3 — Show template and offer installation
+
+Read the template file content and present it to the user:
+
+> **Shell launcher** — Add a `swain` command to your shell?
+>
+> This function launches Claude Code interactively with swain's recommended flags. Here's what will be added to `<rc-file>`:
+>
+> ```<shell>
+> <template content>
+> ```
+>
+> Install? (yes/no)
+
+### Step 4.5.4 — Install
+
+If the user accepts, append the template content to the rc file:
+
+```bash
+cat "$TEMPLATE_FILE" >> <rc-file>
+```
+
+Tell the user:
+
+> Shell launcher installed. Run `source <rc-file>` (or restart your shell) to activate the `swain` command.
+
+If the user declines, note "Shell launcher: skipped" and continue to Phase 5.
 
 ## Phase 5: Swain governance
 
@@ -421,6 +480,7 @@ Report what was done:
 > - Pre-commit security hooks: [done/skipped/already configured]
 > - Superpowers: [installed/skipped/already present]
 > - tmux: [installed/skipped/already present]
+> - Shell launcher: [installed/skipped/already present/unsupported shell]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
 
 ## Re-running init
