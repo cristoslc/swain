@@ -6,7 +6,7 @@ domain: data
 status: Active
 author: cristos
 created: 2026-03-22
-last-updated: 2026-03-22
+last-updated: 2026-03-27
 superseded-by: ""
 linked-artifacts:
   - ADR-014
@@ -19,8 +19,8 @@ artifact-refs:
     rel: [aligned]
 sourcecode-refs:
   - path: skills/swain-design/frontmatter-contract.yaml
-    blob: ee09e5d
-    commit: 133d4ab
+    blob: 21d9060
+    commit: f284ec5
   - path: skills/swain-design/references/spec-template.md.template
     blob: 3c7385b
     commit: 133d4ab
