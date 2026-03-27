@@ -21,7 +21,11 @@
 | ADR-011 | Worktree Landing Via Merge With Retry | 2026-03-20 | 54e12dc |
 | ADR-012 | Lifecycle Hashes Must Be Reachable From Main | 2026-03-20 | 94f9c94 |
 | ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | 54e12dc |
-| ADR-016 | Deprecate swain-dispatch | 2026-03-25 | — |
+| ADR-014 | Data Contracts For Agent-Produced Data | 2026-03-21 | -- |
+| ADR-015 | Merge Tickets To Trunk For Cross-Session Coordination | 2026-03-25 | -- |
+| ADR-015 | Tickets Are Ephemeral Execution Scaffolding | 2026-03-23 | — |
+| ADR-016 | Deprecate swain-dispatch | 2026-03-25 | -- |
+| ADR-017 | Supported Agentic CLI Runtimes | 2026-03-27 | — |
 
 ## Superseded
 
