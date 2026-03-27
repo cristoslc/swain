@@ -51,6 +51,6 @@ Consolidated swain-session startup from 3-5 visible Bash tool calls into a singl
 
 ## Learnings captured
 
-| Memory file | Type | Summary |
-|------------|------|---------|
-| feedback_retro_self_critique.md | feedback | Agent should self-critique test coverage before declaring GREEN |
+| Artifact | Type | Summary |
+|----------|------|---------|
+| SPEC-173 | enhancement | Add coverage self-critique gate to TDD skill's Verify GREEN phase |
