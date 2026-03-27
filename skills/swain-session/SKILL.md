@@ -78,7 +78,14 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **If `IN_WORKTREE=yes`:** Already isolated. Skip to Step 2.
 
-**If `IN_WORKTREE=no`:** Use the `EnterWorktree` tool to create an isolated worktree. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
+**If `IN_WORKTREE=no`:** Use the `EnterWorktree` tool to create an isolated worktree. **Always pass a unique name** to avoid branch collisions when multiple sessions start concurrently. Generate the name as `session-YYYYMMDD-HHmmss` (e.g., `session-20260327-143022`). If the operator provided a task context (e.g., "working on SPEC-174"), prefer a descriptive name like `spec-174-<slug>` — but always include a disambiguator if the name could collide.
+
+```bash
+# Generate a timestamped session name
+WORKTREE_NAME="session-$(date +%Y%m%d-%H%M%S)"
+```
+
+This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
 
 After entering the worktree, re-run tab naming to reflect the new branch:
 
