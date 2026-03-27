@@ -1,0 +1,31 @@
+trove: vibe-coding-practitioner-experience
+created: 2026-03-27
+refreshed: 2026-03-27
+tags:
+  - vibe-coding
+  - solo-developer
+  - web-app-deployment
+  - developer-experience
+  - api-integration
+  - deployment-friction
+  - cursor
+  - claude
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-03-27
+    commit: "--"
+    sources: 1
+
+referenced-by: []
+
+sources:
+  - source-id: karpathy-vibe-coding-menugen
+    type: web
+    url: "https://karpathy.bearblog.dev/vibe-coding-menugen/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "Vibe coding MenuGen"
+    hash: 6b138868d272c85a16c2d4a5864ad64f080d4c8b23bc86046f41c8ef27609f60
