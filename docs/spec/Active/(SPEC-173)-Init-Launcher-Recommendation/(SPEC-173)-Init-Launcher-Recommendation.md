@@ -14,7 +14,7 @@ linked-artifacts:
   - ADR-017
   - SPIKE-047
 depends-on-artifacts:
-  - SPEC-172
+  - SPEC-175
 addresses: []
 evidence-pool: ""
 source-issue: ""

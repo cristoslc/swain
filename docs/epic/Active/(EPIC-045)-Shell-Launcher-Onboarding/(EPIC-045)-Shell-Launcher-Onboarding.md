@@ -54,8 +54,8 @@ The operator gets a frictionless first-run experience: swain-init detects which 
 
 ## Child Specs
 
-- SPEC-172 — Per-runtime, per-shell launcher template files
-- SPEC-173 — swain-init phase for recommending and installing the launcher
+- SPEC-175 — Per-runtime, per-shell launcher template files
+- SPEC-176 — swain-init phase for recommending and installing the launcher
 
 ## Key Dependencies
 
@@ -67,7 +67,7 @@ The operator gets a frictionless first-run experience: swain-init detects which 
 
 **Terminal state:** Active (retro at first-pass completion, not formal EPIC closure)
 **Period:** 2026-03-26 — 2026-03-27
-**Related artifacts:** [SPEC-172](../../spec/Active/(SPEC-172)-Shell-Launcher-Templates/(SPEC-172)-Shell-Launcher-Templates.md), [SPEC-173](../../spec/Active/(SPEC-173)-Init-Launcher-Recommendation/(SPEC-173)-Init-Launcher-Recommendation.md), [SPIKE-047](../../research/Active/(SPIKE-047)-Agentic-CLI-Runtime-Invocation-Patterns/(SPIKE-047)-Agentic-CLI-Runtime-Invocation-Patterns.md), [ADR-017](../../adr/Active/(ADR-017)-Supported-Agentic-CLI-Runtimes/(ADR-017)-Supported-Agentic-CLI-Runtimes.md), [ADR-018](../../adr/Active/(ADR-018)-Structural-Not-Prosaic-Session-Invocation/(ADR-018)-Structural-Not-Prosaic-Session-Invocation.md)
+**Related artifacts:** [SPEC-175](../../spec/Active/(SPEC-175)-Shell-Launcher-Templates/(SPEC-175)-Shell-Launcher-Templates.md), [SPEC-176](../../spec/Active/(SPEC-176)-Init-Launcher-Recommendation/(SPEC-176)-Init-Launcher-Recommendation.md), [SPIKE-047](../../research/Active/(SPIKE-047)-Agentic-CLI-Runtime-Invocation-Patterns/(SPIKE-047)-Agentic-CLI-Runtime-Invocation-Patterns.md), [ADR-017](../../adr/Active/(ADR-017)-Supported-Agentic-CLI-Runtimes/(ADR-017)-Supported-Agentic-CLI-Runtimes.md), [ADR-018](../../adr/Active/(ADR-018)-Structural-Not-Prosaic-Session-Invocation/(ADR-018)-Structural-Not-Prosaic-Session-Invocation.md)
 
 ### Summary
 

@@ -648,7 +648,7 @@ class TestDecisionDebt:
         "INITIATIVE-001": {"title": "I1", "status": "Active", "type": "INITIATIVE", "priority_weight": "", "file": "", "description": ""},
         "EPIC-001": {"title": "E1", "status": "Proposed", "type": "EPIC", "priority_weight": "", "file": "", "description": ""},
         "EPIC-002": {"title": "E2", "status": "Proposed", "type": "EPIC", "priority_weight": "", "file": "", "description": ""},
-        "SPIKE-046": {"title": "S1", "status": "Proposed", "type": "SPIKE", "priority_weight": "", "file": "", "description": ""},
+        "SPIKE-048": {"title": "S1", "status": "Proposed", "type": "SPIKE", "priority_weight": "", "file": "", "description": ""},
         "SPEC-001": {"title": "SP1", "status": "Ready", "type": "SPEC", "priority_weight": "", "file": "", "description": ""},
     }
 
@@ -656,24 +656,24 @@ class TestDecisionDebt:
         {"from": "INITIATIVE-001", "to": "VISION-001", "type": "parent-vision"},
         {"from": "EPIC-001", "to": "INITIATIVE-001", "type": "parent-initiative"},
         {"from": "EPIC-002", "to": "INITIATIVE-001", "type": "parent-initiative"},
-        {"from": "SPIKE-046", "to": "VISION-002", "type": "parent-vision"},
+        {"from": "SPIKE-048", "to": "VISION-002", "type": "parent-vision"},
         {"from": "SPEC-001", "to": "EPIC-001", "type": "parent-epic"},
-        # EPIC-002 depends on SPIKE-046 (blocked)
-        {"from": "EPIC-002", "to": "SPIKE-046", "type": "depends-on"},
+        # EPIC-002 depends on SPIKE-048 (blocked)
+        {"from": "EPIC-002", "to": "SPIKE-048", "type": "depends-on"},
     ]
 
     def test_decision_debt_counts_ready_items_per_vision(self):
         from specgraph.priority import compute_decision_debt
         debt = compute_decision_debt(self.NODES, self.EDGES)
         # VISION-001: EPIC-001 (ready), SPEC-001 (ready) = 2 decisions. EPIC-002 is blocked.
-        # VISION-002: SPIKE-046 (ready) = 1 decision
+        # VISION-002: SPIKE-048 (ready) = 1 decision
         assert debt["VISION-001"]["count"] == 2
         assert debt["VISION-002"]["count"] == 1
 
     def test_decision_debt_includes_weighted_unblocks(self):
         from specgraph.priority import compute_decision_debt
         debt = compute_decision_debt(self.NODES, self.EDGES)
-        # SPIKE-046 being completed would unblock EPIC-002
+        # SPIKE-048 being completed would unblock EPIC-002
         assert debt["VISION-002"]["total_unblocks"] >= 1
 ```
 

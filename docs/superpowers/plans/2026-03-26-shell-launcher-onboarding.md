@@ -10,7 +10,7 @@
 
 ---
 
-## Chunk 1: Template Files (SPEC-172)
+## Chunk 1: Template Files (SPEC-175)
 
 ### Task 1: Create zsh launcher template
 
@@ -46,7 +46,7 @@ Expected: Exit 0, no output (valid syntax)
 
 ```bash
 git add skills/swain-init/templates/launchers/swain.zsh
-git commit -m "feat(SPEC-172): add zsh launcher template"
+git commit -m "feat(SPEC-175): add zsh launcher template"
 ```
 
 ### Task 2: Create bash launcher template
@@ -83,7 +83,7 @@ Expected: Exit 0, no output (valid syntax)
 
 ```bash
 git add skills/swain-init/templates/launchers/swain.bash
-git commit -m "feat(SPEC-172): add bash launcher template"
+git commit -m "feat(SPEC-175): add bash launcher template"
 ```
 
 ### Task 3: Create fish launcher template
@@ -120,10 +120,10 @@ Expected: Exit 0 or "fish not installed" (either is acceptable)
 
 ```bash
 git add skills/swain-init/templates/launchers/swain.fish
-git commit -m "feat(SPEC-172): add fish launcher template"
+git commit -m "feat(SPEC-175): add fish launcher template"
 ```
 
-## Chunk 2: swain-init Integration (SPEC-173)
+## Chunk 2: swain-init Integration (SPEC-176)
 
 ### Task 4: Add Phase 4.5 to swain-init SKILL.md
 
@@ -211,5 +211,5 @@ Read the modified file end-to-end to confirm no broken formatting.
 
 ```bash
 git add skills/swain-init/SKILL.md
-git commit -m "feat(SPEC-173): add shell launcher recommendation phase to swain-init"
+git commit -m "feat(SPEC-176): add shell launcher recommendation phase to swain-init"
 ```

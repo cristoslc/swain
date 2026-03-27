@@ -1,5 +1,5 @@
 ---
-title: "Retro: SPEC-172 Session Bootstrap Consolidation"
+title: "Retro: SPEC-175 Session Bootstrap Consolidation"
 artifact: RETRO-2026-03-27-spec-172-session-bootstrap
 track: standing
 status: Active
@@ -8,23 +8,23 @@ last-updated: 2026-03-27
 scope: "Single-session implementation of swain-session bootstrap consolidation"
 period: "2026-03-26 — 2026-03-27"
 linked-artifacts:
-  - SPEC-172
-  - SPIKE-046
+  - SPEC-175
+  - SPIKE-048
   - EPIC-039
 ---
 
-# Retro: SPEC-172 Session Bootstrap Consolidation
+# Retro: SPEC-175 Session Bootstrap Consolidation
 
 ## Summary
 
-Consolidated swain-session startup from 3-5 visible Bash tool calls into a single `swain-session-bootstrap.sh` invocation that emits structured JSON. Filed SPIKE-046 for a cross-skill audit of the same anti-pattern. Implementation completed in one session: design → spec → 24 tests → merge to trunk.
+Consolidated swain-session startup from 3-5 visible Bash tool calls into a single `swain-session-bootstrap.sh` invocation that emits structured JSON. Filed SPIKE-048 for a cross-skill audit of the same anti-pattern. Implementation completed in one session: design → spec → 24 tests → merge to trunk.
 
 ## Artifacts
 
 | Artifact | Title | Outcome |
 |----------|-------|---------|
-| [SPEC-172](../spec/Active/(SPEC-172)-Session-Bootstrap-Script-Consolidation/(SPEC-172)-Session-Bootstrap-Script-Consolidation.md) | Session Bootstrap Script Consolidation | Implemented, merged to trunk |
-| [SPIKE-046](../research/Active/(SPIKE-046)-Noisy-Tool-Call-Pattern-Audit/(SPIKE-046)-Noisy-Tool-Call-Pattern-Audit.md) | Noisy Tool-Call Pattern Audit | Filed (Active), not yet investigated |
+| [SPEC-175](../spec/Active/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) | Session Bootstrap Script Consolidation | Implemented, merged to trunk |
+| [SPIKE-048](../research/Active/(SPIKE-048)-Noisy-Tool-Call-Pattern-Audit/(SPIKE-048)-Noisy-Tool-Call-Pattern-Audit.md) | Noisy Tool-Call Pattern Audit | Filed (Active), not yet investigated |
 
 ## Reflection
 
@@ -37,7 +37,7 @@ Consolidated swain-session startup from 3-5 visible Bash tool calls into a singl
 ### What was surprising
 
 - **Initial test coverage was shallow despite appearing comprehensive.** 14 tests and 100% pass rate created false confidence. The operator's "how did you test it? what did you miss?" prompt revealed 6 untested dimensions: `--skip-worktree` flag, `lastBranch` write side-effect, jq unavailability, warnings population, idempotency, and main worktree detection. The agent was able to enumerate all gaps when asked directly — the knowledge was there, the self-critique wasn't.
-- **The worktree branched from a stale release tag**, not trunk HEAD. The merge required a `git reset --hard trunk` to bring in the SPEC-172 artifact. The `EnterWorktree` tool creates branches from HEAD, which was a release tag — not the development tip. This is a known friction point with the worktree auto-isolation flow.
+- **The worktree branched from a stale release tag**, not trunk HEAD. The merge required a `git reset --hard trunk` to bring in the SPEC-175 artifact. The `EnterWorktree` tool creates branches from HEAD, which was a release tag — not the development tip. This is a known friction point with the worktree auto-isolation flow.
 
 ### What would change
 
@@ -47,10 +47,10 @@ Consolidated swain-session startup from 3-5 visible Bash tool calls into a singl
 ### Patterns observed
 
 - **"What did you miss?" is the highest-leverage operator intervention.** This is the second time this pattern has surfaced (see also SPEC-141 retro). When the agent is prompted to self-critique, it reliably identifies gaps it didn't surface proactively. This suggests a systematic weakness in the agent's completion-checking behavior.
-- **The find-based script discovery pattern is pervasive.** Even the SKILL.md update for SPEC-172 still uses `find ... -path '*/scripts/swain-session-bootstrap.sh'` for the bootstrap invocation. SPIKE-046 exists to audit this, but the irony is visible: we shipped a fix for noisy discovery by adding another discoverable script.
+- **The find-based script discovery pattern is pervasive.** Even the SKILL.md update for SPEC-175 still uses `find ... -path '*/scripts/swain-session-bootstrap.sh'` for the bootstrap invocation. SPIKE-048 exists to audit this, but the irony is visible: we shipped a fix for noisy discovery by adding another discoverable script.
 
 ## Learnings captured
 
 | Artifact | Type | Summary |
 |----------|------|---------|
-| SPEC-173 | enhancement | Add coverage self-critique gate to TDD skill's Verify GREEN phase |
+| SPEC-176 | enhancement | Add coverage self-critique gate to TDD skill's Verify GREEN phase |

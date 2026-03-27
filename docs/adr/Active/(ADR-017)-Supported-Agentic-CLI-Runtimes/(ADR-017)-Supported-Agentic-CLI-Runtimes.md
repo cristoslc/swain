@@ -9,7 +9,7 @@ last-updated: 2026-03-27
 linked-artifacts:
   - SPIKE-047
   - EPIC-045
-  - SPEC-172
+  - SPEC-175
 depends-on-artifacts: []
 evidence-pool: ""
 ---
@@ -61,7 +61,7 @@ File a spike to research the invocation pattern, then update this ADR and add la
 
 **Positive:**
 - Shell launcher templates cover the five major agentic CLI tools as of 2026-03
-- Template directory structure must accommodate multiple runtimes (addressed by SPEC-172)
+- Template directory structure must accommodate multiple runtimes (addressed by SPEC-175)
 - swain-init can recommend the runtime the user already has installed
 - Users can switch runtimes without losing swain's onboarding experience
 

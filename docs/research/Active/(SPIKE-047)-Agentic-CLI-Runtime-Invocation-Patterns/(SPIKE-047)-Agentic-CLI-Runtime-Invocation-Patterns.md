@@ -13,7 +13,7 @@ risks-addressed:
   - No ADR defines which runtimes swain supports — scope creep or missing runtimes
 evidence-pool: ""
 linked-artifacts:
-  - SPEC-172
+  - SPEC-175
   - EPIC-045
 ---
 
