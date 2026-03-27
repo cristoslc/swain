@@ -26,6 +26,7 @@
 | ADR-015 | Tickets Are Ephemeral Execution Scaffolding | 2026-03-23 | — |
 | ADR-016 | Deprecate swain-dispatch | 2026-03-25 | -- |
 | ADR-017 | Supported Agentic CLI Runtimes | 2026-03-27 | — |
+| ADR-018 | Structural Not Prosaic Session Invocation | 2026-03-27 | — |
 
 ## Superseded
 
