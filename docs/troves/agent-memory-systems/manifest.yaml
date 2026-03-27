@@ -16,6 +16,7 @@ tags:
   - gemini-cli
   - opencode
   - langmem
+  - cog
   - mem0
   - letta
   - memgpt
@@ -47,6 +48,12 @@ history:
     sources: 11
     sources-added: 5
     notes: "added OSS frameworks (Mem0, Letta/MemGPT, Cognee), graph memory (Zep/Graphiti), and MCP memory servers (Basic Memory)"
+  - event: extended
+    date: 2026-03-25
+    commit: "4fc8ffc"
+    sources: 12
+    sources-added: 1
+    notes: "added Cog — convention-only cognitive architecture built on Claude Code"
 
 sources:
   - source-id: langmem-conceptual-guide
@@ -126,3 +133,15 @@ sources:
     fetched: 2026-03-23T00:00:00Z
     title: "Basic Memory — Markdown Knowledge Graph MCP Server"
     hash: "2556307b66eee63a39dcca14a4fbb30582b46465aa427a0d1d47840ebcca1df0"
+
+  - source-id: cog-repo
+    type: repository
+    url: "https://github.com/marciopuga/cog"
+    fetched: 2026-03-25T00:00:00Z
+    title: "Cog — Cognitive Architecture for Claude Code"
+    hash: "f9dffdad5ef31c1afb6f3d05a9d0b382b91145ccc897f6514956bbc66f29aca2"
+    highlights:
+      - "cog-repo.md"
+      - "full-repo-dump.md"
+    selective: false
+    notes: "Full repository ingested. Convention-only architecture — no application code. CLAUDE.md + skill files define all behavior."

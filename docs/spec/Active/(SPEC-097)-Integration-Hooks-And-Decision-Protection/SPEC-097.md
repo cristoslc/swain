@@ -18,7 +18,7 @@ depends-on-artifacts:
   - SPEC-095
   - SPEC-096
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

@@ -23,7 +23,7 @@ linked-artifacts:
   - SPEC-098
   - SPEC-099
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Session-Aware Commit Atomization

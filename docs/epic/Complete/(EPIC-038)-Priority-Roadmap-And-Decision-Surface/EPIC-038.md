@@ -16,7 +16,7 @@ success-criteria:
   - "Diagrams are legible in both light and dark mode at typical terminal/editor widths"
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - SPEC-132
   - SPEC-133

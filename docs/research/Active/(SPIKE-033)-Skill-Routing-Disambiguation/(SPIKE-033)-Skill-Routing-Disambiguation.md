@@ -14,7 +14,7 @@ risks-addressed:
 linked-artifacts:
   - EPIC-031
   - SPEC-073
-evidence-pool: ""
+trove: ""
 ---
 
 # Skill Routing Disambiguation

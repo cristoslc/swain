@@ -15,7 +15,7 @@ linked-artifacts:
   - SPIKE-020
 depends-on-artifacts: []
 addresses: []
-evidence-pool: "security-skill-landscape"
+trove: "security-skill-landscape"
 source-issue: ""
 swain-do: required
 ---

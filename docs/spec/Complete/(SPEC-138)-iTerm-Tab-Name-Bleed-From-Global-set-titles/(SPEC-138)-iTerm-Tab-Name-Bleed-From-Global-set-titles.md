@@ -14,7 +14,7 @@ linked-artifacts:
   - DESIGN-001
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 ---

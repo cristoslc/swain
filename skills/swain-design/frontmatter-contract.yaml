@@ -270,7 +270,7 @@ schema:
 # EVIDENCE AND PROVENANCE FIELDS
 # ─────────────────────────────────────────────────────────────────
 
-  evidence-pool:
+  trove:
     type: string
     required: false
     semantic: >
@@ -529,7 +529,7 @@ schema:
 # depends-on-artif.  |  O  |  O  |  O  |  O  |  -  |  O  |  O  |  O  |  O  |  O  |  -  |  -
 # addresses          |  -  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
 # priority-weight    |  O  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
-# evidence-pool      |  O  |  O  |  O  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -
+# trove              |  O  |  O  |  O  |  O  |  O  |  O  |  -  |  O  |  -  |  -  |  -  |  -
 # source-issue       |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
 # superseded-by      |  -  |  -  |  -  |  -  |  -  |  O  |  O  |  -  |  -  |  -  |  O  |  -
 # artifact-refs      |  -  |  -  |  -  |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  O  |  -

@@ -13,7 +13,7 @@ risks-addressed:
   - Deny rule formats differ across platforms (JSON settings vs TOML policies vs Starlark rules vs config permissions)
   - Some platforms may not support path-level deny rules for all tool types
   - Governance file protection may be circumvented via Bash on platforms without sandbox
-evidence-pool: "platform-hooks-validation@21aa91c"
+trove: "platform-hooks-validation@21aa91c"
 linked-artifacts:
   - SPIKE-038
   - VISION-005

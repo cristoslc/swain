@@ -12,7 +12,7 @@ parent-initiative: INITIATIVE-014
 risks-addressed:
   - Investing in a packaging approach that the target surfaces can't support
   - Assuming capabilities that don't exist or are about to change
-evidence-pool: ""
+trove: ""
 linked-artifacts:
   - EPIC-033
   - SPIKE-030

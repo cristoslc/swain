@@ -13,7 +13,7 @@ risks-addressed:
   - Hook APIs may not expose enough context for process-aware validation
   - Subagent coverage gaps (OpenCode #5894) may undermine enforcement
   - Per-platform adapter maintenance may be unsustainable
-evidence-pool: "platform-hooks-validation@21aa91c"
+trove: "platform-hooks-validation@21aa91c"
 linked-artifacts:
   - SPIKE-039
   - SPIKE-040

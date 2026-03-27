@@ -12,7 +12,7 @@ linked-artifacts:
   - VISION-005
 depends-on-artifacts:
   - VISION-001
-evidence-pool: ""
+trove: ""
 ---
 
 # Swain Everywhere

@@ -22,7 +22,7 @@ linked-artifacts:
   - DESIGN-004
   - EPIC-034
   - SPEC-093
-evidence-pool: ""
+trove: ""
 ---
 
 # swain-stage Redesign

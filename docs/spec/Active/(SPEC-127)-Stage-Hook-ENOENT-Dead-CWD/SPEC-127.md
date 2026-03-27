@@ -14,7 +14,7 @@ linked-artifacts:
   - SPEC-100
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: "https://github.com/anthropics/claude-code/issues/36720"
 swain-do: required
 ---

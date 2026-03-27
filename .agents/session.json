@@ -5,11 +5,11 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "SPIKE-045: NO-GO on Ollama Cloud, pending glm-5/deepseek retries after session reset + self-hosted cost trove",
+    "note": "created EPIC-045",
     "files": [
-      "docs/research/Active/(SPIKE-045)-Ollama-Cloud-Dispatch-Worker-Feasibility/SPIKE-045.md"
+      "/Users/cristos/Documents/code/swain/docs/epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md"
     ],
-    "timestamp": "2026-03-26T04:10:31Z"
+    "timestamp": "2026-03-27T04:39:51Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

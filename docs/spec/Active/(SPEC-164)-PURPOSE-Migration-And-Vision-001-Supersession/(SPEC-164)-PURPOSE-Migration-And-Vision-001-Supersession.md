@@ -23,7 +23,7 @@ linked-artifacts:
   - INITIATIVE-009
 depends-on-artifacts: []
 addresses: []
-evidence-pool: "architecture-intent-evidence-loop@47664e8"
+trove: "architecture-intent-evidence-loop@47664e8"
 source-issue: ""
 swain-do: required
 ---

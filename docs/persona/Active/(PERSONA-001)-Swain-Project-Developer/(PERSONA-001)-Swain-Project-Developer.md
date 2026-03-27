@@ -5,10 +5,11 @@ track: standing
 status: Active
 author: cristos
 created: 2026-03-11
-last-updated: 2026-03-11
+last-updated: 2026-03-27
 linked-artifacts:
   - JOURNEY-001
 depends-on-artifacts: []
+trove: vibe-coding-practitioner-experience@8881e4a
 ---
 
 # Swain Project Developer

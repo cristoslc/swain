@@ -10,7 +10,7 @@ parent-vision: VISION-004
 priority-weight: high
 linked-artifacts: []
 depends-on-artifacts: []
-evidence-pool: session-decision-support@01095c4
+trove: session-decision-support@01095c4
 ---
 
 # Session-Scoped Decision Support

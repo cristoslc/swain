@@ -19,7 +19,7 @@ depends-on-artifacts:
   - SPEC-058
   - SPEC-059
 addresses: []
-evidence-pool: "security-skill-landscape"
+trove: "security-skill-landscape"
 source-issue: ""
 swain-do: required
 ---

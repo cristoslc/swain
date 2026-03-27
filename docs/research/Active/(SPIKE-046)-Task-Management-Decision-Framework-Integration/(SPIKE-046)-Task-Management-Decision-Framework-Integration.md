@@ -13,7 +13,7 @@ risks-addressed:
   - "Decision framework exists only as an external document, not integrated into swain workflows"
   - "New projects adopt tk by default without evaluating alternatives"
   - "Rubric criteria are ad-hoc rather than a reusable evaluation pattern"
-evidence-pool: "docs/troves/task-management-systems"
+trove: "docs/troves/task-management-systems"
 ---
 
 # Task Management Decision Framework Integration

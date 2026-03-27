@@ -21,7 +21,7 @@ linked-artifacts:
   - SPIKE-032
 depends-on-artifacts: []
 addresses: []
-evidence-pool: ""
+trove: ""
 source-issue: ""
 swain-do: required
 supersedes: SPEC-049

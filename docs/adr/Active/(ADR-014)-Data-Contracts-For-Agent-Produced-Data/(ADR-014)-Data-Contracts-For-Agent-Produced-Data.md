@@ -10,7 +10,7 @@ linked-artifacts:
   - ADR-013
   - EPIC-029
 depends-on-artifacts: []
-evidence-pool: "data-contract-standards"
+trove: "data-contract-standards"
 ---
 
 # Data Contracts For Agent-Produced Data

@@ -33,8 +33,9 @@
 | EPIC-036 | Session-Aware Commit Atomization | 2026-03-19 | -- |
 | EPIC-037 | PR-Only Agent Guardrails | 2026-03-20 | -- |
 | EPIC-039 | Session Facilitation Rebuild | 2026-03-20 | — |
-| EPIC-042 | Retro Session Intelligence | 2026-03-22 | — |
-| EPIC-043 | Centralized Artifact Number Allocation | 2026-03-22 | — |
+| EPIC-042 | Retro Session Intelligence | 2026-03-23 | — |
+| EPIC-044 | Swain Memory Architecture | 2026-03-23 | 944a30f |
+| EPIC-045 | Shell Launcher Onboarding | 2026-03-26 | — |
 
 ## Complete
 
@@ -56,6 +57,7 @@
 | EPIC-015 | Automatic Worktree Lifecycle | 2026-03-14 | 30116841a602a022632075525db90283f2c85e6b |
 | EPIC-030 | swain-box Multi-Agent Runtime Support | 2026-03-18 | — |
 | EPIC-038 | Priority Roadmap and Decision Surface | 2026-03-20 | e87c6b8 |
+| EPIC-043 | Centralized Artifact Number Allocation | 2026-03-22 | — |
 
 ## Superseded
 

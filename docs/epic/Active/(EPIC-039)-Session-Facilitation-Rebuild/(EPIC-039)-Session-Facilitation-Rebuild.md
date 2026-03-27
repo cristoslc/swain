@@ -17,7 +17,7 @@ success-criteria:
   - swain-status is absorbed into swain-session or becomes a thin alias
   - git log SESSION-ROADMAP.md reads as a session diary
 depends-on-artifacts: []
-evidence-pool: session-decision-support@01095c4
+trove: session-decision-support@01095c4
 linked-artifacts:
   - SPEC-118
   - SPEC-169
@@ -25,6 +25,7 @@ linked-artifacts:
   - SPEC-121
   - SPEC-122
   - SPEC-123
+  - SPEC-172
 ---
 
 # Session Facilitation Rebuild

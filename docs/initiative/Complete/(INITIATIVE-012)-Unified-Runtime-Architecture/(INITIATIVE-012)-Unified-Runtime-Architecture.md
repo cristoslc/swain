@@ -20,7 +20,7 @@ linked-artifacts:
 depends-on-artifacts:
   - INITIATIVE-011
 addresses: []
-evidence-pool: ""
+trove: ""
 ---
 
 # Unified Runtime Architecture

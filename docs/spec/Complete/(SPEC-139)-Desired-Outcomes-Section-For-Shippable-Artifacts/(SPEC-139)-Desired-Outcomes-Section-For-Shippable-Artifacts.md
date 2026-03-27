@@ -18,7 +18,7 @@ depends-on-artifacts: []
 addresses:
   - PERSONA-001
   - PERSONA-002
-evidence-pool:
+trove:
 source-issue:
 priority-weight: high
 swain-do: required
