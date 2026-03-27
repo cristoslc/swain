@@ -22,7 +22,7 @@ linked-artifacts:
   - DESIGN-004
   - EPIC-034
   - SPEC-093
-trove: ""
+trove: "kanban-tools@64e883d"
 ---
 
 # swain-stage Redesign

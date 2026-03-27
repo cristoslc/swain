@@ -92,8 +92,11 @@
 | SPEC-168 | Gitignore Skill Folders Check | 2026-03-25 | — |
 | SPEC-169 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-170 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
-| SPEC-172 | Shell Launcher Templates | 2026-03-26 | — |
-| SPEC-173 | Init Launcher Recommendation | 2026-03-26 | — |
+| SPEC-172 | Shell Launcher Templates | 2026-03-27 | — |
+| SPEC-173 | Init Launcher Recommendation | 2026-03-27 | — |
+| SPEC-175 | Session Bootstrap Script Consolidation | 2026-03-26 | — |
+| SPEC-176 | TDD Coverage Self-Critique Gate | 2026-03-27 | — |
+| SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | -- |
 
 ## Complete
 
@@ -181,6 +184,7 @@
 | SPEC-158 | Artifact Number Collision Detection | 2026-03-23 | — |
 | SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-23 | — |
 | SPEC-171 | Semantic Topic Matching in Trove Prior Art Check | 2026-03-25 | — |
+| SPEC-174 | Worktree Session Branch Name Collision | 2026-03-27 | — |
 
 ## Superseded
 
