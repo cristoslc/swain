@@ -25,6 +25,7 @@ linked-artifacts:
   - SPEC-121
   - SPEC-122
   - SPEC-123
+  - SPEC-172
 ---
 
 # Session Facilitation Rebuild
