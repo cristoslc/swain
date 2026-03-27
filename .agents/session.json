@@ -1,16 +1,15 @@
 {
-  "lastBranch": "worktree-session",
+  "lastBranch": "trunk",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "created SPIKE-049, SPIKE-050 (renumbered from 046/047 to avoid collisions)",
+    "note": "SPEC-174 created, ready for implementation. Start new session with worktree.",
     "files": [
-      "docs/research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md",
-      "docs/research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md"
+      "docs/spec/Active/(SPEC-174)-Worktree-Session-Branch-Name-Collision/(SPEC-174)-Worktree-Session-Branch-Name-Collision.md"
     ],
-    "timestamp": "2026-03-27T15:38:43Z"
+    "timestamp": "2026-03-27T15:43:01Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

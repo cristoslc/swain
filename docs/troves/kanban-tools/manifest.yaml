@@ -190,6 +190,6 @@ sources:
 history:
   - event: extended
     date: 2026-03-27
-    commit: "--"
+    commit: "64e883d01018095d9b6230a999764dc125beec86"
     sources-added: 1
     note: "Added cline/kanban — browser-based agent orchestration board"
