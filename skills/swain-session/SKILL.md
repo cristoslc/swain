@@ -51,7 +51,7 @@ The script handles tab naming (tmux only), worktree isolation detection, and ses
 
 **After receiving the JSON output:**
 
-1. If `worktree.isolated` is `false`: use the `EnterWorktree` tool to create an isolated worktree. **Always pass a unique name** to avoid branch collisions when multiple sessions start concurrently — use `session-YYYYMMDD-HHmmss` (e.g., `session-20260327-143022`), or a descriptive name if the operator provided context (e.g., `spec-174-branch-collision`). Never use a static name like "session" (SPEC-174). Then re-run the bootstrap with the new path:
+1. If `worktree.isolated` is `false`: use the `EnterWorktree` tool to create an isolated worktree. **Always pass a unique name** to avoid branch collisions when multiple sessions start concurrently — use `session-YYYYMMDD-HHmmss-XXXX` where XXXX is a 4-char random suffix (e.g., `session-20260327-143022-a7f3`), or a descriptive name if the operator provided context (e.g., `spec-174-branch-collision`). Never use a static name like "session" (SPEC-174). If `EnterWorktree` fails with a branch-exists error, retry once with a fresh random suffix. Then re-run the bootstrap with the new path:
    ```bash
    bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --skip-worktree --auto
    ```
