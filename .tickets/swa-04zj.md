@@ -6,7 +6,7 @@ links: []
 created: 2026-03-20T21:21:27Z
 type: task
 priority: 1
-assignee: cristos
+assignee: [P1][in_progress]
 parent: swa-3cbh
 tags: [spec:SPEC-114]
 ---

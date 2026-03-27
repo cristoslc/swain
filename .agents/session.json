@@ -1,15 +1,12 @@
 {
-  "lastBranch": "trunk",
+  "lastBranch": "worktree-spec-173-tdd-self-critique",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "created EPIC-045",
-    "files": [
-      "/Users/cristos/Documents/code/swain/docs/epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md"
-    ],
-    "timestamp": "2026-03-27T04:39:51Z"
+    "note": "Completed retro for SPEC-172 session bootstrap — 1 learning captured (self-critique before GREEN)",
+    "timestamp": "2026-03-27T14:44:09Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

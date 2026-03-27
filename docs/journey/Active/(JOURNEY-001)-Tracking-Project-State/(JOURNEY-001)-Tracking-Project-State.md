@@ -12,7 +12,7 @@ linked-artifacts:
   - ADR-002
   - SPEC-001
   - SPEC-002
-  - SPIKE-046
+  - SPIKE-048
 depends-on-artifacts: []
 ---
 
@@ -135,7 +135,7 @@ journey
 | JOURNEY-001.PP-02 | Decision context is scattered | 2 | Make the Decision | Artifact content, unblock info, and agent findings live in different places | Decision detail view that aggregates artifact + dependencies + impact in one place |
 | JOURNEY-001.PP-03 | One-at-a-time decision communication | 2 | Communicate the Decision | Conversational interface is serial; no batch decision UI | Web dashboard with approve/reject actions; or `/decide` batch command |
 | JOURNEY-001.PP-04 | No decision impact feedback | 1 | Check Impact | No diff between pre- and post-decision state | Show "decision impact" summary after each transition; changelog in status |
-| JOURNEY-001.PP-05 | bd fragility blocks decision flow | 1 | Communicate the Decision | Dolt server complexity, .beads maintenance | Replace bd backend (SPIKE-046); markdown-native task storage |
+| JOURNEY-001.PP-05 | bd fragility blocks decision flow | 1 | Communicate the Decision | Dolt server complexity, .beads maintenance | Replace bd backend (SPIKE-048); markdown-native task storage |
 
 ## Opportunities
 
@@ -163,12 +163,12 @@ After each decision (artifact phase transition), show a brief "impact summary": 
 
 Replace bd's Dolt database with markdown-file storage (Backlog.md with contributed dependency commands, or a simpler custom solution). Eliminates .beads directory, server management, and CLI errors. Ensures that acting on decisions is never blocked by infrastructure failures.
 
-Evidence: SPIKE-046 found Backlog.md covers 70% of swain-do's term mapping. Contributing `ready`/`blocked` commands upstream is ~180 LOC.
+Evidence: SPIKE-048 found Backlog.md covers 70% of swain-do's term mapping. Contributing `ready`/`blocked` commands upstream is ~180 LOC.
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Draft | 2026-03-11 | d1929d5 | Initial creation from SPIKE-046/002 findings |
+| Draft | 2026-03-11 | d1929d5 | Initial creation from SPIKE-048/002 findings |
 | Draft | 2026-03-11 | — | Reframed around decision backlog vs. implementation backlog |
 | Validated | 2026-03-11 | a950529 | Approved by developer — pain points and journeys confirmed |

@@ -1,6 +1,6 @@
 ---
 title: "Session Bootstrap Script Consolidation"
-artifact: SPEC-172
+artifact: SPEC-175
 track: implementable
 status: Active
 author: cristos
@@ -11,7 +11,7 @@ type: enhancement
 parent-epic: EPIC-039
 parent-initiative: ""
 linked-artifacts:
-  - SPIKE-046
+  - SPIKE-048
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
