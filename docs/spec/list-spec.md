@@ -97,6 +97,8 @@
 | SPEC-175 | Session Bootstrap Script Consolidation | 2026-03-26 | — |
 | SPEC-176 | TDD Coverage Self-Critique Gate | 2026-03-27 | — |
 | SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | -- |
+| SPEC-178 | Worktree Timestamp Zeroed Time Component | 2026-03-28 | — |
+| SPEC-179 | Launcher Free-Text Session Purpose | 2026-03-28 | — |
 
 ## Complete
 
