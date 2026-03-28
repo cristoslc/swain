@@ -1,15 +1,20 @@
 # swain shell launcher — copilot / zsh
 # Runtime: GitHub Copilot CLI | Shell: zsh
-# Version: 4.0.0
+# Version: 4.1.0
 #
 # Launches GitHub Copilot CLI interactively with swain's recommended flags.
 # --yolo: allow all permissions (tools, paths, URLs)
 # -i: interactive mode with initial prompt
+# When arguments are provided, they become the session purpose.
 
 swain() {
+  local _prompt='/swain-init'
+  if [ $# -gt 0 ]; then
+    _prompt="/swain-session Session purpose: $*"
+  fi
   if [ -z "$TMUX" ]; then
-    tmux new-session -s swain "copilot --yolo -i '/swain-init'"
+    tmux new-session -s swain "copilot --yolo -i '${_prompt}'"
   else
-    copilot --yolo -i '/swain-init'
+    copilot --yolo -i "$_prompt"
   fi
 }
