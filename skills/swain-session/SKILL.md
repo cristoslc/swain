@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
   short-description: Session state and identity management
-  version: 1.2.0
+  version: 1.3.0
   author: cristos
   source: swain
 ---
@@ -25,6 +25,18 @@ This skill is invoked automatically at session start (see AGENTS.md). When auto-
 3. **Show context bookmark** — if a previous session left a context note, display it
 
 When invoked manually, the user can change preferences or bookmark context.
+
+## Session purpose text
+
+When the operator launches with free text (e.g., `swain new bug about timestamps`), the launcher passes it as part of the initial prompt: `/swain-session Session purpose: new bug about timestamps`.
+
+When session purpose text is present in the invocation:
+1. Write it immediately as the session bookmark note (using swain-bookmark.sh)
+2. Display it: `**Session purpose:** <text>`
+
+Detection: if the skill is invoked with text after `/swain-session` (e.g., `/swain-session Session purpose: ...`), extract everything after "Session purpose: " as the purpose text.
+
+For runtimes that don't support initial prompts (e.g., crush), check the `SWAIN_PURPOSE` environment variable as a fallback.
 
 ## Steps 1–2 — Bootstrap (tab naming + worktree detection + session load)
 
@@ -51,7 +63,11 @@ The script handles tab naming (tmux only), worktree isolation detection, and ses
 
 **After receiving the JSON output:**
 
-1. If `worktree.isolated` is `false`: use the `EnterWorktree` tool to create an isolated worktree. **Always pass a unique name** to avoid branch collisions when multiple sessions start concurrently — use `session-YYYYMMDD-HHmmss-XXXX` where XXXX is a 4-char random suffix (e.g., `session-20260327-143022-a7f3`), or a descriptive name if the operator provided context (e.g., `spec-174-branch-collision`). Never use a static name like "session" (SPEC-174). If `EnterWorktree` fails with a branch-exists error, retry once with a fresh random suffix. Then re-run the bootstrap with the new path:
+1. If `worktree.isolated` is `false`: use the `EnterWorktree` tool to create an isolated worktree. Generate the worktree name by running:
+   ```bash
+   bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-worktree-name.sh' -print -quit 2>/dev/null)"
+   ```
+   Pass the script's stdout as the `name` parameter to `EnterWorktree`. For descriptive names, pass context as an argument: `... swain-worktree-name.sh' ...) "spec-174"`. Never use a static name like "session" (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the script (it generates a fresh suffix each time) and retry once. Then re-run the bootstrap with the new path:
    ```bash
    bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --skip-worktree --auto
    ```
