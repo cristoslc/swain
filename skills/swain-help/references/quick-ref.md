@@ -14,7 +14,6 @@
 | **swain-do** | `/swain-do` or `/swain` + task request | Track tasks and implementation work |
 | **swain-sync** | `/swain-sync` or `/swain sync` | Fetch, rebase, commit, and push changes |
 | **swain-release** | `/swain-release` or `/swain release` | Version bump, changelog, git tag |
-| **swain-stage** | `/swain-stage` | Tmux workspace layouts and animated status panel |
 | **swain-keys** | `/swain-keys` | Per-project SSH keys for git signing and auth |
 | **swain-update** | `/swain-update` or `/swain update` | Update swain to latest version |
 | **swain-retro** | `/swain-retro` or `/swain retro` | Capture learnings at EPIC completion or on demand |

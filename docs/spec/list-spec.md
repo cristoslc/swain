@@ -64,8 +64,6 @@
 | SPEC-122 | Absorb swain-status into swain-session | 2026-03-20 | -- |
 | SPEC-123 | Skill and Script Alignment Audit | 2026-03-20 | -- |
 | SPEC-124 | Roadmap legend should display epic names alongside initiative names | 2026-03-21 | — |
-| SPEC-125 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-20 | — |
-| SPEC-127 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-20 | — |
 | SPEC-135 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
 | SPEC-136 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-137 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
@@ -204,4 +202,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-25 | -- |
+| SPEC-125 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-28 | — |
+| SPEC-127 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-28 | — |
 

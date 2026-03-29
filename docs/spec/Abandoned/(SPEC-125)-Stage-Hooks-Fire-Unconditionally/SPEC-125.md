@@ -2,7 +2,7 @@
 title: "swain-stage hooks fire unconditionally even when stage is not active"
 artifact: SPEC-125
 track: implementable
-status: Implementation
+status: Abandoned
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -79,3 +79,4 @@ low
 |-------|------|--------|-------|
 | Active | 2026-03-20 | — | Initial creation — user-reported bug |
 | Implementation | 2026-03-20 | d8234a6 | Guard added at lines 10-11 of `stage-status-hook.sh`; all acceptance criteria verified |
+| Abandoned | 2026-03-28 | — | Superseded by SPEC-177: tmux-based swain-stage removed entirely |

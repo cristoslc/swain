@@ -25,7 +25,7 @@ fi
 ```
 
 If created, tell the user:
-> Created memory directory at `$MEMORY_DIR`. This is where swain-status, swain-session, and swain-stage store their caches.
+> Created memory directory at `$MEMORY_DIR`. This is where swain-status and swain-session store their caches.
 
 If it already exists, this step is silent.
 
@@ -49,7 +49,7 @@ Report any files that were removed due to corruption. This prevents skills from 
 
 ## Settings validation
 
-Swain uses a two-tier settings model. Malformed JSON in either file causes silent failures across multiple skills (swain-stage, swain-session, swain-status).
+Swain uses a two-tier settings model. Malformed JSON in either file causes silent failures across multiple skills (swain-session, swain-status).
 
 ### Check project settings
 
@@ -165,7 +165,7 @@ If it already exists, this step is silent.
 
 ## Status cache bootstrap
 
-If the memory directory exists but `status-cache.json` does not, and the status script is available, seed an initial cache so that swain-stage MOTD and other consumers have data on first use.
+If the memory directory exists but `status-cache.json` does not, and the status script is available, seed an initial cache so that consumers have data on first use.
 
 ```bash
 STATUS_SCRIPT="skills/swain-status/scripts/swain-status.sh"

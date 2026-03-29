@@ -2,7 +2,7 @@
 title: "stage-status-hook fails with ENOENT when CWD is removed"
 artifact: SPEC-127
 track: implementable
-status: Active
+status: Abandoned
 author: cristos
 created: 2026-03-20
 last-updated: 2026-03-20
@@ -88,3 +88,4 @@ medium
 | Active | 2026-03-20 | — | Initial creation — user-reported bug |
 | Implementation | 2026-03-20 | 33119f6 | Two-layer fix applied: settings.json cd prefix + script defensive cd — insufficient, pre-spawn failure |
 | Active | 2026-03-20 | — | Reopened: `cd` prefix runs inside shell but `posix_spawn` fails before shell starts. Root cause is Claude Code spawning hooks with invalid CWD. Upstream issue filed. |
+| Abandoned | 2026-03-28 | — | Superseded by SPEC-177: tmux-based swain-stage removed entirely; hooks deleted |
