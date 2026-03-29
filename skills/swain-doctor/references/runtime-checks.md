@@ -25,7 +25,7 @@ fi
 ```
 
 If created, tell the user:
-> Created memory directory at `$MEMORY_DIR`. This is where swain-status, swain-session, and swain-stage store their caches.
+> Created memory directory at `$MEMORY_DIR`. This is where swain-session stores its caches.
 
 If it already exists, this step is silent.
 
@@ -49,7 +49,7 @@ Report any files that were removed due to corruption. This prevents skills from 
 
 ## Settings validation
 
-Swain uses a two-tier settings model. Malformed JSON in either file causes silent failures across multiple skills (swain-stage, swain-session, swain-status).
+Swain uses a two-tier settings model. Malformed JSON in either file causes silent failures across multiple skills (swain-session).
 
 ### Check project settings
 
@@ -165,10 +165,10 @@ If it already exists, this step is silent.
 
 ## Status cache bootstrap
 
-If the memory directory exists but `status-cache.json` does not, and the status script is available, seed an initial cache so that swain-stage MOTD and other consumers have data on first use.
+If the memory directory exists but `status-cache.json` does not, and the status script is available, seed an initial cache so that consumers have data on first use.
 
 ```bash
-STATUS_SCRIPT="skills/swain-status/scripts/swain-status.sh"
+STATUS_SCRIPT="skills/swain-session/scripts/swain-status.sh"
 if [[ -f "$STATUS_SCRIPT" && ! -f "$MEMORY_DIR/status-cache.json" ]]; then
   bash "$STATUS_SCRIPT" --json > /dev/null 2>&1 || true
 fi
@@ -177,4 +177,4 @@ fi
 If the cache was created, tell the user:
 > Seeded initial status cache. The MOTD and status dashboard now have data.
 
-If the script is not available or the cache already exists, this step is silent. If the script fails, ignore — the cache will be created on the next `swain-status` invocation.
+If the script is not available or the cache already exists, this step is silent. If the script fails, ignore — the cache will be created on the next `swain-session` invocation.

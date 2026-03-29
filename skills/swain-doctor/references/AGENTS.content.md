@@ -12,7 +12,7 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 
 When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Initiative, Journey, Epic, Agent Spec, Spike, ADR, Persona, Runbook, Design) or their supporting docs, **always invoke the swain-design skill**.
 
-**For project status, progress, or "what's next?"**, use the **swain-status** skill.
+**For project status, progress, or "what's next?"**, use the **swain-session** skill.
 
 **For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system.
 
@@ -50,9 +50,9 @@ If superpowers is not installed, superpowers chains are skipped, not blocked. Sw
 
 **Skill changes are code changes.** Skill files (`skills/`, `.claude/skills/`, `.agents/skills/`) are code written in markdown syntax. Non-trivial skill edits require worktree isolation — the same discipline applied to `.sh`, `.py`, and other code files. Trivial fixes (typo corrections, single-line doc fixes, ≤5-line diffs touching one file with no structural changes) may land directly on trunk.
 
-### Session startup (AUTO-INVOKE)
+### Session startup
 
-Run `bash .claude/skills/swain-doctor/scripts/swain-preflight.sh`. Exit 0 → skip doctor, invoke **swain-session**. Exit 1 → invoke **swain-doctor**, then **swain-session**.
+Session initialization is handled structurally by the `swain` shell launcher function (installed via `/swain-init`), which passes `/swain-init` as the initial prompt to the agentic runtime. Do not rely on prosaic auto-invoke directives — see ADR-018. If a session starts without the launcher, the operator can manually run `/swain-session`.
 
 ### Bug reporting
 

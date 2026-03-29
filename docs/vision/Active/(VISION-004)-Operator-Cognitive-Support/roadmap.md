@@ -5,15 +5,15 @@
 
 ## Progress
 
-██░░░░░░░░░░ 4/24 complete (17%)
+████░░░░░░░░ 10/32 complete (31%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-23 | 14:37 | `dcacb73` | audit(EPIC-042): move SPEC-151/152/163 to Testing — behavioral verification needed |
-| 2026-03-23 | 12:24 | `c2f589e` | docs(EPIC-042): ADR compliance + AC audit — 37/37 pass, 0 new specwatch issues |
-| 2026-03-23 | 12:20 | `1b5ea9d` | docs(EPIC-042): add SPEC-163 and amended spec/epic documents |
+| 2026-03-28 | 22:02 | `5a6d759` | docs(SPEC-183, SPEC-184): session sleep and end operations |
+| 2026-03-28 | 21:48 | `2ff8f5c` | Merge session-20260328: SPIKE-051 Complete + EPIC-046 with 3 child specs |
+| 2026-03-28 | 21:48 | `558038c` | docs: hyperlink bare artifact IDs in EPIC-046 and child specs |
 
 ## Priority Subset
 
@@ -22,14 +22,14 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Session-Scoped Decision Support](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Session Lifecycle in swain-session](../../../spec/Active/(SPEC-169)-Parameterize-Runtime-Skills/SPEC-169.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Session Detection Hooks Across All Skills](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Absorb swain-status into swain-session](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Chart Critical Path Lens](../../../spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Session Facilitation Rebuild](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) | 2/6 | 0 | — |
-|  | [Retro Session Intelligence](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) | 0/5 | 0 | — |
-|  | [Skill and Script Alignment Audit](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Computed Priority Scoring](../../../spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) | 0/0 | 0 | **needs decomposition** |
+| [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Absorb swain-status into swain-session](docs/spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Chart Critical Path Lens](docs/spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Session Facilitation Rebuild](docs/epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) | 5/7 | 0 | — |
+|  | [Retro Session Intelligence](docs/epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) | 0/5 | 0 | — |
+|  | [Pre-Runtime Crash Recovery](docs/epic/Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) | 0/3 | 0 | — |
+|  | [Skill and Script Alignment Audit](docs/spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Computed Priority Scoring](docs/spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Worktree Timestamp Zeroed Time Component](docs/spec/Active/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -51,27 +51,35 @@
 
 ### Active
 
-- [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (2/6)
-  - [SPEC-169](../../../spec/Active/(SPEC-169)-Session-Lifecycle-In-swain-session/SPEC-169.md) — Session Lifecycle in swain-session (Active, in progress)
-  - [SPEC-121](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Active, in progress)
+- [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (5/7)
   - [SPEC-122](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) — Absorb swain-status into swain-session (Active, in progress)
   - [SPEC-123](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) — Skill and Script Alignment Audit (Active, in progress)
   - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — SESSION-ROADMAP.md Format and Generation (Complete, done)
-  - [SPEC-170](../../../spec/Complete/(SPEC-170)-Roadmap-Decision-And-Recommendation-Sections/SPEC-170.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)
+  - [SPEC-119](../../../spec/Complete/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) — Session Lifecycle in swain-session (Complete, done)
+  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)
+  - [SPEC-121](../../../spec/Complete/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Complete, done)
+  - [SPEC-175](../../../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) — Session Bootstrap Script Consolidation (Complete, done)
+  - [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) — Session Crash Recovery (Complete, done)
 - [EPIC-042](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) — Retro Session Intelligence (0/5)
   - [SPEC-150](../../../spec/Active/(SPEC-150)-Security-Check-JSONL-Scrub-Mode/SPEC-150.md) — swain-security-check: JSONL scrub mode (Active, in progress)
   - [SPEC-151](../../../spec/Active/(SPEC-151)-Retro-Folder-Structure-Manifest-JSONL-Capture/SPEC-151.md) — swain-retro: folder structure, manifest, + JSONL capture (Active, in progress)
   - [SPEC-152](../../../spec/Active/(SPEC-152)-Retro-Session-Summary-Generation/SPEC-152.md) — swain-retro: session summary generation (Active, in progress)
   - [SPEC-153](../../../spec/Active/(SPEC-153)-Doctor-Retro-Flat-File-Migration/SPEC-153.md) — swain-doctor: retro flat-file migration (Active, in progress)
   - [SPEC-163](../../../spec/Active/(SPEC-163)-Unified-Retro-Model-Multi-Session-Bundling/SPEC-163.md) — Unified retro model: standalone artifacts with multi-session bundling (Active, in progress)
+- [EPIC-046](../../../epic/Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) — Pre-Runtime Crash Recovery (0/3)
+  - [SPEC-180](../../../spec/Active/(SPEC-180)-Pre-Runtime-Swain-Script/(SPEC-180)-Pre-Runtime-Swain-Script.md) — Pre-Runtime Swain Script (Active, in progress)
+  - [SPEC-181](../../../spec/Active/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) — Swain Shell Function Refactor (Active, in progress)
+  - [SPEC-182](../../../spec/Active/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) — Crash Debris Detection Checks (Active, in progress)
 - [INITIATIVE-019](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) — Session-Scoped Decision Support (in progress)
-  - [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (Active, 2/6)
+  - [EPIC-039](../../../epic/Active/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (Active, 5/7)
   - [EPIC-042](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) — Retro Session Intelligence (Active, 0/5)
-  - [SPEC-169](../../../spec/Active/(SPEC-169)-Session-Lifecycle-In-swain-session/SPEC-169.md) — Session Lifecycle in swain-session (Active, in progress)
-  - [SPEC-121](../../../spec/Active/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Active, in progress)
+  - [EPIC-046](../../../epic/Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) — Pre-Runtime Crash Recovery (Active, 0/3)
   - [SPEC-122](../../../spec/Active/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) — Absorb swain-status into swain-session (Active, in progress)
   - [SPEC-123](../../../spec/Active/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) — Skill and Script Alignment Audit (Active, in progress)
   - [SPEC-160](../../../spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) — Chart Critical Path Lens (Active, in progress)
   - [SPEC-161](../../../spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) — Computed Priority Scoring (Active, in progress)
+  - [SPEC-178](../../../spec/Active/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component.md) — Worktree Timestamp Zeroed Time Component (Active, in progress)
   - [SPEC-118](../../../spec/Complete/(SPEC-118)-Session-Roadmap-Format-And-Generation/SPEC-118.md) — SESSION-ROADMAP.md Format and Generation (Complete, done)
-  - [SPEC-170](../../../spec/Complete/(SPEC-170)-Roadmap-Decision-And-Recommendation-Sections/SPEC-170.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)
+  - [SPEC-119](../../../spec/Complete/(SPEC-119)-Session-Lifecycle-In-swain-session/SPEC-119.md) — Session Lifecycle in swain-session (Complete, done)
+  - [SPEC-120](../../../spec/Complete/(SPEC-120)-Roadmap-Decision-And-Recommendation-Sections/SPEC-120.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)
+  - [SPEC-121](../../../spec/Complete/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Complete, done)

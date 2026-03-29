@@ -14,6 +14,13 @@ metadata:
 
 # Spec Management
 
+<!-- session-check: SPEC-121 -->
+Before proceeding with any state-changing operation, check for an active session:
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+```
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+
 This skill defines the canonical artifact types, phases, and hierarchy. Detailed definitions and templates live in `skills/swain-design/references/`. If the host repo has an AGENTS.md, keep its artifact sections in sync with the skill's reference data.
 
 ## Artifact type definitions
@@ -226,7 +233,7 @@ SPECs link to GitHub Issues via the `source-issue` frontmatter field. During pha
 <!-- swain-model-hint: sonnet, effort: low — status queries are data aggregation -->
 ## Status overview
 
-For project-wide status, progress, or "what's next?" queries, defer to the **swain-status** skill (it aggregates swain chart + tk + git + GitHub issues). For artifact-specific graph queries, use `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"` — see [skills/swain-design/references/specgraph-guide.md](skills/swain-design/references/specgraph-guide.md). The default output is a vision-rooted hierarchy tree; lenses (`ready`, `recommend`, `debt`, `unanchored`, etc.) filter and annotate the tree for different decision contexts.
+For project-wide status, progress, or "what's next?" queries, defer to the **swain-session** skill (it aggregates swain chart + tk + git + GitHub issues). For artifact-specific graph queries, use `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"` — see [skills/swain-design/references/specgraph-guide.md](skills/swain-design/references/specgraph-guide.md). The default output is a vision-rooted hierarchy tree; lenses (`ready`, `recommend`, `debt`, `unanchored`, etc.) filter and annotate the tree for different decision contexts.
 
 <!-- swain-model-hint: opus, effort: high — audits require deep cross-artifact analysis -->
 ## Auditing artifacts

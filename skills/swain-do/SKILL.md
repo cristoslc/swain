@@ -14,6 +14,13 @@ metadata:
 
 # Execution Tracking
 
+<!-- session-check: SPEC-121 -->
+Before proceeding with any state-changing operation, check for an active session:
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+```
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
 **Before first use:** Read [skills/swain-do/references/tk-cheatsheet.md](skills/swain-do/references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
@@ -172,7 +179,7 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **If `IN_WORKTREE=no`** (main worktree) and the operation will produce file changes:
 
-1. Use the `EnterWorktree` tool to create an isolated worktree. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
+1. Use the `EnterWorktree` tool to create an isolated worktree. **Always pass a unique name** — use the SPEC ID + slug (e.g., `spec-174-branch-collision`) or generate a timestamped name by running `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-worktree-name.sh' -print -quit 2>/dev/null)" "<context>"` (e.g., output: `session-20260327-143022-a7f3`). Never use a static name like "session" — concurrent sessions will collide (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the name script and retry once. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
 
 2. After entering, re-run tab naming to reflect the new branch:
    ```bash

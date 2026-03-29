@@ -1,5 +1,46 @@
 # Changelog
 
+## [0.21.0-alpha] - 2026-03-28
+
+### Features
+
+#### Session lifecycle management
+
+Sessions now have a bounded lifecycle — start, work, close, resume — with
+decision budgets that nudge the operator to wrap up before cognitive overload.
+The status dashboard was absorbed into swain-session so project health,
+recommendations, and session state live in one place. Every state-changing
+skill now checks for an active session before proceeding, and an alignment
+audit verified all skills and scripts follow the new lifecycle contract.
+Part of the ongoing Session Facilitation Rebuild (EPIC-039).
+
+#### tmux-based swain-stage removed
+
+The tmux stage system is gone. Session management no longer depends on tmux —
+it works in any terminal, any agentic runtime. Orphaned stage-status hooks
+were cleaned up across all skill files.
+- Launcher free text (e.g. `swain new bug about timestamps`) is now forwarded as the session purpose and auto-bookmarked
+- Deterministic worktree naming with timestamp and random suffix prevents same-second collisions
+- Pre-commit hooks now resolve paths via `$CLAUDE_PROJECT_DIR`, fixing failures when running inside worktrees
+- Post-GREEN TDD self-critique gate added to swain-do's test-driven development enforcement
+- Session bootstrap jq fallback hardened with 24 tests covering edge cases
+
+### Planned
+- Pre-launch crash recovery — swain will check for prior sessions that crashed due to terminal or host shutdown and offer to resume or clean up
+- Session sleep and end operations are being designed for graceful session suspension and termination
+- Doctor consolidation and PR queue review spikes added to the research backlog
+
+### Research
+- Pre-runtime structural layer (SPIKE-051) — Go verdict with 5 proposed specs for the swain shell launcher to subsume runtime launch
+- Agent session persistence trove — 5 sources on session state across agent restarts
+- OpenTelemetry trove — 11 sources on observability for agent systems
+- Kanban tools trove extended with Cline/kanban source
+
+### Supporting Changes
+- ADR-017 defines supported agentic CLI runtimes (Claude Code, Crush, Gemini CLI, Copilot CLI, OpenCode)
+- ADR-018 requires runtime invocations to be structural (hooks, config) rather than prosaic ("please run X")
+- Artifact renumber collision fix for concurrent EPIC-045 worktree work
+
 ## [0.20.0-alpha] - 2026-03-27
 
 ### Features

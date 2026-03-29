@@ -17,6 +17,7 @@ linked-artifacts:
   - VISION-001
   - VISION-002
 depends-on-artifacts: []
+trove: "kanban-tools@64e883d"
 ---
 
 # swain-stage Interaction Design
@@ -171,6 +172,21 @@ One branch, current working directory. The docs viewer shows TRAINs from the che
 4. **Vision-first navigation over flat lists** — As the number of TRAINs grows, a flat alphabetical list becomes unusable. Grouping by Vision, then by train-type, mirrors the artifact hierarchy that operators already understand.
 
 5. **Dynamic sidebar generation over manual configuration** — The sidebar is generated from frontmatter, not maintained by hand. This eliminates sidebar-vs-reality drift and means the docs viewer always reflects what's actually on disk.
+
+## Prior Art: cline/kanban
+
+[cline/kanban](https://github.com/cline/kanban) (kanban-tools trove, source `cline-kanban`) is a browser-based kanban board for orchestrating parallel coding agents. It validates several design choices in this initiative and surfaces patterns worth adopting or consciously diverging from.
+
+**Patterns that validate our direction:**
+- **Browser-based control surface over terminal UI** — cline/kanban replaces the IDE entirely with a browser app. Our direction (replacing tmux panes with a browser surface) is consistent with this industry movement.
+- **Worktree-per-task isolation** — each card gets an ephemeral git worktree. Swain already does this via the `using-git-worktrees` skill; cline/kanban adds a symlink trick for `node_modules` that avoids redundant installs.
+
+**Patterns worth evaluating:**
+- **Hook-based agent status tracking** — cline/kanban uses Claude Code hooks to emit `to_in_progress` / `to_review` state transitions, displayed as real-time status badges on cards. This is a concrete implementation of the reactive loop the kanban-tools synthesis theorized for the Status Dashboard panel.
+- **Dependency chain automation** — cards can be linked so completion of one auto-starts the next. This is the pattern swain-do aspires to with task dependencies.
+
+**Key divergence:**
+- cline/kanban is a **Model 1 (board-owns-the-data)** tool — it creates and manages its own task state. Swain's approach (INITIATIVE-015) reads existing markdown artifacts and derives the board from frontmatter. These are architecturally different, and the divergence is intentional — swain treats artifacts-on-disk as the single source of truth.
 
 ## Assets
 

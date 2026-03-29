@@ -1,12 +1,12 @@
 ---
 name: swain-session
-description: "Session management — restores terminal tab name, user preferences, and context bookmarks on session start. Auto-invoked at session start via AGENTS.md. Also invokable manually to set focus, bookmark context, remember where I am, check session info, rename the tmux tab, or update session state for the next session. Manages worktree auto-isolation and focus lane persistence."
+description: "Session management and project status dashboard. Owns the full session lifecycle (start/work/close/resume), focus lane, bookmarks, worktree auto-isolation, and tab naming. Also serves as the project status dashboard — shows active epics, progress, actionable next steps, blocked items, tasks, GitHub issues, and recommendations. Triggers on: 'session', 'status', 'what's next', 'dashboard', 'overview', 'where are we', 'what should I work on', 'show me priorities', 'bookmark', 'focus on', 'session info'."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
   short-description: Session state and identity management
-  version: 1.2.0
+  version: 1.3.0
   author: cristos
   source: swain
 ---
@@ -26,84 +26,77 @@ This skill is invoked automatically at session start (see AGENTS.md). When auto-
 
 When invoked manually, the user can change preferences or bookmark context.
 
-## Step 1 — Set terminal tab/session name (tmux only)
+## Session purpose text
 
-Check if `$TMUX` is set. If yes, run the tab-naming script:
+When the operator launches with free text (e.g., `swain new bug about timestamps`), the launcher passes it as part of the initial prompt: `/swain-session Session purpose: new bug about timestamps`.
 
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --auto
-```
+When session purpose text is present in the invocation:
+1. Write it immediately as the session bookmark note (using swain-bookmark.sh)
+2. Display it: `**Session purpose:** <text>`
 
-Use the project root to locate the script. The script reads `swain.settings.json` for the tab name format (default: `{project} @ {branch}`).
+Detection: if the skill is invoked with text after `/swain-session` (e.g., `/swain-session Session purpose: ...`), extract everything after "Session purpose: " as the purpose text.
 
-The script renames **both** the tmux window (tab) and the tmux session. It also installs a `pane-focus-in` hook so names update automatically when the operator switches between tmux panes in different git repos/branches.
+For runtimes that don't support initial prompts (e.g., crush), check the `SWAIN_PURPOSE` environment variable as a fallback.
 
-If this fails (e.g., not in a git repo), set a fallback title of "swain".
+## Steps 1–2 — Bootstrap (tab naming + worktree detection + session load)
 
-### Worktree / branch changes (agent-agnostic)
-
-When an agent enters a worktree or switches branches, the tmux pane's tracked CWD does not update (agent commands run in subshells). **Any agent** that changes its working context MUST re-run the tab-naming script with `--path`:
+Run the consolidated bootstrap script in a single call:
 
 ```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --path "$NEW_WORKDIR" --auto
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --auto
 ```
 
-This is agent-agnostic — it works in Claude Code, opencode, gemini cli, codex, copilot, or any other agent that reads AGENTS.md and can run bash commands. The `--path` flag takes priority over the pane's CWD.
+The script handles tab naming (tmux only), worktree isolation detection, and session.json loading atomically. It emits structured JSON:
 
-**If `$TMUX` is NOT set**, skip tab naming and check whether tmux is installed:
-
-```bash
-which tmux
+```json
+{
+  "tab": "project @ branch",
+  "worktree": { "isolated": false, "path": null, "branch": "trunk" },
+  "session": {
+    "focus": "VISION-001",
+    "bookmark": "Left off implementing the bootstrap script",
+    "lastBranch": "trunk"
+  },
+  "warnings": []
+}
 ```
 
-- **tmux not installed:** Offer to install it:
-  > tmux is not installed. Install it now? I can run `brew install tmux` for you.
+**After receiving the JSON output:**
 
-  If the user accepts, run `brew install tmux`. Session tab naming will be available on the next session start inside tmux.
+1. If `worktree.isolated` is `false`: use the `EnterWorktree` tool to create an isolated worktree. Generate the worktree name by running:
+   ```bash
+   bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-worktree-name.sh' -print -quit 2>/dev/null)"
+   ```
+   Pass the script's stdout as the `name` parameter to `EnterWorktree`. For descriptive names, pass context as an argument: `... swain-worktree-name.sh' ...) "spec-174"`. Never use a static name like "session" (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the script (it generates a fresh suffix each time) and retry once. Then re-run the bootstrap with the new path:
+   ```bash
+   bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --skip-worktree --auto
+   ```
+   If `EnterWorktree` fails or is unavailable, log a warning and proceed — swain-do will attempt isolation at dispatch time as a fallback.
 
-- **tmux installed but not in a session:** Show this note:
-  > [note] Not in a tmux session — session tab and pane features unavailable
+2. If `session.bookmark` is not null, display it:
+   > **Resuming session** — Last time: {bookmark}
 
-## Step 1.5 — Worktree auto-isolation
+3. If `session.focus` is not null, display the focus lane.
 
-After tab naming, detect whether the agent is in the main worktree:
+4. Display any `warnings` entries.
 
-```bash
-GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
-GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
-[ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
-```
-
-**If `IN_WORKTREE=yes`:** Already isolated. Skip to Step 2.
-
-**If `IN_WORKTREE=no`:** Use the `EnterWorktree` tool to create an isolated worktree. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
-
-After entering the worktree, re-run tab naming to reflect the new branch:
-
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --auto
-```
-
-**If `EnterWorktree` fails or is unavailable:** Log a warning and proceed without isolation. swain-do will attempt isolation at dispatch time as a fallback.
+**If `$TMUX` is NOT set** (detected by absence of `tab` in the JSON), check whether tmux is installed:
+- **tmux not installed:** Offer to install it (`brew install tmux`).
+- **tmux installed but not in a session:** Show: `[note] Not in a tmux session — session tab and pane features unavailable`
 
 The operator can say "exit worktree" or "back to main" at any time — call `ExitWorktree` to leave isolation.
 
-## Step 2 — Load session preferences
+### Worktree / branch changes (agent-agnostic)
 
-Read the session state file. The file location is:
+When an agent enters a worktree or switches branches, re-run the bootstrap with `--path` to update the tab name:
 
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --path "$NEW_WORKDIR" --skip-worktree --auto
 ```
-<project-root>/.agents/session.json
-```
 
-This keeps session state per-project, version-controlled, and visible to collaborators.
+This is agent-agnostic — works in Claude Code, opencode, gemini cli, codex, copilot, or any agent that reads AGENTS.md and can run bash commands.
 
-**Migration:** If `.agents/session.json` does not exist but the old global location (`~/.claude/projects/<project-path-slug>/memory/session.json`) does, copy it to `.agents/session.json` on first access.
-
-The session.json schema:
+### Session.json schema
 
 ```json
 {
@@ -113,29 +106,81 @@ The session.json schema:
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Left off implementing the MOTD animation",
-    "files": ["skills/swain-stage/scripts/swain-motd.sh"],
+    "note": "Left off implementing the bootstrap script",
+    "files": ["skills/swain-session/SKILL.md"],
     "timestamp": "2026-03-10T14:32:00Z"
   }
 }
 ```
 
-If the file exists:
-- Read and apply preferences (currently informational — future skills can check these)
-- If `bookmark` exists and has a `note`, display it to the user:
-  > **Resuming session** — Last time: {note}
-  > Files: {files list, if any}
-- Update `lastBranch` to the current branch
+**Migration:** If `.agents/session.json` does not exist but the old global location (`~/.claude/projects/<project-path-slug>/memory/session.json`) does, the bootstrap script copies it automatically.
 
-If the file does not exist, create it with defaults.
+## Session Lifecycle (SPEC-119)
 
-## Step 3 — Suggest swain-stage (tmux only)
+swain-session owns a bounded session lifecycle: **start → work → close → resume**. Session state is tracked in `.agents/session-state.json` via the `swain-session-state.sh` script.
 
-If `$TMUX` is set and swain-stage is available, inform the user:
+### Session start
 
-> Run `/swain-stage` to set up your workspace layout.
+After bootstrap completes and the worktree is ready, initialize the session lifecycle:
 
-Do not auto-invoke swain-stage — let the user decide.
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" init --focus "<FOCUS-ID>" --session-roadmap "$(pwd)/SESSION-ROADMAP.md" --repo-root "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+```
+
+This:
+1. Creates `.agents/session-state.json` with focus lane, decision budget (default 5), and start time
+2. Generates `SESSION-ROADMAP.md` via `chart.sh session --focus <ID>`
+
+The focus lane defaults to the previous session's lane (from bootstrap JSON `session.focus`). Confirm with the operator or accept their redirect.
+
+Custom decision budget: `--budget 7`
+
+### During work — recording decisions
+
+When the operator or agent makes a decision (approves a spec, chooses an approach, sets direction), record it:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" record-decision --note "Approved SPEC-119 implementation approach"
+```
+
+### Session close
+
+When the operator says "done", "wrap up", "close session", or the decision budget is reached:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" close --walkaway "Completed SPEC-119 tests and state management" --session-roadmap "$(pwd)/SESSION-ROADMAP.md"
+```
+
+This:
+1. Sets session phase to `closed` with end time
+2. Appends the walk-away signal to SESSION-ROADMAP.md
+3. The agent should then commit SESSION-ROADMAP.md to git
+
+### Session resume
+
+On the next session start, after bootstrap, check for a previous session:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" resume
+```
+
+This outputs the previous session's focus lane, walkaway note, and decision count. Display it to the operator so they can decide whether to continue or start fresh.
+
+### Session state schema
+
+```json
+{
+  "session_id": "session-20260328-220634-4ad1",
+  "focus_lane": "INITIATIVE-019",
+  "phase": "active",
+  "start_time": "2026-03-28T22:06:34Z",
+  "end_time": null,
+  "decision_budget": 5,
+  "decisions_made": 0,
+  "decisions": [],
+  "walkaway": null
+}
+```
 
 ## Manual invocation commands
 
@@ -172,7 +217,7 @@ Other swain skills update the session bookmark after operations. Read [reference
 
 ## Focus Lane
 
-The operator can set a focus lane to tell swain-status to recommend within a single vision or initiative. This is a steering mechanism — it doesn't hide other work, but frames recommendations around the operator's current focus.
+The operator can set a focus lane to scope recommendations within a single vision or initiative. This is a steering mechanism — it doesn't hide other work, but frames recommendations around the operator's current focus.
 
 **Setting focus:**
 When the operator says "focus on security" or "I'm working on VISION-001", resolve the name to an artifact ID and invoke the focus script.
@@ -197,7 +242,40 @@ bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -p
 bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)"
 ```
 
-Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. swain-status reads it to filter recommendations and show peripheral awareness for non-focus visions.
+Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. The status dashboard reads it to filter recommendations and show peripheral awareness for non-focus visions.
+
+## Status Dashboard (absorbed from swain-status — SPEC-122)
+
+swain-session now owns the project status dashboard. When the operator says "status", "what's next", "dashboard", "overview", "where are we", "what should I work on", or "show me priorities", run the status script:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+STATUS_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-status.sh' -print -quit 2>/dev/null)"
+[ -n "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --refresh || echo "swain-status.sh not found"
+```
+
+For compact mode (MOTD): `bash "$STATUS_SCRIPT" --compact`
+
+After the script runs, present a structured agent summary following [references/agent-summary-template.md](references/agent-summary-template.md).
+
+### Cache
+
+Status writes to `.agents/status-cache.json` with 120-second TTL. Use `--refresh` to bypass, `--json` for raw output.
+
+### Recommendation
+
+Read `.priority.recommendations[0]` from the JSON cache. When a focus lane is set, recommendations scope to that vision/initiative.
+
+### Mode Inference
+
+1. Both specs in review AND strategic decisions pending → ask operator
+2. Specs awaiting review → detail mode
+3. Focus lane + pending decisions → vision mode
+4. Nothing actionable → vision mode (master plan mirror)
+
+### Decisions Needed (roadmap integration)
+
+Uses `chart.sh roadmap --json` for Eisenhower classification. Show top 5 items from "Do First" and "Schedule" quadrants that need operator decisions.
 
 ## Settings
 

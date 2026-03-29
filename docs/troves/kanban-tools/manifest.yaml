@@ -1,6 +1,6 @@
 trove: kanban-tools
 created: 2026-03-15
-refreshed: 2026-03-15
+refreshed: 2026-03-28
 tags:
 - kanban
 - markdown
@@ -14,6 +14,9 @@ tags:
 - git-hooks
 - headless-cms
 - near-miss
+- agent-orchestration
+- worktree-isolation
+- parallel-agents
 
 freshness-ttl:
   web: 14d
@@ -175,3 +178,20 @@ sources:
   hash: "sha256:dea88e7d2a0dc8baad65a0f2eff83b43bfa159473c35c0c2297b45ffd3b3a63b"
   highlights: []
   selective: false
+- source-id: 018-cline-kanban
+  type: repository
+  url: "https://github.com/cline/kanban"
+  fetched: 2026-03-28T22:35:00Z
+  title: "Cline Kanban — Browser-based agent orchestration board with worktree isolation"
+  hash: "018aa90c05cdf2d686b8fd7c15786bfa931a67f1472866bbdbbf4fcf8f3c29ae"
+  highlights:
+  - README.md
+  - docs/architecture.md
+  - man/kanban.1
+  selective: true
+
+history:
+- event: extended
+  date: 2026-03-28
+  commit: "5ac869c"
+  sources: 18

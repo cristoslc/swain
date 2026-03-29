@@ -51,11 +51,6 @@
       "sourceType": "github",
       "computedHash": "0a2ee3136c9d21da9e7eaee1cc8bd0d7fcb053fc6ec7c3f4b625de9fe0a8f9d8"
     },
-    "swain-stage": {
-      "source": "cristoslc/swain",
-      "sourceType": "github",
-      "computedHash": "e144e87b6e9dcd644dbe1697d9b7855998dad7e35ea94fbff40febbaa75cc5fe"
-    },
     "swain-status": {
       "source": "cristoslc/swain",
       "sourceType": "github",

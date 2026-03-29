@@ -27,12 +27,14 @@ After installing, run `/swain-init` in your first session to set up governance r
 Two skills auto-run at the start of every session:
 
 1. **swain-doctor** checks project health — governance rules, file permissions, stale config — and repairs what it finds.
-2. **swain-session** restores your context bookmark from last time: where you left off, what was in progress.
+2. **swain-session** restores your context, proposes a focus lane, and generates a SESSION-ROADMAP.md scoped to your current work area.
+
+Sessions have a bounded lifecycle: **start → work → close**. The session tracks decisions you make (with a configurable budget), and on close writes a walk-away signal so the next session knows where you left off.
 
 Then you ask what's going on:
 
 ```
-/swain-status
+/swain-session
 ```
 
 or
@@ -57,14 +59,12 @@ Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions 
 |-------|-------------|
 | **swain-init** | One-time project setup — governance rules, task tracking, AGENTS.md |
 | **swain-doctor** | Session-start health checks — auto-repairs config, permissions, stale state |
-| **swain-session** | Context bookmarks and preferences across sessions |
-| **swain-status** | Dashboard — active work, blockers, next steps, GitHub issues |
+| **swain-session** | Context bookmarks, preferences, dashboard — active work, blockers, next steps, GitHub issues |
 | **swain-design** | Artifact lifecycle — Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect and cache research sources as reusable markdown |
 | **swain-do** | Task tracking — implementation plans, dependencies, progress |
 | **swain-sync** | Fetch, rebase, commit, and push with conventional commit messages |
 | **swain-release** | Changelog, version bump, git tag |
-| **swain-stage** | Tmux workspace layouts and animated status panel |
 | **swain-keys** | Per-project SSH keys for git signing and auth |
 | **swain-dispatch** | Offload artifacts to background agents via GitHub Issues |
 | **swain-retro** | Capture learnings at EPIC completion or on demand |
@@ -90,7 +90,6 @@ Optional:
 - **tk** (ticket) — task tracking backend, vendored with swain
 - **uv** — Python runner for design and status scripts
 - **gh** — GitHub CLI for issue integration and releases
-- **tmux** — workspace layouts (swain-stage only)
 - **fswatch** — live artifact file watching
 
 ## Companion

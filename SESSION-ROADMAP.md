@@ -5,10 +5,10 @@
 ## Evidence Basis
 
 - **Focus lane:** INITIATIVE-019 (Session-Scoped Decision Support)
-- **ROADMAP.md hash:** `bc82c85b`
-- **HEAD:** `501f52e`
-- **Artifacts in scope:** 7
-- **Direct children:** EPIC-039, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123
+- **ROADMAP.md hash:** `cd9d0668`
+- **HEAD:** `5c6ca53`
+- **Artifacts in scope:** 16
+- **Direct children:** EPIC-039, EPIC-042, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123, SPEC-160, SPEC-161
 
 ## Decision Set
 
@@ -16,11 +16,11 @@ No decisions needed in this focus area right now.
 
 ## Recommended Next
 
-> **SPEC-118**: swain_trunk() Auto-Detection Helper — unblocks 3, weight: high
+> **SPEC-121**: Session Detection Hooks Across All Skills — unblocks 1, weight: high
 
 ## Session Goal
 
-**Recommended goal:** Progress implementation on SPEC-118, SPEC-121, SPEC-122
+**Recommended goal:** Progress implementation on SPEC-121, SPEC-122, SPEC-150
 
 *Justification:* No operator decisions are pending. These items are the highest-leverage implementation work in Session-Scoped Decision Support.
 
@@ -31,9 +31,11 @@ No decisions needed in this focus area right now.
 
 Recent commits touching this focus area:
 
-- `2e06514` docs(spec): stamp SPEC-120 Complete lifecycle hash
-- `c933d46` docs(spec): transition SPEC-120 to Complete
-- `deed10d` feat(specgraph): add Decision and Recommendation sections to ROADMAP.md (SPEC-120)
+- `ff1231e` Merge EPIC-039: Session Facilitation Rebuild complete (7 specs, resolve conflicts)
+- `071f9c1` docs(EPIC-039): complete Session Facilitation Rebuild
+- `988d265` feat(SPEC-123): skill and script alignment audit for session lifecycle
+- `0c9138b` feat(SPEC-122): absorb swain-status into swain-session
+- `3ecd836` feat(SPEC-121): add session detection hooks across all state-changing skills
 
 ## Decision Records
 

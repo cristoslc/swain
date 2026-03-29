@@ -12,7 +12,7 @@ linked-artifacts:
   - ADR-002
   - SPEC-001
   - SPEC-002
-  - SPIKE-046
+  - SPIKE-048
 depends-on-artifacts: []
 ---
 
@@ -60,7 +60,7 @@ Today: `/status` shows all artifacts by actionability, but doesn't distinguish b
 
 Multiple items need decisions. The developer needs to know: which decision unblocks the most downstream work? Approving SPEC-001 might unblock 3 tasks; accepting ADR-002 might unblock nothing yet.
 
-Today: swain-status shows unblock counts, but doesn't separate decision items from implementation items. The "Recommended Next" may suggest something the agent could handle autonomously, burying the decision item that's actually blocking progress.
+Today: swain-session shows unblock counts, but doesn't separate decision items from implementation items. The "Recommended Next" may suggest something the agent could handle autonomously, burying the decision item that's actually blocking progress.
 
 ### 3. Make the Decision — "I need context to decide"
 
@@ -135,15 +135,15 @@ journey
 | JOURNEY-001.PP-02 | Decision context is scattered | 2 | Make the Decision | Artifact content, unblock info, and agent findings live in different places | Decision detail view that aggregates artifact + dependencies + impact in one place |
 | JOURNEY-001.PP-03 | One-at-a-time decision communication | 2 | Communicate the Decision | Conversational interface is serial; no batch decision UI | Web dashboard with approve/reject actions; or `/decide` batch command |
 | JOURNEY-001.PP-04 | No decision impact feedback | 1 | Check Impact | No diff between pre- and post-decision state | Show "decision impact" summary after each transition; changelog in status |
-| JOURNEY-001.PP-05 | bd fragility blocks decision flow | 1 | Communicate the Decision | Dolt server complexity, .beads maintenance | Replace bd backend (SPIKE-046); markdown-native task storage |
+| JOURNEY-001.PP-05 | bd fragility blocks decision flow | 1 | Communicate the Decision | Dolt server complexity, .beads maintenance | Replace bd backend (SPIKE-048); markdown-native task storage |
 
 ## Opportunities
 
 ### O-01: Decision backlog view in /status (addresses PP-01)
 
-Add a dedicated "Decisions waiting on you" section to swain-status that filters artifacts to those requiring human judgment: Draft specs (need approval), Planned spikes (need activation or verdict), Proposed ADRs (need acceptance), and items blocked on non-implementation decisions. Sort by downstream impact (unblock count). This is the developer's primary entry point — answer "what's waiting on me?" before showing anything else.
+Add a dedicated "Decisions waiting on you" section to swain-session that filters artifacts to those requiring human judgment: Draft specs (need approval), Planned spikes (need activation or verdict), Proposed ADRs (need acceptance), and items blocked on non-implementation decisions. Sort by downstream impact (unblock count). This is the developer's primary entry point — answer "what's waiting on me?" before showing anything else.
 
-Implementation: classify artifacts by whether their next phase transition requires human judgment (decision item) or can be delegated to an agent (implementation item). The `next_step` function in swain-status already maps (type, status) to actions — extend it to also classify owner (developer vs. agent).
+Implementation: classify artifacts by whether their next phase transition requires human judgment (decision item) or can be delegated to an agent (implementation item). The `next_step` function in swain-session already maps (type, status) to actions — extend it to also classify owner (developer vs. agent).
 
 ### O-02: Decision detail aggregation (addresses PP-02)
 
@@ -163,12 +163,12 @@ After each decision (artifact phase transition), show a brief "impact summary": 
 
 Replace bd's Dolt database with markdown-file storage (Backlog.md with contributed dependency commands, or a simpler custom solution). Eliminates .beads directory, server management, and CLI errors. Ensures that acting on decisions is never blocked by infrastructure failures.
 
-Evidence: SPIKE-046 found Backlog.md covers 70% of swain-do's term mapping. Contributing `ready`/`blocked` commands upstream is ~180 LOC.
+Evidence: SPIKE-048 found Backlog.md covers 70% of swain-do's term mapping. Contributing `ready`/`blocked` commands upstream is ~180 LOC.
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Draft | 2026-03-11 | d1929d5 | Initial creation from SPIKE-046/002 findings |
+| Draft | 2026-03-11 | d1929d5 | Initial creation from SPIKE-048/002 findings |
 | Draft | 2026-03-11 | — | Reframed around decision backlog vs. implementation backlog |
 | Validated | 2026-03-11 | a950529 | Approved by developer — pain points and journeys confirmed |

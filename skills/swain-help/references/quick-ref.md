@@ -7,14 +7,12 @@
 | **swain** | `/swain <request>` | Routes to the right sub-skill |
 | **swain-init** | `/swain init` | One-time project setup |
 | **swain-doctor** | `/swain-doctor` | Session-start health checks (automatic) |
-| **swain-session** | `/swain-session` | Context bookmarks and preferences across sessions (auto-runs at session start) |
-| **swain-status** | `/swain-status` or "what's next?" | Dashboard — active work, blockers, next steps, GitHub issues |
+| **swain-session** | `/swain-session` or "what's next?" | Context bookmarks, preferences, dashboard — active work, blockers, next steps, GitHub issues |
 | **swain-design** | `/swain-design` or `/swain` + artifact request | Create and manage documentation artifacts |
 | **swain-search** | `/swain-search` or `/swain` + research request | Collect and cache evidence pools |
 | **swain-do** | `/swain-do` or `/swain` + task request | Track tasks and implementation work |
 | **swain-sync** | `/swain-sync` or `/swain sync` | Fetch, rebase, commit, and push changes |
 | **swain-release** | `/swain-release` or `/swain release` | Version bump, changelog, git tag |
-| **swain-stage** | `/swain-stage` | Tmux workspace layouts and animated status panel |
 | **swain-keys** | `/swain-keys` | Per-project SSH keys for git signing and auth |
 | **swain-update** | `/swain-update` or `/swain update` | Update swain to latest version |
 | **swain-retro** | `/swain-retro` or `/swain retro` | Capture learnings at EPIC completion or on demand |

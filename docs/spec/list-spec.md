@@ -64,8 +64,6 @@
 | SPEC-122 | Absorb swain-status into swain-session | 2026-03-20 | -- |
 | SPEC-123 | Skill and Script Alignment Audit | 2026-03-20 | -- |
 | SPEC-124 | Roadmap legend should display epic names alongside initiative names | 2026-03-21 | — |
-| SPEC-125 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-20 | — |
-| SPEC-127 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-20 | — |
 | SPEC-135 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
 | SPEC-136 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-137 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
@@ -92,6 +90,15 @@
 | SPEC-168 | Gitignore Skill Folders Check | 2026-03-25 | — |
 | SPEC-169 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
 | SPEC-170 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
+| SPEC-172 | Shell Launcher Templates | 2026-03-27 | — |
+| SPEC-173 | Init Launcher Recommendation | 2026-03-27 | — |
+| SPEC-175 | Session Bootstrap Script Consolidation | 2026-03-26 | — |
+| SPEC-176 | TDD Coverage Self-Critique Gate | 2026-03-27 | — |
+| SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | -- |
+| SPEC-178 | Worktree Timestamp Zeroed Time Component | 2026-03-28 | — |
+| SPEC-179 | Launcher Free-Text Session Purpose | 2026-03-28 | — |
+| SPEC-183 | Session Sleep Operation | 2026-03-28 | — |
+| SPEC-184 | Session End Operation | 2026-03-28 | — |
 
 ## Complete
 
@@ -178,6 +185,8 @@
 | SPEC-157 | swain-design SKILL.md Allocator Integration | 2026-03-23 | — |
 | SPEC-158 | Artifact Number Collision Detection | 2026-03-23 | — |
 | SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-23 | — |
+| SPEC-171 | Semantic Topic Matching in Trove Prior Art Check | 2026-03-25 | — |
+| SPEC-174 | Worktree Session Branch Name Collision | 2026-03-27 | — |
 
 ## Superseded
 
@@ -195,4 +204,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-25 | -- |
+| SPEC-125 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-28 | — |
+| SPEC-127 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-28 | — |
 
