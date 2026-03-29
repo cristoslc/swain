@@ -15,6 +15,7 @@ linked-artifacts:
   - ADR-017
   - ADR-018
   - ADR-015
+  - ADR-019
   - SPEC-181
   - SPEC-182
 depends-on-artifacts:
@@ -73,11 +74,28 @@ The operator runs `swain` after a system crash and gets: crash detection, debris
 6. **Given** the operator selects "resume", **when** the runtime starts, **then** the initial prompt includes structured context (bookmark, focus lane, in-progress tasks, conversation log path).
 7. **Given** `--fresh` flag, **when** the script runs, **then** Phase 2 is skipped entirely.
 
+## Script Location and Distribution (ADR-019)
+
+Per [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md), the script follows the operator-facing script convention:
+
+**Canonical location:** `skills/swain/scripts/swain`
+
+The script is executable, committed to the swain repo, and distributed to consumer projects via `npx skills add`. It is **not** placed directly in the project root.
+
+**`bin/` symlink:** `bin/swain -> ../skills/swain/scripts/swain` (relative path)
+
+Created by:
+- **swain-init** Phase 4.5 — during first-run onboarding, after the shell function is installed
+- **swain-doctor** — on subsequent sessions, auto-repairs if missing (see below)
+
+**Doctor health check:** swain-doctor gains a `swain symlink` check using ADR-019's standard status model (ok/missing/stale/conflict) against `bin/swain`.
+
 ## Scope & Constraints
 
 - Pure bash — no LLM dependency, no Python, no Node. Must work even if the runtime is broken.
 - Per ADR-015: never auto-discard worktree state. All destructive actions require operator confirmation.
 - Per ADR-018: detection is structural (file-based), not prosaic (markdown directives).
+- Per ADR-019: script lives in the skill tree; a `bin/` symlink provides the operator entry point.
 - Claude Code crash detection is the primary implementation. Other runtimes degrade gracefully (fall back to swain git state).
 - The script replaces the runtime detection and invocation logic currently in the shell function ([EPIC-045](../../../epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md)).
 
@@ -86,3 +104,4 @@ The operator runs `swain` after a system crash and gets: crash detection, debris
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) |
+| Active | 2026-03-28 | — | Updated symlink from `./swain` to `bin/swain` per ADR-019 operator-facing convention |

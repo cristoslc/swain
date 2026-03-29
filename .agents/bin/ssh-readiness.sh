@@ -1,0 +1,1 @@
+../../skills/swain-doctor/scripts/ssh-readiness.sh

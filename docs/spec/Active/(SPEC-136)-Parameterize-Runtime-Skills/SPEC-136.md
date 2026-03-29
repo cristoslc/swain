@@ -13,18 +13,19 @@ depends-on-artifacts:
 linked-artifacts:
   - EPIC-029
   - ADR-013
+  - ADR-019
 ---
 
 # Parameterize Runtime Skills With swain_trunk()
 
 ## Goal
 
-Replace all hardcoded trunk branch references in runtime skill instructions with dynamic detection via `scripts/swain-trunk.sh`.
+Replace all hardcoded trunk branch references in runtime skill instructions with dynamic detection via `swain-trunk.sh` (resolved per [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) agent-facing convention).
 
 ## Changes
 
 ### swain-sync (SKILL.md)
-- Add `TRUNK=$(bash "$REPO_ROOT/scripts/swain-trunk.sh")` to Step 1 worktree detection preamble
+- Add `TRUNK=$(bash "$REPO_ROOT/.agents/bin/swain-trunk.sh")` to Step 1 worktree detection preamble
 - Replace `origin/trunk` merge target with `origin/$TRUNK` (2 occurrences)
 - Replace `HEAD:trunk` push target with `HEAD:$TRUNK`
 - Replace `--base trunk` PR fallback with `--base "$TRUNK"`
@@ -47,3 +48,4 @@ Replace all hardcoded trunk branch references in runtime skill instructions with
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-21 | — | Created as EPIC-029 child |
+| Active | 2026-03-28 | — | Updated path to `.agents/bin/swain-trunk.sh` per ADR-019 agent-facing convention |

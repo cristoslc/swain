@@ -1,0 +1,1 @@
+../../skills/swain-design/scripts/resolve-artifact-link.sh

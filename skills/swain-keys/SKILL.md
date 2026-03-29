@@ -21,7 +21,8 @@ Per-project SSH key provisioning for git signing and authentication.
 Locate and run the provisioning script at `skills/swain-keys/scripts/swain-keys.sh`:
 
 ```bash
-SCRIPT="$(find . .claude .agents -path '*/swain-keys/scripts/swain-keys.sh' -print -quit 2>/dev/null)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SCRIPT="$REPO_ROOT/.agents/bin/swain-keys.sh"
 ```
 
 If the path search fails, glob for `**/swain-keys/scripts/swain-keys.sh`.
@@ -83,7 +84,7 @@ When called from swain-init, run `--provision` directly without the status-first
 
 ## Session bookmark
 
-After provisioning, update the bookmark: `bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "Provisioned SSH keys for {project}"`
+After provisioning, update the bookmark: `bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" "Provisioned SSH keys for {project}"`
 
 ## Error handling
 

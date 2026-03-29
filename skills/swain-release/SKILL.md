@@ -16,7 +16,8 @@ metadata:
 <!-- session-check: SPEC-121 -->
 Before proceeding with any state-changing operation, check for an active session:
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
 If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
 
@@ -169,7 +170,7 @@ Before tagging, run the security scanner to catch secrets, dependency vulnerabil
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-SCANNER="$(find "$REPO_ROOT" -path '*/swain-security-check/scripts/security-scan.sh' -type f -print -quit 2>/dev/null)"
+SCANNER="$REPO_ROOT/.agents/bin/security-scan.sh"
 if [[ -n "$SCANNER" ]]; then
   bash "$SCANNER"
 fi
@@ -207,7 +208,7 @@ If a `release` branch exists (check with `git rev-parse --verify release 2>/dev/
 ```bash
 # Detect trunk branch dynamically (EPIC-029)
 REPO_ROOT=$(git rev-parse --show-toplevel)
-TRUNK=$(bash "$REPO_ROOT/scripts/swain-trunk.sh")
+TRUNK=$(bash "$REPO_ROOT/.agents/bin/swain-trunk.sh")
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 # Ensure we're on the trunk (development) branch
@@ -231,7 +232,43 @@ If no `release` branch exists, skip this step silently — the project hasn't ad
 
 ### 7. Offer to push
 
-Ask the user if they want to push. If a release branch was updated in step 6.5:
+Ask the user if they want to push. Before pushing, always fetch and integrate upstream to avoid rejected pushes:
+
+```bash
+# Fetch upstream to detect divergence before pushing
+git fetch origin
+
+# Rebase trunk onto upstream to incorporate any changes that landed since the release was prepared
+TRUNK_UPSTREAM="origin/$TRUNK"
+if ! git merge-base --is-ancestor "$TRUNK_UPSTREAM" HEAD; then
+  echo "Trunk has diverged from upstream. Rebasing..."
+  git rebase "$TRUNK_UPSTREAM" || {
+    echo "Rebase conflict — resolve before pushing."
+    git rebase --abort
+    exit 1
+  }
+fi
+
+# If release branch was updated, rebase it too
+if git rev-parse --verify release >/dev/null 2>&1; then
+  RELEASE_UPSTREAM="origin/release"
+  if git rev-parse --verify "$RELEASE_UPSTREAM" >/dev/null 2>&1; then
+    if ! git merge-base --is-ancestor "$RELEASE_UPSTREAM" release; then
+      echo "Release branch has diverged from upstream. Rebasing..."
+      git checkout release
+      git rebase "$RELEASE_UPSTREAM" || {
+        echo "Rebase conflict on release — resolve before pushing."
+        git rebase --abort
+        git checkout "$TRUNK"
+        exit 1
+      }
+      git checkout "$TRUNK"
+    fi
+  fi
+fi
+```
+
+If a release branch was updated in step 6.5:
 
 ```bash
 git push origin "$TRUNK" && git push origin release && git push origin <tag>
@@ -259,4 +296,4 @@ Don't push without asking — the user may want to review first, or they may hav
 
 ## Session bookmark
 
-After a successful release, update the bookmark: `bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "Released v{version}"`
+After a successful release, update the bookmark: `bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" "Released v{version}"`

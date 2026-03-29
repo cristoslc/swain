@@ -1,0 +1,1 @@
+../../skills/swain-design/scripts/relink.sh

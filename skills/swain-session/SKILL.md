@@ -43,7 +43,8 @@ For runtimes that don't support initial prompts (e.g., crush), check the `SWAIN_
 Run the consolidated bootstrap script in a single call:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --auto
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-bootstrap.sh" --auto
 ```
 
 The script handles tab naming (tmux only), worktree isolation detection, and session.json loading atomically. It emits structured JSON:
@@ -65,11 +66,11 @@ The script handles tab naming (tmux only), worktree isolation detection, and ses
 
 1. If `worktree.isolated` is `false`: use the `EnterWorktree` tool to create an isolated worktree. Generate the worktree name by running:
    ```bash
-   bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-worktree-name.sh' -print -quit 2>/dev/null)"
+   bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh"
    ```
-   Pass the script's stdout as the `name` parameter to `EnterWorktree`. For descriptive names, pass context as an argument: `... swain-worktree-name.sh' ...) "spec-174"`. Never use a static name like "session" (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the script (it generates a fresh suffix each time) and retry once. Then re-run the bootstrap with the new path:
+   Pass the script's stdout as the `name` parameter to `EnterWorktree`. For descriptive names, pass context as an argument: `... swain-worktree-name.sh" "spec-174"`. Never use a static name like "session" (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the script (it generates a fresh suffix each time) and retry once. Then re-run the bootstrap with the new path:
    ```bash
-   bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --path "$(pwd)" --skip-worktree --auto
+   bash "$REPO_ROOT/.agents/bin/swain-session-bootstrap.sh" --path "$(pwd)" --skip-worktree --auto
    ```
    If `EnterWorktree` fails or is unavailable, log a warning and proceed — swain-do will attempt isolation at dispatch time as a fallback.
 
@@ -91,7 +92,8 @@ The operator can say "exit worktree" or "back to main" at any time — call `Exi
 When an agent enters a worktree or switches branches, re-run the bootstrap with `--path` to update the tab name:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-bootstrap.sh' -print -quit 2>/dev/null)" --path "$NEW_WORKDIR" --skip-worktree --auto
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-bootstrap.sh" --path "$NEW_WORKDIR" --skip-worktree --auto
 ```
 
 This is agent-agnostic — works in Claude Code, opencode, gemini cli, codex, copilot, or any agent that reads AGENTS.md and can run bash commands.
@@ -124,7 +126,8 @@ swain-session owns a bounded session lifecycle: **start → work → close → r
 After bootstrap completes and the worktree is ready, initialize the session lifecycle:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" init --focus "<FOCUS-ID>" --session-roadmap "$(pwd)/SESSION-ROADMAP.md" --repo-root "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" init --focus "<FOCUS-ID>" --session-roadmap "$(pwd)/SESSION-ROADMAP.md" --repo-root "$REPO_ROOT"
 ```
 
 This:
@@ -140,7 +143,8 @@ Custom decision budget: `--budget 7`
 When the operator or agent makes a decision (approves a spec, chooses an approach, sets direction), record it:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" record-decision --note "Approved SPEC-119 implementation approach"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" record-decision --note "Approved SPEC-119 implementation approach"
 ```
 
 ### Session close
@@ -148,7 +152,8 @@ bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swai
 When the operator says "done", "wrap up", "close session", or the decision budget is reached:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" close --walkaway "Completed SPEC-119 tests and state management" --session-roadmap "$(pwd)/SESSION-ROADMAP.md"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" close --walkaway "Completed SPEC-119 tests and state management" --session-roadmap "$(pwd)/SESSION-ROADMAP.md"
 ```
 
 This:
@@ -161,7 +166,8 @@ This:
 On the next session start, after bootstrap, check for a previous session:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" resume
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" resume
 ```
 
 This outputs the previous session's focus lane, walkaway note, and decision count. Display it to the operator so they can decide whether to continue or start fresh.
@@ -190,7 +196,7 @@ When invoked explicitly by the user, support these operations:
 User says something like "set tab name to X" or "rename tab":
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-tab-name.sh' -print -quit 2>/dev/null)" "Custom Name"
+bash "$REPO_ROOT/.agents/bin/swain-tab-name.sh" "Custom Name"
 ```
 
 ### Bookmark context
@@ -206,7 +212,7 @@ User says "clear bookmark" or "fresh start":
 ### Show session info
 User says "session info" or "what's my session":
 - Display current tab name, branch, preferences, bookmark status
-- If the bookmark note contains an artifact ID (e.g., `SPEC-052`, `EPIC-018`), show the Vision ancestry breadcrumb for strategic context. Run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" scope <ID> 2>/dev/null | head -5` to get the parent chain. Display as: `Context: Swain > Operator Situational Awareness > Vision-Rooted Chart Hierarchy`
+- If the bookmark note contains an artifact ID (e.g., `SPEC-052`, `EPIC-018`), show the Vision ancestry breadcrumb for strategic context. Run `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/chart.sh" scope <ID> 2>/dev/null | head -5` to get the parent chain. Display as: `Context: Swain > Operator Situational Awareness > Vision-Rooted Chart Hierarchy`
 
 ### Set preference
 User says "set preference X to Y":
@@ -224,22 +230,26 @@ When the operator says "focus on security" or "I'm working on VISION-001", resol
 
 **Name-to-ID resolution:** If the operator uses a name instead of an ID (e.g., "security" instead of "VISION-001"), search Vision and Initiative artifact titles for the best match using swain chart:
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" --ids --flat 2>/dev/null | grep -i "<name>"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/chart.sh" --ids --flat 2>/dev/null | grep -i "<name>"
 ```
 If exactly one match, use it. If multiple matches, ask the operator to clarify. If no match, tell the operator no Vision or Initiative matches that name and offer to create one.
 
 ```bash
-bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)" set <RESOLVED-ID>
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-focus.sh" set <RESOLVED-ID>
 ```
 
 **Clearing focus:**
 ```bash
-bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)" clear
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-focus.sh" clear
 ```
 
 **Checking focus:**
 ```bash
-bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-focus.sh"
 ```
 
 Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. The status dashboard reads it to filter recommendations and show peripheral awareness for non-focus visions.
@@ -250,8 +260,8 @@ swain-session now owns the project status dashboard. When the operator says "sta
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-STATUS_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-status.sh' -print -quit 2>/dev/null)"
-[ -n "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --refresh || echo "swain-status.sh not found"
+STATUS_SCRIPT="$REPO_ROOT/.agents/bin/swain-status.sh"
+[ -f "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --refresh || echo "swain-status.sh not found"
 ```
 
 For compact mode (MOTD): `bash "$STATUS_SCRIPT" --compact`

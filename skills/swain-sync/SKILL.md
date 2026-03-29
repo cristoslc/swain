@@ -15,7 +15,8 @@ metadata:
 <!-- session-check: SPEC-121 -->
 Before proceeding with any state-changing operation, check for an active session:
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
 If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
 
@@ -32,7 +33,7 @@ GIT_COMMON=$(git rev-parse --git-common-dir)
 GIT_DIR=$(git rev-parse --git-dir)
 IN_WORKTREE=$( [ "$GIT_COMMON" != "$GIT_DIR" ] && echo "yes" || echo "no" )
 REPO_ROOT=$(git rev-parse --show-toplevel)
-TRUNK=$(bash "$REPO_ROOT/scripts/swain-trunk.sh")
+TRUNK=$(bash "$REPO_ROOT/.agents/bin/swain-trunk.sh")
 ```
 
 `IN_WORKTREE=yes` means the current directory is inside a linked worktree (e.g., `.claude/worktrees/agent-abc123`). Use this flag in Steps 3, 6, and the session bookmark step.
@@ -161,7 +162,7 @@ If `.gitignore` contains `# swain-sync: allow <pattern>` for a given pattern, tr
 If modified files include any swain artifacts (`docs/spec/`, `docs/epic/`, `docs/vision/`, `docs/research/`, `docs/journey/`, `docs/persona/`, `docs/runbook/`, `docs/design/`, `docs/train/`), run an ADR compliance check against each modified artifact:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/adr-check.sh' -print -quit 2>/dev/null)" <artifact-path>
+bash "$REPO_ROOT/.agents/bin/adr-check.sh" <artifact-path>
 ```
 
 For each artifact with findings (exit code 1 = advisory RELEVANT findings, exit code 2 = actionable DEAD_REF or STALE findings), collect the output and present a single consolidated warning after all checks complete:
@@ -178,7 +179,7 @@ If the `adr-check.sh` script is not found or fails with exit code 3, skip silent
 Run `design-check.sh` with no arguments (scan all active DESIGNs) to detect design-to-code drift:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/design-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+bash "$REPO_ROOT/.agents/bin/design-check.sh" 2>/dev/null
 ```
 
 For each DESIGN with findings (STALE or BROKEN `sourcecode-refs`), collect the output and present a single consolidated warning after the check completes:
@@ -195,7 +196,7 @@ If the `design-check.sh` script is not found or fails with exit code 2, skip sil
 Run `detect-duplicate-numbers.sh` to find duplicate artifact numbers introduced by merges or concurrent worktree work:
 
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/detect-duplicate-numbers.sh' -print -quit 2>/dev/null)" 2>/dev/null
+bash "$REPO_ROOT/.agents/bin/detect-duplicate-numbers.sh" 2>/dev/null
 ```
 
 If collisions are found (exit code 1), this step is **blocking** — do not commit until resolved:
@@ -275,9 +276,18 @@ If the commit fails because a pre-commit hook rejected it:
 
 ## Step 6 — Push
 
-**If `IN_WORKTREE=yes`:** push the worktree's commits directly to `trunk` (the development branch):
+**If `IN_WORKTREE=yes`:** fetch and integrate upstream changes, then push the worktree's commits directly to `trunk` (the development branch):
 
 ```bash
+# Always fetch and merge trunk before the first push attempt.
+# This prevents avoidable rejections when trunk moved since the worktree was created.
+git fetch origin
+git merge "origin/$TRUNK" --no-edit || {
+  echo "Merge conflict with upstream trunk. Resolve before pushing."
+  git merge --abort
+  exit 1
+}
+
 MAX_RETRIES=3
 ATTEMPT=0
 while [ $ATTEMPT -lt $MAX_RETRIES ]; do
@@ -356,7 +366,7 @@ Run `git --no-pager status` and `git --no-pager log --oneline -3` to verify the 
 Before committing (after staging, before Step 5), check whether any artifact index files (`list-*.md`) are stale. If the rebuild script exists, run it for each artifact type that had changes staged:
 
 ```bash
-REBUILD_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-design/scripts/rebuild-index.sh' -print -quit 2>/dev/null)"
+REBUILD_SCRIPT="$REPO_ROOT/.agents/bin/rebuild-index.sh"
 if [[ -x "$REBUILD_SCRIPT" ]]; then
     # Detect which types had staged changes
     for type in spec epic spike adr persona runbook design vision journey train; do
@@ -375,5 +385,5 @@ This ensures the index is current when the session's commits land.
 After a successful push, update the bookmark. Use `$REPO_ROOT` (set in Step 1) as the search root so this works from both main and linked worktrees:
 
 ```bash
-bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "Pushed {n} commits to {branch}"
+bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" "Pushed {n} commits to {branch}"
 ```

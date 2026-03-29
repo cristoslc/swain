@@ -1,12 +1,12 @@
 {
-  "lastBranch": "trunk",
+  "lastBranch": "worktree-session-20260328-223139-e675",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "EPIC-039 complete — SPEC-050 fixed, SPEC-119/121/122/123/175 done, swain-status absorbed into swain-session",
-    "timestamp": "2026-03-29T02:20:27Z"
+    "note": "Completed retro for v0.21.0-alpha skill deletion incident — 2 learnings captured, 3 SPEC candidates identified",
+    "timestamp": "2026-03-29T03:54:35Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

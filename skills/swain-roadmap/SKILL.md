@@ -17,7 +17,8 @@ metadata:
 <!-- session-check: SPEC-121 -->
 Before proceeding with any state-changing operation, check for an active session:
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
 If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
 
@@ -29,7 +30,7 @@ Regenerates `ROADMAP.md` from the artifact graph and opens it. The heavy lifting
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-CHART_SH="$(find "$REPO_ROOT" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"
+CHART_SH="$REPO_ROOT/.agents/bin/chart.sh"
 ```
 
 If `chart.sh` is not found, tell the user swain-design is not installed and stop.
@@ -110,7 +111,7 @@ Say "ROADMAP.md refreshed and opened." before the CLI output. For scoped runs, s
 If a focus lane is set in `.agents/session.json`, mention it at the end.
 
 ```bash
-FOCUS="$(bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)" 2>/dev/null)"
+FOCUS="$(bash "$REPO_ROOT/.agents/bin/swain-focus.sh" 2>/dev/null)"
 ```
 
 If focus is set, note: "Focus: {FOCUS}. Use swain-session for focus-scoped recommendations."
