@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.21.1-alpha] - 2026-03-28
+
+### Features
+- Skills now fetch and merge upstream before pushing, preventing avoidable push rejections when trunk moves during a worktree session (swain-sync worktree path, swain-release trunk + release branch push)
+
+### Research
+- Cline Kanban added to kanban-tools trove — browser-based agent orchestration board with worktree isolation, validating swain's worktree-per-task pattern
+
 ## [0.21.0-alpha] - 2026-03-28
 
 ### Features
