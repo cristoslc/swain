@@ -5,15 +5,15 @@
 
 ## Progress
 
-█████░░░░░░░ 10/23 complete (43%)
+█████░░░░░░░ 10/24 complete (42%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
+| 2026-03-29 | 11:14 | `c95f812` | feat(doctor,design): implement consolidated doctor script and cross-branch artifact ID allocation |
 | 2026-03-28 | 22:01 | `e833664` | Merge SPEC-050: use $CLAUDE_PROJECT_DIR for hook path resolution (resolve conflict: keep fixed hooks) |
 | 2026-03-28 | 22:00 | `8712b7a` | fix(SPEC-050): use $CLAUDE_PROJECT_DIR for hook path resolution |
-| 2026-03-27 | 17:23 | `e227a08` | docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
 
 ## Priority Subset
 
@@ -27,6 +27,7 @@
 |  | [Sandbox Templates In Regular Docker Containers](docs/research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Container-Compatible Auth Flows Per Runtime](docs/research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) | 0/0 | 1 | **needs decomposition** |
 |  | [swain-doctor SSH Binary Check](docs/spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Artifact ID allocation must check all local branches](docs/spec/Active/(SPEC-193)-artifact-id-allocation-must-check-all-branches.md) | 0/0 | 0 | **needs decomposition** |
 |  | [PR Queue MCP for Merge Handoff](docs/research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
@@ -62,6 +63,7 @@
 - [SPEC-081](../../../spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) — Worktree-Enforced Sandbox Isolation (in progress)
 - [SPEC-092](../../../spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) — swain-box: Unified Sandbox Launcher (in progress)
 - [SPEC-102](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) — swain-doctor SSH Binary Check (in progress)
+- [SPEC-193](../../../spec/Active/(SPEC-193)-artifact-id-allocation-must-check-all-branches.md) — Artifact ID allocation must check all local branches (in progress)
 - [SPIKE-034](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) — Sandbox Templates In Regular Docker Containers (in progress)
 - [SPIKE-035](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) — Container-Compatible Auth Flows Per Runtime (in progress)
 - [SPIKE-050](../../../research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md) — PR Queue MCP for Merge Handoff (in progress)
