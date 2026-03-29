@@ -92,4 +92,4 @@ high — affects every session, every hook event. Purely cosmetic (non-blocking 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation |
-| Complete | 2026-03-28 | -- | Removed orphaned hooks from .claude/settings.json |
+| Complete | 2026-03-28 | 9b55fb8 | Removed orphaned hooks from .claude/settings.json |
