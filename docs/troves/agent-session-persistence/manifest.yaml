@@ -1,0 +1,53 @@
+trove: agent-session-persistence
+created: 2026-03-28
+refreshed: 2026-03-28
+tags: [session-persistence, crash-recovery, agentic-runtime, local-storage, session-resume, ADR-017]
+
+freshness-ttl:
+  web: 30d
+
+sources:
+  - source-id: claude-code-local-storage
+    type: web
+    url: https://milvus.io/blog/why-claude-code-feels-so-stable-a-developers-deep-dive-into-its-local-storage-design.md
+    title: "How Claude Code Manages Local Storage for AI Agents"
+    fetched: 2026-03-28
+    content-hash: 1aea7ad7fe1f2a9f849d981cfdf140c8d0444b97c646b65d27077fa18190c70a
+
+  - source-id: codex-cli-session-storage
+    type: web
+    url: https://developers.openai.com/codex/cli/features
+    title: "Codex CLI Session Storage and Crash Recovery"
+    fetched: 2026-03-28
+    content-hash: 4b512f1057b5848ca189d33c8797900e0902e6ead3332ddb4e36a3d9312735c2
+
+  - source-id: gemini-cli-session-management
+    type: web
+    url: https://geminicli.com/docs/cli/session-management/
+    title: "Gemini CLI Session Management"
+    fetched: 2026-03-28
+    content-hash: 1947c48f063d8c01468fbbc8a43d3516242dcde2535c07189abc2fbd69daa652
+
+  - source-id: copilot-cli-session-state
+    type: web
+    url: https://deepwiki.com/github/copilot-cli/6.2-session-state-and-lifecycle-management
+    title: "GitHub Copilot CLI Session State and Lifecycle Management"
+    fetched: 2026-03-28
+    content-hash: a533d8ca31e6c2011b48a19bc2fd5b7f78a8b4ffb3c56ef33369f071d9a9ec47
+
+  - source-id: crush-opencode-session-storage
+    type: web
+    url: https://github.com/opencode-ai/opencode
+    title: "Crush (OpenCode) Session Storage"
+    fetched: 2026-03-28
+    content-hash: a02d1c12ad9d488ce964212e5a3aae23b4866e3e9bedde223f2b75dc7a5545af
+
+referenced-by:
+  - artifact: SPIKE-051
+    commit: "--"
+
+history:
+  - event: created
+    date: 2026-03-28
+    commit: "--"
+    sources: 5
