@@ -59,10 +59,6 @@
 | SPEC-113 | Eliminate swain-sync context disruption | 2026-03-20 | — |
 | SPEC-116 | Read Before Reasoning | 2026-03-20 | ec9842d |
 | SPEC-117 | Evidence Basis For All Actions | 2026-03-20 | ec9842d |
-| SPEC-119 | Session Lifecycle in swain-session | 2026-03-20 | -- |
-| SPEC-121 | Session Detection Hooks Across All Skills | 2026-03-20 | -- |
-| SPEC-122 | Absorb swain-status into swain-session | 2026-03-20 | -- |
-| SPEC-123 | Skill and Script Alignment Audit | 2026-03-20 | -- |
 | SPEC-124 | Roadmap legend should display epic names alongside initiative names | 2026-03-21 | — |
 | SPEC-135 | swain_trunk() Auto-Detection Helper | 2026-03-21 | — |
 | SPEC-136 | Parameterize Runtime Skills With swain_trunk() | 2026-03-21 | — |
@@ -92,13 +88,24 @@
 | SPEC-170 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
 | SPEC-172 | Shell Launcher Templates | 2026-03-27 | — |
 | SPEC-173 | Init Launcher Recommendation | 2026-03-27 | — |
-| SPEC-175 | Session Bootstrap Script Consolidation | 2026-03-26 | — |
 | SPEC-176 | TDD Coverage Self-Critique Gate | 2026-03-27 | — |
-| SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | -- |
+| SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | 57c7822 |
 | SPEC-178 | Worktree Timestamp Zeroed Time Component | 2026-03-28 | — |
 | SPEC-179 | Launcher Free-Text Session Purpose | 2026-03-28 | — |
+| SPEC-180 | Pre-Runtime Swain Script | 2026-03-28 | — |
+| SPEC-181 | Swain Shell Function Refactor | 2026-03-28 | — |
+| SPEC-182 | Crash Debris Detection Checks | 2026-03-28 | — |
 | SPEC-183 | Session Sleep Operation | 2026-03-28 | — |
 | SPEC-184 | Session End Operation | 2026-03-28 | — |
+| SPEC-186 | Doctor .agents/bin/ Auto-Repair | 2026-03-28 | — |
+| SPEC-187 | Init .agents/bin/ Bootstrap | 2026-03-28 | — |
+| SPEC-188 | Doctor bin/ Auto-Repair | 2026-03-28 | — |
+| SPEC-189 | Migrate swain-box to bin/ | 2026-03-28 | — |
+| SPEC-190 | Migrate All Skills to .agents/bin/ Resolution | 2026-03-29 | — |
+| SPEC-191 | Preflight Self-Healing Compliance Audit | 2026-03-29 | — |
+| SPEC-192 | swain-doctor parallel check cascade failure | 2026-03-29 | — |
+| SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-29 | — |
+| SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete
 
@@ -152,7 +159,7 @@
 | SPEC-046 | Inline Lifecycle Hash Stamping for Trivial Artifacts | 2026-03-14 | 534a2e5 |
 | SPEC-047 | Lazy Index Refresh for list-*.md Artifact Indices | 2026-03-14 | b4892cd |
 | SPEC-048 | claude-sandbox: Tier 1 Native Sandbox Launcher | 2026-03-14 | 0eb40a8 |
-| SPEC-050 | Stage Status Hook Fails in Worktrees | 2026-03-15 | — |
+| SPEC-050 | Stage Status Hook Fails in Worktrees | 2026-03-28 | — |
 | SPEC-051 | Batch Repository Ingestion for swain-search | 2026-03-15 | — |
 | SPEC-052 | Vision-Rooted Chart Hierarchy | 2026-03-15 | — |
 | SPEC-057 | tk close Must Release Claim Lock | 2026-03-17 | — |
@@ -173,7 +180,11 @@
 | SPEC-114 | Trunk + Release Branch Model With Merge-and-Retry Landing | 2026-03-20 | 5c92f0b |
 | SPEC-115 | Roadmap Initiative children use level-based filtering, not type-based | 2026-03-20 | — |
 | SPEC-118 | SESSION-ROADMAP.md Format and Generation | 2026-03-22 | d1846d8 |
+| SPEC-119 | Session Lifecycle in swain-session | 2026-03-28 | 427254a |
 | SPEC-120 | ROADMAP.md Decision and Recommendation Sections | 2026-03-21 | c933d46 |
+| SPEC-121 | Session Detection Hooks Across All Skills | 2026-03-28 | 3ecd836 |
+| SPEC-122 | Absorb swain-status into swain-session | 2026-03-28 | 0c9138b |
+| SPEC-123 | Skill and Script Alignment Audit | 2026-03-28 | 988d265 |
 | SPEC-129 | Auto-Populate specwatch-ignore on Supersession | 2026-03-20 | — |
 | SPEC-134 | Expand DESIGN Artifact Scope to Data and System Contracts | 2026-03-21 | d491b1a |
 | SPEC-138 | iTerm Tab Name Bleed From Global set-titles | 2026-03-21 | — |
@@ -187,6 +198,8 @@
 | SPEC-159 | Migrate Existing Number Allocation Callers | 2026-03-23 | — |
 | SPEC-171 | Semantic Topic Matching in Trove Prior Art Check | 2026-03-25 | — |
 | SPEC-174 | Worktree Session Branch Name Collision | 2026-03-27 | — |
+| SPEC-175 | Session Bootstrap Script Consolidation | 2026-03-28 | 7dc8042 |
+| SPEC-185 | Orphaned Stage-Status Hooks Fire on Every Event | 2026-03-28 | 9b55fb8 |
 
 ## Superseded
 
@@ -204,6 +217,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | SPEC-074 | Fix swain-dispatch functional bugs | 2026-03-25 | -- |
-| SPEC-125 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-28 | — |
-| SPEC-127 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-28 | — |
+| SPEC-125 | swain-stage hooks fire unconditionally even when stage is not active | 2026-03-20 | — |
+| SPEC-127 | stage-status-hook fails with ENOENT when CWD is removed | 2026-03-20 | — |
 

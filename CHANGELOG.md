@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.22.2-alpha] - 2026-03-29
+
+### Features
+
+#### Consolidated doctor health checks
+
+swain-doctor now runs all 17 health checks through a single swain-doctor.sh script instead of firing them as parallel tool calls. This eliminates the cascade failure where one check erroring caused the runtime to cancel all sibling checks — producing zero diagnostic output. The script outputs structured JSON and always exits 0.
+
+#### Cross-branch artifact ID allocation
+
+New next-artifact-id.sh scans all local branches (not just the working tree) to determine the next available artifact number. Prevents ID collisions when parallel worktree sessions create artifacts concurrently — the bug that caused SPEC-191 to collide with an existing spec on trunk.
+
+### Supporting Changes
+- Two bug specs created: SPEC-192 (doctor cascade), SPEC-193 (ID allocation)
+
 ## [0.22.1-alpha] - 2026-03-29
 
 ### Features
