@@ -2,10 +2,10 @@
 title: "Stage Status Hook Fails in Worktrees"
 artifact: SPEC-050
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-03-15
-last-updated: 2026-03-15
+last-updated: 2026-03-28
 type: bug
 parent-epic: ""
 parent-initiative: INITIATIVE-013
@@ -108,3 +108,4 @@ The fix should be applied to `.claude/settings.json` in the main repo. swain-doc
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-15 | — | Discovered during worktree session; linked to EPIC-015 as a gap in worktree awareness |
+| Complete | 2026-03-28 | — | Replaced hardcoded cd path with $CLAUDE_PROJECT_DIR (Option A) |
