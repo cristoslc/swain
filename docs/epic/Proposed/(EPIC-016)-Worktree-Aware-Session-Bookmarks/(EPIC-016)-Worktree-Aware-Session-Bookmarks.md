@@ -15,7 +15,7 @@ success-criteria:
   - swain-doctor detects stale bookmarks pointing to pruned worktrees and offers cleanup
 linked-artifacts:
   - EPIC-036
-  - SPIKE-046
+  - SPIKE-048
   - SPIKE-019
 depends-on-artifacts:
   - EPIC-015
@@ -58,4 +58,4 @@ Updated as Agent Specs are created under this epic.
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-03-14 | — | Initial creation; SPIKE-046 kicks off research |
+| Proposed | 2026-03-14 | — | Initial creation; SPIKE-048 kicks off research |

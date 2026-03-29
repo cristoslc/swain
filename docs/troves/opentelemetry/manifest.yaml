@@ -1,0 +1,116 @@
+trove: opentelemetry
+created: 2026-03-27
+refreshed: 2026-03-27
+tags:
+  - opentelemetry
+  - otel
+  - observability
+  - telemetry
+  - distributed-tracing
+  - metrics
+  - logging
+  - instrumentation
+  - cncf
+  - cloud-native
+  - otlp
+
+freshness-ttl:
+  web: 14d
+  repository: 30d
+
+history:
+  - event: created
+    date: 2026-03-27
+    commit: "77906d4"
+    sources: 11
+
+sources:
+  - source-id: otel-org-overview
+    type: web
+    url: "https://github.com/open-telemetry"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry GitHub Organization Overview"
+    hash: "e8e4d2b3689cbe81b545e3bde4feb59c8e3a2d8d320aab624770094f723f985e"
+
+  - source-id: otel-what-is
+    type: web
+    url: "https://opentelemetry.io/docs/what-is-opentelemetry/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "What is OpenTelemetry?"
+    hash: "c7b71b5a09f34ae95a942b25d522dc4208f37965750ddf0446a00b9340ead28a"
+
+  - source-id: otel-concepts
+    type: web
+    url: "https://opentelemetry.io/docs/concepts/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry Concepts"
+    hash: "d1126a6afac49e94ba60bc25a2220b08c2d7b13ddcfb06af71895d4b28efcf84"
+
+  - source-id: otel-spec-overview
+    type: web
+    url: "https://opentelemetry.io/docs/specs/otel/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry Specification 1.55.0 - Overview"
+    hash: "adfd55564af2a92d2bee59656064208f17f77300a3e7271a7b1eafe57b1c387a"
+
+  - source-id: otel-collector
+    type: web
+    url: "https://opentelemetry.io/docs/collector/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry Collector"
+    hash: "814f15e46657e5b89804fc1a17ad429f51b41e5093beed607580ad30799b0cad"
+
+  - source-id: otel-getting-started
+    type: web
+    url: "https://opentelemetry.io/docs/getting-started/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "Getting Started with OpenTelemetry"
+    hash: "354dffeb7f5542af1c032399b73dd8a3ac7494b129134c7bed3f1a9664593efd"
+
+  - source-id: otel-signals-traces
+    type: web
+    url: "https://opentelemetry.io/docs/concepts/signals/traces/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry Traces - Signals"
+    hash: "30ea31f2f1f2832a980205e8491d6bc7b4b5b9cf44dd9431831ad1a896e2ea7d"
+
+  - source-id: otel-signals-metrics
+    type: web
+    url: "https://opentelemetry.io/docs/concepts/signals/metrics/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry Metrics - Signals"
+    hash: "8dd24d2f908cea0ae02c2f534d9430e73f7b2d8dda05a7bc5ee6dd8ce39112a7"
+
+  - source-id: otel-signals-logs
+    type: web
+    url: "https://opentelemetry.io/docs/concepts/signals/logs/"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry Logs - Signals"
+    hash: "0c9bef589bd6078587af75739bc698e9fb90fe77f82f643025df098eee64dd22"
+
+  - source-id: otel-specification-repo
+    type: repository
+    url: "https://github.com/open-telemetry/opentelemetry-specification"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry Specification Repository"
+    hash: "411aadc2e31ed98bcadad8df2150056459bc72e46f42721f03f8ccf8e86e9bb2"
+    selective: true
+    highlights:
+      - "overview.md"
+      - "trace-api.md"
+      - "metrics-api.md"
+      - "logs-api.md"
+      - "resource.md"
+      - "context-propagation.md"
+
+  - source-id: otel-community-repo
+    type: repository
+    url: "https://github.com/open-telemetry/community"
+    fetched: 2026-03-27T00:00:00Z
+    title: "OpenTelemetry Community Repository"
+    hash: "8d7408eda28b877c5ed0b21537a9663454bb8fdf6460cd0efabb899a647e850d"
+    selective: true
+    highlights:
+      - "governance.md"
+      - "sigs.md"
+      - "contributing.md"

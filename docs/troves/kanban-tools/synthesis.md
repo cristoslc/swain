@@ -71,6 +71,18 @@ Daymark proposes a model where:
 - **File watching + live update** is table stakes. Every tool with a UI supports it.
 - **Worktree isolation is emerging as a pattern** for parallel agent work. Cline Kanban [018] makes it a first-class primitive. Swain already uses worktrees for session isolation.
 
+## cline/kanban: unique contributions to the landscape [cline-kanban]
+
+cline/kanban (added 2026-03-27) is the first tool in the survey that combines a kanban board with live agent orchestration. While it remains firmly Model 1 (board-owns-the-data), it introduces three patterns directly relevant to swain:
+
+1. **Worktree-per-task validation.** cline/kanban creates an ephemeral git worktree for each card, with symlinked node_modules to avoid redundant installs. This validates the same isolation pattern swain already uses for spec implementation — worktree-per-task is not a swain idiosyncrasy but an emerging industry pattern for parallel agent work.
+
+2. **Hook-based reactive status tracking.** The `to_in_progress` / `to_review` hook state machine — driven by `KANBAN_HOOK_TASK_ID`, `KANBAN_HOOK_WORKSPACE_ID`, and `KANBAN_HOOK_PORT` environment variables — is a concrete implementation of what this synthesis theorized about for the reactive loop. Where the synthesis recommended polling + frontmatter diff as the simplest path, cline/kanban shows an alternative: explicit hook callbacks from the agent runtime. This is more tightly coupled (requires agent cooperation) but lower latency and higher fidelity than filesystem watching.
+
+3. **Dependency chain automation.** Card linking with auto-start on completion is the pattern swain-do aspires to — when one spec completes, the next dependent spec should automatically become ready for work. cline/kanban proves this is implementable in a board UI with reasonable UX.
+
+**What cline/kanban does NOT do** (and daymark still must): It does not read existing files, derive columns from frontmatter, or support multi-track lifecycles. Its task state is board-native. The gap identified in the original synthesis — no tool projects existing markdown artifacts onto a kanban board — remains open.
+
 ## Points of disagreement
 
 - **What "markdown kanban" means**: Some tools store the board _as_ markdown (taskell, Obsidian Kanban). Others store tasks _as_ markdown files (kanban-md, Tasks.md, Agent Kanban). Cline Kanban stores tasks as in-memory/JSON state with worktree-backed execution. Daymark reads _existing_ markdown files and _derives_ a board. These are four different things with the same label.

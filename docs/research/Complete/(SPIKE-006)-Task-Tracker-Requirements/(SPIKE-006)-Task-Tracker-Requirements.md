@@ -6,7 +6,7 @@ status: Complete
 author: cristos
 created: 2026-03-12
 last-updated: 2026-03-13
-question: "What task tracking backend should swain-do use, given the requirements learned from SPIKE-046, SPIKE-002, and SPIKE-005?"
+question: "What task tracking backend should swain-do use, given the requirements learned from SPIKE-048, SPIKE-002, and SPIKE-005?"
 gate: Pre-MVP
 risks-addressed:
   - bd/dolt runtime overhead is disproportionate to workload (5,450 server restarts for 18 issues)
@@ -14,7 +14,7 @@ risks-addressed:
   - No evaluated alternative covers all swain-do requirements
 trove: ""
 linked-artifacts:
-  - SPIKE-046
+  - SPIKE-048
   - SPIKE-002
   - SPIKE-005
   - ADR-002
@@ -28,11 +28,11 @@ linked-artifacts:
 
 What task tracking backend should swain-do use, given the requirements learned from prior spikes?
 
-## Requirements (derived from SPIKE-046, -002, -005)
+## Requirements (derived from SPIKE-048, -002, -005)
 
 ### Must-have
 
-1. **Dependency graph** — `ready` (unblocked tasks), `blocked` (what's blocking), `dep add/remove`. Kahn's algorithm or equivalent. This was the gap that blocked Backlog.md adoption (SPIKE-046).
+1. **Dependency graph** — `ready` (unblocked tasks), `blocked` (what's blocking), `dep add/remove`. Kahn's algorithm or equivalent. This was the gap that blocked Backlog.md adoption (SPIKE-048).
 2. **No runtime database** — No server process, no sockets, no pid files. bd's dolt server lifecycle is the root cause of the performance problems (SPIKE-005). Flat files, SQLite, or in-process storage only.
 3. **Git-friendly storage** — Task state must be diffable, mergeable, and committable alongside code. No binary blobs, no out-of-band databases.
 4. **Spec lineage tagging** — Tasks must be taggable with artifact IDs (`spec:SPEC-003`, `origin:EPIC-001`) and queryable by those tags.

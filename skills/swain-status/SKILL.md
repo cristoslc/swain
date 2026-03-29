@@ -46,9 +46,9 @@ The script collects from five data sources:
 4. **GitHub** — open issues, issues assigned to the user
 5. **Session** — bookmarks and context from swain-session
 
-## Compact mode (MOTD integration)
+## Compact mode
 
-The script supports `--compact` for consumption by swain-stage's MOTD panel:
+The script supports `--compact` for concise output:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -56,7 +56,7 @@ STATUS_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-status/scripts/swain-status.sh
 [ -n "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --compact || echo "swain-status.sh not found"
 ```
 
-This outputs 4-5 lines suitable for the MOTD box: branch, active epic progress, current task, ready count, assigned issue count.
+This outputs 4-5 lines: branch, active epic progress, current task, ready count, assigned issue count.
 
 ## Cache
 

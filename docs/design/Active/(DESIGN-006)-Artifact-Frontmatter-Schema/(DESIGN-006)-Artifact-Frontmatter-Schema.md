@@ -19,17 +19,17 @@ artifact-refs:
     rel: [aligned]
 sourcecode-refs:
   - path: skills/swain-design/frontmatter-contract.yaml
-    blob: 21d9060
-    commit: f284ec5
+    blob: ee09e5db1e6c934d4da2956e54bb5b09d9aa226a
+    commit: dcacb734a7b629a70af05982702992b06746e143
   - path: skills/swain-design/references/spec-template.md.template
-    blob: 3c7385b
-    commit: 133d4ab
+    blob: 3c7385b304022e1ebb82811b1fc6b07ad278fa59
+    commit: dcacb734a7b629a70af05982702992b06746e143
   - path: skills/swain-design/scripts/specgraph/priority.py
-    blob: d86e51c
-    commit: 133d4ab
+    blob: d86e51cab9f2d0f6c743b9361f079e44a266010a
+    commit: dcacb734a7b629a70af05982702992b06746e143
   - path: skills/swain-design/scripts/specgraph/queries.py
-    blob: c1489cf
-    commit: 133d4ab
+    blob: c1489cf5fe766503a1c27815c1bd39461bbecd11
+    commit: dcacb734a7b629a70af05982702992b06746e143
 depends-on-artifacts: []
 ---
 
