@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.22.0-alpha] - 2026-03-29
+
+### Features
+
+#### Two-tier script convention (ADR-019)
+
+Swain scripts now follow a two-tier convention: operator-facing scripts (like swain-box) live in bin/ with symlinks, while agent-facing scripts (like swain-trunk.sh) live in .agents/bin/. The preflight auto-repairs both tiers on every session start — missing or stale symlinks are recreated from the skill tree without operator intervention. This fixes the bug where consumer projects reported swain-trunk.sh as missing because it only existed in the swain source repo.
+- All 10 swain skills migrated from find-based script lookups (~55 invocations) to direct .agents/bin/ resolution — O(1) instead of filesystem traversal
+- swain-box migrated from project root symlink to bin/swain-box
+- swain-init now bootstraps .agents/bin/ during project onboarding
+
+### Planned
+- Pre-runtime crash recovery script designed with two new specs (SPEC-180, SPEC-181) — the operator will type bin/swain to get crash detection, debris cleanup, and session resume before the LLM starts
+
+### Supporting Changes
+- ADR-019 codifies the project-root script convention with operator-facing (bin/) and agent-facing (.agents/bin/) tiers
+- SPEC-135/136/137/147/170 aligned to use .agents/bin/ paths
+- EPIC-047 created and completed — five child specs covering doctor auto-repair, init bootstrap, bin/ migration, and skill-wide resolution migration
+
 ## [0.21.1-alpha] - 2026-03-28
 
 ### Features
