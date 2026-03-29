@@ -1,15 +1,12 @@
 {
-  "lastBranch": "worktree-session-20260328-223139-e675",
+  "lastBranch": "trunk",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "created EPIC-045",
-    "files": [
-      "/Users/cristos/Documents/code/swain/docs/epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md"
-    ],
-    "timestamp": "2026-03-27T04:39:51Z"
+    "note": "EPIC-039 complete — SPEC-050 fixed, SPEC-119/121/122/123/175 done, swain-status absorbed into swain-session",
+    "timestamp": "2026-03-29T02:20:27Z"
   },
   "focus_lane": "INITIATIVE-019"
 }
