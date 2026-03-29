@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Skill
 metadata:
   short-description: Manage spec artifact creation and lifecycle
-  version: 1.6.0
+  version: 1.7.0
   author: cristos
   source: swain
 ---
