@@ -32,7 +32,7 @@ GIT_COMMON=$(git rev-parse --git-common-dir)
 GIT_DIR=$(git rev-parse --git-dir)
 IN_WORKTREE=$( [ "$GIT_COMMON" != "$GIT_DIR" ] && echo "yes" || echo "no" )
 REPO_ROOT=$(git rev-parse --show-toplevel)
-TRUNK=$(bash "$REPO_ROOT/scripts/swain-trunk.sh")
+TRUNK=$(bash "$REPO_ROOT/.agents/bin/swain-trunk.sh")
 ```
 
 `IN_WORKTREE=yes` means the current directory is inside a linked worktree (e.g., `.claude/worktrees/agent-abc123`). Use this flag in Steps 3, 6, and the session bookmark step.

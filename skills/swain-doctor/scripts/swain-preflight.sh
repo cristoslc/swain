@@ -179,11 +179,11 @@ if [[ -x "$SKILL_CHECK_SCRIPT" ]]; then
   fi
 fi
 
-# Trunk/release branch model detection (EPIC-029, ADR-013)
-# Check that scripts/swain-trunk.sh exists and the detected trunk branch has a remote
-TRUNK_SCRIPT="$REPO_ROOT/scripts/swain-trunk.sh"
+# Trunk/release branch model detection (EPIC-029, ADR-013, ADR-019)
+# Check that .agents/bin/swain-trunk.sh exists and the detected trunk branch has a remote
+TRUNK_SCRIPT="$REPO_ROOT/.agents/bin/swain-trunk.sh"
 if [[ ! -x "$TRUNK_SCRIPT" ]]; then
-  issues+=("scripts/swain-trunk.sh missing or not executable — EPIC-029 trunk detection not installed")
+  issues+=(".agents/bin/swain-trunk.sh missing or not executable — run swain-doctor to create symlink (ADR-019)")
 else
   DETECTED_TRUNK=$(bash "$TRUNK_SCRIPT" 2>/dev/null || echo "")
   if [[ -z "$DETECTED_TRUNK" ]]; then
