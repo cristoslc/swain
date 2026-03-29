@@ -43,8 +43,8 @@ The operator runs `swain` after a system crash and gets: crash detection, debris
 
 **Phase 1 — Pre-runtime structural checks:**
 - Scan runtime session directories for orphaned PIDs associated with this project (Claude Code: `~/.claude/sessions/*.json` → match `cwd`, verify PID alive; other runtimes per trove `agent-session-persistence`)
-- Invoke crash debris checks (SPEC-182) — git locks, stale tk locks, dangling worktrees
-- Offer cleanup with operator confirmation (per ADR-015: never auto-discard worktree state)
+- Invoke crash debris checks ([SPEC-182](../(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md)) — git locks, stale tk locks, dangling worktrees
+- Offer cleanup with operator confirmation (per [ADR-015](../../../adr/Active/(ADR-015)-Tickets-Are-Ephemeral-Execution-Scaffolding.md): never auto-discard worktree state)
 
 **Phase 2 — Session selection (only if crashed sessions detected):**
 - Present options: resume a crashed session, enter a dangling worktree with unmerged work, or start fresh
@@ -79,10 +79,10 @@ The operator runs `swain` after a system crash and gets: crash detection, debris
 - Per ADR-015: never auto-discard worktree state. All destructive actions require operator confirmation.
 - Per ADR-018: detection is structural (file-based), not prosaic (markdown directives).
 - Claude Code crash detection is the primary implementation. Other runtimes degrade gracefully (fall back to swain git state).
-- The script replaces the runtime detection and invocation logic currently in the shell function (EPIC-045).
+- The script replaces the runtime detection and invocation logic currently in the shell function ([EPIC-045](../../../epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md)).
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-28 | — | Initial creation from SPIKE-051 |
+| Active | 2026-03-28 | — | Initial creation from [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) |
