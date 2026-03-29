@@ -2,10 +2,10 @@
 title: "Session Bootstrap Script Consolidation"
 artifact: SPEC-175
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-26
-last-updated: 2026-03-26
+last-updated: 2026-03-28
 priority-weight: ""
 type: enhancement
 parent-epic: EPIC-039
@@ -86,3 +86,4 @@ The operator sees **one** tool call result during session startup instead of 3-5
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-26 | — | Initial creation |
+| Complete | 2026-03-28 | 7dc8042 | Retroactive close — bootstrap script verified, all ACs pass |

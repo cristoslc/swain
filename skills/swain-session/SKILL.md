@@ -115,6 +115,73 @@ This is agent-agnostic — works in Claude Code, opencode, gemini cli, codex, co
 
 **Migration:** If `.agents/session.json` does not exist but the old global location (`~/.claude/projects/<project-path-slug>/memory/session.json`) does, the bootstrap script copies it automatically.
 
+## Session Lifecycle (SPEC-119)
+
+swain-session owns a bounded session lifecycle: **start → work → close → resume**. Session state is tracked in `.agents/session-state.json` via the `swain-session-state.sh` script.
+
+### Session start
+
+After bootstrap completes and the worktree is ready, initialize the session lifecycle:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" init --focus "<FOCUS-ID>" --session-roadmap "$(pwd)/SESSION-ROADMAP.md" --repo-root "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+```
+
+This:
+1. Creates `.agents/session-state.json` with focus lane, decision budget (default 5), and start time
+2. Generates `SESSION-ROADMAP.md` via `chart.sh session --focus <ID>`
+
+The focus lane defaults to the previous session's lane (from bootstrap JSON `session.focus`). Confirm with the operator or accept their redirect.
+
+Custom decision budget: `--budget 7`
+
+### During work — recording decisions
+
+When the operator or agent makes a decision (approves a spec, chooses an approach, sets direction), record it:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" record-decision --note "Approved SPEC-119 implementation approach"
+```
+
+### Session close
+
+When the operator says "done", "wrap up", "close session", or the decision budget is reached:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" close --walkaway "Completed SPEC-119 tests and state management" --session-roadmap "$(pwd)/SESSION-ROADMAP.md"
+```
+
+This:
+1. Sets session phase to `closed` with end time
+2. Appends the walk-away signal to SESSION-ROADMAP.md
+3. The agent should then commit SESSION-ROADMAP.md to git
+
+### Session resume
+
+On the next session start, after bootstrap, check for a previous session:
+
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-state.sh' -print -quit 2>/dev/null)" resume
+```
+
+This outputs the previous session's focus lane, walkaway note, and decision count. Display it to the operator so they can decide whether to continue or start fresh.
+
+### Session state schema
+
+```json
+{
+  "session_id": "session-20260328-220634-4ad1",
+  "focus_lane": "INITIATIVE-019",
+  "phase": "active",
+  "start_time": "2026-03-28T22:06:34Z",
+  "end_time": null,
+  "decision_budget": 5,
+  "decisions_made": 0,
+  "decisions": [],
+  "walkaway": null
+}
+```
+
 ## Manual invocation commands
 
 When invoked explicitly by the user, support these operations:
