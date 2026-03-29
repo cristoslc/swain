@@ -5,7 +5,7 @@
 
 ## Progress
 
-██████░░░░░░ 90/183 complete (49%)
+██████░░░░░░ 91/184 complete (49%)
 
 ## Recent Activity
 
@@ -181,6 +181,7 @@
   - [SPEC-125](../../../spec/Abandoned/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md) — swain-stage hooks fire unconditionally even when stage is not active (Abandoned, done)
   - [SPEC-127](../../../spec/Abandoned/(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md) — stage-status-hook fails with ENOENT when CWD is removed (Abandoned, done)
   - [SPEC-177](../../../spec/Active/(SPEC-177)-Remove-Tmux-Swain-Stage/(SPEC-177)-Remove-Tmux-Swain-Stage.md) — Remove Tmux-Based swain-stage (Active, in progress)
+  - [SPEC-185](../../../spec/Complete/(SPEC-185)-Orphaned-Stage-Status-Hooks/(SPEC-185)-Orphaned-Stage-Status-Hooks.md) — Orphaned Stage-Status Hooks Fire on Every Event (Complete, done)
 - [INITIATIVE-016](../../../initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) — Agent Implementation Reliability (in progress)
   - [SPEC-126](../../../spec/Proposed/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution.md) — CLI Command Verification in Agent Execution (Proposed, in progress)
   - [SPIKE-036](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) — External CLI Assumption Verification (Active, in progress)

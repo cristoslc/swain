@@ -13,7 +13,7 @@
 |------|------|--------|---------|
 | 2026-03-28 | 22:01 | `e833664` | Merge SPEC-050: use $CLAUDE_PROJECT_DIR for hook path resolution (resolve conflict: keep fixed hooks) |
 | 2026-03-28 | 22:00 | `8712b7a` | fix(SPEC-050): use $CLAUDE_PROJECT_DIR for hook path resolution |
-| 2026-03-28 | 14:15 | `3d4be35` | WIP on worktree-session: e227a08 docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
+| 2026-03-27 | 17:23 | `e227a08` | docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
 
 ## Priority Subset
 
