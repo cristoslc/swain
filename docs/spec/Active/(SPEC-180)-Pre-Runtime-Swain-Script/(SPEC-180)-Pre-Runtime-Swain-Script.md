@@ -15,6 +15,7 @@ linked-artifacts:
   - ADR-017
   - ADR-018
   - ADR-015
+  - ADR-019
   - SPEC-181
   - SPEC-182
 depends-on-artifacts:
@@ -73,11 +74,51 @@ The operator runs `swain` after a system crash and gets: crash detection, debris
 6. **Given** the operator selects "resume", **when** the runtime starts, **then** the initial prompt includes structured context (bookmark, focus lane, in-progress tasks, conversation log path).
 7. **Given** `--fresh` flag, **when** the script runs, **then** Phase 2 is skipped entirely.
 
+## Script Location and Distribution (ADR-019)
+
+Per [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md), the script follows the project-root script convention established by `swain-box`:
+
+**Canonical location:** `skills/swain/scripts/swain`
+
+The script is executable, committed to the swain repo, and distributed to consumer projects via `npx skills add`. It is **not** placed directly in the project root.
+
+**Root symlink:** `./swain -> skills/swain/scripts/swain` (relative path)
+
+Created by:
+- **swain-init** Phase 4.5 — during first-run onboarding, after the shell function is installed
+- **swain-doctor** — on subsequent sessions, auto-repairs if missing (see below)
+
+**Doctor health check:** swain-doctor gains a `swain symlink` check, mirroring the existing `swain-box symlink` check:
+
+```bash
+SWAIN_SCRIPT=$(find . .claude .agents -path '*/swain/scripts/swain' ! -name 'swain-box' ! -name 'swain-*' -print -quit 2>/dev/null)
+if [ -n "$SWAIN_SCRIPT" ]; then
+  SWAIN_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1]))" "$SWAIN_SCRIPT" 2>/dev/null || echo "$SWAIN_SCRIPT")
+  if [ -L swain ] && [ "$(readlink swain)" = "$SWAIN_REL" ]; then
+    echo "ok"
+  elif [ -e swain ] && [ ! -L swain ]; then
+    echo "conflict"  # a real file named swain exists — do not overwrite
+  elif [ -L swain ]; then
+    echo "stale"  # symlink exists but points elsewhere
+  else
+    echo "missing"
+  fi
+fi
+```
+
+| Status | Action |
+|--------|--------|
+| **ok** | Silent |
+| **missing** | `ln -sf "$SWAIN_REL" swain` — report "repaired" |
+| **stale** | `ln -sf "$SWAIN_REL" swain` — report "repaired (stale target updated)" |
+| **conflict** | Warn: `./swain exists but is not a symlink — skipping` |
+
 ## Scope & Constraints
 
 - Pure bash — no LLM dependency, no Python, no Node. Must work even if the runtime is broken.
 - Per ADR-015: never auto-discard worktree state. All destructive actions require operator confirmation.
 - Per ADR-018: detection is structural (file-based), not prosaic (markdown directives).
+- Per ADR-019: script lives in the skill tree, not the project root; a symlink provides the root-level entry point.
 - Claude Code crash detection is the primary implementation. Other runtimes degrade gracefully (fall back to swain git state).
 - The script replaces the runtime detection and invocation logic currently in the shell function ([EPIC-045](../../../epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md)).
 
