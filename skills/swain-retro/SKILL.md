@@ -117,11 +117,27 @@ Ask these one at a time, waiting for user response between each:
 
 Adapt follow-up questions based on user responses. If the user gives brief answers, probe deeper. If they're expansive, move on.
 
-## Step 3 — Distill into memory files
+## Step 3 — Distill learnings
 
-After the reflection conversation, create or update memory files:
+After the reflection conversation, persist the learnings — but **where** they go depends on whether this is the swain project itself or a consumer project that uses swain.
 
-### Feedback memories
+### Detect context
+
+```bash
+# Check if the current repo IS swain (the tool itself)
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+if [ -f "$REPO_ROOT/skills/swain/SKILL.md" ] && git remote get-url origin 2>/dev/null | grep -q "swain"; then
+  echo "SWAIN_REPO"
+else
+  echo "CONSUMER_PROJECT"
+fi
+```
+
+### In consumer projects: write to memory
+
+Learnings from consumer projects go into Claude memory files because they represent operator preferences and project-specific patterns that should persist across sessions.
+
+#### Feedback memories
 
 For behavioral patterns and process learnings that should guide future agent behavior:
 
@@ -143,11 +159,11 @@ Write to the project memory directory:
 ~/.claude/projects/<project-slug>/memory/feedback_retro_{topic}.md
 ```
 
-The project slug is the project path with slashes replaced by dashes (e.g., `/Users/cristos/Documents/code/swain` → `-Users-cristos-Documents-code-swain`). These files live in Claude's memory system (not swain's `.agents/` state), which is intentional — retro learnings persist across all Claude Code sessions for this project.
+The project slug is the project path with slashes replaced by dashes (e.g., `/Users/cristos/Documents/code/myapp` → `-Users-cristos-Documents-code-myapp`). These files live in Claude's memory system (not swain's `.agents/` state), which is intentional — retro learnings persist across all Claude Code sessions for this project.
 
 Update `MEMORY.md` index.
 
-### Project memories
+#### Project memories
 
 For context about ongoing work patterns, team dynamics, or project-specific learnings:
 
@@ -164,12 +180,37 @@ type: project
 **How to apply:** {How this shapes future suggestions}
 ```
 
-### Rules for memory creation
+#### Rules for memory creation
 
 - Only create memories the user has explicitly validated during the reflection
 - Merge with existing memories when the learning extends a prior pattern
 - Use absolute dates (from the retro context), not relative
 - Maximum 3-5 memory files per retro — distill, don't dump
+
+### In the swain repo: propose artifacts, not memory
+
+When the retro is running inside swain itself, learnings that imply behavioral changes, new capabilities, or process fixes are **not memory** — they are work items. Swain's behavior is encoded in skills, specs, and ADRs, not in operator memory files.
+
+Classify each learning and route it to the right output:
+
+| Learning type | Route | Example |
+|--------------|-------|---------|
+| A skill needs new behavior or guardrails | **SPEC candidate** — add to the retro doc's "SPEC candidates" section | "swain-release should refuse to run in worktrees" |
+| A cross-cutting process change | **ADR candidate** — note in retro doc | "Dispatched agents should never use reset --hard" |
+| A new capability or initiative | **EPIC candidate** — note in retro doc | "Session logs need command-level forensics" |
+| A bug in an existing skill | **GitHub issue** via `gh issue create` | "swain-sync doesn't preserve symlinks" |
+| Operator preference or project context | **Memory** (same as consumer) | "Operator prefers bundled PRs for refactors" |
+
+For artifact candidates, add a `## SPEC candidates` section (or `## ADR candidates`, `## EPIC candidates`) to the retro doc output. Each entry should include enough context to draft the artifact later:
+
+```markdown
+## SPEC candidates
+
+1. **{Title}** — {one-line description of what needs to change and why}
+2. ...
+```
+
+Do **not** create the specs/epics/ADRs during the retro — that is swain-design's job. The retro captures what was learned; the operator decides what to build next. Only write to memory for learnings that are genuinely about operator preferences or project context (the last row in the table above).
 
 ## Step 4 — Write output
 
@@ -196,10 +237,12 @@ Append a `## Retrospective` section to the EPIC markdown file, **before** the `#
 
 ### Learnings captured
 
-| Memory file | Type | Summary |
-|------------|------|---------|
-| feedback_retro_x.md | feedback | ... |
-| project_retro_y.md | project | ... |
+<!-- In consumer projects, this table lists memory files. In the swain repo, it lists
+     artifact candidates (SPECs, ADRs, issues) plus any memory files for operator preferences. -->
+
+| Item | Type | Summary |
+|------|------|---------|
+| ... | memory / SPEC candidate / issue | ... |
 ```
 
 Hyperlink the artifact IDs in `Related artifacts` using Step 4.5.
@@ -257,10 +300,12 @@ linked-artifacts:
 
 ## Learnings captured
 
-| Memory file | Type | Summary |
-|------------|------|---------|
-| feedback_retro_x.md | feedback | ... |
-| project_retro_y.md | project | ... |
+<!-- In consumer projects, this table lists memory files. In the swain repo, it lists
+     artifact candidates (SPECs, ADRs, issues) plus any memory files for operator preferences. -->
+
+| Item | Type | Summary |
+|------|------|---------|
+| ... | memory / SPEC candidate / issue | ... |
 ```
 
 ## Step 4.5 — Hyperlink artifact references
