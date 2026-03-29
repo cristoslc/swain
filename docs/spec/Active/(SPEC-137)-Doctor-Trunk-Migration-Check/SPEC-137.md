@@ -13,6 +13,7 @@ depends-on-artifacts:
 linked-artifacts:
   - EPIC-029
   - ADR-013
+  - ADR-019
 ---
 
 # Doctor Trunk/Release Migration Detection
@@ -24,7 +25,7 @@ Add preflight and doctor detection for repos that haven't adopted the trunk+rele
 ## Deliverables
 
 ### Preflight (swain-preflight.sh)
-- Check `scripts/swain-trunk.sh` exists and is executable
+- Check `.agents/bin/swain-trunk.sh` exists and is executable (per [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) agent-facing convention)
 - Run it and verify the detected trunk branch has a remote
 - Check whether a `release` branch exists
 - Advisory message pointing to `scripts/migrate-to-trunk-release.sh --dry-run`
@@ -44,3 +45,4 @@ Add preflight and doctor detection for repos that haven't adopted the trunk+rele
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-21 | — | Created as EPIC-029 child |
+| Active | 2026-03-28 | — | Updated path to `.agents/bin/` per ADR-019 agent-facing convention |
