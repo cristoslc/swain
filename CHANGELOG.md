@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.22.1-alpha] - 2026-03-29
+
+### Features
+- Preflight now self-heals three additional checks per ADR-020: creates missing `.agents/` directory, removes stale tk lock files (>1h), and fixes missing executable permissions on skill scripts
+
+### Supporting Changes
+- ADR-020 codifies the preflight self-healing convention — checks must auto-repair when safe and deterministic
+- SPEC-191 audited all 17 preflight checks; 3 converted from report-only to self-healing
+
 ## [0.22.0-alpha] - 2026-03-29
 
 ### Features
