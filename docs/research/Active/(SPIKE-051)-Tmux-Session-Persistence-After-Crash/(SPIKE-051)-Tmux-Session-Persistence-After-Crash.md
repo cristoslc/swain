@@ -259,64 +259,112 @@ Four active ADRs constrain crash recovery design:
 
 **ADR-018 (Structural Not Prosaic Session Invocation):** Session initialization is structural (CLI args), not prosaic (markdown directives). Crash recovery must also be structural — triggered by detectable state on disk, not by hoping the LLM reads a directive.
 
+### Area 8: Pre-runtime structural layer (architectural implication of ADR-018)
+
+ADR-018 mandates structural session invocation — but today, all crash detection and session state checks happen *inside* the agentic runtime (in swain-session skill code). This creates a fundamental problem: the runtime must be running before crash recovery can happen, but the crashed runtime's debris may block the new runtime from starting cleanly.
+
+**The insight:** Crash detection, session resume selection, and debris cleanup must happen **before** the agentic runtime starts. This implies a separation:
+
+**`swain` script (project root, checked into repo):**
+- Runs *before* any agentic runtime
+- Structural checks: detect crashed sessions (scan `~/.claude/sessions/`, `~/.copilot/session-state/`, etc.), clean crash debris (git locks, stale tk locks, dangling worktrees), detect available runtimes
+- Session selection: if multiple previous sessions exist (some crashed, some cleanly closed), present the operator with a choice of which to resume — *before* the runtime starts
+- Runtime invocation: launch the selected runtime with the right flags (per ADR-017 support tiers)
+- Pure bash — no LLM dependency, no skill system, works even if the runtime is broken
+
+**`swain` shell function (user dotfiles, installed by swain-init):**
+- User-facing CLI entry point
+- Finds and runs the project-root `swain` script if present
+- Falls back gracefully if the script is absent (direct runtime invocation, as today)
+- Respects per-project runtime preference (`swain.settings.json → runtime`) and global preference (`~/.config/swain/settings.json → runtime`)
+- Thin wrapper — the intelligence lives in the script, not the function
+
+**Why this matters for crash recovery:**
+- Crash debris cleanup happens in bash, not in an LLM session — deterministic, fast, no token cost
+- Session resume selection happens interactively in the terminal — the operator chooses before the runtime starts, not after the LLM has already initialized with a default context
+- The script can be tested and versioned independently of the skill system
+- Other runtimes (Gemini, Codex, Copilot, Crush) get crash recovery for free because it runs before runtime-specific code
+
+**Relationship to existing architecture:**
+- The `swain` shell function today (from EPIC-045) is a thin launcher that detects runtimes and passes `/swain-init` as the initial prompt
+- The proposed `swain` script would replace the structural parts of swain-session's bootstrap (crash detection, worktree detection, session.json loading) with a pre-runtime equivalent
+- swain-session would still handle in-session bookmarking, focus lane, and context management — but no longer be responsible for crash recovery
+
 ## Recommendation
 
-**Build a unified crash recovery flow in swain-session that detects, cleans, and presents. Skip tmux plugins and Zellij.**
+**Build a pre-runtime structural layer for crash recovery. Separate the `swain` user CLI from structural state checks. Skip tmux plugins and Zellij.**
 
 The research shows:
-1. **The data is already there.** Between Claude Code's local session persistence (`~/.claude/sessions/`, `projects/`, `file-history/`), swain's git-committed state (session.json, SESSION-ROADMAP.md), and tk's ticket files, nearly everything needed for crash recovery already exists on disk.
+1. **The data is already there.** Between runtime session persistence (`~/.claude/sessions/`, `~/.copilot/session-state/`, etc.), swain's git-committed state (session.json, SESSION-ROADMAP.md), and tk's ticket files, nearly everything needed for crash recovery already exists on disk.
 2. **The debris is real.** Crashes leave dangling worktrees, git lock files, stale tk claim locks, interrupted merge/rebase state, and orphaned processes. Today these are scattered across swain-doctor, swain-preflight, and manual intervention with no unified crash-aware flow.
-3. **The missing piece is detection + orchestration.** swain-session needs to: (a) detect that the previous session crashed, (b) clean up debris, (c) surface recovery context — as a single structural flow at session start.
-4. tmux-resurrect/continuum and Zellij solve the wrong problem (terminal layout, not session context) and add fragility.
-5. Per ADR-018, crash recovery must be structural (triggered by detectable state on disk), not prosaic.
-6. Per ADR-015, crash recovery must never auto-discard worktree state.
+3. **Crash recovery must happen before the runtime starts** (Area 8). The current approach — running crash detection inside swain-session skill code — is fundamentally wrong because the runtime must be running before the skill can execute, but crash debris may block the runtime from starting cleanly.
+4. Per ADR-018, crash recovery must be structural (bash script, detectable state on disk), not prosaic (LLM reading markdown).
+5. Per ADR-015, crash recovery must never auto-discard worktree state.
+6. tmux-resurrect/continuum and Zellij solve the wrong problem (terminal layout, not session context) and add fragility.
 
-The right move is three SPECs:
+The right architecture is four SPECs:
 
-1. **Crash detection + context recovery** in swain-session bootstrap
-2. **Crash debris cleanup** expanding swain-doctor/swain-preflight to handle git locks, dangling worktrees cross-referenced with dead sessions, and stale tk locks
-3. **Persistence requirements for DESIGN-004** so the browser-based workspace is crash-resilient by design
+1. **Pre-runtime `swain` script** — crash detection, debris cleanup, session resume selection, runtime invocation
+2. **`swain` shell function refactor** — find/run the script, fallback gracefully, respect runtime preferences
+3. **Crash debris checks** — expand swain-doctor/swain-preflight for the pre-runtime script to call
+4. **Persistence requirements for DESIGN-004** — so the browser-based workspace is crash-resilient by design
 
 ## Proposed SPECs
 
-### SPEC A: Crash Detection + Context Recovery in swain-session (recommended — high value)
+### SPEC A: Pre-runtime `swain` script (recommended — architectural, high value)
 
-On session start, swain-session detects whether a previous session for this project ended abnormally and surfaces recovery context.
+A bash script at the project root (or `.agents/bin/swain`) that runs **before** any agentic runtime. This is the structural crash recovery layer.
 
-**Detection mechanism (structural, per ADR-018):**
-1. Scan `~/.claude/sessions/*.json` for entries where `cwd` matches the current project path (or a worktree under it)
-2. Check if the PID is still running — if not, the session crashed or was killed
-3. Cross-reference with swain's session.json for bookmark/lifecycle markers
-4. Check for dangling worktrees whose branch names correlate with dead sessions (cross-reference `git worktree list` with orphaned PIDs)
-
-**Recovery presentation:**
-- Display the last bookmark and focus lane from `.agents/session.json`
-- Show SESSION-ROADMAP.md summary (session goal, decisions, walk-away signal)
-- Show in-progress tk tasks (`tk ready` or query for `status: in_progress`) so the operator knows exactly where they left off
-- Show recent git log for "what was I doing?"
-- Identify the crashed session's conversation log (`~/.claude/projects/{slug}/{sessionId}.jsonl`) and offer to reference it
-- List dangling worktrees with uncommitted changes — these may contain the operator's last unsaved work
-- Offer to re-enter the last worktree if it still exists and has unmerged work
-
-**Runtime-agnostic design:** The detection mechanism should be pluggable. Claude Code's `sessions/` directory is the first implementation, but the interface should allow other runtimes to register their own session discovery paths (per ADR-017/ADR-018 multi-runtime support).
+**Responsibilities:**
+1. **Crash detection** — scan runtime session directories for orphaned PIDs associated with this project:
+   - Claude Code: `~/.claude/sessions/*.json` → check `cwd`, verify PID alive
+   - Copilot CLI: `~/.copilot/session-state/` → scan session files
+   - Gemini CLI: `~/.gemini/tmp/<project_hash>/chats/` → check for stale sessions
+   - Other runtimes: degrade gracefully to swain git state only
+2. **Debris cleanup** — detect and offer to clean crash debris before the runtime starts:
+   - Git lock files (`.git/index.lock`, `MERGE_HEAD`, `rebase-merge/`, `CHERRY_PICK_HEAD`)
+   - Stale tk claim locks (`.tickets/.locks/`)
+   - Dangling worktrees cross-referenced with dead sessions
+   - Per ADR-015: never auto-discard — all destructive actions require operator confirmation
+3. **Session resume selection** — if previous sessions exist (crashed or cleanly closed), present the operator with a choice:
+   - Resume a specific session (pass its context to the runtime)
+   - Start fresh (with crash context as a note)
+   - List dangling worktrees with uncommitted changes — may contain last unsaved work
+4. **Runtime invocation** — launch the selected runtime with the right flags per ADR-017 support tiers
+5. **Pure bash** — no LLM dependency, no skill system, deterministic, fast, no token cost
 
 **Acceptance criteria:**
-1. Given a crash (kill -9, reboot), when the next session starts, swain-session detects the orphaned session and displays recovery context
-2. Given a normal session close, the next session starts normally (no false positive crash detection)
-3. Recovery presents enough context that the operator can resume work within 30 seconds
-4. Detection works for Claude Code sessions; other runtimes degrade gracefully (fall back to swain git state only)
-5. In-progress tk tasks are surfaced as part of recovery context
-6. Dangling worktrees correlated with dead sessions are identified and surfaced
+1. Given a crash (kill -9, reboot), running `swain` detects the orphaned session and presents recovery options before the runtime starts
+2. Given a normal session, `swain` starts the runtime with no visible delay (fast path)
+3. Crash debris (git locks, stale tk locks) is cleaned before the runtime sees it
+4. Session resume selection works across all ADR-017 runtimes (Claude Code with full crash detection, others with graceful degradation)
+5. The script is testable independently of any runtime (pure bash, no LLM)
 
-### SPEC B: Crash Debris Cleanup in swain-doctor (recommended — safety)
+### SPEC B: `swain` shell function refactor (recommended — enables SPEC A)
 
-Expand swain-doctor and swain-preflight to detect and clean crash debris that blocks the next session. Per ADR-015, never auto-discard worktree state — all destructive actions require operator confirmation.
+Refactor the `swain` shell function (installed by swain-init into user dotfiles) to be a thin wrapper that defers to the project-root script.
 
-**New checks:**
+**Behavior:**
+1. If a `swain` script exists at the project root (or `.agents/bin/swain`), run it — it handles everything
+2. If no script exists, fall back to the current behavior (detect runtimes, invoke with `/swain-init`)
+3. Respect per-project runtime preference (`swain.settings.json → runtime`) and global preference (`~/.config/swain/settings.json → runtime`)
+4. The function is the user CLI entry point; the script is the structural intelligence
+
+**Acceptance criteria:**
+1. `swain` in a project with the script runs the script
+2. `swain` in a project without the script falls back to direct runtime invocation
+3. Per-project runtime preference overrides global preference
+4. The function remains a thin wrapper — no crash detection or debris cleanup logic
+
+### SPEC C: Crash debris detection checks (recommended — safety, enables SPEC A)
+
+Implement the individual crash debris checks as standalone bash functions that the pre-runtime script (SPEC A) can call. Also callable by swain-doctor for in-session health checks.
+
+**Checks:**
 
 | Check | Detection | Action |
 |-------|-----------|--------|
-| Git index lock | `.git/index.lock` exists, creating PID not running | Offer to remove (safe — PID is dead) |
+| Git index lock | `.git/index.lock` exists, creating PID not running | Offer to remove |
 | Interrupted merge | `.git/MERGE_HEAD` exists | Offer `git merge --abort` |
 | Interrupted rebase | `.git/rebase-merge/` exists | Offer `git rebase --abort` |
 | Interrupted cherry-pick | `.git/CHERRY_PICK_HEAD` exists | Offer `git cherry-pick --abort` |
@@ -324,25 +372,22 @@ Expand swain-doctor and swain-preflight to detect and clean crash debris that bl
 | Dangling worktrees (crash-correlated) | Worktree branch matches dead session's cwd | Surface uncommitted changes, offer cleanup |
 | Orphaned MCP servers | Process list matching MCP patterns for this project | Offer to kill |
 
-**Integration with SPEC A:** swain-session's crash detection triggers debris cleanup before presenting recovery context. The operator sees a clean slate, not error messages from stale state.
-
 **Acceptance criteria:**
-1. Git lock files from dead processes are detected and removable with one confirmation
-2. Interrupted git operations (merge, rebase, cherry-pick) are detected and abortable
-3. Stale tk claim locks are detected and removable
-4. No crash debris silently blocks the next session's git operations
-5. Per ADR-015, no worktree state is auto-discarded — operator confirms all destructive actions
+1. Each check is a standalone function callable from the pre-runtime script or swain-doctor
+2. Git lock files from dead processes are detected and removable with one confirmation
+3. No crash debris silently blocks the next session's git operations
+4. Per ADR-015, no worktree state is auto-discarded
 
-### SPEC C: Persistence requirements for browser-based workspace (input to DESIGN-004)
+### SPEC D: Persistence requirements for browser-based workspace (input to DESIGN-004)
 
 Document persistence requirements for the new browser-based swain-stage, informed by this spike's findings. Key requirements:
 - Workspace state must be serialized to disk at least every 60 seconds (Zellij's 1-second model as benchmark)
 - Recovery must not depend on the browser process surviving — state must be on disk
-- swain-session's crash detection (SPEC A) should be able to trigger workspace reconstruction
+- The pre-runtime script (SPEC A) should be able to trigger workspace reconstruction
 
 This is a design input, not an implementation spec — it feeds into INITIATIVE-015/DESIGN-004.
 
-### SPEC D: Zellij as workspace substrate (deferred)
+### SPEC E: Zellij as workspace substrate (deferred)
 
 Not recommended now. Version-upgrade session loss (#3420) and subprocess command capture bug (#4873) are blocking. More importantly, swain is moving to browser-based workspaces. Zellij's persistence model is useful as a *design reference* for DESIGN-004, not as an adoption target.
 
