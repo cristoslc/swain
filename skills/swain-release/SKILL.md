@@ -231,7 +231,43 @@ If no `release` branch exists, skip this step silently — the project hasn't ad
 
 ### 7. Offer to push
 
-Ask the user if they want to push. If a release branch was updated in step 6.5:
+Ask the user if they want to push. Before pushing, always fetch and integrate upstream to avoid rejected pushes:
+
+```bash
+# Fetch upstream to detect divergence before pushing
+git fetch origin
+
+# Rebase trunk onto upstream to incorporate any changes that landed since the release was prepared
+TRUNK_UPSTREAM="origin/$TRUNK"
+if ! git merge-base --is-ancestor "$TRUNK_UPSTREAM" HEAD; then
+  echo "Trunk has diverged from upstream. Rebasing..."
+  git rebase "$TRUNK_UPSTREAM" || {
+    echo "Rebase conflict — resolve before pushing."
+    git rebase --abort
+    exit 1
+  }
+fi
+
+# If release branch was updated, rebase it too
+if git rev-parse --verify release >/dev/null 2>&1; then
+  RELEASE_UPSTREAM="origin/release"
+  if git rev-parse --verify "$RELEASE_UPSTREAM" >/dev/null 2>&1; then
+    if ! git merge-base --is-ancestor "$RELEASE_UPSTREAM" release; then
+      echo "Release branch has diverged from upstream. Rebasing..."
+      git checkout release
+      git rebase "$RELEASE_UPSTREAM" || {
+        echo "Rebase conflict on release — resolve before pushing."
+        git rebase --abort
+        git checkout "$TRUNK"
+        exit 1
+      }
+      git checkout "$TRUNK"
+    fi
+  fi
+fi
+```
+
+If a release branch was updated in step 6.5:
 
 ```bash
 git push origin "$TRUNK" && git push origin release && git push origin <tag>
