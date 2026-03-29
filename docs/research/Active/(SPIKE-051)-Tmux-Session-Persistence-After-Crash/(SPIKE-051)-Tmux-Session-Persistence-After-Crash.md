@@ -266,18 +266,27 @@ ADR-018 mandates structural session invocation — but today, all crash detectio
 **The insight:** Crash detection, session resume selection, and debris cleanup must happen **before** the agentic runtime starts. This implies a separation:
 
 **`swain` script (project root, checked into repo):**
-- Runs *before* any agentic runtime
-- Structural checks: detect crashed sessions (scan `~/.claude/sessions/`, `~/.copilot/session-state/`, etc.), clean crash debris (git locks, stale tk locks, dangling worktrees), detect available runtimes
-- Session selection: if multiple previous sessions exist (some crashed, some cleanly closed), present the operator with a choice of which to resume — *before* the runtime starts
-- Runtime invocation: launch the selected runtime with the right flags (per ADR-017 support tiers)
-- Pure bash — no LLM dependency, no skill system, works even if the runtime is broken
+- Runs *before* any agentic runtime — the single entry point for all swain sessions
+- **Phase 1 — Pre-runtime structural checks:**
+  - Detect crashed sessions (scan `~/.claude/sessions/`, `~/.copilot/session-state/`, etc.)
+  - Clean crash debris (git locks, stale tk locks, dangling worktrees) with operator confirmation
+  - Detect available runtimes installed on the system
+- **Phase 2 — Session selection:**
+  - If previous sessions exist (crashed or cleanly closed), present the operator with options: resume a specific session, start fresh, or enter a dangling worktree with unmerged work
+  - Compose an initial prompt based on the operator's choice (e.g., if resuming: pass context about the crashed session, bookmark, focus lane, and in-progress tasks to the runtime's initial prompt so `/swain-session` can act on it)
+- **Phase 3 — Runtime invocation:**
+  - Resolve runtime preference: per-project (`swain.settings.json → runtime`) > global (`~/.config/swain/settings.json → runtime`) > auto-detect from installed runtimes (per ADR-017)
+  - Launch with correct flags per ADR-017 support tiers (e.g., `claude --dangerously-skip-permissions`, `gemini -y -i`, `codex --full-auto`)
+  - Pass `/swain-init` (fresh start) or `/swain-session` with resume context (crash recovery) as the initial prompt
+  - For Partial-tier runtimes (Crush) that can't accept an initial prompt, start bare and rely on AGENTS.md
+- Pure bash — no LLM dependency, no skill system, works even if the runtime is broken, testable independently
 
 **`swain` shell function (user dotfiles, installed by swain-init):**
-- User-facing CLI entry point
-- Finds and runs the project-root `swain` script if present
-- Falls back gracefully if the script is absent (direct runtime invocation, as today)
-- Respects per-project runtime preference (`swain.settings.json → runtime`) and global preference (`~/.config/swain/settings.json → runtime`)
-- Thin wrapper — the intelligence lives in the script, not the function
+- Sole responsibility: find and run the project-root `swain` script
+- Looks for the script at: `./swain`, `./.agents/bin/swain`, then falls back
+- If no script found, falls back to the current behavior (detect runtimes, invoke with `/swain-init`) — graceful degradation for projects that haven't adopted the script yet
+- No crash detection, no debris cleanup, no session selection — all that lives in the script
+- Passes through any CLI arguments to the script (e.g., `swain --fresh` to skip resume)
 
 **Why this matters for crash recovery:**
 - Crash debris cleanup happens in bash, not in an LLM session — deterministic, fast, no token cost
@@ -313,9 +322,9 @@ The right architecture is four SPECs:
 
 ### SPEC A: Pre-runtime `swain` script (recommended — architectural, high value)
 
-A bash script at the project root (or `.agents/bin/swain`) that runs **before** any agentic runtime. This is the structural crash recovery layer.
+A bash script at the project root (or `.agents/bin/swain`) that is the single structural entry point for all swain sessions. Subsumes the runtime detection and invocation logic currently in the shell function, and adds crash recovery.
 
-**Responsibilities:**
+**Phase 1 — Pre-runtime structural checks:**
 1. **Crash detection** — scan runtime session directories for orphaned PIDs associated with this project:
    - Claude Code: `~/.claude/sessions/*.json` → check `cwd`, verify PID alive
    - Copilot CLI: `~/.copilot/session-state/` → scan session files
@@ -326,35 +335,51 @@ A bash script at the project root (or `.agents/bin/swain`) that runs **before** 
    - Stale tk claim locks (`.tickets/.locks/`)
    - Dangling worktrees cross-referenced with dead sessions
    - Per ADR-015: never auto-discard — all destructive actions require operator confirmation
-3. **Session resume selection** — if previous sessions exist (crashed or cleanly closed), present the operator with a choice:
-   - Resume a specific session (pass its context to the runtime)
-   - Start fresh (with crash context as a note)
-   - List dangling worktrees with uncommitted changes — may contain last unsaved work
-4. **Runtime invocation** — launch the selected runtime with the right flags per ADR-017 support tiers
-5. **Pure bash** — no LLM dependency, no skill system, deterministic, fast, no token cost
+
+**Phase 2 — Session selection:**
+- If crashed sessions are detected, present the operator with options:
+  - Resume a specific crashed session (the script composes an initial prompt with crash context — bookmark, focus lane, in-progress tk tasks, conversation log path — so `/swain-session` receives it)
+  - Enter a dangling worktree that has unmerged work
+  - Start fresh (skip recovery)
+- If no crashed sessions, proceed directly to runtime invocation
+
+**Phase 3 — Runtime invocation:**
+1. Resolve runtime preference: per-project (`swain.settings.json → runtime`) > global (`~/.config/swain/settings.json → runtime`) > auto-detect from installed runtimes (per ADR-017)
+2. Launch with correct flags per ADR-017 support tiers:
+   - Claude Code: `claude --dangerously-skip-permissions "<initial-prompt>"`
+   - Gemini CLI: `gemini -y -i "<initial-prompt>"`
+   - Codex CLI: `codex --full-auto "<initial-prompt>"`
+   - Copilot CLI: `copilot --yolo -i "<initial-prompt>"`
+   - Crush: `crush --yolo` (no initial prompt — Partial tier)
+3. Initial prompt is either `/swain-init` (fresh start) or `/swain-session` with resume context (crash recovery), composed by the script based on Phase 2 selection
+4. For crash recovery, the initial prompt includes structured context: `"Resume session: bookmark='<note>', focus='<lane>', worktree='<path>', tasks='<in-progress-ids>'"`
+
+**Pure bash** — no LLM dependency, no skill system, deterministic, fast, no token cost, testable independently.
 
 **Acceptance criteria:**
 1. Given a crash (kill -9, reboot), running `swain` detects the orphaned session and presents recovery options before the runtime starts
-2. Given a normal session, `swain` starts the runtime with no visible delay (fast path)
+2. Given a normal session, `swain` starts the runtime with no visible delay (fast path — skip Phase 2 when no crash detected)
 3. Crash debris (git locks, stale tk locks) is cleaned before the runtime sees it
-4. Session resume selection works across all ADR-017 runtimes (Claude Code with full crash detection, others with graceful degradation)
-5. The script is testable independently of any runtime (pure bash, no LLM)
+4. Runtime selection respects per-project > global > auto-detect preference chain
+5. The selected runtime receives the correct flags and initial prompt per ADR-017
+6. Session resume context is passed structurally to the runtime so swain-session can act on it (not rely on the LLM reading a markdown note)
+7. The script is testable independently of any runtime (pure bash, no LLM)
 
 ### SPEC B: `swain` shell function refactor (recommended — enables SPEC A)
 
-Refactor the `swain` shell function (installed by swain-init into user dotfiles) to be a thin wrapper that defers to the project-root script.
+Refactor the `swain` shell function (installed by swain-init into user dotfiles) to be a thin wrapper that finds and runs the project-root script.
 
 **Behavior:**
-1. If a `swain` script exists at the project root (or `.agents/bin/swain`), run it — it handles everything
-2. If no script exists, fall back to the current behavior (detect runtimes, invoke with `/swain-init`)
-3. Respect per-project runtime preference (`swain.settings.json → runtime`) and global preference (`~/.config/swain/settings.json → runtime`)
-4. The function is the user CLI entry point; the script is the structural intelligence
+1. If a `swain` script exists at the project root (or `.agents/bin/swain`), exec it — it handles everything (crash detection, runtime selection, invocation)
+2. If no script exists, fall back to the current behavior (detect runtimes, invoke with `/swain-init`) — graceful degradation for projects that haven't adopted the script yet
+3. Pass through any CLI arguments (e.g., `swain --fresh` to skip resume, `swain --runtime gemini` to override preference)
+4. No crash detection, no debris cleanup, no session selection, no runtime preference resolution — all that lives in the script
 
 **Acceptance criteria:**
-1. `swain` in a project with the script runs the script
-2. `swain` in a project without the script falls back to direct runtime invocation
-3. Per-project runtime preference overrides global preference
-4. The function remains a thin wrapper — no crash detection or debris cleanup logic
+1. `swain` in a project with the script runs the script (which handles everything)
+2. `swain` in a project without the script falls back to direct runtime invocation (current behavior)
+3. CLI arguments are forwarded to the script
+4. The function remains a thin wrapper — under 20 lines of shell
 
 ### SPEC C: Crash debris detection checks (recommended — safety, enables SPEC A)
 
