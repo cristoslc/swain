@@ -2,10 +2,10 @@
 title: "Session Lifecycle in swain-session"
 artifact: SPEC-119
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20
+last-updated: 2026-03-28
 type: feature
 parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
@@ -107,3 +107,4 @@ Session state is persisted in a lightweight file (`.agents/session-state.json` o
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
+| Complete | 2026-03-28 | 427254a | All ACs pass: state management, start/close/resume, decision budget |

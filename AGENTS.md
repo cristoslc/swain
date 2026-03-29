@@ -14,7 +14,7 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 
 When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Initiative, Journey, Epic, Agent Spec, Spike, ADR, Persona, Runbook, Design) or their supporting docs, **always invoke the swain-design skill**.
 
-**For project status, progress, or "what's next?"**, use the **swain-status** skill.
+**For project status, progress, or "what's next?"**, use the **swain-session** skill (which absorbed swain-status in SPEC-122).
 
 **For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system.
 

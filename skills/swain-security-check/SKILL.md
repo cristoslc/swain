@@ -14,6 +14,13 @@ metadata:
 
 # Security Check
 
+<!-- session-check: SPEC-121 -->
+Before proceeding with any state-changing operation, check for an active session:
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+```
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+
 Unified security scanning orchestrator. Checks scanner availability, runs all available scanners against the project, normalizes findings into a severity-bucketed report, and presents results in both JSON and markdown formats.
 
 ## When invoked

@@ -2,10 +2,10 @@
 title: "Skill and Script Alignment Audit"
 artifact: SPEC-123
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20
+last-updated: 2026-03-28
 type: feature
 parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
@@ -114,3 +114,4 @@ This is the final spec -- it runs after all other specs in the epic are complete
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
+| Complete | 2026-03-28 | 988d265 | All skills reviewed, stale refs cleaned, README updated, router updated |

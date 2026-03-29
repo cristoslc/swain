@@ -5,7 +5,7 @@
 
 ## Progress
 
-█░░░░░░░░░░░ 1/11 complete (9%)
+░░░░░░░░░░░░ 0/11 complete (0%)
 
 ## Recent Activity
 
@@ -22,7 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unified Project State Graph]((INITIATIVE-009)-Unified-Project-State-Graph.md) | [Auto-Detecting Trunk Branch](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) | 1/6 | 0 | — |
+| [Unified Project State Graph](docs/initiative/Proposed/(INITIATIVE-009)-Unified-Project-State-Graph/(INITIATIVE-009)-Unified-Project-State-Graph.md) | [Auto-Detecting Trunk Branch](docs/epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) | 0/6 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
@@ -39,23 +39,23 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unified Project State Graph]((INITIATIVE-009)-Unified-Project-State-Graph.md) | [Event Bus](../../../epic/Proposed/(EPIC-025)-Event-Bus/(EPIC-025)-Event-Bus.md) | 0/0 | 0 | **activate or drop** |
-|  | [Query Layer](../../../epic/Proposed/(EPIC-026)-Query-Layer/(EPIC-026)-Query-Layer.md) | 0/0 | 0 | **activate or drop** |
-|  | [Orchestrator Integration](../../../epic/Proposed/(EPIC-027)-Orchestrator-Integration/(EPIC-027)-Orchestrator-Integration.md) | 0/0 | 0 | **activate or drop** |
-|  | [Status Integration](../../../epic/Proposed/(EPIC-028)-Status-Integration/(EPIC-028)-Status-Integration.md) | 0/0 | 0 | **activate or drop** |
+| [Unified Project State Graph](docs/initiative/Proposed/(INITIATIVE-009)-Unified-Project-State-Graph/(INITIATIVE-009)-Unified-Project-State-Graph.md) | [Event Bus](docs/epic/Proposed/(EPIC-025)-Event-Bus/(EPIC-025)-Event-Bus.md) | 0/0 | 0 | **activate or drop** |
+|  | [Query Layer](docs/epic/Proposed/(EPIC-026)-Query-Layer/(EPIC-026)-Query-Layer.md) | 0/0 | 0 | **activate or drop** |
+|  | [Orchestrator Integration](docs/epic/Proposed/(EPIC-027)-Orchestrator-Integration/(EPIC-027)-Orchestrator-Integration.md) | 0/0 | 0 | **activate or drop** |
+|  | [Status Integration](docs/epic/Proposed/(EPIC-028)-Status-Integration/(EPIC-028)-Status-Integration.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
 
 ### Active
 
-- [EPIC-029](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) — Auto-Detecting Trunk Branch (1/6)
-  - [SPEC-169](../../../spec/Active/(SPEC-169)-Session-Lifecycle-In-swain-session/SPEC-169.md) — Session Lifecycle in swain-session (Active, in progress)
+- [EPIC-029](../../../epic/Active/(EPIC-029)-Auto-Detecting-Trunk-Branch/(EPIC-029)-Auto-Detecting-Trunk-Branch.md) — Auto-Detecting Trunk Branch (0/6)
   - [SPEC-135](../../../spec/Active/(SPEC-135)-swain-trunk-Auto-Detection-Helper/SPEC-135.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
   - [SPEC-136](../../../spec/Active/(SPEC-136)-Parameterize-Runtime-Skills/SPEC-136.md) — Parameterize Runtime Skills With swain_trunk() (Active, in progress)
   - [SPEC-137](../../../spec/Active/(SPEC-137)-Doctor-Trunk-Migration-Check/SPEC-137.md) — Doctor Trunk/Release Migration Detection (Active, in progress)
   - [SPEC-147](../../../spec/Active/(SPEC-147)-swain-trunk-Auto-Detection-Helper/SPEC-147.md) — swain_trunk() Auto-Detection Helper (Active, in progress)
-  - [SPEC-170](../../../spec/Complete/(SPEC-170)-Roadmap-Decision-And-Recommendation-Sections/SPEC-170.md) — ROADMAP.md Decision and Recommendation Sections (Complete, done)
+  - [SPEC-169](../../../spec/Active/(SPEC-169)-Parameterize-Runtime-Skills/SPEC-119.md) — Parameterize Runtime Skills With swain_trunk() (Active, in progress)
+  - [SPEC-170](../../../spec/Active/(SPEC-170)-Doctor-Trunk-Migration-Check/SPEC-120.md) — Doctor Trunk/Release Migration Detection (Active, in progress)
 ### Proposed
 
 - [EPIC-025](../../../epic/Proposed/(EPIC-025)-Event-Bus/(EPIC-025)-Event-Bus.md) — Event Bus (—)
