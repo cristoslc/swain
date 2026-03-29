@@ -23,5 +23,4 @@ Invoke the Skill tool for exactly one match. Pass the user's full prompt as args
 | swain-init | init, onboard, setup, bootstrap (one-time project setup) |
 | swain-session | session, tab name, preferences, bookmark, remember where I am |
 | swain-keys | SSH keys, signing, provision keys, configure signing, key setup |
-| swain-stage | tmux, panes, layout, workspace, motd, review pane, file browser pane |
 | swain-retro | retro, retrospective, reflect, what did we learn, learnings |

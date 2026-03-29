@@ -64,7 +64,6 @@ Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions 
 | **swain-do** | Task tracking — implementation plans, dependencies, progress |
 | **swain-sync** | Fetch, rebase, commit, and push with conventional commit messages |
 | **swain-release** | Changelog, version bump, git tag |
-| **swain-stage** | Tmux workspace layouts and animated status panel |
 | **swain-keys** | Per-project SSH keys for git signing and auth |
 | **swain-dispatch** | Offload artifacts to background agents via GitHub Issues |
 | **swain-retro** | Capture learnings at EPIC completion or on demand |
@@ -90,7 +89,6 @@ Optional:
 - **tk** (ticket) — task tracking backend, vendored with swain
 - **uv** — Python runner for design and status scripts
 - **gh** — GitHub CLI for issue integration and releases
-- **tmux** — workspace layouts (swain-stage only)
 - **fswatch** — live artifact file watching
 
 ## Companion

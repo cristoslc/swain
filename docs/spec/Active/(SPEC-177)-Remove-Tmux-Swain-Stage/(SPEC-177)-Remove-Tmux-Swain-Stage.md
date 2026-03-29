@@ -53,6 +53,11 @@ Eliminates confusion between old tmux-stage and new browser-stage directions. Re
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| `ls skills/swain-stage/` returns not found | Directory deleted via `rm -rf` | Pass |
+| No stage hooks in `.claude/settings.json` | `grep` returns 0 matches for `stage-status-hook`, `swain-motd`, `swain-stage.sh` | Pass |
+| No tmux-stage refs in AGENTS.md/AGENTS.content.md | `grep -ic` returns 0 for both files | Pass |
+| `grep -r swain-stage skills/` returns zero matches | All references cleaned from swain-session, swain, swain-status, swain-help, swain-doctor, swain-init, README | Pass |
+| SPEC-125 and SPEC-127 in Abandoned phase | Both moved to `docs/spec/Abandoned/`, status frontmatter updated, lifecycle entries cite SPEC-177 | Pass |
 
 ## Scope & Constraints
 

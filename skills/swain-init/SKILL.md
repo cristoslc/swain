@@ -366,7 +366,7 @@ If tmux is **already installed**, report "tmux: already installed" and continue 
 
 If tmux is **not found**, ask the user:
 
-> tmux is not installed. swain-stage (workspace layouts) and swain-session (tab naming) require a tmux session to function. It is optional — swain works without it, but session and workspace features will be unavailable.
+> tmux is not installed. swain-session (tab naming) uses tmux when available. It is optional — swain works without it, but session tab-naming will be unavailable.
 >
 > Install tmux now? (yes/no)
 

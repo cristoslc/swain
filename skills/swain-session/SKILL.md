@@ -42,7 +42,7 @@ The script handles tab naming (tmux only), worktree isolation detection, and ses
   "worktree": { "isolated": false, "path": null, "branch": "trunk" },
   "session": {
     "focus": "VISION-001",
-    "bookmark": "Left off implementing the MOTD animation",
+    "bookmark": "Left off implementing the bootstrap script",
     "lastBranch": "trunk"
   },
   "warnings": []
@@ -90,22 +90,14 @@ This is agent-agnostic — works in Claude Code, opencode, gemini cli, codex, co
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Left off implementing the MOTD animation",
-    "files": ["skills/swain-stage/scripts/swain-motd.sh"],
+    "note": "Left off implementing the bootstrap script",
+    "files": ["skills/swain-session/SKILL.md"],
     "timestamp": "2026-03-10T14:32:00Z"
   }
 }
 ```
 
 **Migration:** If `.agents/session.json` does not exist but the old global location (`~/.claude/projects/<project-path-slug>/memory/session.json`) does, the bootstrap script copies it automatically.
-
-## Step 3 — Suggest swain-stage (tmux only)
-
-If `$TMUX` is set and swain-stage is available, inform the user:
-
-> Run `/swain-stage` to set up your workspace layout.
-
-Do not auto-invoke swain-stage — let the user decide.
 
 ## Manual invocation commands
 
