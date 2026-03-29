@@ -1,15 +1,15 @@
 {
-  "lastBranch": "worktree-session-20260328-000000-k8r2",
+  "lastBranch": "worktree-session-20260328-223139-e675",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "SPIKE-051 complete: 8 research areas, 5 proposed SPECs, pre-runtime structural layer architecture",
+    "note": "created EPIC-045",
     "files": [
-      "docs/research/Active/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md"
+      "/Users/cristos/Documents/code/swain/docs/epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md"
     ],
-    "timestamp": "2026-03-29T01:34:08Z"
+    "timestamp": "2026-03-27T04:39:51Z"
   },
   "focus_lane": "INITIATIVE-019"
 }
