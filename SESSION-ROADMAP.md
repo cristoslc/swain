@@ -6,9 +6,9 @@
 
 - **Focus lane:** INITIATIVE-019 (Session-Scoped Decision Support)
 - **ROADMAP.md hash:** `cd9d0668`
-- **HEAD:** `e833664`
-- **Artifacts in scope:** 22
-- **Direct children:** EPIC-039, EPIC-042, EPIC-046, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123, SPEC-160, SPEC-161, SPEC-178
+- **HEAD:** `5c6ca53`
+- **Artifacts in scope:** 16
+- **Direct children:** EPIC-039, EPIC-042, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123, SPEC-160, SPEC-161
 
 ## Decision Set
 
@@ -31,11 +31,11 @@ No decisions needed in this focus area right now.
 
 Recent commits touching this focus area:
 
-- `2ff8f5c` Merge session-20260328: SPIKE-051 Complete + EPIC-046 with 3 child specs
-- `558038c` docs: hyperlink bare artifact IDs in EPIC-046 and child specs
-- `ad1ad52` docs(EPIC-046): create Pre-Runtime Crash Recovery epic with 3 child specs
-- `f178dcb` docs(SPIKE-051): transition to Complete — Go verdict, 5 proposed SPECs
-- `130dd8b` research(SPIKE-051): swain script subsumes runtime launch, composes initial prompt with crash context
+- `ff1231e` Merge EPIC-039: Session Facilitation Rebuild complete (7 specs, resolve conflicts)
+- `071f9c1` docs(EPIC-039): complete Session Facilitation Rebuild
+- `988d265` feat(SPEC-123): skill and script alignment audit for session lifecycle
+- `0c9138b` feat(SPEC-122): absorb swain-status into swain-session
+- `3ecd836` feat(SPEC-121): add session detection hooks across all state-changing skills
 
 ## Decision Records
 
