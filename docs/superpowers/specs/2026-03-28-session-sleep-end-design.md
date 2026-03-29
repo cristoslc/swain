@@ -23,7 +23,7 @@ Operator says "sleep", "I'm stepping away", "work while I'm gone", "keep going, 
 ### Entry Sequence
 
 1. Ask: "When will you be back?" Accept natural language ("2 hours", "tomorrow morning", "10pm"). Resolve to absolute ISO timestamp.
-2. Record to `session.json`: `sleep: { start: "<ISO>", returnBy: "<ISO>", checkpointDone: false, deferredActions: [] }`
+2. Run `swain-session-sleep.sh start <ISO-return-time>`, which atomically writes sleep state to `session.json`: `sleep: { start: "<ISO>", returnBy: "<ISO>", checkpointDone: false, deferredActions: [] }`
 3. Acknowledge: "Got it. Working until `<time>`. Safe to walk away."
 
 ### Risk Tiers
@@ -67,7 +67,7 @@ On every turn during sleep mode, the hook:
 2. If no sleep state, outputs nothing (no-op)
 3. If sleep state exists, runs `date` and compares to `returnBy`
 4. If before `returnBy`: injects `{"decision": "continue"}` into context
-5. If at or past `returnBy` and `checkpointDone` is false: injects `{"decision": "checkpoint", "returnBy": "<time>", "elapsed": "<duration>"}` and sets `checkpointDone: true` in session.json
+5. If at or past `returnBy` and `checkpointDone` is false: atomically sets `checkpointDone: true` in session.json (via jq, same pattern as `swain-bookmark.sh`), then injects `{"decision": "checkpoint", "returnBy": "<time>", "elapsed": "<duration>"}`
 6. If at or past `returnBy` and `checkpointDone` is true: injects `{"decision": "continue"}` (checkpoint already written, keep working)
 
 ### Graceful Degradation
@@ -88,9 +88,9 @@ Operator says "end", "wrap up", "done for today", "clean up session", "shut it d
 
 3. **Deferred actions check** — if sleep mode accumulated deferred actions, surface: "N deferred actions from sleep mode: [list]. These need operator attention in the next session."
 
-4. **Worktree decision** — check if the worktree branch has been merged to trunk (all commits reachable from trunk):
-   - **Merged:** "Worktree branch is merged to trunk. Cleaning up." → `ExitWorktree` with discard.
-   - **Not merged:** "Worktree has unmerged work. Keeping for next session." → bookmark, leave worktree.
+4. **Worktree decision** — check if the worktree branch has been merged to trunk via `git merge-base --is-ancestor HEAD trunk`:
+   - **Merged** (exit 0): "Worktree branch is merged to trunk. Cleaning up." → `ExitWorktree` with discard.
+   - **Not merged** (exit 1): "Worktree has unmerged work. Keeping for next session." → bookmark, leave worktree.
 
 5. **Session retro** — invoke swain-retro with session scope. If working under an EPIC, retro attaches there. If cross-cutting, produces standalone session retro doc. Captures learnings while context is fresh.
 
@@ -100,7 +100,7 @@ Operator says "end", "wrap up", "done for today", "clean up session", "shut it d
 
 ### `SessionEnd` Hook (fire-and-forget safety net)
 
-If the operator quits without running end (closes terminal, ctrl-c, etc.), the `SessionEnd` hook runs `swain-bookmark.sh` with a generic "session ended without cleanup" note. This is a safety net, not the primary path.
+If the operator quits without running end (closes terminal, ctrl-c, etc.), the `SessionEnd` hook runs `swain-bookmark.sh` with a generic "session ended without cleanup" note. This is a **bookmark-only** safety net — it does not run the full end sequence (retro, worktree decision, etc.), which requires agent judgment.
 
 ### Script: `swain-session-end.sh`
 
@@ -115,7 +115,7 @@ Outputs JSON:
 {
   "dirty": false,
   "merged": true,
-  "deferredActions": 0,
+  "deferredActionCount": 0,
   "openTasks": 3
 }
 ```
@@ -127,7 +127,7 @@ The skill prose interprets the JSON and takes action (retro, bookmark, ExitWorkt
 | File | Purpose |
 |------|---------|
 | `skills/swain-session/scripts/swain-session-sleep.sh` | Records sleep state to session.json (start time, return time). Clears sleep state on return. |
-| `skills/swain-session/scripts/swain-session-end.sh` | Deterministic end checks: git dirty, merge status, deferred actions, open tasks. Outputs JSON. |
+| `skills/swain-session/scripts/swain-session-end.sh` | Deterministic end checks: git dirty (`git status --porcelain`), merge status (`git merge-base --is-ancestor HEAD trunk`), deferred action count from session.json, open tk tasks. Outputs JSON. |
 | `skills/swain-session/scripts/swain-sleep-checkpoint-hook.sh` | Stop hook: reads sleep state, compares time, outputs continue/checkpoint decision. |
 | `skills/swain-session/scripts/swain-sleep-enforce-hook.sh` | UserPromptSubmit hook: blocks operator input before return time. |
 
@@ -140,6 +140,8 @@ The skill prose interprets the JSON and takes action (retro, bookmark, ExitWorkt
 
 ## Hooks Configuration (Claude Code)
 
+Hook commands must resolve the repo root to work from worktrees. Use the `find`-based discovery pattern established by other swain scripts:
+
 ```json
 {
   "hooks": {
@@ -147,7 +149,7 @@ The skill prose interprets the JSON and takes action (retro, bookmark, ExitWorkt
       "matcher": "",
       "hooks": [{
         "type": "command",
-        "command": "bash skills/swain-session/scripts/swain-sleep-checkpoint-hook.sh",
+        "command": "bash \"$(find \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" -path '*/swain-session/scripts/swain-sleep-checkpoint-hook.sh' -print -quit 2>/dev/null)\"",
         "timeout": 5
       }]
     }],
@@ -155,7 +157,7 @@ The skill prose interprets the JSON and takes action (retro, bookmark, ExitWorkt
       "matcher": "",
       "hooks": [{
         "type": "command",
-        "command": "bash skills/swain-session/scripts/swain-sleep-enforce-hook.sh",
+        "command": "bash \"$(find \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" -path '*/swain-session/scripts/swain-sleep-enforce-hook.sh' -print -quit 2>/dev/null)\"",
         "timeout": 5
       }]
     }],
@@ -163,13 +165,15 @@ The skill prose interprets the JSON and takes action (retro, bookmark, ExitWorkt
       "matcher": "",
       "hooks": [{
         "type": "command",
-        "command": "bash skills/swain-session/scripts/swain-bookmark.sh 'session ended without cleanup'",
+        "command": "bash \"$(find \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)\" 'session ended without cleanup'",
         "timeout": 5
       }]
     }]
   }
 }
 ```
+
+**Hook installation:** swain-init installs these hooks during onboarding (hooks are infrastructure, not per-session setup).
 
 ## SPEC Decomposition (for swain-design)
 
@@ -179,7 +183,7 @@ This design decomposes into two SPECs:
 
 2. **SPEC: Session end operation** — end sequence, dirty/merge/task checks, worktree decision, retro invocation, final bookmark, SessionEnd hook, `swain-session-end.sh`, SKILL.md updates.
 
-## Open Questions
+## Resolved Design Questions
 
-- **Hook installation:** Should swain-init install these hooks during onboarding, or should swain-session install them on first invocation? (Recommendation: swain-init, since hooks are infrastructure.)
-- **Sleep checkpoint format:** Should the sleep summary be a standalone markdown file in `docs/swain-retro/`, or a section appended to the session retro? (Recommendation: standalone, since it's mid-session not end-of-session.)
+- **Hook installation:** swain-init installs these hooks during onboarding. Hooks are infrastructure — they must be in place before the first sleep/end invocation.
+- **Sleep checkpoint format:** Standalone markdown file in `docs/swain-retro/sleep-summary-<date>.md`. The checkpoint is mid-session, not end-of-session, so it doesn't belong inside the session retro.
