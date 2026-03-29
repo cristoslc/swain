@@ -11,9 +11,9 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-28 | 14:15 | `3d4be35` | WIP on worktree-session: e227a08 docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
-| 2026-03-28 | 14:15 | `ee92803` | index on worktree-session: e227a08 docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
 | 2026-03-27 | 17:23 | `e227a08` | docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
+| 2026-03-25 | 21:41 | `5573527` | Merge remote-tracking branch 'origin/trunk' into worktree-spec-168-gitignore-skill-folders |
+| 2026-03-23 | 10:03 | `f86a0c1` | fix(EPIC-043): replace SPEC-TBD placeholders with linked child spec references |
 
 ## Priority Subset
 
