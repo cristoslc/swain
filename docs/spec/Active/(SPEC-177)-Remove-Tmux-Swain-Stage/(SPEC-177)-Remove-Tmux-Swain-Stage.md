@@ -25,7 +25,7 @@ swain-do: required
 
 ## Problem Statement
 
-The old tmux-based swain-stage (workspace layouts, MOTD panel, pane management) is dead weight. [INITIATIVE-015](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) has committed to a browser-based replacement, and [DESIGN-004](../../../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md) captures the new interaction design. The old code remains in `skills/swain-stage/`, hooks remain registered in settings, and two bug-fix specs ([SPEC-125](../(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md), [SPEC-127](../(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md)) target code that should be deleted rather than fixed.
+The old tmux-based swain-stage (workspace layouts, MOTD panel, pane management) is dead weight. [INITIATIVE-015](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) has committed to a browser-based replacement, and [DESIGN-004](../../../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md) captures the new interaction design. The old code remains in `skills/swain-stage/`, hooks remain registered in settings, and two bug-fix specs ([SPEC-125](../../Abandoned/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md), [SPEC-127](../../Abandoned/(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md)) target code that should be deleted rather than fixed.
 
 ## Desired Outcomes
 
