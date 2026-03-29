@@ -2,10 +2,10 @@
 title: "Init .agents/bin/ Bootstrap"
 artifact: SPEC-187
 track: implementation
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-29
 parent-epic: EPIC-047
 priority-weight: medium
 depends-on-artifacts:
@@ -49,3 +49,4 @@ If `.agents/bin/` already exists (e.g., from a previous init or doctor repair), 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Created as EPIC-047 child |
+| Complete | 2026-03-29 | — | Step 6.1.1 in swain-init SKILL.md implements all ACs — directory creation, symlink population, .gitignore entry |

@@ -2,10 +2,10 @@
 title: "Doctor .agents/bin/ Auto-Repair"
 artifact: SPEC-186
 track: implementation
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-29
 parent-epic: EPIC-047
 priority-weight: high
 depends-on-artifacts: []
@@ -71,3 +71,4 @@ For the full doctor (SKILL.md), add a new "Agent script symlinks (.agents/bin/)"
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Created as EPIC-047 child; minimum viable fix for consumer project symlinks |
+| Complete | 2026-03-29 | — | All 4 ACs verified live — missing/ok/stale/conflict cases pass; bugfix for set -e glob failure in preflight |

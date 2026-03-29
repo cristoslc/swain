@@ -97,11 +97,6 @@
 | SPEC-182 | Crash Debris Detection Checks | 2026-03-28 | — |
 | SPEC-183 | Session Sleep Operation | 2026-03-28 | — |
 | SPEC-184 | Session End Operation | 2026-03-28 | — |
-| SPEC-186 | Doctor .agents/bin/ Auto-Repair | 2026-03-28 | — |
-| SPEC-187 | Init .agents/bin/ Bootstrap | 2026-03-28 | — |
-| SPEC-188 | Doctor bin/ Auto-Repair | 2026-03-28 | — |
-| SPEC-189 | Migrate swain-box to bin/ | 2026-03-28 | — |
-| SPEC-190 | Migrate All Skills to .agents/bin/ Resolution | 2026-03-29 | — |
 | SPEC-191 | Preflight Self-Healing Compliance Audit | 2026-03-29 | — |
 | SPEC-192 | swain-doctor parallel check cascade failure | 2026-03-29 | — |
 | SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-29 | — |
@@ -200,6 +195,11 @@
 | SPEC-174 | Worktree Session Branch Name Collision | 2026-03-27 | — |
 | SPEC-175 | Session Bootstrap Script Consolidation | 2026-03-28 | 7dc8042 |
 | SPEC-185 | Orphaned Stage-Status Hooks Fire on Every Event | 2026-03-28 | 9b55fb8 |
+| SPEC-186 | Doctor .agents/bin/ Auto-Repair | 2026-03-29 | — |
+| SPEC-187 | Init .agents/bin/ Bootstrap | 2026-03-29 | — |
+| SPEC-188 | Doctor bin/ Auto-Repair | 2026-03-29 | — |
+| SPEC-189 | Migrate swain-box to bin/ | 2026-03-29 | — |
+| SPEC-190 | Migrate All Skills to .agents/bin/ Resolution | 2026-03-29 | — |
 
 ## Superseded
 

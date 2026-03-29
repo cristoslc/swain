@@ -2,10 +2,10 @@
 title: "Doctor bin/ Auto-Repair"
 artifact: SPEC-188
 track: implementation
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-29
 parent-epic: EPIC-047
 priority-weight: medium
 depends-on-artifacts:
@@ -74,3 +74,4 @@ If a root symlink exists at `./<script-name>` (old convention), migrate it:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Created as EPIC-047 child |
+| Complete | 2026-03-29 | — | bin/ repair and old-root migration verified live in preflight |
