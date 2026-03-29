@@ -5,15 +5,15 @@
 
 ## Progress
 
-█████░░░░░░░ 10/22 complete (45%)
+██████░░░░░░ 11/23 complete (48%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-23 | 10:03 | `f86a0c1` | fix(EPIC-043): replace SPEC-TBD placeholders with linked child spec references |
-| 2026-03-23 | 09:58 | `8f2fe19` | docs: EPIC-043 retrospective + SPEC-162 child-specs-not-updated bug |
-| 2026-03-23 | 09:46 | `89cbd34` | Merge branch 'worktree-epic-043-artifact-numbers' into trunk |
+| 2026-03-28 | 14:15 | `3d4be35` | WIP on worktree-session: e227a08 docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
+| 2026-03-28 | 14:15 | `ee92803` | index on worktree-session: e227a08 docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
+| 2026-03-27 | 17:23 | `e227a08` | docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
 
 ## Priority Subset
 
@@ -22,7 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 0/9 | 0 | — |
+| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
@@ -34,8 +34,9 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](docs/spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](docs/research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Doctor Single-Script Consolidation](docs/research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -47,10 +48,10 @@
 
 ### Active
 
-- [EPIC-031](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) — Skill Audit Remediation (0/9)
+- [EPIC-031](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) — Skill Audit Remediation (1/9)
   - [SPEC-072](../../../spec/Active/(SPEC-072)-Universal-Script-Discovery/(SPEC-072)-Universal-Script-Discovery.md) — Universal find-based script discovery (Active, in progress)
   - [SPEC-073](../../../spec/Active/(SPEC-073)-Description-Enrichment/(SPEC-073)-Description-Enrichment.md) — Description enrichment (Active, in progress)
-  - [SPEC-074](../../../spec/Abandoned/(SPEC-074)-Fix-Dispatch-Functional-Bugs/(SPEC-074)-Fix-Dispatch-Functional-Bugs.md) — Fix swain-dispatch functional bugs (Active, in progress)
+  - [SPEC-074](../../../spec/Abandoned/(SPEC-074)-Fix-Dispatch-Functional-Bugs/(SPEC-074)-Fix-Dispatch-Functional-Bugs.md) — Fix swain-dispatch functional bugs (Abandoned, done)
   - [SPEC-075](../../../spec/Active/(SPEC-075)-Fix-Sync-Functional-Bugs/(SPEC-075)-Fix-Sync-Functional-Bugs.md) — Fix swain-sync functional bugs (Active, in progress)
   - [SPEC-076](../../../spec/Active/(SPEC-076)-Fix-Update-Functional-Bugs/(SPEC-076)-Fix-Update-Functional-Bugs.md) — Fix swain-update functional bugs (Active, in progress)
   - [SPEC-077](../../../spec/Active/(SPEC-077)-Allowed-Tools-Hygiene-Sweep/(SPEC-077)-Allowed-Tools-Hygiene-Sweep.md) — allowed-tools hygiene sweep (Active, in progress)
@@ -59,6 +60,7 @@
   - [SPEC-080](../../../spec/Active/(SPEC-080)-Prune-Deprecated-Swain-Push/(SPEC-080)-Prune-Deprecated-Swain-Push.md) — Prune deprecated swain-push (Active, in progress)
 - [SPEC-162](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) — EPIC Child Specs Section Not Updated on Completion (in progress)
 - [SPIKE-043](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) — Phase Complexity Model for Adaptive Ceremony and Autonomy (in progress)
+- [SPIKE-049](../../../research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) — Doctor Single-Script Consolidation (in progress)
 ### Complete
 
 - [EPIC-004](../../../epic/Complete/(EPIC-004)-Superpowers-Integration-Assessment/(EPIC-004)-Superpowers-Integration-Assessment.md) — Superpowers Integration Assessment (1/1)

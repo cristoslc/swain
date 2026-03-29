@@ -1,6 +1,6 @@
 ---
 name: swain-session
-description: "Session management — restores terminal tab name, user preferences, and context bookmarks on session start. Auto-invoked at session start via AGENTS.md. Also invokable manually to set focus, bookmark context, remember where I am, check session info, rename the tmux tab, or update session state for the next session. Manages worktree auto-isolation and focus lane persistence."
+description: "Session management and project status dashboard. Owns the full session lifecycle (start/work/close/resume), focus lane, bookmarks, worktree auto-isolation, and tab naming. Also serves as the project status dashboard — shows active epics, progress, actionable next steps, blocked items, tasks, GitHub issues, and recommendations. Triggers on: 'session', 'status', 'what's next', 'dashboard', 'overview', 'where are we', 'what should I work on', 'show me priorities', 'bookmark', 'focus on', 'session info'."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
@@ -242,7 +242,40 @@ bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -p
 bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)"
 ```
 
-Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. swain-status reads it to filter recommendations and show peripheral awareness for non-focus visions.
+Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. The status dashboard reads it to filter recommendations and show peripheral awareness for non-focus visions.
+
+## Status Dashboard (absorbed from swain-status — SPEC-122)
+
+swain-session now owns the project status dashboard. When the operator says "status", "what's next", "dashboard", "overview", "where are we", "what should I work on", or "show me priorities", run the status script:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+STATUS_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-status.sh' -print -quit 2>/dev/null)"
+[ -n "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --refresh || echo "swain-status.sh not found"
+```
+
+For compact mode (MOTD): `bash "$STATUS_SCRIPT" --compact`
+
+After the script runs, present a structured agent summary following [references/agent-summary-template.md](references/agent-summary-template.md).
+
+### Cache
+
+Status writes to `.agents/status-cache.json` with 120-second TTL. Use `--refresh` to bypass, `--json` for raw output.
+
+### Recommendation
+
+Read `.priority.recommendations[0]` from the JSON cache. When a focus lane is set, recommendations scope to that vision/initiative.
+
+### Mode Inference
+
+1. Both specs in review AND strategic decisions pending → ask operator
+2. Specs awaiting review → detail mode
+3. Focus lane + pending decisions → vision mode
+4. Nothing actionable → vision mode (master plan mirror)
+
+### Decisions Needed (roadmap integration)
+
+Uses `chart.sh roadmap --json` for Eisenhower classification. Show top 5 items from "Do First" and "Schedule" quadrants that need operator decisions.
 
 ## Settings
 

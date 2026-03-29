@@ -5,15 +5,15 @@
 
 ## Progress
 
-██░░░░░░░░░░ 3/17 complete (18%)
+██░░░░░░░░░░ 3/21 complete (14%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-19 | 11:07 | `e5b3001` | docs(swain-mcp): add SPEC-082–091 for EPIC-033 MCP Server initiative |
-| 2026-03-18 | 23:35 | `18d9a73` | docs: add skill audit remediation artifacts and resolve MCP language decision |
-| 2026-03-18 | 23:19 | `80a3be2` | feat: complete INITIATIVE-011 + INITIATIVE-012, credential scoping and multi-runtime support |
+| 2026-03-27 | 11:57 | `b2c9d11` | docs(EPIC-046): skill audit — abandon SPEC-178, fix troubleshooting.md |
+| 2026-03-27 | 11:42 | `8df8365` | fix(renumber): resolve SPEC-172/173 and SPIKE-046 collisions from concurrent EPIC-045 work |
+| 2026-03-27 | 11:35 | `0574616` | docs(EPIC-045): add retrospective and update to revised multi-runtime scope |
 
 ## Priority Subset
 
@@ -27,25 +27,31 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Cross-Surface Portability](../../../initiative/Active/(INITIATIVE-014)-Cross-Surface-Portability/(INITIATIVE-014)-Cross-Surface-Portability.md) | [Swain MCP Server](../../../epic/Proposed/(EPIC-033)-Swain-MCP-Server/(EPIC-033)-Swain-MCP-Server.md) | 0/9 | 0 | **activate or drop** |
+| [Cross-Surface Portability](docs/initiative/Active/(INITIATIVE-014)-Cross-Surface-Portability/(INITIATIVE-014)-Cross-Surface-Portability.md) | [Swain MCP Server](docs/epic/Proposed/(EPIC-033)-Swain-MCP-Server/(EPIC-033)-Swain-MCP-Server.md) | 0/9 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| — | [Shell Launcher Onboarding](docs/epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md) | 0/3 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Cross-Surface Portability](../../../initiative/Active/(INITIATIVE-014)-Cross-Surface-Portability/(INITIATIVE-014)-Cross-Surface-Portability.md) | [Cross-Runtime Documentation](../../../epic/Proposed/(EPIC-032)-Cross-Runtime-Documentation/(EPIC-032)-Cross-Runtime-Documentation.md) | 0/0 | 0 | **activate or drop** |
+| [Cross-Surface Portability](docs/initiative/Active/(INITIATIVE-014)-Cross-Surface-Portability/(INITIATIVE-014)-Cross-Surface-Portability.md) | [Cross-Runtime Documentation](docs/epic/Proposed/(EPIC-032)-Cross-Runtime-Documentation/(EPIC-032)-Cross-Runtime-Documentation.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
 
 ### Active
 
+- [EPIC-045](../../../epic/Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md) — Shell Launcher Onboarding (0/3)
+  - [SPEC-172](../../../spec/Active/(SPEC-172)-Shell-Launcher-Templates/(SPEC-172)-Shell-Launcher-Templates.md) — Shell Launcher Templates (Active, in progress)
+  - [SPEC-173](../../../spec/Active/(SPEC-173)-Init-Launcher-Recommendation/(SPEC-173)-Init-Launcher-Recommendation.md) — Init Launcher Recommendation (Active, in progress)
+  - [SPEC-179](../../../spec/Active/(SPEC-179)-Launcher-Free-Text-Session-Purpose/(SPEC-179)-Launcher-Free-Text-Session-Purpose.md) — Launcher Free-Text Session Purpose (Active, in progress)
 - [INITIATIVE-014](../../../initiative/Active/(INITIATIVE-014)-Cross-Surface-Portability/(INITIATIVE-014)-Cross-Surface-Portability.md) — Cross-Surface Portability (in progress)
   - [EPIC-032](../../../epic/Proposed/(EPIC-032)-Cross-Runtime-Documentation/(EPIC-032)-Cross-Runtime-Documentation.md) — Cross-Runtime Documentation (Proposed, —)
   - [EPIC-033](../../../epic/Proposed/(EPIC-033)-Swain-MCP-Server/(EPIC-033)-Swain-MCP-Server.md) — Swain MCP Server (Proposed, 0/9)

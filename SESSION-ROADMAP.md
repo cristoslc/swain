@@ -5,10 +5,10 @@
 ## Evidence Basis
 
 - **Focus lane:** INITIATIVE-019 (Session-Scoped Decision Support)
-- **ROADMAP.md hash:** `bc82c85b`
-- **HEAD:** `501f52e`
-- **Artifacts in scope:** 7
-- **Direct children:** EPIC-039, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123
+- **ROADMAP.md hash:** `cd9d0668`
+- **HEAD:** `e833664`
+- **Artifacts in scope:** 22
+- **Direct children:** EPIC-039, EPIC-042, EPIC-046, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123, SPEC-160, SPEC-161, SPEC-178
 
 ## Decision Set
 
@@ -16,11 +16,11 @@ No decisions needed in this focus area right now.
 
 ## Recommended Next
 
-> **SPEC-118**: swain_trunk() Auto-Detection Helper — unblocks 3, weight: high
+> **SPEC-121**: Session Detection Hooks Across All Skills — unblocks 1, weight: high
 
 ## Session Goal
 
-**Recommended goal:** Progress implementation on SPEC-118, SPEC-121, SPEC-122
+**Recommended goal:** Progress implementation on SPEC-121, SPEC-122, SPEC-150
 
 *Justification:* No operator decisions are pending. These items are the highest-leverage implementation work in Session-Scoped Decision Support.
 
@@ -31,9 +31,11 @@ No decisions needed in this focus area right now.
 
 Recent commits touching this focus area:
 
-- `2e06514` docs(spec): stamp SPEC-120 Complete lifecycle hash
-- `c933d46` docs(spec): transition SPEC-120 to Complete
-- `deed10d` feat(specgraph): add Decision and Recommendation sections to ROADMAP.md (SPEC-120)
+- `2ff8f5c` Merge session-20260328: SPIKE-051 Complete + EPIC-046 with 3 child specs
+- `558038c` docs: hyperlink bare artifact IDs in EPIC-046 and child specs
+- `ad1ad52` docs(EPIC-046): create Pre-Runtime Crash Recovery epic with 3 child specs
+- `f178dcb` docs(SPIKE-051): transition to Complete — Go verdict, 5 proposed SPECs
+- `130dd8b` research(SPIKE-051): swain script subsumes runtime launch, composes initial prompt with crash context
 
 ## Decision Records
 

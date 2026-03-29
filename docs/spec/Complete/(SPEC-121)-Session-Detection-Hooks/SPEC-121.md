@@ -2,10 +2,10 @@
 title: "Session Detection Hooks Across All Skills"
 artifact: SPEC-121
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20
+last-updated: 2026-03-28
 type: feature
 parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
@@ -94,3 +94,4 @@ The check is a lightweight function call (read `.agents/session-state.json`, com
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
+| Complete | 2026-03-28 | 3ecd836 | Detection script + preamble in 7 skills, all ACs pass |
