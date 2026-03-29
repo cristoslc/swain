@@ -17,7 +17,7 @@ metadata:
 <!-- session-check: SPEC-121 -->
 Before proceeding with any state-changing operation, check for an active session:
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)" && bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
 If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
 
@@ -69,7 +69,7 @@ When the operator asks to update a field on an existing artifact (e.g., "set VIS
 1. Read the artifact's definition file to confirm the field name and valid values
 2. Edit the frontmatter field directly (e.g., `priority-weight: high`)
 3. Update the `last-updated` date
-4. Run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" build` to refresh the graph cache
+4. Run `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/chart.sh" build` to refresh the graph cache
 5. Commit the change
 
 **Common updates:**
@@ -120,7 +120,7 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
 
    resolve it with:
    ```bash
-   bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/resolve-artifact-link.sh' -print -quit 2>/dev/null)" <ARTIFACT-ID> <SOURCE-FILE>
+   bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/resolve-artifact-link.sh" <ARTIFACT-ID> <SOURCE-FILE>
    ```
    Replace the bare ID with `[ARTIFACT-ID](relative-path)`. If the script returns a non-zero exit code or empty output (artifact not found), leave the bare ID as-is — do not fail the operation. Frontmatter values must remain as plain IDs (YAML compatibility); only body text gets hyperlinks.
 7. Validate parent references exist (e.g., the Epic referenced by a new Agent Spec must already exist).
@@ -128,10 +128,10 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
    - The new artifact's `linked-artifacts` references another artifact of the **same type** — this is a direct supersession signal.
    - The new artifact's scoping section (`Interaction Surface` for DESIGNs, `Trigger` for Runbooks, `Role` for Personas) describes a surface that overlaps with or subsumes an existing Active artifact's scope.
    If overlap is detected, ask the operator: "This overlaps with `<EXISTING-ID>` (`<title>`). Does the new artifact supersede it?" If yes, transition the existing artifact to Superseded (set `superseded-by`, update status, move to `Superseded/` directory, add lifecycle entry) as part of the same operation.
-8. **ADR compliance check** — run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/adr-check.sh' -print -quit 2>/dev/null)" <artifact-path>`. Review any findings with the user before proceeding.
-8a. **Alignment check** — *(skip for fast-path tier)* run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
+8. **ADR compliance check** — run `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/adr-check.sh" <artifact-path>`. Review any findings with the user before proceeding.
+8a. **Alignment check** — *(skip for fast-path tier)* run `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/chart.sh" scope <artifact-id>` and assess per [skills/swain-design/references/alignment-checking.md](skills/swain-design/references/alignment-checking.md). Report blocking findings (MISALIGNED); note advisory ones (SCOPE_LEAK, GOAL_DRIFT) without gating the operation.
 8b. **Unanchored check** — after validating parent references, check if the new artifact has a path to a Vision via parent edges. If not, warn: `⚠ No Vision ancestry — this artifact will appear as Unanchored in swain chart`. Offer to attach to an existing Initiative or Epic. Do not block creation.
-9. **Post-operation scan** — *(skip for fast-path tier)* run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/specwatch.sh' -print -quit 2>/dev/null)" scan`. This now also runs `design-check.sh` as part of the scan pipeline. Fix any stale references or design drift findings before committing.
+9. **Post-operation scan** — *(skip for fast-path tier)* run `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/specwatch.sh" scan`. This now also runs `design-check.sh` as part of the scan pipeline. Fix any stale references or design drift findings before committing.
 10. **Index refresh step** — *(skip for fast-path tier; batch refresh at session end via `rebuild-index.sh`)* update `list-<type>.md` (see [Index maintenance](#index-maintenance)).
 
 ## Superpowers integration
@@ -233,12 +233,12 @@ SPECs link to GitHub Issues via the `source-issue` frontmatter field. During pha
 <!-- swain-model-hint: sonnet, effort: low — status queries are data aggregation -->
 ## Status overview
 
-For project-wide status, progress, or "what's next?" queries, defer to the **swain-session** skill (it aggregates swain chart + tk + git + GitHub issues). For artifact-specific graph queries, use `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)"` — see [skills/swain-design/references/specgraph-guide.md](skills/swain-design/references/specgraph-guide.md). The default output is a vision-rooted hierarchy tree; lenses (`ready`, `recommend`, `debt`, `unanchored`, etc.) filter and annotate the tree for different decision contexts.
+For project-wide status, progress, or "what's next?" queries, defer to the **swain-session** skill (it aggregates swain chart + tk + git + GitHub issues). For artifact-specific graph queries, use `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/chart.sh"` — see [skills/swain-design/references/specgraph-guide.md](skills/swain-design/references/specgraph-guide.md). The default output is a vision-rooted hierarchy tree; lenses (`ready`, `recommend`, `debt`, `unanchored`, etc.) filter and annotate the tree for different decision contexts.
 
 <!-- swain-model-hint: opus, effort: high — audits require deep cross-artifact analysis -->
 ## Auditing artifacts
 
-When the user requests an audit, read [references/auditing.md](references/auditing.md) for the full two-phase procedure (pre-scan + parallel audit agents including ADR compliance). Include an **unanchored check** pass: run `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" unanchored` and report any artifacts without Vision ancestry as domain-level findings alongside alignment and ADR compliance results.
+When the user requests an audit, read [references/auditing.md](references/auditing.md) for the full two-phase procedure (pre-scan + parallel audit agents including ADR compliance). Include an **unanchored check** pass: run `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/chart.sh" unanchored` and report any artifacts without Vision ancestry as domain-level findings alongside alignment and ADR compliance results.
 
 ## Implementation plans
 
@@ -257,4 +257,4 @@ Consult these files when a workflow step references them:
 
 ## Session bookmark
 
-After state-changing operations, update the bookmark: `bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "<action> <artifact-ids>" --files <paths>`
+After state-changing operations, update the bookmark: `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/swain-bookmark.sh" "<action> <artifact-ids>" --files <paths>`

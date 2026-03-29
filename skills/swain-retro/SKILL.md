@@ -17,7 +17,8 @@ metadata:
 <!-- session-check: SPEC-121 -->
 Before proceeding with any state-changing operation, check for an active session:
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
 If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
 
@@ -48,8 +49,9 @@ Collect evidence of what happened during the work period.
 ### For EPIC-scoped retros (auto or scoped)
 
 ```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 # Get the EPIC and its children
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" deps <EPIC-ID>
+bash "$REPO_ROOT/.agents/bin/chart.sh" deps <EPIC-ID>
 
 # Session log — the primary evidence source for retros (ADR-015)
 # Contains decisions, pivots, rationale, and operator feedback
@@ -67,6 +69,7 @@ Also read:
 ### For manual (unscoped) retros
 
 ```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 # Recent git activity
 git log --oneline --since="1 week ago" --no-merges
 
@@ -74,7 +77,7 @@ git log --oneline --since="1 week ago" --no-merges
 cat .agents/session.json 2>/dev/null | tail -100
 
 # Recently transitioned artifacts
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/chart.sh' -print -quit 2>/dev/null)" status 2>/dev/null
+bash "$REPO_ROOT/.agents/bin/chart.sh" status 2>/dev/null
 ```
 
 Also check:
@@ -265,8 +268,8 @@ linked-artifacts:
 After writing the retro output (standalone doc or embedded EPIC section), scan all body text for bare artifact ID references matching `(SPEC|EPIC|INITIATIVE|VISION|SPIKE|ADR|PERSONA|RUNBOOK|DESIGN|JOURNEY|TRAIN)-[0-9]+`. For each bare ID not already inside a markdown link or code fence, resolve and replace:
 
 ```bash
-RESOLVE="$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-design/scripts/resolve-artifact-link.sh' -print -quit 2>/dev/null)"
-bash "$RESOLVE" <ARTIFACT-ID> <RETRO-FILE>
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/resolve-artifact-link.sh" <ARTIFACT-ID> <RETRO-FILE>
 ```
 
 Replace bare IDs with `[ARTIFACT-ID](relative-path)`. If the script returns non-zero or empty output (artifact not found), leave the bare ID as-is. Frontmatter `related-artifacts` values stay as plain IDs (YAML compatibility).
@@ -274,8 +277,8 @@ Replace bare IDs with `[ARTIFACT-ID](relative-path)`. If the script returns non-
 ## Step 5 — Update session bookmark
 
 ```bash
-BOOKMARK="$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)"
-bash "$BOOKMARK" "Completed retro for {scope} — {N} learnings captured"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" "Completed retro for {scope} — {N} learnings captured"
 ```
 
 ## Integration with swain-design

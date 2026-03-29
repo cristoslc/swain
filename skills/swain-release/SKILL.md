@@ -16,7 +16,8 @@ metadata:
 <!-- session-check: SPEC-121 -->
 Before proceeding with any state-changing operation, check for an active session:
 ```bash
-bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
 If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
 
@@ -169,7 +170,7 @@ Before tagging, run the security scanner to catch secrets, dependency vulnerabil
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-SCANNER="$(find "$REPO_ROOT" -path '*/swain-security-check/scripts/security-scan.sh' -type f -print -quit 2>/dev/null)"
+SCANNER="$REPO_ROOT/.agents/bin/security-scan.sh"
 if [[ -n "$SCANNER" ]]; then
   bash "$SCANNER"
 fi
@@ -295,4 +296,4 @@ Don't push without asking — the user may want to review first, or they may hav
 
 ## Session bookmark
 
-After a successful release, update the bookmark: `bash "$(find . .claude .agents -path '*/swain-session/scripts/swain-bookmark.sh' -print -quit 2>/dev/null)" "Released v{version}"`
+After a successful release, update the bookmark: `bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" "Released v{version}"`

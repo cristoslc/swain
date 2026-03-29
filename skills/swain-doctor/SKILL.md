@@ -20,7 +20,7 @@ Run checks in the order listed below. Collect all findings into a summary table 
 
 ## Preflight integration
 
-A lightweight shell script (`swain-preflight.sh`, located via `find "$REPO_ROOT" -path '*/swain-doctor/scripts/swain-preflight.sh'`) performs quick checks before invoking the full doctor. If preflight exits 0, swain-doctor is skipped for the session. If it exits 1, swain-doctor runs normally.
+A lightweight shell script (`$REPO_ROOT/.agents/bin/swain-preflight.sh`) performs quick checks before invoking the full doctor. If preflight exits 0, swain-doctor is skipped for the session. If it exits 1, swain-doctor runs normally.
 
 The preflight checks are a subset of this skill's checks — governance files, .agents directory, .tickets health, script permissions. It runs as pure bash with zero agent tokens. See AGENTS.md § Session startup for the invocation flow.
 
@@ -111,9 +111,9 @@ Ensure `bin/swain-box` exists as a symlink to the installed `swain-box` script s
 ### Detection
 
 ```bash
-SWAIN_BOX_SCRIPT=$(find . .claude .agents -path '*/swain/scripts/swain-box' -print -quit 2>/dev/null)
-if [ -n "$SWAIN_BOX_SCRIPT" ]; then
-  BIN_DIR="bin"
+BIN_DIR="bin"
+SWAIN_BOX_SCRIPT="$BIN_DIR/swain-box"
+if [ -e "$SWAIN_BOX_SCRIPT" ]; then
   mkdir -p "$BIN_DIR"
   SWAIN_BOX_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$SWAIN_BOX_SCRIPT" "$BIN_DIR" 2>/dev/null || echo "../$SWAIN_BOX_SCRIPT")
   if [ -L "$BIN_DIR/swain-box" ] && [ "$(readlink "$BIN_DIR/swain-box")" = "$SWAIN_BOX_REL" ]; then
@@ -239,8 +239,8 @@ Detect unmigrated evidence pools:
 - If any artifact frontmatter contains `evidence-pool:`: warn and offer migration
 - If both `docs/troves/` and `docs/evidence-pools/` exist: warn about incomplete migration
 
-Migration script: `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-search/scripts/migrate-to-troves.sh' -print -quit 2>/dev/null)"`
-Dry run first: `bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-search/scripts/migrate-to-troves.sh' -print -quit 2>/dev/null)" --dry-run`
+Migration script: `bash "$REPO_ROOT/.agents/bin/migrate-to-troves.sh"`
+Dry run first: `bash "$REPO_ROOT/.agents/bin/migrate-to-troves.sh" --dry-run`
 
 ## Summary report
 
