@@ -14,6 +14,13 @@ metadata:
 
 # Execution Tracking
 
+<!-- session-check: SPEC-121 -->
+Before proceeding with any state-changing operation, check for an active session:
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+```
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
 **Before first use:** Read [skills/swain-do/references/tk-cheatsheet.md](skills/swain-do/references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.

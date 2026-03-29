@@ -12,6 +12,13 @@ metadata:
 ---
 <!-- swain-model-hint: sonnet, effort: low -->
 
+<!-- session-check: SPEC-121 -->
+Before proceeding with any state-changing operation, check for an active session:
+```bash
+bash "$(find "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" -path '*/swain-session/scripts/swain-session-check.sh' -print -quit 2>/dev/null)" 2>/dev/null
+```
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+
 Run through the following steps in order without pausing for confirmation unless a decision point is explicitly marked as requiring one.
 
 Delegate this to a sub-agent so the main conversation thread stays clean. Include the full text of these instructions in the agent prompt, since sub-agents cannot read skill files directly.
