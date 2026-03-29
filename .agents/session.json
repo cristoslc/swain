@@ -1,12 +1,18 @@
 {
-  "lastBranch": "worktree-session-20260329-112143-043b",
+  "lastBranch": "trunk",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed retro for EPIC-047 — 2 learnings captured",
-    "timestamp": "2026-03-29T16:16:11Z"
+    "note": "Implemented SPEC-192 (swain-doctor.sh) + SPEC-193 (next-artifact-id.sh) — all tests pass, ready to commit",
+    "files": [
+      "skills/swain-doctor/scripts/swain-doctor.sh",
+      "skills/swain-design/scripts/next-artifact-id.sh",
+      "skills/swain-doctor/SKILL.md",
+      "skills/swain-design/SKILL.md"
+    ],
+    "timestamp": "2026-03-29T14:17:40Z"
   },
   "focus_lane": "INITIATIVE-019"
 }
