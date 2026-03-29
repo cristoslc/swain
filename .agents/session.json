@@ -5,8 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Pushed skill fixes: pre-push fetch+merge for swain-sync and swain-release",
-    "timestamp": "2026-03-29T03:14:02Z"
+    "note": "Released v0.21.1-alpha",
+    "timestamp": "2026-03-29T03:18:35Z"
   },
   "focus_lane": "INITIATIVE-019"
 }
