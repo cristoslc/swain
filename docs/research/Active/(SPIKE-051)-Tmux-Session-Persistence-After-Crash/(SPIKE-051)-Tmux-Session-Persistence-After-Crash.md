@@ -92,9 +92,9 @@ If a unified crash recovery flow is too complex, improve the existing piecemeal 
 
 ### Area 2: Agentic runtime session persistence (what already survives)
 
-**Trove:** [`agent-session-persistence`](../../troves/agent-session-persistence/manifest.yaml) — cross-runtime analysis of local session persistence for all five ADR-017 runtimes.
+**Trove:** [`agent-session-persistence`](../../../troves/agent-session-persistence/manifest.yaml) — cross-runtime analysis of local session persistence for all five ADR-017 runtimes.
 
-All five supported runtimes (Claude Code, Codex CLI, Gemini CLI, Copilot CLI, Crush) persist session data locally. The storage mechanisms differ but the pattern is consistent. See [synthesis](../../troves/agent-session-persistence/synthesis.md) for the full comparison.
+All five supported runtimes (Claude Code, Codex CLI, Gemini CLI, Copilot CLI, Crush) persist session data locally. The storage mechanisms differ but the pattern is consistent. See [synthesis](../../../troves/agent-session-persistence/synthesis.md) for the full comparison.
 
 **Cross-runtime comparison:**
 
