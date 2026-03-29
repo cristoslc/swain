@@ -113,11 +113,11 @@ If a focus lane is set in `.agents/session.json`, mention it at the end.
 FOCUS="$(bash "$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-focus.sh' -print -quit 2>/dev/null)" 2>/dev/null)"
 ```
 
-If focus is set, note: "Focus: {FOCUS}. Use swain-status for focus-scoped recommendations."
+If focus is set, note: "Focus: {FOCUS}. Use swain-session for focus-scoped recommendations."
 
 ## Freshness check (for other skills)
 
-Other skills (like swain-status) can call chart.sh directly for staleness-based regeneration. This skill always regenerates unconditionally — it is the "force refresh" path.
+Other skills (like swain-session) can call chart.sh directly for staleness-based regeneration. This skill always regenerates unconditionally — it is the "force refresh" path.
 
 ## Error handling
 

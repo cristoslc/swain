@@ -217,7 +217,7 @@ Other swain skills update the session bookmark after operations. Read [reference
 
 ## Focus Lane
 
-The operator can set a focus lane to tell swain-status to recommend within a single vision or initiative. This is a steering mechanism — it doesn't hide other work, but frames recommendations around the operator's current focus.
+The operator can set a focus lane to scope recommendations within a single vision or initiative. This is a steering mechanism — it doesn't hide other work, but frames recommendations around the operator's current focus.
 
 **Setting focus:**
 When the operator says "focus on security" or "I'm working on VISION-001", resolve the name to an artifact ID and invoke the focus script.

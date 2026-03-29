@@ -41,7 +41,7 @@
 
 ## Checking project status
 
-1. **Get the dashboard**: `/swain-status` or just ask "what's next?" / "where are we?"
+1. **Get the dashboard**: `/swain-session` or just ask "what's next?" / "where are we?"
    - Shows active epics with progress ratios (e.g., 3/5 specs complete)
    - Surfaces blocked items, in-progress tasks, and GitHub issues
    - Provides a ranked recommendation for what to work on next
@@ -58,7 +58,7 @@
 
 2. **Context restore**: `/swain-session` runs automatically — restores your last context bookmark
 
-3. **See what's in progress**: `/swain-status` or `tk ready`
+3. **See what's in progress**: `/swain-session` or `tk ready`
 
 4. **Pick up work**: Follow the dashboard's recommendation or ask `/swain what should I work on?`
 

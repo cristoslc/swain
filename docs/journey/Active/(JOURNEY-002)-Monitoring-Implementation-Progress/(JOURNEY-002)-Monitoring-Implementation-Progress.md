@@ -114,7 +114,7 @@ journey
 
 | ID | Pain Point | Score | Stage | Root Cause | Opportunity |
 |----|-----------|-------|-------|------------|-------------|
-| JOURNEY-002.PP-01 | No spec-scoped progress view | 1 | Check-in | bd has no spec-grouped view; swain-status doesn't track per-spec progress | Spec progress section in /status; web dashboard plan view |
+| JOURNEY-002.PP-01 | No spec-scoped progress view | 1 | Check-in | bd has no spec-grouped view; swain-session doesn't track per-spec progress | Spec progress section in /status; web dashboard plan view |
 | JOURNEY-002.PP-02 | No plan snapshot or deviation tracking | 1 | Deviation Detection | Implementation plans aren't baselined; no plan-vs-actual diff | Save plan snapshot at decomposition; flag deviations on check-in |
 | JOURNEY-002.PP-03 | No task-to-code traceability | 1 | Drill-down | Tasks don't link to commits or file changes | Tag commits with task IDs; task activity log from git history |
 | JOURNEY-002.PP-04 | bd fragility undermines progress tracking | 1 | Check-in | Dolt server complexity | Replace bd backend (SPIKE-048); markdown-native storage |
@@ -124,7 +124,7 @@ journey
 
 ### O-01: Spec progress in /status (addresses PP-01)
 
-Add a section to swain-status that groups tasks by parent spec and shows completion progress. Example output:
+Add a section to swain-session that groups tasks by parent spec and shows completion progress. Example output:
 
 ```
 ## Implementation Plans

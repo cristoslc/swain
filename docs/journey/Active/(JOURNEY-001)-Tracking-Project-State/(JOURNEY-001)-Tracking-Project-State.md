@@ -60,7 +60,7 @@ Today: `/status` shows all artifacts by actionability, but doesn't distinguish b
 
 Multiple items need decisions. The developer needs to know: which decision unblocks the most downstream work? Approving SPEC-001 might unblock 3 tasks; accepting ADR-002 might unblock nothing yet.
 
-Today: swain-status shows unblock counts, but doesn't separate decision items from implementation items. The "Recommended Next" may suggest something the agent could handle autonomously, burying the decision item that's actually blocking progress.
+Today: swain-session shows unblock counts, but doesn't separate decision items from implementation items. The "Recommended Next" may suggest something the agent could handle autonomously, burying the decision item that's actually blocking progress.
 
 ### 3. Make the Decision — "I need context to decide"
 
@@ -141,9 +141,9 @@ journey
 
 ### O-01: Decision backlog view in /status (addresses PP-01)
 
-Add a dedicated "Decisions waiting on you" section to swain-status that filters artifacts to those requiring human judgment: Draft specs (need approval), Planned spikes (need activation or verdict), Proposed ADRs (need acceptance), and items blocked on non-implementation decisions. Sort by downstream impact (unblock count). This is the developer's primary entry point — answer "what's waiting on me?" before showing anything else.
+Add a dedicated "Decisions waiting on you" section to swain-session that filters artifacts to those requiring human judgment: Draft specs (need approval), Planned spikes (need activation or verdict), Proposed ADRs (need acceptance), and items blocked on non-implementation decisions. Sort by downstream impact (unblock count). This is the developer's primary entry point — answer "what's waiting on me?" before showing anything else.
 
-Implementation: classify artifacts by whether their next phase transition requires human judgment (decision item) or can be delegated to an agent (implementation item). The `next_step` function in swain-status already maps (type, status) to actions — extend it to also classify owner (developer vs. agent).
+Implementation: classify artifacts by whether their next phase transition requires human judgment (decision item) or can be delegated to an agent (implementation item). The `next_step` function in swain-session already maps (type, status) to actions — extend it to also classify owner (developer vs. agent).
 
 ### O-02: Decision detail aggregation (addresses PP-02)
 

@@ -2,10 +2,10 @@
 title: "Absorb swain-status into swain-session"
 artifact: SPEC-122
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20
+last-updated: 2026-03-28
 type: feature
 parent-epic: EPIC-039
 parent-initiative: INITIATIVE-019
@@ -93,3 +93,4 @@ swain-status and swain-session are separate skills with overlapping concerns. sw
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-20 | -- | Initial creation |
+| Complete | 2026-03-28 | 0c9138b | Status script migrated, router updated, AGENTS.md updated, old skill removed |
