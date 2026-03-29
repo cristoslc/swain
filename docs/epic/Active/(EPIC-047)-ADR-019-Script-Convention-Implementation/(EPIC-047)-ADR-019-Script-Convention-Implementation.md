@@ -33,8 +33,9 @@ ADR-019 defines the convention but nothing implements the symlink lifecycle in c
 | SPEC-187 | Init `.agents/bin/` bootstrap | medium |
 | SPEC-188 | Doctor `bin/` auto-repair | medium |
 | SPEC-189 | Migrate swain-box to `bin/` | low |
+| SPEC-190 | Migrate all skills to `.agents/bin/` resolution | medium |
 
-SPEC-186 is the minimum viable fix — it unblocks the release by making doctor self-heal the missing symlinks. SPEC-187 ensures new projects get them on first run. SPEC-188/189 extend the convention to operator-facing scripts.
+SPEC-186 is the minimum viable fix — it unblocks the release by making doctor self-heal the missing symlinks. SPEC-187 ensures new projects get them on first run. SPEC-188/189 extend the convention to operator-facing scripts. SPEC-190 completes the migration by replacing all `find`-based script lookups (~55 across 14 skills) with direct `.agents/bin/` resolution.
 
 ## Lifecycle
 

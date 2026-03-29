@@ -174,26 +174,30 @@ If `.beads/` exists:
 
 If `.beads/` does not exist, skip this step. tk creates `.tickets/` on first `tk create`.
 
-### Step 2.4 — swain-box symlink
+### Step 2.4 — swain-box symlink (ADR-019)
 
-Find the swain-box script in the installed skill tree and create `./swain-box` as a relative symlink at the project root.
+Find the swain-box script in the installed skill tree and create `bin/swain-box` as a relative symlink per ADR-019's operator-facing convention.
 
 ```bash
 SWAIN_BOX_SCRIPT=$(find . .claude .agents -path '*/swain/scripts/swain-box' -print -quit 2>/dev/null)
 if [ -n "$SWAIN_BOX_SCRIPT" ]; then
-  SWAIN_BOX_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1]))" "$SWAIN_BOX_SCRIPT" 2>/dev/null || echo "$SWAIN_BOX_SCRIPT")
-  if [ -L swain-box ] && [ "$(readlink swain-box)" = "$SWAIN_BOX_REL" ]; then
+  BIN_DIR="bin"
+  mkdir -p "$BIN_DIR"
+  SWAIN_BOX_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$SWAIN_BOX_SCRIPT" "$BIN_DIR" 2>/dev/null || echo "../$SWAIN_BOX_SCRIPT")
+  if [ -L "$BIN_DIR/swain-box" ] && [ "$(readlink "$BIN_DIR/swain-box")" = "$SWAIN_BOX_REL" ]; then
     echo "already linked"
-  elif [ -e swain-box ] && [ ! -L swain-box ]; then
-    echo "conflict — ./swain-box exists as a real file; skipping"
+  elif [ -e "$BIN_DIR/swain-box" ] && [ ! -L "$BIN_DIR/swain-box" ]; then
+    echo "conflict — bin/swain-box exists as a real file; skipping"
   else
-    ln -sf "$SWAIN_BOX_REL" swain-box
-    echo "created ./swain-box -> $SWAIN_BOX_REL"
+    ln -sf "$SWAIN_BOX_REL" "$BIN_DIR/swain-box"
+    echo "created bin/swain-box -> $SWAIN_BOX_REL"
   fi
+  # Migrate old root symlink if present
+  [ -L swain-box ] && rm -f swain-box && echo "migrated old ./swain-box to bin/"
 fi
 ```
 
-Tell the user: `./swain-box created — run it from this project root to launch Claude Code in a Docker Sandbox for this directory.`
+Tell the user: `bin/swain-box created — run it from this project to launch Claude Code in a Docker Sandbox.`
 
 If the script is not found, skip silently — swain-box is not installed in this skill tree.
 
@@ -519,6 +523,34 @@ mkdir -p .agents
 ```
 
 This directory is used by swain-do for configuration and by swain-design scripts for logs.
+
+### Step 6.1.1 — Bootstrap .agents/bin/ (ADR-019)
+
+Create `.agents/bin/` and populate it with symlinks for all agent-facing scripts in the skill tree. This gives skills a stable, O(1) resolution path instead of `find`-based lookups.
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+AGENTS_BIN="$REPO_ROOT/.agents/bin"
+mkdir -p "$AGENTS_BIN"
+OPERATOR_SCRIPTS="swain swain-box"
+for skill_scripts_dir in "$REPO_ROOT"/skills/*/scripts; do
+  [ -d "$skill_scripts_dir" ] || continue
+  for script in "$skill_scripts_dir"/*; do
+    [ -f "$script" ] && [ -x "$script" ] || continue
+    script_name="$(basename "$script")"
+    case "$script_name" in test-*) continue ;; esac
+    echo " $OPERATOR_SCRIPTS " | grep -q " $script_name " && continue
+    rel_path="$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$script" "$AGENTS_BIN" 2>/dev/null)" || continue
+    ln -sf "$rel_path" "$AGENTS_BIN/$script_name"
+  done
+done
+```
+
+Add `.agents/bin/` to `.gitignore` if not already present (consumer projects should not track these symlinks):
+
+```bash
+grep -qx '.agents/bin/' .gitignore 2>/dev/null || echo '.agents/bin/' >> .gitignore
+```
 
 ### Step 6.2 — Run swain-doctor
 
