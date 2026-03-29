@@ -207,7 +207,7 @@ If a `release` branch exists (check with `git rev-parse --verify release 2>/dev/
 ```bash
 # Detect trunk branch dynamically (EPIC-029)
 REPO_ROOT=$(git rev-parse --show-toplevel)
-TRUNK=$(bash "$REPO_ROOT/scripts/swain-trunk.sh")
+TRUNK=$(bash "$REPO_ROOT/.agents/bin/swain-trunk.sh")
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 # Ensure we're on the trunk (development) branch
