@@ -99,6 +99,8 @@
 | SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | -- |
 | SPEC-178 | Worktree Timestamp Zeroed Time Component | 2026-03-28 | — |
 | SPEC-179 | Launcher Free-Text Session Purpose | 2026-03-28 | — |
+| SPEC-183 | Session Sleep Operation | 2026-03-28 | — |
+| SPEC-184 | Session End Operation | 2026-03-28 | — |
 
 ## Complete
 
