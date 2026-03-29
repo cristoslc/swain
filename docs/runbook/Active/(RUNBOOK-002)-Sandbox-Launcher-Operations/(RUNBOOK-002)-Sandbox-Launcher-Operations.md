@@ -42,13 +42,13 @@ Step-by-step guide for launching agents in sandboxed environments using `swain-b
 
 ```sh
 # Launch in current directory — creates worktree automatically
-./swain-box .
+bin/swain-box .
 
 # Launch with explicit runtime
-./swain-box --runtime=claude .
+bin/swain-box --runtime=claude .
 
 # Attended mode (no worktree, work directly on main)
-./swain-box --no-worktree .
+bin/swain-box --no-worktree .
 ```
 
 ### Native Sandbox (near-zero overhead)

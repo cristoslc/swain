@@ -100,7 +100,7 @@ Override with `--prompt "custom message"`.
 
 ### Cleanup
 
-`./swain-box --cleanup NAME` removes the Docker container (and Docker Sandbox if applicable) for the named sandbox.
+`bin/swain-box --cleanup NAME` removes the Docker container (and Docker Sandbox if applicable) for the named sandbox.
 
 ### Non-interactive mode
 

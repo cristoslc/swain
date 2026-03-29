@@ -2,7 +2,7 @@
 title: "Migrate All Skills to .agents/bin/ Resolution"
 artifact: SPEC-190
 track: implementation
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-29
 last-updated: 2026-03-29
@@ -99,3 +99,4 @@ swain-init runs before `.agents/bin/` exists (it creates it in Step 6.1.1). Init
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-29 | — | Created as EPIC-047 child; ~55 replacements across 14 skills |
+| Complete | 2026-03-29 | — | All 11 skills use .agents/bin/ resolution (64 references); zero find patterns remain outside swain-init bootstrap; all 3 test cases pass |

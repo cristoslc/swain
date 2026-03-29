@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.22.3-alpha] - 2026-03-29
+
+### Features
+- Preflight no longer silently exits in worktrees — a set -e interaction with glob non-match on .claude/skills/*/scripts/ killed the script before reaching the .agents/bin/ auto-repair section. Now handles missing directories gracefully.
+- New bin/swain and .agents/bin/render_changelog.py symlinks added to the two-tier convention
+
+### Supporting Changes
+- EPIC-047 (ADR-019 Script Convention Implementation) formally completed — all 5 child specs verified with live acceptance tests and transitioned to Complete, retrospective embedded
+- Documentation references updated from ./swain-box to bin/swain-box across RUNBOOK-002, DESIGN-005, and SPEC-092
+
 ## [0.22.2-alpha] - 2026-03-29
 
 ### Features

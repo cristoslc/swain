@@ -20,13 +20,13 @@ depends-on-artifacts: []
 
 ## Interaction Surface
 
-The terminal UX for `./swain-box` from invocation to agent session. Covers: runtime selection, isolation mode selection with known-issues annotations, first-run auth setup (subscription login vs API key), container reconnect, per-runtime prompt injection, and cleanup. This is a CLI-only surface — no GUI, no TUI library.
+The terminal UX for `bin/swain-box` from invocation to agent session. Covers: runtime selection, isolation mode selection with known-issues annotations, first-run auth setup (subscription login vs API key), container reconnect, per-runtime prompt injection, and cleanup. This is a CLI-only surface — no GUI, no TUI library.
 
 ## User Flow
 
 ```mermaid
 flowchart TD
-    invoke["./swain-box invoked"] --> pick_runtime{"Pick runtime"}
+    invoke["bin/swain-box invoked"] --> pick_runtime{"Pick runtime"}
     pick_runtime -->|"flag / auto / menu"| check_existing{"Existing sandbox?"}
     pick_runtime -->|"'s'"| sandbox_mgmt["Manage sandboxes"]
     sandbox_mgmt --> pick_runtime
@@ -61,7 +61,7 @@ flowchart TD
 ### Happy path: first run (Claude, subscription)
 
 ```
-$ ./swain-box
+$ bin/swain-box
 swain-box: Select a runtime:
   1) claude
   2) copilot
@@ -107,7 +107,7 @@ swain-box: Login saved. Starting session...
 ### Happy path: subsequent run (reconnect)
 
 ```
-$ ./swain-box
+$ bin/swain-box
 swain-box: Select a runtime:
   1) claude  ● running
   2) codex
@@ -122,7 +122,7 @@ The runtime menu shows a status indicator (`● running`, `○ stopped`) next to
 ### Happy path: reconnect to stopped sandbox
 
 ```
-$ ./swain-box
+$ bin/swain-box
 swain-box: Select a runtime:
   1) claude  ○ stopped
   ...
@@ -135,7 +135,7 @@ swain-box: connecting to claude-swain...
 ### Happy path: codex in microVM (subscription)
 
 ```
-$ ./swain-box --runtime=codex
+$ bin/swain-box --runtime=codex
 swain-box: using codex.
 
 swain-box: How do you authenticate?
@@ -217,7 +217,7 @@ This prevents false positives (operator exits shell without logging in) from per
 ### Happy path: single runtime
 
 ```
-$ ./swain-box
+$ bin/swain-box
 swain-box: using claude.
 [Skips runtime menu, proceeds to isolation menu]
 ```
@@ -225,7 +225,7 @@ swain-box: using claude.
 ### Explicit flags (skip menus)
 
 ```
-$ ./swain-box --runtime=claude --isolation=container
+$ bin/swain-box --runtime=claude --isolation=container
 swain-box: claude in container mode
 swain-box: connecting to claude-swain
 ```
@@ -235,7 +235,7 @@ swain-box: connecting to claude-swain
 Typing `s` at the main menu enters the management screen. "Sandboxes" covers both Docker Sandboxes (microVM) and Docker Containers — they're the same concept to the user. Each runtime has at most one sandbox.
 
 ```
-$ ./swain-box
+$ bin/swain-box
 swain-box: Select a runtime:
   1) claude  ● running
   2) codex   ○ stopped
@@ -278,7 +278,7 @@ Action: d
 ### Cleanup (CLI shortcut)
 
 ```
-$ ./swain-box --cleanup claude-swain
+$ bin/swain-box --cleanup claude-swain
 swain-box: removed container claude-swain
 swain-box: removed sandbox claude-swain
 ```

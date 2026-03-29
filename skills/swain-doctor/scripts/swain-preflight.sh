@@ -98,7 +98,7 @@ if [[ "$(git config --local commit.gpgsign 2>/dev/null)" != "true" ]]; then
 fi
 
 # 9. Script permissions (spot check) (ADR-020: self-heal)
-_bad_perms=$(find .claude/skills/*/scripts/ skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null)
+_bad_perms=$(find .claude/skills/*/scripts/ skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null || true)
 if [[ -n "$_bad_perms" ]]; then
   _fix_count=$(echo "$_bad_perms" | wc -l | tr -d ' ')
   echo "$_bad_perms" | xargs chmod +x

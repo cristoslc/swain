@@ -17,6 +17,7 @@
 | SPEC-082: MCP Server Scaffold + SQLite Persistence | 7 |
 | SPEC-062: Threat Surface Detection Heuristic | 3 |
 | SPEC-059: Tooling Availability Strategy | 2 |
+| ADR-020: Preflight Self-Healing Convention | 1 |
 | EPIC-016: Worktree-Aware Session Bookmarks | 1 |
 | EPIC-019: Rename swain-design to swain-strategize | 1 |
 | SPEC-058: Context-File Injection Heuristic Scanner | 1 |
@@ -122,6 +123,8 @@
 | SPEC-179: Launcher Free-Text Session Purpose | — |
 | SPEC-183: finishing-a-development-branch: Merge Locally fails in worktrees | — |
 | SPEC-184: Session End Operation | — |
+| SPEC-192: swain-doctor parallel check cascade failure | — |
+| SPEC-193: Artifact ID allocation must check all local branches | — |
 | SPIKE-026: Context Fork as Model Routing Implementation Path | — |
 | SPIKE-033: Skill Routing Disambiguation | — |
 | SPIKE-042: Critical Path Analysis for Swain | — |
@@ -144,6 +147,7 @@
 |  | [Sandbox Templates In Regular Docker Containers](docs/research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Container-Compatible Auth Flows Per Runtime](docs/research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) | 0/0 | 1 | **needs decomposition** |
 |  | [swain-doctor SSH Binary Check](docs/spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Artifact ID allocation must check all local branches](docs/spec/Active/(SPEC-193)-artifact-id-allocation-must-check-all-branches.md) | 0/0 | 0 | **needs decomposition** |
 |  | [PR Queue MCP for Merge Handoff](docs/research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md) | 0/0 | 0 | **needs decomposition** |
 | [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Chart Critical Path Lens](docs/spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Retro Session Intelligence](docs/epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) | 0/5 | 0 | — |
@@ -154,6 +158,7 @@
 |  | [finishing-a-development-branch: Merge Locally fails in worktrees](docs/spec/Active/SPEC-183-worktree-merge-locally-checkout-fails.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Session End Operation](docs/spec/Active/(SPEC-184)-Session-End-Operation/(SPEC-184)-Session-End-Operation.md) | 0/0 | 0 | **needs decomposition** |
 | [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
+|  | [swain-doctor parallel check cascade failure](docs/spec/Active/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) | 0/0 | 0 | **needs decomposition** |
 | [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Project Identity Enforcement](docs/spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Trove Analysis Layer](docs/spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Eliminate swain-sync context disruption](docs/spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
@@ -251,41 +256,43 @@ gantt
     Worktree Timestamp Zeroed Time (0/0) :crit, t23, 2026-01-43, 14d
     finishing-a-development-branch (0/0) :crit, t24, 2026-01-43, 14d
     Session End Operation (0/0) :crit, t25, 2026-01-43, 14d
-    PR Queue MCP for Merge Handoff (0/0) :crit, t26, 2026-01-43, 14d
+    swain-doctor parallel check ca (0/0) :crit, t26, 2026-01-43, 14d
+    Artifact ID allocation must ch (0/0) :crit, t27, 2026-01-43, 14d
+    PR Queue MCP for Merge Handoff (0/0) :crit, t28, 2026-01-43, 14d
     section Schedule
-    GitHub Issue Polling with Dete (0/0) :crit, t27, 2026-01-43, 14d
-    Swain MCP Server (0/9) :crit, t28, 2026-01-43, 14d
-    Container-Compatible Runtime A (0/0) :crit, t29, after t4, 14d
-    MCP Session-State Tracker Desi (0/0) :crit, t30, 2026-01-43, 14d
-    Post-Hoc Process Audit Pipelin (0/0) :crit, t31, 2026-01-43, 14d
-    Cross-Platform Deny-Rule Porta (0/0) :crit, t32, 2026-01-43, 14d
+    GitHub Issue Polling with Dete (0/0) :crit, t29, 2026-01-43, 14d
+    Swain MCP Server (0/9) :crit, t30, 2026-01-43, 14d
+    Container-Compatible Runtime A (0/0) :crit, t31, after t4, 14d
+    MCP Session-State Tracker Desi (0/0) :crit, t32, 2026-01-43, 14d
+    Post-Hoc Process Audit Pipelin (0/0) :crit, t33, 2026-01-43, 14d
+    Cross-Platform Deny-Rule Porta (0/0) :crit, t34, 2026-01-43, 14d
     section In Progress
-    Worktree-Aware Session Bookmar (0/0) :crit, t33, 2026-01-57, 14d
-    Security Vulnerability Scannin (0/4) :active, t34, 2026-01-57, 14d
-    Rename swain-design to swain-s (0/0) :crit, t35, 2026-01-57, 14d
-    External CLI Assumption Verifi (0/0) :crit, t36, 2026-01-57, 14d
-    Security Gates in swain-do Exe (0/4) :active, t37, after t34, 14d
-    Design Staleness and Drift Det (0/6) :active, t38, 2026-01-71, 14d
-    Session-Aware Commit Atomizati (0/2) :active, t39, after t33, 14d
-    Swain Memory Architecture (0/0) :crit, t40, 2026-01-71, 14d
-    Shell Launcher Onboarding (0/3) :active, t41, 2026-01-71, 14d
-    Documentation Viewer (0/0) :crit, t42, 2026-01-71, 14d
-    EPIC Child Specs Section Not U (0/0) :crit, t43, 2026-01-71, 14d
-    Phase Complexity Model for Ada (0/0) :crit, t44, 2026-01-71, 14d
-    Doctor Single-Script Consolida (0/0) :crit, t45, 2026-01-71, 14d
+    Worktree-Aware Session Bookmar (0/0) :crit, t35, 2026-01-57, 14d
+    Security Vulnerability Scannin (0/4) :active, t36, 2026-01-57, 14d
+    Rename swain-design to swain-s (0/0) :crit, t37, 2026-01-57, 14d
+    External CLI Assumption Verifi (0/0) :crit, t38, 2026-01-57, 14d
+    Security Gates in swain-do Exe (0/4) :active, t39, after t36, 14d
+    Design Staleness and Drift Det (0/6) :active, t40, 2026-01-71, 14d
+    Session-Aware Commit Atomizati (0/2) :active, t41, after t35, 14d
+    Swain Memory Architecture (0/0) :crit, t42, 2026-01-71, 14d
+    Shell Launcher Onboarding (0/3) :active, t43, 2026-01-71, 14d
+    Documentation Viewer (0/0) :crit, t44, 2026-01-71, 14d
+    EPIC Child Specs Section Not U (0/0) :crit, t45, 2026-01-71, 14d
+    Phase Complexity Model for Ada (0/0) :crit, t46, 2026-01-71, 14d
+    Doctor Single-Script Consolida (0/0) :crit, t47, 2026-01-71, 14d
     section Backlog
-    Work Scope Progress Visualizat (0/0) :crit, t46, 2026-01-71, 14d
-    Multi-Agent Workdir Safety (0/0) :crit, t47, 2026-01-71, 14d
-    Product Design Orchestrator (0/0) :crit, t48, after t35, 14d
-    Postflight Summaries (0/0) :crit, t49, 2026-01-71, 14d
-    Event Bus (0/0) :crit, t50, 2026-01-71, 14d
-    Query Layer (0/0) :crit, t51, 2026-01-71, 14d
-    Orchestrator Integration (0/0) :crit, t52, 2026-01-71, 14d
-    Status Integration (0/0) :crit, t53, 2026-01-71, 14d
-    Cross-Runtime Documentation (0/0) :crit, t54, 2026-01-71, 14d
-    Sandbox Capability Bridges (0/2) :crit, t55, 2026-01-71, 14d
-    Worktree Discipline (0/2) :crit, t56, 2026-01-71, 14d
-    CLI Command Verification in Ag (0/0) :crit, t57, after t36, 14d
+    Work Scope Progress Visualizat (0/0) :crit, t48, 2026-01-71, 14d
+    Multi-Agent Workdir Safety (0/0) :crit, t49, 2026-01-71, 14d
+    Product Design Orchestrator (0/0) :crit, t50, after t37, 14d
+    Postflight Summaries (0/0) :crit, t51, 2026-01-71, 14d
+    Event Bus (0/0) :crit, t52, 2026-01-71, 14d
+    Query Layer (0/0) :crit, t53, 2026-01-71, 14d
+    Orchestrator Integration (0/0) :crit, t54, 2026-01-71, 14d
+    Status Integration (0/0) :crit, t55, 2026-01-71, 14d
+    Cross-Runtime Documentation (0/0) :crit, t56, 2026-01-71, 14d
+    Sandbox Capability Bridges (0/2) :crit, t57, 2026-01-71, 14d
+    Worktree Discipline (0/2) :crit, t58, 2026-01-71, 14d
+    CLI Command Verification in Ag (0/0) :crit, t59, after t38, 14d
 ```
 
 ## Blocking Dependencies

@@ -2,10 +2,10 @@
 title: "Migrate swain-box to bin/"
 artifact: SPEC-189
 track: implementation
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-29
 parent-epic: EPIC-047
 priority-weight: low
 depends-on-artifacts:
@@ -57,3 +57,4 @@ Handled automatically by SPEC-188 (doctor `bin/` auto-repair with backward-compa
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Created as EPIC-047 child |
+| Complete | 2026-03-29 | — | bin/swain-box symlink exists and tracked; doc references updated in RUNBOOK-002, DESIGN-005, SPEC-092; old root symlink removed; migration logic in preflight |
