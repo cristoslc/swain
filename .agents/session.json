@@ -1,15 +1,15 @@
 {
-  "lastBranch": "trunk",
+  "lastBranch": "worktree-session-20260328-000000-k8r2",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "SPEC-174 created, ready for implementation. Start new session with worktree.",
+    "note": "SPIKE-051 complete: 8 research areas, 5 proposed SPECs, pre-runtime structural layer architecture",
     "files": [
-      "docs/spec/Active/(SPEC-174)-Worktree-Session-Branch-Name-Collision/(SPEC-174)-Worktree-Session-Branch-Name-Collision.md"
+      "docs/research/Active/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md"
     ],
-    "timestamp": "2026-03-27T15:43:01Z"
+    "timestamp": "2026-03-29T01:34:08Z"
   },
   "focus_lane": "INITIATIVE-019"
 }
