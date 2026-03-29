@@ -44,10 +44,10 @@ sources:
 
 referenced-by:
   - artifact: SPIKE-051
-    commit: "--"
+    commit: "450cb05"
 
 history:
   - event: created
     date: 2026-03-28
-    commit: "--"
+    commit: "450cb05"
     sources: 5

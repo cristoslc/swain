@@ -14,7 +14,7 @@ risks-addressed:
   - Stale locks, orphaned processes, and interrupted git operations block the next session
   - Operator must manually diagnose and clean up crash debris before resuming work
 parent-epic: EPIC-039
-evidence-pool: "agent-session-persistence"
+evidence-pool: "agent-session-persistence@450cb05"
 ---
 
 # Session Crash Recovery
