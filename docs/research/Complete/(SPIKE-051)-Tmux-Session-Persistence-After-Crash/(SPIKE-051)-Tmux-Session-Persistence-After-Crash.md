@@ -2,7 +2,7 @@
 title: "Session Crash Recovery"
 artifact: SPIKE-051
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
 last-updated: 2026-03-28
@@ -20,6 +20,10 @@ evidence-pool: "agent-session-persistence@450cb05"
 # Session Crash Recovery
 
 ## Summary
+
+**Go — build a pre-runtime `swain` script as the structural crash recovery layer.**
+
+Terminal multiplexer persistence (tmux-resurrect, Zellij) solves the wrong problem — session *context* matters more than terminal *layout*, and swain is moving away from tmux anyway (SPEC-177, INITIATIVE-015). The real finding: agentic runtimes (especially Claude Code) already persist rich session data locally, and swain's git-committed state (bookmark, focus, SESSION-ROADMAP.md, tk tasks) survives any crash. The missing piece is a pre-runtime structural layer that detects crashed sessions, cleans debris (git locks, stale tk locks, dangling worktrees), and composes resume context for the runtime — all in bash, before any LLM starts. Proposes 5 SPECs: pre-runtime script (A), shell function refactor (B), debris checks (C), DESIGN-004 persistence requirements (D), Zellij deferred (E).
 
 ## Question
 
@@ -421,3 +425,4 @@ Not recommended now. Version-upgrade session loss (#3420) and subprocess command
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation |
+| Complete | 2026-03-28 | — | Research complete; Go verdict; 5 proposed SPECs |
