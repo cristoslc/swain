@@ -16,7 +16,18 @@ metadata:
 
 Session-start health checks for swain projects. Validates and repairs health across **all** swain skills — governance, tools, directories, settings, scripts, caches, and runtime state. Auto-migrates stale `.beads/` directories to `.tickets/` and removes them. Idempotent — run it every session; it only writes when repairs are needed.
 
-Run checks in the order listed below. Collect all findings into a summary table at the end.
+## Consolidated check script (SPEC-192)
+
+**Always run the consolidated script first** — it executes all checks in a single process, eliminating parallel tool-call cascade failures:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-doctor.sh"
+```
+
+The script outputs structured JSON with all check results. Parse it and present the summary table to the operator. Then use the individual sections below **only for remediation** of checks that reported `warning` or `advisory` status — do not re-run the detection steps.
+
+If the script is not available (e.g., `.agents/bin/` symlinks not yet bootstrapped), fall back to running the checks below individually. In that case, run them **sequentially** (one Bash call at a time), never in parallel — parallel tool calls cascade-cancel on first error.
 
 ## Preflight integration
 

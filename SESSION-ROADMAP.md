@@ -5,10 +5,10 @@
 ## Evidence Basis
 
 - **Focus lane:** INITIATIVE-019 (Session-Scoped Decision Support)
-- **ROADMAP.md hash:** `cd9d0668`
-- **HEAD:** `5c6ca53`
-- **Artifacts in scope:** 16
-- **Direct children:** EPIC-039, EPIC-042, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123, SPEC-160, SPEC-161
+- **ROADMAP.md hash:** `e4e4b1c8`
+- **HEAD:** `d7551e1`
+- **Artifacts in scope:** 30
+- **Direct children:** EPIC-039, EPIC-042, EPIC-046, EPIC-047, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123, SPEC-160, SPEC-161, SPEC-178, SPEC-183, SPEC-184
 
 ## Decision Set
 
@@ -16,11 +16,11 @@ No decisions needed in this focus area right now.
 
 ## Recommended Next
 
-> **SPEC-121**: Session Detection Hooks Across All Skills — unblocks 1, weight: high
+> **SPEC-186**: Doctor .agents/bin/ Auto-Repair — unblocks 3, weight: high
 
 ## Session Goal
 
-**Recommended goal:** Progress implementation on SPEC-121, SPEC-122, SPEC-150
+**Recommended goal:** Progress implementation on SPEC-186, SPEC-150, SPEC-160
 
 *Justification:* No operator decisions are pending. These items are the highest-leverage implementation work in Session-Scoped Decision Support.
 
@@ -31,11 +31,11 @@ No decisions needed in this focus area right now.
 
 Recent commits touching this focus area:
 
+- `3cffebd` feat(adr-019): migrate all skills from find-based to .agents/bin/ resolution (SPEC-190)
+- `64af561` feat(adr-019): implement EPIC-047 script convention — auto-repair, bootstrap, migration
+- `6af807d` docs(epic): create EPIC-047 and SPEC-186/187/188/189 for ADR-019 implementation
+- `c9a19c2` docs: add ADR-019 (project-root script convention), extend SPEC-180 and SPEC-181
 - `ff1231e` Merge EPIC-039: Session Facilitation Rebuild complete (7 specs, resolve conflicts)
-- `071f9c1` docs(EPIC-039): complete Session Facilitation Rebuild
-- `988d265` feat(SPEC-123): skill and script alignment audit for session lifecycle
-- `0c9138b` feat(SPEC-122): absorb swain-status into swain-session
-- `3ecd836` feat(SPEC-121): add session detection hooks across all state-changing skills
 
 ## Decision Records
 

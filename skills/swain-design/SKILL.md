@@ -104,7 +104,11 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
 
 ### Workflow
 
-1. Scan `docs/<type>/` (recursively, across all phase subdirectories) to determine the next available number for the prefix.
+1. Determine the next available number for the prefix by running:
+   ```bash
+   bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/next-artifact-id.sh" <PREFIX>
+   ```
+   This scans ALL local branches and the working tree to prevent ID collisions across worktree sessions (SPEC-193). If the script is unavailable, fall back to scanning `docs/<type>/` on the current HEAD — but note this risks collisions in worktree workflows.
 2. **For VISION artifacts:** Before drafting, ask the user whether this is a **competitive product** or a **personal product**. The answer determines which template sections to include and shapes the entire downstream decomposition. See the vision definition for details on each product type.
 2a. **For DESIGN artifacts:** First, ask which domain this design covers: `interaction` (UI/UX — screens, flows, states), `data` (data architecture — entities, schemas, flows, invariants), or `system` (system contracts — API boundaries, behavioral guarantees, integration interfaces). Default to `interaction` if unclear. Then prompt for Design Intent content — Context (one sentence anchoring the design to its purpose), Goals (what experience or guarantee we're trying to create), Constraints (reviewable boundaries), and Non-goals (what we explicitly decided not to do). This section is write-once: it is set at creation and not updated as the mutable sections evolve. Use the domain-specific template sections from the DESIGN template.
 3. Read the artifact's definition file and template from the lookup table above.
