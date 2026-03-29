@@ -275,9 +275,18 @@ If the commit fails because a pre-commit hook rejected it:
 
 ## Step 6 — Push
 
-**If `IN_WORKTREE=yes`:** push the worktree's commits directly to `trunk` (the development branch):
+**If `IN_WORKTREE=yes`:** fetch and integrate upstream changes, then push the worktree's commits directly to `trunk` (the development branch):
 
 ```bash
+# Always fetch and merge trunk before the first push attempt.
+# This prevents avoidable rejections when trunk moved since the worktree was created.
+git fetch origin
+git merge "origin/$TRUNK" --no-edit || {
+  echo "Merge conflict with upstream trunk. Resolve before pushing."
+  git merge --abort
+  exit 1
+}
+
 MAX_RETRIES=3
 ATTEMPT=0
 while [ $ATTEMPT -lt $MAX_RETRIES ]; do
