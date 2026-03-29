@@ -39,9 +39,10 @@ if [[ -f "$CANONICAL" ]] && grep -q "swain governance" AGENTS.md CLAUDE.md 2>/de
   fi
 fi
 
-# 3. .agents directory exists
+# 3. .agents directory exists (ADR-020: self-heal)
 if [[ ! -d .agents ]]; then
-  issues+=(".agents directory missing")
+  mkdir -p .agents
+  echo "advisory: created .agents/ directory"
 fi
 
 # 4. .tickets/ directory is valid (if it exists)
@@ -66,11 +67,12 @@ if [[ -d "$REPO_ROOT/docs/evidence-pools" ]]; then
   issues+=("docs/evidence-pools/ detected — trove migration needed")
 fi
 
-# 6. No stale tk lock files (older than 1 hour)
+# 6. Stale tk lock files (older than 1 hour) (ADR-020: self-heal)
 if [[ -d .tickets/.locks ]]; then
-  stale_locks=$(find .tickets/.locks -type f -mmin +60 2>/dev/null | head -1)
-  if [[ -n "$stale_locks" ]]; then
-    issues+=("stale tk lock files in .tickets/.locks/")
+  _stale_lock_count=$(find .tickets/.locks -type d -mmin +60 2>/dev/null | wc -l | tr -d ' ')
+  if [[ "$_stale_lock_count" -gt 0 ]]; then
+    find .tickets/.locks -type d -mmin +60 -exec rm -rf {} + 2>/dev/null
+    echo "advisory: removed $_stale_lock_count stale tk lock(s)"
   fi
 fi
 
@@ -95,9 +97,12 @@ if [[ "$(git config --local commit.gpgsign 2>/dev/null)" != "true" ]]; then
   issues+=("commit signing not configured (run swain-keys --provision)")
 fi
 
-# 9. Script permissions (spot check)
-if find .claude/skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null | grep -q .; then
-  issues+=("scripts missing executable permission")
+# 9. Script permissions (spot check) (ADR-020: self-heal)
+_bad_perms=$(find .claude/skills/*/scripts/ skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null)
+if [[ -n "$_bad_perms" ]]; then
+  _fix_count=$(echo "$_bad_perms" | wc -l | tr -d ' ')
+  echo "$_bad_perms" | xargs chmod +x
+  echo "advisory: fixed executable permissions on $_fix_count script(s)"
 fi
 
 # 9b. SSH alias readiness for repos using swain-keys host aliases

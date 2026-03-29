@@ -5,15 +5,15 @@
 
 ## Progress
 
-█████░░░░░░░ 3/7 complete (43%)
+██████░░░░░░ 4/8 complete (50%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
+| 2026-03-28 | 22:14 | `d74e0aa` | docs(SPEC-185): stamp lifecycle hash 9b55fb8 |
+| 2026-03-28 | 22:14 | `9b55fb8` | docs(SPEC-185): transition to Complete — orphaned stage-status hooks removed |
 | 2026-03-28 | 21:49 | `5044cfd` | fix(SPEC-177): remove stale stage-status-hook.sh |
-| 2026-03-28 | 21:43 | `f178dcb` | docs(SPIKE-051): transition to Complete — Go verdict, 5 proposed SPECs |
-| 2026-03-28 | 21:40 | `c894456` | feat(SPEC-177): remove tmux-based swain-stage |
 
 ## Priority Subset
 
@@ -52,6 +52,9 @@
   - [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (Active, in progress)
 - [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (in progress)
 - [SPEC-177](../../../spec/Active/(SPEC-177)-Remove-Tmux-Swain-Stage/(SPEC-177)-Remove-Tmux-Swain-Stage.md) — Remove Tmux-Based swain-stage (in progress)
+### Complete
+
+- [SPEC-185](../../../spec/Complete/(SPEC-185)-Orphaned-Stage-Status-Hooks/(SPEC-185)-Orphaned-Stage-Status-Hooks.md) — Orphaned Stage-Status Hooks Fire on Every Event (done)
 ### Abandoned
 
 - [SPEC-125](../../../spec/Abandoned/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md) — swain-stage hooks fire unconditionally even when stage is not active (done)
