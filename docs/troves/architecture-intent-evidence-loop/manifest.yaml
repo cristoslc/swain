@@ -30,7 +30,7 @@ history:
 
   - event: extended
     date: 2026-03-29
-    commit: "--"
+    commit: "ed6d6d5"
     sources: 20
     sources-added: 15
     notes: "Added architectural thinking resources from TL Capability Map (Caps 1-4, 8)"
