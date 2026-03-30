@@ -28,7 +28,7 @@ history:
     sources: 8
   - event: extended
     date: 2026-03-29
-    commit: "--"
+    commit: 62bada2
     sources: 11
     sources-added: 3
     notes: "Added writing-to-influence resources from TL Capability Map (Cap 10)"
