@@ -2,7 +2,7 @@
 title: "Artifact ID allocation must check all local branches"
 artifact: SPEC-193
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-29
 last-updated: 2026-03-29
@@ -65,6 +65,10 @@ high — ID collisions cause merge conflicts and can silently overwrite artifact
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: worktree branched before trunk advances | next-artifact-id.sh returns 194 (> all existing IDs across branches) | PASS |
+| AC2: multiple worktree branches | Script uses git for-each-ref to scan ALL refs/heads/ | PASS |
+| AC3: scans all local branches | bash -x confirms git for-each-ref refs/heads/ call | PASS |
+| AC4: completes in under 2 seconds | 0.35s with 190+ artifacts and multiple branches | PASS |
 
 ## Scope & Constraints
 
@@ -91,3 +95,4 @@ Update swain-design step 1 to call this script instead of scanning the local fil
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-29 | — | Initial creation — ID collision observed in SPEC-191/192 |
+| Complete | 2026-03-30 | — | Retroactive verification — script on trunk, all ACs pass |
