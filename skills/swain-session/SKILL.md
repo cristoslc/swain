@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
   short-description: Session state and identity management
-  version: 1.3.0
+  version: 1.4.0
   author: cristos
   source: swain
 ---
@@ -38,48 +38,47 @@ Detection: if the skill is invoked with text after `/swain-session` (e.g., `/swa
 
 For runtimes that don't support initial prompts (e.g., crush), check the `SWAIN_PURPOSE` environment variable as a fallback.
 
-## Steps 1–2 — Bootstrap (tab naming + worktree detection + session load)
+## Step 1 — Fast Greeting (SPEC-194)
 
-Run the consolidated bootstrap script in a single call:
+Run the fast greeting script in a single call. This handles tab naming, worktree detection, session.json loading, bookmark display, focus lane, and lightweight preflight warnings — all in ~500ms. It does **not** invoke specgraph, GitHub API, or the full status dashboard.
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/.agents/bin/swain-session-bootstrap.sh" --auto
+bash "$REPO_ROOT/.agents/bin/swain-session-greeting.sh" --json
 ```
 
-The script handles tab naming (tmux only), worktree isolation detection, and session.json loading atomically. It emits structured JSON:
+The greeting emits structured JSON:
 
 ```json
 {
+  "greeting": true,
+  "branch": "trunk",
+  "dirty": false,
+  "isolated": false,
+  "bookmark": "Left off implementing the bootstrap script",
+  "focus": "VISION-001",
   "tab": "project @ branch",
-  "worktree": { "isolated": false, "path": null, "branch": "trunk" },
-  "session": {
-    "focus": "VISION-001",
-    "bookmark": "Left off implementing the bootstrap script",
-    "lastBranch": "trunk"
-  },
   "warnings": []
 }
 ```
 
-**After receiving the JSON output:**
+**After receiving the greeting JSON:**
 
-1. If `worktree.isolated` is `false`: use the `EnterWorktree` tool to create an isolated worktree. Generate the worktree name by running:
-   ```bash
-   bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh"
-   ```
-   Pass the script's stdout as the `name` parameter to `EnterWorktree`. For descriptive names, pass context as an argument: `... swain-worktree-name.sh" "spec-174"`. Never use a static name like "session" (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the script (it generates a fresh suffix each time) and retry once. Then re-run the bootstrap with the new path:
-   ```bash
-   bash "$REPO_ROOT/.agents/bin/swain-session-bootstrap.sh" --path "$(pwd)" --skip-worktree --auto
-   ```
-   If `EnterWorktree` fails or is unavailable, log a warning and proceed — swain-do will attempt isolation at dispatch time as a fallback.
+1. Present the greeting to the operator — branch, dirty state, bookmark (if any), focus lane (if any), and warnings.
 
-2. If `session.bookmark` is not null, display it:
+2. If `isolated` is `false` and the operator has not started work yet, **do not create a worktree now** — worktree creation is deferred to swain-do task dispatch (SPEC-195). If EnterWorktree is needed before swain-do, generate the name:
+   ```bash
+   bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh" "context"
+   ```
+   Then re-run the greeting with `--path` to refresh tab name and context:
+   ```bash
+   bash "$REPO_ROOT/.agents/bin/swain-session-greeting.sh" --path "$(pwd)" --json
+   ```
+
+3. If `bookmark` is not null, display it:
    > **Resuming session** — Last time: {bookmark}
 
-3. If `session.focus` is not null, display the focus lane.
-
-4. Display any `warnings` entries.
+4. The session is now ready for work. The full status dashboard is available on-demand (see [Status Dashboard](#status-dashboard-absorbed-from-swain-status--spec-122)).
 
 **If `$TMUX` is NOT set** (detected by absence of `tab` in the JSON), check whether tmux is installed:
 - **tmux not installed:** Offer to install it (`brew install tmux`).
