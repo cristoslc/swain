@@ -80,6 +80,33 @@ assert "clean project → phase 1 silent" "$([ -z "$P1_CLEAN" ] && echo true || 
 
 rm -rf "$TMPDIR_P1" "$TMPDIR_P1B"
 
+# --- Phase 2: Session selection (AC1, AC5, AC6) ---
+TMPDIR_P2=$(mktemp -d)
+mkdir -p "$TMPDIR_P2/.git" "$TMPDIR_P2/.agents" "$TMPDIR_P2/skills/swain-doctor/scripts"
+cp "$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh" "$TMPDIR_P2/skills/swain-doctor/scripts/"
+
+# T11: No crashed sessions → phase 2 skipped (AC2 fast path)
+P2_CLEAN=$(REPO_ROOT="$TMPDIR_P2" bash "$SCRIPT" --_phase2_only --_non_interactive 2>&1 || true)
+assert "no crashed sessions → phase 2 silent" "$([ -z "$P2_CLEAN" ] && echo true || echo false)"
+
+# T12: With session bookmark + crash debris → resume context shown
+cat > "$TMPDIR_P2/.agents/session.json" <<'SESSJSON'
+{
+  "lastBranch": "trunk",
+  "bookmark": {
+    "note": "Working on crash detection",
+    "files": ["scripts/test.sh"],
+    "timestamp": "2026-03-28T22:00:00Z"
+  },
+  "focus_lane": "INITIATIVE-019"
+}
+SESSJSON
+echo "99999999" > "$TMPDIR_P2/.git/index.lock"
+P2_RESUME=$(REPO_ROOT="$TMPDIR_P2" bash "$SCRIPT" --_phase2_only --_non_interactive 2>&1 || true)
+assert "crashed session → shows resume context" "$(echo "$P2_RESUME" | grep -q 'Working on crash detection' && echo true || echo false)"
+
+rm -rf "$TMPDIR_P2"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

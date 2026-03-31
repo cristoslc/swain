@@ -120,7 +120,7 @@ phase1_crash_detection() {
   done <<< "$findings"
   echo ""
 
-  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]]; then
+  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]] || [[ "$FLAG_DRY_RUN" == "true" ]] || ! [[ -t 0 ]]; then
     # Store findings for Phase 2
     PHASE1_FINDINGS="$findings"
     return
@@ -191,7 +191,73 @@ phase1_crash_detection() {
 
 # --- Phase 2: Session selection ---
 phase2_session_selection() {
-  : # placeholder — Task 6
+  local has_crash_indicators=false
+
+  if [[ -n "$PHASE1_FINDINGS" ]]; then
+    has_crash_indicators=true
+  fi
+
+  local session_file="$REPO_ROOT/.agents/session.json"
+  local bookmark="" focus_lane=""
+
+  if [[ -f "$session_file" ]]; then
+    bookmark=$(grep -o '"note"[[:space:]]*:[[:space:]]*"[^"]*"' "$session_file" 2>/dev/null \
+               | head -1 | sed 's/.*"note"[[:space:]]*:[[:space:]]*"//;s/"$//')
+    focus_lane=$(grep -o '"focus_lane"[[:space:]]*:[[:space:]]*"[^"]*"' "$session_file" 2>/dev/null \
+                 | head -1 | sed 's/.*"focus_lane"[[:space:]]*:[[:space:]]*"//;s/"$//')
+  fi
+
+  # Fast path: no crash indicators and no bookmark → skip Phase 2
+  if [[ "$has_crash_indicators" != "true" ]] && [[ -z "$bookmark" ]]; then
+    return
+  fi
+
+  echo "=== Previous session detected ==="
+  if [[ -n "$bookmark" ]]; then
+    echo "  Last activity: $bookmark"
+  fi
+  if [[ -n "$focus_lane" ]]; then
+    echo "  Focus: $focus_lane"
+  fi
+
+  # Show dangling worktrees with uncommitted changes (AC5)
+  if echo "$PHASE1_FINDINGS" | grep -q 'dangling_worktrees.*found' 2>/dev/null; then
+    echo ""
+    echo "  Worktrees with unmerged work:"
+    echo "$PHASE1_FINDINGS" | grep 'dangling_worktrees.*found' | while IFS=$'\t' read -r _ _ detail; do
+      echo "    - $detail"
+    done
+  fi
+  echo ""
+
+  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]] || [[ "$FLAG_DRY_RUN" == "true" ]] || ! [[ -t 0 ]]; then
+    RESUME_PROMPT="/swain-session Session purpose: resume after crash"
+    if [[ -n "$bookmark" ]]; then
+      RESUME_PROMPT="/swain-session Session purpose: resume — $bookmark"
+    fi
+    return
+  fi
+
+  echo "Options:"
+  echo "  [r] Resume previous session"
+  echo "  [f] Start fresh"
+  echo ""
+  read -r -p "Choice (r/f): " choice </dev/tty
+
+  case "$choice" in
+    r|R)
+      RESUME_PROMPT="/swain-session"
+      if [[ -n "$bookmark" ]]; then
+        RESUME_PROMPT="/swain-session Session purpose: resume — $bookmark"
+      fi
+      echo "  Resuming with context."
+      ;;
+    *)
+      RESUME_PROMPT=""
+      echo "  Starting fresh."
+      ;;
+  esac
+  echo ""
 }
 
 # --- Runtime resolution ---
