@@ -86,7 +86,7 @@ fi
 echo "Test 6: --threshold 1 fails even simple prose"
 if [[ -x "$SCRIPT" ]]; then
   exit_code=0
-  output=$(bash "$SCRIPT" --threshold 1 "$FIXTURES/readability-pass.md" 2>&1 || exit_code=$?)
+  output=$(bash "$SCRIPT" --threshold 1 "$FIXTURES/readability-pass.md" 2>&1) || exit_code=$?
   assert "exits 1 with threshold 1" "$([ "$exit_code" -eq 1 ] && echo 0 || echo 1)"
   assert "outputs FAIL" "$(echo "$output" | grep -q '^FAIL' && echo 0 || echo 1)"
 else
@@ -109,7 +109,7 @@ fi
 echo "Test 8: multiple files — exits 1 when any fails, reports all"
 if [[ -x "$SCRIPT" ]]; then
   exit_code=0
-  output=$(bash "$SCRIPT" "$FIXTURES/readability-pass.md" "$FIXTURES/readability-fail.md" 2>&1 || exit_code=$?)
+  output=$(bash "$SCRIPT" "$FIXTURES/readability-pass.md" "$FIXTURES/readability-fail.md" 2>&1) || exit_code=$?
   assert "exits 1 when any file fails" "$([ "$exit_code" -eq 1 ] && echo 0 || echo 1)"
   assert "reports pass file" "$(echo "$output" | grep -q 'PASS.*readability-pass' && echo 0 || echo 1)"
   assert "reports fail file" "$(echo "$output" | grep -q 'FAIL.*readability-fail' && echo 0 || echo 1)"
