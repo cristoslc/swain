@@ -37,6 +37,10 @@ evidence-pool: {{ evidence_pool | default("") }}
 
 {{ desired_outcomes | default("How does completing this initiative advance our personas toward their aspirations? What does the world look like for our stakeholders when this direction is fully realized?") }}
 
+## Progress
+
+<!-- Auto-populated from session digests. See progress.md for full log. -->
+
 ## Scope Boundaries
 
 {{ scope | default("What is in scope and what is explicitly out of scope.") }}
