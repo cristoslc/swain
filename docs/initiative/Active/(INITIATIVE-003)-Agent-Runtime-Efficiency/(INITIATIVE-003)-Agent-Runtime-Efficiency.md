@@ -5,7 +5,7 @@ track: container
 status: Active
 author: cristos
 created: 2026-03-15
-last-updated: 2026-03-16
+last-updated: 2026-03-30
 parent-vision: VISION-001
 success-criteria:
   - Skill context footprint ≤5% of context window
@@ -15,6 +15,7 @@ linked-artifacts:
   - EPIC-004
   - EPIC-006
   - EPIC-007
+  - EPIC-048
   - SPEC-026
   - SPIKE-026
 ---
@@ -36,6 +37,7 @@ Keep agents fast, cheap, and correctly routed. This initiative focuses on reduci
 - EPIC-004: Superpowers Integration Assessment (Complete)
 - EPIC-006: Skill Context Footprint Reduction (Complete)
 - EPIC-007: Agent Model Routing and Reasoning Effort Steering (Complete)
+- [EPIC-048](../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md): Session Startup Fast Path (Active)
 
 ## Research Spikes
 
