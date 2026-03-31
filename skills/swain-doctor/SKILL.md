@@ -243,6 +243,23 @@ Read [references/initiative-migration.md](references/initiative-migration.md) fo
 - **ok** — all Active EPICs already have `parent-initiative`, or no EPICs exist
 - **advisory** — one or more Active EPICs lack `parent-initiative` (non-blocking)
 
+## README existence check
+
+Verify that `README.md` exists at the repo root. The README is the most public statement of project intent and serves as an ambient input to swain's alignment loop. A missing README means the alignment loop has no public intent anchor.
+
+### Detection
+
+```bash
+[ -f "README.md" ] && echo "ok" || echo "missing"
+```
+
+### Status values and response
+
+- **ok** — README.md exists. Silent.
+- **warning** — README.md missing. Report: `README.md missing — swain alignment loop has no public intent anchor. Run swain-init to seed one.`
+
+This is an existence check only — no content analysis. Content reconciliation is handled by swain-session (session start), swain-retro (retrospective), and swain-release (release gate).
+
 ## Evidence Pool → Trove Migration
 
 Detect unmigrated evidence pools:
@@ -275,6 +292,7 @@ swain-doctor summary:
   Lifecycle dirs ..... ok
   Epics w/o initiative advisory (3 epics — see note below)
   Worktrees .......... ok
+  README ............. ok
   Superpowers ........ ok (6/6 skills detected)
 
 3 checks performed repairs. 0 issues remain.

@@ -413,6 +413,17 @@ check_ssh_readiness() {
 }
 
 # ============================================================
+# Check: README existence (SPEC-208)
+# ============================================================
+check_readme() {
+  if [[ -f "README.md" ]]; then
+    add_check "readme" "ok" "README.md exists"
+  else
+    add_check "readme" "warning" "README.md missing — swain alignment loop has no public intent anchor"
+  fi
+}
+
+# ============================================================
 # Run all checks (set +e so failures don't cascade)
 # ============================================================
 set +e
@@ -427,6 +438,7 @@ check_script_permissions
 check_memory_directory
 check_superpowers
 check_epics_initiative
+check_readme
 check_evidence_pools
 check_worktrees
 check_lifecycle_dirs

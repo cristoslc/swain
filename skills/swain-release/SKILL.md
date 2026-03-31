@@ -184,6 +184,45 @@ Medium and lower findings should be reported but do not block the release.
 
 If the security scanner is not installed, note the gap and proceed — don't block on a missing tool.
 
+### 5.7. README gate (SPEC-211)
+
+Two-part hard gate that verifies README alignment and test coverage of README promises. Both must pass or be explicitly overridden before tagging.
+
+**Skip condition:** If README.md does not exist, skip this gate — swain-doctor already flags the missing README. Do not block a release on a file that was never created.
+
+#### Part 1: Alignment check
+
+Read README.md and extract all claims about what the project does, who it's for, how it works, and what it supports. Compare against the current Active artifact tree (Visions, Designs, Journeys, Specs).
+
+Surface each mismatch:
+- **Stale promises** — README claims a feature or behavior that an artifact explicitly dropped or superseded.
+- **Missing coverage** — an artifact describes a shipped capability the README doesn't mention.
+- **Contradictions** — README and artifact disagree on behavior, audience, or scope.
+
+Unresolved drift blocks the release. For each finding, the operator must:
+1. Update the README to match reality, or
+2. Update the artifact to match the README, or
+3. Explicitly override — state why the drift is acceptable. The override is recorded in the release notes.
+
+#### Part 2: Verification check
+
+Identify README claims that imply testable behavior:
+
+- **Install/setup claims** — "run `npm install && npm start`" implies a smoke test that the install path works.
+- **CLI behavior** — "`foo init` creates a project" implies an integration test.
+- **API surface** — "exports a `createWidget` function" implies an export existence test.
+- **Behavioral promises** — "automatically retries on failure" implies a retry behavior test.
+- **Integration claims** — "works with PostgreSQL 15+" implies a version-specific integration test.
+
+For each untested promise, the operator chooses:
+1. **Add a test** — release pauses for test creation, then re-runs the check.
+2. **Remove the promise** — README is updated and the check re-runs.
+3. **Accept the gap** — the gap is recorded in the release notes.
+
+#### Override
+
+The operator can override the full README gate with an explicit statement. The override and its reason are recorded in the release metadata (changelog or tag annotation). No silent bypass — the operator must state why they're overriding.
+
 ### 6. Commit and tag
 
 Stage the changed files (changelog + version bumps) and commit:

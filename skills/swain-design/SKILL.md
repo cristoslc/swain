@@ -222,6 +222,30 @@ When an Epic has `artifact-refs` with `rel: [aligned]` pointing to a DESIGN:
 When a DESIGN's mutable sections are modified but `sourcecode-refs` blobs haven't changed:
 - Surface: "DESIGN-NNN evolved but tracked code hasn't caught up." Nudge the operator to reconcile.
 
+### README reconciliation nudge
+
+When transitioning a Vision, Design, Journey, or Persona to a new phase, emit a soft signal if the transition changes the project's public-facing claims:
+
+> README.md may need updating to reflect this change.
+
+This is informational, not blocking — the operator can dismiss it.
+
+**Trigger conditions** — nudge when:
+- A Vision transitions to Active (new direction) or Abandoned (dropped direction)
+- A Design transitions to Active (new interaction model, data architecture, or system contract) or Superseded (replaced)
+- A Journey transitions to Active (new user flow) or Abandoned (deprecated path)
+- A Persona transitions to Active (new audience) or Abandoned (dropped audience)
+
+**Brainstorming context** — when the `brainstorming` skill runs for a project that has a README but no artifacts (or a thin artifact tree — fewer than 3 Active Visions, Designs, Journeys, or Personas combined), it should use the README as the starting context for Socratic exploration. The README's claims, audience, and described behavior seed the brainstorming conversation instead of starting from scratch.
+
+Detection for brainstorming context:
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+ACTIVE_COUNT=$(find "$REPO_ROOT/docs" -path "*/Active/*" -name "*.md" 2>/dev/null | grep -cE "(VISION|DESIGN|JOURNEY|PERSONA)" || echo "0")
+HAS_README=$( [ -f "$REPO_ROOT/README.md" ] && echo "yes" || echo "no" )
+```
+If `HAS_README=yes` and `ACTIVE_COUNT < 3`, pass README content to brainstorming as primary context.
+
 ## Trove integration
 
 During research phase transitions (Spike Proposed -> Active, ADR Proposed -> Active, Vision/Epic creation), check for existing troves and offer to link or create one. Read [references/trove-integration.md](references/trove-integration.md) for the full hook, trove scanning, and back-link maintenance procedures.

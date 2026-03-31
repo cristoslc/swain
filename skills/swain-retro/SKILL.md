@@ -319,6 +319,32 @@ bash "$REPO_ROOT/.agents/bin/resolve-artifact-link.sh" <ARTIFACT-ID> <RETRO-FILE
 
 Replace bare IDs with `[ARTIFACT-ID](relative-path)`. If the script returns non-zero or empty output (artifact not found), leave the bare ID as-is. Frontmatter `related-artifacts` values stay as plain IDs (YAML compatibility).
 
+## Step 4.7 — README drift check (SPEC-210)
+
+After reflection and before closing the retro, check if the README still matches the project.
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+[ -f "$REPO_ROOT/README.md" ] && echo "has_readme" || echo "no_readme"
+```
+
+If README.md exists:
+
+1. Read README.md and extract claims about what the project does and how it works.
+2. Compare claims against artifacts that changed during the retro scope (from Step 1 context).
+3. Surface drift findings:
+   - **New features the README omits** — the epic shipped something the README does not mention.
+   - **Stale promises** — the epic dropped or replaced something the README still claims.
+   - **Changed behavior** — the epic changed how something works but the README still shows the old way.
+
+Show findings to the operator. They can fix the README, fix the artifact, or defer.
+
+In auto mode, add drift findings to the `## Reflection` section. In interactive mode, show them after the reflection questions and before writing output.
+
+If no drift exists, skip — do not add a "no drift" note.
+
+Deferred findings go in a `### README drift` subsection of the retro output so they stay visible.
+
 ## Step 5 — Update session bookmark
 
 ```bash
