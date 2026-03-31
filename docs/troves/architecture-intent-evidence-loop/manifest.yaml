@@ -1,6 +1,6 @@
 trove: architecture-intent-evidence-loop
 created: 2026-03-24
-refreshed: 2026-03-24
+refreshed: 2026-03-29
 tags:
   - architecture
   - intent
@@ -11,6 +11,13 @@ tags:
   - amortized-derivation
   - component-catalog
   - philosophy
+  - trade-off-analysis
+  - bounded-context
+  - fitness-functions
+  - business-capability
+  - ddd
+  - sre
+  - quality-attributes
 
 freshness-ttl:
   local: never
@@ -20,6 +27,13 @@ history:
     date: 2026-03-24
     commit: "47664e8"
     sources: 5
+
+  - event: extended
+    date: 2026-03-29
+    commit: "ed6d6d5"
+    sources: 20
+    sources-added: 15
+    notes: "Added architectural thinking resources from TL Capability Map (Caps 1-4, 8)"
 
 sources:
   - source-id: architecture-conversation-summary
@@ -61,3 +75,133 @@ sources:
     title: "Cross-Experiment Synthesis and Review"
     hash: "2b644ab6ea6cae75a4d2aa27c6bbf137a03da969305df785f4ce31efb11b26f3"
     notes: "Synthesizes both experiments, identifies convergences and divergences, recommends unified structure"
+
+  # --- Cap 1: Smell-Test Claims ---
+
+  - source-id: think-like-architect
+    type: media
+    url: "https://www.youtube.com/watch?v=W7Krz__jJUg"
+    fetched: 2026-03-29T00:00:00Z
+    title: "How to Think Like an Architect — Mark Richards"
+    hash: "f5661e5fc21b5bb4dd3ff90384ba381c00d56784456bd0ccb63bc521c4bf48d9"
+    notes: "Cap 1 Start Here. Trade-off analysis, First Law of Software Architecture, breadth vs depth"
+
+  - source-id: good-enough-architecture
+    type: media
+    url: "https://www.youtube.com/watch?v=PzEox3szeRc"
+    fetched: 2026-03-29T00:00:00Z
+    title: "'Good Enough' Architecture — Stefan Tilkov"
+    hash: "d4876de01412da7bac4e57758a454ba8f78e8e9036d02aacf0b7295d2fc8d2a5"
+    notes: "Cap 1 Start Here. Reversible vs irreversible decisions, pragmatism over purism"
+
+  - source-id: quality-worth-cost
+    type: web
+    url: "https://martinfowler.com/articles/is-quality-worth-cost.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Is High Quality Software Worth the Cost? — Martin Fowler"
+    hash: "71981a5201286fbbedfcb227b503a02322e494d8b03442d7b8565eccf64919dc"
+    notes: "Cap 1 Go Deeper. Internal vs external quality, cruft accumulation, DORA elite teams"
+
+  # --- Cap 2: Find Boundaries ---
+
+  - source-id: bounded-context
+    type: web
+    url: "https://martinfowler.com/bliki/BoundedContext.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Bounded Context — Martin Fowler"
+    hash: "1e8d864a4ed1370ba34542891cdd51d4dee14b4ddbbe73387d63c9b0fb5746a7"
+    notes: "Cap 2 Start Here. DDD strategic design, polysemes, ubiquitous language"
+
+  - source-id: ddd-microservices-boundaries
+    type: media
+    url: "https://www.youtube.com/watch?v=yPvef9R3k-M"
+    fetched: 2026-03-29T00:00:00Z
+    title: "DDD & Microservices: At Last, Some Boundaries! — Eric Evans"
+    hash: "e9d2933135377e5603b804fdfeca6f7ce101aed65cb07512a7229bcf05fe278f"
+    notes: "Cap 2 Start Here. Bounded contexts as service boundaries, context mapping, strategic vs tactical design"
+
+  - source-id: microservice-boundaries
+    type: web
+    url: "https://learn.microsoft.com/en-us/azure/architecture/microservices/model/microservice-boundaries"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Identify Microservice Boundaries — Azure Architecture Center"
+    hash: "d88a3d326187f54d23ce918e149559b434829cd84be5216f38c97901aeae3e19"
+    notes: "Cap 2 Go Deeper. Domain model to microservices, aggregates, validation criteria"
+
+  - source-id: core-domain-patterns
+    type: web
+    url: "https://medium.com/nick-tune-tech-strategy-blog/core-domain-patterns-941f89446af5"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Core Domain Patterns — Nick Tune"
+    hash: "41b76b95dc12edc192aa50684f1abb16c0d8c5346ac014e421f778b127b408c2"
+    notes: "Cap 2/8 Go Deeper. Decisive core, short-term core, commoditised core, domain evolution patterns"
+
+  # --- Cap 3: Pressure-Test ---
+
+  - source-id: fitness-functions-lesson
+    type: media
+    url: "https://developertoarchitect.com/lessons/lesson73.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Lesson 73: Architecture Fitness Functions — Mark Richards"
+    hash: "605549ac359c31a45935b1ce522ee0f2711ef14bef35cf357e26231b0ea3d878"
+    notes: "Cap 3 Start Here. Objective measurement of architectural characteristics, evolutionary architecture"
+
+  - source-id: translating-quality-attributes
+    type: media
+    url: "https://developertoarchitect.com/lessons/lesson37.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Lesson 37: Translating Quality Attributes to Business Concerns — Mark Richards"
+    hash: "c43c53d019fe8962d7782198589220067745783baf918e84639a2aa57f80d7e1"
+    notes: "Cap 3 Start Here. Bridging -ilities to business language, architect as translator"
+
+  - source-id: fitness-function-driven-dev
+    type: web
+    url: "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Fitness Function-Driven Development — Paula Paul & Rosemary Wang (ThoughtWorks)"
+    hash: "bba8c6ce5be7c2579f9283a6d8d0fe51fa66ba9a40bdbb30404a1d930d01d795"
+    notes: "Cap 3 Go Deeper. TDD for architecture, fitness function categories with code examples"
+
+  # --- Cap 4: Think in Production ---
+
+  - source-id: monitoring-distributed-systems
+    type: web
+    url: "https://sre.google/sre-book/monitoring-distributed-systems/"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Monitoring Distributed Systems — Google SRE Book Ch 6"
+    hash: "2d88037b5c7cc04692057881637cb14e094bde1290efa2764f9280f02aa2e1b2"
+    notes: "Cap 4 Start Here. Four golden signals, symptoms vs causes, monitoring philosophy"
+
+  - source-id: service-level-objectives
+    type: web
+    url: "https://sre.google/sre-book/service-level-objectives/"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Service Level Objectives — Google SRE Book Ch 4"
+    hash: "f417ec909501c84ee83b6c9ae040bee834be319af3672068ac8e49f4e8d10745"
+    notes: "Cap 4 Start Here. SLI/SLO/SLA framework, error budgets, Chubby planned outage"
+
+  # --- Cap 8: Design from the Business ---
+
+  - source-id: architect-elevator
+    type: web
+    url: "https://martinfowler.com/articles/architect-elevator.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "The Architect Elevator — Gregor Hohpe"
+    hash: "db263f279988e0e03a240a272379faabb6afebf7bd08084844b8f5d204b81ecb"
+    notes: "Cap 8 Start Here. Architecture as options, penthouse-engine room connection, feedback loops"
+
+  - source-id: identify-business-capabilities
+    type: web
+    url: "https://martinfowler.com/articles/patterns-legacy-displacement/identify-business-capabilities.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Identify Business Capabilities — Cartwright, Horn & Lewis"
+    hash: "df11f1d3fc8b000ae33d7d4504707f4fa89e76b13026359d998ba0f3cf431843"
+    notes: "Cap 8 Start Here. Stable organizational concepts for team and software structure"
+
+  - source-id: business-capability-centric
+    type: web
+    url: "https://martinfowler.com/bliki/BusinessCapabilityCentric.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Business Capability Centric — Sriram Narayan"
+    hash: "a3d3010a29fc1b7d6001033592c6581ed028fccdc34ca4ab7d7b96c3ff568cfd"
+    notes: "Cap 8 Go Deeper. Think-it build-it run-it teams, Conway's Law alignment, strategic vs utility"

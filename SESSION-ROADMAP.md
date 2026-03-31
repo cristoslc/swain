@@ -5,8 +5,8 @@
 ## Evidence Basis
 
 - **Focus lane:** INITIATIVE-019 (Session-Scoped Decision Support)
-- **ROADMAP.md hash:** `909c8680`
-- **HEAD:** `e190101`
+- **ROADMAP.md hash:** `a253be75`
+- **HEAD:** `951baed`
 - **Artifacts in scope:** 30
 - **Direct children:** EPIC-039, EPIC-042, EPIC-046, EPIC-047, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123, SPEC-160, SPEC-161, SPEC-178, SPEC-183, SPEC-184
 
@@ -20,7 +20,7 @@ No decisions needed in this focus area right now.
 
 ## Session Goal
 
-**Recommended goal:** Progress implementation on SPEC-150, SPEC-160, SPEC-180
+**Recommended goal:** Progress implementation on SPEC-150, SPEC-160, SPEC-182
 
 *Justification:* No operator decisions are pending. These items are the highest-leverage implementation work in Session-Scoped Decision Support.
 
@@ -31,11 +31,11 @@ No decisions needed in this focus area right now.
 
 Recent commits touching this focus area:
 
-- `e190101` test(SPEC-180): verify resume prompt composition (AC6)
-- `603fb65` feat(SPEC-180): implement Phase 2 session selection with resume context (AC1, AC5, AC6)
-- `fefe704` feat(SPEC-180): implement Phase 1 crash detection and cleanup (AC1, AC3)
-- `dee34c7` test(SPEC-180): add argument parsing tests
-- `4985eb2` feat(SPEC-180): scaffold pre-runtime swain script with runtime resolution
+- `7a01034` feat(SPEC-182): add crash-debris-lib.sh symlink to .agents/bin
+- `5eefc2b` feat(SPEC-182): integrate crash debris checks into swain-doctor
+- `8e7dfae` feat(SPEC-182): add dangling worktree, MCP, and aggregate crash debris detection
+- `83495d5` feat(SPEC-182): add stale tk lock detection
+- `abfdf9c` feat(SPEC-182): add interrupted git operation detection
 
 ## Decision Records
 

@@ -1,6 +1,6 @@
 # Task Management Systems for AI Agents — Synthesis
 
-Trove: `task-management-systems` | 5 sources | 2026-03-22
+Trove: `task-management-systems` | 6 sources | 2026-03-30
 
 ## The question
 
@@ -25,6 +25,12 @@ The rubric identifies three capabilities as most differentiating:
 2. **Human tools with MCP bridges** (Taskwarrior, Linear, Jira, GitHub Issues): Rich existing ecosystems adapted for agent use. Trade-off: verbose APIs, auth overhead, token cost, impedance mismatch between human UI assumptions and agent interaction patterns.
 
 3. **File-based approaches** (tk, Built-in Tasks, todo-md-mcp, Planning with Files): Maximum portability, git-native, human-readable. Trade-off: no computed priority, limited dependency logic, concurrency risks.
+
+### Anecdotal signal: organic displacement of issue trackers
+
+A Reddit thread [reddit-linear-issue-tracking-dead] from a startup founder describes their team organically stopping Linear usage — not through deliberate migration, but because agentic workflows (Claude/Codex) absorbed the issue tracking function into the repo. One anecdote, not a trend — but the described pattern (bug in, spec + fix out, Linear never opened) is consistent with the file-based philosophy in category 3 above.
+
+The post notes Linear's strategic response (moving "up the stack" to become an agentic coding layer) and questions whether that's a moat or merely table stakes when competing against Anthropic and OpenAI. Take with appropriate skepticism — this is a single founder's LinkedIn-style reflection, not industry analysis.
 
 ### swain's position in the landscape
 
@@ -56,12 +62,14 @@ The main Taskwarrior MCP server [mcp-server-taskwarrior] (44 stars) has only 3 t
 - **Persistence must outlive the context window.** In-memory approaches (blizzy78) are useful for session orchestration but insufficient for multi-session projects.
 - **Dependency management is table stakes.** Every serious tool supports task dependencies; the differentiator is whether they're manually managed or automatically resolved.
 - **No single tool covers all 10 criteria well.** The highest score is 40/50 — there's room for a system that combines file-based readability with structured hierarchy and computed priority.
+- **Organic displacement may be happening.** One anecdotal account [reddit-linear-issue-tracking-dead] describes a team abandoning their issue tracker through agentic workflow absorption — weak signal, but directionally consistent with the file-based thesis.
 
 ## Points of disagreement
 
 - **Where should task data live?** SQLite (saga-mcp) vs. JSON files (Task Master, Built-in Tasks) vs. markdown (tk, file-based) vs. cloud (Linear, Jira). Each makes different trade-offs between queryability, diffability, human readability, and portability.
 - **Should the AI decompose tasks?** Task Master says yes (PRD-to-tasks is the killer feature). The swain approach says the operator decides (decision support, not autonomous decomposition). This reflects deeper philosophical differences about agent autonomy.
 - **Is artifact traceability a tool feature or a workflow feature?** The rubric says it's a workflow concern ("any tool with a text field can link to a spec"). Swain's position is that enforcement matters more than capability — traceability that isn't enforced is traceability that drifts.
+- **Is "going agentic" a moat or table stakes?** Linear's pivot to agentic coding suggests it's a survival move. One Reddit poster [reddit-linear-issue-tracking-dead] frames it as table stakes — an anecdotal opinion, but the underlying question (can tool-layer vendors differentiate against runtime-layer vendors like Anthropic/OpenAI?) is worth tracking.
 
 ## Gaps in the research
 
@@ -69,7 +77,9 @@ The main Taskwarrior MCP server [mcp-server-taskwarrior] (44 stars) has only 3 t
 - **No cost analysis.** Token cost per task operation varies dramatically (External PM >> saga-mcp > file-based). This wasn't quantified.
 - **Multi-agent coordination barely explored.** Only saga-mcp and External PM tools scored above 3/5 on multi-agent collaboration. As agent parallelism increases, this gap will matter more.
 - **swain-design + swain-do ecosystem not evaluated as a unit.** The rubric scores tk in isolation, but the swain value proposition is the integrated ecosystem. A fair comparison would score the full stack.
+- **Linear's agentic pivot not yet evaluated.** The "issue tracking is dead" announcement suggests Linear is pivoting to an agentic coding layer, but no details of the product are available to evaluate yet.
 
 ## Related troves
 
 - `kanban-tools` — covers the visualization layer (daymark-md) that complements task management; focused on markdown-backed kanban boards rather than task tracking systems
+- `work-item-hierarchy` — covers the conceptual models behind work hierarchies (epics, initiatives, stories) across tools including Linear, Jira, and SAFe

@@ -52,6 +52,10 @@ If superpowers is not installed, superpowers chains are skipped, not blocked. Sw
 
 **Skill changes are code changes.** Skill files (`skills/`, `.claude/skills/`, `.agents/skills/`) are code written in markdown syntax. Non-trivial skill edits require worktree isolation — the same discipline applied to `.sh`, `.py`, and other code files. Trivial fixes (typo corrections, single-line doc fixes, ≤5-line diffs touching one file with no structural changes) may land directly on trunk.
 
+### Readability
+
+All artifacts produced by swain skills must meet a Flesch-Kincaid grade level of 9 or below on prose content. After writing or editing an artifact, run `readability-check.sh` on it. If the score exceeds the threshold, revise the prose — use shorter sentences, simpler words, and active voice — then re-check. Do not rewrite content that already passes. If three revision attempts still fail, note the score in the commit message and proceed. See `references/readability-protocol.md` for the integration contract.
+
 ### Session startup
 
 Session initialization is handled structurally by the `swain` shell launcher function (installed via `/swain-init`), which passes `/swain-init` as the initial prompt to the agentic runtime. Do not rely on prosaic auto-invoke directives — see ADR-018. If a session starts without the launcher, the operator can manually run `/swain-session`.
