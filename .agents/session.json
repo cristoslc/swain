@@ -5,13 +5,13 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed SPEC-180 (pre-runtime swain script) and SPEC-182 (crash debris detection) — SPEC-181 (shell function refactor) remains for EPIC-046",
+    "note": "Completed EPIC-046 (Pre-Runtime Crash Recovery) — all 3 specs, 43 tests, ready for merge to trunk",
     "files": [
       "skills/swain/scripts/swain",
-      "tests/test_pre_runtime.sh",
-      "skills/swain-doctor/scripts/crash-debris-lib.sh"
+      "skills/swain-doctor/scripts/crash-debris-lib.sh",
+      "skills/swain-init/templates/launchers/thin-wrapper/swain.bash"
     ],
-    "timestamp": "2026-03-31T03:24:11Z"
+    "timestamp": "2026-03-31T03:45:41Z"
   },
   "focus_lane": "INITIATIVE-019"
 }
