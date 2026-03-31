@@ -462,6 +462,50 @@ check_swain_symlink() {
 }
 
 # ============================================================
+# Check 20: .agents/bin/ symlink completeness (SPEC-206)
+# ============================================================
+check_agents_bin_symlinks() {
+  local bin_dir="$REPO_ROOT/.agents/bin"
+  if [[ ! -d "$bin_dir" ]]; then
+    add_check "agents_bin_symlinks" "warning" ".agents/bin/ directory missing"
+    return
+  fi
+
+  # Check for broken symlinks in .agents/bin/
+  local broken=()
+  while IFS= read -r link; do
+    [[ -z "$link" ]] && continue
+    if [[ ! -e "$link" ]]; then
+      broken+=("$(basename "$link")")
+    fi
+  done < <(find "$bin_dir" -type l 2>/dev/null)
+
+  # Check for scripts in skills/*/scripts/ that lack a symlink in .agents/bin/
+  # Convention: .sh files (excluding test-*) should be symlinked
+  local missing=()
+  while IFS= read -r script; do
+    [[ -z "$script" ]] && continue
+    local base
+    base=$(basename "$script")
+    if [[ ! -L "$bin_dir/$base" ]]; then
+      missing+=("$base")
+    fi
+  done < <(find "$REPO_ROOT/skills" -path '*/scripts/*.sh' ! -name 'test-*' ! -name 'test_*' 2>/dev/null)
+
+  local issues=()
+  [[ ${#broken[@]} -gt 0 ]] && issues+=("${#broken[@]} broken: ${broken[*]}")
+  [[ ${#missing[@]} -gt 0 ]] && issues+=("${#missing[@]} missing: ${missing[*]}")
+
+  if [[ ${#issues[@]} -eq 0 ]]; then
+    add_check "agents_bin_symlinks" "ok" ".agents/bin/ symlinks complete"
+  else
+    local detail
+    detail=$(printf '%s; ' "${issues[@]}")
+    add_check "agents_bin_symlinks" "warning" ".agents/bin/ symlink issues" "${detail%;* }"
+  fi
+}
+
+# ============================================================
 # Run all checks (set +e so failures don't cascade)
 # ============================================================
 set +e
@@ -485,6 +529,7 @@ check_commit_signing
 check_ssh_readiness
 check_crash_debris
 check_swain_symlink
+check_agents_bin_symlinks
 
 set -e
 
