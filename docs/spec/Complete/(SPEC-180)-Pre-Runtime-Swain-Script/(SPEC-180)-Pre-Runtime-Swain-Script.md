@@ -105,4 +105,4 @@ Created by:
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) |
 | Active | 2026-03-28 | — | Updated symlink from `./swain` to `bin/swain` per ADR-019 operator-facing convention |
-| Complete | 2026-03-30 | -- | 17/17 tests pass, all 7 ACs verified |
+| Complete | 2026-03-30 | 30b0267 | 17/17 tests pass, all 7 ACs verified |
