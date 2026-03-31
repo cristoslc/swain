@@ -5,14 +5,13 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Implemented SPEC-192 (swain-doctor.sh) + SPEC-193 (next-artifact-id.sh) — all tests pass, ready to commit",
+    "note": "Completed SPEC-180 (pre-runtime swain script) and SPEC-182 (crash debris detection) — SPEC-181 (shell function refactor) remains for EPIC-046",
     "files": [
-      "skills/swain-doctor/scripts/swain-doctor.sh",
-      "skills/swain-design/scripts/next-artifact-id.sh",
-      "skills/swain-doctor/SKILL.md",
-      "skills/swain-design/SKILL.md"
+      "skills/swain/scripts/swain",
+      "tests/test_pre_runtime.sh",
+      "skills/swain-doctor/scripts/crash-debris-lib.sh"
     ],
-    "timestamp": "2026-03-29T14:17:40Z"
+    "timestamp": "2026-03-31T03:24:11Z"
   },
   "focus_lane": "INITIATIVE-019"
 }

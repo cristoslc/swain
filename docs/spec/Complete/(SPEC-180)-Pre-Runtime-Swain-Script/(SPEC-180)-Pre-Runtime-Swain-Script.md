@@ -2,10 +2,10 @@
 title: "Pre-Runtime Swain Script"
 artifact: SPEC-180
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-30
 priority-weight: high
 type: feature
 parent-epic: EPIC-046
@@ -105,3 +105,4 @@ Created by:
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) |
 | Active | 2026-03-28 | — | Updated symlink from `./swain` to `bin/swain` per ADR-019 operator-facing convention |
+| Complete | 2026-03-30 | -- | 17/17 tests pass, all 7 ACs verified |
