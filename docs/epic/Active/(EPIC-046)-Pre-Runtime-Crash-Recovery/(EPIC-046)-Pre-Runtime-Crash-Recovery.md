@@ -54,7 +54,7 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 |------|-------|--------|-------|
 | [SPEC-180](../../../spec/Active/(SPEC-180)-Pre-Runtime-Swain-Script/(SPEC-180)-Pre-Runtime-Swain-Script.md) | Pre-Runtime Swain Script | Active | Phase 1-3: structural checks, session selection, runtime invocation |
 | [SPEC-181](../../../spec/Active/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) | Swain Shell Function Refactor | Active | Thin wrapper, script delegation, graceful fallback |
-| [SPEC-182](../../../spec/Complete/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) | Crash Debris Detection Checks | Active | Standalone bash functions for git locks, tk locks, dangling worktrees |
+| [SPEC-182](../../../spec/Complete/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) | Crash Debris Detection Checks | Complete | 18/18 tests, doctor Check 18, crash-debris-lib.sh |
 
 ## Key Dependencies
 
