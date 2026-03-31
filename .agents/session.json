@@ -1,15 +1,12 @@
 {
-  "lastBranch": "trunk",
+  "lastBranch": "worktree-spec-206-test-gaps-20260331-134014-8ddb",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed SPEC-206 — missing session greeting script",
-    "files": [
-      "docs/spec/Complete/(SPEC-206)-Missing-Session-Greeting-Script/(SPEC-206)-Missing-Session-Greeting-Script.md"
-    ],
-    "timestamp": "2026-03-31T17:35:04Z"
+    "note": "Fixed SPEC-206 test gaps: doctor auto-repair + full symlink test coverage",
+    "timestamp": "2026-03-31T17:44:51Z"
   },
   "focus_lane": "EPIC-049"
 }
