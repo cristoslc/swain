@@ -24,7 +24,7 @@
 |-----------|------|----------|----------|-------|
 | [Session-Scoped Decision Support](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Chart Critical Path Lens](../../../spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Retro Session Intelligence](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) | 0/5 | 0 | — |
-|  | [Pre-Runtime Crash Recovery](../../../epic/Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) | 0/3 | 0 | — |
+|  | [Pre-Runtime Crash Recovery](../../../epic/Complete/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) | 0/3 | 0 | — |
 |  | [ADR-019 Script Convention Implementation](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) | 0/5 | 0 | — |
 |  | [Computed Priority Scoring](../../../spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Worktree Timestamp Zeroed Time Component](../../../spec/Active/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component.md) | 0/0 | 0 | **needs decomposition** |
@@ -57,13 +57,13 @@
   - [SPEC-152](../../../spec/Active/(SPEC-152)-Retro-Session-Summary-Generation/SPEC-152.md) — swain-retro: session summary generation (Active, in progress)
   - [SPEC-153](../../../spec/Active/(SPEC-153)-Doctor-Retro-Flat-File-Migration/SPEC-153.md) — swain-doctor: retro flat-file migration (Active, in progress)
   - [SPEC-163](../../../spec/Active/(SPEC-163)-Unified-Retro-Model-Multi-Session-Bundling/SPEC-163.md) — Unified retro model: standalone artifacts with multi-session bundling (Active, in progress)
-- [EPIC-046](../../../epic/Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) — Pre-Runtime Crash Recovery (0/3)
-  - [SPEC-180](../../../spec/Active/(SPEC-180)-Pre-Runtime-Swain-Script/(SPEC-180)-Pre-Runtime-Swain-Script.md) — Pre-Runtime Swain Script (Active, in progress)
-  - [SPEC-181](../../../spec/Active/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) — Swain Shell Function Refactor (Active, in progress)
-  - [SPEC-182](../../../spec/Active/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) — Crash Debris Detection Checks (Active, in progress)
+- [EPIC-046](../../../epic/Complete/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) — Pre-Runtime Crash Recovery (0/3)
+  - [SPEC-180](../../../spec/Complete/(SPEC-180)-Pre-Runtime-Swain-Script/(SPEC-180)-Pre-Runtime-Swain-Script.md) — Pre-Runtime Swain Script (Active, in progress)
+  - [SPEC-181](../../../spec/Complete/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) — Swain Shell Function Refactor (Active, in progress)
+  - [SPEC-182](../../../spec/Complete/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) — Crash Debris Detection Checks (Active, in progress)
 - [INITIATIVE-019](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) — Session-Scoped Decision Support (in progress)
   - [EPIC-042](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) — Retro Session Intelligence (Active, 0/5)
-  - [EPIC-046](../../../epic/Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) — Pre-Runtime Crash Recovery (Active, 0/3)
+  - [EPIC-046](../../../epic/Complete/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) — Pre-Runtime Crash Recovery (Active, 0/3)
   - [EPIC-047](../../../epic/Complete/(EPIC-047)-ADR-019-Script-Convention-Implementation/(EPIC-047)-ADR-019-Script-Convention-Implementation.md) — ADR-019 Script Convention Implementation (Active, 0/5)
   - [SPEC-160](../../../spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) — Chart Critical Path Lens (Active, in progress)
   - [SPEC-161](../../../spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) — Computed Priority Scoring (Active, in progress)

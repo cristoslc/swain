@@ -46,22 +46,22 @@ The operator gets immediate feedback: tmux tab is named, brief context is shown 
 
 ## Child Specs
 
-- [SPIKE-001](../../spike/Active/(SPIKE-001)-Session-Startup-Time-Instrumentation/(SPIKE-001)-Session-Startup-Time-Instrumentation.md) — Instrument startup time breakdown
-- [SPEC-203](../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md) — Fast-path session greeting
-- [SPEC-195](../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer worktree creation to task dispatch
-- [SPEC-196](../../spec/Active/(SPEC-196)-Collapse-Init-Session-Skill-Chain/(SPEC-196)-Collapse-Init-Session-Skill-Chain.md) — Collapse init -> session skill chain
+- [SPIKE-001](../../../research/Complete/(SPIKE-001)-Replace-Beads-CLI-With-Backlog-Md/(SPIKE-001)-Replace-Beads-CLI-With-Backlog-Md.md) — Instrument startup time breakdown
+- [SPEC-203](../../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md) — Fast-path session greeting
+- [SPEC-195](../../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer worktree creation to task dispatch
+- [SPEC-196](../../../spec/Active/(SPEC-196)-Collapse-Init-Session-Skill-Chain/(SPEC-196)-Collapse-Init-Session-Skill-Chain.md) — Collapse init -> session skill chain
 
 ## Key Dependencies
 
 - SPEC-196 (chain collapse) should land before SPEC-203 (fast greeting) — the chain collapse removes a round-trip that the fast greeting then optimizes further.
 - SPIKE-001 should complete first to validate assumptions and set baseline measurements.
-- [EPIC-046](../Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) touches the same shell launcher layer; coordinate to avoid conflicts.
+- [EPIC-046](../../Complete/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) touches the same shell launcher layer; coordinate to avoid conflicts.
 
 ## Retrospective
 
 **Terminal state:** Complete
 **Period:** 2026-03-30 — 2026-03-31
-**Related artifacts:** [SPIKE-001](../../spike/Active/(SPIKE-001)-Session-Startup-Time-Instrumentation/(SPIKE-001)-Session-Startup-Time-Instrumentation.md), [SPEC-196](../../spec/Active/(SPEC-196)-Collapse-Init-Session-Skill-Chain/(SPEC-196)-Collapse-Init-Session-Skill-Chain.md), [SPEC-203](../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md), [SPEC-195](../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md), [SPEC-197](../../spec/Active/(SPEC-197)-Specgraph-Module-Import-Shadowing/(SPEC-197)-Specgraph-Module-Import-Shadowing.md)
+**Related artifacts:** [SPIKE-001](../../../research/Complete/(SPIKE-001)-Replace-Beads-CLI-With-Backlog-Md/(SPIKE-001)-Replace-Beads-CLI-With-Backlog-Md.md), [SPEC-196](../../../spec/Active/(SPEC-196)-Collapse-Init-Session-Skill-Chain/(SPEC-196)-Collapse-Init-Session-Skill-Chain.md), [SPEC-203](../../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md), [SPEC-195](../../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md), [SPEC-197](../../../spec/Active/(SPEC-197)-Specgraph-Module-Import-Shadowing/(SPEC-197)-Specgraph-Module-Import-Shadowing.md)
 
 ### Summary
 
@@ -86,7 +86,7 @@ All four success criteria met. Session greeting now runs in ~500ms (script time)
 - Could have skipped the tk task tracking for this work — the worktree was manually created (not via swain-do), so tickets ended up in the wrong directory and were inaccessible. The overhead of setting up tk plans for small, fast-moving specs in a single session may not be worth it.
 
 **Patterns observed:**
-- "Agent overhead dominates script execution" is now a confirmed recurring pattern. [SPEC-113](../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) found the same thing for swain-sync (12-15 LLM round-trips = 40-60s, git ops = 3.5s). The architectural response — collapse skill chains, defer expensive work, do more in shell before invoking the LLM — applies broadly across swain.
+- "Agent overhead dominates script execution" is now a confirmed recurring pattern. [SPEC-113](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) found the same thing for swain-sync (12-15 LLM round-trips = 40-60s, git ops = 3.5s). The architectural response — collapse skill chains, defer expensive work, do more in shell before invoking the LLM — applies broadly across swain.
 - Status dashboard bash overhead (17s for text processing) suggests a deeper rewrite is needed. Not in this epic's scope, but the data is now captured.
 
 ### Learnings captured

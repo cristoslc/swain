@@ -37,6 +37,7 @@
 | EPIC-045 | Shell Launcher Onboarding | 2026-03-27 | a3a761a |
 | EPIC-048 | Session Startup Fast Path | 2026-03-30 | -- |
 | EPIC-049 | Context-Rich Progress Tracking | 2026-03-31 | _pending_ |
+| EPIC-050 | README as Ambient Intent | 2026-03-31 | — |
 
 ## Complete
 

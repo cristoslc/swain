@@ -1,12 +1,15 @@
 {
-  "lastBranch": "worktree-spec-206-missing-greeting-script-20260331-132044-2a2c",
+  "lastBranch": "trunk",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed EPIC-050 (README as Ambient Intent) — all 6 SPECs implemented and verified",
-    "timestamp": "2026-03-31T17:36:11Z"
+    "note": "Completed SPEC-206 — missing session greeting script",
+    "files": [
+      "docs/spec/Complete/(SPEC-206)-Missing-Session-Greeting-Script/(SPEC-206)-Missing-Session-Greeting-Script.md"
+    ],
+    "timestamp": "2026-03-31T17:35:04Z"
   },
   "focus_lane": "EPIC-049"
 }
