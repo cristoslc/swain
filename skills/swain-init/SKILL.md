@@ -146,7 +146,7 @@ If found, verify it runs:
 ```
 
 If tk is not found or broken, tell the user:
-> The vendored tk script was not found at `skills/swain-do/bin/tk`. This usually means the swain-do skill was not fully installed. Try running `/swain update` to reinstall skills.
+> The vendored tk script was not found. This usually means the swain-do skill was not fully installed. Try running `/swain update` to reinstall skills.
 
 ### Step 2.3 — Migrate from beads (if applicable)
 
@@ -396,7 +396,7 @@ If the user says **no**, note "tmux: skipped" and continue to Phase 4.5.
 
 ## Phase 4.5: Shell launcher
 
-Goal: offer to install a `swain` shell function so the user can launch swain with a single command. Templates are stored per-runtime, per-shell in `skills/swain-init/templates/launchers/{runtime}/swain.{shell}` — inspect them to see exactly what gets added. Supported runtimes are defined in ADR-017.
+Goal: offer to install a `swain` shell function so the user can launch swain with a single command. Templates are stored per-runtime, per-shell in `templates/launchers/{runtime}/swain.{shell}` (relative to this skill's directory) — inspect them to see exactly what gets added. Supported runtimes are defined in ADR-017.
 
 ### Step 4.5.1 — Detect shell runtime
 
@@ -509,7 +509,7 @@ If no, skip to Phase 6.
 
 ### Step 5.3 — Inject governance
 
-Read the canonical governance content from `skills/swain-doctor/references/AGENTS.content.md`. Locate it by searching for the file relative to the installed skills directory:
+Read the canonical governance content from the sibling `swain-doctor/references/AGENTS.content.md`. Locate it by searching for the file relative to the installed skills directory:
 
 ```bash
 find .claude/skills .agents/skills skills -path '*/swain-doctor/references/AGENTS.content.md' -print -quit 2>/dev/null

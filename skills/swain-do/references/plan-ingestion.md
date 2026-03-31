@@ -2,7 +2,7 @@
 
 When a superpowers plan file exists (produced by the `writing-plans` skill), use the ingestion script instead of manually decomposing tasks. The script parses the plan's `### Task N:` blocks and registers them in tk with full spec lineage.
 
-The ingest helper lives at `skills/swain-do/scripts/ingest-plan.py`.
+The ingest helper lives at `scripts/ingest-plan.py`.
 
 ## When to use
 
@@ -14,13 +14,13 @@ The ingest helper lives at `skills/swain-do/scripts/ingest-plan.py`.
 
 ```bash
 # Parse and register in tk
-uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref>
+uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref>
 
 # Parse only (preview without creating tk tasks)
-uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref> --dry-run
+uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --dry-run
 
 # With additional tags
-uv run python3 skills/swain-do/scripts/ingest-plan.py <plan-file> <origin-ref> --tags epic:EPIC-009
+uv run python3 scripts/ingest-plan.py <plan-file> <origin-ref> --tags epic:EPIC-009
 ```
 
 ## What it does

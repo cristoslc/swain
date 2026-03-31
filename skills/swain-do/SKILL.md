@@ -24,7 +24,7 @@ If the JSON output has `"status"` other than `"active"`, inform the operator: "N
 
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
-**Before first use:** Read [skills/swain-do/references/tk-cheatsheet.md](skills/swain-do/references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
+**Before first use:** Read [references/tk-cheatsheet.md](references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
 
 ## Artifact handoff protocol
 
@@ -125,7 +125,7 @@ When superpowers is NOT installed, swain-do uses its built-in TDD enforcement (s
 
 ## Plan ingestion (superpowers integration)
 
-When a superpowers plan file exists, use the ingestion script (`skills/swain-do/scripts/ingest-plan.py`) instead of manual task decomposition. Read [references/plan-ingestion.md](references/plan-ingestion.md) for usage, format requirements, and when NOT to use it.
+When a superpowers plan file exists, use the ingestion script (`scripts/ingest-plan.py`) instead of manual task decomposition. Read [references/plan-ingestion.md](references/plan-ingestion.md) for usage, format requirements, and when NOT to use it.
 
 ## Execution strategy
 

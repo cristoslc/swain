@@ -8,14 +8,14 @@ If `.agents/execution-tracking.vars.json` does not exist, create it by asking th
 
 | Key | Type | Default | Question |
 |-----|------|---------|----------|
-| `tk_path` | string | `"skills/swain-do/bin/tk"` | "Path to the vendored tk script (relative to project root)" |
+| `tk_path` | string | `"bin/tk"` | "Path to the vendored tk script (relative to project root)" |
 | `fallback_format` | `"jsonl"` \| `"markdown"` | `"jsonl"` | "If tk is unavailable, use JSONL or Markdown for the fallback ledger?" |
 
 Write the file as pretty-printed JSON:
 
 ```json
 {
-  "tk_path": "skills/swain-do/bin/tk",
+  "tk_path": "bin/tk",
   "fallback_format": "jsonl"
 }
 ```
@@ -30,7 +30,7 @@ On subsequent runs, read the file and apply its values — don't re-ask.
 ## Bootstrap workflow
 
 1. **Load config:** Read `.agents/execution-tracking.vars.json`. If missing, run first-run setup above.
-2. **Resolve tk:** The vendored tk script lives at the configured `tk_path` (default: `skills/swain-do/bin/tk`). Verify it exists and is executable.
+2. **Resolve tk:** The vendored tk script lives at the configured `tk_path` (default: `bin/tk`). Verify it exists and is executable.
 3. **Set up PATH:** Export `PATH` with tk's directory prepended so plugins (`ticket-query`, `ticket-migrate-beads`) are found:
    ```bash
    TK_BIN="$(cd "$(dirname "$tk_path")" && pwd)"
