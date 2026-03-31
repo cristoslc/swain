@@ -5,8 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Retro for EPIC-048 written. Ready for sync.",
-    "timestamp": "2026-03-31T16:55:38Z"
+    "note": "SPEC-204 complete — fix, transition, merge, retro all done. SPEC candidate: scoped relink",
+    "timestamp": "2026-03-31T16:57:21Z"
   },
   "focus_lane": "EPIC-049"
 }
