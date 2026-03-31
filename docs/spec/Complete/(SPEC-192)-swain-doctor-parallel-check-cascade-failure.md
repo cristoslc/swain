@@ -2,7 +2,7 @@
 title: "swain-doctor parallel check cascade failure"
 artifact: SPEC-192
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-29
 last-updated: 2026-03-29
@@ -60,6 +60,9 @@ high — swain-doctor produces no useful output when any single check fails, def
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: governance grep no-match doesn't cascade | swain-doctor.sh ran 17/17 checks; governance=warning, all others completed | PASS |
+| AC2: non-zero exit doesn't cancel siblings | All checks run under set +e in single script; each reports independently | PASS |
+| AC3: summary includes all categories | JSON summary: {"total": 17, "ok": 13, "warning": 4, "advisory": 0} | PASS |
 
 ## Scope & Constraints
 
@@ -82,3 +85,4 @@ Approach 1 is strongly preferred — it reduces token usage (one tool call vs. m
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-29 | — | Initial creation — bug observed during swain-init run |
+| Complete | 2026-03-30 | — | Retroactive verification — script on trunk, all ACs pass |

@@ -1,0 +1,62 @@
+trove: ai-thinking-partner
+created: 2026-03-29
+refreshed: 2026-03-29
+tags:
+  - ai-partnering
+  - agentic-coding
+  - ai-assisted-analysis
+  - llm-skepticism
+  - developer-productivity
+  - claude-code
+  - thinking-partner
+
+freshness-ttl:
+  web: 30d
+  media: never
+
+history:
+  - event: created
+    date: 2026-03-29
+    commit: "c0ac14d"
+    sources: 6
+
+referenced-by: []
+
+sources:
+  - source-id: agentic-coding-ronacher
+    title: "Agentic Coding: Armin Ronacher"
+    type: media
+    url: "https://www.youtube.com/watch?v=bpWPEhO7RqE"
+    hash: "fc8ef0e829486cf29463431ccbd1ae79885c062cfec5d1753cdb463d889ca0b4"
+    notes: "Transcript not available via automated fetch; content synthesized from video metadata and author's related writing"
+
+  - source-id: ai-coding-degrades-ieee
+    title: "AI Coding Assistants Are Getting Worse"
+    type: web
+    url: "https://spectrum.ieee.org/ai-coding-degrades"
+    hash: "413d5ae4d0fa6e2c1defd6eaacda37d5ad20ac7367ab72ce417ceea463f90f3a"
+
+  - source-id: ai-dev-productivity-metr
+    title: "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity"
+    type: web
+    url: "https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/"
+    hash: "91836d2fe5298e57fac5e116866966b40823e8135ae159318f8305483b56e1b5"
+
+  - source-id: year-of-vibes-ronacher
+    title: "A Year of Vibes"
+    type: web
+    url: "https://lucumr.pocoo.org/2025/12/22/a-year-of-vibes/"
+    hash: "7ccef2b2d77ebb6f7fba778a357abb641a7806721ba8c19f3fc71bc2bc6951b8"
+
+  - source-id: agentic-engineering-patterns-willison
+    title: "Agentic Engineering Patterns"
+    type: web
+    url: "https://simonwillison.net/guides/agentic-engineering-patterns/"
+    hash: "f8cd41888547c70a9b0876564e9ecf90aa0c049ed76f43da947ba24dd3041700"
+
+  - source-id: ai-tooling-2026-orosz
+    title: "AI Tooling for Software Engineers in 2026"
+    type: web
+    url: "https://newsletter.pragmaticengineer.com/p/ai-tooling-2026"
+    hash: "d2e4d3bb97e210684b51664bb8aeec14369ad3faff06b33368ea2c396afaea5b"
+    notes: "Paywalled; content from direct fetch only"
