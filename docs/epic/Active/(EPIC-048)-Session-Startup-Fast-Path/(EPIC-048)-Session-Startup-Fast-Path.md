@@ -47,13 +47,13 @@ The operator gets immediate feedback: tmux tab is named, brief context is shown 
 ## Child Specs
 
 - [SPIKE-001](../../spike/Active/(SPIKE-001)-Session-Startup-Time-Instrumentation/(SPIKE-001)-Session-Startup-Time-Instrumentation.md) — Instrument startup time breakdown
-- [SPEC-194](../../spec/Active/(SPEC-194)-Fast-Path-Session-Greeting/(SPEC-194)-Fast-Path-Session-Greeting.md) — Fast-path session greeting
+- [SPEC-198](../../spec/Active/(SPEC-198)-Fast-Path-Session-Greeting/(SPEC-198)-Fast-Path-Session-Greeting.md) — Fast-path session greeting
 - [SPEC-195](../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer worktree creation to task dispatch
 - [SPEC-196](../../spec/Active/(SPEC-196)-Collapse-Init-Session-Skill-Chain/(SPEC-196)-Collapse-Init-Session-Skill-Chain.md) — Collapse init -> session skill chain
 
 ## Key Dependencies
 
-- SPEC-196 (chain collapse) should land before SPEC-194 (fast greeting) — the chain collapse removes a round-trip that the fast greeting then optimizes further.
+- SPEC-196 (chain collapse) should land before SPEC-198 (fast greeting) — the chain collapse removes a round-trip that the fast greeting then optimizes further.
 - SPIKE-001 should complete first to validate assumptions and set baseline measurements.
 - [EPIC-046](../Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) touches the same shell launcher layer; coordinate to avoid conflicts.
 

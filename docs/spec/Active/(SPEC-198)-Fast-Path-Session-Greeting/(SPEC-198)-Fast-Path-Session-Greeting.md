@@ -1,6 +1,6 @@
 ---
 title: "Fast-Path Session Greeting"
-artifact: SPEC-194
+artifact: SPEC-198
 track: implementable
 status: Active
 author: cristos

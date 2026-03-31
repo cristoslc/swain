@@ -42,7 +42,7 @@ swain → bootstrap → EnterWorktree (generic name) → greeting
 
 **After:**
 ```
-swain → bootstrap (no worktree) → greeting → ... → /swain-do start SPEC-194 → EnterWorktree (named for spec)
+swain → bootstrap (no worktree) → greeting → ... → /swain-do start SPEC-198 → EnterWorktree (named for spec)
 ```
 
 **Preconditions:** swain-session bootstrap detects whether already in a worktree (existing behavior) and skips creation if so.
@@ -53,8 +53,8 @@ swain → bootstrap (no worktree) → greeting → ... → /swain-do start SPEC-
 
 1. **Given** a session starting on trunk, **when** the operator runs `swain`, **then** no worktree is created during bootstrap.
 2. **Given** a session already in a worktree, **when** the operator runs `swain`, **then** bootstrap detects this and proceeds normally (no change from current behavior).
-3. **Given** the operator starts work on SPEC-194, **when** swain-do dispatches the task, **then** a worktree is created with a name derived from the spec (e.g., `spec-194-fast-path-greeting`).
-4. **Given** a worktree for SPEC-194 already exists, **when** swain-do dispatches work on SPEC-194, **then** it detects the existing worktree and offers to reuse it instead of creating a duplicate.
+3. **Given** the operator starts work on SPEC-198, **when** swain-do dispatches the task, **then** a worktree is created with a name derived from the spec (e.g., `spec-194-fast-path-greeting`).
+4. **Given** a worktree for SPEC-198 already exists, **when** swain-do dispatches work on SPEC-198, **then** it detects the existing worktree and offers to reuse it instead of creating a duplicate.
 5. **Given** the operator asks to work on something without a formal spec (ad-hoc work), **when** swain-do dispatches, **then** a worktree is still created with a reasonable name derived from the task description.
 
 ## Verification

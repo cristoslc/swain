@@ -18,7 +18,7 @@ evidence-pool: ""
 
 ## Summary
 
-**Go — proceed with SPEC-194/196.** Both script execution and LLM inference are significant, but the *addressable* time is split roughly 50/50. Chain collapse (SPEC-196) removes ~10-15s of LLM overhead. Preflight deferral + status split (SPEC-194) removes ~8-26s of script time. Worktree deferral (SPEC-195) removes ~3-5s. The achievable floor for a fast greeting is **~700ms** (tab name + worktree detect + session.json read).
+**Go — proceed with SPEC-198/196.** Both script execution and LLM inference are significant, but the *addressable* time is split roughly 50/50. Chain collapse (SPEC-196) removes ~10-15s of LLM overhead. Preflight deferral + status split (SPEC-198) removes ~8-26s of script time. Worktree deferral (SPEC-195) removes ~3-5s. The achievable floor for a fast greeting is **~700ms** (tab name + worktree detect + session.json read).
 
 ## Question
 
@@ -26,7 +26,7 @@ Where does session startup wall time actually go — LLM inference, tool-call ov
 
 ## Go / No-Go Criteria
 
-- **Go (proceed with SPEC-194/196):** LLM round-trips account for >60% of wall time, confirming that chain collapse and greeting split are the highest-leverage changes.
+- **Go (proceed with SPEC-198/196):** LLM round-trips account for >60% of wall time, confirming that chain collapse and greeting split are the highest-leverage changes.
 - **Go (pivot to script optimization):** Script execution accounts for >40% of wall time, suggesting we should optimize specgraph/GitHub API calls before touching the skill chain.
 - **No-Go (rethink approach):** Wall time is dominated by a single unavoidable operation (e.g., EnterWorktree git clone) that can't be deferred or backgrounded.
 
@@ -119,8 +119,8 @@ If script execution dominates, pivot to background/async execution of expensive 
 ### Gate assessment
 
 - LLM round-trips: ~60-75% of total wall time → **Go for SPEC-196** (chain collapse)
-- Preflight: ~25% of script time, fully deferrable → **Go for SPEC-194** (defer to background)
-- Status dashboard: 70% of script time, entirely optional at startup → **Go for SPEC-194** (on-demand only)
+- Preflight: ~25% of script time, fully deferrable → **Go for SPEC-198** (defer to background)
+- Status dashboard: 70% of script time, entirely optional at startup → **Go for SPEC-198** (on-demand only)
 - No single unavoidable bottleneck → **No-Go criteria not met**
 
 ## Lifecycle

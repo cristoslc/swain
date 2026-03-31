@@ -40,7 +40,7 @@ Artifact ID allocation is collision-free across all local branches, even when wo
 ## Acceptance Criteria
 
 - AC1: Given a worktree branched from trunk at SPEC-190, and trunk now has SPEC-191, when a new spec is created in the worktree, then it receives SPEC-192 or higher.
-- AC2: Given artifacts on multiple worktree branches (e.g., worktree-a has SPEC-195, worktree-b has SPEC-194), when a new spec is created on either branch, then it receives SPEC-196 or higher.
+- AC2: Given artifacts on multiple worktree branches (e.g., worktree-a has SPEC-195, worktree-b has SPEC-198), when a new spec is created on either branch, then it receives SPEC-196 or higher.
 - AC3: The scan checks all local branches (`git branch --list`), not just `HEAD` and `trunk`.
 - AC4: The scan completes in under 2 seconds for a repository with 200+ artifacts and 10+ local branches.
 
