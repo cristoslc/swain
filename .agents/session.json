@@ -5,8 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "SPEC-204 complete — fix, transition, merge, retro all done. SPEC candidate: scoped relink",
-    "timestamp": "2026-03-31T16:57:21Z"
+    "note": "Completed EPIC-050 (README as Ambient Intent) — all 6 SPECs implemented and verified",
+    "timestamp": "2026-03-31T17:36:11Z"
   },
   "focus_lane": "EPIC-049"
 }
