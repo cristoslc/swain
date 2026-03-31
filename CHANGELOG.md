@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.23.0-alpha] - 2026-03-30
+
+### Features
+
+#### Flesch-Kincaid Readability Enforcement
+
+New readability-check.sh script scores markdown artifacts for
+Flesch-Kincaid grade level, stripping frontmatter, code blocks,
+tables, and other non-prose content before scoring. A governance
+rule in AGENTS.md requires all artifacts to meet grade 9 or below.
+A shared readability protocol doc gives skills the integration
+contract: when to check, how to rewrite on failure, and a
+3-attempt cap before proceeding.
+
+#### Shell Launcher Init Marker
+
+The swain shell launcher functions (bash and zsh) now check for
+a .swain-init marker file before running full onboarding. If the
+marker exists, the launcher skips init and goes straight to
+session startup — cutting first-prompt latency for returning
+projects.
+- Retroactive verification completed for SPEC-192 (doctor parallel check cascade) and SPEC-193 (cross-branch artifact ID allocation)
+
+### Planned
+
+#### Session Startup Fast Path
+
+EPIC-048 planned with supporting specs to reduce session startup
+latency. SPIKE-001 measured baseline timing and discovered a bug
+in the bootstrap script that added unnecessary overhead.
+
+### Research
+- Task management systems — extended with reddit and Linear issue-tracking sources
+- Architecture intent-evidence loop — 15 sources on architectural thinking patterns
+- AI thinking partner — 6 sources on collaborative AI reasoning
+- Intent hierarchy — 3 sources from TL Capability Map chapter 10 on writing to influence
+- TL Capability Map — initial trove with 1 source
+
 ## [0.22.3-alpha] - 2026-03-29
 
 ### Features

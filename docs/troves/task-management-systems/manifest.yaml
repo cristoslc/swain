@@ -1,6 +1,6 @@
 trove: task-management-systems
 created: 2026-03-22
-refreshed: 2026-03-22
+refreshed: 2026-03-30
 tags:
   - task-management
   - task-tracking
@@ -20,6 +20,10 @@ history:
     date: 2026-03-22
     commit: "a120d0b"
     sources: 5
+  - event: extended
+    date: 2026-03-30
+    commit: "9ca3a23"
+    sources: 1
 
 referenced-by: []
 
@@ -59,3 +63,11 @@ sources:
     fetched: 2026-03-22T00:00:00Z
     title: "awwaiid/mcp-server-taskwarrior — MCP Server for TaskWarrior"
     hash: "a07647e2e86cadafea7a9c6c9c77516f0fa150ac3d69a0d347e2726c51e57041"
+
+  - source-id: reddit-linear-issue-tracking-dead
+    type: forum
+    url: "https://www.reddit.com/r/startups/comments/1s5chlx/linear_just_announced_issue_tracking_is_dead/"
+    fetched: 2026-03-30T00:00:00Z
+    title: "Linear just announced 'Issue Tracking is Dead.' Their Moat is dry. (r/startups)"
+    hash: "72e6201102d79c0275fa2debdebfabd4a42e286c8ec93604315fc09571bbb68e"
+    notes: "Startup founder perspective on agentic AI displacing traditional issue tracking; practical example of repo-based issue tracking with Claude/Codex replacing Linear"

@@ -1,6 +1,6 @@
 trove: intent-hierarchy
 created: 2026-03-25
-refreshed: 2026-03-25
+refreshed: 2026-03-29
 tags:
   - purpose
   - principles
@@ -10,6 +10,11 @@ tags:
   - hierarchy
   - strategy
   - intent
+  - adr
+  - rfc
+  - writing-as-influence
+  - decision-documents
+  - conversational-architecture
 
 freshness-ttl:
   web: 60d
@@ -21,6 +26,12 @@ history:
     date: 2026-03-25
     commit: 51cdccd
     sources: 8
+  - event: extended
+    date: 2026-03-29
+    commit: 62bada2
+    sources: 11
+    sources-added: 3
+    notes: "Added writing-to-influence resources from TL Capability Map (Cap 10)"
 
 sources:
   - source-id: aespire-purpose-mission-vision
@@ -78,3 +89,24 @@ sources:
     fetched: 2026-03-25T00:00:00Z
     title: "Atlassian — Epics, Stories, and Initiatives"
     hash: "90bb2b25df27620deb2918f88c7fb0eb5c64f01462c93e06101ed4bedd942479"
+
+  - source-id: harmel-law-scaling-architecture-conversationally
+    type: web
+    url: "https://martinfowler.com/articles/scaling-architecture-conversationally.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Andrew Harmel-Law — Scaling the Practice of Architecture, Conversationally"
+    hash: "0e57d69f17197055652c2d38e4afa8d2f1dc89387fa84fb0abe3e7404946ec5c"
+
+  - source-id: larson-writing-eng-strategy
+    type: web
+    url: "https://lethain.com/eng-strategies/"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Will Larson — Writing an Engineering Strategy"
+    hash: "dfb53b745129f03eea33b6af6a48090fc83459d29164f9f9d1db5ab51fe04ded"
+
+  - source-id: hohpe-architect-elevator
+    type: web
+    url: "https://martinfowler.com/articles/architect-elevator.html"
+    fetched: 2026-03-29T00:00:00Z
+    title: "Gregor Hohpe — The Architect Elevator: Visiting the Upper Floors"
+    hash: "c08212dac37324d16ce95a3a667e9ed6a4c6981978d02d2fc493ce5a85206783"
