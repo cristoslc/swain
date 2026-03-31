@@ -158,7 +158,17 @@ bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" close --walkaway "Completed
 This:
 1. Sets session phase to `closed` with end time
 2. Appends the walk-away signal to SESSION-ROADMAP.md
-3. The agent should then commit SESSION-ROADMAP.md to git
+
+Then generate the session digest and feed it into progress logs:
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-session-digest.sh" --session-id "$(jq -r .session_id "$REPO_ROOT/.agents/session-state.json")" --output "$REPO_ROOT/.agents/session-log.jsonl"
+bash "$REPO_ROOT/.agents/bin/swain-progress-log.sh" --digest "$REPO_ROOT/.agents/session-log.jsonl"
+```
+
+This appends a JSONL digest entry and updates each touched EPIC/Initiative's `progress.md` and `## Progress` section.
+
+Finally, commit SESSION-ROADMAP.md to git.
 
 ### Session resume
 
