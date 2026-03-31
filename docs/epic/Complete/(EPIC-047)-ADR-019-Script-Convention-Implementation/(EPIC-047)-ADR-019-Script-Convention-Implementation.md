@@ -41,7 +41,7 @@ SPEC-186 is the minimum viable fix — it unblocks the release by making doctor 
 
 **Terminal state:** Complete
 **Period:** 2026-03-28 — 2026-03-29
-**Related artifacts:** [SPEC-186](../../spec/Complete/(SPEC-186)-Doctor-Agents-Bin-Auto-Repair/SPEC-186.md), [SPEC-187](../../spec/Complete/(SPEC-187)-Init-Agents-Bin-Bootstrap/SPEC-187.md), [SPEC-188](../../spec/Complete/(SPEC-188)-Doctor-Bin-Auto-Repair/SPEC-188.md), [SPEC-189](../../spec/Complete/(SPEC-189)-Migrate-Swain-Box-To-Bin/SPEC-189.md), [SPEC-190](../../spec/Complete/(SPEC-190)-Migrate-Skills-To-Agents-Bin-Resolution/SPEC-190.md), [ADR-019](../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md)
+**Related artifacts:** [SPEC-186](../../../spec/Complete/(SPEC-186)-Doctor-Agents-Bin-Auto-Repair/SPEC-186.md), [SPEC-187](../../../spec/Complete/(SPEC-187)-Init-Agents-Bin-Bootstrap/SPEC-187.md), [SPEC-188](../../../spec/Complete/(SPEC-188)-Doctor-Bin-Auto-Repair/SPEC-188.md), [SPEC-189](../../../spec/Complete/(SPEC-189)-Migrate-Swain-Box-To-Bin/SPEC-189.md), [SPEC-190](../../../spec/Complete/(SPEC-190)-Migrate-Skills-To-Agents-Bin-Resolution/SPEC-190.md), [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md)
 **Standalone retro:** [RETRO-2026-03-29-adr-019-script-convention](../../swain-retro/2026-03-29-adr-019-script-convention.md)
 
 ### Summary

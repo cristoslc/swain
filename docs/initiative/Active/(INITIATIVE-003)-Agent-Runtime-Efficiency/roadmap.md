@@ -22,8 +22,8 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
-|  | [swain-doctor parallel check cascade failure](docs/spec/Active/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
+|  | [swain-doctor parallel check cascade failure](../../../spec/Complete/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -35,9 +35,9 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](docs/spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](docs/research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Doctor Single-Script Consolidation](docs/research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Doctor Single-Script Consolidation](../../../research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -60,7 +60,7 @@
   - [SPEC-079](../../../spec/Active/(SPEC-079)-Progressive-Disclosure-Cleanup/(SPEC-079)-Progressive-Disclosure-Cleanup.md) — Progressive disclosure cleanup (Active, in progress)
   - [SPEC-080](../../../spec/Active/(SPEC-080)-Prune-Deprecated-Swain-Push/(SPEC-080)-Prune-Deprecated-Swain-Push.md) — Prune deprecated swain-push (Active, in progress)
 - [SPEC-162](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) — EPIC Child Specs Section Not Updated on Completion (in progress)
-- [SPEC-192](../../../spec/Active/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) — swain-doctor parallel check cascade failure (in progress)
+- [SPEC-192](../../../spec/Complete/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) — swain-doctor parallel check cascade failure (in progress)
 - [SPIKE-043](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) — Phase Complexity Model for Adaptive Ceremony and Autonomy (in progress)
 - [SPIKE-049](../../../research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) — Doctor Single-Script Consolidation (in progress)
 ### Complete

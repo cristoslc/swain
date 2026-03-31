@@ -127,7 +127,7 @@ Simple prose is what remains. The tool scores only that.
 
 ```bash
 git add skills/swain-design/tests/fixtures/readability-*.md
-git commit -m "test(SPEC-194): add readability check fixtures"
+git commit -m "test(SPEC-198): add readability check fixtures"
 ```
 
 ### Task 2: Write the test script
@@ -141,7 +141,7 @@ Follow the pattern from `test-next-artifact-id.sh` — pure bash with assert hel
 
 ```bash
 #!/usr/bin/env bash
-# test-readability-check.sh — tests for readability-check.sh (SPEC-194)
+# test-readability-check.sh — tests for readability-check.sh (SPEC-198)
 
 set -euo pipefail
 
@@ -248,7 +248,7 @@ Expected: FAIL on "script exists" and all subsequent tests.
 
 ```bash
 git add skills/swain-design/tests/test-readability-check.sh
-git commit -m "test(SPEC-194): add readability-check.sh test script"
+git commit -m "test(SPEC-198): add readability-check.sh test script"
 ```
 
 ### Task 3: Implement readability-check.sh
@@ -261,7 +261,7 @@ git commit -m "test(SPEC-194): add readability-check.sh test script"
 
 ```bash
 #!/usr/bin/env bash
-# readability-check.sh — Score markdown artifacts for Flesch-Kincaid readability (SPEC-194)
+# readability-check.sh — Score markdown artifacts for Flesch-Kincaid readability (SPEC-198)
 #
 # Strips non-prose content (frontmatter, code blocks, tables, URLs, images,
 # HTML tags, inline code) then scores remaining prose via textstat.
@@ -445,7 +445,7 @@ Iterate on the script if any tests fail. Common issues:
 
 ```bash
 git add skills/swain-design/scripts/readability-check.sh .agents/bin/readability-check.sh
-git commit -m "feat(SPEC-194): add readability-check.sh script"
+git commit -m "feat(SPEC-198): add readability-check.sh script"
 ```
 
 ## Chunk 2: Governance Rule and Protocol Doc
@@ -473,7 +473,7 @@ Read the file back and confirm the new section sits cleanly between "Skill chang
 
 ```bash
 git add skills/swain-doctor/references/AGENTS.content.md
-git commit -m "docs(SPEC-194): add readability governance rule to AGENTS.content.md"
+git commit -m "docs(SPEC-198): add readability governance rule to AGENTS.content.md"
 ```
 
 ### Task 5: Create readability-protocol.md
@@ -531,7 +531,7 @@ Skills do not need code changes to adopt this protocol. The governance rule in A
 
 ```bash
 git add skills/swain-design/references/readability-protocol.md
-git commit -m "docs(SPEC-194): add readability protocol reference doc"
+git commit -m "docs(SPEC-198): add readability protocol reference doc"
 ```
 
 ### Task 6: Propagate governance to AGENTS.md
@@ -551,7 +551,7 @@ Confirm the governance block in AGENTS.md matches AGENTS.content.md (the reconci
 
 ```bash
 git add AGENTS.md
-git commit -m "docs(SPEC-194): propagate readability rule to AGENTS.md"
+git commit -m "docs(SPEC-198): propagate readability rule to AGENTS.md"
 ```
 
 ### Task 7: Final integration test
@@ -559,7 +559,7 @@ git commit -m "docs(SPEC-194): propagate readability rule to AGENTS.md"
 - [ ] **Step 1: Run readability-check.sh against the SPEC itself**
 
 ```bash
-bash .agents/bin/readability-check.sh "docs/spec/Active/(SPEC-194)-Flesch-Kincaid-Readability-Enforcement/(SPEC-194)-Flesch-Kincaid-Readability-Enforcement.md"
+bash .agents/bin/readability-check.sh "docs/spec/Active/(SPEC-198)-Flesch-Kincaid-Readability-Enforcement/(SPEC-198)-Flesch-Kincaid-Readability-Enforcement.md"
 ```
 
 This is a real-world test — if the SPEC itself fails readability, fix it.
@@ -584,7 +584,7 @@ Expected: All PASS.
 
 ```bash
 git add -A
-git commit -m "fix(SPEC-194): readability fixes from integration test"
+git commit -m "fix(SPEC-198): readability fixes from integration test"
 ```
 
 Only if changes were made in steps 1-2.

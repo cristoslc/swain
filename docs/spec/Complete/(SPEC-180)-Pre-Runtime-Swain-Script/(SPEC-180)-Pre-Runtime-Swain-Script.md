@@ -2,10 +2,10 @@
 title: "Pre-Runtime Swain Script"
 artifact: SPEC-180
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-30
 priority-weight: high
 type: feature
 parent-epic: EPIC-046
@@ -44,7 +44,7 @@ The operator runs `swain` after a system crash and gets: crash detection, debris
 
 **Phase 1 — Pre-runtime structural checks:**
 - Scan runtime session directories for orphaned PIDs associated with this project (Claude Code: `~/.claude/sessions/*.json` → match `cwd`, verify PID alive; other runtimes per trove `agent-session-persistence`)
-- Invoke crash debris checks ([SPEC-182](../(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md)) — git locks, stale tk locks, dangling worktrees
+- Invoke crash debris checks ([SPEC-182](../../Complete/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md)) — git locks, stale tk locks, dangling worktrees
 - Offer cleanup with operator confirmation (per [ADR-015](../../../adr/Active/(ADR-015)-Tickets-Are-Ephemeral-Execution-Scaffolding.md): never auto-discard worktree state)
 
 **Phase 2 — Session selection (only if crashed sessions detected):**
@@ -105,3 +105,4 @@ Created by:
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) |
 | Active | 2026-03-28 | — | Updated symlink from `./swain` to `bin/swain` per ADR-019 operator-facing convention |
+| Complete | 2026-03-30 | 30b0267 | 17/17 tests pass, all 7 ACs verified |

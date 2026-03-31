@@ -35,7 +35,9 @@
 | EPIC-042 | Retro Session Intelligence | 2026-03-23 | — |
 | EPIC-044 | Swain Memory Architecture | 2026-03-23 | 944a30f |
 | EPIC-045 | Shell Launcher Onboarding | 2026-03-27 | a3a761a |
-| EPIC-046 | Pre-Runtime Crash Recovery | 2026-03-28 | — |
+| EPIC-048 | Session Startup Fast Path | 2026-03-30 | -- |
+| EPIC-049 | Context-Rich Progress Tracking | 2026-03-31 | _pending_ |
+| EPIC-050 | README as Ambient Intent | 2026-03-31 | — |
 
 ## Complete
 
@@ -59,7 +61,9 @@
 | EPIC-038 | Priority Roadmap and Decision Surface | 2026-03-20 | e87c6b8 |
 | EPIC-039 | Session Facilitation Rebuild | 2026-03-28 | — |
 | EPIC-043 | Centralized Artifact Number Allocation | 2026-03-22 | — |
+| EPIC-046 | Pre-Runtime Crash Recovery | 2026-03-30 | 995983b |
 | EPIC-047 | ADR-019 Script Convention Implementation | 2026-03-29 | — |
+| EPIC-050 | README as Ambient Intent | 2026-03-31 | — |
 
 ## Superseded
 

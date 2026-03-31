@@ -116,6 +116,60 @@ This is agent-agnostic — works in Claude Code, opencode, gemini cli, codex, co
 
 **Migration:** If `.agents/session.json` does not exist but the old global location (`~/.claude/projects/<project-path-slug>/memory/session.json`) does, the bootstrap script copies it automatically.
 
+## README Reconciliation Checkpoint (SPEC-209)
+
+After the greeting and before work begins, compare README.md against the artifact tree. This runs once per session, at focus lane selection time.
+
+### Trigger
+
+When a focus lane is set (either restored from a previous session or newly selected), and README.md exists:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+[ -f "$REPO_ROOT/README.md" ] && echo "has_readme" || echo "no_readme"
+```
+
+If no README exists, skip reconciliation silently — swain-doctor will flag the missing README.
+
+### Process
+
+1. Read README.md and extract claims — any statement about what the project does, who it's for, how it works, what it supports, or what behavior it exhibits. Read the entire README as prose; no markers or section conventions required.
+2. Compare claims against current Active Visions, Designs, Journeys, and Persona artifacts. Look for:
+   - **Stale promises** — README claims a feature or behavior that an artifact explicitly dropped or superseded.
+   - **Missing coverage** — an artifact describes a capability the README doesn't mention.
+   - **Contradictions** — README and artifact disagree on behavior, audience, or scope.
+3. For each mismatch, surface a specific question to the operator:
+   > "README says '{claim}' but {artifact-id} {describes the conflict}. Which is right?"
+
+### Reconciliation direction
+
+Bidirectional. Drift does not assume artifacts are right:
+- A new Vision may mean the README needs updating.
+- The README may be right and the Vision needs reshaping.
+- A promise may have been intentionally dropped and needs removing from both.
+
+### Deferral tracking
+
+The operator can defer any mismatch. Deferrals are tracked in `.agents/session.json` under a `readme_deferrals` key:
+
+```json
+{
+  "readme_deferrals": [
+    {
+      "claim": "real-time sync",
+      "conflict_artifact": "VISION-003",
+      "deferred_at": "2026-03-31T14:00:00Z"
+    }
+  ]
+}
+```
+
+Deferred items are raised again at the next session start. When the operator resolves a deferral (updates README or artifact), remove it from the list.
+
+### Silent pass
+
+If no drift is detected, the reconciliation check passes silently — no output to the operator.
+
 ## Session Lifecycle (SPEC-119)
 
 swain-session owns a bounded session lifecycle: **start → work → close → resume**. Session state is tracked in `.agents/session-state.json` via the `swain-session-state.sh` script.
@@ -158,7 +212,17 @@ bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" close --walkaway "Completed
 This:
 1. Sets session phase to `closed` with end time
 2. Appends the walk-away signal to SESSION-ROADMAP.md
-3. The agent should then commit SESSION-ROADMAP.md to git
+
+Then generate the session digest and feed it into progress logs:
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-session-digest.sh" --session-id "$(jq -r .session_id "$REPO_ROOT/.agents/session-state.json")" --output "$REPO_ROOT/.agents/session-log.jsonl"
+bash "$REPO_ROOT/.agents/bin/swain-progress-log.sh" --digest "$REPO_ROOT/.agents/session-log.jsonl"
+```
+
+This appends a JSONL digest entry and updates each touched EPIC/Initiative's `progress.md` and `## Progress` section.
+
+Finally, commit SESSION-ROADMAP.md to git.
 
 ### Session resume
 
@@ -251,6 +315,8 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-focus.sh"
 ```
 
+Display the focus artifact as a context line by calling `artifact-context.sh` on the focus ID. Fall back to the bare ID if the utility is unavailable.
+
 Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. The status dashboard reads it to filter recommendations and show peripheral awareness for non-focus visions.
 
 ## Status Dashboard (absorbed from swain-status — SPEC-122)
@@ -274,6 +340,19 @@ Status writes to `.agents/status-cache.json` with 120-second TTL. Use `--refresh
 ### Recommendation
 
 Read `.priority.recommendations[0]` from the JSON cache. When a focus lane is set, recommendations scope to that vision/initiative.
+
+### Context-rich display
+
+When presenting artifacts to the operator (recommendations, focus lane, decisions needed), use the artifact-context utility instead of bare IDs:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+CONTEXT=$(bash "$REPO_ROOT/.agents/bin/artifact-context.sh" <ARTIFACT-ID> 2>/dev/null)
+```
+
+If the utility is available and returns output, use the context line. If unavailable or empty, fall back to `<ID> — <title>` (current behavior).
+
+Display format: **title** `ID` — scope. progress.
 
 ### Mode Inference
 

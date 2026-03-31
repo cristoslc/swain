@@ -11,9 +11,9 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
+| 2026-03-29 | 12:18 | `3aaf98c` | feat(epic-047): complete ADR-019 script convention implementation |
 | 2026-03-21 | 23:03 | `c063592` | docs: renumber artifact IDs, add 3 new SPECs, complete EPIC-038 |
 | 2026-03-20 | 00:23 | `ffdf7df` | feat(safety): add INITIATIVE-017, EPIC-037, SPIKE-037 for unattended agent safety guardrails |
-| 2026-03-19 | 23:31 | `cd18990` | feat(swain-box): auth-before-isolation flow, login confirmation, reliability initiative |
 
 ## Priority Subset
 
@@ -22,7 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](docs/epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
+| [Unattended Agent Safety](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -39,7 +39,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](docs/epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
+| [Unattended Agent Safety](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
 
 
 ## Children

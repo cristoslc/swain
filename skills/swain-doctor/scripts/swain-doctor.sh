@@ -412,6 +412,109 @@ check_ssh_readiness() {
   fi
 }
 
+# Check: README existence (SPEC-208)
+# ============================================================
+check_readme() {
+  if [[ -f "README.md" ]]; then
+    add_check "readme" "ok" "README.md exists"
+  else
+    add_check "readme" "warning" "README.md missing — swain alignment loop has no public intent anchor"
+  fi
+}
+
+# ============================================================
+# Check 18: Crash debris detection (SPEC-182)
+# ============================================================
+check_crash_debris() {
+  local lib="$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh"
+  if [[ ! -f "$lib" ]]; then
+    add_check "crash_debris" "ok" "crash-debris-lib.sh not found (skipped)"
+    return
+  fi
+
+  source "$lib"
+  local output
+  output=$(check_all_crash_debris "$REPO_ROOT" 2>/dev/null || true)
+
+  local found_count
+  found_count=$(echo "$output" | grep -c 'found' || echo "0")
+
+  if [[ "$found_count" -eq 0 ]]; then
+    add_check "crash_debris" "ok" "no crash debris detected"
+    return
+  fi
+
+  local details
+  details=$(echo "$output" | grep 'found' | cut -f3 | tr '\n' '; ' | sed 's/; $//')
+  add_check "crash_debris" "warning" "$found_count crash debris item(s) detected" "$details"
+}
+
+# ============================================================
+# Check 19: bin/swain symlink (SPEC-180, ADR-019)
+# ============================================================
+check_swain_symlink() {
+  local symlink="$REPO_ROOT/bin/swain"
+  if [[ ! -L "$symlink" ]]; then
+    if [[ -f "$REPO_ROOT/skills/swain/scripts/swain" ]]; then
+      add_check "swain_symlink" "warning" "bin/swain symlink missing (script exists at skills/swain/scripts/swain)"
+    else
+      add_check "swain_symlink" "ok" "bin/swain not applicable (no pre-runtime script)"
+    fi
+    return
+  fi
+
+  if [[ ! -e "$symlink" ]]; then
+    add_check "swain_symlink" "warning" "bin/swain symlink broken (target missing)"
+    return
+  fi
+
+  add_check "swain_symlink" "ok" "bin/swain symlink resolves"
+}
+
+# ============================================================
+# Check 20: .agents/bin/ symlink completeness (SPEC-206)
+# ============================================================
+check_agents_bin_symlinks() {
+  local bin_dir="$REPO_ROOT/.agents/bin"
+  if [[ ! -d "$bin_dir" ]]; then
+    add_check "agents_bin_symlinks" "warning" ".agents/bin/ directory missing"
+    return
+  fi
+
+  # Check for broken symlinks in .agents/bin/
+  local broken=()
+  while IFS= read -r link; do
+    [[ -z "$link" ]] && continue
+    if [[ ! -e "$link" ]]; then
+      broken+=("$(basename "$link")")
+    fi
+  done < <(find "$bin_dir" -type l 2>/dev/null)
+
+  # Check for scripts in skills/*/scripts/ that lack a symlink in .agents/bin/
+  # Convention: .sh files (excluding test-*) should be symlinked
+  local missing=()
+  while IFS= read -r script; do
+    [[ -z "$script" ]] && continue
+    local base
+    base=$(basename "$script")
+    if [[ ! -L "$bin_dir/$base" ]]; then
+      missing+=("$base")
+    fi
+  done < <(find "$REPO_ROOT/skills" -path '*/scripts/*.sh' ! -name 'test-*' ! -name 'test_*' 2>/dev/null)
+
+  local issues=()
+  [[ ${#broken[@]} -gt 0 ]] && issues+=("${#broken[@]} broken: ${broken[*]}")
+  [[ ${#missing[@]} -gt 0 ]] && issues+=("${#missing[@]} missing: ${missing[*]}")
+
+  if [[ ${#issues[@]} -eq 0 ]]; then
+    add_check "agents_bin_symlinks" "ok" ".agents/bin/ symlinks complete"
+  else
+    local detail
+    detail=$(printf '%s; ' "${issues[@]}")
+    add_check "agents_bin_symlinks" "warning" ".agents/bin/ symlink issues" "${detail%;* }"
+  fi
+}
+
 # ============================================================
 # Run all checks (set +e so failures don't cascade)
 # ============================================================
@@ -427,6 +530,7 @@ check_script_permissions
 check_memory_directory
 check_superpowers
 check_epics_initiative
+check_readme
 check_evidence_pools
 check_worktrees
 check_lifecycle_dirs
@@ -434,6 +538,9 @@ check_tk_health
 check_swain_box
 check_commit_signing
 check_ssh_readiness
+check_crash_debris
+check_swain_symlink
+check_agents_bin_symlinks
 
 set -e
 

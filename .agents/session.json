@@ -1,17 +1,15 @@
 {
-  "lastBranch": "worktree-session-20260330-222850-c882",
+  "lastBranch": "trunk",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed SPEC-194 Flesch-Kincaid readability enforcement — all tasks done, tests 17/17, SPEC grade 8.0",
+    "note": "Completed SPEC-206 — missing session greeting script",
     "files": [
-      "skills/swain-design/scripts/readability-check.sh",
-      "skills/swain-doctor/references/AGENTS.content.md",
-      "skills/swain-design/references/readability-protocol.md"
+      "docs/spec/Complete/(SPEC-206)-Missing-Session-Greeting-Script/(SPEC-206)-Missing-Session-Greeting-Script.md"
     ],
-    "timestamp": "2026-03-31T03:28:33Z"
+    "timestamp": "2026-03-31T17:35:04Z"
   },
-  "focus_lane": "INITIATIVE-019"
+  "focus_lane": "EPIC-049"
 }

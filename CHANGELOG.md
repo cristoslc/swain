@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.25.0-alpha] - 2026-03-31
+
+### Features
+
+#### README as Ambient Intent
+
+README.md is now a first-class input to swain's alignment loop. Six existing skills gained README awareness: swain-init seeds a README when missing and proposes artifacts from it, swain-doctor flags missing READMEs, swain-session checks for drift at focus-lane selection, swain-retro surfaces README drift during retrospectives, swain-release gates on README alignment and untested promises, and swain-design nudges the operator to update the README after artifact transitions. Reconciliation is always bidirectional — the operator decides which side to update.
+
+#### Context-Rich Progress Tracking
+
+Artifact references throughout swain now carry human-readable context instead of bare IDs. A new artifact-context.sh utility resolves any artifact ID to a one-liner with title, status, and progress. Session digests auto-generate at close and feed into per-epic progress logs. The session dashboard, retro output, roadmap, and design skill all use context lines so the operator never has to look up what an ID means.
+- Progress section added to epic and initiative templates for session-digest auto-population
+
+### Research
+- Claude Code source leak 2026 — trove created with initial source
+
+### Supporting Changes
+- Collision keeper overwrite fix — fix-collisions.sh no longer over-rewrites keeper references during artifact renumbering
+- Session greeting symlink wiring for new .agents/bin/ scripts
+- Worktree-safe path resolution in session scripts
+- Removed stale swain-dispatch from README skill table
+
 ## [0.24.0-alpha] - 2026-03-30
 
 ### Features

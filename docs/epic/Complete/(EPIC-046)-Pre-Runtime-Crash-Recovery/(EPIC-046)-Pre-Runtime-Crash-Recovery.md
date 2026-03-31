@@ -2,10 +2,10 @@
 title: "Pre-Runtime Crash Recovery"
 artifact: EPIC-046
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-30
 parent-vision: VISION-004
 parent-initiative: INITIATIVE-019
 priority-weight: high
@@ -43,7 +43,7 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 - Initial prompt composition for crash recovery context
 
 **Out of scope:**
-- In-session facilitation (SESSION-ROADMAP, bookmarking, focus lane — stays in [EPIC-039](../(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md)/swain-session)
+- In-session facilitation (SESSION-ROADMAP, bookmarking, focus lane — stays in [EPIC-039](../../Complete/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md)/swain-session)
 - Browser-based workspace persistence ([DESIGN-004](../../../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md)/[INITIATIVE-015](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md))
 - Zellij migration (deferred per [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md))
 - Runtime-specific session resume (e.g., Claude Code `/resume`) — the script surfaces context, the runtime handles resume
@@ -52,16 +52,16 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 
 | Spec | Title | Status | Notes |
 |------|-------|--------|-------|
-| [SPEC-180](../../../spec/Active/(SPEC-180)-Pre-Runtime-Swain-Script/(SPEC-180)-Pre-Runtime-Swain-Script.md) | Pre-Runtime Swain Script | Active | Phase 1-3: structural checks, session selection, runtime invocation |
-| [SPEC-181](../../../spec/Active/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) | Swain Shell Function Refactor | Active | Thin wrapper, script delegation, graceful fallback |
-| [SPEC-182](../../../spec/Active/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) | Crash Debris Detection Checks | Active | Standalone bash functions for git locks, tk locks, dangling worktrees |
+| [SPEC-180](../../../spec/Complete/(SPEC-180)-Pre-Runtime-Swain-Script/(SPEC-180)-Pre-Runtime-Swain-Script.md) | Pre-Runtime Swain Script | Complete | 17/17 tests pass, all 7 ACs verified |
+| [SPEC-181](../../../spec/Complete/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) | Swain Shell Function Refactor | Complete | 8/8 tests, thin wrapper templates (bash+zsh), under 20 lines |
+| [SPEC-182](../../../spec/Complete/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) | Crash Debris Detection Checks | Complete | 18/18 tests, doctor Check 18, crash-debris-lib.sh |
 
 ## Key Dependencies
 
 - ADR-017 (runtime support tiers and flags)
 - ADR-018 (structural not prosaic — crash detection must be bash, not LLM)
 - [ADR-015](../../../adr/Active/(ADR-015)-Tickets-Are-Ephemeral-Execution-Scaffolding.md) (never auto-discard worktree state)
-- [EPIC-045](../(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md) (shell launcher — current `swain` function being refactored)
+- [EPIC-045](../../Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md) (shell launcher — current `swain` function being refactored)
 - Claude Code `~/.claude/sessions/` (primary crash detection data source)
 
 ## Lifecycle
@@ -69,3 +69,4 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) findings |
+| Complete | 2026-03-30 | 995983b | All 3 child specs complete (43 tests total), all 6 success criteria met |

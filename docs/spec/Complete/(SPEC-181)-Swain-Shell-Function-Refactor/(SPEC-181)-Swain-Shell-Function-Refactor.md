@@ -2,10 +2,10 @@
 title: "Swain Shell Function Refactor"
 artifact: SPEC-181
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-30
 priority-weight: high
 type: enhancement
 parent-epic: EPIC-046
@@ -129,3 +129,4 @@ swain-doctor does **not** modify the user's rc file (that's swain-init's domain)
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from SPIKE-051 |
 | Active | 2026-03-28 | — | Updated `./swain` references to `bin/swain` per ADR-019 operator-facing convention |
+| Complete | 2026-03-30 | 152cc74 | 8/8 tests pass, thin wrapper + zsh templates, under 20 lines |

@@ -514,6 +514,54 @@ Append the full contents of that file to AGENTS.md.
 Tell the user:
 > Governance rules added to AGENTS.md. These ensure swain skills are routable and conventions are enforced. You can customize anything outside the `<!-- swain governance -->` markers.
 
+## Phase 5.5: README seeding and artifact proposals (SPEC-207)
+
+Goal: ensure every swain project has a README, and offer to bootstrap artifacts from it when the artifact tree is empty.
+
+### Step 5.5.1 — Check for README
+
+```bash
+[ -f "README.md" ] && echo "exists" || echo "missing"
+```
+
+### Step 5.5.2 — Seed README if missing
+
+If README.md does not exist, determine the project's context and seed one:
+
+**Context detection:**
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+HAS_CODE=$(find "$REPO_ROOT" -maxdepth 3 \( -name '*.py' -o -name '*.js' -o -name '*.ts' -o -name '*.go' -o -name '*.rs' -o -name '*.sh' \) -not -path '*/node_modules/*' -not -path '*/.git/*' -print -quit 2>/dev/null)
+HAS_ARTIFACTS=$(find "$REPO_ROOT/docs" -name '*.md' -path '*/Active/*' -print -quit 2>/dev/null)
+```
+
+**Seeding strategy:**
+- **No code, no artifacts** — Interview the operator: "What does this project do?" Write the README from their answer.
+- **Code exists, no artifacts** — Infer project purpose from code (read entry points, package.json/pyproject.toml/go.mod, etc.). Present a draft README to the operator for editing.
+- **Artifacts exist, no README** — Compile from Active Visions, Designs, Journeys, and Personas. Present a draft to the operator for editing.
+
+Present the draft to the operator. They can approve, edit, or skip. If they skip, note "README: skipped" in the summary and swain-doctor will flag it on future sessions.
+
+### Step 5.5.3 — Propose seed artifacts from README
+
+If README.md exists (or was just created) but the artifact tree is empty or thin (fewer than 3 Active artifacts across Vision, Design, Journey, and Persona types):
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+ACTIVE_COUNT=$(find "$REPO_ROOT/docs" -path "*/Active/*" -name "*.md" 2>/dev/null | grep -cE "\(VISION|DESIGN|JOURNEY|PERSONA\)" || echo "0")
+```
+
+If `ACTIVE_COUNT < 3`, read the README and extract intent claims using semantic analysis. Propose seed artifacts:
+
+- **Vision** — from the README's description of what the project does and why.
+- **Personas** — from who the README addresses and what problems it describes.
+- **Journeys** — from usage flows, examples, or "getting started" paths.
+- **Designs** — from architectural or structural claims.
+
+Present each proposal individually. The operator approves, edits, or rejects each one. Approved artifacts are created via swain-design. Rejected proposals are silently dropped.
+
+**Semantic extraction:** Read the entire README as prose. No convention-based sections, no operator-placed markers. Any claim in the README is a potential intent source — install instructions, feature descriptions, behavioral claims, architectural statements.
+
 ## Phase 6: Finalize
 
 ### Step 6.1 — Create .agents directory
@@ -605,6 +653,8 @@ Report what was done:
 > - tmux: [installed/skipped/already present]
 > - Shell launcher: [installed (runtime)/skipped/already present/no runtime found/unsupported shell]
 > - Swain governance in AGENTS.md: [done/skipped/already present]
+> - README: [seeded/already present/skipped]
+> - Artifact proposals from README: [N proposed, M accepted/skipped/not applicable]
 > - Init marker: written (.swain-init)
 
 ### Step 6.6 — Start session
