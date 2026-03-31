@@ -413,6 +413,33 @@ check_ssh_readiness() {
 }
 
 # ============================================================
+# Check 18: Crash debris detection (SPEC-182)
+# ============================================================
+check_crash_debris() {
+  local lib="$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh"
+  if [[ ! -f "$lib" ]]; then
+    add_check "crash_debris" "ok" "crash-debris-lib.sh not found (skipped)"
+    return
+  fi
+
+  source "$lib"
+  local output
+  output=$(check_all_crash_debris "$REPO_ROOT" 2>/dev/null || true)
+
+  local found_count
+  found_count=$(echo "$output" | grep -c 'found' || echo "0")
+
+  if [[ "$found_count" -eq 0 ]]; then
+    add_check "crash_debris" "ok" "no crash debris detected"
+    return
+  fi
+
+  local details
+  details=$(echo "$output" | grep 'found' | cut -f3 | tr '\n' '; ' | sed 's/; $//')
+  add_check "crash_debris" "warning" "$found_count crash debris item(s) detected" "$details"
+}
+
+# ============================================================
 # Run all checks (set +e so failures don't cascade)
 # ============================================================
 set +e
@@ -434,6 +461,7 @@ check_tk_health
 check_swain_box
 check_commit_signing
 check_ssh_readiness
+check_crash_debris
 
 set -e
 

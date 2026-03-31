@@ -140,6 +140,13 @@ assert "multiple debris → multiple findings" "$([ "$FOUND_COUNT" -ge 2 ] && ec
 
 rm -rf "$TMPDIR5"
 
+# --- Doctor integration ---
+DOCTOR="$REPO_ROOT/skills/swain-doctor/scripts/swain-doctor.sh"
+
+# T18: Doctor output includes crash_debris check
+DOCTOR_OUT=$(bash "$DOCTOR" 2>/dev/null || true)
+assert "doctor includes crash_debris check" "$(echo "$DOCTOR_OUT" | grep -q 'crash_debris' && echo true || echo false)"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
