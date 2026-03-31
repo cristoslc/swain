@@ -440,6 +440,28 @@ check_crash_debris() {
 }
 
 # ============================================================
+# Check 19: bin/swain symlink (SPEC-180, ADR-019)
+# ============================================================
+check_swain_symlink() {
+  local symlink="$REPO_ROOT/bin/swain"
+  if [[ ! -L "$symlink" ]]; then
+    if [[ -f "$REPO_ROOT/skills/swain/scripts/swain" ]]; then
+      add_check "swain_symlink" "warning" "bin/swain symlink missing (script exists at skills/swain/scripts/swain)"
+    else
+      add_check "swain_symlink" "ok" "bin/swain not applicable (no pre-runtime script)"
+    fi
+    return
+  fi
+
+  if [[ ! -e "$symlink" ]]; then
+    add_check "swain_symlink" "warning" "bin/swain symlink broken (target missing)"
+    return
+  fi
+
+  add_check "swain_symlink" "ok" "bin/swain symlink resolves"
+}
+
+# ============================================================
 # Run all checks (set +e so failures don't cascade)
 # ============================================================
 set +e
@@ -462,6 +484,7 @@ check_swain_box
 check_commit_signing
 check_ssh_readiness
 check_crash_debris
+check_swain_symlink
 
 set -e
 

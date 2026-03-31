@@ -140,12 +140,39 @@ assert "multiple debris → multiple findings" "$([ "$FOUND_COUNT" -ge 2 ] && ec
 
 rm -rf "$TMPDIR5"
 
+# --- Edge cases ---
+TMPDIR_EDGE=$(mktemp -d)
+FAKE_GIT_EDGE="$TMPDIR_EDGE/.git"
+mkdir -p "$FAKE_GIT_EDGE"
+
+# T-EDGE1: Lock file with binary/non-numeric content → found (no valid PID)
+echo "not-a-pid" > "$FAKE_GIT_EDGE/index.lock"
+RESULT=$(check_git_index_lock "$TMPDIR_EDGE" 2>/dev/null || echo "MISSING")
+assert "non-numeric lock content → found" "$(echo "$RESULT" | grep -q 'found' && echo true || echo false)"
+
+# T-EDGE2: Empty lock file → found (no PID to check)
+> "$FAKE_GIT_EDGE/index.lock"
+RESULT=$(check_git_index_lock "$TMPDIR_EDGE" 2>/dev/null || echo "MISSING")
+assert "empty lock file → found" "$(echo "$RESULT" | grep -q 'found' && echo true || echo false)"
+
+# T-EDGE3: rebase-apply detection (not just rebase-merge)
+TMPDIR_EDGE2=$(mktemp -d)
+mkdir -p "$TMPDIR_EDGE2/.git/rebase-apply"
+RESULT=$(check_interrupted_git_ops "$TMPDIR_EDGE2" 2>/dev/null || echo "MISSING")
+assert "rebase-apply → found" "$(echo "$RESULT" | grep -q 'found' && echo true || echo false)"
+
+rm -rf "$TMPDIR_EDGE" "$TMPDIR_EDGE2"
+
 # --- Doctor integration ---
 DOCTOR="$REPO_ROOT/skills/swain-doctor/scripts/swain-doctor.sh"
 
 # T18: Doctor output includes crash_debris check
 DOCTOR_OUT=$(bash "$DOCTOR" 2>/dev/null || true)
 assert "doctor includes crash_debris check" "$(echo "$DOCTOR_OUT" | grep -q 'crash_debris' && echo true || echo false)"
+
+# T-DOCTOR2: Doctor output includes swain_symlink check
+DOCTOR_OUT2=$(bash "$DOCTOR" 2>/dev/null || true)
+assert "doctor includes swain_symlink check" "$(echo "$DOCTOR_OUT2" | grep -q 'swain_symlink' && echo true || echo false)"
 
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
