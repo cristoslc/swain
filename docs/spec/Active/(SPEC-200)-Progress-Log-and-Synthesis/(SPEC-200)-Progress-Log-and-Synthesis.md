@@ -42,7 +42,7 @@ Each EPIC and Initiative gets a `progress.md` file in its artifact directory. Af
 # Progress Log
 
 ## 2026-03-31
-Implemented readability enforcement (SPEC-194) end-to-end. All 17 tests pass. Released v0.23.0-alpha.
+Implemented readability enforcement (SPEC-203) end-to-end. All 17 tests pass. Released v0.23.0-alpha.
 
 ## 2026-03-30
 Created SPEC and implementation plan. Decomposed into 7 tasks across two chunks.

@@ -44,7 +44,7 @@ It writes one JSONL entry to `.agents/session-log.jsonl` with this schema:
   "focus_lane": "INITIATIVE-019",
   "artifacts_touched": [
     {
-      "id": "SPEC-194",
+      "id": "SPEC-203",
       "title": "Flesch-Kincaid Readability Enforcement",
       "action": "implemented",
       "summary": "Script, governance rule, and protocol doc shipped."

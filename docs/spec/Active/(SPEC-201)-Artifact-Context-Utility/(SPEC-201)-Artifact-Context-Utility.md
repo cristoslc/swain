@@ -36,13 +36,13 @@ A script (`artifact-context.sh` or Python equivalent) in `.agents/bin/`.
 
 **Output (line mode):**
 ```
-**Readability enforcement** `SPEC-194` — deterministic FK scoring for all artifacts. All 3 deliverables shipped.
+**Readability enforcement** `SPEC-203` — deterministic FK scoring for all artifacts. All 3 deliverables shipped.
 ```
 
 **Output (json mode):**
 ```json
 {
-  "id": "SPEC-194",
+  "id": "SPEC-203",
   "title": "Readability enforcement",
   "scope": "deterministic FK scoring for all artifacts",
   "progress": "All 3 deliverables shipped.",

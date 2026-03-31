@@ -35,12 +35,12 @@ Update these skill surfaces to use the artifact-context utility:
 
 | Surface | Skill | Current output | New output |
 |---------|-------|---------------|------------|
-| Status dashboard recommendations | swain-session | `Recommended: SPEC-194` | Context line with progress |
+| Status dashboard recommendations | swain-session | `Recommended: SPEC-203` | Context line with progress |
 | "What's next?" list | swain-session | Ranked IDs with titles | Context lines ranked by readiness |
 | Focus lane display | swain-session | `Focus: INITIATIVE-019` | Context line for the Initiative |
 | Roadmap items | swain-roadmap | IDs in Gantt/quadrant | IDs + plain-language labels + progress |
 | Retro artifact references | swain-retro | References by ID | Context lines for each artifact |
-| Scope/ancestry checks | swain-design | `SPEC-194 → INITIATIVE-019` | Ancestry chain with plain-language names |
+| Scope/ancestry checks | swain-design | `SPEC-203 → INITIATIVE-019` | Ancestry chain with plain-language names |
 
 Each skill calls `artifact-context.sh <ID>` and uses the returned context line in its output formatting.
 
