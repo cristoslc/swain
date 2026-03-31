@@ -70,6 +70,22 @@ else
   exit 1
 fi
 
+# ─── Test 0b: .agents/bin/ symlink exists and resolves (SPEC-206) ───
+echo "Test 0b: Symlink in .agents/bin/"
+SYMLINK_PATH="$REPO_ROOT/.agents/bin/swain-session-greeting.sh"
+TOTAL=$((TOTAL + 1))
+if [[ -L "$SYMLINK_PATH" && -e "$SYMLINK_PATH" ]]; then
+  PASS=$((PASS + 1))
+  [[ $VERBOSE -eq 1 ]] && echo "  PASS: .agents/bin/ symlink exists and resolves"
+else
+  FAIL=$((FAIL + 1))
+  if [[ -L "$SYMLINK_PATH" ]]; then
+    echo "  FAIL: .agents/bin/swain-session-greeting.sh symlink is broken"
+  else
+    echo "  FAIL: .agents/bin/swain-session-greeting.sh symlink missing"
+  fi
+fi
+
 # ─── Test 1: Greeting includes branch info ───
 echo "Test 1: Branch info in output"
 output=$(bash "$GREETING_SCRIPT" 2>/dev/null)
