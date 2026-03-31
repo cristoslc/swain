@@ -1,17 +1,17 @@
 {
-  "lastBranch": "worktree-session-20260330-215355-839f",
+  "lastBranch": "worktree-session-20260330-222850-c882",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed EPIC-046 (Pre-Runtime Crash Recovery) — all 3 specs, 43 tests, ready for merge to trunk",
+    "note": "Completed SPEC-194 Flesch-Kincaid readability enforcement — all tasks done, tests 17/17, SPEC grade 8.0",
     "files": [
-      "skills/swain/scripts/swain",
-      "skills/swain-doctor/scripts/crash-debris-lib.sh",
-      "skills/swain-init/templates/launchers/thin-wrapper/swain.bash"
+      "skills/swain-design/scripts/readability-check.sh",
+      "skills/swain-doctor/references/AGENTS.content.md",
+      "skills/swain-design/references/readability-protocol.md"
     ],
-    "timestamp": "2026-03-31T03:45:41Z"
+    "timestamp": "2026-03-31T03:28:33Z"
   },
   "focus_lane": "INITIATIVE-019"
 }
