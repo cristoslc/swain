@@ -23,7 +23,7 @@ swain-do: required
 
 ## Problem Statement
 
-After writing tests and seeing them pass (GREEN), the agent declares completion without examining what it *didn't* test. In [SPEC-175](../(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md), 14/14 tests passed but 6 dimensions were untested (flag coverage, write side-effects, fallback paths, degraded-mode behavior, idempotency, integration). The agent identified all gaps immediately when the operator asked "what did you miss?" — the knowledge was available, the self-check wasn't happening. One untested path (broken jq fallback) was a real production bug.
+After writing tests and seeing them pass (GREEN), the agent declares completion without examining what it *didn't* test. In [SPEC-175](../../Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md), 14/14 tests passed but 6 dimensions were untested (flag coverage, write side-effects, fallback paths, degraded-mode behavior, idempotency, integration). The agent identified all gaps immediately when the operator asked "what did you miss?" — the knowledge was available, the self-check wasn't happening. One untested path (broken jq fallback) was a real production bug.
 
 The superpowers test-driven-development skill's Verification Checklist has "Edge cases and errors covered" but this is too vague to trigger the specific self-critique behavior needed. Superpowers skills cannot be modified (they're overwritten on update), so the gate must live in swain-do's TDD enforcement, which wraps the TDD skill and controls the execution flow around it.
 

@@ -1,0 +1,398 @@
+#!/usr/bin/env bash
+# swain — pre-runtime crash recovery and session launcher (SPEC-180)
+#
+# Phases:
+#   1. Pre-runtime structural checks (crash debris detection + cleanup)
+#   2. Session selection (resume crashed session or start fresh)
+#   3. Runtime invocation (resolve + launch preferred agentic CLI)
+#
+# Usage: swain [--fresh] [--runtime <name>] [session purpose text...]
+#
+# Per ADR-018: all logic is structural (bash), not prosaic (LLM).
+# Per ADR-015: never auto-discard worktree state.
+# Per ADR-019: canonical location is skills/swain/scripts/swain;
+#              operator access via bin/swain symlink.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Resolve repo root: go up from skills/swain/scripts/ to project root
+REPO_ROOT="${REPO_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
+
+# --- Argument parsing ---
+FLAG_FRESH=false
+FLAG_RUNTIME=""
+FLAG_DRY_RUN=false
+FLAG_PHASE1_ONLY=false
+FLAG_PHASE2_ONLY=false
+FLAG_NON_INTERACTIVE=false
+PURPOSE_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --fresh)
+      FLAG_FRESH=true
+      shift
+      ;;
+    --runtime)
+      FLAG_RUNTIME="$2"
+      shift 2
+      ;;
+    --_dry_run)
+      FLAG_DRY_RUN=true
+      shift
+      ;;
+    --_phase1_only)
+      FLAG_PHASE1_ONLY=true
+      shift
+      ;;
+    --_phase2_only)
+      FLAG_PHASE2_ONLY=true
+      shift
+      ;;
+    --_non_interactive)
+      FLAG_NON_INTERACTIVE=true
+      shift
+      ;;
+    --help|-h)
+      echo "Usage: swain [--fresh] [--runtime <name>] [purpose...]"
+      echo ""
+      echo "Options:"
+      echo "  --fresh         Skip crash recovery, start a clean session"
+      echo "  --runtime NAME  Force a specific runtime (claude, gemini, codex, copilot, crush)"
+      echo ""
+      echo "Arguments after flags become the session purpose text."
+      exit 0
+      ;;
+    *)
+      PURPOSE_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+
+# --- Phase 1: Pre-runtime structural checks ---
+phase1_crash_detection() {
+  # Source the crash debris detection library (SPEC-182)
+  local lib="$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh"
+  if [[ ! -f "$lib" ]]; then
+    echo "warning: crash-debris-lib.sh not found; skipping crash detection" >&2
+    return
+  fi
+  source "$lib"
+
+  # Run all crash debris checks
+  local findings
+  findings=$(check_all_crash_debris "$REPO_ROOT" 2>/dev/null)
+
+  # AC5 silent fast path: no findings → return immediately
+  if [[ -z "$findings" ]]; then
+    return
+  fi
+
+  # Display findings
+  echo "=== Crash debris detected ==="
+  echo ""
+  local count=0
+  while IFS=$'\t' read -r type status detail; do
+    [[ "$status" != "found" ]] && continue
+    count=$((count + 1))
+    case "$type" in
+      git_index_lock)
+        echo "  [$count] Git index lock: $detail"
+        ;;
+      interrupted_git_ops)
+        echo "  [$count] $detail"
+        ;;
+      stale_tk_locks)
+        echo "  [$count] Stale task lock: $detail"
+        ;;
+      dangling_worktrees)
+        echo "  [$count] Dangling worktree: $detail"
+        ;;
+      orphaned_mcp)
+        echo "  [$count] Orphaned MCP server: $detail"
+        ;;
+      *)
+        echo "  [$count] $type: $detail"
+        ;;
+    esac
+  done <<< "$findings"
+  echo ""
+
+  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]] || [[ "$FLAG_DRY_RUN" == "true" ]] || ! [[ -t 0 ]]; then
+    # Store findings for Phase 2
+    PHASE1_FINDINGS="$findings"
+    return
+  fi
+
+  # Offer cleanup with confirmation (per ADR-015: never auto-discard)
+  echo "Clean up crash debris? (y/n/q — q skips remaining)"
+  local item_num=0
+  while IFS=$'\t' read -r type status detail; do
+    [[ "$status" != "found" ]] && continue
+    item_num=$((item_num + 1))
+
+    local action=""
+    case "$type" in
+      git_index_lock)
+        local lock_path
+        lock_path=$(echo "$detail" | awk '{print $1}')
+        action="rm -f \"$lock_path\""
+        ;;
+      interrupted_git_ops)
+        if echo "$detail" | grep -q "merge"; then
+          action="git -C \"$REPO_ROOT\" merge --abort"
+        elif echo "$detail" | grep -q "rebase"; then
+          action="git -C \"$REPO_ROOT\" rebase --abort"
+        elif echo "$detail" | grep -q "cherry-pick"; then
+          action="git -C \"$REPO_ROOT\" cherry-pick --abort"
+        fi
+        ;;
+      stale_tk_locks)
+        local task_id
+        task_id=$(echo "$detail" | awk '{print $2}')
+        action="rm -rf \"$REPO_ROOT/.tickets/.locks/$task_id\""
+        ;;
+      dangling_worktrees)
+        # Don't auto-cleanup worktrees — surface for Phase 2
+        action=""
+        ;;
+      orphaned_mcp)
+        local mcp_pid
+        mcp_pid=$(echo "$detail" | grep -oE 'PID [0-9]+' | awk '{print $2}')
+        action="kill $mcp_pid"
+        ;;
+    esac
+
+    if [[ -z "$action" ]]; then
+      continue
+    fi
+
+    read -r -p "  [$item_num] Clean up? (y/n/q) " choice </dev/tty
+    case "$choice" in
+      y|Y)
+        eval "$action" 2>/dev/null && echo "    Cleaned." || echo "    Failed."
+        ;;
+      q|Q)
+        echo "  Skipping remaining."
+        break
+        ;;
+      *)
+        echo "    Skipped."
+        ;;
+    esac
+  done <<< "$findings"
+  echo ""
+
+  # Store findings for Phase 2 (session selection needs to know about dangling worktrees)
+  PHASE1_FINDINGS="$findings"
+}
+
+# --- Phase 2: Session selection ---
+phase2_session_selection() {
+  local has_crash_indicators=false
+
+  if [[ -n "$PHASE1_FINDINGS" ]]; then
+    has_crash_indicators=true
+  fi
+
+  local session_file="$REPO_ROOT/.agents/session.json"
+  local bookmark="" focus_lane=""
+
+  if [[ -f "$session_file" ]]; then
+    bookmark=$(grep -o '"note"[[:space:]]*:[[:space:]]*"[^"]*"' "$session_file" 2>/dev/null \
+               | head -1 | sed 's/.*"note"[[:space:]]*:[[:space:]]*"//;s/"$//')
+    focus_lane=$(grep -o '"focus_lane"[[:space:]]*:[[:space:]]*"[^"]*"' "$session_file" 2>/dev/null \
+                 | head -1 | sed 's/.*"focus_lane"[[:space:]]*:[[:space:]]*"//;s/"$//')
+  fi
+
+  # Fast path: no crash indicators and no bookmark → skip Phase 2
+  if [[ "$has_crash_indicators" != "true" ]] && [[ -z "$bookmark" ]]; then
+    return
+  fi
+
+  echo "=== Previous session detected ==="
+  if [[ -n "$bookmark" ]]; then
+    echo "  Last activity: $bookmark"
+  fi
+  if [[ -n "$focus_lane" ]]; then
+    echo "  Focus: $focus_lane"
+  fi
+
+  # Show dangling worktrees with uncommitted changes (AC5)
+  if echo "$PHASE1_FINDINGS" | grep -q 'dangling_worktrees.*found' 2>/dev/null; then
+    echo ""
+    echo "  Worktrees with unmerged work:"
+    echo "$PHASE1_FINDINGS" | grep 'dangling_worktrees.*found' | while IFS=$'\t' read -r _ _ detail; do
+      echo "    - $detail"
+    done
+  fi
+  echo ""
+
+  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]] || [[ "$FLAG_DRY_RUN" == "true" ]] || ! [[ -t 0 ]]; then
+    RESUME_PROMPT="/swain-session Session purpose: resume after crash"
+    if [[ -n "$bookmark" ]]; then
+      RESUME_PROMPT="/swain-session Session purpose: resume — $bookmark"
+    fi
+    return
+  fi
+
+  echo "Options:"
+  echo "  [r] Resume previous session"
+  echo "  [f] Start fresh"
+  echo ""
+  read -r -p "Choice (r/f): " choice </dev/tty
+
+  case "$choice" in
+    r|R)
+      RESUME_PROMPT="/swain-session"
+      if [[ -n "$bookmark" ]]; then
+        RESUME_PROMPT="/swain-session Session purpose: resume — $bookmark"
+      fi
+      echo "  Resuming with context."
+      ;;
+    *)
+      RESUME_PROMPT=""
+      echo "  Starting fresh."
+      ;;
+  esac
+  echo ""
+}
+
+# --- Runtime resolution ---
+# Priority: --runtime flag > per-project setting > global setting > auto-detect
+resolve_runtime() {
+  # 1. CLI flag
+  if [[ -n "$FLAG_RUNTIME" ]]; then
+    echo "$FLAG_RUNTIME"
+    return
+  fi
+
+  # 2. Per-project setting (swain.settings.json)
+  local project_settings="$REPO_ROOT/swain.settings.json"
+  if [[ -f "$project_settings" ]]; then
+    local rt
+    rt=$(grep -o '"runtime"[[:space:]]*:[[:space:]]*"[^"]*"' "$project_settings" 2>/dev/null \
+         | head -1 | sed 's/.*"runtime"[[:space:]]*:[[:space:]]*"//;s/"$//')
+    if [[ -n "$rt" ]]; then
+      echo "$rt"
+      return
+    fi
+  fi
+
+  # 3. Global setting (~/.config/swain/settings.json)
+  local global_settings="$HOME/.config/swain/settings.json"
+  if [[ -f "$global_settings" ]]; then
+    local rt
+    rt=$(grep -o '"runtime"[[:space:]]*:[[:space:]]*"[^"]*"' "$global_settings" 2>/dev/null \
+         | head -1 | sed 's/.*"runtime"[[:space:]]*:[[:space:]]*"//;s/"$//')
+    if [[ -n "$rt" ]]; then
+      echo "$rt"
+      return
+    fi
+  fi
+
+  # 4. Auto-detect installed runtimes (first match wins)
+  local runtimes=(claude gemini codex copilot crush)
+  for rt in "${runtimes[@]}"; do
+    if command -v "$rt" &>/dev/null; then
+      echo "$rt"
+      return
+    fi
+  done
+
+  echo ""
+}
+
+# Build launch command for a given runtime
+build_launch_cmd() {
+  local runtime="$1"
+  local prompt="$2"
+
+  case "$runtime" in
+    claude)
+      echo "claude --dangerously-skip-permissions \"$prompt\""
+      ;;
+    gemini)
+      echo "gemini -y -i \"$prompt\""
+      ;;
+    codex)
+      echo "codex --full-auto \"$prompt\""
+      ;;
+    copilot)
+      echo "copilot --yolo -i \"$prompt\""
+      ;;
+    crush)
+      echo "crush --yolo"
+      ;;
+    *)
+      echo ""
+      ;;
+  esac
+}
+
+PHASE1_FINDINGS=""
+RESUME_PROMPT=""
+
+# --- Phase 3: Runtime invocation ---
+phase3_launch_runtime() {
+  local runtime
+  runtime=$(resolve_runtime)
+
+  if [[ -z "$runtime" ]]; then
+    echo "error: no supported runtime found. Install one of: claude, gemini, codex, copilot, crush" >&2
+    exit 1
+  fi
+
+  # Compose initial prompt
+  local prompt="/swain-init"
+  if [[ -n "$RESUME_PROMPT" ]]; then
+    prompt="$RESUME_PROMPT"
+  elif [[ ${#PURPOSE_ARGS[@]} -gt 0 ]]; then
+    prompt="/swain-session Session purpose: ${PURPOSE_ARGS[*]}"
+  fi
+
+  # For Partial tier (crush): use SWAIN_PURPOSE env var instead of prompt (ADR-017)
+  if [[ "$runtime" == "crush" ]]; then
+    if [[ -n "$RESUME_PROMPT" ]]; then
+      export SWAIN_PURPOSE="resume — previous session"
+    elif [[ ${#PURPOSE_ARGS[@]} -gt 0 ]]; then
+      export SWAIN_PURPOSE="${PURPOSE_ARGS[*]}"
+    fi
+  fi
+
+  local cmd
+  cmd=$(build_launch_cmd "$runtime" "$prompt")
+
+  if [[ "$FLAG_DRY_RUN" == "true" ]]; then
+    echo "runtime: $runtime"
+    echo "prompt: $prompt"
+    echo "command: $cmd"
+    return
+  fi
+
+  # Launch the runtime via exec (replaces this process)
+  eval exec "$cmd"
+}
+
+# --- Main ---
+cd "$REPO_ROOT"
+
+if [[ "$FLAG_PHASE1_ONLY" == "true" ]]; then
+  phase1_crash_detection
+  exit 0
+fi
+
+if [[ "$FLAG_PHASE2_ONLY" == "true" ]]; then
+  phase1_crash_detection
+  phase2_session_selection
+  exit 0
+fi
+
+if [[ "$FLAG_FRESH" != "true" ]]; then
+  phase1_crash_detection
+  phase2_session_selection
+fi
+
+phase3_launch_runtime

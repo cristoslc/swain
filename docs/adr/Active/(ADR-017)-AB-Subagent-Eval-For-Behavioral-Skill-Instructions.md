@@ -47,7 +47,7 @@ Both agents run in parallel for speed. The eval passes if the behavioral delta i
 ## Alternatives Considered
 
 1. **Manual test in a new session** — start a fresh session, implement something, observe whether the agent self-critiques. Accurate but slow, non-repeatable, and conflates session state with the instruction's effect.
-2. **Accept the limitation** — ship behavioral instructions without verification and observe in practice. Fast but provides no evidence before merge. The [SPEC-175](../../spec/Active/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) retro showed that "ship and observe" misses real bugs.
+2. **Accept the limitation** — ship behavioral instructions without verification and observe in practice. Fast but provides no evidence before merge. The [SPEC-175](../../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) retro showed that "ship and observe" misses real bugs.
 3. **Full eval harness (SPEC)** — build reusable tooling for behavioral evals. Valuable but premature — the A/B subagent pattern is simple enough to run ad-hoc until we know the eval shapes we need.
 
 ## Consequences

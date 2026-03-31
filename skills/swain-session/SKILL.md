@@ -212,7 +212,17 @@ bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" close --walkaway "Completed
 This:
 1. Sets session phase to `closed` with end time
 2. Appends the walk-away signal to SESSION-ROADMAP.md
-3. The agent should then commit SESSION-ROADMAP.md to git
+
+Then generate the session digest and feed it into progress logs:
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-session-digest.sh" --session-id "$(jq -r .session_id "$REPO_ROOT/.agents/session-state.json")" --output "$REPO_ROOT/.agents/session-log.jsonl"
+bash "$REPO_ROOT/.agents/bin/swain-progress-log.sh" --digest "$REPO_ROOT/.agents/session-log.jsonl"
+```
+
+This appends a JSONL digest entry and updates each touched EPIC/Initiative's `progress.md` and `## Progress` section.
+
+Finally, commit SESSION-ROADMAP.md to git.
 
 ### Session resume
 
@@ -305,6 +315,8 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-focus.sh"
 ```
 
+Display the focus artifact as a context line by calling `artifact-context.sh` on the focus ID. Fall back to the bare ID if the utility is unavailable.
+
 Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. The status dashboard reads it to filter recommendations and show peripheral awareness for non-focus visions.
 
 ## Status Dashboard (absorbed from swain-status — SPEC-122)
@@ -328,6 +340,19 @@ Status writes to `.agents/status-cache.json` with 120-second TTL. Use `--refresh
 ### Recommendation
 
 Read `.priority.recommendations[0]` from the JSON cache. When a focus lane is set, recommendations scope to that vision/initiative.
+
+### Context-rich display
+
+When presenting artifacts to the operator (recommendations, focus lane, decisions needed), use the artifact-context utility instead of bare IDs:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+CONTEXT=$(bash "$REPO_ROOT/.agents/bin/artifact-context.sh" <ARTIFACT-ID> 2>/dev/null)
+```
+
+If the utility is available and returns output, use the context line. If unavailable or empty, fall back to `<ID> — <title>` (current behavior).
+
+Display format: **title** `ID` — scope. progress.
 
 ### Mode Inference
 

@@ -1,0 +1,34 @@
+trove: claude-code-source-leak-2026
+created: 2026-03-31
+refreshed: 2026-03-31
+tags:
+  - claude-code
+  - source-leak
+  - feature-flags
+  - autonomous-agents
+  - kairos
+  - proactive-mode
+  - coordinator-mode
+  - model-codenames
+  - undercover-mode
+  - roadmap-signals
+
+freshness-ttl:
+  web: 7d
+
+history:
+  - event: created
+    date: 2026-03-31
+    commit: eafe6a3
+    sources: 1
+
+referenced-by: []
+
+sources:
+  - source-id: arledge-claude-code-leak-article
+    type: web
+    url: "https://x.com/elliotarledge/status/2038934884761444838"
+    fetched: 2026-03-31T16:23:00Z
+    title: "What to Prepare for Based on the Claude Code Leak"
+    hash: "3c6188fb97d4d6b10f0480571f9f04a5c3c4079a112c509d5da8e0ebf2460e52"
+    notes: "X/Twitter article by Elliot Arledge analyzing Claude Code source map leak from npm package @anthropic-ai/claude-code@2.1.88"

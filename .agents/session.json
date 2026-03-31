@@ -1,17 +1,12 @@
 {
-  "lastBranch": "worktree-session-20260330-222850-c882",
+  "lastBranch": "trunk",
   "lastContext": null,
   "preferences": {
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed SPEC-194 Flesch-Kincaid readability enforcement — all tasks done, tests 17/17, SPEC grade 8.0",
-    "files": [
-      "skills/swain-design/scripts/readability-check.sh",
-      "skills/swain-doctor/references/AGENTS.content.md",
-      "skills/swain-design/references/readability-protocol.md"
-    ],
-    "timestamp": "2026-03-31T03:28:33Z"
+    "note": "SPEC-204 complete — fix, transition, merge, retro all done. SPEC candidate: scoped relink",
+    "timestamp": "2026-03-31T16:57:21Z"
   },
-  "focus_lane": "INITIATIVE-019"
+  "focus_lane": "EPIC-049"
 }

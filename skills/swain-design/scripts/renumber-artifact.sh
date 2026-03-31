@@ -18,7 +18,7 @@ git rev-parse --git-dir >/dev/null 2>&1 || {
   exit 1
 }
 
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+REPO_ROOT="$(cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" && pwd -P)"
 DRY_RUN=false
 SOURCE_DIR=""
 
@@ -59,7 +59,7 @@ fi
 
 # --- Find the old artifact directory ---
 if [ -n "$SOURCE_DIR" ]; then
-  OLD_DIR="$SOURCE_DIR"
+  OLD_DIR="$(cd "$SOURCE_DIR" && pwd -P)"
   if [ ! -d "$OLD_DIR" ]; then
     echo "Error: --source-dir '$SOURCE_DIR' does not exist" >&2
     exit 1
@@ -123,50 +123,89 @@ if [ "$DRY_RUN" = true ]; then
 fi
 
 # --- Step 4: Rewrite cross-references in all docs/ .md files ---
-# When --source-dir was given, we're in a collision context — find the keeper
-# directories so we can restore their frontmatter after the global replace.
+# In collision context (--source-dir), use git history to distinguish keeper
+# references from collision references. Only rewrite references that were
+# introduced after the collision artifact was created. (SPEC-204)
+
 KEEPER_DIRS=()
+COLLISION_CREATION_COMMIT=""
 if [ -n "$SOURCE_DIR" ]; then
+  # Find keeper directories
   while IFS= read -r dup_dir; do
-    # Skip the directory we're renaming
     [ "$dup_dir" = "$OLD_DIR" ] && continue
     KEEPER_DIRS+=("$dup_dir")
   done < <(find "$REPO_ROOT/docs" -maxdepth 5 -type d -name "(${OLD_ID})-*" 2>/dev/null)
+
+  # Find the commit that created the collision artifact
+  COLLISION_CREATION_COMMIT=$(git log --all --diff-filter=A --format=%H -- "$OLD_DIR" 2>/dev/null | tail -1)
 fi
 
+# Helper: check if a file's reference to OLD_ID predates the collision
+ref_belongs_to_collision() {
+  local file="$1"
+  # No collision context — rewrite everything (non-collision renumber)
+  [ -z "$COLLISION_CREATION_COMMIT" ] && return 0
+
+  # File is inside the collision artifact's directory — always rewrite
+  # (Use string prefix check instead of case/glob to avoid parentheses in paths
+  # being interpreted as case pattern delimiters)
+  [[ "$file" == "$OLD_DIR"/* ]] && return 0
+  [[ "$file" == "$NEW_DIR"/* ]] && return 0
+
+  # File is inside a keeper directory — never rewrite
+  for kd in "${KEEPER_DIRS[@]}"; do
+    [[ "$file" == "$kd"/* ]] && return 1
+  done
+
+  # Check git: when was OLD_ID first introduced to this file?
+  # If the reference was introduced in or after the collision creation commit,
+  # it belongs to the collision and should be rewritten.
+  local intro_commit
+  intro_commit=$(git log --all --format=%H -S "$OLD_ID" -- "$file" 2>/dev/null | tail -1)
+
+  # No git history for this reference — conservative: skip (assume keeper)
+  [ -z "$intro_commit" ] && return 1
+
+  # If the intro commit is an ancestor of the collision creation commit
+  # (i.e., it came before or at the same time), it's a keeper reference.
+  if git merge-base --is-ancestor "$intro_commit" "$COLLISION_CREATION_COMMIT" 2>/dev/null; then
+    # intro_commit is ancestor of collision — reference predates collision
+    # But if they're the same commit, the reference was introduced alongside
+    if [ "$intro_commit" = "$COLLISION_CREATION_COMMIT" ]; then
+      return 0  # same commit as collision — rewrite
+    fi
+    return 1  # predates collision — skip
+  fi
+
+  # intro_commit is NOT an ancestor — it came after the collision
+  return 0
+}
+
 REF_COUNT=0
+SKIP_COUNT=0
 while IFS= read -r md_file; do
   [ -f "$md_file" ] || continue
   if grep -q "$OLD_ID" "$md_file" 2>/dev/null; then
-    if [ "$DRY_RUN" = true ]; then
-      rel="${md_file#"$REPO_ROOT/"}"
-      echo "  [dry-run] rewrite refs in: $rel"
-      REF_COUNT=$((REF_COUNT + 1))
+    rel="${md_file#"$REPO_ROOT/"}"
+    if ref_belongs_to_collision "$md_file"; then
+      if [ "$DRY_RUN" = true ]; then
+        echo "  [dry-run] rewrite refs in: $rel"
+        REF_COUNT=$((REF_COUNT + 1))
+      else
+        sed -i '' "s/${OLD_ID}/${NEW_ID}/g" "$md_file"
+        git add "$md_file"
+        REF_COUNT=$((REF_COUNT + 1))
+      fi
     else
-      # Replace in frontmatter fields and body text
-      sed -i '' "s/${OLD_ID}/${NEW_ID}/g" "$md_file"
-      git add "$md_file"
-      REF_COUNT=$((REF_COUNT + 1))
+      SKIP_COUNT=$((SKIP_COUNT + 1))
+      if [ "$DRY_RUN" = true ]; then
+        echo "  [dry-run] skip (keeper ref): $rel"
+      fi
     fi
   fi
 done < <(find "$REPO_ROOT/docs" -name '*.md' -not -path '*/troves/*' 2>/dev/null)
 
-# --- Step 4.5: Restore keeper artifacts' frontmatter after global replace ---
-# The global sed above replaces OLD_ID everywhere, including in the other
-# artifact(s) that legitimately keep the old number. Restore their artifact: field.
-for keeper_dir in "${KEEPER_DIRS[@]}"; do
-  keeper_md=$(find "$keeper_dir" -maxdepth 1 -name "*.md" -print -quit 2>/dev/null)
-  [ -n "$keeper_md" ] && [ -f "$keeper_md" ] || continue
-  if [ "$DRY_RUN" = true ]; then
-    rel="${keeper_md#"$REPO_ROOT/"}"
-    echo "  [dry-run] restore keeper frontmatter in: $rel (artifact: $NEW_ID → $OLD_ID)"
-  else
-    sed -i '' "s/^artifact: ${NEW_ID}$/artifact: ${OLD_ID}/" "$keeper_md"
-    git add "$keeper_md"
-  fi
-done
-
-echo "  Cross-references updated: $REF_COUNT file(s)"
+echo "  Cross-references updated: $REF_COUNT file(s)${SKIP_COUNT:+, $SKIP_COUNT skipped (keeper refs)}"
 
 if [ "$DRY_RUN" = true ]; then
   echo "[dry-run] No changes made."

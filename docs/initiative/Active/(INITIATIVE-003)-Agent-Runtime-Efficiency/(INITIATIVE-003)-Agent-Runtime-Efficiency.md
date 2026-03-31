@@ -37,7 +37,7 @@ Keep agents fast, cheap, and correctly routed. This initiative focuses on reduci
 - EPIC-004: Superpowers Integration Assessment (Complete)
 - EPIC-006: Skill Context Footprint Reduction (Complete)
 - EPIC-007: Agent Model Routing and Reasoning Effort Steering (Complete)
-- [EPIC-048](../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md): Session Startup Fast Path (Active)
+- [EPIC-048](../../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md): Session Startup Fast Path (Active)
 
 ## Research Spikes
 
