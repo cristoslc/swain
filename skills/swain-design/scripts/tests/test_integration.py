@@ -40,7 +40,7 @@ import subprocess
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent
-SPECGRAPH = SCRIPTS_DIR / "specgraph.py"
+SPECGRAPH = SCRIPTS_DIR / "specgraph_entry.py"
 
 
 def run_specgraph(args: list[str]) -> str:
