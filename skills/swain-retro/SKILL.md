@@ -319,6 +319,17 @@ bash "$REPO_ROOT/.agents/bin/resolve-artifact-link.sh" <ARTIFACT-ID> <RETRO-FILE
 
 Replace bare IDs with `[ARTIFACT-ID](relative-path)`. If the script returns non-zero or empty output (artifact not found), leave the bare ID as-is. Frontmatter `related-artifacts` values stay as plain IDs (YAML compatibility).
 
+### Context-rich artifact references
+
+When referencing artifacts in retro output (child specs, related artifacts, linked work), use context lines:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/artifact-context.sh" <ID> 2>/dev/null
+```
+
+Fall back to `<ID> — <title>` if the utility is unavailable.
+
 ## Step 5 — Update session bookmark
 
 ```bash
