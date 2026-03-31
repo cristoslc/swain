@@ -106,6 +106,17 @@ This outputs a deterministic, aligned summary grouped by Eisenhower quadrant (Do
 
 Say "ROADMAP.md refreshed and opened." before the CLI output. For scoped runs, say "Roadmap slice for {SCOPE_ID} refreshed and opened." instead.
 
+### Context-rich display
+
+When listing roadmap items (Eisenhower quadrants, Gantt timeline), present each artifact as a context line instead of a bare ID:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/artifact-context.sh" <ID> 2>/dev/null
+```
+
+Fall back to `<ID> — <title>` if the utility is unavailable.
+
 ### 6. Focus lane context
 
 If a focus lane is set in `.agents/session.json`, mention it at the end.
