@@ -69,4 +69,4 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) findings |
-| Complete | 2026-03-30 | -- | All 3 child specs complete (43 tests total), all 6 success criteria met |
+| Complete | 2026-03-30 | 995983b | All 3 child specs complete (43 tests total), all 6 success criteria met |
