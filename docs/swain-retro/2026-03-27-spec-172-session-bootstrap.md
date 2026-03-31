@@ -23,7 +23,7 @@ Consolidated swain-session startup from 3-5 visible Bash tool calls into a singl
 
 | Artifact | Title | Outcome |
 |----------|-------|---------|
-| [SPEC-175](../spec/Active/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) | Session Bootstrap Script Consolidation | Implemented, merged to trunk |
+| [SPEC-175](../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) | Session Bootstrap Script Consolidation | Implemented, merged to trunk |
 | [SPIKE-048](../research/Active/(SPIKE-048)-Noisy-Tool-Call-Pattern-Audit/(SPIKE-048)-Noisy-Tool-Call-Pattern-Audit.md) | Noisy Tool-Call Pattern Audit | Filed (Active), not yet investigated |
 
 ## Reflection

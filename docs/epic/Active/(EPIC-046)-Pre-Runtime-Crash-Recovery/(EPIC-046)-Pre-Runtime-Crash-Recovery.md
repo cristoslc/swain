@@ -43,7 +43,7 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 - Initial prompt composition for crash recovery context
 
 **Out of scope:**
-- In-session facilitation (SESSION-ROADMAP, bookmarking, focus lane — stays in [EPIC-039](../(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md)/swain-session)
+- In-session facilitation (SESSION-ROADMAP, bookmarking, focus lane — stays in [EPIC-039](../../Complete/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md)/swain-session)
 - Browser-based workspace persistence ([DESIGN-004](../../../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md)/[INITIATIVE-015](../../../initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md))
 - Zellij migration (deferred per [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md))
 - Runtime-specific session resume (e.g., Claude Code `/resume`) — the script surfaces context, the runtime handles resume
@@ -54,7 +54,7 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 |------|-------|--------|-------|
 | [SPEC-180](../../../spec/Active/(SPEC-180)-Pre-Runtime-Swain-Script/(SPEC-180)-Pre-Runtime-Swain-Script.md) | Pre-Runtime Swain Script | Active | Phase 1-3: structural checks, session selection, runtime invocation |
 | [SPEC-181](../../../spec/Active/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) | Swain Shell Function Refactor | Active | Thin wrapper, script delegation, graceful fallback |
-| [SPEC-182](../../../spec/Active/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) | Crash Debris Detection Checks | Active | Standalone bash functions for git locks, tk locks, dangling worktrees |
+| [SPEC-182](../../../spec/Complete/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) | Crash Debris Detection Checks | Active | Standalone bash functions for git locks, tk locks, dangling worktrees |
 
 ## Key Dependencies
 

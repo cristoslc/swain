@@ -2,10 +2,10 @@
 title: "Crash Debris Detection Checks"
 artifact: SPEC-182
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-30
 priority-weight: high
 type: feature
 parent-epic: EPIC-046
@@ -74,3 +74,4 @@ Crash debris is detected automatically and cleanable with a single operator conf
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from SPIKE-051 |
+| Complete | 2026-03-30 | -- | 18/18 tests pass, all 7 ACs verified, doctor integration live |

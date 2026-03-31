@@ -19,7 +19,7 @@ evidence-pool: ""
 
 ## Question
 
-Which swain skills suffer from the multi-tool-call script discovery anti-pattern (nested `find`-based path resolution, failed-then-retry inline commands, multi-step orchestration of fixed sequences), and can they adopt the same bootstrap/dispatcher consolidation approach used in [SPEC-175](../../../spec/Active/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md)?
+Which swain skills suffer from the multi-tool-call script discovery anti-pattern (nested `find`-based path resolution, failed-then-retry inline commands, multi-step orchestration of fixed sequences), and can they adopt the same bootstrap/dispatcher consolidation approach used in [SPEC-175](../../../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md)?
 
 ## Go / No-Go Criteria
 
@@ -28,7 +28,7 @@ Which swain skills suffer from the multi-tool-call script discovery anti-pattern
 
 ## Pivot Recommendation
 
-If No-Go: limit the fix to [SPEC-175](../../../spec/Active/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) (session bootstrap) and document the `find`-based discovery as a known cost of the current architecture rather than investing in a cross-skill dispatcher.
+If No-Go: limit the fix to [SPEC-175](../../../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) (session bootstrap) and document the `find`-based discovery as a known cost of the current architecture rather than investing in a cross-skill dispatcher.
 
 ## Findings
 

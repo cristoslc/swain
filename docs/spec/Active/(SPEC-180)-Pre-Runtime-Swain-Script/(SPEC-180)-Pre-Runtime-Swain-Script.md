@@ -44,7 +44,7 @@ The operator runs `swain` after a system crash and gets: crash detection, debris
 
 **Phase 1 — Pre-runtime structural checks:**
 - Scan runtime session directories for orphaned PIDs associated with this project (Claude Code: `~/.claude/sessions/*.json` → match `cwd`, verify PID alive; other runtimes per trove `agent-session-persistence`)
-- Invoke crash debris checks ([SPEC-182](../(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md)) — git locks, stale tk locks, dangling worktrees
+- Invoke crash debris checks ([SPEC-182](../../Complete/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md)) — git locks, stale tk locks, dangling worktrees
 - Offer cleanup with operator confirmation (per [ADR-015](../../../adr/Active/(ADR-015)-Tickets-Are-Ephemeral-Execution-Scaffolding.md): never auto-discard worktree state)
 
 **Phase 2 — Session selection (only if crashed sessions detected):**

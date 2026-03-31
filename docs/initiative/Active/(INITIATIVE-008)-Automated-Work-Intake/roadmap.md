@@ -27,7 +27,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Automated Work Intake](docs/initiative/Active/(INITIATIVE-008)-Automated-Work-Intake/(INITIATIVE-008)-Automated-Work-Intake.md) | [GitHub Issue Polling with Deterministic Pre-Filtering](docs/epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) | 0/0 | 0 | **activate or drop** |
+| [Automated Work Intake]((INITIATIVE-008)-Automated-Work-Intake.md) | [GitHub Issue Polling with Deterministic Pre-Filtering](../../../epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*

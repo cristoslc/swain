@@ -32,8 +32,8 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Security & Trust](docs/initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Security Vulnerability Scanning Skill](docs/epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) | 0/4 | 1 | — |
-|  | [Security Gates in swain-do Execution Flow](docs/epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) | 0/4 | 0 | — |
+| [Security & Trust]((INITIATIVE-004)-Security-And-Trust.md) | [Security Vulnerability Scanning Skill](../../../epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) | 0/4 | 1 | — |
+|  | [Security Gates in swain-do Execution Flow](../../../epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) | 0/4 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
