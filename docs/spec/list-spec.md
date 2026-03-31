@@ -92,14 +92,20 @@
 | SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | 57c7822 |
 | SPEC-178 | Worktree Timestamp Zeroed Time Component | 2026-03-28 | — |
 | SPEC-179 | Launcher Free-Text Session Purpose | 2026-03-28 | — |
-| SPEC-180 | Pre-Runtime Swain Script | 2026-03-28 | — |
-| SPEC-181 | Swain Shell Function Refactor | 2026-03-28 | — |
-| SPEC-182 | Crash Debris Detection Checks | 2026-03-28 | — |
 | SPEC-183 | Session Sleep Operation | 2026-03-28 | — |
 | SPEC-184 | Session End Operation | 2026-03-28 | — |
 | SPEC-191 | Preflight Self-Healing Compliance Audit | 2026-03-29 | — |
-| SPEC-192 | swain-doctor parallel check cascade failure | 2026-03-29 | — |
-| SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-29 | — |
+| SPEC-194 | Flesch-Kincaid Readability Enforcement | 2026-03-30 | _pending_ |
+| SPEC-195 | Defer Worktree Creation to Task Dispatch | 2026-03-30 | -- |
+| SPEC-196 | Collapse Init-Session Skill Chain | 2026-03-30 | -- |
+| SPEC-197 | Specgraph Module Import Shadowing | 2026-03-30 | — |
+| SPEC-198 | Fast-Path Session Greeting | 2026-03-30 | -- |
+| SPEC-199 | Session Digest Auto-Generation | 2026-03-31 | _pending_ |
+| SPEC-200 | Progress Log and Synthesis | 2026-03-31 | _pending_ |
+| SPEC-201 | Artifact Context Utility | 2026-03-31 | _pending_ |
+| SPEC-202 | Context-Rich Display Integration | 2026-03-31 | _pending_ |
+| SPEC-203 | Fast-Path Session Greeting | 2026-03-30 | -- |
+| SPEC-205 | Wire Progress Log Into Session Close | 2026-03-31 | _pending_ |
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete
@@ -194,12 +200,24 @@
 | SPEC-171 | Semantic Topic Matching in Trove Prior Art Check | 2026-03-25 | — |
 | SPEC-174 | Worktree Session Branch Name Collision | 2026-03-27 | — |
 | SPEC-175 | Session Bootstrap Script Consolidation | 2026-03-28 | 7dc8042 |
+| SPEC-180 | Pre-Runtime Swain Script | 2026-03-30 | 30b0267 |
+| SPEC-181 | Swain Shell Function Refactor | 2026-03-30 | 152cc74 |
+| SPEC-182 | Crash Debris Detection Checks | 2026-03-30 | 584cd7f |
 | SPEC-185 | Orphaned Stage-Status Hooks Fire on Every Event | 2026-03-28 | 9b55fb8 |
 | SPEC-186 | Doctor .agents/bin/ Auto-Repair | 2026-03-29 | — |
 | SPEC-187 | Init .agents/bin/ Bootstrap | 2026-03-29 | — |
 | SPEC-188 | Doctor bin/ Auto-Repair | 2026-03-29 | — |
 | SPEC-189 | Migrate swain-box to bin/ | 2026-03-29 | — |
 | SPEC-190 | Migrate All Skills to .agents/bin/ Resolution | 2026-03-29 | — |
+| SPEC-192 | swain-doctor parallel check cascade failure | 2026-03-29 | — |
+| SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-29 | — |
+| SPEC-204 | fix-collisions.sh Over-Rewrites Keeper References | 2026-03-31 | 85c7d96 |
+| SPEC-207 | README Seeding in swain-init | 2026-03-31 | 61379ba |
+| SPEC-208 | README Existence Check in swain-doctor | 2026-03-31 | 61379ba |
+| SPEC-209 | Session-Start README Reconciliation | 2026-03-31 | 61379ba |
+| SPEC-210 | Retro README Drift Check | 2026-03-31 | 61379ba |
+| SPEC-211 | Release README Gate | 2026-03-31 | 61379ba |
+| SPEC-212 | Design Transition README Nudge | 2026-03-31 | 61379ba |
 
 ## Superseded
 

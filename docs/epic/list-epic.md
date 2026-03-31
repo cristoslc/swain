@@ -62,6 +62,7 @@
 | EPIC-043 | Centralized Artifact Number Allocation | 2026-03-22 | — |
 | EPIC-046 | Pre-Runtime Crash Recovery | 2026-03-30 | 995983b |
 | EPIC-047 | ADR-019 Script Convention Implementation | 2026-03-29 | — |
+| EPIC-050 | README as Ambient Intent | 2026-03-31 | — |
 
 ## Superseded
 
