@@ -87,4 +87,4 @@ As a simpler fallback: rewrite references only in files that are inside the coll
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-31 | 8f96452 | Initial creation |
-| Complete | 2026-03-31 | -- | All ACs verified; unit 13/13, integration 5/5 |
+| Complete | 2026-03-31 | 85c7d96 | All ACs verified; unit 13/13, integration 5/5 |
