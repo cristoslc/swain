@@ -27,10 +27,10 @@
 |  | [Sandbox Templates In Regular Docker Containers](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) | 0/0 | 1 | **needs decomposition** |
 |  | [Container-Compatible Auth Flows Per Runtime](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) | 0/0 | 1 | **needs decomposition** |
 |  | [swain-doctor SSH Binary Check](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Artifact ID allocation must check all local branches](../../../spec/Active/(SPEC-193)-artifact-id-allocation-must-check-all-branches.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Artifact ID allocation must check all local branches](../../../spec/Complete/(SPEC-193)-artifact-id-allocation-must-check-all-branches.md) | 0/0 | 0 | **needs decomposition** |
 |  | [PR Queue MCP for Merge Handoff](../../../research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md) | 0/0 | 0 | **needs decomposition** |
 | [Agent Runtime Efficiency](../../../initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
-|  | [swain-doctor parallel check cascade failure](../../../spec/Active/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) | 0/0 | 0 | **needs decomposition** |
+|  | [swain-doctor parallel check cascade failure](../../../spec/Complete/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) | 0/0 | 0 | **needs decomposition** |
 | [Operator Situational Awareness](../../../initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Project Identity Enforcement](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Trove Analysis Layer](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Eliminate swain-sync context disruption](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
@@ -126,7 +126,7 @@
 - [INITIATIVE-003](../../../initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) — Agent Runtime Efficiency (in progress)
   - [EPIC-031](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) — Skill Audit Remediation (Active, 1/9)
   - [SPEC-162](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) — EPIC Child Specs Section Not Updated on Completion (Active, in progress)
-  - [SPEC-192](../../../spec/Active/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) — swain-doctor parallel check cascade failure (Active, in progress)
+  - [SPEC-192](../../../spec/Complete/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) — swain-doctor parallel check cascade failure (Active, in progress)
   - [SPIKE-043](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) — Phase Complexity Model for Adaptive Ceremony and Autonomy (Active, in progress)
   - [SPIKE-049](../../../research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) — Doctor Single-Script Consolidation (Active, in progress)
   - [EPIC-004](../../../epic/Complete/(EPIC-004)-Superpowers-Integration-Assessment/(EPIC-004)-Superpowers-Integration-Assessment.md) — Superpowers Integration Assessment (Complete, 1/1)
@@ -171,7 +171,7 @@
   - [SPEC-092](../../../spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) — swain-box: Unified Sandbox Launcher (Active, in progress)
   - [SPEC-102](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) — swain-doctor SSH Binary Check (Active, in progress)
   - [SPEC-128](../../../spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) — Container-Compatible Runtime Auth Commands (Proposed, in progress)
-  - [SPEC-193](../../../spec/Active/(SPEC-193)-artifact-id-allocation-must-check-all-branches.md) — Artifact ID allocation must check all local branches (Active, in progress)
+  - [SPEC-193](../../../spec/Complete/(SPEC-193)-artifact-id-allocation-must-check-all-branches.md) — Artifact ID allocation must check all local branches (Active, in progress)
   - [SPIKE-034](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) — Sandbox Templates In Regular Docker Containers (Active, in progress)
   - [SPIKE-035](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) — Container-Compatible Auth Flows Per Runtime (Active, in progress)
   - [SPIKE-050](../../../research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md) — PR Queue MCP for Merge Handoff (Active, in progress)

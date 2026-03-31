@@ -11,9 +11,9 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-30 | 01:22 | `3784748` | close(SPEC-192, SPEC-193): retroactive verification — both implemented on trunk |
-| 2026-03-29 | 11:32 | `529929e` | chore(session): update session state, roadmaps, and artifact indexes for new session |
 | 2026-03-29 | 11:14 | `c95f812` | feat(doctor,design): implement consolidated doctor script and cross-branch artifact ID allocation |
+| 2026-03-27 | 17:23 | `e227a08` | docs(research): add SPIKE-049 and SPIKE-050 for doctor consolidation and PR queue |
+| 2026-03-25 | 21:41 | `5573527` | Merge remote-tracking branch 'origin/trunk' into worktree-spec-168-gitignore-skill-folders |
 
 ## Priority Subset
 
@@ -23,7 +23,7 @@
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
 | [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
-|  | [swain-doctor parallel check cascade failure](../../../spec/Active/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) | 0/0 | 0 | **needs decomposition** |
+|  | [swain-doctor parallel check cascade failure](../../../spec/Complete/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -60,7 +60,7 @@
   - [SPEC-079](../../../spec/Active/(SPEC-079)-Progressive-Disclosure-Cleanup/(SPEC-079)-Progressive-Disclosure-Cleanup.md) — Progressive disclosure cleanup (Active, in progress)
   - [SPEC-080](../../../spec/Active/(SPEC-080)-Prune-Deprecated-Swain-Push/(SPEC-080)-Prune-Deprecated-Swain-Push.md) — Prune deprecated swain-push (Active, in progress)
 - [SPEC-162](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) — EPIC Child Specs Section Not Updated on Completion (in progress)
-- [SPEC-192](../../../spec/Active/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) — swain-doctor parallel check cascade failure (in progress)
+- [SPEC-192](../../../spec/Complete/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) — swain-doctor parallel check cascade failure (in progress)
 - [SPIKE-043](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) — Phase Complexity Model for Adaptive Ceremony and Autonomy (in progress)
 - [SPIKE-049](../../../research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) — Doctor Single-Script Consolidation (in progress)
 ### Complete

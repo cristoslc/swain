@@ -2,7 +2,7 @@
 title: "fix-collisions.sh Over-Rewrites Keeper References"
 artifact: SPEC-204
 track: implementable
-status: Active
+status: Complete
 author: Cristos L-C
 created: 2026-03-31
 last-updated: 2026-03-31
@@ -71,6 +71,10 @@ As a simpler fallback: rewrite references only in files that are inside the coll
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Keeper refs preserved | Unit tests 1-4 (ADR, EPIC refs untouched); integration check 1-3 | PASS |
+| AC2: Post-collision refs rewritten | Unit tests 7-8 (design doc updated); integration check 5 | PASS |
+| AC3: Dry-run shows skip/rewrite | Unit tests 12-13 (dry-run mentions skip and rewrite) | PASS |
+| AC4: Collision's own files rewritten | Unit tests 5-6 (artifact renamed, body updated); integration check 4 | PASS |
 
 ## Scope & Constraints
 
@@ -82,4 +86,5 @@ As a simpler fallback: rewrite references only in files that are inside the coll
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-31 | _pending_ | Initial creation |
+| Active | 2026-03-31 | 8f96452 | Initial creation |
+| Complete | 2026-03-31 | -- | All ACs verified; unit 13/13, integration 5/5 |
