@@ -74,6 +74,29 @@ rm "$FAKE_GIT2/CHERRY_PICK_HEAD"
 
 rm -rf "$TMPDIR2"
 
+# --- Stale tk claim locks ---
+TMPDIR3=$(mktemp -d)
+TICKETS="$TMPDIR3/.tickets"
+mkdir -p "$TICKETS/.locks"
+
+# T9: No locks → clean
+RESULT=$(check_stale_tk_locks "$TMPDIR3" 2>/dev/null || echo "MISSING")
+assert "no tk locks → clean" "$(echo "$RESULT" | grep -q 'clean' && echo true || echo false)"
+
+# T10: Lock with dead PID → found
+LOCK_DIR="$TICKETS/.locks/task-1"
+mkdir -p "$LOCK_DIR"
+echo "99999999" > "$LOCK_DIR/owner"
+RESULT=$(check_stale_tk_locks "$TMPDIR3" 2>/dev/null || echo "MISSING")
+assert "dead-pid tk lock → found" "$(echo "$RESULT" | grep -q 'found' && echo true || echo false)"
+
+# T11: Lock with live PID → clean
+echo "$$" > "$LOCK_DIR/owner"
+RESULT=$(check_stale_tk_locks "$TMPDIR3" 2>/dev/null || echo "MISSING")
+assert "live-pid tk lock → clean" "$(echo "$RESULT" | grep -q 'clean' && echo true || echo false)"
+
+rm -rf "$TMPDIR3"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

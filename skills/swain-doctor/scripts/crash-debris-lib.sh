@@ -67,3 +67,37 @@ check_interrupted_git_ops() {
     printf "interrupted_git_ops\tfound\t%s\n" "$item"
   done
 }
+
+# Check for stale tk claim locks (dead owner PID or age >1 hour)
+check_stale_tk_locks() {
+  local root="$1"
+  local locks_dir="$root/.tickets/.locks"
+
+  if [[ ! -d "$locks_dir" ]]; then
+    printf "stale_tk_locks\tclean\n"
+    return
+  fi
+
+  local found=0
+  for lock_dir in "$locks_dir"/*/; do
+    [[ -d "$lock_dir" ]] || continue
+    local owner_file="$lock_dir/owner"
+    local task_id
+    task_id=$(basename "$lock_dir")
+
+    if [[ -f "$owner_file" ]]; then
+      local pid
+      pid=$(cat "$owner_file" 2>/dev/null | tr -d '[:space:]')
+      if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+        continue  # alive — legitimate lock
+      fi
+      printf "stale_tk_locks\tfound\ttask %s locked by dead PID %s\n" "$task_id" "$pid"
+    else
+      # Lock dir exists but no owner file — treat as stale
+      printf "stale_tk_locks\tfound\ttask %s lock has no owner file\n" "$task_id"
+    fi
+    found=$((found + 1))
+  done
+
+  [[ $found -eq 0 ]] && printf "stale_tk_locks\tclean\n"
+}
