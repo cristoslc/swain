@@ -10,4 +10,33 @@
 # These functions are sourceable by both the pre-runtime script
 # (SPEC-180) and swain-doctor (SPEC-192).
 
-: # placeholder
+# Check for stale .git/index.lock
+# $1 = project root (must contain .git/ or be a worktree)
+check_git_index_lock() {
+  local root="$1"
+  local git_dir="$root/.git"
+
+  # Handle worktree: .git may be a file pointing to the real git dir
+  if [[ -f "$git_dir" ]]; then
+    git_dir=$(sed 's/^gitdir: //' "$git_dir")
+    # Resolve relative paths
+    [[ "$git_dir" != /* ]] && git_dir="$root/$git_dir"
+  fi
+
+  local lock="$git_dir/index.lock"
+  if [[ ! -f "$lock" ]]; then
+    printf "git_index_lock\tclean\n"
+    return
+  fi
+
+  # Check if creating PID is still alive
+  local pid
+  pid=$(cat "$lock" 2>/dev/null | head -1 | grep -oE '^[0-9]+$' || echo "")
+  if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+    # PID alive — lock is legitimate
+    printf "git_index_lock\tclean\tlock held by live PID %s\n" "$pid"
+    return
+  fi
+
+  printf "git_index_lock\tfound\t%s (owner PID %s not running)\n" "$lock" "${pid:-unknown}"
+}
