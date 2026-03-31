@@ -18,7 +18,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   exit 1
 }
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SPECGRAPH="$SCRIPT_DIR/../../swain-design/scripts/specgraph.py"
+SPECGRAPH="$SCRIPT_DIR/../../swain-design/scripts/specgraph_entry.py"
 
 PROJECT_NAME="$(basename "$REPO_ROOT")"
 SETTINGS_PROJECT="$REPO_ROOT/swain.settings.json"

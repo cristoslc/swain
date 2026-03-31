@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.24.0-alpha] - 2026-03-30
+
+### Features
+
+#### Deferred Worktree Creation
+
+Worktree creation is now deferred to swain-do task dispatch rather than happening at plan time. This removes unnecessary branch scaffolding for tasks that never run and keeps the worktree list clean.
+
+#### Fast-Path Session Greeting
+
+A new greeting script delivers the session startup summary without waiting for the full init chain. Returning projects skip the onboarding flow entirely when the .swain-init marker is present, reducing first-prompt latency.
+
+### Supporting Changes
+- fix(SPEC-197): rename specgraph.py to specgraph_entry.py to resolve import shadowing bug
+
 ## [0.23.0-alpha] - 2026-03-30
 
 ### Features

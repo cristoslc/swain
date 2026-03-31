@@ -180,19 +180,25 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **If `IN_WORKTREE=no`** (main worktree) and the operation will produce file changes:
 
-1. Use the `EnterWorktree` tool to create an isolated worktree. **Always pass a unique name** — use the SPEC ID + slug (e.g., `spec-174-branch-collision`) or generate a timestamped name by running `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/swain-worktree-name.sh" "<context>"` (e.g., output: `session-20260327-143022-a7f3`). Never use a static name like "session" — concurrent sessions will collide (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the name script and retry once. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
-
-2. After entering, re-run tab naming to reflect the new branch:
+1. **Check for existing worktrees** matching the target spec/work (SPEC-195):
    ```bash
    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+   bash "$REPO_ROOT/.agents/bin/swain-worktree-overlap.sh" "<SPEC-ID>"
+   ```
+   If the JSON output has `"found": true`, offer to reuse: "Worktree for `<SPEC-ID>` already exists at `<path>`. Reuse it?" If yes, use `EnterWorktree` with the existing branch name. If no, create a new one with a fresh suffix.
+
+2. **Create a new worktree** with a spec-derived name. Use the SPEC ID + slug (e.g., `spec-174-branch-collision`) or generate a timestamped name by running `bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh" "<context>"` (e.g., output: `session-20260327-143022-a7f3`). Never use a static name like "session" — concurrent sessions will collide (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the name script and retry once. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
+
+3. After entering, re-run tab naming to reflect the new branch:
+   ```bash
    bash "$REPO_ROOT/.agents/bin/swain-tab-name.sh" --path "$(pwd)" --auto
    ```
 
-3. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
+4. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
 
 **Operator override:** If the operator explicitly says "work on trunk" or "don't isolate," respect the override and proceed on trunk. Log a warning: "Proceeding on trunk at operator request — changes will land directly on the development branch."
 
-**Note:** swain-session auto-enters a worktree at startup (Step 1.5), so this preamble is a fallback for sessions that skipped isolation or where the operator exited the worktree mid-session.
+**Note (SPEC-195):** swain-session no longer creates worktrees at startup — worktree creation is deferred to this preamble, which runs when swain-do dispatches actual work. This ensures worktree names reflect the work context and allows overlap detection.
 
 When all tasks in the plan complete, or when the operator requests, run the plan completion handoff (see below) before exiting the worktree.
 

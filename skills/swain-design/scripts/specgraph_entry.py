@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """specgraph — Artifact dependency graph engine for swain.
 
-Usage: specgraph.py <command> [args] [--all] [--all-edges]
+Usage: specgraph_entry.py <command> [args] [--all] [--all-edges]
 
 See specgraph-guide.md for full command reference.
 """
