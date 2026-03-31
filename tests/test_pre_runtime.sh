@@ -61,6 +61,25 @@ FRESH_DRY=$("$SCRIPT" --fresh --_dry_run 2>&1 || true)
 assert "--fresh skips crash detection" "$(echo "$FRESH_DRY" | grep -qv 'crash debris\|recovery' && echo true || echo false)"
 assert "--fresh still shows runtime" "$(echo "$FRESH_DRY" | grep -q 'runtime:' && echo true || echo false)"
 
+# --- Phase 1: Crash detection (AC1, AC3) ---
+TMPDIR_P1=$(mktemp -d)
+mkdir -p "$TMPDIR_P1/.git" "$TMPDIR_P1/skills/swain-doctor/scripts"
+cp "$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh" "$TMPDIR_P1/skills/swain-doctor/scripts/"
+
+# T9: Phase 1 sources crash-debris-lib.sh and detects debris
+echo "99999999" > "$TMPDIR_P1/.git/index.lock"
+P1_OUT=$(REPO_ROOT="$TMPDIR_P1" bash "$SCRIPT" --_phase1_only --_non_interactive 2>&1 || true)
+assert "phase 1 detects crash debris" "$(echo "$P1_OUT" | grep -qi 'debris\|lock\|found' && echo true || echo false)"
+
+# T10: Clean project → phase 1 is silent (AC2 fast path)
+TMPDIR_P1B=$(mktemp -d)
+mkdir -p "$TMPDIR_P1B/.git" "$TMPDIR_P1B/skills/swain-doctor/scripts"
+cp "$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh" "$TMPDIR_P1B/skills/swain-doctor/scripts/"
+P1_CLEAN=$(REPO_ROOT="$TMPDIR_P1B" bash "$SCRIPT" --_phase1_only --_non_interactive 2>&1 || true)
+assert "clean project → phase 1 silent" "$([ -z "$P1_CLEAN" ] && echo true || echo false)"
+
+rm -rf "$TMPDIR_P1" "$TMPDIR_P1B"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

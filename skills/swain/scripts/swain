@@ -73,7 +73,120 @@ done
 
 # --- Phase 1: Pre-runtime structural checks ---
 phase1_crash_detection() {
-  : # placeholder — Task 5
+  # Source the crash debris detection library (SPEC-182)
+  local lib="$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh"
+  if [[ ! -f "$lib" ]]; then
+    echo "warning: crash-debris-lib.sh not found; skipping crash detection" >&2
+    return
+  fi
+  source "$lib"
+
+  # Run all crash debris checks
+  local findings
+  findings=$(check_all_crash_debris "$REPO_ROOT" 2>/dev/null)
+
+  # AC5 silent fast path: no findings → return immediately
+  if [[ -z "$findings" ]]; then
+    return
+  fi
+
+  # Display findings
+  echo "=== Crash debris detected ==="
+  echo ""
+  local count=0
+  while IFS=$'\t' read -r type status detail; do
+    [[ "$status" != "found" ]] && continue
+    count=$((count + 1))
+    case "$type" in
+      git_index_lock)
+        echo "  [$count] Git index lock: $detail"
+        ;;
+      interrupted_git_ops)
+        echo "  [$count] $detail"
+        ;;
+      stale_tk_locks)
+        echo "  [$count] Stale task lock: $detail"
+        ;;
+      dangling_worktrees)
+        echo "  [$count] Dangling worktree: $detail"
+        ;;
+      orphaned_mcp)
+        echo "  [$count] Orphaned MCP server: $detail"
+        ;;
+      *)
+        echo "  [$count] $type: $detail"
+        ;;
+    esac
+  done <<< "$findings"
+  echo ""
+
+  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]]; then
+    # Store findings for Phase 2
+    PHASE1_FINDINGS="$findings"
+    return
+  fi
+
+  # Offer cleanup with confirmation (per ADR-015: never auto-discard)
+  echo "Clean up crash debris? (y/n/q — q skips remaining)"
+  local item_num=0
+  while IFS=$'\t' read -r type status detail; do
+    [[ "$status" != "found" ]] && continue
+    item_num=$((item_num + 1))
+
+    local action=""
+    case "$type" in
+      git_index_lock)
+        local lock_path
+        lock_path=$(echo "$detail" | awk '{print $1}')
+        action="rm -f \"$lock_path\""
+        ;;
+      interrupted_git_ops)
+        if echo "$detail" | grep -q "merge"; then
+          action="git -C \"$REPO_ROOT\" merge --abort"
+        elif echo "$detail" | grep -q "rebase"; then
+          action="git -C \"$REPO_ROOT\" rebase --abort"
+        elif echo "$detail" | grep -q "cherry-pick"; then
+          action="git -C \"$REPO_ROOT\" cherry-pick --abort"
+        fi
+        ;;
+      stale_tk_locks)
+        local task_id
+        task_id=$(echo "$detail" | awk '{print $2}')
+        action="rm -rf \"$REPO_ROOT/.tickets/.locks/$task_id\""
+        ;;
+      dangling_worktrees)
+        # Don't auto-cleanup worktrees — surface for Phase 2
+        action=""
+        ;;
+      orphaned_mcp)
+        local mcp_pid
+        mcp_pid=$(echo "$detail" | grep -oE 'PID [0-9]+' | awk '{print $2}')
+        action="kill $mcp_pid"
+        ;;
+    esac
+
+    if [[ -z "$action" ]]; then
+      continue
+    fi
+
+    read -r -p "  [$item_num] Clean up? (y/n/q) " choice </dev/tty
+    case "$choice" in
+      y|Y)
+        eval "$action" 2>/dev/null && echo "    Cleaned." || echo "    Failed."
+        ;;
+      q|Q)
+        echo "  Skipping remaining."
+        break
+        ;;
+      *)
+        echo "    Skipped."
+        ;;
+    esac
+  done <<< "$findings"
+  echo ""
+
+  # Store findings for Phase 2 (session selection needs to know about dangling worktrees)
+  PHASE1_FINDINGS="$findings"
 }
 
 # --- Phase 2: Session selection ---
