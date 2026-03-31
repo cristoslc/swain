@@ -107,6 +107,40 @@ assert "crashed session → shows resume context" "$(echo "$P2_RESUME" | grep -q
 
 rm -rf "$TMPDIR_P2"
 
+# --- Resume prompt composition (AC6) ---
+TMPDIR_P3=$(mktemp -d)
+mkdir -p "$TMPDIR_P3/.git" "$TMPDIR_P3/.agents" "$TMPDIR_P3/skills/swain-doctor/scripts"
+cp "$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh" "$TMPDIR_P3/skills/swain-doctor/scripts/"
+
+# T13: Resume prompt includes bookmark
+cat > "$TMPDIR_P3/.agents/session.json" <<'SESSJSON'
+{
+  "lastBranch": "feature-branch",
+  "bookmark": {
+    "note": "Implementing SPEC-182 tests",
+    "files": ["tests/test.sh"],
+    "timestamp": "2026-03-28T22:00:00Z"
+  },
+  "focus_lane": "INITIATIVE-019"
+}
+SESSJSON
+echo "99999999" > "$TMPDIR_P3/.git/index.lock"
+RESUME_DRY=$(REPO_ROOT="$TMPDIR_P3" bash "$SCRIPT" --_non_interactive --_dry_run 2>&1 || true)
+assert "resume prompt includes bookmark" "$(echo "$RESUME_DRY" | grep -q 'SPEC-182' && echo true || echo false)"
+
+# T14: No purpose args + no crash → prompt is /swain-init
+TMPDIR_P3B=$(mktemp -d)
+mkdir -p "$TMPDIR_P3B/.git" "$TMPDIR_P3B/skills/swain-doctor/scripts"
+cp "$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh" "$TMPDIR_P3B/skills/swain-doctor/scripts/"
+FRESH_DRY=$(REPO_ROOT="$TMPDIR_P3B" bash "$SCRIPT" --_dry_run 2>&1 || true)
+assert "fresh session → /swain-init prompt" "$(echo "$FRESH_DRY" | grep -q '/swain-init' && echo true || echo false)"
+
+# T15: Purpose args → /swain-session with purpose
+PURPOSE_DRY=$(REPO_ROOT="$TMPDIR_P3B" bash "$SCRIPT" --_dry_run fix the login bug 2>&1 || true)
+assert "purpose args → session purpose prompt" "$(echo "$PURPOSE_DRY" | grep -q 'fix the login bug' && echo true || echo false)"
+
+rm -rf "$TMPDIR_P3" "$TMPDIR_P3B"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
