@@ -74,4 +74,4 @@ Crash debris is detected automatically and cleanable with a single operator conf
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from SPIKE-051 |
-| Complete | 2026-03-30 | -- | 18/18 tests pass, all 7 ACs verified, doctor integration live |
+| Complete | 2026-03-30 | 584cd7f | 18/18 tests pass, all 7 ACs verified, doctor integration live |
