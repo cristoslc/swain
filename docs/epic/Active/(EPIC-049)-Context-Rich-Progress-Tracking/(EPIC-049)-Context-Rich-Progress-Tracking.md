@@ -23,6 +23,7 @@ linked-artifacts:
   - SPEC-200
   - SPEC-201
   - SPEC-202
+  - SPEC-205
 evidence-pool: ""
 ---
 
@@ -59,6 +60,7 @@ This complements EPIC-042 (Retro Session Intelligence), which deepens the eviden
 - SPEC-200: Progress Log and Synthesis
 - SPEC-201: Artifact Context Utility
 - SPEC-202: Context-Rich Display Integration
+- SPEC-205: Wire Progress Log Into Session Close
 
 ## Key Dependencies
 
