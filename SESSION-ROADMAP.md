@@ -5,8 +5,8 @@
 ## Evidence Basis
 
 - **Focus lane:** INITIATIVE-019 (Session-Scoped Decision Support)
-- **ROADMAP.md hash:** `e4e4b1c8`
-- **HEAD:** `d7551e1`
+- **ROADMAP.md hash:** `a253be75`
+- **HEAD:** `951baed`
 - **Artifacts in scope:** 30
 - **Direct children:** EPIC-039, EPIC-042, EPIC-046, EPIC-047, SPEC-118, SPEC-119, SPEC-120, SPEC-121, SPEC-122, SPEC-123, SPEC-160, SPEC-161, SPEC-178, SPEC-183, SPEC-184
 
@@ -16,11 +16,11 @@ No decisions needed in this focus area right now.
 
 ## Recommended Next
 
-> **SPEC-186**: Doctor .agents/bin/ Auto-Repair — unblocks 3, weight: high
+> **SPEC-150**: swain-security-check: JSONL scrub mode — unblocks 1, weight: high
 
 ## Session Goal
 
-**Recommended goal:** Progress implementation on SPEC-186, SPEC-150, SPEC-160
+**Recommended goal:** Progress implementation on SPEC-150, SPEC-160, SPEC-182
 
 *Justification:* No operator decisions are pending. These items are the highest-leverage implementation work in Session-Scoped Decision Support.
 
@@ -31,11 +31,11 @@ No decisions needed in this focus area right now.
 
 Recent commits touching this focus area:
 
-- `3cffebd` feat(adr-019): migrate all skills from find-based to .agents/bin/ resolution (SPEC-190)
-- `64af561` feat(adr-019): implement EPIC-047 script convention — auto-repair, bootstrap, migration
-- `6af807d` docs(epic): create EPIC-047 and SPEC-186/187/188/189 for ADR-019 implementation
-- `c9a19c2` docs: add ADR-019 (project-root script convention), extend SPEC-180 and SPEC-181
-- `ff1231e` Merge EPIC-039: Session Facilitation Rebuild complete (7 specs, resolve conflicts)
+- `7a01034` feat(SPEC-182): add crash-debris-lib.sh symlink to .agents/bin
+- `5eefc2b` feat(SPEC-182): integrate crash debris checks into swain-doctor
+- `8e7dfae` feat(SPEC-182): add dangling worktree, MCP, and aggregate crash debris detection
+- `83495d5` feat(SPEC-182): add stale tk lock detection
+- `abfdf9c` feat(SPEC-182): add interrupted git operation detection
 
 ## Decision Records
 
