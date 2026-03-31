@@ -2,10 +2,10 @@
 title: "Pre-Runtime Crash Recovery"
 artifact: EPIC-046
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-03-30
 parent-vision: VISION-004
 parent-initiative: INITIATIVE-019
 priority-weight: high
@@ -61,7 +61,7 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 - ADR-017 (runtime support tiers and flags)
 - ADR-018 (structural not prosaic — crash detection must be bash, not LLM)
 - [ADR-015](../../../adr/Active/(ADR-015)-Tickets-Are-Ephemeral-Execution-Scaffolding.md) (never auto-discard worktree state)
-- [EPIC-045](../(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md) (shell launcher — current `swain` function being refactored)
+- [EPIC-045](../../Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md) (shell launcher — current `swain` function being refactored)
 - Claude Code `~/.claude/sessions/` (primary crash detection data source)
 
 ## Lifecycle
@@ -69,3 +69,4 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-28 | — | Initial creation from [SPIKE-051](../../../research/Complete/(SPIKE-051)-Tmux-Session-Persistence-After-Crash/(SPIKE-051)-Tmux-Session-Persistence-After-Crash.md) findings |
+| Complete | 2026-03-30 | -- | All 3 child specs complete (43 tests total), all 6 success criteria met |
