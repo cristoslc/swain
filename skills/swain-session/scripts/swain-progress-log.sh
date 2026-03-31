@@ -11,8 +11,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GIT_COMMON="$(git rev-parse --git-common-dir 2>/dev/null)"
-REPO_ROOT="$(cd "$GIT_COMMON/.." && pwd 2>/dev/null)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 # ─── Argument parsing ───
 
