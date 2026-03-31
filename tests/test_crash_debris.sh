@@ -97,6 +97,49 @@ assert "live-pid tk lock → clean" "$(echo "$RESULT" | grep -q 'clean' && echo 
 
 rm -rf "$TMPDIR3"
 
+# --- Dangling worktrees ---
+TMPDIR4=$(mktemp -d)
+git -C "$TMPDIR4" init -q
+git -C "$TMPDIR4" commit --allow-empty -m "init" -q
+
+# T12: No worktrees → clean
+RESULT=$(check_dangling_worktrees "$TMPDIR4" 2>/dev/null || echo "MISSING")
+assert "no worktrees → clean" "$(echo "$RESULT" | grep -q 'clean' && echo true || echo false)"
+
+# T13: Worktree with missing directory → found
+WT_PATH="$TMPDIR4/.claude/worktrees/dead-session"
+git -C "$TMPDIR4" worktree add -q "$WT_PATH" -b dead-branch 2>/dev/null
+rm -rf "$WT_PATH"
+RESULT=$(check_dangling_worktrees "$TMPDIR4" 2>/dev/null || echo "MISSING")
+assert "missing-dir worktree → found" "$(echo "$RESULT" | grep -q 'found' && echo true || echo false)"
+
+# Cleanup
+git -C "$TMPDIR4" worktree prune -q 2>/dev/null
+rm -rf "$TMPDIR4"
+
+# --- Orphaned MCP servers ---
+# T14: Detection function exists and returns clean when no MCP processes
+RESULT=$(check_orphaned_mcp "$REPO_ROOT" 2>/dev/null || echo "MISSING")
+assert "MCP check runs without error" "$([ "$RESULT" != "MISSING" ] && echo true || echo false)"
+assert "MCP check returns valid format" "$(echo "$RESULT" | grep -qE '(clean|found)' && echo true || echo false)"
+
+# --- Aggregate function ---
+TMPDIR5=$(mktemp -d)
+mkdir -p "$TMPDIR5/.git"
+
+# T15: Clean project → empty output (silent fast path, AC5)
+RESULT=$(check_all_crash_debris "$TMPDIR5" 2>/dev/null)
+assert "clean project → silent (no output)" "$([ -z "$RESULT" ] && echo true || echo false)"
+
+# T16: Multiple debris types → all reported
+touch "$TMPDIR5/.git/MERGE_HEAD"
+echo "99999999" > "$TMPDIR5/.git/index.lock"
+RESULT=$(check_all_crash_debris "$TMPDIR5" 2>/dev/null || echo "MISSING")
+FOUND_COUNT=$(echo "$RESULT" | grep -c 'found' || echo "0")
+assert "multiple debris → multiple findings" "$([ "$FOUND_COUNT" -ge 2 ] && echo true || echo false)"
+
+rm -rf "$TMPDIR5"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
