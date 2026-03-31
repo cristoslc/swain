@@ -58,7 +58,7 @@
   - [SPEC-163](../../../spec/Active/(SPEC-163)-Unified-Retro-Model-Multi-Session-Bundling/SPEC-163.md) — Unified retro model: standalone artifacts with multi-session bundling (Active, in progress)
 - [EPIC-046](../../../epic/Active/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) — Pre-Runtime Crash Recovery (0/3)
   - [SPEC-180](../../../spec/Complete/(SPEC-180)-Pre-Runtime-Swain-Script/(SPEC-180)-Pre-Runtime-Swain-Script.md) — Pre-Runtime Swain Script (Active, in progress)
-  - [SPEC-181](../../../spec/Active/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) — Swain Shell Function Refactor (Active, in progress)
+  - [SPEC-181](../../../spec/Complete/(SPEC-181)-Swain-Shell-Function-Refactor/(SPEC-181)-Swain-Shell-Function-Refactor.md) — Swain Shell Function Refactor (Active, in progress)
   - [SPEC-182](../../../spec/Complete/(SPEC-182)-Crash-Debris-Detection-Checks/(SPEC-182)-Crash-Debris-Detection-Checks.md) — Crash Debris Detection Checks (Active, in progress)
 - [SPEC-160](../../../spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) — Chart Critical Path Lens (in progress)
 - [SPEC-161](../../../spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) — Computed Priority Scoring (in progress)
