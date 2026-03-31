@@ -173,30 +173,41 @@ for line in commits_lines:
         }
         type_dir = type_dir_map.get(artifact_type, artifact_type.lower())
         # Search common locations
-        for subdir in ['active', 'complete', 'draft', 'proposed', 'accepted', 'superseded', 'deprecated', '']:
+        for subdir in ['Active', 'Complete', 'Proposed', 'InProgress', 'NeedsManualTest', 'Ready', 'Adopted', 'Retired', 'Superseded', 'Abandoned', 'Draft', '']:
             candidate = os.path.join(repo_root, 'docs', type_dir, subdir)
             if not os.path.isdir(candidate):
                 continue
             for fname in os.listdir(candidate):
-                if artifact_id in fname and fname.endswith('.md'):
-                    fpath = os.path.join(candidate, fname)
-                    try:
-                        with open(fpath) as f:
-                            in_frontmatter = False
-                            for fline in f:
-                                fline = fline.rstrip()
-                                if fline == '---':
-                                    if not in_frontmatter:
-                                        in_frontmatter = True
-                                        continue
-                                    else:
-                                        break
-                                if in_frontmatter and fline.startswith('title:'):
-                                    title = fline[len('title:'):].strip().strip('\"').strip(\"'\")
+                if artifact_id not in fname:
+                    continue
+                fpath = os.path.join(candidate, fname)
+                # Handle subdirectory layout: (SPEC-194)-Title/(SPEC-194)-Title.md
+                if os.path.isdir(fpath):
+                    for inner in os.listdir(fpath):
+                        if artifact_id in inner and inner.endswith('.md'):
+                            fpath = os.path.join(fpath, inner)
+                            break
+                    else:
+                        continue
+                elif not fname.endswith('.md'):
+                    continue
+                try:
+                    with open(fpath) as f:
+                        in_frontmatter = False
+                        for fline in f:
+                            fline = fline.rstrip()
+                            if fline == '---':
+                                if not in_frontmatter:
+                                    in_frontmatter = True
+                                    continue
+                                else:
                                     break
-                    except (IOError, OSError):
-                        pass
-                    break
+                            if in_frontmatter and fline.startswith('title:'):
+                                title = fline[len('title:'):].strip().strip('\"').strip(\"'\")
+                                break
+                except (IOError, OSError):
+                    pass
+                break
             if title:
                 break
 

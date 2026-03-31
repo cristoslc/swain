@@ -188,10 +188,18 @@ with open(digest_path) as f:
     entry = json.loads(f.read().strip())
 
 artifacts = entry.get('artifacts_touched', [])
-summary = entry.get('summary', 'Session work recorded.')
+session_summary = entry.get('session_summary', 'Session work recorded.')
 
-for artifact_id in artifacts:
-    # Find parent epic or initiative by checking the artifact's frontmatter
+for artifact in artifacts:
+    artifact_id = artifact.get('id', '') if isinstance(artifact, dict) else str(artifact)
+    summary = artifact.get('summary', session_summary) if isinstance(artifact, dict) else session_summary
+    if not artifact_id:
+        continue
+
+    # Only update EPICs and Initiatives (container artifacts that track progress)
+    if not any(artifact_id.startswith(p) for p in ['EPIC-', 'INITIATIVE-']):
+        continue
+
     result = subprocess.run(
         ['bash', script, '--artifact-id', artifact_id, '--entry', summary],
         capture_output=True, text=True
