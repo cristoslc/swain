@@ -29,15 +29,15 @@ echo "Test 1: artifact-context.sh exists and is executable"
 assert "script exists" "$([ -f "$SCRIPT" ] && echo 0 || echo 1)"
 assert "script is executable" "$([ -x "$SCRIPT" ] && echo 0 || echo 1)"
 
-# --- Test 2: SPEC-194 returns a context line containing title and ID ---
-echo "Test 2: SPEC-194 returns context line with title and ID"
+# --- Test 2: SPEC-196 returns a context line containing title and ID ---
+echo "Test 2: SPEC-196 returns context line with title and ID"
 if [[ -x "$SCRIPT" ]]; then
-  output=$(bash "$SCRIPT" SPEC-194 2>/dev/null || true)
-  assert "contains SPEC-194" "$(echo "$output" | grep -q 'SPEC-194' && echo 0 || echo 1)"
-  assert "contains Readability in title" "$(echo "$output" | grep -qi 'readability' && echo 0 || echo 1)"
+  output=$(bash "$SCRIPT" SPEC-196 2>/dev/null || true)
+  assert "contains SPEC-196" "$(echo "$output" | grep -q 'SPEC-196' && echo 0 || echo 1)"
+  assert "contains Collapse in title" "$(echo "$output" | grep -qi 'collapse' && echo 0 || echo 1)"
 else
-  assert "contains SPEC-194" "1"
-  assert "contains Readability in title" "1"
+  assert "contains SPEC-196" "1"
+  assert "contains Collapse in title" "1"
 fi
 
 # --- Test 3: EPIC-048 returns a context line containing its title ---
@@ -64,7 +64,7 @@ fi
 # --- Test 5: --format json returns valid JSON with required fields ---
 echo "Test 5: --format json returns valid JSON"
 if [[ -x "$SCRIPT" ]]; then
-  json_output=$(bash "$SCRIPT" --format json SPEC-194 2>/dev/null || true)
+  json_output=$(bash "$SCRIPT" --format json SPEC-196 2>/dev/null || true)
   # Check it parses as JSON
   assert "valid JSON" "$(echo "$json_output" | python3 -m json.tool >/dev/null 2>&1 && echo 0 || echo 1)"
   # Check required fields
@@ -81,7 +81,7 @@ fi
 # --- Test 6: Multiple IDs returns multiple lines ---
 echo "Test 6: Multiple IDs produce multiple output lines"
 if [[ -x "$SCRIPT" ]]; then
-  output=$(bash "$SCRIPT" SPEC-194 EPIC-048 2>/dev/null || true)
+  output=$(bash "$SCRIPT" SPEC-196 EPIC-048 2>/dev/null || true)
   line_count=$(echo "$output" | grep -c '.')
   assert "at least 2 output lines" "$([ "$line_count" -ge 2 ] && echo 0 || echo 1)"
 else
@@ -91,17 +91,17 @@ fi
 # --- Test 7: Invalid ID prints error to stderr, exits 1, valid results still output ---
 echo "Test 7: Invalid ID (SPEC-999) prints stderr error, exits 1, valid results still output"
 if [[ -x "$SCRIPT" ]]; then
-  stderr_output=$(bash "$SCRIPT" SPEC-999 SPEC-194 2>&1 1>/dev/null || true)
-  stdout_output=$(bash "$SCRIPT" SPEC-999 SPEC-194 2>/dev/null || true)
+  stderr_output=$(bash "$SCRIPT" SPEC-999 SPEC-196 2>&1 1>/dev/null || true)
+  stdout_output=$(bash "$SCRIPT" SPEC-999 SPEC-196 2>/dev/null || true)
   exit_code=0
-  bash "$SCRIPT" SPEC-999 SPEC-194 >/dev/null 2>&1 || exit_code=$?
+  bash "$SCRIPT" SPEC-999 SPEC-196 >/dev/null 2>&1 || exit_code=$?
   assert "stderr mentions SPEC-999" "$(echo "$stderr_output" | grep -q 'SPEC-999' && echo 0 || echo 1)"
   assert "exit code is 1" "$([ "$exit_code" -eq 1 ] && echo 0 || echo 1)"
-  assert "stdout still contains SPEC-194 result" "$(echo "$stdout_output" | grep -q 'SPEC-194' && echo 0 || echo 1)"
+  assert "stdout still contains SPEC-196 result" "$(echo "$stdout_output" | grep -q 'SPEC-196' && echo 0 || echo 1)"
 else
   assert "stderr mentions SPEC-999" "1"
   assert "exit code is 1" "1"
-  assert "stdout still contains SPEC-194 result" "1"
+  assert "stdout still contains SPEC-196 result" "1"
 fi
 
 # --- Test 8: No arguments exits 3 ---
