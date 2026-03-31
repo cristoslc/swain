@@ -9,13 +9,13 @@ Determine the target file:
 1. If `CLAUDE.md` exists and its content is just `@AGENTS.md` (the include pattern set up by swain-init), inject into `AGENTS.md` instead.
 2. Otherwise, inject into `CLAUDE.md` (create it if it doesn't exist).
 
-Read the canonical governance content from `skills/swain-doctor/references/AGENTS.content.md` and append it to the target file.
+Read the canonical governance content from `references/AGENTS.content.md` and append it to the target file.
 
 ## Cursor
 
 Write the governance rules to `.cursor/rules/swain-governance.mdc`. Create the directory if needed.
 
-Prepend Cursor MDC frontmatter to the canonical content from `skills/swain-doctor/references/AGENTS.content.md`:
+Prepend Cursor MDC frontmatter to the canonical content from `references/AGENTS.content.md`:
 
 ```markdown
 ---
@@ -25,7 +25,7 @@ alwaysApply: true
 ---
 ```
 
-Then append the full contents of `skills/swain-doctor/references/AGENTS.content.md` after the frontmatter.
+Then append the full contents of `references/AGENTS.content.md` after the frontmatter.
 
 ## After injection
 
@@ -35,7 +35,7 @@ Tell the user:
 
 ## Stale governance replacement
 
-When swain-doctor's freshness check detects that the installed governance block differs from the canonical source (`skills/swain-doctor/references/AGENTS.content.md`), replace the stale block:
+When swain-doctor's freshness check detects that the installed governance block differs from the canonical source (`references/AGENTS.content.md`), replace the stale block:
 
 1. **Identify the target file** — the file containing the `<!-- swain governance` marker (from the freshness check).
 
@@ -45,7 +45,7 @@ When swain-doctor's freshness check detects that the installed governance block 
 
    If the user declines, report status as **stale (deferred)** and continue.
 
-3. **Replace the block** — delete everything from the `<!-- swain governance` marker line through the `<!-- end swain governance -->` marker line (inclusive), then insert the full contents of `skills/swain-doctor/references/AGENTS.content.md` at the same position. Preserve any content before and after the markers.
+3. **Replace the block** — delete everything from the `<!-- swain governance` marker line through the `<!-- end swain governance -->` marker line (inclusive), then insert the full contents of `references/AGENTS.content.md` at the same position. Preserve any content before and after the markers.
 
 4. **Report**:
 

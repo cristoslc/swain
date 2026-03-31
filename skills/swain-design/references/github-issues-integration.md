@@ -6,8 +6,8 @@ SPECs can be linked to GitHub Issues via the `source-issue` frontmatter field. T
 
 When the user wants to turn a GitHub issue into a SPEC:
 
-1. Run `skills/swain-design/scripts/issue-integration.sh check` to verify `gh` CLI availability.
-2. Run `skills/swain-design/scripts/issue-integration.sh promote <issue-url-or-ref>` to fetch issue data as JSON.
+1. Run `scripts/issue-integration.sh check` to verify `gh` CLI availability.
+2. Run `scripts/issue-integration.sh promote <issue-url-or-ref>` to fetch issue data as JSON.
 3. Create a new SPEC using the standard creation workflow, populating:
    - `source-issue: github:<owner>/<repo>#<number>` in frontmatter
    - Problem Statement from the issue body

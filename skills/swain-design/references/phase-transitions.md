@@ -19,8 +19,8 @@ Phases listed in the artifact definition files are available waypoints, not mand
     ```
     This updates all broken `[ID](old-path)` links across docs/ to point at the artifact's new location. Stage the relinked files alongside the `git mv` in the same commit. If `relink.sh` is not found, skip silently.
 3. Update the artifact's status field in frontmatter to match the new phase.
-4. **ADR compliance check** — for transitions to active phases (Active, Ready, In Progress, Complete), run `skills/swain-design/scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
-4c. **Alignment check** — for transitions to active phases (Active, Ready), run `bash skills/swain-design/scripts/chart.sh scope <artifact-id>` and assess per [alignment-checking.md](alignment-checking.md). Skip for implementation-phase transitions (In Progress, Needs Manual Test, Complete) unless content changed since last check. Skip for terminal-phase transitions (Abandoned, Retired, Superseded).
+4. **ADR compliance check** — for transitions to active phases (Active, Ready, In Progress, Complete), run `scripts/adr-check.sh <artifact-path>`. Review any findings with the user before committing.
+4c. **Alignment check** — for transitions to active phases (Active, Ready), run `bash scripts/chart.sh scope <artifact-id>` and assess per [alignment-checking.md](alignment-checking.md). Skip for implementation-phase transitions (In Progress, Needs Manual Test, Complete) unless content changed since last check. Skip for terminal-phase transitions (Abandoned, Retired, Superseded).
 4d. **Spike final pass (SPIKE only)** — for `Active → Complete` transitions, populate the `## Summary` section at the top of the spike document. Lead with the verdict (Go / No-Go / Hybrid / Conditional), then 1–3 sentences distilling the key finding and recommended next step. This reorders emphasis without changing content — Findings stay in place, but the reader reaches the decision immediately. See [spike-definition.md](spike-definition.md) for rationale.
 4e. **Spike back-propagation (SPIKE only)** — for `Active → Complete` transitions, scan for artifacts whose assumptions may be invalidated by the spike's findings. This is a semantic check, not just a structural xref:
    1. Read the spike's verdict and key findings from `## Summary`.
@@ -30,7 +30,7 @@ Phases listed in the artifact definition files are available waypoints, not mand
    4. Surface contradictions as `IMPLICIT_CONFLICT` findings (see [alignment-checking.md](alignment-checking.md)). Present them to the operator before proceeding.
    5. If contradictions exist, recommend updating the affected artifacts' acceptance criteria and any downstream code/runbooks that implemented the invalidated assumptions.
    This step is **advisory** — it does not block the spike completion — but findings must be presented, not silently skipped.
-4a. **Verification gate (SPEC only)** — for `Needs Manual Test → Complete` transitions, run `skills/swain-design/scripts/spec-verify.sh <artifact-path>`. Address gaps before proceeding.
+4a. **Verification gate (SPEC only)** — for `Needs Manual Test → Complete` transitions, run `scripts/spec-verify.sh <artifact-path>`. Address gaps before proceeding.
 4b. **Code review gate (SPEC only)** — for `Needs Manual Test → Complete`, if superpowers code review skills are installed, request spec compliance + code quality reviews (see [superpowers-integration.md](superpowers-integration.md)). Not a hard gate.
 5. Commit the transition change (move + status update).
 5a. **specwatch-ignore maintenance (→ Superseded only)** — when the target phase is `Superseded`, append glob patterns to `.agents/specwatch-ignore` so that intentional backward references don't pollute specwatch output. Create the file if it doesn't exist. Deduplicate before appending.
@@ -54,7 +54,7 @@ Phases listed in the artifact definition files are available waypoints, not mand
    - **Fast-path tier with no downstream dependents:** Use the inline stamp — run `git rev-parse HEAD` *before* the transition commit, pre-fill the lifecycle row hash, and include it in the single transition commit (step 5). No second commit needed.
    - **Full-ceremony tier, EPICs, or artifacts with downstream dependents:** Append a row with `--` as a placeholder hash in step 5, then commit the hash stamp as a **separate commit** (step 7). Never amend — two distinct commits keeps the stamped hash reachable in git history.
 7. *(Full-ceremony only)* Commit the hash stamp as a separate commit — append the commit hash from step 5 into the lifecycle table row and commit. Skip this step for inline-stamped artifacts.
-8. **Post-operation scan** — run `skills/swain-design/scripts/specwatch.sh scan`. Fix any stale references.
+8. **Post-operation scan** — run `scripts/specwatch.sh scan`. Fix any stale references.
 9. **Index refresh step** — move the artifact's row to the new phase table (see [index-maintenance.md](index-maintenance.md)).
 
 ## Completion rules

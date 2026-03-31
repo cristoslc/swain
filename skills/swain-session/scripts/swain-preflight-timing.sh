@@ -5,6 +5,16 @@ set +e
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
+# Portable path resolution — works whether installed at skills/ or .agents/skills/
+_src="${BASH_SOURCE[0]}"
+while [[ -L "$_src" ]]; do
+  _dir="$(cd "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  [[ "$_src" != /* ]] && _src="$_dir/$_src"
+done
+_TIMING_SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
+_TIMING_SKILLS_ROOT="$(dirname "$(dirname "$_TIMING_SCRIPT_DIR")")"
+
 if command -v gdate &>/dev/null; then
   _ts() { gdate +%s%3N; }
 else
@@ -28,7 +38,7 @@ time_check "governance_markers" 'grep -q "swain governance" AGENTS.md CLAUDE.md 
 time_check "governance_freshness_hash" '
   GOV_FILE=$(grep -l "swain governance" AGENTS.md CLAUDE.md 2>/dev/null | head -1)
   awk "/<!-- swain governance/{f=1;next}/<!-- end swain governance/{f=0}f" "$GOV_FILE" | shasum -a 256
-  awk "/<!-- swain governance/{f=1;next}/<!-- end swain governance/{f=0}f" "skills/swain-doctor/references/AGENTS.content.md" | shasum -a 256
+  awk "/<!-- swain governance/{f=1;next}/<!-- end swain governance/{f=0}f" "'"$_TIMING_SKILLS_ROOT"'/swain-doctor/references/AGENTS.content.md" | shasum -a 256
 '
 
 time_check "agents_dir_check" '[[ -d .agents ]]'
@@ -39,9 +49,9 @@ time_check "stale_locks" 'find .tickets/.locks -type d -mmin +60 2>/dev/null | w
 time_check "old_phase_dirs" 'find docs/*/Draft docs/*/Planned docs/*/Review 2>/dev/null | head -1'
 time_check "commit_signing_check" 'git config --local commit.gpgsign'
 
-time_check "script_permissions" 'find .claude/skills/*/scripts/ skills/*/scripts/ -type f \( -name "*.sh" -o -name "*.py" \) ! -perm -u+x 2>/dev/null'
+time_check "script_permissions" "find .claude/skills/*/scripts/ .agents/skills/*/scripts/ skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null"
 
-time_check "ssh_readiness" 'bash skills/swain-doctor/scripts/ssh-readiness.sh --check 2>/dev/null'
+time_check "ssh_readiness" "bash '$_TIMING_SKILLS_ROOT/swain-doctor/scripts/ssh-readiness.sh' --check 2>/dev/null"
 time_check "skill_gitignore_hygiene" '
   _origin_url="$(git remote get-url origin 2>/dev/null || true)"
   for _base in .claude/skills .agents/skills; do
@@ -58,19 +68,19 @@ time_check "superpowers_detection" '
   done
 '
 
-time_check "scanner_availability" 'python3 skills/swain-security-check/scripts/scanner_availability.py 2>/dev/null'
+time_check "scanner_availability" "python3 '$_TIMING_SKILLS_ROOT/swain-security-check/scripts/scanner_availability.py' 2>/dev/null"
 time_check "mmdc_check" 'command -v mmdc'
-time_check "doctor_security_check" 'python3 skills/swain-security-check/scripts/doctor_security_check.py 2>/dev/null'
-time_check "skill_change_discipline" 'bash skills/swain-doctor/scripts/check-skill-changes.sh 2>/dev/null'
+time_check "doctor_security_check" "python3 '$_TIMING_SKILLS_ROOT/swain-security-check/scripts/doctor_security_check.py' 2>/dev/null"
+time_check "skill_change_discipline" "bash '$_TIMING_SKILLS_ROOT/swain-doctor/scripts/check-skill-changes.sh' 2>/dev/null"
 
-time_check "agents_bin_symlink_repair" '
-  for skill_scripts_dir in skills/*/scripts; do
-    [[ -d "$skill_scripts_dir" ]] || continue
-    for script in "$skill_scripts_dir"/*; do
-      [[ -f "$script" && -x "$script" ]] || continue
+time_check "agents_bin_symlink_repair" "
+  for skill_scripts_dir in '$_TIMING_SKILLS_ROOT'/*/scripts; do
+    [[ -d \"\$skill_scripts_dir\" ]] || continue
+    for script in \"\$skill_scripts_dir\"/*; do
+      [[ -f \"\$script\" && -x \"\$script\" ]] || continue
     done
   done
-'
+"
 
 time_check "trunk_release_detection" 'bash .agents/bin/swain-trunk.sh 2>/dev/null && git ls-remote --heads origin trunk 2>/dev/null'
 

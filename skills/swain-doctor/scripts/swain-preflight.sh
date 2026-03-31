@@ -12,6 +12,17 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
+# Portable path resolution — works whether installed at skills/ or .agents/skills/
+_src="${BASH_SOURCE[0]}"
+while [[ -L "$_src" ]]; do
+  _dir="$(cd "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  [[ "$_src" != /* ]] && _src="$_dir/$_src"
+done
+SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+SKILLS_ROOT="$(dirname "$SKILL_DIR")"
+
 issues=()
 
 # 1. Governance files exist
@@ -25,7 +36,7 @@ if ! grep -q "swain governance" AGENTS.md CLAUDE.md 2>/dev/null; then
 fi
 
 # 2b. Governance freshness — compare installed block against canonical
-CANONICAL="skills/swain-doctor/references/AGENTS.content.md"
+CANONICAL="$SKILL_DIR/references/AGENTS.content.md"
 if [[ -f "$CANONICAL" ]] && grep -q "swain governance" AGENTS.md CLAUDE.md 2>/dev/null; then
   GOV_FILE=$(grep -l "swain governance" AGENTS.md CLAUDE.md 2>/dev/null | head -1 || true)
   if [[ -n "$GOV_FILE" ]]; then
@@ -98,7 +109,7 @@ if [[ "$(git config --local commit.gpgsign 2>/dev/null)" != "true" ]]; then
 fi
 
 # 9. Script permissions (spot check) (ADR-020: self-heal)
-_bad_perms=$(find .claude/skills/*/scripts/ skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null || true)
+_bad_perms=$(find .claude/skills/*/scripts/ .agents/skills/*/scripts/ skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null || true)
 if [[ -n "$_bad_perms" ]]; then
   _fix_count=$(echo "$_bad_perms" | wc -l | tr -d ' ')
   echo "$_bad_perms" | xargs chmod +x
@@ -106,7 +117,7 @@ if [[ -n "$_bad_perms" ]]; then
 fi
 
 # 9b. SSH alias readiness for repos using swain-keys host aliases
-SSH_HELPER="skills/swain-doctor/scripts/ssh-readiness.sh"
+SSH_HELPER="$SCRIPT_DIR/ssh-readiness.sh"
 if [[ -x "$SSH_HELPER" ]]; then
   ssh_output="$(bash "$SSH_HELPER" --check 2>/dev/null || true)"
   if [[ -n "$ssh_output" ]]; then
@@ -145,7 +156,7 @@ if [[ $sp_missing -gt 0 ]]; then
 fi
 
 # 11. Security scanner availability (INFO — advisory, non-blocking) (SPEC-059)
-SCANNER_SCRIPT="skills/swain-security-check/scripts/scanner_availability.py"
+SCANNER_SCRIPT="$SKILLS_ROOT/swain-security-check/scripts/scanner_availability.py"
 if [[ -x "$SCANNER_SCRIPT" ]]; then
   scanner_output=$(python3 "$SCANNER_SCRIPT" 2>/dev/null || true)
   # Extract the summary line (first line: "Scanner availability: N/4 scanners found")
@@ -165,7 +176,7 @@ if ! command -v mmdc >/dev/null 2>&1; then
 fi
 
 # 12. Lightweight security diagnostic (advisory, non-blocking) (SPEC-061)
-DOCTOR_SECURITY_SCRIPT="skills/swain-security-check/scripts/doctor_security_check.py"
+DOCTOR_SECURITY_SCRIPT="$SKILLS_ROOT/swain-security-check/scripts/doctor_security_check.py"
 if [[ -x "$DOCTOR_SECURITY_SCRIPT" ]]; then
   security_output=$(python3 "$DOCTOR_SECURITY_SCRIPT" 2>/dev/null || true)
   if [[ -n "$security_output" ]]; then
@@ -174,7 +185,7 @@ if [[ -x "$DOCTOR_SECURITY_SCRIPT" ]]; then
 fi
 
 # 13. Skill change discipline (SPEC-148) — advisory, triggers doctor
-SKILL_CHECK_SCRIPT="skills/swain-doctor/scripts/check-skill-changes.sh"
+SKILL_CHECK_SCRIPT="$SCRIPT_DIR/check-skill-changes.sh"
 if [[ -x "$SKILL_CHECK_SCRIPT" ]]; then
   skill_output=$(bash "$SKILL_CHECK_SCRIPT" 2>/dev/null || true)
   skill_status=$?

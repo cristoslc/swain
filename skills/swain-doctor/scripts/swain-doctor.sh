@@ -11,6 +11,17 @@
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
+# Portable path resolution — works whether installed at skills/ or .agents/skills/
+_src="${BASH_SOURCE[0]}"
+while [[ -L "$_src" ]]; do
+  _dir="$(cd "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  [[ "$_src" != /* ]] && _src="$_dir/$_src"
+done
+SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+SKILLS_ROOT="$(dirname "$SKILL_DIR")"
+
 # Collect results
 declare -a CHECKS=()
 
@@ -46,7 +57,7 @@ check_governance() {
   fi
 
   # Freshness check
-  local canonical="skills/swain-doctor/references/AGENTS.content.md"
+  local canonical="$SKILL_DIR/references/AGENTS.content.md"
   if [[ ! -f "$canonical" ]]; then
     add_check "governance" "ok" "governance markers present (canonical source not found for freshness check)"
     return
@@ -139,7 +150,7 @@ check_tools() {
   # Optional
   for cmd in tk uv gh tmux fswatch; do
     if [[ "$cmd" == "tk" ]]; then
-      if [[ ! -x "skills/swain-do/bin/tk" ]]; then
+      if [[ ! -x "$SKILLS_ROOT/swain-do/bin/tk" ]]; then
         missing_optional="${missing_optional:+$missing_optional, }tk"
       fi
     else
@@ -345,7 +356,7 @@ check_lifecycle_dirs() {
 # Check 14: tk health
 # ============================================================
 check_tk_health() {
-  local tk_bin="skills/swain-do/bin/tk"
+  local tk_bin="$SKILLS_ROOT/swain-do/bin/tk"
   if [[ ! -x "$tk_bin" ]]; then
     add_check "tk_health" "warning" "vendored tk not found or not executable"
     return
@@ -454,7 +465,7 @@ check_commit_signing() {
 # Check 17: SSH alias readiness
 # ============================================================
 check_ssh_readiness() {
-  local ssh_helper="skills/swain-doctor/scripts/ssh-readiness.sh"
+  local ssh_helper="$SCRIPT_DIR/ssh-readiness.sh"
   if [[ ! -x "$ssh_helper" ]]; then
     add_check "ssh_readiness" "ok" "ssh-readiness helper not found (skipped)"
     return
@@ -485,7 +496,7 @@ check_readme() {
 # Check 18: Crash debris detection (SPEC-182)
 # ============================================================
 check_crash_debris() {
-  local lib="$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh"
+  local lib="$SCRIPT_DIR/crash-debris-lib.sh"
   if [[ ! -f "$lib" ]]; then
     add_check "crash_debris" "ok" "crash-debris-lib.sh not found (skipped)"
     return
@@ -506,6 +517,28 @@ check_crash_debris() {
   local details
   details=$(echo "$output" | grep 'found' | cut -f3 | tr '\n' '; ' | sed 's/; $//')
   add_check "crash_debris" "warning" "$found_count crash debris item(s) detected" "$details"
+}
+
+# ============================================================
+# Check 19: bin/swain symlink (SPEC-180, ADR-019)
+# ============================================================
+check_swain_symlink() {
+  local symlink="$REPO_ROOT/bin/swain"
+  if [[ ! -L "$symlink" ]]; then
+    if [[ -f "$SKILLS_ROOT/swain/scripts/swain" ]]; then
+      add_check "swain_symlink" "warning" "bin/swain symlink missing (script exists at $SKILLS_ROOT/swain/scripts/swain)"
+    else
+      add_check "swain_symlink" "ok" "bin/swain not applicable (no pre-runtime script)"
+    fi
+    return
+  fi
+
+  if [[ ! -e "$symlink" ]]; then
+    add_check "swain_symlink" "warning" "bin/swain symlink broken (target missing)"
+    return
+  fi
+
+  add_check "swain_symlink" "ok" "bin/swain symlink resolves"
 }
 
 # ============================================================

@@ -33,7 +33,7 @@ If stale locks found (> 1 hour old) → warn and list files. **Do not auto-delet
 ### Vendored tk availability
 
 ```bash
-TK_BIN="skills/swain-do/bin/tk"
+TK_BIN="$SKILLS_ROOT/swain-do/bin/tk"
 if [ ! -x "$TK_BIN" ]; then
   echo "warning: vendored tk not found or not executable at $TK_BIN"
 fi

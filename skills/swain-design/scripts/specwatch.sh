@@ -12,6 +12,14 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   echo "Error: not inside a git repository" >&2
   exit 1
 }
+_src="${BASH_SOURCE[0]}"
+while [[ -L "$_src" ]]; do
+  _dir="$(cd "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  [[ "$_src" != /* ]] && _src="$_dir/$_src"
+done
+SPECWATCH_SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
+SPECWATCH_SKILLS_ROOT="$(dirname "$(dirname "$SPECWATCH_SCRIPT_DIR")")"
 DOCS_DIR="$REPO_ROOT/docs"
 LOG_FILE="$REPO_ROOT/.agents/specwatch.log"
 IGNORE_FILE="$REPO_ROOT/.agents/specwatch-ignore"
@@ -502,7 +510,7 @@ PYEOF
 
 scan_tk_sync() {
   # Locate vendored ticket-query plugin
-  local TICKET_QUERY="$REPO_ROOT/skills/swain-do/bin/ticket-query"
+  local TICKET_QUERY="$SPECWATCH_SKILLS_ROOT/swain-do/bin/ticket-query"
   if [ ! -x "$TICKET_QUERY" ]; then
     echo "specwatch tk-sync: ticket-query not found at $TICKET_QUERY, skipping."
     return 0

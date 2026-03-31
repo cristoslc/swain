@@ -17,7 +17,14 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   echo "Error: not inside a git repository" >&2
   exit 1
 }
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Portable path resolution — resolves through symlinks
+_src="${BASH_SOURCE[0]:-$0}"
+while [[ -L "$_src" ]]; do
+  _dir="$(cd "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  [[ "$_src" != /* ]] && _src="$_dir/$_src"
+done
+SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
 SPECGRAPH="$SCRIPT_DIR/../../swain-design/scripts/specgraph_entry.py"
 
 PROJECT_NAME="$(basename "$REPO_ROOT")"
@@ -290,7 +297,7 @@ collect_tasks() {
   fi
 
   local tq_bin=""
-  local skill_bin="$REPO_ROOT/skills/swain-do/bin/ticket-query"
+  local skill_bin="$(dirname "$(dirname "$SCRIPT_DIR")")/swain-do/bin/ticket-query"
   if [[ -x "$skill_bin" ]]; then
     tq_bin="$skill_bin"
   elif command -v ticket-query &>/dev/null; then

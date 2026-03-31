@@ -11,7 +11,14 @@
 
 set +e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Portable path resolution — resolves through symlinks
+_src="${BASH_SOURCE[0]}"
+while [[ -L "$_src" ]]; do
+  _dir="$(cd "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  [[ "$_src" != /* ]] && _src="$_dir/$_src"
+done
+SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 INCLUDE_STATUS=0
@@ -61,7 +68,7 @@ run_single() {
   time_phase "init_marker_check" test -f "$REPO_ROOT/.swain-init"
 
   # Phase 2: Preflight
-  time_phase "preflight" bash "$REPO_ROOT/skills/swain-doctor/scripts/swain-preflight.sh"
+  time_phase "preflight" bash "$(dirname "$(dirname "$SCRIPT_DIR")")/swain-doctor/scripts/swain-preflight.sh"
 
   # Phase 3: Bootstrap (tab naming + worktree detect + session.json)
   time_phase "bootstrap_full" bash "$SCRIPT_DIR/swain-session-bootstrap.sh" --auto

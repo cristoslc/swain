@@ -2,7 +2,7 @@
 
 The `npx skills add --all` command creates dotfolder stubs (e.g., `.windsurf/`, `.cursor/`) for agent platforms that are not installed. These directories only contain symlinks back to `.agents/skills/` and clutter the working tree.
 
-Read platform data from `skills/swain-doctor/references/platform-dotfolders.json`. Each entry has a `project_dotfolder` name and one or both detection strategies: `command` (CLI binary name) and `detection` (HOME config directory path).
+Read platform data from `references/platform-dotfolders.json`. Each entry has a `project_dotfolder` name and one or both detection strategies: `command` (CLI binary name) and `detection` (HOME config directory path).
 
 ## Step 1 — Autodetect installed platforms
 

@@ -116,7 +116,7 @@ Repos that ran `swain-keys --provision` switch `origin` to a project-specific SS
 Use the helper:
 
 ```bash
-bash skills/swain-doctor/scripts/ssh-readiness.sh --repair
+bash scripts/ssh-readiness.sh --repair
 ```
 
 The helper is a no-op for repos that do not use a `github.com-<project>` alias remote.
@@ -168,7 +168,7 @@ If it already exists, this step is silent.
 If the memory directory exists but `status-cache.json` does not, and the status script is available, seed an initial cache so that consumers have data on first use.
 
 ```bash
-STATUS_SCRIPT="skills/swain-session/scripts/swain-status.sh"
+STATUS_SCRIPT="$SKILLS_ROOT/swain-session/scripts/swain-status.sh"
 if [[ -f "$STATUS_SCRIPT" && ! -f "$MEMORY_DIR/status-cache.json" ]]; then
   bash "$STATUS_SCRIPT" --json > /dev/null 2>&1 || true
 fi

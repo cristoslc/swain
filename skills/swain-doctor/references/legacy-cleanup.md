@@ -1,6 +1,6 @@
 # Legacy Skill Cleanup
 
-Clean up skill directories that have been superseded by renames or retired entirely. Read the legacy mapping from `skills/swain-doctor/references/legacy-skills.json`.
+Clean up skill directories that have been superseded by renames or retired entirely. Read the legacy mapping from `references/legacy-skills.json`.
 
 ## Renamed skills
 
