@@ -45,6 +45,35 @@ assert "live-pid index.lock → clean" "$(echo "$RESULT" | grep -q 'clean' && ec
 
 rm -rf "$TMPDIR"
 
+# --- Interrupted git operations ---
+TMPDIR2=$(mktemp -d)
+FAKE_GIT2="$TMPDIR2/.git"
+mkdir -p "$FAKE_GIT2"
+
+# T5: No interrupted ops → clean
+RESULT=$(check_interrupted_git_ops "$TMPDIR2" 2>/dev/null || echo "MISSING")
+assert "no interrupted ops → clean" "$(echo "$RESULT" | grep -q 'clean' && echo true || echo false)"
+
+# T6: MERGE_HEAD → found
+touch "$FAKE_GIT2/MERGE_HEAD"
+RESULT=$(check_interrupted_git_ops "$TMPDIR2" 2>/dev/null || echo "MISSING")
+assert "MERGE_HEAD → found merge" "$(echo "$RESULT" | grep -q 'found' && echo true || echo false)"
+rm "$FAKE_GIT2/MERGE_HEAD"
+
+# T7: rebase-merge dir → found
+mkdir -p "$FAKE_GIT2/rebase-merge"
+RESULT=$(check_interrupted_git_ops "$TMPDIR2" 2>/dev/null || echo "MISSING")
+assert "rebase-merge → found rebase" "$(echo "$RESULT" | grep -q 'found' && echo true || echo false)"
+rm -rf "$FAKE_GIT2/rebase-merge"
+
+# T8: CHERRY_PICK_HEAD → found
+touch "$FAKE_GIT2/CHERRY_PICK_HEAD"
+RESULT=$(check_interrupted_git_ops "$TMPDIR2" 2>/dev/null || echo "MISSING")
+assert "CHERRY_PICK_HEAD → found cherry-pick" "$(echo "$RESULT" | grep -q 'found' && echo true || echo false)"
+rm "$FAKE_GIT2/CHERRY_PICK_HEAD"
+
+rm -rf "$TMPDIR2"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
