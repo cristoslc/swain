@@ -78,7 +78,7 @@ The reference clone from this step can be reused as the fallback source in Step 
 
 Before installing, detect which agent platforms are present on the system. This avoids creating dotfolder stubs for every supported platform (see [GitHub issue #21](https://github.com/cristoslc/swain/issues/21)).
 
-Read the agent platform data from `skills/swain-update/references/agent-platforms.json`. Each entry in the `agents` array has a `name` (skills CLI identifier), an optional `command` (CLI binary), and a `detection` path (HOME config directory). A platform is detected if either check succeeds. Entries in `always_include` are added unconditionally.
+Read the agent platform data from `references/agent-platforms.json`. Each entry in the `agents` array has a `name` (skills CLI identifier), an optional `command` (CLI binary), and a `detection` path (HOME config directory). A platform is detected if either check succeeds. Entries in `always_include` are added unconditionally.
 
 ```bash
 SKILL_DIR="$(find . .claude skills -path '*/swain-update/references' -print -quit 2>/dev/null | sed 's|/references$||')"

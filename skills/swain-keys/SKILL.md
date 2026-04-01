@@ -18,7 +18,7 @@ Per-project SSH key provisioning for git signing and authentication.
 
 ## When invoked
 
-Locate and run the provisioning script at `skills/swain-keys/scripts/swain-keys.sh`:
+Locate and run the provisioning script at `scripts/swain-keys.sh` (relative to this skill's directory):
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"

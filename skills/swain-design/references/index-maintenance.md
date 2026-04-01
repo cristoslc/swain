@@ -6,7 +6,7 @@ Every doc-type directory keeps a single lifecycle index (`list-<type>.md`). The 
 
 **Per-artifact creation/transition**: Do NOT update `list-<type>.md`. Only write the artifact frontmatter and lifecycle table.
 
-**Batch refresh (session end)**: Run `skills/swain-design/scripts/rebuild-index.sh <type>` for each artifact type that had activity in the session. This is called automatically by swain-sync before committing.
+**Batch refresh (session end)**: Run `scripts/rebuild-index.sh <type>` for each artifact type that had activity in the session. This is called automatically by swain-sync before committing.
 
 **Explicit refresh**: Run `rebuild-index.sh <type>` when the user requests an up-to-date index view.
 
@@ -22,10 +22,10 @@ Every doc-type directory keeps a single lifecycle index (`list-<type>.md`). The 
 
 ```bash
 # Refresh spec index
-bash skills/swain-design/scripts/rebuild-index.sh spec
+bash scripts/rebuild-index.sh spec
 
 # Refresh multiple types after a busy session
-bash skills/swain-design/scripts/rebuild-index.sh spec epic spike
+bash scripts/rebuild-index.sh spec epic spike
 ```
 
 ## When to run

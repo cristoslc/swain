@@ -288,6 +288,29 @@ git merge "origin/$TRUNK" --no-edit || {
   exit 1
 }
 
+# Link safety — scan changed files for worktree-specific path links (SPEC-216/217/218)
+# Runs after merge, before push, so any auto-fixes land in the same push.
+DETECT_SCRIPT="$(git rev-parse --show-toplevel)/.agents/bin/detect-worktree-links.sh"
+RESOLVE_SCRIPT="$(git rev-parse --show-toplevel)/.agents/bin/resolve-worktree-links.sh"
+if [ -x "$DETECT_SCRIPT" ]; then
+  MERGE_BASE=$(git merge-base HEAD "origin/$TRUNK" 2>/dev/null || true)
+  CHANGED_FILES=$([ -n "$MERGE_BASE" ] && git diff --name-only "$MERGE_BASE" HEAD 2>/dev/null || true)
+  if [ -n "$CHANGED_FILES" ]; then
+    if ! echo "$CHANGED_FILES" | xargs "$DETECT_SCRIPT" --repo-root "$(git rev-parse --show-toplevel)" > /dev/null 2>&1; then
+      echo "[link-safety] Found suspicious links. Resolving automatically..."
+      if ! echo "$CHANGED_FILES" | xargs "$RESOLVE_SCRIPT" --repo-root "$(git rev-parse --show-toplevel)"; then
+        echo "[link-safety] UNRESOLVABLE links remain — merge aborted. Fix before pushing."
+        exit 1
+      fi
+      git add -u
+      ORIG_MSG=$(git log -1 --pretty=%B)
+      git commit --amend -m "$ORIG_MSG
+
+[link-safety: auto-resolved worktree path links]"
+    fi
+  fi
+fi
+
 MAX_RETRIES=3
 ATTEMPT=0
 while [ $ATTEMPT -lt $MAX_RETRIES ]; do

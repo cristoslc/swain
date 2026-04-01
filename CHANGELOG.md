@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.26.0-alpha] - 2026-03-31
+
+
+### Features
+
+
+
+#### Worktree Path Link Safety
+
+Files edited inside a worktree sometimes contain absolute paths that break when the worktree is removed. Two new scripts close this gap: detect-worktree-links.sh scans any file for worktree-relative paths (handling parentheses in filenames and skipping inline code), and resolve-worktree-links.sh rewrites them in place to repo-root-relative paths. swain-sync now runs the rewriter automatically at worktree completion, so links are fixed before changes land on trunk.
+
+
+
+
+#### Manifest-Driven Operator Bin Auto-Repair
+
+swain-doctor's symlink check (check 15) has been replaced with a manifest-driven approach. Skills declare operator-facing scripts by placing them in a usr/bin/ directory. swain-doctor scans these manifests, compares them against bin/, and auto-repairs missing or stale symlinks. Hardcoded paths are gone — the check works correctly regardless of where swain is installed.
+
+
+
+### Planned
+
+- Automated test gates (EPIC-052) — a suite of specs is being designed to let swain verify its own promises end-to-end, including a swain-test harness, swain-sync and swain-release test gate integration, and swain-doctor checks that work in consumer repos
+
+### Supporting Changes
+
+- Pre-commit artifact flush — swain-do now commits any uncommitted artifacts before creating a worktree, preventing tracked files from being orphaned mid-session
+- Portable skills path resolution — hardcoded skills/ references across multiple skills replaced with installation-aware lookups
+- swain-do audit repairs — step numbering, pre-commit scope description, and cheatsheet text corrected
+- Worktree isolation rule documented in AGENTS.md
+
 ## [0.25.0-alpha] - 2026-03-31
 
 ### Features

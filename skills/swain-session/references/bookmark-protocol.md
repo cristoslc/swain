@@ -8,7 +8,7 @@ A skill should update the bookmark when it completes a **state-changing operatio
 
 ### How to update
 
-Use `skills/swain-session/scripts/swain-bookmark.sh`:
+Use `scripts/swain-bookmark.sh` (relative to this skill's directory):
 
 ```bash
 # Find the script

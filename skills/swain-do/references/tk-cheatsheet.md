@@ -1,11 +1,11 @@
 # tk (ticket) CLI cheatsheet
 
-Quick reference for the vendored `tk` script at `skills/swain-do/bin/tk`.
+Quick reference for the vendored `tk` script at `bin/tk`.
 
 ## Prerequisites
 
 - tk is a single bash script — no runtime dependencies beyond bash + coreutils
-- Vendored in the project at `skills/swain-do/bin/tk`
+- Vendored in the project at `bin/tk`
 - Stores tickets as markdown files with YAML frontmatter in `.tickets/`
 - Plugins (`ticket-query`, `ticket-migrate-beads`) live in the same `bin/` directory
 
@@ -16,7 +16,7 @@ tk requires no explicit initialization. The `.tickets/` directory is created aut
 To use tk from anywhere in the project:
 
 ```bash
-TK_BIN="$(cd skills/swain-do/bin && pwd)"
+TK_BIN="$(cd bin && pwd)"  # relative to the project root
 export PATH="$TK_BIN:$PATH"
 ```
 
@@ -242,7 +242,7 @@ Requires `jq`. Reads from `.beads/issues.jsonl`, writes to `.tickets/`.
 
 Plugins are scripts named `tk-*` or `ticket-*` in PATH. They receive `TICKETS_DIR` and `TK_SCRIPT` env vars.
 
-Vendored plugins in `skills/swain-do/bin/`:
+Vendored plugins in `bin/` (relative to this skill's directory):
 - `ticket-query` — JSON output with jq filtering
 - `ticket-migrate-beads` — Import from `.beads/issues.jsonl`
 

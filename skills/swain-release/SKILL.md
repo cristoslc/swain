@@ -133,7 +133,7 @@ Feature and roadmap items use `{"heading": "Title", "body": "Narrative..."}` for
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-uv run --with jinja2 python "$REPO_ROOT/skills/swain-release/scripts/render_changelog.py" /tmp/changelog_data.json
+uv run --with jinja2 python "$REPO_ROOT/.agents/bin/render_changelog.py" /tmp/changelog_data.json
 ```
 
 This prints the rendered markdown to stdout. Review it, then prepend to CHANGELOG.md.

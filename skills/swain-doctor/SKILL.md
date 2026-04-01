@@ -56,12 +56,12 @@ When invoked directly by the user (not via the auto-invoke flow), swain-doctor a
 
 3. If governance markers found, check freshness:
 
-   Extract the block between `<!-- swain governance` and `<!-- end swain governance -->` from the installed context file. Compare against the canonical source at `skills/swain-doctor/references/AGENTS.content.md` (same extraction, excluding marker lines).
+   Extract the block between `<!-- swain governance` and `<!-- end swain governance -->` from the installed context file. Compare against the canonical source at `references/AGENTS.content.md` (same extraction, excluding marker lines).
 
    ```bash
    extract_gov() { awk '/<!-- swain governance/{f=1;next}/<!-- end swain governance/{f=0}f' "$1"; }
    INSTALLED_HASH=$(extract_gov "$GOV_FILE" | shasum -a 256 | cut -d' ' -f1)
-   CANONICAL_HASH=$(extract_gov "skills/swain-doctor/references/AGENTS.content.md" | shasum -a 256 | cut -d' ' -f1)
+   CANONICAL_HASH=$(extract_gov "references/AGENTS.content.md" | shasum -a 256 | cut -d' ' -f1)
    ```
 
    - **ok** — hashes match. Governance is current. Proceed to [Legacy skill cleanup](#legacy-skill-cleanup).
@@ -71,7 +71,7 @@ When invoked directly by the user (not via the auto-invoke flow), swain-doctor a
 
 ## Legacy skill cleanup
 
-Clean up renamed and retired skill directories using fingerprint checks. Read [references/legacy-cleanup.md](references/legacy-cleanup.md) for the full procedure. Data source: `skills/swain-doctor/references/legacy-skills.json`.
+Clean up renamed and retired skill directories using fingerprint checks. Read [references/legacy-cleanup.md](references/legacy-cleanup.md) for the full procedure. Data source: `references/legacy-skills.json`.
 
 ## Platform dotfolder cleanup
 
@@ -79,7 +79,7 @@ Remove dotfolder stubs (`.windsurf/`, `.cursor/`, etc.) for agent platforms that
 
 ## Governance injection
 
-Inject governance rules into the platform context file when missing. Read [references/governance-injection.md](references/governance-injection.md) for Claude Code and Cursor injection procedures. Source: `skills/swain-doctor/references/AGENTS.content.md`.
+Inject governance rules into the platform context file when missing. Read [references/governance-injection.md](references/governance-injection.md) for Claude Code and Cursor injection procedures. Source: `references/AGENTS.content.md`.
 
 ## Governance replacement
 
@@ -95,7 +95,7 @@ Auto-migrates `.beads/` → `.tickets/` if present. Skip if `.beads/` does not e
 
 ## Governance content reference
 
-The canonical governance rules live in `skills/swain-doctor/references/AGENTS.content.md`. Both swain-doctor and swain-init read from this single source of truth. If the upstream rules change in a future swain release, update that file and bump the skill version. The freshness check (step 3 of the governance check) will automatically detect the mismatch and offer replacement on the next session.
+The canonical governance rules live in `references/AGENTS.content.md`. Both swain-doctor and swain-init read from this single source of truth. If the upstream rules change in a future swain release, update that file and bump the skill version. The freshness check (step 3 of the governance check) will automatically detect the mismatch and offer replacement on the next session.
 
 ## Tool availability
 
@@ -111,52 +111,22 @@ Memory directory, settings validation, script permissions, `.agents` directory, 
 
 ## tk health (extended .tickets checks)
 
-Verify vendored tk is executable at `skills/swain-do/bin/tk` and check for stale lock files. **Skip if `.tickets/` does not exist.** See [references/tickets-validation.md](references/tickets-validation.md) for details.
+Verify vendored tk is executable (at the sibling `swain-do/bin/tk` skill path) and check for stale lock files. **Skip if `.tickets/` does not exist.** See [references/tickets-validation.md](references/tickets-validation.md) for details.
 
-## swain-box symlink (ADR-019 operator-facing)
+## Operator bin/ symlinks (SPEC-214, ADR-019)
 
-Ensure `bin/swain-box` exists as a symlink to the installed `swain-box` script so operators can launch Docker Sandboxes. Per ADR-019, operator-facing scripts live in `bin/`, not the project root. The script is distributed inside the swain skill tree at `*/swain/scripts/swain-box`. **Skip if the script cannot be found.**
+Auto-repair `bin/` symlinks for operator-facing scripts. Scans `skills/*/usr/bin/` manifest directories to discover which scripts need `bin/` symlinks. Each entry in `usr/bin/` is a symlink whose name is the operator command and whose target resolves to the actual script in `scripts/`. Adding a new operator script requires only a new entry in `usr/bin/` — no doctor code changes.
 
-**Note:** The preflight script (`swain-preflight.sh`) handles auto-repair of `bin/` symlinks structurally, including migration of old root symlinks. This doctor section is the prosaic counterpart for the full doctor flow.
+### Behavior
 
-### Detection
-
-```bash
-BIN_DIR="bin"
-SWAIN_BOX_SCRIPT="$BIN_DIR/swain-box"
-if [ -e "$SWAIN_BOX_SCRIPT" ]; then
-  mkdir -p "$BIN_DIR"
-  SWAIN_BOX_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$SWAIN_BOX_SCRIPT" "$BIN_DIR" 2>/dev/null || echo "../$SWAIN_BOX_SCRIPT")
-  if [ -L "$BIN_DIR/swain-box" ] && [ "$(readlink "$BIN_DIR/swain-box")" = "$SWAIN_BOX_REL" ]; then
-    echo "ok"
-  elif [ -e "$BIN_DIR/swain-box" ] && [ ! -L "$BIN_DIR/swain-box" ]; then
-    echo "conflict"  # a real file named swain-box exists — do not overwrite
-  else
-    echo "missing"
-  fi
-  # Check for old root symlink (pre-ADR-019) and migrate
-  if [ -L swain-box ]; then
-    rm -f swain-box
-    echo "migrated root symlink ./swain-box to bin/swain-box"
-  fi
-fi
-```
-
-### Remediation
-
-- **ok** — silent, no output.
-- **missing** — create the symlink automatically:
-  ```bash
-  ln -sf "$SWAIN_BOX_REL" "$BIN_DIR/swain-box"
-  ```
-  Report: `swain-box symlink created (bin/swain-box → $SWAIN_BOX_REL)`
-- **conflict** — warn: `bin/swain-box exists but is not a symlink — skipping. To fix manually: rm bin/swain-box && ln -sf <path> bin/swain-box`
+1. Scan `$SKILLS_ROOT/*/usr/bin/` for manifest entries
+2. For each entry, ensure `bin/<name>` exists as a symlink resolving to the script
+3. Auto-repair missing or stale symlinks; warn on real-file conflicts
 
 ### Status values
 
-- **ok** — symlink present and correct
-- **repaired** — symlink created
-- **warning** — conflict (real file); manual action needed
+- **ok** — all symlinks present and correct, or repaired
+- **warning** — at least one conflict (real file exists at `bin/<name>`)
 
 ## Lifecycle directory migration
 

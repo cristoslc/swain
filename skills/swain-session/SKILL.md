@@ -108,7 +108,7 @@ This is agent-agnostic — works in Claude Code, opencode, gemini cli, codex, co
   },
   "bookmark": {
     "note": "Left off implementing the bootstrap script",
-    "files": ["skills/swain-session/SKILL.md"],
+    "files": ["SKILL.md"],
     "timestamp": "2026-03-10T14:32:00Z"
   }
 }

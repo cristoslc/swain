@@ -106,13 +106,16 @@
 | SPEC-202 | Context-Rich Display Integration | 2026-03-31 | _pending_ |
 | SPEC-203 | Fast-Path Session Greeting | 2026-03-30 | -- |
 | SPEC-205 | Wire Progress Log Into Session Close | 2026-03-31 | _pending_ |
-| SPEC-206 | Missing session greeting script | 2026-03-31 | — |
-| SPEC-207 | README Seeding in swain-init | 2026-03-31 | — |
-| SPEC-208 | README Existence Check in swain-doctor | 2026-03-31 | — |
-| SPEC-209 | Session-Start README Reconciliation | 2026-03-31 | — |
-| SPEC-210 | Retro README Drift Check | 2026-03-31 | — |
-| SPEC-211 | Release README Gate | 2026-03-31 | — |
-| SPEC-212 | Design Transition README Nudge | 2026-03-31 | — |
+| SPEC-213 | Portable skill path resolution | 2026-03-31 | — |
+| SPEC-215 | Consumer integration test harness | 2026-03-31 | — |
+| SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | — |
+| SPEC-220 | swain-test.sh script | 2026-03-31 | — |
+| SPEC-221 | swain-test skill | 2026-03-31 | — |
+| SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | — |
+| SPEC-223 | swain-sync test gate integration | 2026-03-31 | — |
+| SPEC-224 | swain-release test gate integration | 2026-03-31 | — |
+| SPEC-225 | Flat artifact migration | 2026-03-31 | — |
+| SPEC-226 | Verification evidence recording | 2026-03-31 | — |
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete
@@ -219,6 +222,16 @@
 | SPEC-192 | swain-doctor parallel check cascade failure | 2026-03-29 | — |
 | SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-29 | — |
 | SPEC-204 | fix-collisions.sh Over-Rewrites Keeper References | 2026-03-31 | 85c7d96 |
+| SPEC-206 | Missing session greeting script | 2026-03-31T13:22:00Z | af41336 |
+| SPEC-207 | README Seeding in swain-init | 2026-03-31 | 61379ba |
+| SPEC-208 | README Existence Check in swain-doctor | 2026-03-31 | 61379ba |
+| SPEC-209 | Session-Start README Reconciliation | 2026-03-31 | 61379ba |
+| SPEC-210 | Retro README Drift Check | 2026-03-31 | 61379ba |
+| SPEC-211 | Release README Gate | 2026-03-31 | 61379ba |
+| SPEC-212 | Design Transition README Nudge | 2026-03-31 | 61379ba |
+| SPEC-216 | Worktree-Relative Link Detection Script | 2026-03-31 | — |
+| SPEC-217 | Worktree Link Resolution on Merge | 2026-03-31 | — |
+| SPEC-218 | Link Safety Worktree Completion Integration | 2026-03-31 | — |
 
 ## Superseded
 

@@ -6,10 +6,10 @@ Monitor troves for size, freshness, and consistency.
 
 ```bash
 # Check all troves for issues
-bash skills/swain-search/scripts/trovewatch.sh scan
+bash scripts/trovewatch.sh scan
 
 # Summary of all troves
-bash skills/swain-search/scripts/trovewatch.sh status
+bash scripts/trovewatch.sh status
 ```
 
 ## What it checks

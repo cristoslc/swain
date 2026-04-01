@@ -99,7 +99,7 @@ If invoked from swain-design (e.g., spike entering Active), the artifact context
 
 ### Step 2 — Collect and normalize
 
-For each source, use the appropriate capability. Read `skills/swain-search/references/normalization-formats.md` for the exact markdown structure per source type.
+For each source, use the appropriate capability. Read `references/normalization-formats.md` for the exact markdown structure per source type.
 
 **Web search queries:**
 1. Use a web search capability to find relevant results
@@ -117,7 +117,7 @@ For each source, use the appropriate capability. Read `skills/swain-search/refer
 
 After fetching a web page, check if a paywall proxy is available for the URL's domain:
 
-1. Run `skills/swain-search/scripts/resolve-proxy.sh <url>`
+1. Run `scripts/resolve-proxy.sh <url>`
    - **Exit 1**: no proxy configured — use the direct fetch content as-is
    - **Exit 0**: outputs `PROXY:<name>:<proxy-url>` and `SIGNAL:<text>` lines
 2. If exit 0, check the fetched content for each `SIGNAL` text (case-sensitive literal match)
@@ -129,7 +129,7 @@ After fetching a web page, check if a paywall proxy is available for the URL's d
 4. If no signals match: use the direct fetch content as-is (no proxy needed)
 5. If all proxies fail: keep the original truncated content, set `notes: "Paywalled; proxies exhausted — content from direct fetch only"`
 
-The registry lives at `skills/swain-search/references/paywall-proxies.yaml`. Add new domains or proxies there — no skill file changes needed.
+The registry lives at `references/paywall-proxies.yaml`. Add new domains or proxies there — no skill file changes needed.
 
 **Video/audio URLs:**
 1. Use a media transcription capability to get the transcript
@@ -164,12 +164,12 @@ Each normalized source gets a **slug-based source ID** and lives in a directory-
 
 **Source ID generation:**
 - Derive the source ID as a slug from the source title or URL (e.g., `mdn-websocket-api`, `strangeloop-2025-realtime`)
-- When a slug collides with an existing source ID: append `__word1-word2` using two random words from `skills/swain-search/references/wordlist.txt`
+- When a slug collides with an existing source ID: append `__word1-word2` using two random words from `references/wordlist.txt`
 - If the wordlist is missing, append `__` followed by 4 hex characters (e.g., `__a3f8`) as a fallback
 
 ### Step 3 — Generate manifest
 
-Create `manifest.yaml` following the schema in `skills/swain-search/references/manifest-schema.md`. Include:
+Create `manifest.yaml` following the schema in `references/manifest-schema.md`. Include:
 - Trove metadata (id, created date, tags)
 - Default freshness TTL per source type
 - One entry per source with provenance (URL/path, fetch date, content hash, type)

@@ -68,7 +68,7 @@ None. Each child spec modifies an existing skill — no new skills or file forma
 
 **Terminal state:** Complete
 **Period:** 2026-03-31 (single session)
-**Related artifacts:** [SPEC-207](../../spec/Complete/(SPEC-207)-README-Seeding-in-swain-init/(SPEC-207)-README-Seeding-in-swain-init.md), [SPEC-208](../../spec/Complete/(SPEC-208)-README-Existence-Check-in-swain-doctor/(SPEC-208)-README-Existence-Check-in-swain-doctor.md), [SPEC-209](../../spec/Complete/(SPEC-209)-Session-Start-README-Reconciliation/(SPEC-209)-Session-Start-README-Reconciliation.md), [SPEC-210](../../spec/Complete/(SPEC-210)-Retro-README-Drift-Check/(SPEC-210)-Retro-README-Drift-Check.md), [SPEC-211](../../spec/Complete/(SPEC-211)-Release-README-Gate/(SPEC-211)-Release-README-Gate.md), [SPEC-212](../../spec/Complete/(SPEC-212)-Design-Transition-README-Nudge/(SPEC-212)-Design-Transition-README-Nudge.md)
+**Related artifacts:** [SPEC-207](../../../spec/Complete/(SPEC-207)-README-Seeding-in-swain-init/(SPEC-207)-README-Seeding-in-swain-init.md), [SPEC-208](../../../spec/Complete/(SPEC-208)-README-Existence-Check-in-swain-doctor/(SPEC-208)-README-Existence-Check-in-swain-doctor.md), [SPEC-209](../../../spec/Complete/(SPEC-209)-Session-Start-README-Reconciliation/(SPEC-209)-Session-Start-README-Reconciliation.md), [SPEC-210](../../../spec/Complete/(SPEC-210)-Retro-README-Drift-Check/(SPEC-210)-Retro-README-Drift-Check.md), [SPEC-211](../../../spec/Complete/(SPEC-211)-Release-README-Gate/(SPEC-211)-Release-README-Gate.md), [SPEC-212](../../../spec/Complete/(SPEC-212)-Design-Transition-README-Nudge/(SPEC-212)-Design-Transition-README-Nudge.md)
 
 ### Summary
 

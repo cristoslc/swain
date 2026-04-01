@@ -40,7 +40,7 @@ Report: "Removed stale `.beads/` directory — migration to `.tickets/` was alre
 
 6. If failed: warn but do not delete. Provide manual migration steps:
    ```bash
-   TK_BIN="$(cd skills/swain-do/bin && pwd)" && export PATH="$TK_BIN:$PATH"
+   TK_BIN="$(cd "$SKILLS_ROOT/swain-do/bin" && pwd)" && export PATH="$TK_BIN:$PATH"
    cp .beads/backup/issues.jsonl .beads/issues.jsonl
    ticket-migrate-beads
    ```

@@ -42,7 +42,7 @@ For checks 4 and 5, the agent must actually read artifact content — frontmatte
 
 The alignment auditor checks that artifacts are semantically oriented toward the same goal. It requires reading artifact content — frontmatter alone is not sufficient. Procedure:
 
-1. Run `bash skills/swain-design/scripts/chart.sh --all` to identify all active Visions.
+1. Run `bash scripts/chart.sh --all` to identify all active Visions.
 2. For each active Vision, use `chart.sh scope` on every non-terminal descendant (Epics, SPECs under that Vision).
 3. For each artifact, assess alignment per [alignment-checking.md](alignment-checking.md):
    - Read the Vision's goal (the "North Star")

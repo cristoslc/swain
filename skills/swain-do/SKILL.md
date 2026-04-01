@@ -1,6 +1,6 @@
 ---
 name: swain-do
-description: Operate the external task-management CLI (tk) as source of truth for agent execution tracking. Invoke when any SPEC comes up for implementation, when the user asks to track tasks, check what to work on next, see task status, manage work dependencies, or close/abandon tasks. For coordination-tier artifacts (EPIC, VISION, JOURNEY), swain-design must decompose into child SPECs first — this skill tracks the children, not the container.
+description: Task tracking and implementation execution for swain projects. Invoke whenever a SPEC needs an implementation plan, the user asks what to work on next, wants to check or update task status, claim or close tasks, manage dependencies, or abandon work. Also invoked by swain-design after creating a SPEC that's ready for implementation. Tracks SPECs and SPIKEs — not EPICs, VISIONs, or JOURNEYs directly (those get decomposed into SPECs first).
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
@@ -24,7 +24,7 @@ If the JSON output has `"status"` other than `"active"`, inform the operator: "N
 
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
-**Before first use:** Read [skills/swain-do/references/tk-cheatsheet.md](skills/swain-do/references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
+**Before first use:** Read [references/tk-cheatsheet.md](references/tk-cheatsheet.md) for complete command syntax, flags, ID formats, and anti-patterns.
 
 ## Artifact handoff protocol
 
@@ -125,7 +125,7 @@ When superpowers is NOT installed, swain-do uses its built-in TDD enforcement (s
 
 ## Plan ingestion (superpowers integration)
 
-When a superpowers plan file exists, use the ingestion script (`skills/swain-do/scripts/ingest-plan.py`) instead of manual task decomposition. Read [references/plan-ingestion.md](references/plan-ingestion.md) for usage, format requirements, and when NOT to use it.
+When a superpowers plan file exists, use the ingestion script (`scripts/ingest-plan.py`) instead of manual task decomposition. Read [references/plan-ingestion.md](references/plan-ingestion.md) for usage, format requirements, and when NOT to use it.
 
 ## Execution strategy
 
@@ -154,7 +154,7 @@ Before creating a plan for a SPEC, scan for evidence that it's already implement
 
 When evidence confirms prior implementation, skip full task decomposition:
 
-1. Create a single tracking task: `tk create "Retroactive verification: <SPEC-ID>" -t task --external-ref <SPEC-ID>`
+1. Create a single tracking task: `tk create "Retroactive verification: <SPEC-ID>" -t task --external-ref <SPEC-ID> -d "Verify prior implementation before closing SPEC."`
 2. Claim it: `tk claim <id>`
 3. Run `verification-before-completion` (if superpowers installed) or re-run the spec's tests manually.
 4. If verification passes: add a note with the evidence, close the task, then invoke swain-design to transition the spec to Complete.
@@ -180,21 +180,35 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **If `IN_WORKTREE=no`** (main worktree) and the operation will produce file changes:
 
-1. **Check for existing worktrees** matching the target spec/work (SPEC-195):
+1. **Commit any untracked files before the branch is cut.** A worktree is created from git history — files not yet committed are invisible inside it. This matters for artifacts created moments earlier in the same session (new SPECs, ADRs, etc.). Only untracked files need committing; modified tracked files are already in history and appear in the worktree regardless.
+   ```bash
+   REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+   UNTRACKED=$(git -C "$REPO_ROOT" ls-files --others --exclude-standard 2>/dev/null)
+   if [ -n "$UNTRACKED" ]; then
+     echo "$UNTRACKED" | xargs -d '\n' git -C "$REPO_ROOT" add -- && \
+     git -C "$REPO_ROOT" commit -m "chore: stage artifacts before worktree creation" || {
+       echo "ERROR: pre-commit step failed — aborting worktree creation"
+       exit 1
+     }
+   fi
+   ```
+   If the commit fails (e.g., pre-commit hook rejection), surface the error and stop.
+
+2. **Check for existing worktrees** matching the target spec/work:
    ```bash
    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
    bash "$REPO_ROOT/.agents/bin/swain-worktree-overlap.sh" "<SPEC-ID>"
    ```
    If the JSON output has `"found": true`, offer to reuse: "Worktree for `<SPEC-ID>` already exists at `<path>`. Reuse it?" If yes, use `EnterWorktree` with the existing branch name. If no, create a new one with a fresh suffix.
 
-2. **Create a new worktree** with a spec-derived name. Use the SPEC ID + slug (e.g., `spec-174-branch-collision`) or generate a timestamped name by running `bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh" "<context>"` (e.g., output: `session-20260327-143022-a7f3`). Never use a static name like "session" — concurrent sessions will collide (SPEC-174). If `EnterWorktree` fails with a branch-exists error, re-run the name script and retry once. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
+3. **Create a new worktree** with a spec-derived name. Use the SPEC ID + slug (e.g., `spec-174-branch-collision`) or generate a timestamped name by running `bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh" "<context>"` (e.g., output: `session-20260327-143022-a7f3`). Never use a static name like "session" — concurrent sessions will collide. If `EnterWorktree` fails with a branch-exists error, re-run the name script and retry once. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
 
-3. After entering, re-run tab naming to reflect the new branch:
+4. After entering, re-run tab naming to reflect the new branch:
    ```bash
    bash "$REPO_ROOT/.agents/bin/swain-tab-name.sh" --path "$(pwd)" --auto
    ```
 
-4. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
+5. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
 
 **Operator override:** If the operator explicitly says "work on trunk" or "don't isolate," respect the override and proceed on trunk. Log a warning: "Proceeding on trunk at operator request — changes will land directly on the development branch."
 

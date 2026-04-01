@@ -11,6 +11,17 @@
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
+# Portable path resolution — works whether installed at skills/ or .agents/skills/
+_src="${BASH_SOURCE[0]}"
+while [[ -L "$_src" ]]; do
+  _dir="$(cd "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  [[ "$_src" != /* ]] && _src="$_dir/$_src"
+done
+SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+SKILLS_ROOT="$(dirname "$SKILL_DIR")"
+
 # Collect results
 declare -a CHECKS=()
 
@@ -46,7 +57,7 @@ check_governance() {
   fi
 
   # Freshness check
-  local canonical="skills/swain-doctor/references/AGENTS.content.md"
+  local canonical="$SKILL_DIR/references/AGENTS.content.md"
   if [[ ! -f "$canonical" ]]; then
     add_check "governance" "ok" "governance markers present (canonical source not found for freshness check)"
     return
@@ -139,7 +150,7 @@ check_tools() {
   # Optional
   for cmd in tk uv gh tmux fswatch; do
     if [[ "$cmd" == "tk" ]]; then
-      if [[ ! -x "skills/swain-do/bin/tk" ]]; then
+      if [[ ! -x "$SKILLS_ROOT/swain-do/bin/tk" ]]; then
         missing_optional="${missing_optional:+$missing_optional, }tk"
       fi
     else
@@ -345,7 +356,7 @@ check_lifecycle_dirs() {
 # Check 14: tk health
 # ============================================================
 check_tk_health() {
-  local tk_bin="skills/swain-do/bin/tk"
+  local tk_bin="$SKILLS_ROOT/swain-do/bin/tk"
   if [[ ! -x "$tk_bin" ]]; then
     add_check "tk_health" "warning" "vendored tk not found or not executable"
     return
@@ -360,23 +371,82 @@ check_tk_health() {
 }
 
 # ============================================================
-# Check 15: swain-box symlink (ADR-019)
+# Check 15: Operator bin/ symlinks (SPEC-214, ADR-019)
+# Scans skills/*/usr/bin/ manifest directories for operator-facing
+# scripts and auto-repairs bin/ symlinks.
 # ============================================================
-check_swain_box() {
-  local swain_box_src
-  swain_box_src=$(find skills -name "swain-box" -path '*/scripts/*' ! -name 'test-*' -print -quit 2>/dev/null)
+check_operator_bin_symlinks() {
+  local bin_dir="$REPO_ROOT/bin"
+  local repaired=0
+  local conflicts=()
+  local repairs=()
+  local manifest_count=0
 
-  if [[ -z "$swain_box_src" ]]; then
-    add_check "swain_box" "ok" "swain-box script not found (skipped)"
+  # Scan all usr/bin/ manifest directories in the skill tree
+  for manifest_dir in "$REPO_ROOT"/skills/*/usr/bin; do
+    [[ -d "$manifest_dir" ]] || continue
+    for entry in "$manifest_dir"/*; do
+      [[ -e "$entry" || -L "$entry" ]] || continue
+      local cmd_name
+      cmd_name="$(basename "$entry")"
+      manifest_count=$((manifest_count + 1))
+
+      # Resolve the actual script through the manifest symlink
+      local script_path
+      script_path="$(cd "$manifest_dir" && readlink -f "$cmd_name" 2>/dev/null || true)"
+      if [[ -z "$script_path" || ! -f "$script_path" ]]; then
+        # Manifest entry points to a missing script — skip
+        continue
+      fi
+
+      # Compute relative path from bin/ to the script
+      local rel_path
+      rel_path="$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$script_path" "$bin_dir" 2>/dev/null || echo "")"
+      [[ -z "$rel_path" ]] && continue
+
+      if [[ -L "$bin_dir/$cmd_name" ]]; then
+        # Symlink exists — check if target is correct
+        local current_target
+        current_target="$(readlink "$bin_dir/$cmd_name")"
+        if [[ "$(cd "$bin_dir" && readlink -f "$cmd_name" 2>/dev/null)" == "$script_path" ]]; then
+          continue  # resolves correctly
+        fi
+        # Stale — replace
+        ln -sf "$rel_path" "$bin_dir/$cmd_name"
+        repairs+=("$cmd_name (stale, repaired)")
+        repaired=$((repaired + 1))
+      elif [[ -e "$bin_dir/$cmd_name" ]]; then
+        # Real file — conflict, don't overwrite
+        conflicts+=("$cmd_name")
+      else
+        # Missing — auto-repair
+        mkdir -p "$bin_dir"
+        ln -sf "$rel_path" "$bin_dir/$cmd_name"
+        repairs+=("$cmd_name (created)")
+        repaired=$((repaired + 1))
+      fi
+    done
+  done
+
+  if [[ "$manifest_count" -eq 0 ]]; then
+    add_check "operator_bin_symlinks" "ok" "no operator scripts in usr/bin/ manifests"
     return
   fi
 
-  if [[ -L "bin/swain-box" ]]; then
-    add_check "swain_box" "ok" "bin/swain-box symlink present"
-  elif [[ -e "bin/swain-box" ]]; then
-    add_check "swain_box" "warning" "bin/swain-box is a real file, not a symlink"
+  local issues=()
+  [[ ${#conflicts[@]} -gt 0 ]] && issues+=("${#conflicts[@]} conflict(s): ${conflicts[*]}")
+  [[ ${#repairs[@]} -gt 0 ]] && issues+=("${#repairs[@]} repaired: ${repairs[*]}")
+
+  if [[ ${#issues[@]} -eq 0 ]]; then
+    add_check "operator_bin_symlinks" "ok" "bin/ symlinks for $manifest_count operator script(s) OK"
+  elif [[ ${#conflicts[@]} -gt 0 ]]; then
+    local detail
+    detail=$(printf '%s; ' "${issues[@]}")
+    add_check "operator_bin_symlinks" "warning" "bin/ symlink issues" "${detail%;* }"
   else
-    add_check "swain_box" "warning" "bin/swain-box symlink missing"
+    local detail
+    detail=$(printf '%s; ' "${issues[@]}")
+    add_check "operator_bin_symlinks" "ok" "bin/ symlinks repaired" "${detail%;* }"
   fi
 }
 
@@ -395,7 +465,7 @@ check_commit_signing() {
 # Check 17: SSH alias readiness
 # ============================================================
 check_ssh_readiness() {
-  local ssh_helper="skills/swain-doctor/scripts/ssh-readiness.sh"
+  local ssh_helper="$SCRIPT_DIR/ssh-readiness.sh"
   if [[ ! -x "$ssh_helper" ]]; then
     add_check "ssh_readiness" "ok" "ssh-readiness helper not found (skipped)"
     return
@@ -426,7 +496,7 @@ check_readme() {
 # Check 18: Crash debris detection (SPEC-182)
 # ============================================================
 check_crash_debris() {
-  local lib="$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh"
+  local lib="$SCRIPT_DIR/crash-debris-lib.sh"
   if [[ ! -f "$lib" ]]; then
     add_check "crash_debris" "ok" "crash-debris-lib.sh not found (skipped)"
     return
@@ -455,8 +525,8 @@ check_crash_debris() {
 check_swain_symlink() {
   local symlink="$REPO_ROOT/bin/swain"
   if [[ ! -L "$symlink" ]]; then
-    if [[ -f "$REPO_ROOT/skills/swain/scripts/swain" ]]; then
-      add_check "swain_symlink" "warning" "bin/swain symlink missing (script exists at skills/swain/scripts/swain)"
+    if [[ -f "$SKILLS_ROOT/swain/scripts/swain" ]]; then
+      add_check "swain_symlink" "warning" "bin/swain symlink missing (script exists at $SKILLS_ROOT/swain/scripts/swain)"
     else
       add_check "swain_symlink" "ok" "bin/swain not applicable (no pre-runtime script)"
     fi
@@ -473,41 +543,89 @@ check_swain_symlink() {
 
 # ============================================================
 # Check 20: .agents/bin/ symlink completeness (SPEC-206)
+# Aligns with preflight auto-repair (ADR-019, SPEC-186):
+#   - Scans all executable files in skills/*/scripts/ (not just .sh)
+#   - Excludes test-* and operator-facing scripts (SPEC-214 manifest-driven)
+#   - Uses os.path.relpath for portable symlink targets
+#   - Auto-repairs missing/stale symlinks (detect + fix)
 # ============================================================
 check_agents_bin_symlinks() {
   local bin_dir="$REPO_ROOT/.agents/bin"
   if [[ ! -d "$bin_dir" ]]; then
-    add_check "agents_bin_symlinks" "warning" ".agents/bin/ directory missing"
+    mkdir -p "$bin_dir"
+    add_check "agents_bin_symlinks" "warning" ".agents/bin/ directory was missing (created)"
     return
   fi
 
-  # Check for broken symlinks in .agents/bin/
   local broken=()
+  local missing=()
+  local stale=()
+  local repaired=0
+
+  # Check for broken symlinks in .agents/bin/
   while IFS= read -r link; do
     [[ -z "$link" ]] && continue
     if [[ ! -e "$link" ]]; then
       broken+=("$(basename "$link")")
+      rm -f "$link"
     fi
   done < <(find "$bin_dir" -type l 2>/dev/null)
 
-  # Check for scripts in skills/*/scripts/ that lack a symlink in .agents/bin/
-  # Convention: .sh files (excluding test-*) should be symlinked
-  local missing=()
-  while IFS= read -r script; do
-    [[ -z "$script" ]] && continue
-    local base
-    base=$(basename "$script")
-    if [[ ! -L "$bin_dir/$base" ]]; then
-      missing+=("$base")
-    fi
-  done < <(find "$REPO_ROOT/skills" -path '*/scripts/*.sh' ! -name 'test-*' ! -name 'test_*' 2>/dev/null)
+  # Build operator-script exclusion set from usr/bin/ manifests (SPEC-214)
+  local operator_scripts=" "
+  for manifest_dir in "$REPO_ROOT"/skills/*/usr/bin; do
+    [[ -d "$manifest_dir" ]] || continue
+    for entry in "$manifest_dir"/*; do
+      [[ -e "$entry" || -L "$entry" ]] || continue
+      operator_scripts+="$(basename "$entry") "
+    done
+  done
+
+  # Scan all executable scripts in skills/*/scripts/ (ADR-019 convention)
+  for skill_scripts_dir in "$REPO_ROOT"/skills/*/scripts; do
+    [[ -d "$skill_scripts_dir" ]] || continue
+    for script in "$skill_scripts_dir"/*; do
+      [[ -f "$script" && -x "$script" ]] || continue
+      local script_name
+      script_name="$(basename "$script")"
+      # Skip test scripts and operator-facing scripts
+      [[ "$script_name" == test-* || "$script_name" == test_* ]] && continue
+      # Skip operator-facing scripts — those belong in bin/, not .agents/bin/
+      echo "$operator_scripts" | grep -q " $script_name " && continue
+      # Compute portable relative path (works in worktrees and trunk)
+      local target="$bin_dir/$script_name"
+      local rel_path
+      rel_path="$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$script" "$bin_dir" 2>/dev/null || echo "")"
+      [[ -z "$rel_path" ]] && continue
+      if [[ -L "$target" ]] && [[ "$(readlink "$target")" == "$rel_path" ]]; then
+        continue  # ok
+      elif [[ -e "$target" ]] && [[ ! -L "$target" ]]; then
+        missing+=("$script_name (conflict: real file)")
+      elif [[ -L "$target" ]]; then
+        # stale — wrong target
+        stale+=("$script_name")
+        ln -sf "$rel_path" "$target"
+        repaired=$((repaired + 1))
+      else
+        # missing — auto-repair
+        missing+=("$script_name")
+        ln -sf "$rel_path" "$target"
+        repaired=$((repaired + 1))
+      fi
+    done
+  done
 
   local issues=()
-  [[ ${#broken[@]} -gt 0 ]] && issues+=("${#broken[@]} broken: ${broken[*]}")
-  [[ ${#missing[@]} -gt 0 ]] && issues+=("${#missing[@]} missing: ${missing[*]}")
+  [[ ${#broken[@]} -gt 0 ]] && issues+=("${#broken[@]} broken (removed): ${broken[*]}")
+  [[ ${#stale[@]} -gt 0 ]] && issues+=("${#stale[@]} stale (repaired): ${stale[*]}")
+  [[ ${#missing[@]} -gt 0 ]] && issues+=("${#missing[@]} missing (repaired): ${missing[*]}")
 
   if [[ ${#issues[@]} -eq 0 ]]; then
     add_check "agents_bin_symlinks" "ok" ".agents/bin/ symlinks complete"
+  elif [[ $repaired -gt 0 ]]; then
+    local detail
+    detail=$(printf '%s; ' "${issues[@]}")
+    add_check "agents_bin_symlinks" "advisory" "repaired $repaired .agents/bin/ symlink(s)" "${detail%;* }"
   else
     local detail
     detail=$(printf '%s; ' "${issues[@]}")
@@ -535,11 +653,10 @@ check_evidence_pools
 check_worktrees
 check_lifecycle_dirs
 check_tk_health
-check_swain_box
+check_operator_bin_symlinks
 check_commit_signing
 check_ssh_readiness
 check_crash_debris
-check_swain_symlink
 check_agents_bin_symlinks
 
 set -e

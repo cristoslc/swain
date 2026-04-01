@@ -146,7 +146,7 @@ If found, verify it runs:
 ```
 
 If tk is not found or broken, tell the user:
-> The vendored tk script was not found at `skills/swain-do/bin/tk`. This usually means the swain-do skill was not fully installed. Try running `/swain update` to reinstall skills.
+> The vendored tk script was not found. This usually means the swain-do skill was not fully installed. Try running `/swain update` to reinstall skills.
 
 ### Step 2.3 — Migrate from beads (if applicable)
 
@@ -174,32 +174,38 @@ If `.beads/` exists:
 
 If `.beads/` does not exist, skip this step. tk creates `.tickets/` on first `tk create`.
 
-### Step 2.4 — swain-box symlink (ADR-019)
+### Step 2.4 — Operator bin/ symlinks (SPEC-214, ADR-019)
 
-Find the swain-box script in the installed skill tree and create `bin/swain-box` as a relative symlink per ADR-019's operator-facing convention.
+Create `bin/` symlinks for all operator-facing scripts declared in `skills/*/usr/bin/` manifest directories. This is the same logic swain-doctor uses for auto-repair.
 
 ```bash
-SWAIN_BOX_SCRIPT=$(find . .claude .agents -path '*/swain/scripts/swain-box' -print -quit 2>/dev/null)
-if [ -n "$SWAIN_BOX_SCRIPT" ]; then
-  BIN_DIR="bin"
-  mkdir -p "$BIN_DIR"
-  SWAIN_BOX_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$SWAIN_BOX_SCRIPT" "$BIN_DIR" 2>/dev/null || echo "../$SWAIN_BOX_SCRIPT")
-  if [ -L "$BIN_DIR/swain-box" ] && [ "$(readlink "$BIN_DIR/swain-box")" = "$SWAIN_BOX_REL" ]; then
-    echo "already linked"
-  elif [ -e "$BIN_DIR/swain-box" ] && [ ! -L "$BIN_DIR/swain-box" ]; then
-    echo "conflict — bin/swain-box exists as a real file; skipping"
-  else
-    ln -sf "$SWAIN_BOX_REL" "$BIN_DIR/swain-box"
-    echo "created bin/swain-box -> $SWAIN_BOX_REL"
-  fi
-  # Migrate old root symlink if present
-  [ -L swain-box ] && rm -f swain-box && echo "migrated old ./swain-box to bin/"
-fi
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+BIN_DIR="$REPO_ROOT/bin"
+for manifest_dir in "$REPO_ROOT"/skills/*/usr/bin; do
+  [ -d "$manifest_dir" ] || continue
+  for entry in "$manifest_dir"/*; do
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    cmd_name="$(basename "$entry")"
+    script_path="$(cd "$manifest_dir" && readlink -f "$cmd_name" 2>/dev/null || true)"
+    [ -z "$script_path" ] || [ ! -f "$script_path" ] && continue
+    rel_path="$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$script_path" "$BIN_DIR" 2>/dev/null || echo "")"
+    [ -z "$rel_path" ] && continue
+    if [ -L "$BIN_DIR/$cmd_name" ]; then
+      echo "already linked: $cmd_name"
+    elif [ -e "$BIN_DIR/$cmd_name" ]; then
+      echo "conflict — bin/$cmd_name exists as a real file; skipping"
+    else
+      mkdir -p "$BIN_DIR"
+      ln -sf "$rel_path" "$BIN_DIR/$cmd_name"
+      echo "created bin/$cmd_name"
+    fi
+  done
+done
 ```
 
-Tell the user: `bin/swain-box created — run it from this project to launch Claude Code in a Docker Sandbox.`
+Tell the user which operator commands are now available in `bin/`.
 
-If the script is not found, skip silently — swain-box is not installed in this skill tree.
+If no `usr/bin/` manifest directories are found, skip silently.
 
 ## Phase 2.5: Branch model
 
@@ -390,7 +396,7 @@ If the user says **no**, note "tmux: skipped" and continue to Phase 4.5.
 
 ## Phase 4.5: Shell launcher
 
-Goal: offer to install a `swain` shell function so the user can launch swain with a single command. Templates are stored per-runtime, per-shell in `skills/swain-init/templates/launchers/{runtime}/swain.{shell}` — inspect them to see exactly what gets added. Supported runtimes are defined in ADR-017.
+Goal: offer to install a `swain` shell function so the user can launch swain with a single command. Templates are stored per-runtime, per-shell in `templates/launchers/{runtime}/swain.{shell}` (relative to this skill's directory) — inspect them to see exactly what gets added. Supported runtimes are defined in ADR-017.
 
 ### Step 4.5.1 — Detect shell runtime
 
@@ -503,7 +509,7 @@ If no, skip to Phase 6.
 
 ### Step 5.3 — Inject governance
 
-Read the canonical governance content from `skills/swain-doctor/references/AGENTS.content.md`. Locate it by searching for the file relative to the installed skills directory:
+Read the canonical governance content from the sibling `swain-doctor/references/AGENTS.content.md`. Locate it by searching for the file relative to the installed skills directory:
 
 ```bash
 find .claude/skills .agents/skills skills -path '*/swain-doctor/references/AGENTS.content.md' -print -quit 2>/dev/null
@@ -594,10 +600,11 @@ for skill_scripts_dir in "$REPO_ROOT"/skills/*/scripts; do
 done
 ```
 
-Add `.agents/bin/` to `.gitignore` if not already present (consumer projects should not track these symlinks):
+Add `.agents/bin/` and `.agents/session.json` to `.gitignore` if not already present (consumer projects should not track these):
 
 ```bash
 grep -qx '.agents/bin/' .gitignore 2>/dev/null || echo '.agents/bin/' >> .gitignore
+grep -qx '.agents/session.json' .gitignore 2>/dev/null || echo '.agents/session.json' >> .gitignore
 ```
 
 ### Step 6.2 — Run swain-doctor
