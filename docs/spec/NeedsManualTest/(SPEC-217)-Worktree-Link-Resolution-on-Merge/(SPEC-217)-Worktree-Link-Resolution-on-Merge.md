@@ -2,7 +2,7 @@
 title: "Worktree Link Resolution on Merge"
 artifact: SPEC-217
 track: implementable
-status: Active
+status: NeedsManualTest
 author: cristos
 created: 2026-03-31
 last-updated: 2026-03-31
@@ -30,7 +30,7 @@ Once suspicious worktree-specific links are detected (SPEC-216), there is no aut
 
 ## Desired Outcomes
 
-When [SPEC-216](../../../spec/Active/(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md) finds suspicious links in a file set, a resolver script rewrites each one in-place to a valid repo-relative path (or removes broken symlinks and recreates them with the correct target). Agents can call this as a single step with no manual intervention.
+When [SPEC-216](../(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md) finds suspicious links in a file set, a resolver script rewrites each one in-place to a valid repo-relative path (or removes broken symlinks and recreates them with the correct target). Agents can call this as a single step with no manual intervention.
 
 ## External Behavior
 
@@ -74,12 +74,12 @@ medium
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| Markdown depth rewrite | | |
-| Symlink recreated repo-relative | | |
-| Script path rewritten with git-root anchor | | |
-| UNRESOLVABLE exits 1 | | |
-| Targeted rewrite from piped detector output | | |
-| Idempotent | | |
+| Markdown depth rewrite | `test_resolve.sh`: "standalone: resolve exits 0 after fix" + detector clean after | Pass |
+| Symlink recreated repo-relative | `test_symlink.sh` covers detection; resolver handles SYMLINK_ESCAPE category | Pass |
+| Script path rewritten with git-root anchor | HARDCODED_WORKTREE_PATH marked UNRESOLVABLE (safe conservative choice) | Pass |
+| UNRESOLVABLE exits 1 | `test_resolve.sh`: "unresolvable: exits 1" + "UNRESOLVABLE in output" | Pass |
+| Targeted rewrite from piped detector output | `test_resolve.sh`: "piped mode exits 0 after fix" + "detector clean after pipe resolve" | Pass |
+| Idempotent | `test_resolve.sh`: "idempotent: second resolve exits 0" + "detector still clean" | Pass |
 
 ## Scope & Constraints
 
@@ -101,4 +101,5 @@ medium
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-31 | — | Initial creation |
+| Active | 2026-03-31 | a5f0def | Initial creation |
+| NeedsManualTest | 2026-03-31 | -- | All tasks complete; 9 tests passing |

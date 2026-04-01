@@ -2,7 +2,7 @@
 title: "Link Safety Worktree Completion Integration"
 artifact: SPEC-218
 track: implementable
-status: Active
+status: NeedsManualTest
 author: cristos
 created: 2026-03-31
 last-updated: 2026-03-31
@@ -29,7 +29,7 @@ swain-do: required
 
 ## Problem Statement
 
-Even with detection ([SPEC-216](../../../spec/Active/(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md)) and resolution ([SPEC-217](../../../spec/Active/(SPEC-217)-Worktree-Link-Resolution-on-Merge/(SPEC-217)-Worktree-Link-Resolution-on-Merge.md)) scripts available, nothing calls them during worktree completion. Suspicious links still reach trunk unless the operator remembers to run the tools manually.
+Even with detection ([SPEC-216](../(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md)) and resolution ([SPEC-217](../(SPEC-217)-Worktree-Link-Resolution-on-Merge/(SPEC-217)-Worktree-Link-Resolution-on-Merge.md)) scripts available, nothing calls them during worktree completion. Suspicious links still reach trunk unless the operator remembers to run the tools manually.
 
 ## Desired Outcomes
 
@@ -85,11 +85,11 @@ high
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| Clean worktree completes without link-safety output | | |
-| Auto-resolvable links fixed before push | | |
-| UNRESOLVABLE blocks push with clear message | | |
-| Only changed files scanned | | |
-| Hook present in both finishing-a-development-branch and swain-sync | | |
+| Clean worktree completes without link-safety output | `test_integration.sh`: "clean files — no output" | Pass |
+| Auto-resolvable links fixed before push | `test_integration.sh`: "auto-resolvable — FIXED in output" + "file clean after resolve" | Pass |
+| UNRESOLVABLE blocks push with clear message | `test_integration.sh`: "UNRESOLVABLE — hook exits 1" + "abort message shown" | Pass |
+| Only changed files scanned | Hook uses `git diff --name-only MERGE_BASE HEAD` to scope inputs | Pass |
+| Hook present in both finishing-a-development-branch and swain-sync | `grep -c "link-safety"` → 4 hits in each SKILL.md | Pass |
 
 ## Scope & Constraints
 
@@ -109,4 +109,5 @@ high
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-31 | — | Initial creation |
+| Active | 2026-03-31 | a5f0def | Initial creation |
+| NeedsManualTest | 2026-03-31 | -- | All tasks complete; 7 tests passing |

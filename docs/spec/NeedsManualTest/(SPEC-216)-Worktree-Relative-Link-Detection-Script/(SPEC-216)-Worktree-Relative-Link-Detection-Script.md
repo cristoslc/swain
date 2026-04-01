@@ -2,7 +2,7 @@
 title: "Worktree-Relative Link Detection Script"
 artifact: SPEC-216
 track: implementable
-status: Active
+status: NeedsManualTest
 author: cristos
 created: 2026-03-31
 last-updated: 2026-03-31
@@ -78,11 +78,11 @@ medium
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| Detects ESCAPES_REPO | | |
-| Detects ABSOLUTE_ESCAPE on symlinks | | |
-| Detects HARDCODED_WORKTREE_PATH in scripts | | |
-| Clean file set exits 0 | | |
-| No-args prints usage, exits 2 | | |
+| Detects ESCAPES_REPO | `test_markdown.sh`: "escaping link exits 1" + "has ESCAPES_REPO reason" | Pass |
+| Detects ABSOLUTE_ESCAPE on symlinks | `test_symlink.sh`: "escaping symlink exits 1" + "has SYMLINK_ESCAPE" | Pass |
+| Detects HARDCODED_WORKTREE_PATH in scripts | `test_script.sh`: "/tmp/worktree- exits 1" + ".claude/worktrees/ exits 1" | Pass |
+| Clean file set exits 0 | `test_args.sh`, `test_markdown.sh`, `test_script.sh`: multiple clean-exits-0 cases | Pass |
+| No-args prints usage, exits 2 | `test_args.sh`: "no args exits 2" + "no args prints usage" | Pass |
 
 ## Scope & Constraints
 
@@ -104,4 +104,5 @@ medium
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-31 | — | Initial creation |
+| Active | 2026-03-31 | a5f0def | Initial creation |
+| NeedsManualTest | 2026-03-31 | -- | All tasks complete; 22 tests passing |

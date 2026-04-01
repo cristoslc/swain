@@ -44,9 +44,9 @@ Operators and agents can trust that a merged worktree branch leaves no broken pa
 
 ## Child Specs
 
-- [SPEC-216](../../../spec/Active/(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md) — Worktree-Relative Link Detection Script
-- [SPEC-217](../../../spec/Active/(SPEC-217)-Worktree-Link-Resolution-on-Merge/(SPEC-217)-Worktree-Link-Resolution-on-Merge.md) — Worktree Link Resolution on Merge
-- [SPEC-218](../../../spec/Active/(SPEC-218)-Link-Safety-Worktree-Completion-Integration/(SPEC-218)-Link-Safety-Worktree-Completion-Integration.md) — Link Safety Worktree Completion Integration
+- [SPEC-216](../../../spec/NeedsManualTest/(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md) — Worktree-Relative Link Detection Script
+- [SPEC-217](../../../spec/NeedsManualTest/(SPEC-217)-Worktree-Link-Resolution-on-Merge/(SPEC-217)-Worktree-Link-Resolution-on-Merge.md) — Worktree Link Resolution on Merge
+- [SPEC-218](../../../spec/NeedsManualTest/(SPEC-218)-Link-Safety-Worktree-Completion-Integration/(SPEC-218)-Link-Safety-Worktree-Completion-Integration.md) — Link Safety Worktree Completion Integration
 
 ## Key Dependencies
 

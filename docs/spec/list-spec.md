@@ -106,9 +106,6 @@
 | SPEC-202 | Context-Rich Display Integration | 2026-03-31 | _pending_ |
 | SPEC-203 | Fast-Path Session Greeting | 2026-03-30 | -- |
 | SPEC-205 | Wire Progress Log Into Session Close | 2026-03-31 | _pending_ |
-| SPEC-216 | Worktree-Relative Link Detection Script | 2026-03-31 | — |
-| SPEC-217 | Worktree Link Resolution on Merge | 2026-03-31 | — |
-| SPEC-218 | Link Safety Worktree Completion Integration | 2026-03-31 | — |
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete
