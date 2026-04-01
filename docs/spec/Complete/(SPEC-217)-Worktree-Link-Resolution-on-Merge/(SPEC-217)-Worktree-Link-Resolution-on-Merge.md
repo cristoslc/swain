@@ -2,7 +2,7 @@
 title: "Worktree Link Resolution on Merge"
 artifact: SPEC-217
 track: implementable
-status: NeedsManualTest
+status: Complete
 author: cristos
 created: 2026-03-31
 last-updated: 2026-03-31
@@ -103,3 +103,4 @@ medium
 |-------|------|--------|-------|
 | Active | 2026-03-31 | a5f0def | Initial creation |
 | NeedsManualTest | 2026-03-31 | -- | All tasks complete; 9 tests passing |
+| Complete | 2026-03-31 | — | All tests passing; SPEC-217 work done; All tasks complete; 9 tests passing |

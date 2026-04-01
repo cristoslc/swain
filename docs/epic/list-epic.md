@@ -37,7 +37,6 @@
 | EPIC-045 | Shell Launcher Onboarding | 2026-03-27 | a3a761a |
 | EPIC-048 | Session Startup Fast Path | 2026-03-30 | -- |
 | EPIC-049 | Context-Rich Progress Tracking | 2026-03-31 | _pending_ |
-| EPIC-051 | Worktree Path Link Safety on Merge | 2026-03-31 | — |
 
 ## Complete
 
@@ -64,6 +63,7 @@
 | EPIC-046 | Pre-Runtime Crash Recovery | 2026-03-30 | 995983b |
 | EPIC-047 | ADR-019 Script Convention Implementation | 2026-03-29 | — |
 | EPIC-050 | README as Ambient Intent | 2026-03-31 | — |
+| EPIC-051 | Worktree Path Link Safety on Merge | 2026-03-31 | — |
 
 ## Superseded
 

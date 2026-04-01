@@ -2,7 +2,7 @@
 title: "Worktree Path Link Safety on Merge"
 artifact: EPIC-051
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-03-31
 last-updated: 2026-03-31
@@ -44,9 +44,9 @@ Operators and agents can trust that a merged worktree branch leaves no broken pa
 
 ## Child Specs
 
-- [SPEC-216](../../../spec/NeedsManualTest/(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md) — Worktree-Relative Link Detection Script
-- [SPEC-217](../../../spec/NeedsManualTest/(SPEC-217)-Worktree-Link-Resolution-on-Merge/(SPEC-217)-Worktree-Link-Resolution-on-Merge.md) — Worktree Link Resolution on Merge
-- [SPEC-218](../../../spec/NeedsManualTest/(SPEC-218)-Link-Safety-Worktree-Completion-Integration/(SPEC-218)-Link-Safety-Worktree-Completion-Integration.md) — Link Safety Worktree Completion Integration
+- [SPEC-216](../../../spec/Complete/(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md) — Worktree-Relative Link Detection Script
+- [SPEC-217](../../../spec/Complete/(SPEC-217)-Worktree-Link-Resolution-on-Merge/(SPEC-217)-Worktree-Link-Resolution-on-Merge.md) — Worktree Link Resolution on Merge
+- [SPEC-218](../../../spec/Complete/(SPEC-218)-Link-Safety-Worktree-Completion-Integration/(SPEC-218)-Link-Safety-Worktree-Completion-Integration.md) — Link Safety Worktree Completion Integration
 
 ## Key Dependencies
 
@@ -58,3 +58,4 @@ Operators and agents can trust that a merged worktree branch leaves no broken pa
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-31 | — | Initial creation |
+| Complete | 2026-03-31 | — | All tests passing; EPIC-051 work done; All 3 child SPECs complete; 38 tests passing; integrated into swain-sync and finishing-a-development-branch |

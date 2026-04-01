@@ -2,7 +2,7 @@
 title: "Link Safety Worktree Completion Integration"
 artifact: SPEC-218
 track: implementable
-status: NeedsManualTest
+status: Complete
 author: cristos
 created: 2026-03-31
 last-updated: 2026-03-31
@@ -111,3 +111,4 @@ high
 |-------|------|--------|-------|
 | Active | 2026-03-31 | a5f0def | Initial creation |
 | NeedsManualTest | 2026-03-31 | -- | All tasks complete; 7 tests passing |
+| Complete | 2026-03-31 | — | All tests passing; SPEC-218 work done; All tasks complete; 7 tests passing |

@@ -219,6 +219,9 @@
 | SPEC-210 | Retro README Drift Check | 2026-03-31 | 61379ba |
 | SPEC-211 | Release README Gate | 2026-03-31 | 61379ba |
 | SPEC-212 | Design Transition README Nudge | 2026-03-31 | 61379ba |
+| SPEC-216 | Worktree-Relative Link Detection Script | 2026-03-31 | — |
+| SPEC-217 | Worktree Link Resolution on Merge | 2026-03-31 | — |
+| SPEC-218 | Link Safety Worktree Completion Integration | 2026-03-31 | — |
 
 ## Superseded
 
