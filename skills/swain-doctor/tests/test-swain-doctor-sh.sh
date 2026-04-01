@@ -351,6 +351,77 @@ else
   assert "commit_signing sets gpgsign=true" "1"
 fi
 
+# --- Test 15: artifact_indexes check is present ---
+echo "Test 15: artifact_indexes check"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+  check_names=$(echo "$output" | jq -r '.checks[].name' 2>/dev/null || true)
+  assert "artifact_indexes check present" "$(echo "$check_names" | grep -q "artifact_indexes" && echo 0 || echo 1)"
+else
+  assert "artifact_indexes check present" "1"
+fi
+
+# --- Test 16: artifact_indexes repairs stale index and is idempotent ---
+echo "Test 16: artifact_indexes repairs stale index"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  index_file="$REPO_ROOT/docs/spec/list-spec.md"
+  if [[ -f "$index_file" ]]; then
+    backup=$(mktemp)
+    cp -f "$index_file" "$backup"
+    printf '\n<!-- SPEC-227-TEST-SENTINEL -->\n' >> "$index_file"
+
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    idx_status=$(echo "$output" | jq -r '.checks[] | select(.name == "artifact_indexes") | .status' 2>/dev/null || echo "missing")
+    assert "artifact_indexes reports advisory after repairing stale index" "$([ "$idx_status" = "advisory" ] && echo 0 || echo 1)"
+    assert "artifact_indexes removes stale sentinel from list-spec.md" "$(! grep -q 'SPEC-227-TEST-SENTINEL' "$index_file" && echo 0 || echo 1)"
+
+    output2=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    idx_status2=$(echo "$output2" | jq -r '.checks[] | select(.name == "artifact_indexes") | .status' 2>/dev/null || echo "missing")
+    assert "artifact_indexes is idempotent after stale repair" "$([ "$idx_status2" = "ok" ] && echo 0 || echo 1)"
+
+    cp -f "$backup" "$index_file"
+    rm -f "$backup"
+  else
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+  fi
+else
+  assert "artifact_indexes reports advisory after repairing stale index" "1"
+  assert "artifact_indexes removes stale sentinel from list-spec.md" "1"
+  assert "artifact_indexes is idempotent after stale repair" "1"
+fi
+
+# --- Test 17: artifact_indexes recreates missing index ---
+echo "Test 17: artifact_indexes recreates missing index"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  index_file="$REPO_ROOT/docs/spec/list-spec.md"
+  if [[ -f "$index_file" ]]; then
+    backup=$(mktemp)
+    cp -f "$index_file" "$backup"
+    rm -f "$index_file"
+
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    idx_status=$(echo "$output" | jq -r '.checks[] | select(.name == "artifact_indexes") | .status' 2>/dev/null || echo "missing")
+    assert "artifact_indexes reports advisory after recreating missing index" "$([ "$idx_status" = "advisory" ] && echo 0 || echo 1)"
+    assert "artifact_indexes recreates docs/spec/list-spec.md" "$([ -f "$index_file" ] && echo 0 || echo 1)"
+
+    cp -f "$backup" "$index_file"
+    rm -f "$backup"
+  else
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+  fi
+else
+  assert "artifact_indexes reports advisory after recreating missing index" "1"
+  assert "artifact_indexes recreates docs/spec/list-spec.md" "1"
+fi
+
 # --- Summary ---
 echo ""
 echo "Results: $PASS/$TOTAL passed, $FAIL failed"

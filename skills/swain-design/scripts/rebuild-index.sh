@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # rebuild-index.sh — Regenerate list-<type>.md from artifact frontmatter
 # Usage: rebuild-index.sh <type> [<type> ...]
-#   type: spec | epic | spike | adr | persona | runbook | design | vision | journey
+#   type: spec | epic | initiative | spike | adr | persona | runbook | design | vision | journey | train
 # Reads all artifacts in docs/<type>/ across all phase subdirectories.
 # Writes list-<type>.md atomically (temp file → rename).
 
@@ -32,6 +32,7 @@ rebuild_index() {
     case "$type" in
         spec)     title="Agent Specs" ;;
         epic)     title="Epics" ;;
+        initiative) title="Initiatives" ;;
         spike)    title="Research Spikes" ;;
         adr)      title="Architecture Decision Records" ;;
         persona)  title="Personas" ;;

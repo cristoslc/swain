@@ -538,6 +538,78 @@ check_readme() {
 }
 
 # ============================================================
+# Check 12: Artifact index staleness (SPEC-227)
+# Regenerates supported list-*.md files and reports deterministic repairs.
+# ============================================================
+check_artifact_indexes() {
+  local rebuild_script="$REPO_ROOT/.agents/bin/rebuild-index.sh"
+  if [[ ! -x "$rebuild_script" ]]; then
+    rebuild_script="$REPO_ROOT/skills/swain-design/scripts/rebuild-index.sh"
+  fi
+
+  if [[ ! -x "$rebuild_script" ]]; then
+    add_check "artifact_indexes" "warning" "rebuild-index.sh not found or not executable"
+    return
+  fi
+
+  local repaired=()
+  local failures=()
+  local type dir_name docs_dir index_file before_exists before_hash after_hash
+
+  for type in spec epic initiative spike adr persona runbook design vision journey train; do
+    dir_name="$type"
+    case "$type" in
+      spike) dir_name="research" ;;
+    esac
+
+    docs_dir="$REPO_ROOT/docs/$dir_name"
+    index_file="$docs_dir/list-${type}.md"
+    [[ -d "$docs_dir" ]] || continue
+
+    before_exists=false
+    before_hash=""
+    if [[ -f "$index_file" ]]; then
+      before_exists=true
+      before_hash=$(shasum -a 256 "$index_file" | awk '{print $1}')
+    fi
+
+    if ! bash "$rebuild_script" "$type" >/dev/null 2>&1; then
+      failures+=("$type")
+      continue
+    fi
+
+    if [[ ! -f "$index_file" ]]; then
+      failures+=("$type")
+      continue
+    fi
+
+    after_hash=$(shasum -a 256 "$index_file" | awk '{print $1}')
+    if [[ "$before_exists" == "false" ]]; then
+      repaired+=("${type} (created)")
+    elif [[ "$before_hash" != "$after_hash" ]]; then
+      repaired+=("${type} (updated)")
+    fi
+  done
+
+  if [[ ${#failures[@]} -gt 0 ]]; then
+    local detail
+    detail=$(printf '%s, ' "${failures[@]}")
+    if [[ ${#repaired[@]} -gt 0 ]]; then
+      add_check "artifact_indexes" "warning" "artifact indexes partially repaired" "repaired: ${repaired[*]}; failed: ${detail%, }"
+    else
+      add_check "artifact_indexes" "warning" "artifact index rebuild failed" "${detail%, }"
+    fi
+    return
+  fi
+
+  if [[ ${#repaired[@]} -gt 0 ]]; then
+    add_check "artifact_indexes" "advisory" "repaired ${#repaired[@]} artifact index file(s)" "${repaired[*]}"
+  else
+    add_check "artifact_indexes" "ok" "artifact indexes current"
+  fi
+}
+
+# ============================================================
 # Check 18: Crash debris detection (SPEC-182, SPEC-222: auto-repair git lock only)
 # ============================================================
 check_crash_debris() {
@@ -727,6 +799,7 @@ check_memory_directory
 check_superpowers
 check_epics_initiative
 check_readme
+check_artifact_indexes
 check_evidence_pools
 check_worktrees
 check_lifecycle_dirs
