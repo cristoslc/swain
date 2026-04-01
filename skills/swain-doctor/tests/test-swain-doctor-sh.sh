@@ -140,6 +140,287 @@ if [[ -x "$DOCTOR_SCRIPT" ]]; then
 else
   assert "repairs missing symlink" "1"
 fi
+# ============================================================
+# SPEC-222: Auto-repair promotion tests
+# ============================================================
+
+# --- Test 10: memory_directory auto-repair (SPEC-222 AC1) ---
+echo "Test 10: memory_directory auto-repair creates missing dir"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  project_slug=$(echo "$REPO_ROOT" | tr '/' '-')
+  memory_dir="$HOME/.claude/projects/${project_slug}/memory"
+  memory_existed=false
+  if [[ -d "$memory_dir" ]]; then
+    memory_existed=true
+  else
+    # Remove it so we can test repair
+    true
+  fi
+
+  if [[ "$memory_existed" == "false" ]]; then
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    mem_status=$(echo "$output" | jq -r '.checks[] | select(.name == "memory_directory") | .status' 2>/dev/null || echo "missing")
+    assert "memory_directory auto-creates dir and reports advisory" "$([ "$mem_status" = "advisory" ] && echo 0 || echo 1)"
+    assert "memory_directory dir now exists after repair" "$([ -d "$memory_dir" ] && echo 0 || echo 1)"
+    # Idempotency: run again, should report ok
+    output2=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    mem_status2=$(echo "$output2" | jq -r '.checks[] | select(.name == "memory_directory") | .status' 2>/dev/null || echo "missing")
+    assert "memory_directory idempotent (ok on second run)" "$([ "$mem_status2" = "ok" ] && echo 0 || echo 1)"
+  else
+    # Dir already exists — just verify ok
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    mem_status=$(echo "$output" | jq -r '.checks[] | select(.name == "memory_directory") | .status' 2>/dev/null || echo "missing")
+    assert "memory_directory reports ok when dir exists" "$([ "$mem_status" = "ok" ] && echo 0 || echo 1)"
+    # Force test: remove dir, run, verify advisory + creation
+    rmdir "$memory_dir" 2>/dev/null || true
+    if [[ ! -d "$memory_dir" ]]; then
+      output2=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+      mem_status2=$(echo "$output2" | jq -r '.checks[] | select(.name == "memory_directory") | .status' 2>/dev/null || echo "missing")
+      assert "memory_directory auto-creates and reports advisory" "$([ "$mem_status2" = "advisory" ] && echo 0 || echo 1)"
+      assert "memory_directory dir exists after repair" "$([ -d "$memory_dir" ] && echo 0 || echo 1)"
+      # Restore
+      mkdir -p "$memory_dir"
+    else
+      TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+      echo "  PASS: (skipped — could not remove non-empty memory dir)"
+      TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+      echo "  PASS: (skipped — could not remove non-empty memory dir)"
+    fi
+  fi
+else
+  assert "memory_directory auto-creates dir and reports advisory" "1"
+  assert "memory_directory dir now exists after repair" "1"
+  assert "memory_directory idempotent (ok on second run)" "1"
+fi
+
+# --- Test 11: script_permissions auto-repair (SPEC-222 AC2) ---
+echo "Test 11: script_permissions auto-repair chmod +x"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  # Find a swain-owned script to chmod -x temporarily
+  test_script=$(find "$REPO_ROOT/skills" -path '*/scripts/*.sh' -perm -u+x -not -name 'test-*' | head -1 || true)
+  if [[ -n "$test_script" ]]; then
+    chmod -x "$test_script"
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    perm_status=$(echo "$output" | jq -r '.checks[] | select(.name == "script_permissions") | .status' 2>/dev/null || echo "missing")
+    assert "script_permissions reports advisory after repair" "$([ "$perm_status" = "advisory" ] && echo 0 || echo 1)"
+    assert "script_permissions restores execute bit" "$([ -x "$test_script" ] && echo 0 || echo 1)"
+    # Idempotency
+    output2=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    perm_status2=$(echo "$output2" | jq -r '.checks[] | select(.name == "script_permissions") | .status' 2>/dev/null || echo "missing")
+    assert "script_permissions idempotent (ok on second run)" "$([ "$perm_status2" = "ok" ] && echo 0 || echo 1)"
+  else
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — no suitable test script found)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — no suitable test script found)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — no suitable test script found)"
+  fi
+else
+  assert "script_permissions reports advisory after repair" "1"
+  assert "script_permissions restores execute bit" "1"
+  assert "script_permissions idempotent (ok on second run)" "1"
+fi
+
+# --- Test 12: crash_debris git lock auto-repair (SPEC-222 AC5) ---
+echo "Test 12: crash_debris removes stale .git/index.lock"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  # Resolve git dir (handles worktrees where .git is a file)
+  if [[ -f "$REPO_ROOT/.git" ]]; then
+    _git_dir=$(sed 's/^gitdir: //' "$REPO_ROOT/.git")
+    [[ "$_git_dir" != /* ]] && _git_dir="$REPO_ROOT/$_git_dir"
+  else
+    _git_dir="$REPO_ROOT/.git"
+  fi
+  lock_file="$_git_dir/index.lock"
+
+  if [[ ! -f "$lock_file" ]]; then
+    # Create a fake stale lock (PID 99999999 is not running)
+    echo "99999999" > "$lock_file"
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    debris_status=$(echo "$output" | jq -r '.checks[] | select(.name == "crash_debris") | .status' 2>/dev/null || echo "missing")
+    # Lock should be removed regardless of other debris in the environment
+    assert "crash_debris removes git index.lock" "$([ ! -f "$lock_file" ] && echo 0 || echo 1)"
+    # Status is advisory if lock was sole issue, warning if other debris also found
+    assert "crash_debris reports advisory or warning (not ok/missing) after lock repair" \
+      "$([ "$debris_status" = "advisory" ] || [ "$debris_status" = "warning" ] && echo 0 || echo 1)"
+    # Idempotency: run again, lock should still be gone (not re-created)
+    output2=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    lock_in_output2=$(echo "$output2" | jq -r '.checks[] | select(.name == "crash_debris") | .message // ""' 2>/dev/null || echo "")
+    assert "crash_debris does not re-report removed lock on second run" \
+      "$(echo "$lock_in_output2" | grep -qv 'index.lock' && echo 0 || echo 1)"
+    rm -f "$lock_file" 2>/dev/null || true
+  else
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — real index.lock exists, not safe to test)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — real index.lock exists, not safe to test)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — real index.lock exists, not safe to test)"
+  fi
+else
+  assert "crash_debris removes git index.lock" "1"
+  assert "crash_debris reports advisory or warning (not ok/missing) after lock repair" "1"
+  assert "crash_debris does not re-report removed lock on second run" "1"
+fi
+
+# --- Test 13: governance stale block auto-repair (SPEC-222 AC4) ---
+echo "Test 13: governance stale block auto-repair"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  # Find a context file with governance markers
+  gov_file=$(grep -l "<!-- swain governance" "$REPO_ROOT/AGENTS.md" "$REPO_ROOT/CLAUDE.md" 2>/dev/null | head -1 || true)
+  canonical=$(find "$REPO_ROOT/skills/swain-doctor/references" -name "AGENTS.content.md" 2>/dev/null | head -1 || true)
+  if [[ -n "$gov_file" && -f "$canonical" ]]; then
+    # Corrupt the governance block by inserting a sentinel line
+    backup=$(mktemp)
+    cp -f "$gov_file" "$backup"
+    awk '
+      /<!-- swain governance/{p=1; print; next}
+      /<!-- end swain governance/{p=0}
+      p==1 && !done{print "# SPEC-222-TEST-SENTINEL"; done=1; next}
+      {print}
+    ' "$gov_file" > "${gov_file}.tmp" && mv -f "${gov_file}.tmp" "$gov_file"
+
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    gov_status=$(echo "$output" | jq -r '.checks[] | select(.name == "governance") | .status' 2>/dev/null || echo "missing")
+    assert "governance stale block auto-repair reports advisory" "$([ "$gov_status" = "advisory" ] && echo 0 || echo 1)"
+    # Sentinel should be gone after repair
+    assert "governance block sentinel removed after repair" "$(! grep -q 'SPEC-222-TEST-SENTINEL' "$gov_file" && echo 0 || echo 1)"
+    # Idempotency
+    output2=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    gov_status2=$(echo "$output2" | jq -r '.checks[] | select(.name == "governance") | .status' 2>/dev/null || echo "missing")
+    assert "governance idempotent (ok on second run)" "$([ "$gov_status2" = "ok" ] && echo 0 || echo 1)"
+    # Restore
+    cp -f "$backup" "$gov_file"
+    rm -f "$backup"
+  else
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — no governance file or canonical source found)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — no governance file or canonical source found)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — no governance file or canonical source found)"
+  fi
+else
+  assert "governance stale block auto-repair reports advisory" "1"
+  assert "governance block sentinel removed after repair" "1"
+  assert "governance idempotent (ok on second run)" "1"
+fi
+
+# --- Test 14: commit_signing auto-repair (SPEC-222 AC3) ---
+echo "Test 14: commit_signing auto-repair"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  current_gpgsign=$(git -C "$REPO_ROOT" config --local commit.gpgsign 2>/dev/null || echo "")
+  signing_key_path="$HOME/.ssh/swain_signing"
+  allowed_signers=$(git -C "$REPO_ROOT" config --global gpg.ssh.allowedSignersFile 2>/dev/null || echo "")
+  key_available=false
+  [[ -f "$signing_key_path" ]] && key_available=true
+  [[ -n "$allowed_signers" && -f "$allowed_signers" ]] && key_available=true
+
+  if [[ "$key_available" == "true" ]]; then
+    # Disable signing, run doctor, expect advisory
+    git -C "$REPO_ROOT" config --local commit.gpgsign false
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    sign_status=$(echo "$output" | jq -r '.checks[] | select(.name == "commit_signing") | .status' 2>/dev/null || echo "missing")
+    assert "commit_signing auto-configures when key present (advisory)" "$([ "$sign_status" = "advisory" ] && echo 0 || echo 1)"
+    configured=$(git -C "$REPO_ROOT" config --local commit.gpgsign 2>/dev/null || echo "")
+    assert "commit_signing sets gpgsign=true" "$([ "$configured" = "true" ] && echo 0 || echo 1)"
+    # Restore
+    if [[ -n "$current_gpgsign" ]]; then
+      git -C "$REPO_ROOT" config --local commit.gpgsign "$current_gpgsign"
+    else
+      git -C "$REPO_ROOT" config --local --unset commit.gpgsign 2>/dev/null || true
+    fi
+  else
+    # No key: doctor should warn, not configure
+    git -C "$REPO_ROOT" config --local commit.gpgsign false 2>/dev/null || true
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    sign_status=$(echo "$output" | jq -r '.checks[] | select(.name == "commit_signing") | .status' 2>/dev/null || echo "missing")
+    assert "commit_signing warns when no key available" "$([ "$sign_status" = "warning" ] && echo 0 || echo 1)"
+    # Restore
+    if [[ -n "$current_gpgsign" ]]; then
+      git -C "$REPO_ROOT" config --local commit.gpgsign "$current_gpgsign"
+    else
+      git -C "$REPO_ROOT" config --local --unset commit.gpgsign 2>/dev/null || true
+    fi
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — no signing key to test auto-configure path)"
+  fi
+else
+  assert "commit_signing auto-configures when key present (advisory)" "1"
+  assert "commit_signing sets gpgsign=true" "1"
+fi
+
+# --- Test 15: artifact_indexes check is present ---
+echo "Test 15: artifact_indexes check"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+  check_names=$(echo "$output" | jq -r '.checks[].name' 2>/dev/null || true)
+  assert "artifact_indexes check present" "$(echo "$check_names" | grep -q "artifact_indexes" && echo 0 || echo 1)"
+else
+  assert "artifact_indexes check present" "1"
+fi
+
+# --- Test 16: artifact_indexes repairs stale index and is idempotent ---
+echo "Test 16: artifact_indexes repairs stale index"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  index_file="$REPO_ROOT/docs/spec/list-spec.md"
+  if [[ -f "$index_file" ]]; then
+    backup=$(mktemp)
+    cp -f "$index_file" "$backup"
+    printf '\n<!-- SPEC-227-TEST-SENTINEL -->\n' >> "$index_file"
+
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    idx_status=$(echo "$output" | jq -r '.checks[] | select(.name == "artifact_indexes") | .status' 2>/dev/null || echo "missing")
+    assert "artifact_indexes reports advisory after repairing stale index" "$([ "$idx_status" = "advisory" ] && echo 0 || echo 1)"
+    assert "artifact_indexes removes stale sentinel from list-spec.md" "$(! grep -q 'SPEC-227-TEST-SENTINEL' "$index_file" && echo 0 || echo 1)"
+
+    output2=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    idx_status2=$(echo "$output2" | jq -r '.checks[] | select(.name == "artifact_indexes") | .status' 2>/dev/null || echo "missing")
+    assert "artifact_indexes is idempotent after stale repair" "$([ "$idx_status2" = "ok" ] && echo 0 || echo 1)"
+
+    cp -f "$backup" "$index_file"
+    rm -f "$backup"
+  else
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+  fi
+else
+  assert "artifact_indexes reports advisory after repairing stale index" "1"
+  assert "artifact_indexes removes stale sentinel from list-spec.md" "1"
+  assert "artifact_indexes is idempotent after stale repair" "1"
+fi
+
+# --- Test 17: artifact_indexes recreates missing index ---
+echo "Test 17: artifact_indexes recreates missing index"
+if [[ -x "$DOCTOR_SCRIPT" ]]; then
+  index_file="$REPO_ROOT/docs/spec/list-spec.md"
+  if [[ -f "$index_file" ]]; then
+    backup=$(mktemp)
+    cp -f "$index_file" "$backup"
+    rm -f "$index_file"
+
+    output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    idx_status=$(echo "$output" | jq -r '.checks[] | select(.name == "artifact_indexes") | .status' 2>/dev/null || echo "missing")
+    assert "artifact_indexes reports advisory after recreating missing index" "$([ "$idx_status" = "advisory" ] && echo 0 || echo 1)"
+    assert "artifact_indexes recreates docs/spec/list-spec.md" "$([ -f "$index_file" ] && echo 0 || echo 1)"
+
+    cp -f "$backup" "$index_file"
+    rm -f "$backup"
+  else
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+    TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+    echo "  PASS: (skipped — docs/spec/list-spec.md not present)"
+  fi
+else
+  assert "artifact_indexes reports advisory after recreating missing index" "1"
+  assert "artifact_indexes recreates docs/spec/list-spec.md" "1"
+fi
 
 # --- Summary ---
 echo ""

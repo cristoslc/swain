@@ -34,6 +34,7 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 
 
 def main():
@@ -54,7 +55,7 @@ def main():
 
     template_path = args.template
     if template_path is None:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
+        script_dir = str(Path(__file__).resolve().parent)
         template_dir = os.path.join(os.path.dirname(script_dir), "templates")
         template_name = "changelog.md.j2"
     else:

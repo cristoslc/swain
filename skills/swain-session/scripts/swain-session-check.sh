@@ -40,7 +40,7 @@ with open('$STATE_FILE') as f:
 phase = state.get('phase', 'unknown')
 focus = state.get('focus_lane')
 sid = state.get('session_id')
-start = state.get('start_time', '')
+activity = state.get('last_activity_time') or state.get('start_time', '')
 
 result = {'focus_lane': focus, 'session_id': sid}
 
@@ -51,8 +51,8 @@ if phase == 'closed':
 elif phase == 'active':
     # Check staleness
     try:
-        start_dt = datetime.fromisoformat(start.replace('Z', '+00:00'))
-        age = (datetime.now(timezone.utc) - start_dt).total_seconds()
+        activity_dt = datetime.fromisoformat(activity.replace('Z', '+00:00'))
+        age = (datetime.now(timezone.utc) - activity_dt).total_seconds()
         if age > $THRESHOLD:
             result['status'] = 'stale'
             json.dump(result, sys.stdout)

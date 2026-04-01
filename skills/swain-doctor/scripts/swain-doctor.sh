@@ -45,7 +45,7 @@ add_check() {
 }
 
 # ============================================================
-# Check 1: Governance
+# Check 1: Governance (SPEC-222: auto-repair stale block when markers present)
 # ============================================================
 check_governance() {
   local gov_files
@@ -72,8 +72,25 @@ check_governance() {
 
   if [[ "$installed_hash" == "$canonical_hash" ]]; then
     add_check "governance" "ok" "governance current"
+    return
+  fi
+
+  # Stale — attempt auto-repair if both markers are present
+  if grep -q '<!-- swain governance' "$gov_file" && grep -q '<!-- end swain governance' "$gov_file"; then
+    # Write canonical block content to temp file (avoids awk -v newline limitation)
+    local tmp_canonical
+    tmp_canonical=$(mktemp)
+    extract_gov "$canonical" > "$tmp_canonical"
+    awk -v tmpfile="$tmp_canonical" '
+      BEGIN{ while ((getline line < tmpfile) > 0) { buf = buf line "\n" } }
+      /<!-- swain governance/{print; p=1; printf "%s", buf; next}
+      /<!-- end swain governance/{p=0}
+      !p{print}
+    ' "$gov_file" > "${gov_file}.tmp" && mv -f "${gov_file}.tmp" "$gov_file"
+    rm -f "$tmp_canonical"
+    add_check "governance" "advisory" "governance block updated to match canonical"
   else
-    add_check "governance" "warning" "governance block is stale (differs from canonical)" "installed=$installed_hash canonical=$canonical_hash"
+    add_check "governance" "warning" "governance block is stale — markers missing, cannot auto-repair" "installed=$installed_hash canonical=$canonical_hash"
   fi
 }
 
@@ -194,21 +211,28 @@ check_settings() {
 }
 
 # ============================================================
-# Check 7: Script permissions
+# Check 7: Script permissions (SPEC-222: auto-repair)
 # ============================================================
 check_script_permissions() {
-  local bad_scripts
-  bad_scripts=$(find skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null | wc -l | tr -d ' ')
+  local bad_scripts_list
+  bad_scripts_list=$(find skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null || true)
+  local bad_count=0
+  [[ -n "$bad_scripts_list" ]] && bad_count=$(echo "$bad_scripts_list" | grep -c .)
 
-  if [[ "$bad_scripts" -gt 0 ]]; then
-    add_check "script_permissions" "warning" "$bad_scripts script(s) missing executable permission"
+  if [[ "$bad_count" -gt 0 ]]; then
+    local repaired=0
+    while IFS= read -r script; do
+      [[ -z "$script" ]] && continue
+      chmod +x "$script" 2>/dev/null && repaired=$((repaired + 1))
+    done <<< "$bad_scripts_list"
+    add_check "script_permissions" "advisory" "fixed execute permission on $repaired script(s)"
   else
     add_check "script_permissions" "ok" "all scripts executable"
   fi
 }
 
 # ============================================================
-# Check 8: Memory directory
+# Check 8: Memory directory (SPEC-222: auto-repair)
 # ============================================================
 check_memory_directory() {
   local project_slug
@@ -218,7 +242,12 @@ check_memory_directory() {
   if [[ -d "$memory_dir" ]]; then
     add_check "memory_directory" "ok" "memory directory exists"
   else
-    add_check "memory_directory" "warning" "memory directory missing at $memory_dir"
+    mkdir -p "$memory_dir" 2>/dev/null
+    if [[ -d "$memory_dir" ]]; then
+      add_check "memory_directory" "advisory" "memory directory created at $memory_dir"
+    else
+      add_check "memory_directory" "warning" "memory directory missing and could not be created at $memory_dir"
+    fi
   fi
 }
 
@@ -451,13 +480,29 @@ check_operator_bin_symlinks() {
 }
 
 # ============================================================
-# Check 16: Commit signing
+# Check 16: Commit signing (SPEC-222: auto-repair if signing key detectable)
 # ============================================================
 check_commit_signing() {
   if [[ "$(git config --local commit.gpgsign 2>/dev/null)" == "true" ]]; then
     add_check "commit_signing" "ok" "commit signing configured"
+    return
+  fi
+
+  # Detect a usable signing key
+  local key_found=false
+  local conventional_key="$HOME/.ssh/swain_signing"
+  local allowed_signers
+  allowed_signers=$(git config --global gpg.ssh.allowedSignersFile 2>/dev/null || echo "")
+
+  [[ -f "$conventional_key" ]] && key_found=true
+  [[ -n "$allowed_signers" && -f "$allowed_signers" ]] && key_found=true
+
+  if [[ "$key_found" == "true" ]]; then
+    git config --local commit.gpgsign true
+    git config --local gpg.format ssh
+    add_check "commit_signing" "advisory" "commit signing enabled (gpgsign=true, gpg.format=ssh)"
   else
-    add_check "commit_signing" "warning" "commit signing not configured"
+    add_check "commit_signing" "warning" "commit signing not configured (no signing key detected)"
   fi
 }
 
@@ -493,7 +538,79 @@ check_readme() {
 }
 
 # ============================================================
-# Check 18: Crash debris detection (SPEC-182)
+# Check 12: Artifact index staleness (SPEC-227)
+# Regenerates supported list-*.md files and reports deterministic repairs.
+# ============================================================
+check_artifact_indexes() {
+  local rebuild_script="$REPO_ROOT/.agents/bin/rebuild-index.sh"
+  if [[ ! -x "$rebuild_script" ]]; then
+    rebuild_script="$REPO_ROOT/skills/swain-design/scripts/rebuild-index.sh"
+  fi
+
+  if [[ ! -x "$rebuild_script" ]]; then
+    add_check "artifact_indexes" "warning" "rebuild-index.sh not found or not executable"
+    return
+  fi
+
+  local repaired=()
+  local failures=()
+  local type dir_name docs_dir index_file before_exists before_hash after_hash
+
+  for type in spec epic initiative spike adr persona runbook design vision journey train; do
+    dir_name="$type"
+    case "$type" in
+      spike) dir_name="research" ;;
+    esac
+
+    docs_dir="$REPO_ROOT/docs/$dir_name"
+    index_file="$docs_dir/list-${type}.md"
+    [[ -d "$docs_dir" ]] || continue
+
+    before_exists=false
+    before_hash=""
+    if [[ -f "$index_file" ]]; then
+      before_exists=true
+      before_hash=$(shasum -a 256 "$index_file" | awk '{print $1}')
+    fi
+
+    if ! bash "$rebuild_script" "$type" >/dev/null 2>&1; then
+      failures+=("$type")
+      continue
+    fi
+
+    if [[ ! -f "$index_file" ]]; then
+      failures+=("$type")
+      continue
+    fi
+
+    after_hash=$(shasum -a 256 "$index_file" | awk '{print $1}')
+    if [[ "$before_exists" == "false" ]]; then
+      repaired+=("${type} (created)")
+    elif [[ "$before_hash" != "$after_hash" ]]; then
+      repaired+=("${type} (updated)")
+    fi
+  done
+
+  if [[ ${#failures[@]} -gt 0 ]]; then
+    local detail
+    detail=$(printf '%s, ' "${failures[@]}")
+    if [[ ${#repaired[@]} -gt 0 ]]; then
+      add_check "artifact_indexes" "warning" "artifact indexes partially repaired" "repaired: ${repaired[*]}; failed: ${detail%, }"
+    else
+      add_check "artifact_indexes" "warning" "artifact index rebuild failed" "${detail%, }"
+    fi
+    return
+  fi
+
+  if [[ ${#repaired[@]} -gt 0 ]]; then
+    add_check "artifact_indexes" "advisory" "repaired ${#repaired[@]} artifact index file(s)" "${repaired[*]}"
+  else
+    add_check "artifact_indexes" "ok" "artifact indexes current"
+  fi
+}
+
+# ============================================================
+# Check 18: Crash debris detection (SPEC-182, SPEC-222: auto-repair git lock only)
 # ============================================================
 check_crash_debris() {
   local lib="$SCRIPT_DIR/crash-debris-lib.sh"
@@ -507,10 +624,43 @@ check_crash_debris() {
   output=$(check_all_crash_debris "$REPO_ROOT" 2>/dev/null || true)
 
   local found_count
-  found_count=$(echo "$output" | grep -c 'found' || echo "0")
+  found_count=$(echo "$output" | grep -c 'found' 2>/dev/null || echo "0")
 
   if [[ "$found_count" -eq 0 ]]; then
     add_check "crash_debris" "ok" "no crash debris detected"
+    return
+  fi
+
+  # Auto-repair: remove stale .git/index.lock if found (safe regardless of other debris)
+  local lock_lines other_lines lock_removed=false
+  lock_lines=$(echo "$output" | grep 'found' | grep '^git_index_lock' || true)
+  other_lines=$(echo "$output" | grep 'found' | grep -v '^git_index_lock' || true)
+
+  if [[ -n "$lock_lines" ]]; then
+    local git_dir="$REPO_ROOT/.git"
+    if [[ -f "$git_dir" ]]; then
+      git_dir=$(sed 's/^gitdir: //' "$git_dir")
+      [[ "$git_dir" != /* ]] && git_dir="$REPO_ROOT/$git_dir"
+    fi
+    local lock_file="$git_dir/index.lock"
+    if [[ -f "$lock_file" ]]; then
+      rm -f "$lock_file"
+      lock_removed=true
+    fi
+  fi
+
+  if [[ "$lock_removed" == "true" && -z "$other_lines" ]]; then
+    add_check "crash_debris" "advisory" "removed stale .git/index.lock"
+    return
+  fi
+
+  if [[ "$lock_removed" == "true" ]]; then
+    # Lock removed but other debris remains — warn about remaining items
+    local remaining_count
+    remaining_count=$(echo "$other_lines" | grep -c . 2>/dev/null || echo "0")
+    local details
+    details=$(echo "$other_lines" | cut -f3 | tr '\n' '; ' | sed 's/; $//')
+    add_check "crash_debris" "warning" "removed .git/index.lock; $remaining_count other debris item(s) remain" "$details"
     return
   fi
 
@@ -649,6 +799,7 @@ check_memory_directory
 check_superpowers
 check_epics_initiative
 check_readme
+check_artifact_indexes
 check_evidence_pools
 check_worktrees
 check_lifecycle_dirs

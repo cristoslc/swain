@@ -392,7 +392,7 @@ Before committing (after staging, before Step 5), check whether any artifact ind
 REBUILD_SCRIPT="$REPO_ROOT/.agents/bin/rebuild-index.sh"
 if [[ -x "$REBUILD_SCRIPT" ]]; then
     # Detect which types had staged changes
-    for type in spec epic spike adr persona runbook design vision journey train; do
+    for type in spec epic initiative spike adr persona runbook design vision journey train; do
         if git diff --cached --name-only | grep -q "^docs/$type/"; then
             bash "$REBUILD_SCRIPT" "$type"
             git add "docs/$type/list-${type}.md" 2>/dev/null || true

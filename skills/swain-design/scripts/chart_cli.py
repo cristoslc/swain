@@ -10,8 +10,9 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 
-SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
+SCRIPTS_DIR = str(Path(__file__).resolve().parent)
 sys.path.insert(0, SCRIPTS_DIR)
 
 from specgraph.graph import cache_path, read_cache, build_graph, needs_rebuild, write_cache

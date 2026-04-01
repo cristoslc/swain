@@ -68,6 +68,29 @@ RESULT=$(bash "$CHECK_SCRIPT" --state-file "$STATE" --threshold 3600 2>/dev/null
 STATUS=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null)
 assert "stale session returns status=stale" "$([ "$STATUS" = "stale" ] && echo true || echo false)"
 
+# T3b: Recent activity keeps an old session active
+python3 -c "
+import json
+from datetime import datetime, timezone
+state = {
+    'session_id': 'active-by-activity',
+    'focus_lane': 'INITIATIVE-019',
+    'phase': 'active',
+    'start_time': '2020-01-01T00:00:00Z',
+    'last_activity_time': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+    'end_time': None,
+    'decision_budget': 5,
+    'decisions_made': 1,
+    'decisions': [{'note': 'fresh update', 'timestamp': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}],
+    'walkaway': None
+}
+with open('$STATE', 'w') as f:
+    json.dump(state, f)
+"
+RESULT=$(bash "$CHECK_SCRIPT" --state-file "$STATE" --threshold 3600 2>/dev/null)
+STATUS=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null)
+assert "recent activity keeps session active" "$([ "$STATUS" = "active" ] && echo true || echo false)"
+
 # T4: Missing state file returns status=none
 rm -f "$STATE"
 RESULT=$(bash "$CHECK_SCRIPT" --state-file "$STATE" 2>/dev/null)

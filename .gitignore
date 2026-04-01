@@ -18,6 +18,8 @@ __pycache__/
 .agents/specwatch-ignore
 .agents/status-cache.json
 .agents/session.json
+.agents/session-state.json
+SESSION-ROADMAP.md
 
 # Skill eval workspaces
 *-workspace/

@@ -108,7 +108,6 @@
 | SPEC-205 | Wire Progress Log Into Session Close | 2026-03-31 | _pending_ |
 | SPEC-213 | Portable skill path resolution | 2026-03-31 | — |
 | SPEC-215 | Consumer integration test harness | 2026-03-31 | — |
-| SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | — |
 | SPEC-220 | swain-test.sh script | 2026-03-31 | — |
 | SPEC-221 | swain-test skill | 2026-03-31 | — |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | — |
@@ -220,7 +219,7 @@
 | SPEC-189 | Migrate swain-box to bin/ | 2026-03-29 | — |
 | SPEC-190 | Migrate All Skills to .agents/bin/ Resolution | 2026-03-29 | — |
 | SPEC-192 | swain-doctor parallel check cascade failure | 2026-03-29 | — |
-| SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-29 | — |
+| SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-31 | — |
 | SPEC-204 | fix-collisions.sh Over-Rewrites Keeper References | 2026-03-31 | 85c7d96 |
 | SPEC-206 | Missing session greeting script | 2026-03-31T13:22:00Z | af41336 |
 | SPEC-207 | README Seeding in swain-init | 2026-03-31 | 61379ba |
@@ -229,9 +228,13 @@
 | SPEC-210 | Retro README Drift Check | 2026-03-31 | 61379ba |
 | SPEC-211 | Release README Gate | 2026-03-31 | 61379ba |
 | SPEC-212 | Design Transition README Nudge | 2026-03-31 | 61379ba |
+| SPEC-214 | Operator Bin Symlink Auto-Repair | 2026-03-31 | b7ce151 |
 | SPEC-216 | Worktree-Relative Link Detection Script | 2026-03-31 | — |
 | SPEC-217 | Worktree Link Resolution on Merge | 2026-03-31 | — |
 | SPEC-218 | Link Safety Worktree Completion Integration | 2026-03-31 | — |
+| SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | 2f49e1f |
+| SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | ee81e05 |
+| SPEC-227 | Doctor Artifact Index Staleness Repair | 2026-04-01 | — |
 
 ## Superseded
 

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.27.0-alpha] - 2026-04-01
+
+### Features
+
+#### Doctor Self-Repair Expansion
+
+swain-doctor now repairs stale artifact indexes and promotes five more warn-only checks to auto-repair. Missing or stale index entries are rebuilt automatically, and previously advisory checks for memory directories, script permissions, signing setup, stale governance blocks, and crash-debris git locks now repair themselves instead of only warning.
+
+#### Session Freshness Tracking
+
+swain-session now tracks freshness from last activity instead of aging purely from session start time. Long-running sessions stay active when decisions or updates are still happening, which avoids false stale-state interruptions during real work.
+
+#### Roadmap And Release Rendering Hardening
+
+chart.sh and chart_cli.py now resolve imports through their real script paths, so repo-local symlink installs no longer shadow the specgraph package. Reciprocal xref validation accepts enriched backlink metadata, and the changelog renderer now resolves its bundled template correctly through .agents/bin symlinks, removing the need for manual template overrides during release preparation.
+
+### Supporting Changes
+- .gitignore now ignores session state and SESSION-ROADMAP.md so local session artifacts do not leak into commits
+- crash-debris-lib.sh is now marked executable so doctor auto-repair paths can invoke it reliably
+
 ## [0.26.0-alpha] - 2026-03-31
 
 

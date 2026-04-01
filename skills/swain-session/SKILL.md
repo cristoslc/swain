@@ -243,6 +243,7 @@ This outputs the previous session's focus lane, walkaway note, and decision coun
   "focus_lane": "INITIATIVE-019",
   "phase": "active",
   "start_time": "2026-03-28T22:06:34Z",
+  "last_activity_time": "2026-03-28T22:06:34Z",
   "end_time": null,
   "decision_budget": 5,
   "decisions_made": 0,
