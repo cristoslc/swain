@@ -108,7 +108,20 @@ def check_reciprocal_edges(nodes: dict, edges: list[dict]) -> list[dict]:
             vals = raw.get(field, [])
             if not isinstance(vals, list):
                 vals = [vals] if vals else []
-            back_linked.update(vals)
+            for item in vals:
+                if isinstance(item, dict):
+                    artifact_val = str(item.get("artifact", "")).strip()
+                    if not artifact_val:
+                        continue
+                    matches = _ARTIFACT_ID_RE.findall(artifact_val)
+                    back_linked.update(matches or [artifact_val])
+                    continue
+
+                item_val = str(item).strip()
+                if not item_val:
+                    continue
+                matches = _ARTIFACT_ID_RE.findall(item_val)
+                back_linked.update(matches or [item_val])
 
         if from_id not in back_linked:
             gaps.append({

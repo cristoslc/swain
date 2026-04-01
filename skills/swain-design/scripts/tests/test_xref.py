@@ -325,6 +325,24 @@ class TestCheckReciprocalEdgesBasic:
         result = check_reciprocal_edges(nodes, [])
         assert result == []
 
+    def test_enriched_reciprocal_entries_do_not_raise_and_count_as_backlinks(self):
+        """Enriched dict entries should contribute artifact IDs, not crash set handling."""
+        nodes = {
+            "SPEC-001": {"linked-artifacts": []},
+            "EPIC-005": {
+                "artifact-refs": [
+                    {
+                        "artifact": "SPEC-001",
+                        "rel": ["documents"],
+                        "commit": "abc1234",
+                    }
+                ]
+            },
+        }
+        edges = [{"from": "SPEC-001", "to": "EPIC-005", "type": "depends-on"}]
+        result = check_reciprocal_edges(nodes, edges)
+        assert result == []
+
     def test_orphan_node_missing_from_nodes_dict(self):
         """Node B missing from nodes dict is treated as missing linked-artifacts (gap flagged)."""
         nodes = {
