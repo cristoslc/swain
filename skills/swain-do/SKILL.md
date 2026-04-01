@@ -180,6 +180,20 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **If `IN_WORKTREE=no`** (main worktree) and the operation will produce file changes:
 
+0. **Commit any uncommitted changes before the branch is cut (SPEC-219).** A new worktree is created from a git branch — uncommitted files in the working tree are not visible inside the worktree. Run:
+   ```bash
+   REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+   DIRTY=$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null)
+   if [ -n "$DIRTY" ]; then
+     git -C "$REPO_ROOT" add -A && \
+     git -C "$REPO_ROOT" commit -m "chore: stage artifacts before worktree creation" || {
+       echo "ERROR: pre-commit step failed — aborting worktree creation"
+       exit 1
+     }
+   fi
+   ```
+   If the commit fails (e.g., pre-commit hook rejection), surface the error and stop. Do not create the worktree with missing files.
+
 1. **Check for existing worktrees** matching the target spec/work (SPEC-195):
    ```bash
    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
