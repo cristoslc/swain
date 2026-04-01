@@ -150,61 +150,91 @@ check_relative_link() {
 
 scan_markdown() {
     local file="$1"
-    local lineno=0
+    local from_dir
+    from_dir="$(cd "$(dirname "$file")" && pwd)"
 
-    while IFS= read -r rawline; do
-        lineno=$((lineno + 1))
-        # Extract markdown link targets: [text](target)
-        # Use grep to find all link targets on this line
-        local targets
-        targets=$(echo "$rawline" | grep -oE '\]\([^)]+\)' | sed 's/^\](//;s/)$//' || true)
-        while IFS= read -r target; do
-            [[ -z "$target" ]] && continue
-            # Skip URLs and anchors
-            case "$target" in
-                http://*|https://*|ftp://*|mailto:*|"#"*) continue ;;
-            esac
-            # Strip title: [link](path "title") → path
-            target="${target%% *}"
-            # Strip fragment: path#anchor → path
-            target="${target%%#*}"
-            [[ -z "$target" ]] && continue
+    # Use Python for robust markdown link extraction:
+    # - handles () in file/dir names (common in swain artifact paths like (SPEC-216)-Foo)
+    # - strips inline code spans before scanning so `[text](path)` in code isn't flagged
+    local findings
+    findings=$(python3 - "$file" "$from_dir" "$REPO_ROOT" <<'PYEOF'
+import sys, re, os
 
-            local from_dir
-            from_dir="$(dirname "$(realpath -m "$file" 2>/dev/null || echo "$file")")"
-            check_relative_link "$file" "$lineno" "$target" "$from_dir"
-        done <<< "$targets"
-    done < "$file"
+path, from_dir, repo_root = sys.argv[1], sys.argv[2], sys.argv[3]
+
+with open(path) as f:
+    lines = f.readlines()
+
+for lineno, line in enumerate(lines, 1):
+    # Strip inline code spans (backtick-delimited) to avoid false positives
+    stripped = re.sub(r'`[^`]*`', '', line)
+    # Extract [text](target) allowing one level of () in target (handles (SPEC-NNN)-path)
+    for m in re.finditer(r'\]\(([^()]*(?:\([^()]*\)[^()]*)*)\)', stripped):
+        target = m.group(1)
+        # Strip title suffix: path "title" → path
+        target = re.split(r'\s+"', target)[0].strip()
+        # Strip fragment: path#anchor → path
+        target = target.split('#')[0]
+        if not target:
+            continue
+        # Skip URLs and anchors
+        if re.match(r'https?://|ftp://|mailto:|#', target):
+            continue
+        # Resolve and check
+        resolved = os.path.normpath(os.path.join(from_dir, target))
+        if not resolved.startswith(repo_root):
+            print(f"{path}:{lineno}: {target} [ESCAPES_REPO]")
+PYEOF
+    )
+    if [[ -n "$findings" ]]; then
+        echo "$findings"
+        FINDINGS=$((FINDINGS + $(echo "$findings" | wc -l | tr -d ' ')))
+    fi
 }
 
 scan_script() {
     local file="$1"
     local lineno=0
 
-    # Patterns that indicate a hardcoded worktree path
-    local patterns=(
-        '/tmp/worktree[-_]'
-        '\.claude/worktrees/'
-        '\.git/worktrees/'
-    )
-    # Also flag if the repo root absolute path is baked in
-    local repo_root_pattern
-    repo_root_pattern=$(printf '%s' "$REPO_ROOT" | sed 's|[/.]|\\&|g')
+    # Skip scanning our own detection/resolution scripts — they contain the patterns
+    # as regex strings, not as actual hardcoded paths.
+    local script_dir
+    script_dir="$(cd "$(dirname "$0")" && pwd)"
+    case "$(cd "$(dirname "$file")" && pwd)/$(basename "$file")" in
+        "$script_dir/detect-worktree-links.sh"|"$script_dir/resolve-worktree-links.sh") return ;;
+    esac
 
+    # Also skip test fixture files — they intentionally contain these patterns as data
+    case "$file" in
+        */tests/detect-worktree-links/*) return ;;
+    esac
+
+    # Patterns that indicate a hardcoded worktree path
+    # Only flag lines where the pattern appears to be a real path (not a regex, comment,
+    # or quoted pattern string). Heuristic: skip lines where the match is preceded by
+    # a shell metachar suggesting it's a pattern (e.g., inside grep args, quotes alone)
     while IFS= read -r rawline; do
         lineno=$((lineno + 1))
-        for pat in "${patterns[@]}"; do
+        # Skip comment lines
+        case "${rawline#"${rawline%%[![:space:]]*}"}" in "#"*) continue ;; esac
+
+        local flagged=false
+        for pat in '/tmp/worktree[-_]' '\.claude/worktrees/' '\.git/worktrees/'; do
             if echo "$rawline" | grep -qE "$pat"; then
+                # Skip if this looks like a pattern/regex string (preceded by quote+backslash or inside grep/patterns=)
+                if echo "$rawline" | grep -qE "(grep|patterns=|'[^']*\\\\|\"[^\"]*\\\\|#)"; then
+                    continue
+                fi
                 local matched
-                matched=$(echo "$rawline" | grep -oE "['\"]?[^'\" ]*(${pat})[^'\" ]*['\"]?" | head -1 || echo "(pattern: $pat)")
+                matched=$(echo "$rawline" | grep -oE "['\"]?[^'\", ]*(${pat})[^'\", ]*['\"]?" | head -1 || echo "(pattern: $pat)")
                 emit "$file" "$lineno" "$matched" "HARDCODED_WORKTREE_PATH"
+                flagged=true
                 break
             fi
         done
-        # Check for baked-in absolute repo root
-        if echo "$rawline" | grep -qF "$REPO_ROOT"; then
-            # Exclude the script itself referencing its own root via git command
-            if ! echo "$rawline" | grep -qE 'git rev-parse|REPO_ROOT=|repo.root'; then
+        # Check for baked-in absolute repo root (only if not in a git-command context)
+        if [[ "$flagged" == false ]] && echo "$rawline" | grep -qF "$REPO_ROOT"; then
+            if ! echo "$rawline" | grep -qE 'git rev-parse|REPO_ROOT=|repo.root|#'; then
                 emit "$file" "$lineno" "$REPO_ROOT" "HARDCODED_WORKTREE_PATH"
             fi
         fi
