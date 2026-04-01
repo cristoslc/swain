@@ -113,50 +113,20 @@ Memory directory, settings validation, script permissions, `.agents` directory, 
 
 Verify vendored tk is executable at `skills/swain-do/bin/tk` and check for stale lock files. **Skip if `.tickets/` does not exist.** See [references/tickets-validation.md](references/tickets-validation.md) for details.
 
-## swain-box symlink (ADR-019 operator-facing)
+## Operator bin/ symlinks (SPEC-214, ADR-019)
 
-Ensure `bin/swain-box` exists as a symlink to the installed `swain-box` script so operators can launch Docker Sandboxes. Per ADR-019, operator-facing scripts live in `bin/`, not the project root. The script is distributed inside the swain skill tree at `*/swain/scripts/swain-box`. **Skip if the script cannot be found.**
+Auto-repair `bin/` symlinks for operator-facing scripts. Scans `skills/*/usr/bin/` manifest directories to discover which scripts need `bin/` symlinks. Each entry in `usr/bin/` is a symlink whose name is the operator command and whose target resolves to the actual script in `scripts/`. Adding a new operator script requires only a new entry in `usr/bin/` — no doctor code changes.
 
-**Note:** The preflight script (`swain-preflight.sh`) handles auto-repair of `bin/` symlinks structurally, including migration of old root symlinks. This doctor section is the prosaic counterpart for the full doctor flow.
+### Behavior
 
-### Detection
-
-```bash
-BIN_DIR="bin"
-SWAIN_BOX_SCRIPT="$BIN_DIR/swain-box"
-if [ -e "$SWAIN_BOX_SCRIPT" ]; then
-  mkdir -p "$BIN_DIR"
-  SWAIN_BOX_REL=$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$SWAIN_BOX_SCRIPT" "$BIN_DIR" 2>/dev/null || echo "../$SWAIN_BOX_SCRIPT")
-  if [ -L "$BIN_DIR/swain-box" ] && [ "$(readlink "$BIN_DIR/swain-box")" = "$SWAIN_BOX_REL" ]; then
-    echo "ok"
-  elif [ -e "$BIN_DIR/swain-box" ] && [ ! -L "$BIN_DIR/swain-box" ]; then
-    echo "conflict"  # a real file named swain-box exists — do not overwrite
-  else
-    echo "missing"
-  fi
-  # Check for old root symlink (pre-ADR-019) and migrate
-  if [ -L swain-box ]; then
-    rm -f swain-box
-    echo "migrated root symlink ./swain-box to bin/swain-box"
-  fi
-fi
-```
-
-### Remediation
-
-- **ok** — silent, no output.
-- **missing** — create the symlink automatically:
-  ```bash
-  ln -sf "$SWAIN_BOX_REL" "$BIN_DIR/swain-box"
-  ```
-  Report: `swain-box symlink created (bin/swain-box → $SWAIN_BOX_REL)`
-- **conflict** — warn: `bin/swain-box exists but is not a symlink — skipping. To fix manually: rm bin/swain-box && ln -sf <path> bin/swain-box`
+1. Scan `$SKILLS_ROOT/*/usr/bin/` for manifest entries
+2. For each entry, ensure `bin/<name>` exists as a symlink resolving to the script
+3. Auto-repair missing or stale symlinks; warn on real-file conflicts
 
 ### Status values
 
-- **ok** — symlink present and correct
-- **repaired** — symlink created
-- **warning** — conflict (real file); manual action needed
+- **ok** — all symlinks present and correct, or repaired
+- **warning** — at least one conflict (real file exists at `bin/<name>`)
 
 ## Lifecycle directory migration
 

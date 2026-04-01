@@ -360,23 +360,82 @@ check_tk_health() {
 }
 
 # ============================================================
-# Check 15: swain-box symlink (ADR-019)
+# Check 15: Operator bin/ symlinks (SPEC-214, ADR-019)
+# Scans skills/*/usr/bin/ manifest directories for operator-facing
+# scripts and auto-repairs bin/ symlinks.
 # ============================================================
-check_swain_box() {
-  local swain_box_src
-  swain_box_src=$(find skills -name "swain-box" -path '*/scripts/*' ! -name 'test-*' -print -quit 2>/dev/null)
+check_operator_bin_symlinks() {
+  local bin_dir="$REPO_ROOT/bin"
+  local repaired=0
+  local conflicts=()
+  local repairs=()
+  local manifest_count=0
 
-  if [[ -z "$swain_box_src" ]]; then
-    add_check "swain_box" "ok" "swain-box script not found (skipped)"
+  # Scan all usr/bin/ manifest directories in the skill tree
+  for manifest_dir in "$REPO_ROOT"/skills/*/usr/bin; do
+    [[ -d "$manifest_dir" ]] || continue
+    for entry in "$manifest_dir"/*; do
+      [[ -e "$entry" || -L "$entry" ]] || continue
+      local cmd_name
+      cmd_name="$(basename "$entry")"
+      manifest_count=$((manifest_count + 1))
+
+      # Resolve the actual script through the manifest symlink
+      local script_path
+      script_path="$(cd "$manifest_dir" && readlink -f "$cmd_name" 2>/dev/null || true)"
+      if [[ -z "$script_path" || ! -f "$script_path" ]]; then
+        # Manifest entry points to a missing script — skip
+        continue
+      fi
+
+      # Compute relative path from bin/ to the script
+      local rel_path
+      rel_path="$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$script_path" "$bin_dir" 2>/dev/null || echo "")"
+      [[ -z "$rel_path" ]] && continue
+
+      if [[ -L "$bin_dir/$cmd_name" ]]; then
+        # Symlink exists — check if target is correct
+        local current_target
+        current_target="$(readlink "$bin_dir/$cmd_name")"
+        if [[ "$(cd "$bin_dir" && readlink -f "$cmd_name" 2>/dev/null)" == "$script_path" ]]; then
+          continue  # resolves correctly
+        fi
+        # Stale — replace
+        ln -sf "$rel_path" "$bin_dir/$cmd_name"
+        repairs+=("$cmd_name (stale, repaired)")
+        repaired=$((repaired + 1))
+      elif [[ -e "$bin_dir/$cmd_name" ]]; then
+        # Real file — conflict, don't overwrite
+        conflicts+=("$cmd_name")
+      else
+        # Missing — auto-repair
+        mkdir -p "$bin_dir"
+        ln -sf "$rel_path" "$bin_dir/$cmd_name"
+        repairs+=("$cmd_name (created)")
+        repaired=$((repaired + 1))
+      fi
+    done
+  done
+
+  if [[ "$manifest_count" -eq 0 ]]; then
+    add_check "operator_bin_symlinks" "ok" "no operator scripts in usr/bin/ manifests"
     return
   fi
 
-  if [[ -L "bin/swain-box" ]]; then
-    add_check "swain_box" "ok" "bin/swain-box symlink present"
-  elif [[ -e "bin/swain-box" ]]; then
-    add_check "swain_box" "warning" "bin/swain-box is a real file, not a symlink"
+  local issues=()
+  [[ ${#conflicts[@]} -gt 0 ]] && issues+=("${#conflicts[@]} conflict(s): ${conflicts[*]}")
+  [[ ${#repairs[@]} -gt 0 ]] && issues+=("${#repairs[@]} repaired: ${repairs[*]}")
+
+  if [[ ${#issues[@]} -eq 0 ]]; then
+    add_check "operator_bin_symlinks" "ok" "bin/ symlinks for $manifest_count operator script(s) OK"
+  elif [[ ${#conflicts[@]} -gt 0 ]]; then
+    local detail
+    detail=$(printf '%s; ' "${issues[@]}")
+    add_check "operator_bin_symlinks" "warning" "bin/ symlink issues" "${detail%;* }"
   else
-    add_check "swain_box" "warning" "bin/swain-box symlink missing"
+    local detail
+    detail=$(printf '%s; ' "${issues[@]}")
+    add_check "operator_bin_symlinks" "ok" "bin/ symlinks repaired" "${detail%;* }"
   fi
 }
 
@@ -450,28 +509,6 @@ check_crash_debris() {
 }
 
 # ============================================================
-# Check 19: bin/swain symlink (SPEC-180, ADR-019)
-# ============================================================
-check_swain_symlink() {
-  local symlink="$REPO_ROOT/bin/swain"
-  if [[ ! -L "$symlink" ]]; then
-    if [[ -f "$REPO_ROOT/skills/swain/scripts/swain" ]]; then
-      add_check "swain_symlink" "warning" "bin/swain symlink missing (script exists at skills/swain/scripts/swain)"
-    else
-      add_check "swain_symlink" "ok" "bin/swain not applicable (no pre-runtime script)"
-    fi
-    return
-  fi
-
-  if [[ ! -e "$symlink" ]]; then
-    add_check "swain_symlink" "warning" "bin/swain symlink broken (target missing)"
-    return
-  fi
-
-  add_check "swain_symlink" "ok" "bin/swain symlink resolves"
-}
-
-# ============================================================
 # Check 20: .agents/bin/ symlink completeness (SPEC-206)
 # ============================================================
 check_agents_bin_symlinks() {
@@ -490,13 +527,25 @@ check_agents_bin_symlinks() {
     fi
   done < <(find "$bin_dir" -type l 2>/dev/null)
 
+  # Build operator-script exclusion set from usr/bin/ manifests (SPEC-214)
+  local operator_scripts=" "
+  for manifest_dir in "$REPO_ROOT"/skills/*/usr/bin; do
+    [[ -d "$manifest_dir" ]] || continue
+    for entry in "$manifest_dir"/*; do
+      [[ -e "$entry" || -L "$entry" ]] || continue
+      operator_scripts+="$(basename "$entry") "
+    done
+  done
+
   # Check for scripts in skills/*/scripts/ that lack a symlink in .agents/bin/
-  # Convention: .sh files (excluding test-*) should be symlinked
+  # Convention: .sh files (excluding test-* and operator-facing) should be symlinked
   local missing=()
   while IFS= read -r script; do
     [[ -z "$script" ]] && continue
     local base
     base=$(basename "$script")
+    # Skip operator-facing scripts — those belong in bin/, not .agents/bin/
+    echo "$operator_scripts" | grep -q " $base " && continue
     if [[ ! -L "$bin_dir/$base" ]]; then
       missing+=("$base")
     fi
@@ -535,11 +584,10 @@ check_evidence_pools
 check_worktrees
 check_lifecycle_dirs
 check_tk_health
-check_swain_box
+check_operator_bin_symlinks
 check_commit_signing
 check_ssh_readiness
 check_crash_debris
-check_swain_symlink
 check_agents_bin_symlinks
 
 set -e
