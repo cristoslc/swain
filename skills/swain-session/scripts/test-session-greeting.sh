@@ -70,21 +70,28 @@ else
   exit 1
 fi
 
-# ─── Test 0b: .agents/bin/ symlink exists and resolves (SPEC-206) ───
-echo "Test 0b: Symlink in .agents/bin/"
-SYMLINK_PATH="$REPO_ROOT/.agents/bin/swain-session-greeting.sh"
-TOTAL=$((TOTAL + 1))
-if [[ -L "$SYMLINK_PATH" && -e "$SYMLINK_PATH" ]]; then
-  PASS=$((PASS + 1))
-  [[ $VERBOSE -eq 1 ]] && echo "  PASS: .agents/bin/ symlink exists and resolves"
-else
-  FAIL=$((FAIL + 1))
-  if [[ -L "$SYMLINK_PATH" ]]; then
-    echo "  FAIL: .agents/bin/swain-session-greeting.sh symlink is broken"
+# ─── Test 0b: .agents/bin/ symlinks for all swain-session scripts (SPEC-206) ───
+echo "Test 0b: Symlinks in .agents/bin/ for swain-session scripts"
+OPERATOR_SCRIPTS="swain swain-box"
+for script in "$SCRIPT_DIR"/*; do
+  [[ -f "$script" && -x "$script" ]] || continue
+  sname="$(basename "$script")"
+  [[ "$sname" == test-* || "$sname" == test_* ]] && continue
+  echo " $OPERATOR_SCRIPTS " | grep -q " $sname " && continue
+  SYMLINK_PATH="$REPO_ROOT/.agents/bin/$sname"
+  TOTAL=$((TOTAL + 1))
+  if [[ -L "$SYMLINK_PATH" && -e "$SYMLINK_PATH" ]]; then
+    PASS=$((PASS + 1))
+    [[ $VERBOSE -eq 1 ]] && echo "  PASS: .agents/bin/$sname symlink resolves"
   else
-    echo "  FAIL: .agents/bin/swain-session-greeting.sh symlink missing"
+    FAIL=$((FAIL + 1))
+    if [[ -L "$SYMLINK_PATH" ]]; then
+      echo "  FAIL: .agents/bin/$sname symlink is broken"
+    else
+      echo "  FAIL: .agents/bin/$sname symlink missing"
+    fi
   fi
-fi
+done
 
 # ─── Test 1: Greeting includes branch info ───
 echo "Test 1: Branch info in output"
