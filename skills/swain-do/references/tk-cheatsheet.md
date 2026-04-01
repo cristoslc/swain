@@ -16,7 +16,7 @@ tk requires no explicit initialization. The `.tickets/` directory is created aut
 To use tk from anywhere in the project:
 
 ```bash
-TK_BIN="$(cd bin && pwd)"  # relative to this skill's directory
+TK_BIN="$(cd bin && pwd)"  # relative to the project root
 export PATH="$TK_BIN:$PATH"
 ```
 
