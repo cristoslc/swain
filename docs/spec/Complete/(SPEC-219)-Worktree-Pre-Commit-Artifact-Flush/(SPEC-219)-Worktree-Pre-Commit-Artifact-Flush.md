@@ -2,7 +2,7 @@
 title: "Worktree Entry Must Commit Staged Artifacts First"
 artifact: SPEC-219
 track: implementable
-status: Active
+status: Complete
 author: Cristos L-C
 created: 2026-03-31
 last-updated: 2026-03-31
@@ -90,4 +90,5 @@ high
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-31 | — | Initial creation |
+| Active | 2026-03-31 | 01eac4c | Initial creation |
+| Complete | 2026-03-31 | 2f49e1f | All ACs verified; fix landed in skills/swain-do/SKILL.md |

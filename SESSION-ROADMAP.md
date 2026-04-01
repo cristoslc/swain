@@ -6,7 +6,7 @@
 
 - **Focus lane:** EPIC-049 (Context-Rich Progress Tracking)
 - **ROADMAP.md hash:** `909c8680`
-- **HEAD:** `818b49d`
+- **HEAD:** `665b405`
 - **Artifacts in scope:** 5
 - **Direct children:** SPEC-199, SPEC-200, SPEC-201, SPEC-202, SPEC-205
 
@@ -31,11 +31,11 @@ No decisions needed in this focus area right now.
 
 Recent commits touching this focus area:
 
+- `f761c0c` feat(SPEC-205): wire digest and progress-log into session close
 - `818b49d` docs(SPEC-205): bug — wire progress-log into session close
 - `5056dcd` merge: SPEC-202 context-rich display integration
 - `ec2424d` merge: SPEC-200 progress log and synthesis
 - `4396faf` test(swain-session): add progress log tests (SPEC-200)
-- `4735226` docs(SPEC-202): add context-rich display to swain-design
 
 ## Decision Records
 
