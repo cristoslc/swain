@@ -600,10 +600,11 @@ for skill_scripts_dir in "$REPO_ROOT"/skills/*/scripts; do
 done
 ```
 
-Add `.agents/bin/` to `.gitignore` if not already present (consumer projects should not track these symlinks):
+Add `.agents/bin/` and `.agents/session.json` to `.gitignore` if not already present (consumer projects should not track these):
 
 ```bash
 grep -qx '.agents/bin/' .gitignore 2>/dev/null || echo '.agents/bin/' >> .gitignore
+grep -qx '.agents/session.json' .gitignore 2>/dev/null || echo '.agents/session.json' >> .gitignore
 ```
 
 ### Step 6.2 — Run swain-doctor

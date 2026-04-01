@@ -4,7 +4,7 @@ Procedural checks for memory directory, settings, script permissions, .agents di
 
 ## Memory directory
 
-The Claude Code memory directory stores `status-cache.json` and `stage-status.json`. Skills that write to this directory will fail silently or error if it doesn't exist. Note: `session.json` is stored at `.agents/session.json` (per-project, version-controlled) — not in the memory directory.
+The Claude Code memory directory stores `status-cache.json` and `stage-status.json`. Skills that write to this directory will fail silently or error if it doesn't exist. Note: `session.json` is stored at `.agents/session.json` (per-project, gitignored) — not in the memory directory.
 
 ### Step 1 — Compute the correct path
 

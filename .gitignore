@@ -17,6 +17,7 @@ __pycache__/
 .agents/specwatch.log
 .agents/specwatch-ignore
 .agents/status-cache.json
+.agents/session.json
 
 # Skill eval workspaces
 *-workspace/
