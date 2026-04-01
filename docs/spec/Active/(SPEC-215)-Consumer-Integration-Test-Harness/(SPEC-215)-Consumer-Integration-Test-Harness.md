@@ -8,9 +8,10 @@ created: 2026-03-31
 last-updated: 2026-03-31
 priority-weight: medium
 type: enhancement
-parent-epic: ""
+parent-epic: EPIC-052
 parent-initiative: ""
 linked-artifacts:
+  - EPIC-052
   - SPEC-213
 depends-on-artifacts:
   - SPEC-213

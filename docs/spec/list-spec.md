@@ -106,6 +106,16 @@
 | SPEC-202 | Context-Rich Display Integration | 2026-03-31 | _pending_ |
 | SPEC-203 | Fast-Path Session Greeting | 2026-03-30 | -- |
 | SPEC-205 | Wire Progress Log Into Session Close | 2026-03-31 | _pending_ |
+| SPEC-213 | Portable skill path resolution | 2026-03-31 | — |
+| SPEC-215 | Consumer integration test harness | 2026-03-31 | — |
+| SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | — |
+| SPEC-220 | swain-test.sh script | 2026-03-31 | — |
+| SPEC-221 | swain-test skill | 2026-03-31 | — |
+| SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | — |
+| SPEC-223 | swain-sync test gate integration | 2026-03-31 | — |
+| SPEC-224 | swain-release test gate integration | 2026-03-31 | — |
+| SPEC-225 | Flat artifact migration | 2026-03-31 | — |
+| SPEC-226 | Verification evidence recording | 2026-03-31 | — |
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete
