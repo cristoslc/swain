@@ -9,6 +9,7 @@
 | DESIGN-004 | swain-stage Interaction Design | 2026-03-19 | — |
 | DESIGN-005 | swain-box Launcher UX | 2026-03-19 | — |
 | DESIGN-006 | Artifact Frontmatter Schema | 2026-03-27 | -- |
+| DESIGN-007 | Worktree Path Link Detection and Resolution | 2026-03-31 | — |
 
 ## Superseded
 
