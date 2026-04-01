@@ -86,6 +86,8 @@ cmd_init() {
   session_id=$(generate_session_id)
   local start_time
   start_time=$(now_iso)
+  local last_activity_time
+  last_activity_time="$start_time"
 
   # Ensure directory exists
   mkdir -p "$(dirname "$STATE_FILE")"
@@ -98,6 +100,7 @@ state = {
     'focus_lane': '$FOCUS',
     'phase': 'active',
     'start_time': '$start_time',
+    'last_activity_time': '$last_activity_time',
     'end_time': None,
     'decision_budget': $BUDGET,
     'decisions_made': 0,
@@ -139,11 +142,13 @@ from datetime import datetime, timezone
 with open('$STATE_FILE') as f:
     state = json.load(f)
 
+current_time = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 state['decisions_made'] = state.get('decisions_made', 0) + 1
 state['decisions'].append({
     'note': '''$NOTE''',
-    'timestamp': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    'timestamp': current_time
 })
+state['last_activity_time'] = current_time
 
 with open('$STATE_FILE', 'w') as f:
     json.dump(state, f, indent=2)

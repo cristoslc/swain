@@ -95,9 +95,28 @@ print('true' if d.get('start_time') else 'false')
 " 2>/dev/null)
 assert "has non-null start_time" "$HAS_START"
 
+# T1.4b: Init seeds last_activity_time from start_time
+HAS_LAST_ACTIVITY=$(python3 -c "
+import json
+with open('$SWAIN_SESSION_STATE') as f: d=json.load(f)
+print('true' if d.get('last_activity_time') == d.get('start_time') else 'false')
+" 2>/dev/null)
+assert "init sets last_activity_time to start_time" "$HAS_LAST_ACTIVITY"
+
 # T1.5: Update increments decision count
 bash "$STATE_SCRIPT" record-decision --note "Approved SPEC-119 focus" --state-file "$SWAIN_SESSION_STATE" 2>/dev/null
 assert_json_field "record-decision increments count" "$SWAIN_SESSION_STATE" "decisions_made" "1"
+
+# T1.5b: record-decision refreshes last_activity_time
+HAS_UPDATED_ACTIVITY=$(python3 -c "
+import json
+from datetime import datetime, timezone
+with open('$SWAIN_SESSION_STATE') as f: d=json.load(f)
+start = d.get('start_time')
+activity = d.get('last_activity_time')
+print('true' if activity and activity >= start else 'false')
+" 2>/dev/null)
+assert "record-decision refreshes last_activity_time" "$HAS_UPDATED_ACTIVITY"
 
 # T1.6: Close sets phase to closed
 bash "$STATE_SCRIPT" close --walkaway "Left off at SPEC-119 tests" --state-file "$SWAIN_SESSION_STATE" 2>/dev/null
