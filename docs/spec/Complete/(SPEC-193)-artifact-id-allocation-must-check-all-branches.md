@@ -5,7 +5,7 @@ track: implementable
 status: Complete
 author: cristos
 created: 2026-03-29
-last-updated: 2026-03-29
+last-updated: 2026-03-31
 priority-weight: high
 type: bug
 parent-epic: ""
@@ -89,6 +89,10 @@ Create `.agents/bin/next-artifact-id.sh` that:
 5. Returns `max(all_ids) + 1`.
 
 Update swain-design step 1 to call this script instead of scanning the local filesystem only.
+
+## Known Gaps
+
+**Known gap (discovered 2026-03-31):** `next-artifact-id.sh` does not detect untracked files in the working tree. An untracked `(SPEC-222)-Doctor-Warn-Only-Check-Auto-Repair-Audit/` folder was not detected, causing a collision when SPEC-226 (originally assigned SPEC-222) was created in the same session. The script only scans committed content across local branches. Consider adding a `git ls-files --others --exclude-standard` pass for untracked artifact folders.
 
 ## Lifecycle
 
