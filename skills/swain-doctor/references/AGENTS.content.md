@@ -10,15 +10,13 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 
 ### Skill routing
 
-When the user wants to create, plan, write, update, transition, or review any documentation artifact (Vision, Initiative, Journey, Epic, Agent Spec, Spike, ADR, Persona, Runbook, Design) or their supporting docs, **always invoke the swain-design skill**.
+| Intent | Skill |
+|--------|-------|
+| Create, plan, update, transition, or review any artifact (Vision, Initiative, Journey, Epic, Spec, Spike, ADR, Persona, Runbook, Design) | **swain-design** |
+| Project status, progress, "what's next?", session management | **swain-session** |
+| Task tracking, execution progress, implementation plans | **swain-do** |
 
-**For project status, progress, or "what's next?"**, use the **swain-session** skill.
-
-**For all task tracking and execution progress**, use the **swain-do** skill instead of any built-in todo or task system.
-
-### Task tracking
-
-This project uses **tk (ticket)** for ALL task tracking. Invoke **swain-do** for commands and workflow. Do NOT use markdown TODOs or built-in task systems.
+This project uses **tk (ticket)** for ALL task tracking. Do NOT use markdown TODOs or built-in task systems.
 
 ### Work hierarchy
 
@@ -28,23 +26,15 @@ Vision → Initiative → Epic → Spec
 
 Standalone specs can attach directly to an initiative for small work without needing an epic wrapper.
 
+### Worktree isolation
+
+**All file-mutating work happens in a worktree.** Read-only investigation (git log, reading files, checking state) is fine on trunk. The moment you create, edit, move, or delete files — enter a worktree first. This applies to code, scripts, skill files, artifacts, and symlinks equally. swain-do's worktree preamble handles creation; follow it before any file changes, even for "quick" fixes. Partial changes on trunk require manual cleanup and waste operator attention.
+
 ### Superpowers skill chaining
 
-When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), swain skills **must** chain into them at these points:
+When superpowers skills are installed (`.agents/skills/` or `.claude/skills/`), swain skills **must** chain into them at defined integration points. Each swain skill documents its specific chains — the principle is: brainstorming before creative work, writing-plans before implementation, test-driven-development during implementation, and verification-before-completion before any success claim.
 
-| Trigger | Chain |
-|---------|-------|
-| Creating a Vision, Initiative, or Persona | swain-design → **brainstorming** → draft artifact |
-| New feature or multi-spec work | **brainstorming** → swain-design (create artifacts) → per-spec **writing-plans** → swain-do |
-| Existing SPEC comes up for implementation | swain-design → **writing-plans** → swain-do |
-| Executing implementation tasks | swain-do → **test-driven-development** per task |
-| Dispatching parallel work | swain-do → **subagent-driven-development** or **executing-plans** |
-| Claiming work is complete | **verification-before-completion** before any success claim |
-| All tasks in a plan complete | swain-do → **swain-design** (transition SPEC to Complete) |
-| All child SPECs in an EPIC complete | swain-design checks parent EPIC → transition if ready |
-| EPIC reaches terminal state | swain-design → **swain-retro** (embed retrospective) |
-
-If superpowers is not installed, superpowers chains are skipped, not blocked. Swain-to-swain chains (last three rows) always apply.
+If superpowers is not installed, these chains are skipped, not blocked. Swain-to-swain chains always apply: plan completion triggers SPEC transition, all child SPECs complete triggers EPIC transition, and EPIC terminal state triggers a retrospective.
 
 ### Skill change discipline
 
@@ -52,11 +42,11 @@ If superpowers is not installed, superpowers chains are skipped, not blocked. Sw
 
 ### Readability
 
-All artifacts produced by swain skills must meet a Flesch-Kincaid grade level of 9 or below on prose content. After writing or editing an artifact, run `readability-check.sh` on it. If the score exceeds the threshold, revise the prose — use shorter sentences, simpler words, and active voice — then re-check. Do not rewrite content that already passes. If three revision attempts still fail, note the score in the commit message and proceed. See `references/readability-protocol.md` for the integration contract.
+All artifacts produced by swain skills must meet a Flesch-Kincaid grade level of 9 or below on prose content. After writing or editing an artifact, run `readability-check.sh` on it. If the score exceeds the threshold, revise the prose — use shorter sentences, simpler words, and active voice — then re-check. Do not rewrite content that already passes. If three revision attempts still fail, note the score in the commit message and proceed.
 
 ### Session startup
 
-Session initialization is handled structurally by the `swain` shell launcher function (installed via `/swain-init`), which passes `/swain-init` as the initial prompt to the agentic runtime. Do not rely on prosaic auto-invoke directives — see ADR-018. If a session starts without the launcher, the operator can manually run `/swain-session`.
+Session initialization is handled by the `swain` shell launcher, which invokes `/swain-init` as the initial prompt. If a session starts without the launcher, the operator can manually run `/swain-session`.
 
 ### Bug reporting
 

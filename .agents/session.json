@@ -5,11 +5,8 @@
     "verbosity": "concise"
   },
   "bookmark": {
-    "note": "Completed SPEC-206 — missing session greeting script",
-    "files": [
-      "docs/spec/Complete/(SPEC-206)-Missing-Session-Greeting-Script/(SPEC-206)-Missing-Session-Greeting-Script.md"
-    ],
-    "timestamp": "2026-03-31T17:35:04Z"
+    "note": "Released v0.25.0-alpha",
+    "timestamp": "2026-03-31T20:22:52Z"
   },
   "focus_lane": "EPIC-049"
 }

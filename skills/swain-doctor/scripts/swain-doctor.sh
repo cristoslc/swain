@@ -510,20 +510,31 @@ check_crash_debris() {
 
 # ============================================================
 # Check 20: .agents/bin/ symlink completeness (SPEC-206)
+# Aligns with preflight auto-repair (ADR-019, SPEC-186):
+#   - Scans all executable files in skills/*/scripts/ (not just .sh)
+#   - Excludes test-* and operator-facing scripts (SPEC-214 manifest-driven)
+#   - Uses os.path.relpath for portable symlink targets
+#   - Auto-repairs missing/stale symlinks (detect + fix)
 # ============================================================
 check_agents_bin_symlinks() {
   local bin_dir="$REPO_ROOT/.agents/bin"
   if [[ ! -d "$bin_dir" ]]; then
-    add_check "agents_bin_symlinks" "warning" ".agents/bin/ directory missing"
+    mkdir -p "$bin_dir"
+    add_check "agents_bin_symlinks" "warning" ".agents/bin/ directory was missing (created)"
     return
   fi
 
-  # Check for broken symlinks in .agents/bin/
   local broken=()
+  local missing=()
+  local stale=()
+  local repaired=0
+
+  # Check for broken symlinks in .agents/bin/
   while IFS= read -r link; do
     [[ -z "$link" ]] && continue
     if [[ ! -e "$link" ]]; then
       broken+=("$(basename "$link")")
+      rm -f "$link"
     fi
   done < <(find "$bin_dir" -type l 2>/dev/null)
 
@@ -537,26 +548,51 @@ check_agents_bin_symlinks() {
     done
   done
 
-  # Check for scripts in skills/*/scripts/ that lack a symlink in .agents/bin/
-  # Convention: .sh files (excluding test-* and operator-facing) should be symlinked
-  local missing=()
-  while IFS= read -r script; do
-    [[ -z "$script" ]] && continue
-    local base
-    base=$(basename "$script")
-    # Skip operator-facing scripts — those belong in bin/, not .agents/bin/
-    echo "$operator_scripts" | grep -q " $base " && continue
-    if [[ ! -L "$bin_dir/$base" ]]; then
-      missing+=("$base")
-    fi
-  done < <(find "$REPO_ROOT/skills" -path '*/scripts/*.sh' ! -name 'test-*' ! -name 'test_*' 2>/dev/null)
+  # Scan all executable scripts in skills/*/scripts/ (ADR-019 convention)
+  for skill_scripts_dir in "$REPO_ROOT"/skills/*/scripts; do
+    [[ -d "$skill_scripts_dir" ]] || continue
+    for script in "$skill_scripts_dir"/*; do
+      [[ -f "$script" && -x "$script" ]] || continue
+      local script_name
+      script_name="$(basename "$script")"
+      # Skip test scripts and operator-facing scripts
+      [[ "$script_name" == test-* || "$script_name" == test_* ]] && continue
+      # Skip operator-facing scripts — those belong in bin/, not .agents/bin/
+      echo "$operator_scripts" | grep -q " $script_name " && continue
+      # Compute portable relative path (works in worktrees and trunk)
+      local target="$bin_dir/$script_name"
+      local rel_path
+      rel_path="$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$script" "$bin_dir" 2>/dev/null || echo "")"
+      [[ -z "$rel_path" ]] && continue
+      if [[ -L "$target" ]] && [[ "$(readlink "$target")" == "$rel_path" ]]; then
+        continue  # ok
+      elif [[ -e "$target" ]] && [[ ! -L "$target" ]]; then
+        missing+=("$script_name (conflict: real file)")
+      elif [[ -L "$target" ]]; then
+        # stale — wrong target
+        stale+=("$script_name")
+        ln -sf "$rel_path" "$target"
+        repaired=$((repaired + 1))
+      else
+        # missing — auto-repair
+        missing+=("$script_name")
+        ln -sf "$rel_path" "$target"
+        repaired=$((repaired + 1))
+      fi
+    done
+  done
 
   local issues=()
-  [[ ${#broken[@]} -gt 0 ]] && issues+=("${#broken[@]} broken: ${broken[*]}")
-  [[ ${#missing[@]} -gt 0 ]] && issues+=("${#missing[@]} missing: ${missing[*]}")
+  [[ ${#broken[@]} -gt 0 ]] && issues+=("${#broken[@]} broken (removed): ${broken[*]}")
+  [[ ${#stale[@]} -gt 0 ]] && issues+=("${#stale[@]} stale (repaired): ${stale[*]}")
+  [[ ${#missing[@]} -gt 0 ]] && issues+=("${#missing[@]} missing (repaired): ${missing[*]}")
 
   if [[ ${#issues[@]} -eq 0 ]]; then
     add_check "agents_bin_symlinks" "ok" ".agents/bin/ symlinks complete"
+  elif [[ $repaired -gt 0 ]]; then
+    local detail
+    detail=$(printf '%s; ' "${issues[@]}")
+    add_check "agents_bin_symlinks" "advisory" "repaired $repaired .agents/bin/ symlink(s)" "${detail%;* }"
   else
     local detail
     detail=$(printf '%s; ' "${issues[@]}")
