@@ -2,7 +2,7 @@
 title: "Native Implementation Planning in swain-do"
 artifact: SPEC-229
 track: implementable
-status: Proposed
+status: Active
 author: Assistant
 created: 2026-04-01
 last-updated: 2026-04-01
@@ -45,3 +45,4 @@ By dropping the `writing-plans` skill, `swain-do` needs its own check loop. It m
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-01 | TBD | Initial creation |
+| Active | 2026-04-02 | TBD | Approved and transitioned |

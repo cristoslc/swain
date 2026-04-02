@@ -7,7 +7,6 @@
 | ADR-007 | Event-Driven Orchestrator Replaces Prose Chaining Table | 2026-03-17 | — |
 | ADR-019 | Project-Root Script Convention | 2026-03-28 | — |
 | ADR-020 | Preflight Self-Healing Convention | 2026-03-29 | — |
-| ADR-021 | Bake Superpowers Practices into Core Swain without Vendored Chaining | 2026-04-01 | TBD |
 
 ## Active
 
@@ -31,6 +30,7 @@
 | ADR-017 | A/B Subagent Eval for Behavioral Skill Instructions | 2026-03-27 | — |
 | ADR-017 | Supported Agentic CLI Runtimes | 2026-03-27 | — |
 | ADR-018 | Structural Not Prosaic Session Invocation | 2026-03-27 | — |
+| ADR-021 | Bake Superpowers Practices into Core Swain without Vendored Chaining | 2026-04-01 | TBD |
 
 ## Superseded
 

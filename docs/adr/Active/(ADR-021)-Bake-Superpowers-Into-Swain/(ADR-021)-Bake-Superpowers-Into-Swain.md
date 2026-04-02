@@ -2,7 +2,7 @@
 title: "Bake Superpowers Practices into Core Swain without Vendored Chaining"
 artifact: ADR-021
 track: standing
-status: Proposed
+status: Active
 author: Assistant
 created: 2026-04-01
 last-updated: 2026-04-01
@@ -43,3 +43,4 @@ We will delete all checks for external scripts. We will remove external hooks fr
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-01 | TBD | Initial creation |
+| Active | 2026-04-02 | TBD | Approved and transitioned |

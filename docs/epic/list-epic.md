@@ -19,7 +19,6 @@
 | EPIC-033 | Swain MCP Server | 2026-03-18 | — |
 | EPIC-040 | Sandbox Capability Bridges | 2026-03-20 | -- |
 | EPIC-041 | Worktree Discipline | 2026-03-22 | — |
-| EPIC-053 | Deprecate and Replace Superpowers with Native Skills | 2026-04-01 | TBD |
 
 ## Active
 
@@ -39,6 +38,7 @@
 | EPIC-048 | Session Startup Fast Path | 2026-03-30 | -- |
 | EPIC-049 | Context-Rich Progress Tracking | 2026-03-31 | _pending_ |
 | EPIC-052 | Automated Test Gates | 2026-03-31 | — |
+| EPIC-053 | Deprecate and Replace Superpowers with Native Skills | 2026-04-01 | TBD |
 
 ## Complete
 

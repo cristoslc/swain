@@ -2,7 +2,7 @@
 title: "Remove Vendored Superpowers Chaining"
 artifact: SPEC-228
 track: implementable
-status: Proposed
+status: Active
 author: Assistant
 created: 2026-04-01
 last-updated: 2026-04-01
@@ -44,3 +44,4 @@ Currently, `swain-*` programs check for `superpowers` files before they start ac
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-01 | TBD | Initial creation |
+| Active | 2026-04-02 | TBD | Approved and transitioned |

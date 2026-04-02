@@ -2,7 +2,7 @@
 title: "Deprecate and Replace Superpowers with Native Skills"
 artifact: EPIC-053
 track: container
-status: Proposed
+status: Active
 author: Assistant
 created: 2026-04-01
 last-updated: 2026-04-01
@@ -52,10 +52,10 @@ Swain works as a full tool. We keep the strict habits of chained skills. But we 
 
 ## Child Specs
 
-- [SPEC-228](../../../spec/Proposed/(SPEC-228)-Remove-Vendored-Superpowers/(SPEC-228)-Remove-Vendored-Superpowers.md): Remove external calls from swain skills.
-- [SPEC-229](../../../spec/Proposed/(SPEC-229)-Native-Implementation-Planning/(SPEC-229)-Native-Implementation-Planning.md): Native plan steps in swain do.
-- [SPEC-230](../../../spec/Proposed/(SPEC-230)-Native-Socratic-Discovery/(SPEC-230)-Native-Socratic-Discovery.md): Native Socratic tests in swain design.
-- [SPEC-231](../../../spec/Proposed/(SPEC-231)-Global-Debugging-Loop/(SPEC-231)-Global-Debugging-Loop.md): Global debug loop in the agent root.
+- [SPEC-228](../../../spec/Active/(SPEC-228)-Remove-Vendored-Superpowers/(SPEC-228)-Remove-Vendored-Superpowers.md): Remove external calls from swain skills.
+- [SPEC-229](../../../spec/Active/(SPEC-229)-Native-Implementation-Planning/(SPEC-229)-Native-Implementation-Planning.md): Native plan steps in swain do.
+- [SPEC-230](../../../spec/Active/(SPEC-230)-Native-Socratic-Discovery/(SPEC-230)-Native-Socratic-Discovery.md): Native Socratic tests in swain design.
+- [SPEC-231](../../../spec/Active/(SPEC-231)-Global-Debugging-Loop/(SPEC-231)-Global-Debugging-Loop.md): Global debug loop in the agent root.
 
 ## Key Dependencies
 
@@ -70,3 +70,4 @@ Swain works as a full tool. We keep the strict habits of chained skills. But we 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-01 | TBD | Initial creation |
+| Active | 2026-04-02 | TBD | Approved and transitioned |

@@ -3,7 +3,7 @@ title: "Diagnostic Recovery Interaction Flow"
 artifact: DESIGN-011
 domain: interaction
 track: standing
-status: Proposed
+status: Active
 author: Assistant
 created: 2026-04-01
 last-updated: 2026-04-01
@@ -42,3 +42,4 @@ This covers how the agent converses globally when a script crashes.
 1. Agent encounters an error. It attempts three fixes without printing logic.
 2. The user sees a blocked state.
 3. The user prompts the agent to halt and define a clear hypothesis before editing further.
+| Active | 2026-04-02 | TBD | Approved and transitioned |

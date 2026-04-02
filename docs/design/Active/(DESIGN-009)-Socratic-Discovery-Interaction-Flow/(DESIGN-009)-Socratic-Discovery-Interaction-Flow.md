@@ -3,7 +3,7 @@ title: "Socratic Discovery Interaction Flow"
 artifact: DESIGN-009
 domain: interaction
 track: standing
-status: Proposed
+status: Active
 author: Assistant
 created: 2026-04-01
 last-updated: 2026-04-01
@@ -40,3 +40,4 @@ This section covers the exact chat flow for artifact creation.
 1. User replies: "Just build it."
 2. Agent replies: "I must define limits first to avoid bad assumptions. I will assume Option B (email only). Do you agree?"
 3. Agent waits for a final "yes" before writing the file.
+| Active | 2026-04-02 | TBD | Approved and transitioned |

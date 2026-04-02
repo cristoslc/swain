@@ -3,7 +3,7 @@ title: "Task Execution Interaction Flow"
 artifact: DESIGN-010
 domain: interaction
 track: standing
-status: Proposed
+status: Active
 author: Assistant
 created: 2026-04-01
 last-updated: 2026-04-01
@@ -46,3 +46,4 @@ This covers how an agent acts inside `swain-do` when implementing a task.
 3. Terminal displays green passing results.
 4. Agent marks the `todos` tasks as complete.
 5. Agent says: "Implementation is complete. Tests pass."
+| Active | 2026-04-02 | TBD | Approved and transitioned |

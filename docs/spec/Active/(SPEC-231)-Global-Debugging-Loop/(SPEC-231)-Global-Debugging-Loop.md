@@ -2,7 +2,7 @@
 title: "Global Debugging Loop in AGENTS.md"
 artifact: SPEC-231
 track: implementable
-status: Proposed
+status: Active
 author: Assistant
 created: 2026-04-01
 last-updated: 2026-04-01
@@ -44,3 +44,4 @@ To stop using `systematic-debugging`, we need a strong fixing rule across all Sw
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-01 | TBD | Initial creation |
+| Active | 2026-04-02 | TBD | Approved and transitioned |

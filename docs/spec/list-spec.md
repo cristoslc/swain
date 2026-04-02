@@ -27,10 +27,6 @@
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
 | SPEC-166 | Refactor Skill Chaining Table Into Reference File | 2026-03-24 | 3d696d0 |
-| SPEC-228 | Remove Vendored Superpowers Chaining | 2026-04-01 | TBD |
-| SPEC-229 | Native Implementation Planning in swain-do | 2026-04-01 | TBD |
-| SPEC-230 | Native Socratic Discovery in swain-design | 2026-04-01 | TBD |
-| SPEC-231 | Global Debugging Loop in AGENTS.md | 2026-04-01 | TBD |
 
 ## Active
 
@@ -112,6 +108,7 @@
 | SPEC-205 | Wire Progress Log Into Session Close | 2026-03-31 | _pending_ |
 | SPEC-213 | Portable skill path resolution | 2026-03-31 | — |
 | SPEC-215 | Consumer integration test harness | 2026-03-31 | — |
+| SPEC-220 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-220 | swain-test.sh script | 2026-03-31 | — |
 | SPEC-221 | swain-test skill | 2026-03-31 | — |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | — |
@@ -119,6 +116,10 @@
 | SPEC-224 | swain-release test gate integration | 2026-03-31 | — |
 | SPEC-225 | Flat artifact migration | 2026-03-31 | — |
 | SPEC-226 | Verification evidence recording | 2026-03-31 | — |
+| SPEC-228 | Remove Vendored Superpowers Chaining | 2026-04-01 | TBD |
+| SPEC-229 | Native Implementation Planning in swain-do | 2026-04-01 | TBD |
+| SPEC-230 | Native Socratic Discovery in swain-design | 2026-04-01 | TBD |
+| SPEC-231 | Global Debugging Loop in AGENTS.md | 2026-04-01 | TBD |
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete
