@@ -5,6 +5,7 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | DESIGN-008 | Native Agentic Validation Hooks | 2026-04-01 | TBD |
+| DESIGN-009 | Native Interaction Flow for Agent Planning and Discovery | 2026-04-01 | — |
 
 ## Active
 

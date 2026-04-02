@@ -18,6 +18,7 @@ success-criteria:
   - `ADR-021` passes the `adr-check.sh` consistency scan.
 depends-on-artifacts:
   - ADR-021
+  - DESIGN-009
 addresses: []
 evidence-pool: ""
 ---
@@ -58,6 +59,7 @@ Swain works as a full tool. We keep the strict habits of chained skills. But we 
 
 - ADR-021 forces the stop to chained tasks.
 - DESIGN-008 lines up new boundaries.
+- DESIGN-009 details the new user interaction pathways.
 
 ## Lifecycle
 
