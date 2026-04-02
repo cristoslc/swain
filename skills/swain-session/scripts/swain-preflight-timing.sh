@@ -49,7 +49,7 @@ time_check "stale_locks" 'find .tickets/.locks -type d -mmin +60 2>/dev/null | w
 time_check "old_phase_dirs" 'find docs/*/Draft docs/*/Planned docs/*/Review 2>/dev/null | head -1'
 time_check "commit_signing_check" 'git config --local commit.gpgsign'
 
-time_check "script_permissions" "find .claude/skills/*/scripts/ .agents/skills/*/scripts/ skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null"
+time_check "script_permissions" "find '$_TIMING_SKILLS_ROOT' -type f \( -path '*/scripts/*.sh' -o -path '*/scripts/*.py' \) ! -perm -u+x 2>/dev/null"
 
 time_check "ssh_readiness" "bash '$_TIMING_SKILLS_ROOT/swain-doctor/scripts/ssh-readiness.sh' --check 2>/dev/null"
 time_check "skill_gitignore_hygiene" '

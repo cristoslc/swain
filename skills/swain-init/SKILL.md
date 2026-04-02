@@ -176,12 +176,13 @@ If `.beads/` does not exist, skip this step. tk creates `.tickets/` on first `tk
 
 ### Step 2.4 — Operator bin/ symlinks (SPEC-214, ADR-019)
 
-Create `bin/` symlinks for all operator-facing scripts declared in `skills/*/usr/bin/` manifest directories. This is the same logic swain-doctor uses for auto-repair.
+Create `bin/` symlinks for all operator-facing scripts declared in `.agents/skills/*/usr/bin/` manifest directories. This is the same logic swain-doctor uses for auto-repair.
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 BIN_DIR="$REPO_ROOT/bin"
-for manifest_dir in "$REPO_ROOT"/skills/*/usr/bin; do
+SKILLS_ROOT="$REPO_ROOT/.agents/skills"
+for manifest_dir in "$SKILLS_ROOT"/*/usr/bin; do
   [ -d "$manifest_dir" ] || continue
   for entry in "$manifest_dir"/*; do
     [ -e "$entry" ] || [ -L "$entry" ] || continue
@@ -585,9 +586,10 @@ Create `.agents/bin/` and populate it with symlinks for all agent-facing scripts
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 AGENTS_BIN="$REPO_ROOT/.agents/bin"
+SKILLS_ROOT="$REPO_ROOT/.agents/skills"
 mkdir -p "$AGENTS_BIN"
 OPERATOR_SCRIPTS="swain swain-box"
-for skill_scripts_dir in "$REPO_ROOT"/skills/*/scripts; do
+for skill_scripts_dir in "$SKILLS_ROOT"/*/scripts; do
   [ -d "$skill_scripts_dir" ] || continue
   for script in "$skill_scripts_dir"/*; do
     [ -f "$script" ] && [ -x "$script" ] || continue

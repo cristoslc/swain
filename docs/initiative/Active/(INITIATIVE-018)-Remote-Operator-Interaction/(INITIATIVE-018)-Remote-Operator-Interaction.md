@@ -10,7 +10,7 @@ priority-weight: high
 success-criteria:
   - Operator can steer, monitor, and approve agent work from phone or messaging app without losing local environment context
   - Approval prompts forwarded to a remote surface so unattended sessions don't stall indefinitely
-  - Swain-status information accessible outside the terminal (via swain-stage web UI, channel, or mobile)
+  - Status dashboard information accessible outside the terminal (via swain-stage web UI, channel, or mobile)
   - At least one channel integration (Telegram or Discord) delivering swain notifications and accepting operator commands
 depends-on-artifacts: []
 linked-artifacts:
@@ -33,7 +33,7 @@ This initiative is about **using** those capabilities to extend swain's operator
 
 Core principles:
 1. **Local execution, remote steering** — agents run on the operator's machine with full filesystem/MCP/tool access. Remote surfaces are windows into that, not replacements for it.
-2. **Decision support travels** — swain-status recommendations, approval prompts, and completion notifications should reach the operator on their preferred surface.
+2. **Decision support travels** — status dashboard recommendations, approval prompts, and completion notifications should reach the operator on their preferred surface.
 3. **Leverage platform primitives** — use each runtime's native remote interaction capabilities (Claude Code's Channels/RC/Agent SDK today, others tomorrow) rather than building parallel infrastructure.
 4. **Async-first** — the operator fires off work and checks back later. The system must handle delays between "agent needs a decision" and "operator responds."
 5. **Multi-session awareness** — swain already supports swarming. Remote interaction must work across concurrent sessions, not just a single one.
@@ -43,7 +43,7 @@ Core principles:
 **In scope:**
 - Channel integration for swain notifications and operator commands (Telegram and/or Discord)
 - Remote approval flows — forwarding permission/decision prompts to a remote surface
-- Surfacing swain-status and swain-do state through remote-accessible interfaces
+- Surfacing swain-session status/dashboard and swain-do state through remote-accessible interfaces
 - Integration patterns between channels and the swain-stage web UI (INITIATIVE-015)
 - Headless/Agent SDK patterns for programmatic swain interaction (extending swain-dispatch)
 - Multi-session remote awareness — knowing which swarming session needs attention
@@ -64,7 +64,7 @@ Channel integrations that let the operator receive swain notifications (build re
 Forwarding decision points from unattended/swarming sessions so they don't stall. Requires understanding which sessions are blocked and routing prompts to the operator's active remote surface.
 
 ### Status Projection
-Making swain-status, task state, and artifact progress visible outside the terminal. The swain-stage web UI (INITIATIVE-015) is the primary surface; channels and mobile are secondary.
+Making the status dashboard, task state, and artifact progress visible outside the terminal. The swain-stage web UI (INITIATIVE-015) is the primary surface; channels and mobile are secondary.
 
 ## Child Epics
 

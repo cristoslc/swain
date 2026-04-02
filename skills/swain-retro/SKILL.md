@@ -126,7 +126,7 @@ After the reflection conversation, persist the learnings — but **where** they 
 ```bash
 # Check if the current repo IS swain (the tool itself)
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-if [ -f "$REPO_ROOT/skills/swain/SKILL.md" ] && git remote get-url origin 2>/dev/null | grep -q "swain"; then
+if git remote get-url origin 2>/dev/null | grep -q "cristoslc/swain"; then
   echo "SWAIN_REPO"
 else
   echo "CONSUMER_PROJECT"

@@ -21,6 +21,12 @@ done
 SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
 SKILL_DIR="$(dirname "$SCRIPT_DIR")"
 SKILLS_ROOT="$(dirname "$SKILL_DIR")"
+LEGACY_SKILLS_LIB="$SKILL_DIR/references/legacy-skills-lib.sh"
+
+if [[ -f "$LEGACY_SKILLS_LIB" ]]; then
+  # shellcheck disable=SC1090
+  source "$LEGACY_SKILLS_LIB"
+fi
 
 # Collect results
 declare -a CHECKS=()
@@ -95,7 +101,69 @@ check_governance() {
 }
 
 # ============================================================
-# Check 2: .agents directory
+# Check 2: Legacy skill cleanup
+# ============================================================
+check_legacy_skills() {
+  local legacy_json="$SKILL_DIR/references/legacy-skills.json"
+  if [[ ! -f "$legacy_json" ]] || ! declare -F legacy_skill_entries >/dev/null 2>&1; then
+    add_check "legacy_skills" "warning" "legacy skill map unavailable — cannot check stale skill directories"
+    return
+  fi
+
+  local removed=()
+  local skipped=()
+  local kind old_name replacement base_dir skill_dir replacement_dir
+
+  while IFS=$'\t' read -r kind old_name replacement; do
+    [[ -n "$old_name" ]] || continue
+    for base_dir in "$REPO_ROOT/.agents/skills" "$REPO_ROOT/.claude/skills"; do
+      skill_dir="$base_dir/$old_name"
+      [[ -d "$skill_dir" ]] || continue
+
+      if [[ "$kind" == "renamed" ]]; then
+        replacement_dir="$base_dir/$replacement"
+        if [[ ! -d "$replacement_dir" ]]; then
+          skipped+=("$skill_dir (replacement missing: $replacement)")
+          continue
+        fi
+      fi
+
+      if ! legacy_skill_matches_fingerprint "$skill_dir" "$legacy_json"; then
+        skipped+=("$skill_dir (no swain fingerprint)")
+        continue
+      fi
+
+      rm -rf "$skill_dir"
+      if [[ "$kind" == "renamed" ]]; then
+        removed+=("$skill_dir -> $replacement")
+      else
+        removed+=("$skill_dir (absorbed by $replacement)")
+      fi
+    done
+  done < <(legacy_skill_entries "$legacy_json")
+
+  if [[ ${#removed[@]} -eq 0 && ${#skipped[@]} -eq 0 ]]; then
+    add_check "legacy_skills" "ok" "no legacy skill directories found"
+    return
+  fi
+
+  local detail=""
+  if [[ ${#removed[@]} -gt 0 ]]; then
+    detail="removed: ${removed[*]}"
+  fi
+  if [[ ${#skipped[@]} -gt 0 ]]; then
+    detail="${detail:+$detail; }manual review: ${skipped[*]}"
+  fi
+
+  if [[ ${#skipped[@]} -gt 0 ]]; then
+    add_check "legacy_skills" "warning" "legacy skill cleanup requires manual review" "$detail"
+  else
+    add_check "legacy_skills" "advisory" "removed ${#removed[@]} legacy skill director$( [[ ${#removed[@]} -eq 1 ]] && echo "y" || echo "ies" )" "$detail"
+  fi
+}
+
+# ============================================================
+# Check 3: .agents directory
 # ============================================================
 check_agents_directory() {
   if [[ -d .agents ]]; then
@@ -215,7 +283,7 @@ check_settings() {
 # ============================================================
 check_script_permissions() {
   local bad_scripts_list
-  bad_scripts_list=$(find skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x 2>/dev/null || true)
+  bad_scripts_list=$(find "$SKILLS_ROOT" -type f \( -path '*/scripts/*.sh' -o -path '*/scripts/*.py' \) ! -perm -u+x 2>/dev/null || true)
   local bad_count=0
   [[ -n "$bad_scripts_list" ]] && bad_count=$(echo "$bad_scripts_list" | grep -c .)
 
@@ -401,7 +469,7 @@ check_tk_health() {
 
 # ============================================================
 # Check 15: Operator bin/ symlinks (SPEC-214, ADR-019)
-# Scans skills/*/usr/bin/ manifest directories for operator-facing
+# Scans installed skill `usr/bin/` manifest directories for operator-facing
 # scripts and auto-repairs bin/ symlinks.
 # ============================================================
 check_operator_bin_symlinks() {
@@ -412,7 +480,7 @@ check_operator_bin_symlinks() {
   local manifest_count=0
 
   # Scan all usr/bin/ manifest directories in the skill tree
-  for manifest_dir in "$REPO_ROOT"/skills/*/usr/bin; do
+  for manifest_dir in "$SKILLS_ROOT"/*/usr/bin; do
     [[ -d "$manifest_dir" ]] || continue
     for entry in "$manifest_dir"/*; do
       [[ -e "$entry" || -L "$entry" ]] || continue
@@ -544,7 +612,7 @@ check_readme() {
 check_artifact_indexes() {
   local rebuild_script="$REPO_ROOT/.agents/bin/rebuild-index.sh"
   if [[ ! -x "$rebuild_script" ]]; then
-    rebuild_script="$REPO_ROOT/skills/swain-design/scripts/rebuild-index.sh"
+    rebuild_script="$SKILLS_ROOT/swain-design/scripts/rebuild-index.sh"
   fi
 
   if [[ ! -x "$rebuild_script" ]]; then
@@ -694,7 +762,7 @@ check_swain_symlink() {
 # ============================================================
 # Check 20: .agents/bin/ symlink completeness (SPEC-206)
 # Aligns with preflight auto-repair (ADR-019, SPEC-186):
-#   - Scans all executable files in skills/*/scripts/ (not just .sh)
+#   - Scans all executable files in the installed skill tree (not just .sh)
 #   - Excludes test-* and operator-facing scripts (SPEC-214 manifest-driven)
 #   - Uses os.path.relpath for portable symlink targets
 #   - Auto-repairs missing/stale symlinks (detect + fix)
@@ -723,7 +791,7 @@ check_agents_bin_symlinks() {
 
   # Build operator-script exclusion set from usr/bin/ manifests (SPEC-214)
   local operator_scripts=" "
-  for manifest_dir in "$REPO_ROOT"/skills/*/usr/bin; do
+  for manifest_dir in "$SKILLS_ROOT"/*/usr/bin; do
     [[ -d "$manifest_dir" ]] || continue
     for entry in "$manifest_dir"/*; do
       [[ -e "$entry" || -L "$entry" ]] || continue
@@ -731,8 +799,8 @@ check_agents_bin_symlinks() {
     done
   done
 
-  # Scan all executable scripts in skills/*/scripts/ (ADR-019 convention)
-  for skill_scripts_dir in "$REPO_ROOT"/skills/*/scripts; do
+  # Scan all executable scripts in the installed skill tree (ADR-019 convention)
+  for skill_scripts_dir in "$SKILLS_ROOT"/*/scripts; do
     [[ -d "$skill_scripts_dir" ]] || continue
     for script in "$skill_scripts_dir"/*; do
       [[ -f "$script" && -x "$script" ]] || continue
@@ -789,6 +857,7 @@ check_agents_bin_symlinks() {
 set +e
 
 check_governance
+check_legacy_skills
 check_agents_directory
 check_tickets
 check_beads

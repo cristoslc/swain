@@ -17,7 +17,7 @@ trove: session-decision-support@01095c4
 
 ## Strategic Direction
 
-Rebuild swain's session and status infrastructure around a bounded, evidence-indexed session lifecycle. The operator's primary working surface becomes SESSION-ROADMAP.md — a focus-scoped, decision-budgeted document that opens a session, accumulates decision records, and closes with a walk-away signal. ROADMAP.md remains the strategic view; swain-status merges into swain-session.
+Rebuild swain's session and status infrastructure around a bounded, evidence-indexed session lifecycle. The operator's primary working surface becomes SESSION-ROADMAP.md — a focus-scoped, decision-budgeted document that opens a session, accumulates decision records, and closes with a walk-away signal. ROADMAP.md remains the strategic view; the old standalone status skill is absorbed into swain-session.
 
 ## Key Outcomes
 
@@ -26,7 +26,7 @@ Rebuild swain's session and status infrastructure around a bounded, evidence-ind
 - SESSION-ROADMAP.md is the operator's reference surface — committed to git, evidence-indexed, recoverable
 - swain-session owns the full session lifecycle (start, work, close, resume)
 - All skills detect stale/missing sessions and prompt the operator to start one
-- ROADMAP.md absorbs swain-status's decision and recommendation sections
+- ROADMAP.md absorbs the old status skill's decision and recommendation sections
 
 ## Scope
 

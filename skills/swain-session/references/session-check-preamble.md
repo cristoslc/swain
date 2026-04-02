@@ -20,7 +20,6 @@ If the output JSON has `status` other than `"active"`, inform the operator: "No 
 These skills are read-only and skip the session check:
 - swain-help
 - swain-search (discover mode)
-- swain-status
 - swain-session (manages sessions itself)
 - swain-doctor
 
