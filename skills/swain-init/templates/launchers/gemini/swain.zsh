@@ -46,6 +46,9 @@ _swain_check_marker() {
 }
 
 swain() {
+  if [ -x "bin/swain" ]; then
+    exec bin/swain "$@"
+  fi
   local _prompt
   if [ $# -gt 0 ]; then
     _prompt="/swain-session Session purpose: $*"

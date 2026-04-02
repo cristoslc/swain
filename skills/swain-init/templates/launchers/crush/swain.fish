@@ -11,6 +11,9 @@
 # is passed via the SWAIN_PURPOSE environment variable.
 
 function swain
+    if test -x bin/swain
+        exec bin/swain $argv
+    end
     if test (count $argv) -gt 0
         set -gx SWAIN_PURPOSE "$argv"
     end

@@ -57,6 +57,9 @@ function _swain_check_marker
 end
 
 function swain
+    if test -x bin/swain
+        exec bin/swain $argv
+    end
     set -l _prompt
     if test (count $argv) -gt 0
         set _prompt "/swain-session Session purpose: $argv"
