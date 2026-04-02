@@ -33,6 +33,7 @@ By dropping the `writing-plans` skill, `swain-do` needs its own check loop. It m
 1. `swain-do/SKILL.md` requires forming a task outline before accessing root files.
 2. Code may not change until a check command, such as testing or linting, sits on the list.
 3. Check results must appear and show a real success signal before marking the task finished.
+4. The modified `swain-do` skill must undergo an audit by the `writing-skills` skill (or equivalent skill-creator), including at least one round of optimization and behavioral testing.
 
 ## Technical Details
 

@@ -33,6 +33,7 @@ The old method chained `brainstorming` before making plans to make sure it teste
 1. `swain-design` requires a pause for discovery before writing top-level artifacts.
 2. The agent outputs exact limits or issues to the human if they remain untold.
 3. Remove the explicit test for `.claude/skills/brainstorming/SKILL.md`.
+4. The modified `swain-design` skill must undergo an audit by the `writing-skills` skill (or equivalent skill-creator), including at least one round of optimization and behavioral testing.
 
 ## Technical Details
 

@@ -32,6 +32,7 @@ Currently, `swain-*` programs check for `superpowers` files before they start ac
 
 1. No `swain-*` skill checks if `.agents/skills/superpowers` is present.
 2. The core rules operate on their own without calling external files.
+3. The modifications to `swain` skills must undergo an audit by the `writing-skills` skill (or equivalent skill-creator), including at least one round of optimization and behavioral testing.
 
 ## Technical Details
 
