@@ -1,5 +1,5 @@
 ---
-title: "Native Agentic Competence"
+title: "Deprecate and Replace Superpowers with Native Skills"
 artifact: EPIC-053
 track: container
 status: Proposed
@@ -22,7 +22,7 @@ addresses: []
 evidence-pool: ""
 ---
 
-# Native Agentic Competence
+# Deprecate and Replace Superpowers with Native Skills
 
 ## Goal / Objective
 
