@@ -66,6 +66,8 @@ speakers:                          # For media sources — identified speakers
 highlights: []                     # Paths relative to source-id directory — key files worth reading first
 selective: false                   # True if only a subset of the source was ingested (large repos/sites)
 notes: "Focused on section 3"     # Freeform annotation
+snapshot-verified: true            # True when .agents/search-snapshots/metadata.jsonl contains this source URL
+snapshot-metadata-digest: "..."    # Digest from metadata.jsonl for traceability
 ```
 
 ## Source types
