@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.27.1-alpha] - 2026-04-01
+
+### Features
+
+#### Session Bookmark Handoff Safety
+
+New sessions launched from the main checkout now open a worktree before handing off `Session purpose`, so the bookmark for the new session is written in the checkout that owns the work instead of clobbering trunk state. When a session starts inside a linked worktree that already has a bookmark, swain now treats that worktree as active context and steers the operator toward resuming it or opening a different worktree rather than silently overwriting the bookmark.
+
+Runtime launcher templates now prefer `bin/swain`, which routes startup through the canonical pre-runtime guard instead of injecting `Session purpose` directly. This closes the second entry point that could bypass the worktree-aware handoff.
+
+### Supporting Changes
+- Added a standalone retrospective for the session bookmark handoff bug and fix
+
 ## [0.27.0-alpha] - 2026-04-01
 
 ### Features
