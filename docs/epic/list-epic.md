@@ -19,6 +19,7 @@
 | EPIC-033 | Swain MCP Server | 2026-03-18 | — |
 | EPIC-040 | Sandbox Capability Bridges | 2026-03-20 | -- |
 | EPIC-041 | Worktree Discipline | 2026-03-22 | — |
+| EPIC-053 | Native Agentic Competence | 2026-04-01 | TBD |
 
 ## Active
 

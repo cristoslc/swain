@@ -27,6 +27,10 @@
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
 | SPEC-166 | Refactor Skill Chaining Table Into Reference File | 2026-03-24 | 3d696d0 |
+| SPEC-228 | Remove Vendored Superpowers Chaining | 2026-04-01 | TBD |
+| SPEC-229 | Native Implementation Planning in swain-do | 2026-04-01 | TBD |
+| SPEC-230 | Native Socratic Discovery in swain-design | 2026-04-01 | TBD |
+| SPEC-231 | Global Debugging Loop in AGENTS.md | 2026-04-01 | TBD |
 
 ## Active
 

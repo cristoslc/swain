@@ -1,5 +1,11 @@
 # Designs
 
+## Proposed
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| DESIGN-008 | Native Agentic Validation Hooks | 2026-04-01 | TBD |
+
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
