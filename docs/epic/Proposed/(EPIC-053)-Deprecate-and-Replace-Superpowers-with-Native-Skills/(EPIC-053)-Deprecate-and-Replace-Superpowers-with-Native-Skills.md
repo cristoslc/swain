@@ -10,15 +10,17 @@ parent-vision: VISION-002
 parent-initiative: ""
 priority-weight: high
 success-criteria:
-  - All existing `swain-*` skills drop their `superpowers` chaining lines.
-  - Socratic mode exists inside `swain-design`.
-  - Planning tables live inside `swain-do`.
-  - Verification gates run before marking tasks done in `swain-do`.
-  - Agents read a generic debug rule inside `AGENTS.md`.
-  - `ADR-021` passes the `adr-check.sh` consistency scan.
+  - Skills drop external chains.
+  - Socratic mode exists in design.
+  - Planning tables live in do.
+  - Test gates run in do.
+  - Agents read a generic debug rule.
+  - ADR logic passes the check.
 depends-on-artifacts:
   - ADR-021
   - DESIGN-009
+  - DESIGN-010
+  - DESIGN-011
 addresses: []
 evidence-pool: ""
 ---
@@ -27,11 +29,11 @@ evidence-pool: ""
 
 ## Goal / Objective
 
-Remove code that relies on external `superpowers` skills. Put basic engineer habits into Swain's normal scripts.
+Remove code that relies on external skills. Put basic engineer habits into Swain's normal scripts.
 
 ## Desired Outcomes
 
-Swain works as a full tool. We keep the strict habits of chained skills. But we drop the closed files. The user waits less time because the agent uses fewer tools.
+Swain works as a full tool. We keep the strict habits of chained skills. But we drop the closed files. The user waits less time. The agent uses fewer tools.
 
 ## Progress
 
@@ -50,16 +52,18 @@ Swain works as a full tool. We keep the strict habits of chained skills. But we 
 
 ## Child Specs
 
-- [SPEC-228](../../../spec/Proposed/(SPEC-228)-Remove-Vendored-Superpowers/(SPEC-228)-Remove-Vendored-Superpowers.md): Remove superpowers chained calls from `swain-*` skills.
-- [SPEC-229](../../../spec/Proposed/(SPEC-229)-Native-Implementation-Planning/(SPEC-229)-Native-Implementation-Planning.md): Native Implementation Planning in `swain-do`.
-- [SPEC-230](../../../spec/Proposed/(SPEC-230)-Native-Socratic-Discovery/(SPEC-230)-Native-Socratic-Discovery.md): Native Socratic Discovery in `swain-design`.
-- [SPEC-231](../../../spec/Proposed/(SPEC-231)-Global-Debugging-Loop/(SPEC-231)-Global-Debugging-Loop.md): Global Debugging Loop in `AGENTS.md`.
+- [SPEC-228](../../../spec/Proposed/(SPEC-228)-Remove-Vendored-Superpowers/(SPEC-228)-Remove-Vendored-Superpowers.md): Remove external calls from swain skills.
+- [SPEC-229](../../../spec/Proposed/(SPEC-229)-Native-Implementation-Planning/(SPEC-229)-Native-Implementation-Planning.md): Native plan steps in swain do.
+- [SPEC-230](../../../spec/Proposed/(SPEC-230)-Native-Socratic-Discovery/(SPEC-230)-Native-Socratic-Discovery.md): Native Socratic tests in swain design.
+- [SPEC-231](../../../spec/Proposed/(SPEC-231)-Global-Debugging-Loop/(SPEC-231)-Global-Debugging-Loop.md): Global debug loop in the agent root.
 
 ## Key Dependencies
 
-- ADR-021 forces the stop to chained tasks.
-- DESIGN-008 lines up new boundaries.
-- DESIGN-009 details the new user interaction pathways.
+- ADR-021 stops linked tools.
+- DESIGN-008 lines up new limits.
+- DESIGN-009 holds Socratic details.
+- DESIGN-010 holds the checklist.
+- DESIGN-011 holds global crash plans.
 
 ## Lifecycle
 
