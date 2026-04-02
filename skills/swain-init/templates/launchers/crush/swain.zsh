@@ -11,6 +11,9 @@
 # is passed via the SWAIN_PURPOSE environment variable.
 
 swain() {
+  if [ -x "bin/swain" ]; then
+    exec bin/swain "$@"
+  fi
   if [ $# -gt 0 ]; then
     export SWAIN_PURPOSE="$*"
   fi

@@ -141,6 +141,86 @@ assert "purpose args → session purpose prompt" "$(echo "$PURPOSE_DRY" | grep -
 
 rm -rf "$TMPDIR_P3" "$TMPDIR_P3B"
 
+# --- New session worktree isolation ---
+TMPDIR_SESSION_WT=$(mktemp -d)
+git -C "$TMPDIR_SESSION_WT" init -q
+git -C "$TMPDIR_SESSION_WT" commit --allow-empty -m "init" -q 2>/dev/null
+mkdir -p "$TMPDIR_SESSION_WT/.agents"
+cat > "$TMPDIR_SESSION_WT/.gitignore" <<'EOF'
+.worktrees/
+.agents/session.json
+EOF
+git -C "$TMPDIR_SESSION_WT" add .gitignore >/dev/null 2>&1
+git -C "$TMPDIR_SESSION_WT" commit -m "ignore local session state" -q >/dev/null 2>&1
+
+cat > "$TMPDIR_SESSION_WT/.agents/session.json" <<'SESSJSON'
+{
+  "bookmark": {
+    "note": "keep trunk session",
+    "timestamp": "2026-04-01T00:00:00Z"
+  }
+}
+SESSJSON
+
+FAKEBIN_WT=$(mktemp -d)
+WT_LOG="$TMPDIR_SESSION_WT/runtime.log"
+cat > "$FAKEBIN_WT/codex" <<'EOF'
+#!/usr/bin/env bash
+printf 'cwd=%s\n' "$PWD" > "$SWAIN_RUNTIME_LOG"
+idx=0
+for arg in "$@"; do
+  idx=$((idx + 1))
+  printf 'arg%d=%s\n' "$idx" "$arg" >> "$SWAIN_RUNTIME_LOG"
+done
+EOF
+chmod +x "$FAKEBIN_WT/codex"
+
+PATH="$FAKEBIN_WT:$PATH" SWAIN_RUNTIME_LOG="$WT_LOG" \
+  REPO_ROOT="$TMPDIR_SESSION_WT" bash "$SCRIPT" --fresh --runtime codex fix trunk bookmark clobber >/dev/null 2>&1 || true
+
+WT_CWD=$(grep '^cwd=' "$WT_LOG" 2>/dev/null | cut -d= -f2-)
+assert "fresh purpose from trunk launches inside a worktree" "$(echo "$WT_CWD" | grep -q "$TMPDIR_SESSION_WT/.worktrees/" && echo true || echo false)"
+assert "fresh purpose from trunk preserves trunk bookmark" "$([ "$(grep -o 'keep trunk session' "$TMPDIR_SESSION_WT/.agents/session.json" 2>/dev/null)" = "keep trunk session" ] && echo true || echo false)"
+assert "launched prompt keeps the new session purpose" "$(grep -q '/swain-session Session purpose: fix trunk bookmark clobber' "$WT_LOG" && echo true || echo false)"
+assert "session bookmark file stays gitignored in created worktree" "$(printf '.agents/session.json\n' | git -C "$WT_CWD" check-ignore --stdin >/dev/null 2>&1 && echo true || echo false)"
+
+rm -rf "$TMPDIR_SESSION_WT" "$FAKEBIN_WT"
+
+# --- Existing worktree bookmark safety ---
+TMPDIR_ACTIVE_WT=$(mktemp -d)
+git -C "$TMPDIR_ACTIVE_WT" init -q
+git -C "$TMPDIR_ACTIVE_WT" commit --allow-empty -m "init" -q 2>/dev/null
+mkdir -p "$TMPDIR_ACTIVE_WT/.agents" "$TMPDIR_ACTIVE_WT/.worktrees"
+cat > "$TMPDIR_ACTIVE_WT/.gitignore" <<'EOF'
+.worktrees/
+.agents/session.json
+EOF
+git -C "$TMPDIR_ACTIVE_WT" add .gitignore >/dev/null 2>&1
+git -C "$TMPDIR_ACTIVE_WT" commit -m "ignore local session state" -q >/dev/null 2>&1
+
+ACTIVE_WT="$TMPDIR_ACTIVE_WT/.worktrees/existing-session"
+git -C "$TMPDIR_ACTIVE_WT" worktree add -q "$ACTIVE_WT" -b existing-session 2>/dev/null || true
+mkdir -p "$ACTIVE_WT/.agents"
+cat > "$ACTIVE_WT/.agents/session.json" <<'SESSJSON'
+{
+  "bookmark": {
+    "note": "existing worktree session",
+    "timestamp": "2026-04-01T00:00:00Z"
+  }
+}
+SESSJSON
+
+WORKTREE_COUNT_BEFORE=$(git -C "$TMPDIR_ACTIVE_WT" worktree list --porcelain 2>/dev/null | grep -c '^worktree ')
+ACTIVE_DRY=$(REPO_ROOT="$ACTIVE_WT" bash "$SCRIPT" --fresh --_non_interactive --_dry_run new unrelated task 2>&1 || true)
+WORKTREE_COUNT_AFTER=$(git -C "$TMPDIR_ACTIVE_WT" worktree list --porcelain 2>/dev/null | grep -c '^worktree ')
+
+assert "active worktree bookmark redirects to resume prompt" "$(echo "$ACTIVE_DRY" | grep -q 'resume — existing worktree session' && echo true || echo false)"
+assert "active worktree bookmark does not reuse the new purpose" "$(echo "$ACTIVE_DRY" | grep -qv 'new unrelated task' && echo true || echo false)"
+assert "active worktree bookmark does not create another worktree in non-interactive mode" "$([ "$WORKTREE_COUNT_BEFORE" = "$WORKTREE_COUNT_AFTER" ] && echo true || echo false)"
+
+git -C "$TMPDIR_ACTIVE_WT" worktree remove "$ACTIVE_WT" --force >/dev/null 2>&1 || true
+rm -rf "$TMPDIR_ACTIVE_WT"
+
 # --- Interactive cleanup (AC3) ---
 TMPDIR_CLEANUP=$(mktemp -d)
 mkdir -p "$TMPDIR_CLEANUP/.git" "$TMPDIR_CLEANUP/skills/swain-doctor/scripts" "$TMPDIR_CLEANUP/.tickets/.locks/task-42"

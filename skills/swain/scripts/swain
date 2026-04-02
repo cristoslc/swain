@@ -18,6 +18,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Resolve repo root: go up from skills/swain/scripts/ to project root
 REPO_ROOT="${REPO_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
+CURRENT_ROOT="$REPO_ROOT"
+COMMON_ROOT="$REPO_ROOT"
+LAUNCH_ROOT="$REPO_ROOT"
+IN_LINKED_WORKTREE=false
+VALID_GIT_REPO=false
 
 # --- Argument parsing ---
 FLAG_FRESH=false
@@ -70,6 +75,191 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+resolve_abs_dir() {
+  local base="$1"
+  local path="$2"
+
+  if [[ -z "$path" ]]; then
+    return 1
+  fi
+
+  if [[ "$path" = /* ]]; then
+    cd "$path" 2>/dev/null && pwd -P
+  else
+    cd "$base/$path" 2>/dev/null && pwd -P
+  fi
+}
+
+detect_checkout_state() {
+  CURRENT_ROOT="$REPO_ROOT"
+  COMMON_ROOT="$REPO_ROOT"
+  LAUNCH_ROOT="$REPO_ROOT"
+  IN_LINKED_WORKTREE=false
+  VALID_GIT_REPO=false
+
+  local top
+  top="$(git -C "$REPO_ROOT" rev-parse --show-toplevel 2>/dev/null || true)"
+  if [[ -z "$top" ]]; then
+    return
+  fi
+
+  VALID_GIT_REPO=true
+  CURRENT_ROOT="$top"
+  COMMON_ROOT="$top"
+  LAUNCH_ROOT="$top"
+
+  local git_common git_dir git_common_abs git_dir_abs
+  git_common="$(git -C "$CURRENT_ROOT" rev-parse --git-common-dir 2>/dev/null || true)"
+  git_dir="$(git -C "$CURRENT_ROOT" rev-parse --git-dir 2>/dev/null || true)"
+  git_common_abs="$(resolve_abs_dir "$CURRENT_ROOT" "$git_common" || true)"
+  git_dir_abs="$(resolve_abs_dir "$CURRENT_ROOT" "$git_dir" || true)"
+
+  if [[ -n "$git_common_abs" && -n "$git_dir_abs" && "$git_common_abs" != "$git_dir_abs" ]]; then
+    IN_LINKED_WORKTREE=true
+    COMMON_ROOT="$(cd "$git_common_abs/.." 2>/dev/null && pwd -P)"
+  fi
+}
+
+read_session_bookmark() {
+  local root="$1"
+  local session_file="$root/.agents/session.json"
+
+  if [[ ! -f "$session_file" ]]; then
+    return
+  fi
+
+  grep -o '"note"[[:space:]]*:[[:space:]]*"[^"]*"' "$session_file" 2>/dev/null \
+    | head -1 \
+    | sed 's/.*"note"[[:space:]]*:[[:space:]]*"//;s/"$//'
+}
+
+derive_worktree_context() {
+  local raw slug
+  raw="${PURPOSE_ARGS[*]:-session}"
+  slug=$(printf '%s\n' "$raw" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed 's/[^a-z0-9][^a-z0-9]*/-/g; s/^-//; s/-$//' \
+    | cut -c1-24)
+
+  if [[ -z "$slug" ]]; then
+    slug="session"
+  fi
+
+  echo "$slug"
+}
+
+choose_worktree_parent() {
+  local base_root="$1"
+
+  if [[ -d "$base_root/.worktrees" ]] || git -C "$base_root" check-ignore -q .worktrees 2>/dev/null; then
+    echo "$base_root/.worktrees"
+    return
+  fi
+
+  if [[ -d "$base_root/.claude/worktrees" ]] || git -C "$base_root" check-ignore -q .claude/worktrees 2>/dev/null; then
+    echo "$base_root/.claude/worktrees"
+    return
+  fi
+
+  echo "$base_root/.worktrees"
+}
+
+next_worktree_name() {
+  local context="$1"
+  local name_script=""
+
+  if [[ -x "$COMMON_ROOT/.agents/bin/swain-worktree-name.sh" ]]; then
+    name_script="$COMMON_ROOT/.agents/bin/swain-worktree-name.sh"
+  elif [[ -x "$CURRENT_ROOT/.agents/bin/swain-worktree-name.sh" ]]; then
+    name_script="$CURRENT_ROOT/.agents/bin/swain-worktree-name.sh"
+  elif [[ -x "$SCRIPT_DIR/../../swain-session/scripts/swain-worktree-name.sh" ]]; then
+    name_script="$SCRIPT_DIR/../../swain-session/scripts/swain-worktree-name.sh"
+  fi
+
+  if [[ -n "$name_script" ]]; then
+    bash "$name_script" "$context"
+  else
+    printf '%s-%s\n' "$context" "$(date +%Y%m%d-%H%M%S)"
+  fi
+}
+
+create_session_worktree() {
+  local base_root="$1"
+  local context="$2"
+  local parent name path
+
+  parent="$(choose_worktree_parent "$base_root")"
+  mkdir -p "$parent"
+  name="$(next_worktree_name "$context")"
+  path="$parent/$name"
+
+  git -C "$base_root" worktree add "$path" -b "$name" >/dev/null 2>&1 || return 1
+  echo "$path"
+}
+
+prepare_session_workspace() {
+  detect_checkout_state
+
+  if [[ ${#PURPOSE_ARGS[@]} -eq 0 ]] || [[ -n "$RESUME_PROMPT" ]] || [[ "$VALID_GIT_REPO" != "true" ]]; then
+    return
+  fi
+
+  local current_bookmark=""
+  current_bookmark="$(read_session_bookmark "$CURRENT_ROOT")"
+
+  if [[ "$IN_LINKED_WORKTREE" != "true" ]]; then
+    if [[ "$FLAG_DRY_RUN" == "true" ]]; then
+      return
+    fi
+
+    local new_root=""
+    new_root="$(create_session_worktree "$COMMON_ROOT" "$(derive_worktree_context)")" || {
+      echo "error: failed to create a worktree for the new session" >&2
+      exit 1
+    }
+    LAUNCH_ROOT="$new_root"
+    echo "Starting new session in worktree: $LAUNCH_ROOT"
+    return
+  fi
+
+  if [[ -z "$current_bookmark" ]]; then
+    return
+  fi
+
+  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]] || [[ "$FLAG_DRY_RUN" == "true" ]] || ! [[ -t 0 ]]; then
+    RESUME_PROMPT="/swain-session Session purpose: resume — $current_bookmark"
+    PURPOSE_ARGS=()
+    echo "note: active worktree bookmark detected; leaving current worktree session in place" >&2
+    return
+  fi
+
+  echo "=== Active worktree session detected ==="
+  echo "  Current bookmark: $current_bookmark"
+  echo ""
+  echo "Options:"
+  echo "  [r] Resume or finish this worktree"
+  echo "  [n] Leave it in place and open a new worktree for the new session"
+  echo ""
+  read -r -p "Choice (r/n): " choice </dev/tty
+
+  case "$choice" in
+    n|N)
+      local new_root=""
+      new_root="$(create_session_worktree "$COMMON_ROOT" "$(derive_worktree_context)")" || {
+        echo "error: failed to create a worktree for the new session" >&2
+        exit 1
+      }
+      LAUNCH_ROOT="$new_root"
+      echo "Starting new session in worktree: $LAUNCH_ROOT"
+      ;;
+    *)
+      RESUME_PROMPT="/swain-session Session purpose: resume — $current_bookmark"
+      PURPOSE_ARGS=()
+      echo "Resuming current worktree session."
+      ;;
+  esac
+}
 
 # --- Phase 1: Pre-runtime structural checks ---
 phase1_crash_detection() {
@@ -337,6 +527,8 @@ RESUME_PROMPT=""
 
 # --- Phase 3: Runtime invocation ---
 phase3_launch_runtime() {
+  prepare_session_workspace
+
   local runtime
   runtime=$(resolve_runtime)
 
@@ -368,9 +560,12 @@ phase3_launch_runtime() {
   if [[ "$FLAG_DRY_RUN" == "true" ]]; then
     echo "runtime: $runtime"
     echo "prompt: $prompt"
+    echo "launch_root: $LAUNCH_ROOT"
     echo "command: $cmd"
     return
   fi
+
+  cd "$LAUNCH_ROOT"
 
   # Launch the runtime via exec (replaces this process)
   eval exec "$cmd"

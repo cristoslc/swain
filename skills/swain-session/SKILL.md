@@ -30,8 +30,12 @@ When invoked manually, the user can change preferences or bookmark context.
 
 When the operator launches with free text (e.g., `swain new bug about timestamps`), the launcher passes it as part of the initial prompt: `/swain-session Session purpose: new bug about timestamps`.
 
+The launcher is responsible for choosing the checkout that will own that bookmark:
+- If the operator starts from the main checkout, the launcher opens a new worktree first and only then passes the session purpose.
+- If the operator starts inside a linked worktree that already has a bookmark, the launcher should steer them to resume/finish that worktree or open a different worktree before reusing the purpose text.
+
 When session purpose text is present in the invocation:
-1. Write it immediately as the session bookmark note (using swain-bookmark.sh)
+1. Write it immediately as the session bookmark note (using swain-bookmark.sh) in the current checkout
 2. Display it: `**Session purpose:** <text>`
 
 Detection: if the skill is invoked with text after `/swain-session` (e.g., `/swain-session Session purpose: ...`), extract everything after "Session purpose: " as the purpose text.
