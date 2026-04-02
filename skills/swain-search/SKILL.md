@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Skill, WebSearch, WebFetch, AskUserQuestion
 metadata:
   short-description: Trove collection and normalization
-  version: 1.0.0
+  version: 1.1.0
   author: cristos
   source: swain
 ---
@@ -78,6 +78,21 @@ If existing troves contain relevant sources:
 
 This step runs in all modes (Create, Extend, Discover) and before any web searches. Existing trove content is always checked first.
 
+## Snapshot evidence gate (SPEC-220)
+
+Before a remote source can be treated as collected evidence, the run must produce a raw snapshot and a metadata ledger entry in `.agents/search-snapshots/metadata.jsonl`.
+
+Required flow for remote sources:
+1. Export/download the raw snapshot first:
+   - `bash skills/swain-search/scripts/export-snapshot.sh --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
+2. Normalize the downloaded file using `writing-skills` or `skill-creator` (never summary-only browser notes).
+3. Log metadata:
+   - `bash skills/swain-search/scripts/log-snapshot-metadata.sh --source-url "<source-url>" --export-mode "<mode>" --raw-path "<raw-path>" --normalized-path "<normalized-path>" --normalization-skill "<writing-skills|skill-creator>"`
+4. Verify before publication:
+   - `bash skills/swain-search/scripts/verify-snapshot-evidence.sh --source-url "<source-url>"`
+
+If verification fails, mark the source unverified, do not publish it downstream, and report the warning to the operator.
+
 ## Create mode
 
 Build a new trove from scratch.
@@ -113,6 +128,15 @@ For each source, use the appropriate capability. Read `references/normalization-
 3. Normalize to markdown per the web page format
 4. If fetch fails, record the URL in manifest with a `failed: true` flag and move on
 
+**Google Docs / Drive-like documents:**
+1. Export raw content first (required):
+   - `bash skills/swain-search/scripts/export-snapshot.sh --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
+2. Prefer API export modes (`google-doc-export`, `google-slides-export`, `google-drive-download`).
+3. If API export fails, use a browser helper fallback only when available.
+4. Normalize the exported file with `writing-skills` or `skill-creator`.
+5. Log metadata in `.agents/search-snapshots/metadata.jsonl`.
+6. Verify with `verify-snapshot-evidence.sh` before including the source in trove outputs.
+
 **Paywall proxy fallback:**
 
 After fetching a web page, check if a paywall proxy is available for the URL's domain:
@@ -138,7 +162,7 @@ The registry lives at `references/paywall-proxies.yaml`. Add new domains or prox
 
 **Local files:**
 1. Use a document conversion capability (PDF, DOCX, etc.) or read directly if already markdown
-2. Normalize per the document format
+2. Normalize per the document format using `writing-skills` or `skill-creator`
 3. For markdown files: add frontmatter only, preserve content
 
 **Forum threads / discussions:**
@@ -305,6 +329,7 @@ The skill references capabilities generically. When a capability isn't available
 |-----------|----------|
 | Web search | Skip search-based sources. Tell user: "No web search capability available — provide URLs directly or add a search MCP." |
 | Browser / page fetcher | Try basic URL fetch. If that fails: "Can't fetch this URL — paste the content or provide a local file." |
+| Snapshot export for remote docs | If export fails and no helper exists: mark source unverified, do not publish downstream, report exact URL and failure mode. |
 | Media transcription | "No transcription capability available — provide a pre-made transcript file, or add a media conversion tool." |
 | Document conversion | "Can't convert this file type — provide a markdown version, or add a document conversion tool." |
 | Paywall proxy | Keep truncated content. Note in manifest: "Paywalled; proxies exhausted." Suggest user provide content manually. |
