@@ -88,12 +88,12 @@ If this fails, warn:
 
 ## Script permissions
 
-All shell and Python scripts in `skills/*/scripts/` must be executable. Skills invoke these via `bash skills/<skill>/scripts/foo.sh`, which works regardless, but `uv run skills/<skill>/scripts/foo.py` and direct execution require the executable bit.
+All shell and Python scripts in the installed skill tree, usually `.agents/skills/*/scripts/`, must be executable. Skills invoke these via `.agents/bin/` or by direct path, and Python helpers may be run directly, so the executable bit still matters.
 
 ### Check and repair
 
 ```bash
-find skills/*/scripts/ -type f \( -name '*.sh' -o -name '*.py' \) ! -perm -u+x
+find .agents/skills -type f \( -path '*/scripts/*.sh' -o -path '*/scripts/*.py' \) ! -perm -u+x
 ```
 
 If any files are found without the executable bit:

@@ -39,7 +39,7 @@ Three specific gaps in current swain:
 
 1. **No session concept.** Swain treats every interaction as a point query against project state. There's no "start of work" or "end of work" — just a perpetual stream of decisions. This means the operator never gets cognitive closure.
 
-2. **No decision budget.** Every invocation of swain-status surfaces *everything* that needs attention, regardless of how many decisions the operator has already made. Decision quality degrades with volume (Baumeister), but swain keeps asking.
+2. **No decision budget.** Every status/dashboard invocation surfaces *everything* that needs attention, regardless of how many decisions the operator has already made. Decision quality degrades with volume (Baumeister), but swain keeps asking.
 
 3. **No walk-away signal.** The strategic backlog is unbounded by design — it will never be empty. Without explicit "you're done for now" signals, the operator carries the Zeigarnik tension of the entire open backlog between sessions.
 

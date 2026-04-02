@@ -10,12 +10,20 @@
 #
 # Per ADR-018: all logic is structural (bash), not prosaic (LLM).
 # Per ADR-015: never auto-discard worktree state.
-# Per ADR-019: canonical location is skills/swain/scripts/swain;
-#              operator access via bin/swain symlink.
+# Per ADR-019: canonical location is the installed skill tree's
+# swain/scripts/swain; operator access via bin/swain symlink.
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+_src="${BASH_SOURCE[0]}"
+while [[ -L "$_src" ]]; do
+  _dir="$(cd "$(dirname "$_src")" && pwd)"
+  _src="$(readlink "$_src")"
+  [[ "$_src" != /* ]] && _src="$_dir/$_src"
+done
+
+SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
+SKILLS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # Resolve repo root: go up from skills/swain/scripts/ to project root
 REPO_ROOT="${REPO_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
 CURRENT_ROOT="$REPO_ROOT"
@@ -264,7 +272,7 @@ prepare_session_workspace() {
 # --- Phase 1: Pre-runtime structural checks ---
 phase1_crash_detection() {
   # Source the crash debris detection library (SPEC-182)
-  local lib="$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh"
+  local lib="$SKILLS_ROOT/swain-doctor/scripts/crash-debris-lib.sh"
   if [[ ! -f "$lib" ]]; then
     echo "warning: crash-debris-lib.sh not found; skipping crash detection" >&2
     return

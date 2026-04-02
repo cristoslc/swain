@@ -82,7 +82,7 @@ The greeting emits structured JSON:
 3. If `bookmark` is not null, display it:
    > **Resuming session** — Last time: {bookmark}
 
-4. The session is now ready for work. The full status dashboard is available on-demand (see [Status Dashboard](#status-dashboard-absorbed-from-swain-status--spec-122)).
+4. The session is now ready for work. The full status dashboard is available on-demand (see [Status Dashboard](#status-dashboard-spec-122)).
 
 **If `$TMUX` is NOT set** (detected by absence of `tab` in the JSON), check whether tmux is installed:
 - **tmux not installed:** Offer to install it (`brew install tmux`).
@@ -324,14 +324,14 @@ Display the focus artifact as a context line by calling `artifact-context.sh` on
 
 Focus lane is stored in `.agents/session.json` under the `focus_lane` key. It persists across status checks within a session. The status dashboard reads it to filter recommendations and show peripheral awareness for non-focus visions.
 
-## Status Dashboard (absorbed from swain-status — SPEC-122)
+## Status Dashboard (SPEC-122)
 
 swain-session now owns the project status dashboard. When the operator says "status", "what's next", "dashboard", "overview", "where are we", "what should I work on", or "show me priorities", run the status script:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 STATUS_SCRIPT="$REPO_ROOT/.agents/bin/swain-status.sh"
-[ -f "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --refresh || echo "swain-status.sh not found"
+[ -f "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --refresh || echo "status dashboard script not found"
 ```
 
 For compact mode (MOTD): `bash "$STATUS_SCRIPT" --compact`
