@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from .resolved import _STANDING_TYPES
 from .parser import (
     extract_list_ids,
     extract_scalar_id,
@@ -248,7 +249,13 @@ def build_projection(nodes: dict[str, dict], edges: list[dict]) -> list[dict[str
             direct_parent = None
             placement_state = "unparented"
         elif direct_parent is None:
-            placement_state = "root" if node.get("type") == "VISION" else "unparented"
+            art_type = node.get("type", "")
+            if art_type == "VISION":
+                placement_state = "root"
+            elif art_type in _STANDING_TYPES:
+                placement_state = "standalone"
+            else:
+                placement_state = "unparented"
         
         # Extract relationship IDs from edges
         linked = {

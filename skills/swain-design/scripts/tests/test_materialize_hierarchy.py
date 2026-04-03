@@ -32,6 +32,8 @@ def test_materialize_creates_direct_child_symlinks(tmp_path):
             "canonical_path": "docs/vision/Active/(VISION-001)-Root",
             "direct_parent": None,
             "placement_state": "root",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
         {
             "artifact": "INITIATIVE-001",
@@ -41,6 +43,8 @@ def test_materialize_creates_direct_child_symlinks(tmp_path):
             "canonical_path": "docs/initiative/Active/(INITIATIVE-001)-Parent",
             "direct_parent": "VISION-001",
             "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
         {
             "artifact": "EPIC-001",
@@ -50,6 +54,8 @@ def test_materialize_creates_direct_child_symlinks(tmp_path):
             "canonical_path": "docs/epic/Active/(EPIC-001)-Work",
             "direct_parent": "INITIATIVE-001",
             "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
         {
             "artifact": "SPEC-001",
@@ -59,6 +65,8 @@ def test_materialize_creates_direct_child_symlinks(tmp_path):
             "canonical_path": "docs/spec/Proposed/(SPEC-001)-Child",
             "direct_parent": "EPIC-001",
             "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
     ]
 
@@ -92,6 +100,8 @@ def test_materialize_uses_relative_symlink_targets(tmp_path):
             "canonical_path": "docs/initiative/Active/(INITIATIVE-001)-Parent",
             "direct_parent": None,
             "placement_state": "root",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
         {
             "artifact": "SPEC-001",
@@ -101,6 +111,8 @@ def test_materialize_uses_relative_symlink_targets(tmp_path):
             "canonical_path": "docs/spec/Proposed/(SPEC-001)-Child",
             "direct_parent": "INITIATIVE-001",
             "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
     ]
 
@@ -128,6 +140,8 @@ def test_materialize_writes_unparented_surface_and_readme(tmp_path):
             "canonical_path": "docs/spec/Proposed/(SPEC-001)-Lonely",
             "direct_parent": None,
             "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
     ]
 
@@ -158,6 +172,8 @@ def test_materialize_falls_back_to_unparented_when_parent_is_missing(tmp_path):
             "canonical_path": "docs/spec/Proposed/(SPEC-001)-Dangling",
             "direct_parent": "EPIC-999",
             "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
     ]
 
@@ -191,6 +207,8 @@ def test_materialize_removes_stale_child_symlinks(tmp_path):
             "canonical_path": "docs/vision/Active/(VISION-001)-Root",
             "direct_parent": None,
             "placement_state": "root",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
         {
             "artifact": "INITIATIVE-002",
@@ -200,6 +218,8 @@ def test_materialize_removes_stale_child_symlinks(tmp_path):
             "canonical_path": "docs/initiative/Active/(INITIATIVE-002)-New",
             "direct_parent": "VISION-001",
             "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
     ]
 
@@ -229,6 +249,8 @@ def test_materialize_replaces_stale_child_symlink_targets(tmp_path):
             "canonical_path": "docs/initiative/Active/(INITIATIVE-001)-Parent",
             "direct_parent": None,
             "placement_state": "root",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
         {
             "artifact": "SPEC-001",
@@ -238,6 +260,8 @@ def test_materialize_replaces_stale_child_symlink_targets(tmp_path):
             "canonical_path": "docs/spec/Active/(SPEC-001)-Child",
             "direct_parent": "INITIATIVE-001",
             "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
     ]
 
@@ -264,6 +288,8 @@ def test_materialize_raises_on_real_directory_collision(tmp_path):
             "canonical_path": "docs/vision/Active/(VISION-001)-Root",
             "direct_parent": None,
             "placement_state": "root",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
         {
             "artifact": "INITIATIVE-001",
@@ -273,6 +299,8 @@ def test_materialize_raises_on_real_directory_collision(tmp_path):
             "canonical_path": "docs/initiative/Active/(INITIATIVE-001)-Parent",
             "direct_parent": "VISION-001",
             "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         },
     ]
 
@@ -281,3 +309,184 @@ def test_materialize_raises_on_real_directory_collision(tmp_path):
     except FileExistsError:
         return
     assert False, "Expected FileExistsError for real directory collision"
+
+
+def test_materialize_standalone_skips_hierarchy_creates_relationships(tmp_path):
+    """Standalone artifacts (e.g. RETROs) get _Related but no _unparented surface."""
+    repo_root = tmp_path
+    retro_dir = repo_root / "docs" / "swain-retro" / "2026-01-01-test-retro"
+    spec_dir = repo_root / "docs" / "spec" / "Complete" / "(SPEC-001)-Target"
+    for path in (retro_dir, spec_dir):
+        path.mkdir(parents=True)
+        (path / "placeholder.md").write_text("# placeholder\n", encoding="utf-8")
+
+    projection = [
+        {
+            "artifact": "RETRO-2026-01-01-test-retro",
+            "type": "RETRO",
+            "status": "Active",
+            "canonical_file": "docs/swain-retro/2026-01-01-test-retro/2026-01-01-test-retro.md",
+            "canonical_path": "docs/swain-retro/2026-01-01-test-retro",
+            "direct_parent": None,
+            "placement_state": "standalone",
+            "linked_artifacts": ["SPEC-001"],
+            "depends_on_artifacts": [],
+        },
+        {
+            "artifact": "SPEC-001",
+            "type": "SPEC",
+            "status": "Complete",
+            "canonical_file": "docs/spec/Complete/(SPEC-001)-Target/(SPEC-001)-Target.md",
+            "canonical_path": "docs/spec/Complete/(SPEC-001)-Target",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
+        },
+    ]
+
+    materialize_children(repo_root, projection)
+
+    # Relationship symlink created
+    related_link = retro_dir / "_Related" / "(SPEC-001)-Target"
+    assert related_link.is_symlink()
+    assert related_link.resolve() == spec_dir.resolve()
+
+    # No _unparented surface created for retro type
+    assert not (repo_root / "docs" / "retro" / "_unparented").exists()
+
+
+def test_materialize_creates_related_symlinks(tmp_path):
+    """_Related/ directory created for linked_artifacts."""
+    repo_root = tmp_path
+    epic_dir = repo_root / "docs" / "epic" / "Active" / "(EPIC-001)-Work"
+    design_dir = repo_root / "docs" / "design" / "Active" / "(DESIGN-001)-Arch"
+    for path in (epic_dir, design_dir):
+        path.mkdir(parents=True)
+        (path / "placeholder.md").write_text("# placeholder\n", encoding="utf-8")
+    
+    projection = [
+        {
+            "artifact": "EPIC-001",
+            "type": "EPIC",
+            "status": "Active",
+            "canonical_file": "docs/epic/Active/(EPIC-001)-Work/(EPIC-001)-Work.md",
+            "canonical_path": "docs/epic/Active/(EPIC-001)-Work",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": ["DESIGN-001"],
+            "depends_on_artifacts": [],
+        },
+        {
+            "artifact": "DESIGN-001",
+            "type": "DESIGN",
+            "status": "Active",
+            "canonical_file": "docs/design/Active/(DESIGN-001)-Arch/(DESIGN-001)-Arch.md",
+            "canonical_path": "docs/design/Active/(DESIGN-001)-Arch",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
+        },
+    ]
+    
+    materialize_children(repo_root, projection)
+    
+    related_link = epic_dir / "_Related" / "(DESIGN-001)-Arch"
+    assert related_link.is_symlink()
+    assert related_link.resolve() == design_dir.resolve()
+
+
+def test_materialize_creates_depends_on_symlinks(tmp_path):
+    """_Depends-On/ directory created for depends_on_artifacts."""
+    repo_root = tmp_path
+    spec1_dir = repo_root / "docs" / "spec" / "Proposed" / "(SPEC-251)-First"
+    spec2_dir = repo_root / "docs" / "spec" / "Complete" / "(SPEC-252)-Second"
+    for path in (spec1_dir, spec2_dir):
+        path.mkdir(parents=True)
+        (path / "placeholder.md").write_text("# placeholder\n", encoding="utf-8")
+    
+    projection = [
+        {
+            "artifact": "SPEC-251",
+            "type": "SPEC",
+            "status": "Proposed",
+            "canonical_file": "docs/spec/Proposed/(SPEC-251)-First/(SPEC-251)-First.md",
+            "canonical_path": "docs/spec/Proposed/(SPEC-251)-First",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": ["SPEC-252"],
+        },
+        {
+            "artifact": "SPEC-252",
+            "type": "SPEC",
+            "status": "Complete",
+            "canonical_file": "docs/spec/Complete/(SPEC-252)-Second/(SPEC-252)-Second.md",
+            "canonical_path": "docs/spec/Complete/(SPEC-252)-Second",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
+        },
+    ]
+    
+    materialize_children(repo_root, projection)
+    
+    depends_link = spec1_dir / "_Depends-On" / "(SPEC-252)-Second"
+    assert depends_link.is_symlink()
+    assert depends_link.resolve() == spec2_dir.resolve()
+
+
+def test_materialize_skips_empty_relationship_dirs(tmp_path):
+    """No _Related/ or _Depends-On/ created when empty."""
+    repo_root = tmp_path
+    spec_dir = repo_root / "docs" / "spec" / "Proposed" / "(SPEC-003)-Solo"
+    spec_dir.mkdir(parents=True)
+    (spec_dir / "placeholder.md").write_text("# placeholder\n", encoding="utf-8")
+    
+    projection = [
+        {
+            "artifact": "SPEC-003",
+            "type": "SPEC",
+            "status": "Proposed",
+            "canonical_file": "docs/spec/Proposed/(SPEC-003)-Solo/(SPEC-003)-Solo.md",
+            "canonical_path": "docs/spec/Proposed/(SPEC-003)-Solo",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
+        },
+    ]
+    
+    materialize_children(repo_root, projection)
+    
+    assert not (spec_dir / "_Related").exists()
+    assert not (spec_dir / "_Depends-On").exists()
+
+
+def test_materialize_skips_broken_references(tmp_path):
+    """Broken references are skipped gracefully."""
+    repo_root = tmp_path
+    spec_dir = repo_root / "docs" / "spec" / "Proposed" / "(SPEC-004)-Broken"
+    spec_dir.mkdir(parents=True)
+    (spec_dir / "placeholder.md").write_text("# placeholder\n", encoding="utf-8")
+    
+    projection = [
+        {
+            "artifact": "SPEC-254",
+            "type": "SPEC",
+            "status": "Proposed",
+            "canonical_file": "docs/spec/Proposed/(SPEC-254)-Broken/(SPEC-254)-Broken.md",
+            "canonical_path": "docs/spec/Proposed/(SPEC-254)-Broken",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": ["MISSING-001"],  # Target doesn't exist
+            "depends_on_artifacts": [],
+        },
+    ]
+    
+    materialize_children(repo_root, projection)  # Should not raise
+    
+    # No _Related/ created because no valid targets
+    assert not (spec_dir / "_Related").exists()

@@ -68,6 +68,8 @@ def test_chart_projection_outputs_machine_readable_records(tmp_path):
         "canonical_path": "docs/vision/Active/(VISION-001)-Root",
         "direct_parent": None,
         "placement_state": "root",
+        "linked_artifacts": [],
+        "depends_on_artifacts": [],
     }]
 
 
