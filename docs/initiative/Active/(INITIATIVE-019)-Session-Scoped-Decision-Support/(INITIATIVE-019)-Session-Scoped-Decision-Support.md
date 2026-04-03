@@ -8,7 +8,8 @@ created: 2026-03-20
 last-updated: 2026-03-20
 parent-vision: VISION-004
 priority-weight: high
-linked-artifacts: []
+linked-artifacts:
+  - SPEC-237
 depends-on-artifacts: []
 trove: session-decision-support@01095c4
 ---
@@ -33,6 +34,12 @@ Rebuild swain's session and status infrastructure around a bounded, evidence-ind
 **In scope:** swain-session rebuild, SESSION-ROADMAP lifecycle, ROADMAP.md decision sections, session detection across all skills, documentation and README updates.
 
 **Out of scope:** Changes to chart.sh data model (it stays stateless), changes to tk/ticket tracking, agent-side session awareness.
+
+## Small Work (Epic-less Specs)
+
+| Spec | Title | Status |
+|------|-------|--------|
+| SPEC-237 | Session Gate Must Offer Startup Before Mutating Work | Proposed |
 
 ## Lifecycle
 

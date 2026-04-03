@@ -24,10 +24,10 @@
 | ADR-012 | Lifecycle Hashes Must Be Reachable From Main | 2026-03-20 | 94f9c94 |
 | ADR-013 | Release Branch With Squash Merge From Trunk | 2026-03-20 | 54e12dc |
 | ADR-014 | Data Contracts For Agent-Produced Data | 2026-03-21 | -- |
-| ADR-015 | Merge Tickets To Trunk For Cross-Session Coordination | 2026-03-25 | -- |
+| ADR-024 | Merge Tickets To Trunk For Cross-Session Coordination | 2026-03-25 | -- |
 | ADR-015 | Tickets Are Ephemeral Execution Scaffolding | 2026-03-23 | — |
 | ADR-016 | Deprecate swain-dispatch | 2026-03-25 | -- |
-| ADR-017 | A/B Subagent Eval for Behavioral Skill Instructions | 2026-03-27 | — |
+| ADR-023 | A/B Subagent Eval for Behavioral Skill Instructions | 2026-03-27 | — |
 | ADR-017 | Supported Agentic CLI Runtimes | 2026-03-27 | — |
 | ADR-018 | Structural Not Prosaic Session Invocation | 2026-03-27 | — |
 | ADR-021 | Bake Superpowers Practices into Core Swain without Vendored Chaining | 2026-04-01 | TBD |
@@ -37,4 +37,3 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-20 | aa9ca7b |
-

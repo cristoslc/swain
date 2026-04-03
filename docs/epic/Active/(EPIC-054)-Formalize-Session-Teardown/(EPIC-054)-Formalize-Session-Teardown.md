@@ -11,10 +11,10 @@ lifecycle:
     since: 2026-04-02
 child-specs:
   - SPEC-232
-  - SPEC-233
+  - SPEC-239
 linked-artifacts:
   - DESIGN-012
-  - EPIC-055
+  - EPIC-056
 summary: "Create a standalone swain-teardown skill and chain it from swain-session close handler to formalize end-of-session cleanup."
 rationale: |
   Without formal teardown, sessions end with no cleanup. Worktrees are left behind.

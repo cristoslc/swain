@@ -2,6 +2,7 @@
 
 import multiprocessing
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -12,6 +13,7 @@ sys.path.insert(0, str(SCRIPTS_DIR))
 
 from specgraph.graph import (
     build_graph,
+    build_projection,
     cache_path,
     needs_rebuild,
     read_cache,
@@ -220,19 +222,159 @@ class TestBuildGraph:
         assert "VISION-001" in data["nodes"]
         assert data["nodes"]["VISION-001"]["priority_weight"] == "high"
 
+    def test_build_graph_fails_on_duplicate_artifact_ids(self, tmp_path):
+        docs = tmp_path / "docs"
+        first = docs / "spec" / "Active" / "(SPEC-001)-First"
+        second = docs / "spec" / "Proposed" / "(SPEC-001)-Second"
+        first.mkdir(parents=True)
+        second.mkdir(parents=True)
+        (first / "(SPEC-001)-First.md").write_text(
+            '---\ntitle: "First"\nartifact: SPEC-001\nstatus: Active\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+        (second / "(SPEC-001)-Second.md").write_text(
+            '---\ntitle: "Second"\nartifact: SPEC-001\nstatus: Proposed\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+
+        with pytest.raises(ValueError, match="Duplicate artifact IDs detected"):
+            build_graph(tmp_path)
+
+    def test_build_graph_ignores_materialized_symlink_paths(self, tmp_path):
+        docs = tmp_path / "docs"
+        parent = docs / "epic" / "Active" / "(EPIC-001)-Parent"
+        child = docs / "spec" / "Proposed" / "(SPEC-001)-Child"
+        parent.mkdir(parents=True)
+        child.mkdir(parents=True)
+
+        (parent / "(EPIC-001)-Parent.md").write_text(
+            '---\ntitle: "Parent"\nartifact: EPIC-001\nstatus: Active\n---\n# Epic\n',
+            encoding="utf-8",
+        )
+        (child / "(SPEC-001)-Child.md").write_text(
+            '---\ntitle: "Child"\nartifact: SPEC-001\nstatus: Proposed\nparent-epic: EPIC-001\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+        (parent / child.name).symlink_to(
+            os.path.relpath(child, start=parent),
+            target_is_directory=True,
+        )
+
+        data = build_graph(tmp_path)
+
+        assert sorted(data["nodes"]) == ["EPIC-001", "SPEC-001"]
+        edge_tuples = {(e["from"], e["to"], e["type"]) for e in data["edges"]}
+        assert ("SPEC-001", "EPIC-001", "parent-epic") in edge_tuples
+
+    def test_projection_uses_narrowest_parent_and_folder_paths(self, tmp_path):
+        docs = tmp_path / "docs"
+        (docs / "vision" / "Active" / "(VISION-001)-Root").mkdir(parents=True)
+        (docs / "initiative" / "Active" / "(INITIATIVE-001)-Parent").mkdir(parents=True)
+        (docs / "epic" / "Active" / "(EPIC-001)-Work").mkdir(parents=True)
+        (docs / "spec" / "Proposed" / "(SPEC-001)-Child").mkdir(parents=True)
+
+        (docs / "vision" / "Active" / "(VISION-001)-Root" / "(VISION-001)-Root.md").write_text(
+            '---\ntitle: "Root"\nartifact: VISION-001\nstatus: Active\ntrack: standing\n---\n# Vision\n',
+            encoding="utf-8",
+        )
+        (docs / "initiative" / "Active" / "(INITIATIVE-001)-Parent" / "(INITIATIVE-001)-Parent.md").write_text(
+            '---\ntitle: "Parent"\nartifact: INITIATIVE-001\nstatus: Active\ntrack: container\nparent-vision: VISION-001\n---\n# Initiative\n',
+            encoding="utf-8",
+        )
+        (docs / "epic" / "Active" / "(EPIC-001)-Work" / "(EPIC-001)-Work.md").write_text(
+            '---\ntitle: "Work"\nartifact: EPIC-001\nstatus: Active\ntrack: container\nparent-vision: VISION-001\nparent-initiative: INITIATIVE-001\n---\n# Epic\n',
+            encoding="utf-8",
+        )
+        (docs / "spec" / "Proposed" / "(SPEC-001)-Child" / "(SPEC-001)-Child.md").write_text(
+            '---\ntitle: "Child"\nartifact: SPEC-001\nstatus: Proposed\ntrack: implementable\nparent-initiative: INITIATIVE-001\nparent-epic: EPIC-001\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+
+        data = build_graph(tmp_path)
+        projection = {item["artifact"]: item for item in build_projection(data["nodes"], data["edges"])}
+
+        assert projection["VISION-001"]["placement_state"] == "root"
+        assert projection["VISION-001"]["direct_parent"] is None
+        assert projection["INITIATIVE-001"]["direct_parent"] == "VISION-001"
+        assert projection["EPIC-001"]["direct_parent"] == "INITIATIVE-001"
+        assert projection["SPEC-001"]["direct_parent"] == "EPIC-001"
+        assert projection["EPIC-001"]["canonical_path"] == "docs/epic/Active/(EPIC-001)-Work"
+        assert projection["SPEC-001"]["canonical_path"] == "docs/spec/Proposed/(SPEC-001)-Child"
+
+    def test_projection_marks_unparented_when_no_direct_parent(self, tmp_path):
+        docs = tmp_path / "docs"
+        (docs / "spec" / "Proposed" / "(SPEC-001)-Lonely").mkdir(parents=True)
+        (docs / "spec" / "Proposed" / "(SPEC-001)-Lonely" / "(SPEC-001)-Lonely.md").write_text(
+            '---\ntitle: "Lonely"\nartifact: SPEC-001\nstatus: Proposed\ntrack: implementable\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+
+        data = build_graph(tmp_path)
+        projection = build_projection(data["nodes"], data["edges"])
+        assert projection == [{
+            "artifact": "SPEC-001",
+            "type": "SPEC",
+            "status": "Proposed",
+            "canonical_file": "docs/spec/Proposed/(SPEC-001)-Lonely/(SPEC-001)-Lonely.md",
+            "canonical_path": "docs/spec/Proposed/(SPEC-001)-Lonely",
+            "direct_parent": None,
+            "placement_state": "unparented",
+        }]
+
+    def test_projection_marks_unparented_when_direct_parent_is_missing(self, tmp_path):
+        docs = tmp_path / "docs"
+        (docs / "spec" / "Proposed" / "(SPEC-001)-Dangling").mkdir(parents=True)
+        (docs / "spec" / "Proposed" / "(SPEC-001)-Dangling" / "(SPEC-001)-Dangling.md").write_text(
+            '---\ntitle: "Dangling"\nartifact: SPEC-001\nstatus: Proposed\ntrack: implementable\nparent-epic: EPIC-999\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+
+        data = build_graph(tmp_path)
+        projection = build_projection(data["nodes"], data["edges"])
+        assert projection == [{
+            "artifact": "SPEC-001",
+            "type": "SPEC",
+            "status": "Proposed",
+            "canonical_file": "docs/spec/Proposed/(SPEC-001)-Dangling/(SPEC-001)-Dangling.md",
+            "canonical_path": "docs/spec/Proposed/(SPEC-001)-Dangling",
+            "direct_parent": None,
+            "placement_state": "unparented",
+        }]
+
+    def test_projection_converts_flat_artifact_file_to_folder_target(self, tmp_path):
+        docs = tmp_path / "docs"
+        (docs / "adr" / "Active").mkdir(parents=True)
+        (docs / "adr" / "Active" / "(ADR-001)-Decision.md").write_text(
+            '---\ntitle: "Decision"\nartifact: ADR-001\nstatus: Active\ntrack: standing\n---\n# ADR\n',
+            encoding="utf-8",
+        )
+
+        data = build_graph(tmp_path)
+        projection = build_projection(data["nodes"], data["edges"])
+
+        assert projection == [{
+            "artifact": "ADR-001",
+            "type": "ADR",
+            "status": "Active",
+            "canonical_file": "docs/adr/Active/(ADR-001)-Decision.md",
+            "canonical_path": "docs/adr/Active/(ADR-001)-Decision",
+            "direct_parent": None,
+            "placement_state": "unparented",
+        }]
+
 
 def test_dual_parent_spec_produces_xref_warning():
     """A spec with both parent-epic and parent-initiative produces a warning in xref."""
-    import tempfile, os
+    import tempfile
     from pathlib import Path
     from specgraph.graph import build_graph
     with tempfile.TemporaryDirectory() as tmpdir:
-        docs = os.path.join(tmpdir, "docs", "spec", "Ready")
+        docs = os.path.join(tmpdir, "docs", "spec", "Active")
         os.makedirs(docs)
         spec_dir = os.path.join(docs, "(SPEC-099)-Dual-Parent")
         os.makedirs(spec_dir)
         with open(os.path.join(spec_dir, "(SPEC-099)-Dual-Parent.md"), "w") as f:
-            f.write("---\ntitle: Dual Parent\nartifact: SPEC-099\nstatus: Ready\nparent-epic: EPIC-001\nparent-initiative: INITIATIVE-001\n---\nBody.\n")
+            f.write("---\ntitle: Dual Parent\nartifact: SPEC-099\nstatus: Active\nparent-epic: EPIC-001\nparent-initiative: INITIATIVE-001\n---\nBody.\n")
         result = build_graph(Path(tmpdir))
         # Check for dual-parent warning in xref
         warnings = [x for x in result.get("xref", []) if x.get("artifact") == "SPEC-099"]
