@@ -1,6 +1,6 @@
 ---
 title: "Worktree Ticket Isolation"
-artifact: SPEC-142
+artifact: SPEC-242
 track: implementable
 status: Active
 author: operator

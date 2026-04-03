@@ -61,6 +61,7 @@ def build_graph(
     docs_dir = repo_root / "docs"
     nodes: dict[str, dict] = {}
     edges: list[dict] = []
+    duplicates: dict[str, list[str]] = {}
 
     def add_edge(from_id: str, to_val: str, edge_type: str) -> None:
         if not _is_valid_ref(to_val):
@@ -75,6 +76,10 @@ def build_graph(
             continue
 
         aid = artifact.artifact
+        if aid in nodes:
+            if nodes[aid]["title"] != artifact.title:
+                duplicates.setdefault(aid, [nodes[aid]["file"]]).append(artifact.file)
+            continue
         fields = artifact.raw_fields
         track = fields.get("track", "")
         priority_weight = fields.get("priority-weight", "")
@@ -160,6 +165,13 @@ def build_graph(
             "body": body,
             "frontmatter": fields,
         })
+
+    if duplicates:
+        details = "; ".join(
+            f"{artifact_id}: {', '.join(paths)}"
+            for artifact_id, paths in sorted(duplicates.items())
+        )
+        raise ValueError(f"Duplicate artifact IDs detected: {details}")
 
     xref = compute_xref(artifact_dicts, edges)
 

@@ -1,6 +1,6 @@
 ---
 title: "A/B Subagent Eval for Behavioral Skill Instructions"
-artifact: ADR-017
+artifact: ADR-023
 track: standing
 status: Active
 author: cristos

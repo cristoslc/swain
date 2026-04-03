@@ -1,6 +1,6 @@
 ---
 title: "Improve swain-search snapshot evidence"
-artifact: SPEC-220
+artifact: SPEC-238
 track: Active
 status: Active
 author: cristos

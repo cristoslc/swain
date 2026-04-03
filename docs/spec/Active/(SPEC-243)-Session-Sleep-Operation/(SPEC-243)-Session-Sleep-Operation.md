@@ -1,6 +1,6 @@
 ---
 title: "Session Sleep Operation"
-artifact: SPEC-183
+artifact: SPEC-243
 track: implementable
 status: Active
 author: cristos

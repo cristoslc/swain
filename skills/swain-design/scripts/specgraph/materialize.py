@@ -11,7 +11,10 @@ def _ensure_link(parent_path: Path, child_path: Path) -> None:
     if link_path.exists() or link_path.is_symlink():
         if link_path.is_symlink() and link_path.resolve() == child_path.resolve():
             return
-        raise FileExistsError(f"Cannot create child link at {link_path}")
+        if link_path.is_symlink():
+            link_path.unlink()
+        else:
+            raise FileExistsError(f"Cannot create child link at {link_path}")
 
     relative_target = os.path.relpath(child_path, start=parent_path)
     link_path.symlink_to(relative_target)

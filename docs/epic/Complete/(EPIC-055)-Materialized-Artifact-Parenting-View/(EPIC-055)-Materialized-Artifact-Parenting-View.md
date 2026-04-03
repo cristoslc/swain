@@ -51,9 +51,9 @@ Operators and agents can inspect one parent in one place. The view stays trustwo
 
 ## Child Specs
 
-- SPEC-233: Specgraph Hierarchy Projection Output (Complete)
-- SPEC-234: Lifecycle-Scoped Materialized Child Views (Complete)
-- SPEC-235: Automatic Hierarchy Reconciliation (Complete)
+- SPEC-239: Specgraph Hierarchy Projection Output (Complete)
+- SPEC-240: Lifecycle-Scoped Materialized Child Views (Complete)
+- SPEC-241: Automatic Hierarchy Reconciliation (Complete)
 
 ## Key Dependencies
 

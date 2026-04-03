@@ -15,7 +15,7 @@ linked-artifacts:
   - SPEC-175
   - EPIC-045
 depends-on-artifacts:
-  - SPIKE-001
+  - SPIKE-052
 addresses: []
 evidence-pool: ""
 source-issue: ""

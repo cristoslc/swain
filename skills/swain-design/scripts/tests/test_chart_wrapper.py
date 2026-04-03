@@ -105,3 +105,36 @@ def test_chart_build_materializes_child_view(tmp_path):
     child_link = vision_dir / "(INITIATIVE-001)-Parent"
     assert child_link.is_symlink()
     assert child_link.resolve() == initiative_dir.resolve()
+
+
+def test_chart_build_fails_on_duplicate_artifact_ids(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    subprocess.run(["git", "init"], cwd=repo_root, check=True, capture_output=True, text=True)
+    first = repo_root / "docs" / "spec" / "Active" / "(SPEC-001)-First"
+    second = repo_root / "docs" / "spec" / "Proposed" / "(SPEC-001)-Second"
+    first.mkdir(parents=True)
+    second.mkdir(parents=True)
+    (first / "(SPEC-001)-First.md").write_text(
+        '---\ntitle: "First"\nartifact: SPEC-001\nstatus: Active\n---\n# Spec\n',
+        encoding="utf-8",
+    )
+    (second / "(SPEC-001)-Second.md").write_text(
+        '---\ntitle: "Second"\nartifact: SPEC-001\nstatus: Proposed\n---\n# Spec\n',
+        encoding="utf-8",
+    )
+
+    bin_dir = repo_root / ".agents" / "bin"
+    bin_dir.mkdir(parents=True)
+    (bin_dir / "chart.sh").symlink_to(SCRIPTS_DIR / "chart.sh")
+    (bin_dir / "chart_cli.py").symlink_to(SCRIPTS_DIR / "chart_cli.py")
+
+    result = subprocess.run(
+        ["bash", str(bin_dir / "chart.sh"), "build"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+    assert "Duplicate artifact IDs detected" in result.stderr

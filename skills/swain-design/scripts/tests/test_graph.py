@@ -221,6 +221,24 @@ class TestBuildGraph:
         assert "VISION-001" in data["nodes"]
         assert data["nodes"]["VISION-001"]["priority_weight"] == "high"
 
+    def test_build_graph_fails_on_duplicate_artifact_ids(self, tmp_path):
+        docs = tmp_path / "docs"
+        first = docs / "spec" / "Active" / "(SPEC-001)-First"
+        second = docs / "spec" / "Proposed" / "(SPEC-001)-Second"
+        first.mkdir(parents=True)
+        second.mkdir(parents=True)
+        (first / "(SPEC-001)-First.md").write_text(
+            '---\ntitle: "First"\nartifact: SPEC-001\nstatus: Active\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+        (second / "(SPEC-001)-Second.md").write_text(
+            '---\ntitle: "Second"\nartifact: SPEC-001\nstatus: Proposed\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+
+        with pytest.raises(ValueError, match="Duplicate artifact IDs detected"):
+            build_graph(tmp_path)
+
     def test_projection_uses_narrowest_parent_and_folder_paths(self, tmp_path):
         docs = tmp_path / "docs"
         (docs / "vision" / "Active" / "(VISION-001)-Root").mkdir(parents=True)

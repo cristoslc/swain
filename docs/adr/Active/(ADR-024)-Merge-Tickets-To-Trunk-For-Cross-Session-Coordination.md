@@ -1,6 +1,6 @@
 ---
 title: "Merge Tickets To Trunk For Cross-Session Coordination"
-artifact: ADR-015
+artifact: ADR-024
 track: standing
 status: Active
 author: cristos

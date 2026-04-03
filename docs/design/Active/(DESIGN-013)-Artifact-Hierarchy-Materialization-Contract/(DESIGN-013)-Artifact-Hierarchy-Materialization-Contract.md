@@ -11,12 +11,12 @@ superseded-by: ""
 linked-artifacts:
   - INITIATIVE-002
   - ADR-022
-  - EPIC-055
-  - SPEC-233
-  - SPEC-234
-  - SPEC-235
+  - EPIC-056
+  - SPEC-239
+  - SPEC-240
+  - SPEC-241
 artifact-refs:
-  - artifact: EPIC-055
+  - artifact: EPIC-056
     rel: [aligned]
 sourcecode-refs:
 depends-on-artifacts: []

@@ -1,6 +1,6 @@
 ---
 title: "Bookmark Creation During Worktree Lifecycle"
-artifact: SPEC-235
+artifact: SPEC-241
 track: implementable
 status: Proposed
 author: cristos
@@ -169,7 +169,7 @@ bash "$REPO_ROOT/.agents/bin/session-bookmark.sh" add "$wt_path" "$wt_branch"
 
 ### The Worktree Removal Integration Sub-section.
 
-In the teardown worktree removal flow (SPEC-233 step 1b), call session-bookmark.sh remove after git worktree remove succeeds.
+In the teardown worktree removal flow (SPEC-239 step 1b), call session-bookmark.sh remove after git worktree remove succeeds.
 
 ```bash
 if [ "$response" = "y" ] || [ "$response" = "Y" ]; then

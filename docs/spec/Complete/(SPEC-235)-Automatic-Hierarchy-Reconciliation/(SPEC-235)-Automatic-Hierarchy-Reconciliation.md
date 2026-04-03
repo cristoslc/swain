@@ -8,17 +8,17 @@ created: 2026-04-02
 last-updated: 2026-04-02
 priority-weight: ""
 type: enhancement
-parent-epic: EPIC-055
+parent-epic: EPIC-056
 parent-initiative: ""
 linked-artifacts:
   - ADR-022
   - DESIGN-013
   - DESIGN-014
-  - SPEC-233
-  - SPEC-234
+  - SPEC-239
+  - SPEC-240
 depends-on-artifacts:
-  - SPEC-233
-  - SPEC-234
+  - SPEC-239
+  - SPEC-240
 addresses: []
 evidence-pool: ""
 source-issue: ""

@@ -209,6 +209,44 @@ def test_materialize_removes_stale_child_symlinks(tmp_path):
     assert (vision_dir / "(INITIATIVE-002)-New").is_symlink()
 
 
+def test_materialize_replaces_stale_child_symlink_targets(tmp_path):
+    repo_root = tmp_path
+    parent_dir = repo_root / "docs" / "initiative" / "Active" / "(INITIATIVE-001)-Parent"
+    old_child_dir = repo_root / "docs" / "spec" / "Complete" / "(SPEC-001)-Child"
+    new_child_dir = repo_root / "docs" / "spec" / "Active" / "(SPEC-001)-Child"
+    for path in (parent_dir, old_child_dir, new_child_dir):
+        path.mkdir(parents=True)
+
+    stale_link = parent_dir / "(SPEC-001)-Child"
+    stale_link.symlink_to(os.path.relpath(old_child_dir, start=parent_dir))
+
+    projection = [
+        {
+            "artifact": "INITIATIVE-001",
+            "type": "INITIATIVE",
+            "status": "Active",
+            "canonical_file": "docs/initiative/Active/(INITIATIVE-001)-Parent/(INITIATIVE-001)-Parent.md",
+            "canonical_path": "docs/initiative/Active/(INITIATIVE-001)-Parent",
+            "direct_parent": None,
+            "placement_state": "root",
+        },
+        {
+            "artifact": "SPEC-001",
+            "type": "SPEC",
+            "status": "Active",
+            "canonical_file": "docs/spec/Active/(SPEC-001)-Child/(SPEC-001)-Child.md",
+            "canonical_path": "docs/spec/Active/(SPEC-001)-Child",
+            "direct_parent": "INITIATIVE-001",
+            "placement_state": "placed",
+        },
+    ]
+
+    materialize_children(repo_root, projection)
+
+    assert stale_link.is_symlink()
+    assert stale_link.resolve() == new_child_dir.resolve()
+
+
 def test_materialize_raises_on_real_directory_collision(tmp_path):
     repo_root = tmp_path
     parent_dir = repo_root / "docs" / "vision" / "Active" / "(VISION-001)-Root"

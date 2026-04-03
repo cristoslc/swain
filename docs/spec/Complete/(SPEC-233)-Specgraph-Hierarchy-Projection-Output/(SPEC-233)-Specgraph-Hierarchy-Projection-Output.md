@@ -8,7 +8,7 @@ created: 2026-04-02
 last-updated: 2026-04-02
 priority-weight: ""
 type: enhancement
-parent-epic: EPIC-055
+parent-epic: EPIC-056
 parent-initiative: ""
 linked-artifacts:
   - ADR-022

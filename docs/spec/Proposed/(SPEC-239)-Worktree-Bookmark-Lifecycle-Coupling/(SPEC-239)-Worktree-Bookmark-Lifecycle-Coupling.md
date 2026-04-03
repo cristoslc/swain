@@ -1,6 +1,6 @@
 ---
 title: "Worktree-Bookmark Lifecycle Coupling"
-artifact: SPEC-233
+artifact: SPEC-239
 track: implementable
 status: Proposed
 author: cristos

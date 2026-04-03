@@ -11,8 +11,8 @@ type: bug
 parent-epic: ""
 parent-initiative: INITIATIVE-019
 linked-artifacts:
-  - EPIC-055
-  - SPEC-235
+  - EPIC-056
+  - SPEC-241
 depends-on-artifacts: []
 addresses: []
 evidence-pool: ""
@@ -81,4 +81,4 @@ Identify the mutating entry points that currently treat missing-session as advis
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-04-02 | — | Created from live session-start failure during EPIC-055 handoff |
+| Proposed | 2026-04-02 | — | Created from live session-start failure during EPIC-056 handoff |

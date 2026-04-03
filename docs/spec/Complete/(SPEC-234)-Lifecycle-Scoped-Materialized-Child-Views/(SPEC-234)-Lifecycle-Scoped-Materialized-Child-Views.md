@@ -8,14 +8,14 @@ created: 2026-04-02
 last-updated: 2026-04-02
 priority-weight: ""
 type: enhancement
-parent-epic: EPIC-055
+parent-epic: EPIC-056
 parent-initiative: ""
 linked-artifacts:
   - DESIGN-013
   - DESIGN-014
-  - SPEC-233
+  - SPEC-239
 depends-on-artifacts:
-  - SPEC-233
+  - SPEC-239
 addresses: []
 evidence-pool: ""
 source-issue: ""
@@ -63,7 +63,7 @@ Out of scope: deciding hierarchy semantics, parsing frontmatter directly, and de
 
 ## Implementation Approach
 
-Build a materializer that consumes the projection JSON from SPEC-233, reconciles per-parent child symlinks, and writes standardized `_unparented/README.md` files where needed.
+Build a materializer that consumes the projection JSON from SPEC-239, reconciles per-parent child symlinks, and writes standardized `_unparented/README.md` files where needed.
 
 ## Lifecycle
 

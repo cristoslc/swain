@@ -1,6 +1,6 @@
 ---
 title: "Session-State Tolerance in Retro and Teardown"
-artifact: SPEC-234
+artifact: SPEC-240
 track: implementable
 status: Proposed
 author: cristos

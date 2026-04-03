@@ -1,5 +1,5 @@
 ---
-id: EPIC-055
+id: EPIC-056
 title: "Session Bookmark Lifecycle Integrity"
 track: container
 status: Proposed
@@ -7,8 +7,8 @@ priority-weight: medium
 created: 2026-04-02
 parent-vision: VISION-002
 child-specs:
-  - SPEC-234
-  - SPEC-235
+  - SPEC-240
+  - SPEC-241
 linked-artifacts:
   - EPIC-054
 summary: "Make session bookmarks a reliable source of truth — retro and teardown tolerate missing state, and bookmark creation is tied to worktree lifecycle."

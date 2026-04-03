@@ -40,7 +40,7 @@
 | EPIC-052 | Automated Test Gates | 2026-03-31 | — |
 | EPIC-053 | Deprecate and Replace Superpowers with Native Skills | 2026-04-01 | TBD |
 | EPIC-054 | Formalize Session Teardown | 2026-04-02 | — |
-| EPIC-055 | Session Bookmark Lifecycle Integrity | 2026-04-02 | — |
+| EPIC-056 | Session Bookmark Lifecycle Integrity | 2026-04-02 | — |
 
 ## Complete
 
