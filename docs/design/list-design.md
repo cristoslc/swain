@@ -14,6 +14,7 @@
 | DESIGN-009 | Socratic Discovery Interaction Flow | 2026-04-01 | TBD |
 | DESIGN-010 | Task Execution Interaction Flow | 2026-04-01 | TBD |
 | DESIGN-011 | Diagnostic Recovery Interaction Flow | 2026-04-01 | TBD |
+| DESIGN-012 | Session Teardown Interaction Flow | 2026-04-02 | — |
 
 ## Superseded
 

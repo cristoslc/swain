@@ -226,6 +226,15 @@ bash "$REPO_ROOT/.agents/bin/swain-progress-log.sh" --digest "$REPO_ROOT/.agents
 
 This appends a JSONL digest entry and updates each touched EPIC/Initiative's `progress.md` and `## Progress` section.
 
+Then run session teardown:
+
+```bash
+SWAIN_TEARDOWN_SKILL="$REPO_ROOT/.claude/skills/swain-teardown/SKILL.md"
+Skill("$SWAIN_TEARDOWN_SKILL", "Session teardown — --session-chain flag passed from swain-session close handler.")
+```
+
+This runs orphan worktree checks, git dirty-state check, ticket sync prompt, retro invitation, and writes a handoff summary. The `--session-chain` flag tells teardown to skip the redundant session-active check.
+
 Finally, commit SESSION-ROADMAP.md to git.
 
 ### Session resume

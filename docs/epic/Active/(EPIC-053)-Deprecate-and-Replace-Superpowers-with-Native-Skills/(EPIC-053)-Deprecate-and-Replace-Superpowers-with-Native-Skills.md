@@ -56,6 +56,7 @@ Swain works as a full tool. We keep the strict habits of chained skills. But we 
 - [SPEC-229](../../../spec/Active/(SPEC-229)-Native-Implementation-Planning/(SPEC-229)-Native-Implementation-Planning.md): Native plan steps in swain do.
 - [SPEC-230](../../../spec/Active/(SPEC-230)-Native-Socratic-Discovery/(SPEC-230)-Native-Socratic-Discovery.md): Native Socratic tests in swain design.
 - [SPEC-231](../../../spec/Active/(SPEC-231)-Global-Debugging-Loop/(SPEC-231)-Global-Debugging-Loop.md): Global debug loop in the agent root.
+- [SPEC-232](../../../spec/Active/(SPEC-232)-swain-teardown-Skill-and-Session-Chain/(SPEC-232)-swain-teardown-Skill-and-Session-Chain.md): swain-teardown skill and session chain (SPEC-232).
 
 ## Key Dependencies
 

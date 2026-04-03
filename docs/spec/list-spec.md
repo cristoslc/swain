@@ -120,6 +120,7 @@
 | SPEC-229 | Native Implementation Planning in swain-do | 2026-04-01 | TBD |
 | SPEC-230 | Native Socratic Discovery in swain-design | 2026-04-01 | TBD |
 | SPEC-231 | Global Debugging Loop in AGENTS.md | 2026-04-01 | TBD |
+| SPEC-232 | swain-teardown Skill and Session Chain | 2026-04-02 | — |
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete

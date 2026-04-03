@@ -23,3 +23,4 @@ Invoke the Skill tool for exactly one match. Pass the user's full prompt as args
 | swain-session | session, status, progress, what's next, dashboard, overview, where are we, what should I work on, tab name, preferences, bookmark, remember where I am, focus on |
 | swain-keys | SSH keys, signing, provision keys, configure signing, key setup |
 | swain-retro | retro, retrospective, reflect, what did we learn, learnings |
+| swain-teardown | teardown, clean up, wrap up, session end, end session, close session, log off, sign off |
