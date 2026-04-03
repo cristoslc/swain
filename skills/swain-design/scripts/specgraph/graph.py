@@ -18,6 +18,9 @@ from .parser import (
 )
 from .xref import compute_xref, _XREF_LIST_FIELDS
 
+_PARENT_EDGE_TYPES = {"parent-epic", "parent-vision", "parent-initiative"}
+_PARENT_SPECIFICITY = {"parent-epic": 3, "parent-initiative": 2, "parent-vision": 1}
+
 
 def _is_valid_ref(val: str) -> bool:
     """Check if a value is a valid reference (not a YAML null/empty placeholder)."""
@@ -182,6 +185,61 @@ def build_graph(
         "edges": edges,
         "xref": xref,
     }
+
+
+def _select_direct_parent(artifact_id: str, edges: list[dict]) -> str | None:
+    """Select one direct parent using chart's specificity rule.
+
+    Ties at the same specificity are resolved deterministically by parent ID.
+    """
+    parent_edges = [
+        e for e in edges
+        if e["from"] == artifact_id and e["type"] in _PARENT_EDGE_TYPES
+    ]
+    if not parent_edges:
+        return None
+    parent_edges.sort(
+        key=lambda e: (-_PARENT_SPECIFICITY.get(e["type"], 0), e["to"])
+    )
+    return parent_edges[0]["to"]
+
+
+def _canonical_path(artifact_id: str, relative_file: str) -> str:
+    """Return the lifecycle-scoped folder path for materialization.
+
+    Foldered artifacts already live inside their own directories.
+    Flat artifacts (for example some ADRs) synthesize a folder target by
+    stripping the markdown suffix from the file path.
+    """
+    file_path = Path(relative_file)
+    parent_dir = file_path.parent
+    if parent_dir.name.startswith(f"({artifact_id})"):
+        return str(parent_dir).replace("\\", "/")
+    return str(file_path.with_suffix("")).replace("\\", "/")
+
+
+def build_projection(nodes: dict[str, dict], edges: list[dict]) -> list[dict[str, Any]]:
+    """Build machine-readable hierarchy projection records."""
+    projection: list[dict[str, Any]] = []
+    for artifact_id in sorted(nodes):
+        node = nodes[artifact_id]
+        direct_parent = _select_direct_parent(artifact_id, edges)
+        placement_state = "placed"
+        if direct_parent is not None and direct_parent not in nodes:
+            direct_parent = None
+            placement_state = "unparented"
+        elif direct_parent is None:
+            placement_state = "root" if node.get("type") == "VISION" else "unparented"
+        projection.append({
+            "artifact": artifact_id,
+            "type": node.get("type", ""),
+            "status": node.get("status", ""),
+            "canonical_file": node.get("file", ""),
+            "canonical_path": _canonical_path(artifact_id, node.get("file", "")),
+            "direct_parent": direct_parent,
+            "placement_state": placement_state,
+        })
+    return projection
 
 
 def needs_rebuild(cache_file: Path, docs_dir: Path) -> bool:

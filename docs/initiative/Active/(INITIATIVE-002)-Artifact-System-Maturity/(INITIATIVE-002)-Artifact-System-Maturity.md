@@ -44,7 +44,7 @@ Build the document model and tooling that encode decisions, research, and plans.
 - EPIC-008: Normalize Artifact Lifecycle States (Complete)
 - EPIC-013: Specgraph Python Rewrite (Complete)
 - EPIC-014: Artifact Workflow Efficiency (Complete)
-- EPIC-055: Materialized Artifact Parenting View (Proposed)
+- EPIC-055: Materialized Artifact Parenting View (Complete)
 
 ## Small Work (Epic-less Specs)
 
