@@ -67,6 +67,7 @@ Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions 
 | **swain-release** | Changelog, version bump, git tag |
 | **swain-keys** | Per-project SSH keys for git signing and auth |
 | **swain-retro** | Capture learnings at EPIC completion or on demand |
+| **swain-teardown** | Session hygiene — orphan worktree detection, git dirty-state guard, bookmark cleanup |
 | **swain-update** | Pull latest skills, reconcile config |
 | **swain-help** | Quick reference and onboarding guidance |
 
