@@ -11,6 +11,7 @@ lifecycle:
     since: 2026-04-02
 child-specs:
   - SPEC-232
+  - SPEC-233
 linked-artifacts:
   - DESIGN-012
 summary: "Create a standalone swain-teardown skill and chain it from swain-session close handler to formalize end-of-session cleanup."
