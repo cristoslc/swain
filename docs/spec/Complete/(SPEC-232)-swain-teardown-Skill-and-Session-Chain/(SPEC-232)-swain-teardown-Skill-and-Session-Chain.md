@@ -1,13 +1,16 @@
 ---
 id: SPEC-232
 title: "swain-teardown Skill and Session Chain"
-status: Active
+status: Complete
 parent-epic: EPIC-054
 swain-do: required
 created: 2026-04-01
 lifecycle:
   - phase: Active
     since: 2026-04-02
+  - phase: Complete
+    since: 2026-04-03
+    notes: Implementation verified — skill v2.0.0, all 9 ACs satisfied
 linked-artifacts:
   - EPIC-054
   - DESIGN-012

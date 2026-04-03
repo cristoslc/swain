@@ -120,8 +120,6 @@
 | SPEC-229 | Native Implementation Planning in swain-do | 2026-04-01 | TBD |
 | SPEC-230 | Native Socratic Discovery in swain-design | 2026-04-01 | TBD |
 | SPEC-231 | Global Debugging Loop in AGENTS.md | 2026-04-01 | TBD |
-| SPEC-232 | swain-teardown Skill and Session Chain | 2026-04-02 | — |
-|| SPEC-239 | Worktree-Bookmark Lifecycle Coupling | 2026-04-02 |  
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete
@@ -242,6 +240,8 @@
 | SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | 2f49e1f |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | ee81e05 |
 | SPEC-227 | Doctor Artifact Index Staleness Repair | 2026-04-01 | — |
+|| SPEC-232 | swain-teardown Skill and Session Chain | 2026-04-03 | — |
+|| SPEC-239 | Worktree-Bookmark Lifecycle Coupling | 2026-04-03 | — |
 
 ## Superseded
 

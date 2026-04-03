@@ -2,13 +2,16 @@
 id: EPIC-054
 title: "Formalize Session Teardown"
 track: container
-status: Active
+status: Complete
 priority-weight: medium
 created: 2026-04-01
 parent-vision: VISION-002
 lifecycle:
   - phase: Active
     since: 2026-04-02
+  - phase: Complete
+    since: 2026-04-03
+    notes: Both child specs (SPEC-232, SPEC-239) complete — teardown skill v2.0.0 operational
 child-specs:
   - SPEC-232
   - SPEC-239
@@ -74,4 +77,4 @@ None.
 
 | Date | Status | Notes |
 |------|--------|-------|
-| 2026-04-02 | Active | Epic created |
+| 2026-04-03 | Complete | Both child specs (SPEC-232, SPEC-239) complete — teardown skill v2.0.0 operational |

@@ -2,7 +2,7 @@
 title: "Worktree-Bookmark Lifecycle Coupling"
 artifact: SPEC-239
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-04-02
 priority-weight: medium
@@ -25,11 +25,11 @@ Every worktree created during a session has a corresponding session bookmark. Wh
 
 ### The Current Behavior Sub-section.
 
-The teardown skill currently operates as a diagnostic tool only. It lists all worktrees and checks bookmarks.txt for each worktree path. Worktrees without bookmarks are flagged as orphans. The teardown reports findings and exits. No changes are made to the worktree inventory. The diagnostic output is accurate but useless for cleanup.
+The teardown skill currently operates as a diagnostic tool only. It lists all worktrees and checks the `session.json` worktrees array for each worktree path. Worktrees without session bookmarks are flagged as orphans. The teardown reports findings and exits. No changes are made to the worktree inventory. The diagnostic output is accurate but useless for cleanup.
 
 ### The Desired Behavior Sub-section.
 
-The teardown skill should operate as an actionable cleanup tool. It lists all worktrees and checks bookmarks.txt for each worktree path. Worktrees without bookmarks are flagged as orphans. The teardown evaluates each orphan against safety criteria. Safe orphans are offered for operator confirmation. Removed worktrees are logged in the teardown summary. The teardown report reflects both detected orphans and completed removals.
+The teardown skill should operate as an actionable cleanup tool. It lists all worktrees and checks the `session.json` worktrees array for each worktree path. Worktrees without session bookmarks are flagged as orphans. The teardown evaluates each orphan against safety criteria. Safe orphans are offered for operator confirmation. Removed worktrees are logged in the teardown summary. The teardown report reflects both detected orphans and completed removals.
 
 ### The Safety Constraints Sub-section.
 
@@ -40,7 +40,7 @@ The teardown skill must never auto-remove worktrees without operator confirmatio
 | Input | Source | Description |
 |-------|--------|-------------|
 | `WTLIST` | `git worktree list --porcelain` | All worktrees and their current states |
-| `BOOKMARKS` | `.agents/bookmarks.txt` | Session bookmarks containing worktree paths |
+| `BOOKMARKS` | `session.json` worktrees array | Session bookmarks containing worktree paths |
 | `OPERATOR_CONFIRM` | stdin | y/n confirmation response per orphan worktree |
 | `WT_BRANCH` | `git -C "$wt" rev-parse --abbrev-ref HEAD` | Branch name for each worktree |
 | `WT_STATUS` | `git -C "$wt" status --porcelain` | Dirty state of each worktree |
@@ -132,8 +132,8 @@ for wt_path in $(git worktree list --porcelain | grep "^worktree " | cut -d' ' -
     continue
   fi
 
-  # Check bookmark
-  if [ -f "$bookmark_file" ] && grep -q "$wt_path" "$bookmark_file"; then
+  # Check bookmark via session.json worktrees array
+  if [ -f "$session_json" ] && jq -e -r '.worktrees[]?.path' "$session_json" 2>/dev/null | grep -qx "$wt_path"; then
     is_orphan=false
   fi
 
@@ -163,8 +163,8 @@ for wt_info in $(git worktree list --porcelain | grep "^worktree " | cut -d' ' -
   # Skip trunk and non-orphan worktrees
   if [ "$wt_info" = "$REPO_ROOT" ]; then continue; fi
 
-  bookmark_file="$REPO_ROOT/.agents/bookmarks.txt"
-  if [ -f "$bookmark_file" ] && grep -q "$wt_info" "$bookmark_file"; then continue; fi
+  # Check via session.json worktrees array
+  if [ -f "$session_json" ] && jq -e -r '.worktrees[]?.path' "$session_json" 2>/dev/null | grep -qx "$wt_info"; then continue; fi
 
   wt_branch="$(git -C "$wt_info" rev-parse --abbrev-ref HEAD 2>/dev/null)"
   if [ -n "$(git -C "$wt_info" status --porcelain)" ]; then continue; fi
@@ -204,3 +204,4 @@ Update the teardown summary template to reflect removals. The worktree state lin
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-02 | | Initial spec created |
+| Complete | 2026-04-03 | | Implementation verified — swain-teardown v2.0.0, orphan detection with safety checks, session.json integration, operator confirm, SESSION-ROADMAP logging |
