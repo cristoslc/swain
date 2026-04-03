@@ -19,6 +19,7 @@ from specgraph.graph import (
     read_cache,
     repo_hash,
     write_cache,
+    _select_direct_parent,
 )
 
 
@@ -319,6 +320,8 @@ class TestBuildGraph:
             "canonical_path": "docs/spec/Proposed/(SPEC-001)-Lonely",
             "direct_parent": None,
             "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         }]
 
     def test_projection_marks_unparented_when_direct_parent_is_missing(self, tmp_path):
@@ -339,6 +342,8 @@ class TestBuildGraph:
             "canonical_path": "docs/spec/Proposed/(SPEC-001)-Dangling",
             "direct_parent": None,
             "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         }]
 
     def test_projection_converts_flat_artifact_file_to_folder_target(self, tmp_path):
@@ -360,7 +365,101 @@ class TestBuildGraph:
             "canonical_path": "docs/adr/Active/(ADR-001)-Decision",
             "direct_parent": None,
             "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
         }]
+
+    def test_build_projection_includes_linked_artifacts(self):
+        """Projection records include linked_artifacts from linked-artifacts edges."""
+        nodes = {
+            "EPIC-001": {"type": "EPIC", "status": "Active", "file": "docs/epic/Active/EPIC-001.md"},
+            "DESIGN-001": {"type": "DESIGN", "status": "Active", "file": "docs/design/Active/DESIGN-001.md"},
+        }
+        edges = [
+            {"from": "EPIC-001", "to": "DESIGN-001", "type": "linked-artifacts"},
+        ]
+        
+        projection = build_projection(nodes, edges)
+        epic_record = next(r for r in projection if r["artifact"] == "EPIC-001")
+        
+        assert epic_record["linked_artifacts"] == ["DESIGN-001"]
+
+    def test_build_projection_merges_artifact_refs_into_linked(self):
+        """artifact-refs edges are merged into linked_artifacts field."""
+        nodes = {
+            "EPIC-002": {"type": "EPIC", "status": "Active", "file": "docs/epic/Active/EPIC-002.md"},
+            "DESIGN-002": {"type": "DESIGN", "status": "Active", "file": "docs/design/Active/DESIGN-002.md"},
+        }
+        edges = [
+            {"from": "EPIC-002", "to": "DESIGN-002", "type": "artifact-refs"},
+        ]
+        
+        projection = build_projection(nodes, edges)
+        epic_record = next(r for r in projection if r["artifact"] == "EPIC-002")
+        
+        assert epic_record["linked_artifacts"] == ["DESIGN-002"]
+
+    def test_build_projection_includes_depends_on_artifacts(self):
+        """Projection records include depends_on_artifacts field."""
+        nodes = {
+            "SPEC-001": {"type": "SPEC", "status": "Proposed", "file": "docs/spec/Proposed/SPEC-001.md"},
+            "SPEC-002": {"type": "SPEC", "status": "Complete", "file": "docs/spec/Complete/SPEC-002.md"},
+        }
+        edges = [
+            {"from": "SPEC-001", "to": "SPEC-002", "type": "depends-on"},
+        ]
+        
+        projection = build_projection(nodes, edges)
+        spec_record = next(r for r in projection if r["artifact"] == "SPEC-001")
+        
+        assert spec_record["depends_on_artifacts"] == ["SPEC-002"]
+
+    def test_build_projection_empty_relationships(self):
+        """Artifacts with no relationships have empty lists."""
+        nodes = {
+            "SPEC-003": {"type": "SPEC", "status": "Proposed", "file": "docs/spec/Proposed/SPEC-003.md"},
+        }
+        edges = []
+        
+        projection = build_projection(nodes, edges)
+        spec_record = next(r for r in projection if r["artifact"] == "SPEC-003")
+        
+        assert spec_record["linked_artifacts"] == []
+        assert spec_record["depends_on_artifacts"] == []
+
+    def test_build_projection_excludes_broken_references(self):
+        """Edges to non-existent artifacts are excluded."""
+        nodes = {
+            "SPEC-004": {"type": "SPEC", "status": "Proposed", "file": "docs/spec/Proposed/SPEC-004.md"},
+        }
+        edges = [
+            {"from": "SPEC-004", "to": "MISSING-001", "type": "linked-artifacts"},
+            {"from": "SPEC-004", "to": "MISSING-002", "type": "depends-on"},
+        ]
+        
+        projection = build_projection(nodes, edges)
+        spec_record = next(r for r in projection if r["artifact"] == "SPEC-004")
+        
+        assert spec_record["linked_artifacts"] == []
+        assert spec_record["depends_on_artifacts"] == []
+
+    def test_build_projection_merges_both_linked_types(self):
+        """linked-artifacts and artifact-refs both go into linked_artifacts."""
+        nodes = {
+            "EPIC-003": {"type": "EPIC", "status": "Active", "file": "docs/epic/Active/EPIC-003.md"},
+            "DESIGN-003": {"type": "DESIGN", "status": "Active", "file": "docs/design/Active/DESIGN-003.md"},
+            "ADR-003": {"type": "ADR", "status": "Active", "file": "docs/adr/Active/ADR-003.md"},
+        }
+        edges = [
+            {"from": "EPIC-003", "to": "DESIGN-003", "type": "linked-artifacts"},
+            {"from": "EPIC-003", "to": "ADR-003", "type": "artifact-refs"},
+        ]
+        
+        projection = build_projection(nodes, edges)
+        epic_record = next(r for r in projection if r["artifact"] == "EPIC-003")
+        
+        # Both are merged and sorted
+        assert epic_record["linked_artifacts"] == ["ADR-003", "DESIGN-003"]
 
 
 def test_dual_parent_spec_produces_xref_warning():

@@ -249,6 +249,22 @@ def build_projection(nodes: dict[str, dict], edges: list[dict]) -> list[dict[str
             placement_state = "unparented"
         elif direct_parent is None:
             placement_state = "root" if node.get("type") == "VISION" else "unparented"
+        
+        # Extract relationship IDs from edges
+        linked = {
+            e["to"] for e in edges
+            if e["from"] == artifact_id
+            and e["type"] in ("linked-artifacts", "artifact-refs")
+            and e["to"] in nodes
+        }
+        
+        depends = {
+            e["to"] for e in edges
+            if e["from"] == artifact_id
+            and e["type"] == "depends-on"
+            and e["to"] in nodes
+        }
+        
         projection.append({
             "artifact": artifact_id,
             "type": node.get("type", ""),
@@ -257,6 +273,8 @@ def build_projection(nodes: dict[str, dict], edges: list[dict]) -> list[dict[str
             "canonical_path": _canonical_path(artifact_id, node.get("file", "")),
             "direct_parent": direct_parent,
             "placement_state": placement_state,
+            "linked_artifacts": sorted(linked),
+            "depends_on_artifacts": sorted(depends),
         })
     return projection
 
