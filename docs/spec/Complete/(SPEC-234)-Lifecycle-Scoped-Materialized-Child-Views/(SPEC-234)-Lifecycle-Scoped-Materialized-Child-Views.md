@@ -5,7 +5,7 @@ track: implementable
 status: Complete
 author: cristos
 created: 2026-04-02
-last-updated: 2026-04-02
+last-updated: 2026-04-03
 priority-weight: ""
 type: enhancement
 parent-epic: EPIC-056
@@ -26,25 +26,27 @@ swain-do: required
 
 ## Problem Statement
 
-Even with normalized hierarchy output, the docs tree stays hard to browse unless Swain projects direct-child links into artifact folders. The projection must respect lifecycle-scoped canonical folders and whole-folder child traversal.
+The graph can be correct and still be hard to browse. A parent folder should show its direct children. Each link should point to the real artifact folder in its current lifecycle folder.
 
 ## Desired Outcomes
 
-Entering an artifact folder shows its own files and direct child subfolders. Descending into a child continues the hierarchy because the child folder contains its own projected child view.
+A reader should open an artifact folder and see that artifact's files plus its direct children. When they open a child folder, they should see that child's own children with no extra render step.
 
 ## External Behavior
 
-- Create one direct-child symlink per placed child inside the parent's lifecycle-scoped authoritative folder.
-- Point each symlink at the child's lifecycle-scoped authoritative folder.
-- Create `_unparented/README.md` and per-type unparented entries for artifacts marked unparented by `chart`.
-- Preserve existing canonical files like the primary artifact markdown file and `roadmap.md`.
+- Create one child-folder symlink for each direct child inside the parent folder.
+- Point each symlink at the child's real lifecycle folder.
+- Create `_unparented/README.md` and unparented entries for each type that needs them.
+- Keep the real artifact files, such as the main markdown file and `roadmap.md`, unchanged.
+- Treat the symlink tree as output only. `chart` must skip those paths when it scans docs.
 
 ## Acceptance Criteria
 
-1. **Given** a parent artifact with direct children, **when** the materializer runs, **then** the parent's lifecycle-scoped folder contains one child-folder symlink per direct child.
-2. **Given** a child with its own descendants, **when** a reader enters the child symlink, **then** the child's nested child view is visible without extra rendering in the ancestor.
-3. **Given** a type with unparented artifacts, **when** the materializer runs, **then** `docs/<type>/_unparented/README.md` exists and explains that `_unparented/` is a repair surface rather than a lifecycle state.
-4. **Given** an artifact in a non-Active lifecycle folder, **when** it is materialized, **then** the symlink target resolves to that lifecycle-scoped folder rather than a type root or lifecycle-agnostic path.
+1. A parent with direct children gets one child-folder symlink for each direct child in its lifecycle folder.
+2. Opening a child symlink shows that child's own nested view.
+3. If a type has unparented artifacts, `docs/<type>/_unparented/README.md` exists and says this is a repair surface, not a lifecycle state.
+4. If an artifact lives in a non-Active lifecycle folder, the symlink points to that lifecycle folder.
+5. When `chart` scans docs, it skips materialized child symlink paths and reads only the canonical file.
 
 ## Verification
 
@@ -54,16 +56,17 @@ Entering an artifact folder shows its own files and direct child subfolders. Des
 | AC2 | `test_materialize_creates_direct_child_symlinks` in `skills/swain-design/scripts/tests/test_materialize_hierarchy.py` | Pass |
 | AC3 | `test_materialize_writes_unparented_surface_and_readme` in `skills/swain-design/scripts/tests/test_materialize_hierarchy.py` | Pass |
 | AC4 | `test_materialize_creates_direct_child_symlinks` in `skills/swain-design/scripts/tests/test_materialize_hierarchy.py` | Pass |
+| AC5 | `test_build_graph_ignores_materialized_symlink_paths` in `skills/swain-design/scripts/tests/test_graph.py` | Pass |
 
 ## Scope & Constraints
 
-In scope: symlink layout, lifecycle-scoped placement, `_unparented/README.md`, and collision-safe directory creation.
+In scope: child symlink layout, lifecycle-aware placement, `_unparented/README.md`, and safe directory handling.
 
-Out of scope: deciding hierarchy semantics, parsing frontmatter directly, and dependency-edge rendering.
+Out of scope: changing hierarchy rules, parsing frontmatter in this layer, and rendering dependency links.
 
 ## Implementation Approach
 
-Build a materializer that consumes the projection JSON from SPEC-239, reconciles per-parent child symlinks, and writes standardized `_unparented/README.md` files where needed.
+Build a materializer that reads the projection from SPEC-239, updates direct child symlinks, and writes standard `_unparented/README.md` files when needed.
 
 ## Lifecycle
 

@@ -2,6 +2,7 @@
 
 import multiprocessing
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -239,6 +240,32 @@ class TestBuildGraph:
         with pytest.raises(ValueError, match="Duplicate artifact IDs detected"):
             build_graph(tmp_path)
 
+    def test_build_graph_ignores_materialized_symlink_paths(self, tmp_path):
+        docs = tmp_path / "docs"
+        parent = docs / "epic" / "Active" / "(EPIC-001)-Parent"
+        child = docs / "spec" / "Proposed" / "(SPEC-001)-Child"
+        parent.mkdir(parents=True)
+        child.mkdir(parents=True)
+
+        (parent / "(EPIC-001)-Parent.md").write_text(
+            '---\ntitle: "Parent"\nartifact: EPIC-001\nstatus: Active\n---\n# Epic\n',
+            encoding="utf-8",
+        )
+        (child / "(SPEC-001)-Child.md").write_text(
+            '---\ntitle: "Child"\nartifact: SPEC-001\nstatus: Proposed\nparent-epic: EPIC-001\n---\n# Spec\n',
+            encoding="utf-8",
+        )
+        (parent / child.name).symlink_to(
+            os.path.relpath(child, start=parent),
+            target_is_directory=True,
+        )
+
+        data = build_graph(tmp_path)
+
+        assert sorted(data["nodes"]) == ["EPIC-001", "SPEC-001"]
+        edge_tuples = {(e["from"], e["to"], e["type"]) for e in data["edges"]}
+        assert ("SPEC-001", "EPIC-001", "parent-epic") in edge_tuples
+
     def test_projection_uses_narrowest_parent_and_folder_paths(self, tmp_path):
         docs = tmp_path / "docs"
         (docs / "vision" / "Active" / "(VISION-001)-Root").mkdir(parents=True)
@@ -338,16 +365,16 @@ class TestBuildGraph:
 
 def test_dual_parent_spec_produces_xref_warning():
     """A spec with both parent-epic and parent-initiative produces a warning in xref."""
-    import tempfile, os
+    import tempfile
     from pathlib import Path
     from specgraph.graph import build_graph
     with tempfile.TemporaryDirectory() as tmpdir:
-        docs = os.path.join(tmpdir, "docs", "spec", "Ready")
+        docs = os.path.join(tmpdir, "docs", "spec", "Active")
         os.makedirs(docs)
         spec_dir = os.path.join(docs, "(SPEC-099)-Dual-Parent")
         os.makedirs(spec_dir)
         with open(os.path.join(spec_dir, "(SPEC-099)-Dual-Parent.md"), "w") as f:
-            f.write("---\ntitle: Dual Parent\nartifact: SPEC-099\nstatus: Ready\nparent-epic: EPIC-001\nparent-initiative: INITIATIVE-001\n---\nBody.\n")
+            f.write("---\ntitle: Dual Parent\nartifact: SPEC-099\nstatus: Active\nparent-epic: EPIC-001\nparent-initiative: INITIATIVE-001\n---\nBody.\n")
         result = build_graph(Path(tmpdir))
         # Check for dual-parent warning in xref
         warnings = [x for x in result.get("xref", []) if x.get("artifact") == "SPEC-099"]

@@ -45,6 +45,13 @@ def _find_artifact_files(docs_dir: Path) -> list[Path]:
     """Find all markdown files in docs/ that could be artifacts."""
     files = []
     for md in sorted(docs_dir.rglob("*.md")):
+        relative_parents = md.relative_to(docs_dir).parents
+        if md.is_symlink() or any(
+            (docs_dir / parent).is_symlink()
+            for parent in relative_parents
+            if str(parent) != "."
+        ):
+            continue
         if md.name in ("README.md",) or md.name.startswith("list-"):
             continue
         files.append(md)
