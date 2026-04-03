@@ -54,7 +54,12 @@ def _materialize_relationship_dir(
     """Create relationship directory symlinks and return created names."""
     if not artifact_ids:
         return set()
-    
+
+    # Artifact directory must already exist (ADR-027: materializer must not
+    # create artifact directories; doctor handles flat-file migration).
+    if not parent_path.is_dir():
+        return set()
+
     # Filter to valid targets first
     valid_targets = []
     for aid in artifact_ids:
@@ -63,12 +68,12 @@ def _materialize_relationship_dir(
         if aid == current_artifact_id:
             continue  # skip self-reference
         valid_targets.append(aid)
-    
+
     if not valid_targets:
         return set()
-    
+
     rel_dir = parent_path / dir_name
-    rel_dir.mkdir(parents=True, exist_ok=True)
+    rel_dir.mkdir(exist_ok=True)
     
     created_names: set[str] = set()
     for aid in valid_targets:
@@ -127,10 +132,11 @@ def materialize_children(repo_root: Path, projection: list[dict]) -> None:
 
         if placement_state == "placed" and parent_id in paths:
             parent_path = repo_root / paths[parent_id]
+            if not parent_path.is_dir():
+                continue  # parent is a flat file; doctor handles migration
             child_path = artifact_path
             desired_children.setdefault(parent_path, set()).add(child_path.name)
 
-            parent_path.mkdir(parents=True, exist_ok=True)
             _ensure_link(parent_path, child_path)
             
             # Materialize relationship directories

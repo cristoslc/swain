@@ -487,6 +487,97 @@ def test_materialize_skips_broken_references(tmp_path):
     ]
     
     materialize_children(repo_root, projection)  # Should not raise
-    
+
     # No _Related/ created because no valid targets
     assert not (spec_dir / "_Related").exists()
+
+
+def test_materialize_skips_flat_file_artifacts(tmp_path):
+    """Flat-file artifacts (no directory) get no symlinks and no shadow dirs."""
+    repo_root = tmp_path
+    # Create a flat file ADR (no folder wrapping it)
+    adr_phase = repo_root / "docs" / "adr" / "Active"
+    adr_phase.mkdir(parents=True)
+    (adr_phase / "(ADR-001)-Flat-Decision.md").write_text("# ADR\n", encoding="utf-8")
+
+    target_dir = repo_root / "docs" / "spec" / "Active" / "(SPEC-001)-Target"
+    target_dir.mkdir(parents=True)
+    (target_dir / "(SPEC-001)-Target.md").write_text("# spec\n", encoding="utf-8")
+
+    projection = [
+        {
+            "artifact": "ADR-001",
+            "type": "ADR",
+            "status": "Active",
+            "canonical_file": "docs/adr/Active/(ADR-001)-Flat-Decision.md",
+            "canonical_path": "docs/adr/Active/(ADR-001)-Flat-Decision",
+            "direct_parent": None,
+            "placement_state": "standalone",
+            "linked_artifacts": ["SPEC-001"],
+            "depends_on_artifacts": [],
+        },
+        {
+            "artifact": "SPEC-001",
+            "type": "SPEC",
+            "status": "Active",
+            "canonical_file": "docs/spec/Active/(SPEC-001)-Target/(SPEC-001)-Target.md",
+            "canonical_path": "docs/spec/Active/(SPEC-001)-Target",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
+        },
+    ]
+
+    materialize_children(repo_root, projection)
+
+    # No shadow directory created for the flat-file ADR
+    shadow = repo_root / "docs" / "adr" / "Active" / "(ADR-001)-Flat-Decision"
+    assert not shadow.exists(), "Materializer must not create directories for flat-file artifacts"
+
+    # No _Related/ anywhere for the flat-file artifact
+    assert not (shadow / "_Related").exists()
+
+
+def test_materialize_skips_placed_child_when_parent_is_flat(tmp_path):
+    """Placed children are skipped when the parent directory doesn't exist."""
+    repo_root = tmp_path
+    # Flat-file parent (no folder)
+    parent_phase = repo_root / "docs" / "epic" / "Active"
+    parent_phase.mkdir(parents=True)
+    (parent_phase / "(EPIC-001)-Parent.md").write_text("# epic\n", encoding="utf-8")
+
+    child_dir = repo_root / "docs" / "spec" / "Active" / "(SPEC-001)-Child"
+    child_dir.mkdir(parents=True)
+    (child_dir / "(SPEC-001)-Child.md").write_text("# spec\n", encoding="utf-8")
+
+    projection = [
+        {
+            "artifact": "EPIC-001",
+            "type": "EPIC",
+            "status": "Active",
+            "canonical_file": "docs/epic/Active/(EPIC-001)-Parent.md",
+            "canonical_path": "docs/epic/Active/(EPIC-001)-Parent",
+            "direct_parent": None,
+            "placement_state": "unparented",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
+        },
+        {
+            "artifact": "SPEC-001",
+            "type": "SPEC",
+            "status": "Active",
+            "canonical_file": "docs/spec/Active/(SPEC-001)-Child/(SPEC-001)-Child.md",
+            "canonical_path": "docs/spec/Active/(SPEC-001)-Child",
+            "direct_parent": "EPIC-001",
+            "placement_state": "placed",
+            "linked_artifacts": [],
+            "depends_on_artifacts": [],
+        },
+    ]
+
+    materialize_children(repo_root, projection)
+
+    # No shadow directory created for the flat-file parent
+    shadow = repo_root / "docs" / "epic" / "Active" / "(EPIC-001)-Parent"
+    assert not shadow.exists(), "Materializer must not create directories for flat-file parents"
