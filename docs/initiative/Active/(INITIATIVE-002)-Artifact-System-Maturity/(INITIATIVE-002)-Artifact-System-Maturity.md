@@ -2,10 +2,10 @@
 title: "Artifact System Maturity"
 artifact: INITIATIVE-002
 track: container
-status: Complete
+status: Active
 author: cristos
 created: 2026-03-15
-last-updated: 2026-03-15
+last-updated: 2026-04-02
 parent-vision: VISION-001
 success-criteria:
   - Unified artifact type system with consistent lifecycle tracks
@@ -18,19 +18,24 @@ linked-artifacts:
   - EPIC-008
   - EPIC-013
   - EPIC-014
+  - ADR-022
+  - DESIGN-013
+  - DESIGN-014
+  - EPIC-055
+  - SPEC-236
 ---
 
 # Artifact System Maturity
 
 ## Strategic Focus
 
-Build the structured document model and tooling that encode decisions, research, and plans. This initiative ensures that artifacts are the single source of truth — consistently modeled, efficiently authored, and queryable by both humans and agents.
+Build the document model and tooling that encode decisions, research, and plans. This initiative keeps artifacts as the single source of truth. They should be consistent, easy to write, and easy to query.
 
 ## Scope Boundaries
 
-**In scope:** Artifact type system, lifecycle normalization, specgraph tooling, evidence pools, workflow efficiency (fast-path authoring, inline stamps, lazy index refresh).
+**In scope:** Artifact type system, lifecycle normalization, graph tooling, evidence pools, and workflow efficiency.
 
-**Out of scope:** Frontend rendering of artifacts, external integrations beyond GitHub Issues, agent-specific artifact consumption patterns.
+**Out of scope:** Frontend rendering of artifacts, external integrations beyond GitHub Issues, and agent-specific artifact consumption patterns.
 
 ## Child Epics
 
@@ -39,10 +44,13 @@ Build the structured document model and tooling that encode decisions, research,
 - EPIC-008: Normalize Artifact Lifecycle States (Complete)
 - EPIC-013: Specgraph Python Rewrite (Complete)
 - EPIC-014: Artifact Workflow Efficiency (Complete)
+- EPIC-055: Materialized Artifact Parenting View (Proposed)
 
 ## Small Work (Epic-less Specs)
 
-None.
+| Spec | Title | Status |
+|------|-------|--------|
+| SPEC-236 | next-artifact-id Misses Untracked Artifacts In Other Worktrees | Proposed |
 
 ## Key Dependencies
 
@@ -53,3 +61,4 @@ None — this was foundational work.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Complete | 2026-03-15 | — | Retroactive creation during initiative migration; all child epics already complete |
+| Active | 2026-04-02 | — | Reactivated for hierarchy materialization, graph-interface clarification, and allocator bug repair |
