@@ -14,13 +14,25 @@ metadata:
 
 # Retrospectives
 
-<!-- session-check: SPEC-121 -->
-Before proceeding with any state-changing operation, check for an active session:
+<!-- session-check: SPEC-121, SPEC-234 -->
+Before proceeding, check for an active session and determine which evidence source to use:
+
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
+session_check=$(bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null)
+session_status=$(echo "$session_check" | jq -r '.status // "none"')
+
+if [ "$session_status" = "active" ]; then
+  echo "Using active session evidence"
+else
+  echo "No active session — falling back to git log evidence"
+  git_evidence=$(git log --oneline -20 2>/dev/null)
+  echo "Recent commits:"
+  echo "$git_evidence"
+fi
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+
+If no active session, proceed with the retro using git log as the primary evidence source. Produce a standalone retro document in `docs/swain-retro/` rather than embedding in an artifact. Adapt reflection questions to the unscoped context.
 
 Captures learnings at natural completion points and persists them for future use. This skill is both auto-triggered (EPIC terminal transition hook in swain-design) and manually invocable via `/swain-retro`.
 

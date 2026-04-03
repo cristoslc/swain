@@ -206,34 +206,48 @@ bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" record-decision --note "App
 
 ### Session close
 
-When the operator says "done", "wrap up", "close session", or the decision budget is reached:
+When the operator says "done", "wrap up", "close session", or the decision budget is reached, execute this close sequence. **Critical:** swain-retro must run while the session is still active so it can read session state. Do not close the session before running retro.
+
+### Step 1 — Generate session digest and progress logs
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" close --walkaway "Completed SPEC-119 tests and state management" --session-roadmap "$(pwd)/SESSION-ROADMAP.md"
-```
-
-This:
-1. Sets session phase to `closed` with end time
-2. Appends the walk-away signal to SESSION-ROADMAP.md
-
-Then generate the session digest and feed it into progress logs:
-
-```bash
 bash "$REPO_ROOT/.agents/bin/swain-session-digest.sh" --session-id "$(jq -r .session_id "$REPO_ROOT/.agents/session-state.json")" --output "$REPO_ROOT/.agents/session-log.jsonl"
 bash "$REPO_ROOT/.agents/bin/swain-progress-log.sh" --digest "$REPO_ROOT/.agents/session-log.jsonl"
 ```
 
 This appends a JSONL digest entry and updates each touched EPIC/Initiative's `progress.md` and `## Progress` section.
 
-Then run session teardown:
+### Step 2 — Run retro (session still active)
 
 ```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SWAIN_RETRO_SKILL="$REPO_ROOT/.claude/skills/swain-retro/SKILL.md"
+Skill("$SWAIN_RETRO_SKILL", "Session close — session is closing. Run /swain-retro to capture session learnings before the session state is cleared.")
+```
+
+**Important:** Retro reads session.json and session-state.json while they are still populated. Do not call session-state.sh close before this step.
+
+### Step 3 — Close the session
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" close --walkaway "Completed SPEC-119 tests and state management" --session-roadmap "$(pwd)/SESSION-ROADMAP.md"
+```
+
+This sets session phase to `closed` with end time and appends the walk-away signal to SESSION-ROADMAP.md.
+
+### Step 4 — Run session teardown
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 SWAIN_TEARDOWN_SKILL="$REPO_ROOT/.claude/skills/swain-teardown/SKILL.md"
 Skill("$SWAIN_TEARDOWN_SKILL", "Session teardown — --session-chain flag passed from swain-session close handler.")
 ```
 
-This runs orphan worktree checks, git dirty-state check, ticket sync prompt, retro invitation, and writes a handoff summary. The `--session-chain` flag tells teardown to skip the redundant session-active check.
+This runs orphan worktree checks, git dirty-state check, ticket sync prompt, and writes a handoff summary. The `--session-chain` flag tells teardown to skip the redundant session-active check since the handler already confirmed session state.
+
+### Step 5 — Commit SESSION-ROADMAP.md
 
 Finally, commit SESSION-ROADMAP.md to git.
 
