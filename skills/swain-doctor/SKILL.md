@@ -115,7 +115,7 @@ Verify vendored tk is executable (at the sibling `swain-do/bin/tk` skill path) a
 
 ## Operator bin/ symlinks (SPEC-214, ADR-019)
 
-Auto-repair `bin/` symlinks for operator-facing scripts. Scans `skills/*/usr/bin/` manifest directories to discover which scripts need `bin/` symlinks. Each entry in `usr/bin/` is a symlink whose name is the operator command and whose target resolves to the actual script in `scripts/`. Adding a new operator script requires only a new entry in `usr/bin/` — no doctor code changes.
+Auto-repair `bin/` symlinks for operator-facing scripts. Scans the installed skill tree's `usr/bin/` manifest directories to discover which scripts need `bin/` symlinks. Each entry in `usr/bin/` is a symlink whose name is the operator command and whose target resolves to the actual script in `scripts/`. Adding a new operator script requires only a new entry in `usr/bin/` — no doctor code changes.
 
 ### Behavior
 

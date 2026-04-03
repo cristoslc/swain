@@ -15,7 +15,7 @@ Swain today is a Claude Code-native system. Its components form two interlocking
 
 - `AGENTS.md` encodes swain's instruction hierarchy, artifact model, skill routing rules, and conflict resolution policy. It is a plain markdown file at the repo root, read natively by most modern agent runtimes.
 - `CLAUDE.md` (at repo root and `~/.claude/`) provides Claude Code-specific routing. It includes `@AGENTS.md` so that Claude Code ultimately reads the same governance content as other runtimes.
-- Skills in `.claude/skills/` and `.agents/skills/` contain the methodology instructions that Claude Code injects as system-prompt-adjacent context when invoked. These include `swain-design`, `swain-do`, `swain-status`, `swain-session`, `swain-doctor`, and the superpowers integration skills.
+- Skills in `.claude/skills/` and `.agents/skills/` contain the methodology instructions that Claude Code injects as system-prompt-adjacent context when invoked. These include `swain-design`, `swain-do`, `swain-session`, `swain-doctor`, and the superpowers integration skills. Status and "what's next?" requests route through `swain-session`.
 
 **Execution layer**
 
@@ -104,7 +104,7 @@ MCP Prompts surface as slash commands in MCP-compatible clients. These are the d
 |--------|----------------------|---------|
 | `/mcp__swain__design` | `/swain-design` | Artifact lifecycle management |
 | `/mcp__swain__do` | `/swain-do` | Task tracking and execution |
-| `/mcp__swain__status` | `/swain-status` | Decision support dashboard |
+| `/mcp__swain__status` | `/swain-session` | Decision support dashboard intent |
 | `/mcp__swain__session` | `/swain-session` | Session startup and context loading |
 
 ### Resources

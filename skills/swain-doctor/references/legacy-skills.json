@@ -11,7 +11,8 @@
     "update-agents-core": "swain-update",
     "skill-manager": "swain-update",
     "remote-skill-manager": "swain-update",
-    "swain-dispatch": "deprecated (requires API billing; use parallel agents in-session)"
+    "swain-dispatch": "deprecated (requires API billing; use parallel agents in-session)",
+    "swain-status": "swain-session"
   },
   "fingerprints": [
     "source: swain",

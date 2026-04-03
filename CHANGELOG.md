@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.28.0-alpha] - 2026-04-01
+
+### Features
+
+**#### Orphan Worktree Removal**  
+swain-teardown now offers operator-confirmed removal of orphan worktrees. Full safety checks: dirty state, unmerged branches, current directory, and trunk protection all block removal with explicit reasons. SESSION-ROADMAP.md logs any removals.
+
+**#### Unified Bookmark Storage**  
+swain-bookmark.sh now manages worktree records alongside context notes through a single `worktrees` array in session.json. The broken session-bookmark.sh symlink removed.
+
+**#### Retro Without Active Session**  
+swain-retro now falls back to git log evidence when no session is active, so retrospectives work independently of the session lifecycle.
+
+### Supporting Changes
+
+- swain-do path corrected for swain-bookmark.sh
+- Legacy skill cleanup in swain-doctor and swain-preflight, improving reliability
+- Broken link resolution and readability improvements across documentation
+- Skill-creator audit requirement added for skill modifications
+- swain-status references retired in favor of swain-session
+
 ## [0.27.1-alpha] - 2026-04-01
 
 ### Features

@@ -208,7 +208,14 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
    bash "$REPO_ROOT/.agents/bin/swain-tab-name.sh" --path "$(pwd)" --auto
    ```
 
-5. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
+5. **Record the worktree bookmark** (SPEC-235). After `EnterWorktree` succeeds, call swain-bookmark.sh to register the worktree in session.json. This prevents orphan worktrees from accumulating and enables teardown to identify them cleanly.
+   ```bash
+   WT_PATH="$(pwd)"
+   WT_BRANCH="$(git branch --show-current 2>/dev/null || echo 'unknown')"
+   bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree add "$WT_PATH" "$WT_BRANCH"
+   ```
+
+6. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
 
 **Operator override:** If the operator explicitly says "work on trunk" or "don't isolate," respect the override and proceed on trunk. Log a warning: "Proceeding on trunk at operator request — changes will land directly on the development branch."
 

@@ -33,7 +33,7 @@ Help the operator see what matters — current state, progress, and what needs a
 
 ## Scope Boundaries
 
-**In scope:** README onboarding, MOTD panel, swain-status visualizations, postflight summaries, scope progress views.
+**In scope:** README onboarding, MOTD panel, status dashboard visualizations, postflight summaries, scope progress views.
 
 **Out of scope:** External notification systems (Slack, email), mobile dashboards, historical trend analysis.
 

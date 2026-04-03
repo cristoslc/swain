@@ -10,6 +10,11 @@
 | DESIGN-005 | swain-box Launcher UX | 2026-03-19 | — |
 | DESIGN-006 | Artifact Frontmatter Schema | 2026-03-27 | -- |
 | DESIGN-007 | Worktree Path Link Detection and Resolution | 2026-03-31 | — |
+| DESIGN-008 | Native Agentic Validation Hooks | 2026-04-01 | TBD |
+| DESIGN-009 | Socratic Discovery Interaction Flow | 2026-04-01 | TBD |
+| DESIGN-010 | Task Execution Interaction Flow | 2026-04-01 | TBD |
+| DESIGN-011 | Diagnostic Recovery Interaction Flow | 2026-04-01 | TBD |
+| DESIGN-012 | Session Teardown Interaction Flow | 2026-04-02 | — |
 
 ## Superseded
 

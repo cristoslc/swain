@@ -2,6 +2,21 @@
 
 Every source in a trove is normalized to a markdown file with YAML frontmatter. The frontmatter schema is consistent across types; the body structure varies by source type.
 
+## Snapshot-first normalization contract (SPEC-220)
+
+For remote documents (especially Google Docs/Drive links), normalization is not allowed until a raw snapshot is exported first.
+
+Required sequence:
+1. Export/download raw file:
+   - `bash skills/swain-search/scripts/export-snapshot.sh --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
+2. Normalize via `writing-skills` or `skill-creator` using the downloaded file path.
+3. Log the evidence record:
+   - `bash skills/swain-search/scripts/log-snapshot-metadata.sh --source-url "<source-url>" --export-mode "<mode>" --raw-path "<raw-path>" --normalized-path "<normalized-path>" --normalization-skill "<writing-skills|skill-creator>"`
+4. Verify source eligibility:
+   - `bash skills/swain-search/scripts/verify-snapshot-evidence.sh --source-url "<source-url>"`
+
+If step 4 fails, the source is unverified and must not be published into trove synthesis.
+
 ## Common frontmatter
 
 All normalized source files share this frontmatter:

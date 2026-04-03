@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: Version bump, changelog, and git tag
-  version: 1.5.0
+  version: 1.5.1
   author: cristos
   source: swain
 ---
@@ -109,7 +109,17 @@ The key distinction agents get wrong: **creating a SPEC or EPIC is a roadmap cha
 
 **Roadmap anti-pattern:** "EPIC-029 activated with 3 child SPECs (SPEC-118, SPEC-119, SPEC-120)" is noise — it describes artifact state transitions that only matter to the project maintainer. Instead write: "Trunk detection is being generalized so swain works on any branch name without configuration." The reader should understand *what's coming and why they'd care*, not which internal tracking artifacts changed state.
 
+**Supporting anti-patterns — things that do NOT go in supporting:**
+- Development process changes ("close handler reordered", "session-state tolerance added") — these are implementation details, not user-visible behavior
+- Artifact state transitions ("EPIC-053 approved and activated", "SPEC-220 created") — these describe planning activity, not shipped work
+- Untracked files that existed before the release window — only include files that changed in the diff
+- Bug fixes or features that changed behavior — those are features, not supporting
+
+**Supporting includes only:** dependency bumps, CI/config changes, internal refactors that don't change behavior, cleanup of dead code, readability fixes.
+
 Omit mechanical commits entirely: merge commits, lifecycle hash stamps, index refreshes, bookmark advances.
+
+**Bucket assignment is mutually exclusive.** If something appears in features it does not appear in roadmap or supporting. If it appears in roadmap it is not in supporting. Every commit goes in exactly one bucket or is omitted.
 
 **Step 4b — Build the JSON data file.** Write a temporary JSON file with this structure:
 
