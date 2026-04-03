@@ -164,10 +164,16 @@ def main():
         data = build_graph(Path(repo_root))
         cp = cache_path(repo_root)
         write_cache(data, cp)
-        materialize_children(Path(repo_root), build_projection(data["nodes"], data["edges"]))
+        skipped = materialize_children(Path(repo_root), build_projection(data["nodes"], data["edges"]))
         print(f"Graph built: {cp}")
         print(f"  Nodes: {len(data['nodes'])}")
         print(f"  Edges: {len(data['edges'])}")
+        if skipped:
+            print(f"  Skipped {len(skipped)} flat-file artifact(s) — run swain-doctor --fix-flat-artifacts to migrate:")
+            for aid in skipped[:10]:
+                print(f"    {aid}")
+            if len(skipped) > 10:
+                print(f"    ... and {len(skipped) - 10} more")
         return
 
     # Passthrough to specgraph CLI

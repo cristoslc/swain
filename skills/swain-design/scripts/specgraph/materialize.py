@@ -99,17 +99,19 @@ def _materialize_relationship_dir(
     return created_names
 
 
-def materialize_children(repo_root: Path, projection: list[dict]) -> None:
+def materialize_children(repo_root: Path, projection: list[dict]) -> list[str]:
     """Create direct-child symlinks for placed projection records.
 
-    This minimal pass creates child folder links only. Cleanup and
-    `_unparented` handling are added in follow-on tasks.
+    Returns a list of artifact IDs that were skipped because their
+    canonical path (or parent path) is not a directory.  Callers
+    should surface these so the operator knows to run doctor.
     """
     paths = {item["artifact"]: item["canonical_path"] for item in projection}
     nodes = {item["artifact"]: item for item in projection}
 
     desired_children: dict[Path, set[str]] = {}
     desired_unparented: dict[Path, set[str]] = {}
+    skipped_flat: list[str] = []
 
     for item in projection:
         parent_id = item.get("direct_parent")
@@ -118,22 +120,27 @@ def materialize_children(repo_root: Path, projection: list[dict]) -> None:
 
         # Standalone artifacts (e.g. RETROs) skip hierarchy but get relationships
         if placement_state == "standalone":
-            if item.get("linked_artifacts"):
-                _materialize_relationship_dir(
-                    artifact_path, repo_root, "_Related",
-                    item["linked_artifacts"], nodes, item["artifact"]
-                )
-            if item.get("depends_on_artifacts"):
-                _materialize_relationship_dir(
-                    artifact_path, repo_root, "_Depends-On",
-                    item["depends_on_artifacts"], nodes, item["artifact"]
-                )
+            has_rels = item.get("linked_artifacts") or item.get("depends_on_artifacts")
+            if has_rels and not artifact_path.is_dir():
+                skipped_flat.append(item["artifact"])
+            else:
+                if item.get("linked_artifacts"):
+                    _materialize_relationship_dir(
+                        artifact_path, repo_root, "_Related",
+                        item["linked_artifacts"], nodes, item["artifact"]
+                    )
+                if item.get("depends_on_artifacts"):
+                    _materialize_relationship_dir(
+                        artifact_path, repo_root, "_Depends-On",
+                        item["depends_on_artifacts"], nodes, item["artifact"]
+                    )
             continue
 
         if placement_state == "placed" and parent_id in paths:
             parent_path = repo_root / paths[parent_id]
             if not parent_path.is_dir():
-                continue  # parent is a flat file; doctor handles migration
+                skipped_flat.append(str(parent_id))
+                continue
             child_path = artifact_path
             desired_children.setdefault(parent_path, set()).add(child_path.name)
 
@@ -182,3 +189,12 @@ def materialize_children(repo_root: Path, projection: list[dict]) -> None:
 
     for surface, desired_names in desired_unparented.items():
         _remove_stale_symlinks(surface, desired_names)
+
+    # Deduplicate: a flat parent may be referenced by multiple children
+    seen: set[str] = set()
+    unique: list[str] = []
+    for aid in skipped_flat:
+        if aid not in seen:
+            seen.add(aid)
+            unique.append(aid)
+    return unique
