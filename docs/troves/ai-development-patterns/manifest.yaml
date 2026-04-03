@@ -1,0 +1,43 @@
+trove: ai-development-patterns
+created: 2026-04-03
+refreshed: 2026-04-03
+tags:
+  - ai-development
+  - agentic-patterns
+  - codified-rules
+  - context-persistence
+  - spec-driven-development
+  - parallel-agents
+  - security-sandbox
+  - progressive-enhancement
+  - ai-coding-standards
+  - development-lifecycle
+
+freshness-ttl:
+  repository: 30d
+
+history:
+  - event: created
+    date: 2026-04-03
+    commit: "--"
+    sources: 1
+
+referenced-by: []
+
+sources:
+  - source-id: "paulduvall-ai-development-patterns"
+    type: repository
+    url: "https://github.com/PaulDuvall/ai-development-patterns"
+    fetched: 2026-04-03T21:30:00Z
+    title: "AI Development Patterns — PaulDuvall"
+    hash: "f198796b736ae4a29d304aac291162bde75b74787d80a57e20eb4c8fae250c02"
+    selective: true
+    highlights:
+      - "README-patterns.md"
+      - "patterns.yaml"
+      - "CLAUDE.md"
+      - "AGENTS.md"
+      - "pattern-spec.md"
+      - "experiments-README.md"
+    snapshot-verified: true
+    notes: "Selective ingest of a 1.6M-character repo; full export available in .agents/search-snapshots/raw/"
