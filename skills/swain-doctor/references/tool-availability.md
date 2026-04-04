@@ -23,6 +23,7 @@ These tools enable specific features. If missing, note which features are degrad
 | `tmux` | `which tmux` | swain-session | Session tab-naming unavailable outside tmux | `brew install tmux` |
 | `fswatch` | `command -v fswatch` | swain-design (specwatch live mode) | Live artifact watching unavailable; on-demand `specwatch.sh scan` still works | `brew install fswatch` |
 | `ssh` | `command -v ssh` | swain-keys, git SSH alias remotes | Project-specific GitHub SSH aliases cannot be used from this runtime | `brew install openssh` |
+| `rtk` | `command -v rtk` | git-compact (context-window compression) | `git-compact` passes through to raw git — no compression savings | `brew install rtk` |
 
 ## Reporting format
 
