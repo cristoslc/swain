@@ -39,6 +39,8 @@ FLAG_DRY_RUN=false
 FLAG_PHASE1_ONLY=false
 FLAG_PHASE2_ONLY=false
 FLAG_NON_INTERACTIVE=false
+FLAG_RESUME=""
+FLAG_TRUNK=false
 PURPOSE_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -67,12 +69,22 @@ while [[ $# -gt 0 ]]; do
       FLAG_NON_INTERACTIVE=true
       shift
       ;;
+    --resume)
+      FLAG_RESUME="$2"
+      shift 2
+      ;;
+    --trunk)
+      FLAG_TRUNK=true
+      shift
+      ;;
     --help|-h)
-      echo "Usage: swain [--fresh] [--runtime <name>] [purpose...]"
+      echo "Usage: swain [--fresh] [--runtime <name>] [--resume <name>] [--trunk] [purpose...]"
       echo ""
       echo "Options:"
       echo "  --fresh         Skip crash recovery, start a clean session"
       echo "  --runtime NAME  Force a specific runtime (claude, gemini, codex, copilot, crush)"
+      echo "  --resume NAME   Resume an existing worktree by name"
+      echo "  --trunk         Launch on trunk (no worktree isolation)"
       echo ""
       echo "Arguments after flags become the session purpose text."
       exit 0
@@ -208,6 +220,51 @@ create_session_worktree() {
 
 prepare_session_workspace() {
   detect_checkout_state
+
+  # SPEC-245: --trunk flag — launch on trunk with warning
+  if [[ "$FLAG_TRUNK" == "true" ]]; then
+    if [[ -t 0 ]] && [[ "$FLAG_NON_INTERACTIVE" != "true" ]]; then
+      echo "WARNING: Working on trunk violates worktree discipline."
+      echo ""
+      echo "This should only be used for:"
+      echo "  - Quick typo fixes (3 files or fewer)"
+      echo "  - Merge/rebase operations"
+      echo "  - Emergency hotfixes"
+      echo ""
+      read -r -p "Proceed on trunk? (y/N): " confirm </dev/tty
+      if [[ "$confirm" != "y" ]] && [[ "$confirm" != "Y" ]]; then
+        echo "Cancelled."
+        exit 0
+      fi
+    fi
+    LAUNCH_ROOT="$REPO_ROOT"
+    return
+  fi
+
+  # SPEC-245: --resume flag — find and resume existing worktree
+  if [[ -n "$FLAG_RESUME" ]]; then
+    local found_path=""
+    while IFS= read -r line; do
+      if [[ "$line" == worktree\ * ]]; then
+        local wt_path="${line#worktree }"
+        if [[ "$wt_path" == *"$FLAG_RESUME"* ]]; then
+          found_path="$wt_path"
+          break
+        fi
+      fi
+    done < <(git worktree list --porcelain 2>/dev/null)
+
+    if [[ -n "$found_path" ]]; then
+      LAUNCH_ROOT="$found_path"
+      RESUME_PROMPT="/swain-session Session purpose: resume — $FLAG_RESUME"
+      PURPOSE_ARGS=()
+      echo "Resuming worktree: $LAUNCH_ROOT"
+    else
+      echo "error: no worktree matching '$FLAG_RESUME' found" >&2
+      exit 1
+    fi
+    return
+  fi
 
   if [[ ${#PURPOSE_ARGS[@]} -eq 0 ]] || [[ -n "$RESUME_PROMPT" ]] || [[ "$VALID_GIT_REPO" != "true" ]]; then
     return
@@ -575,8 +632,58 @@ phase3_launch_runtime() {
 
   cd "$LAUNCH_ROOT"
 
-  # Launch the runtime via exec (replaces this process)
-  eval exec "$cmd"
+  # --- SPEC-245: Lockfile claiming + env var export ---
+  local lockfile_script="$REPO_ROOT/.agents/bin/swain-lockfile.sh"
+  local branch=""
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
+
+  if [[ -n "$branch" ]] && [[ "$branch" != "trunk" ]] && [[ -f "$lockfile_script" ]]; then
+    local purpose_text="${PURPOSE_ARGS[*]:-}"
+    export SWAIN_RUNTIME="$runtime"
+    bash "$lockfile_script" claim "$branch" "$LAUNCH_ROOT" "$purpose_text" 2>/dev/null || true
+    export SWAIN_WORKTREE_PATH="$LAUNCH_ROOT"
+    export SWAIN_LOCKFILE_PATH="$REPO_ROOT/.agents/worktrees/${branch}.lock"
+  fi
+
+  # --- SPEC-245: Launch runtime as child process (not exec) ---
+  # Running as child allows post-runtime cleanup (lockfile verification, worktree pruning).
+  # Forward signals to the child so Ctrl-C propagates cleanly.
+  local child_pid=""
+  trap '[[ -n "$child_pid" ]] && kill -TERM "$child_pid" 2>/dev/null' TERM INT HUP
+
+  eval "$cmd" &
+  child_pid=$!
+  wait "$child_pid" 2>/dev/null
+  local exit_code=$?
+  child_pid=""
+
+  # --- SPEC-245: Post-runtime cleanup ---
+  if [[ -n "$branch" ]] && [[ "$branch" != "trunk" ]] && [[ -f "$lockfile_script" ]]; then
+    # Check if worktree is ready for cleanup
+    local verify_exit=0
+    bash "$lockfile_script" verify-ready "$branch" >/dev/null 2>&1 || verify_exit=$?
+
+    if [[ $verify_exit -eq 0 ]]; then
+      # Commit hash matches — safe to prune
+      local archive_script="$REPO_ROOT/.agents/bin/swain-session-archive.sh"
+      if [[ -f "$archive_script" ]]; then
+        bash "$archive_script" save "$LAUNCH_ROOT" 2>/dev/null || true
+      fi
+      cd "$REPO_ROOT" || cd "$HOME"
+      git worktree remove "$LAUNCH_ROOT" 2>/dev/null || true
+      bash "$lockfile_script" release "$branch" 2>/dev/null || true
+      git worktree prune 2>/dev/null || true
+      echo "Worktree cleaned up: $LAUNCH_ROOT"
+    elif [[ $verify_exit -eq 1 ]]; then
+      # Commit mismatch — new work since ready mark
+      echo "Note: worktree has new commits since ready_for_cleanup — leaving in place."
+    else
+      # Not marked ready — leave lockfile for teardown
+      :
+    fi
+  fi
+
+  exit "$exit_code"
 }
 
 # --- Main ---
