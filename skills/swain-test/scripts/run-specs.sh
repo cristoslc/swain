@@ -2,13 +2,14 @@
 # Run the full swain BDD suite, or a subset by domain.
 #
 # Usage:
-#   spec/run                    # all specs
-#   spec/run session            # just session specs
-#   spec/run session worktree   # session + worktree specs
-#   spec/run --tap              # TAP output (for CI)
+#   run-specs.sh                # all specs
+#   run-specs.sh session        # just session specs
+#   run-specs.sh session worktree   # session + worktree specs
+#   run-specs.sh --tap          # TAP output (for CI)
 set -euo pipefail
 
-SPEC_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SPEC_DIR="$REPO_ROOT/spec"
 FORMATTER="pretty"
 DOMAINS=()
 
