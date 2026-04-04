@@ -48,8 +48,8 @@ This shows active epics with progress, decisions waiting on you, implementation-
 From there, the core loop is:
 
 - **Design** (`/swain-design`) — create and evolve artifacts: Visions, Initiatives, Epics, Specs, Spikes, ADRs, Personas, Runbooks, Journeys, and Designs. Each follows a lifecycle tracked in git — phases vary by type (e.g., Proposed → Ready → In Progress → Complete for specs).
-- **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies. When starting implementation work, swain-do automatically creates a linked git worktree so agent changes are isolated from your main workspace.
-- **Ship** (`/swain-sync`, `/swain-release`) — fetch, rebase, commit with conventional messages, cut versioned releases. When running from a linked worktree, swain-sync lands the changes on `trunk` and prunes the worktree automatically.
+- **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies. The `bin/swain` launcher creates a linked git worktree before the agent starts, so all changes are isolated from your main workspace.
+- **Ship** (`/swain-sync`, `/swain-release`) — fetch, merge, commit with conventional messages, cut versioned releases. When running from a linked worktree, swain-sync merges and pushes to `trunk`, then marks the worktree for cleanup. `bin/swain` prunes it after the session ends.
 
 Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions are commits. Everything is inspectable, diffable, and version-controlled.
 
