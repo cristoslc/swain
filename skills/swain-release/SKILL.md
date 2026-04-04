@@ -19,7 +19,7 @@ Before proceeding with any state-changing operation, check for an active session
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-init`?" Proceed if they dismiss.
 
 Cut a release by detecting the project's versioning context, generating a changelog, bumping versions, and tagging. Works across any repo by reading context from git history and project structure rather than hardcoding assumptions.
 

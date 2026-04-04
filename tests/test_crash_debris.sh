@@ -123,6 +123,27 @@ RESULT=$(check_orphaned_mcp "$REPO_ROOT" 2>/dev/null || echo "MISSING")
 assert "MCP check runs without error" "$([ "$RESULT" != "MISSING" ] && echo true || echo false)"
 assert "MCP check returns valid format" "$(echo "$RESULT" | grep -qE '(clean|found)' && echo true || echo false)"
 
+# --- SPEC-251: Docker MCP exclusion ---
+# Verify check_orphaned_mcp filters out Docker-managed MCP processes
+FUNC_SRC=$(declare -f check_orphaned_mcp 2>/dev/null || true)
+
+# T-DOCKER1: Function source contains docker exclusion (AC1)
+HAS_DOCKER=$(echo "$FUNC_SRC" | grep -qi 'docker\|containerd' && echo true || echo false)
+assert "check_orphaned_mcp excludes docker processes" "$HAS_DOCKER"
+
+# T-DOCKER2: Function source has grep -v for docker (AC1 mechanism)
+HAS_GREP_V=$(echo "$FUNC_SRC" | grep -q 'grep.*-v.*docker\|grep.*-iv.*docker' && echo true || echo false)
+assert "function has docker exclusion grep" "$HAS_GREP_V"
+
+# T-DOCKER3: Function source also excludes containerd-shim (AC1)
+HAS_CONTAINERD=$(echo "$FUNC_SRC" | grep -qi 'containerd' && echo true || echo false)
+assert "function has containerd exclusion" "$HAS_CONTAINERD"
+
+# T-DOCKER4: Non-Docker MCP lines still match the base MCP pattern (AC2)
+NON_DOCKER_LINE="user  5678  0.0  0.1 node /usr/local/bin/mcp-some-server --port 3000"
+PASSES_MCP=$(echo "$NON_DOCKER_LINE" | grep -qi 'mcp.*server\|mcp.*gateway' && echo true || echo false)
+assert "non-docker MCP line matches MCP pattern" "$PASSES_MCP"
+
 # --- Aggregate function ---
 TMPDIR5=$(mktemp -d)
 mkdir -p "$TMPDIR5/.git"
@@ -135,7 +156,7 @@ assert "clean project → silent (no output)" "$([ -z "$RESULT" ] && echo true |
 touch "$TMPDIR5/.git/MERGE_HEAD"
 echo "99999999" > "$TMPDIR5/.git/index.lock"
 RESULT=$(check_all_crash_debris "$TMPDIR5" 2>/dev/null || echo "MISSING")
-FOUND_COUNT=$(echo "$RESULT" | grep -c 'found' || echo "0")
+FOUND_COUNT=$(echo "$RESULT" | grep -c 'found') || FOUND_COUNT=0
 assert "multiple debris → multiple findings" "$([ "$FOUND_COUNT" -ge 2 ] && echo true || echo false)"
 
 rm -rf "$TMPDIR5"

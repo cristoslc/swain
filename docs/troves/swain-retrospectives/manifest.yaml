@@ -1,0 +1,124 @@
+history:
+  - event: extended
+    date: 2026-04-01
+    commit: 1ecc30e556ff30cacefc0befcd70c14c9db40bdb
+    sources: 29
+    note: Resynthesized from all 29 retros. Prior synthesis used only 2 of 29 sources.
+
+sources:
+  - doc: /docs/swain-retro/2026-03-19-spike-findings-not-back-propagated.md
+    hash: fd964d4093e1c4a42d5b1ee5fd557af6e88016476d50d1c94a62ea0f1c2518a2
+    freshness-ttl: never
+    summary: SPIKE-032 findings invalidated SPEC-067 AC-8 without detection; backward-impact scan missing.
+  - doc: /docs/swain-retro/2026-03-19-design-supersession-not-detected.md
+    hash: b9ab7b503020d396f9b409950c93e9df66b532cadd976359b734a38af00942c9
+    freshness-ttl: never
+    summary: DESIGN-005 superseded DESIGN-002 without detection; same-type overlap check missing.
+  - doc: /docs/swain-retro/2026-03-20-epic-038-phase-1.md
+    hash: 6a07a83f46f1ac7194a0c6896f68d1b96bee6392fddd5501227c6aee51172613
+    freshness-ttl: never
+    summary: Roadmap sprint retro; worktree agent merge gaps; exploratory specs superseded; Eisenhower framing.
+  - doc: /docs/swain-retro/2026-03-20-spike-022-to-spec-114.md
+    hash: 003045a61e9cec5588457e9741cca917c7cc102027fecc17af0ba6a42ffe4578
+    freshness-ttl: never
+    summary: Retro → spike → ADR → spec chain for merge-with-retry; read-before-reasoning; evidence-basis rule.
+  - doc: /docs/swain-retro/2026-03-21-project-retro-v0.1-to-v0.13.md
+    hash: 40c594b4b15e0dba9227c305f7496779a3e86cd2ae1cf52f21cb5aa18f32c436
+    freshness-ttl: never
+    summary: Project-wide retro; 14-day history; 730 commits; 5 patterns from 6 prior retros.
+  - doc: /docs/swain-retro/2026-03-21-epic-031-skill-audit-remediation.md
+    hash: 57e9d806e60c6d70bdbc27d09fc50e0963a25e4f1c9a8de17e78668dc66c9249
+    freshness-ttl: never
+    summary: Audit-driven remediation; 7/9 specs already done before execution; progressive disclosure; pre-implementation detection.
+  - doc: /docs/swain-retro/2026-03-21-spec-139-desired-outcomes.md
+    hash: 47d1c822eade9da97637c884cc9de79cdfaf60b5283cbf917f88878d4ff15f19
+    freshness-ttl: never
+    summary: Amendment-after-creation common; skip brainstorming for template-only specs; complementary-not-consolidating design.
+  - doc: /docs/swain-retro/2026-03-21-spec-141-priority-weight.md
+    hash: bf51022eb1091469eef1ce28a19af87371bf168953752fa1c3050e98d8ba8f40
+    freshness-ttl: never
+    summary: Recipe-level spec collapses implementation to TDD; worktree base mismatch (branched from release not trunk).
+  - doc: /docs/swain-retro/2026-03-21-v0.10.0-alpha-release.md
+    hash: 678b3f2bcff4bc0fbdf2ed3b4d47f29674d2054b1d6d91cbb1cb11ffe20308df
+    freshness-ttl: never
+    summary: Jinja2 changelog template; bucket classification failures; development process appeared as features.
+  - doc: /docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md
+    hash: eaaae48a9f92fefa74b15b4905804129cbcc5d0e1f9c231b5060f897ca4ce284
+    freshness-ttl: never
+    summary: 9 specs retroactively closed; SPEC-142 false positive (signal scan without live AC verify); governance > skill-modification pattern.
+  - doc: /docs/swain-retro/2026-03-22-session-roadmap-infrastructure.md
+    hash: 2d8a84fab872d72a6a6d2d3546fc5fc03006fa70d9ceee00fdeb79d76f4f2a40
+    freshness-ttl: never
+    summary: SPEC-143 retroactive close; integration test necessity; JSONL + rendered markdown.
+  - doc: /docs/swain-retro/2026-03-22-spec-143-roadmap-slices.md
+    hash: 1d8831c00ed0db191caa787266354f6edce093dae3db13d7b146c0e399567d25
+    freshness-ttl: never
+    summary: Manual test walkthrough in Typora catches what unit tests miss; generated artifacts need mockups in specs; progress counting semantics.
+  - doc: /docs/swain-retro/2026-03-23-spike-038-platform-hooks.md
+    hash: 94c2ccae3cd10e4ba3ae69678ea6e515b74342f77b729f8ea9f5df5b8f0a29e2
+    freshness-ttl: never
+    summary: Parallel research agents per platform; trove-first → artifacts pipeline; agent-mediated foreign runtime testing needs companion test scripts.
+  - doc: /docs/swain-retro/2026-03-25-trove-misrouting.md
+    hash: 9a68d4d568619e8246e485de5bc0cacae5dc2952502f58c733749609132db87c
+    freshness-ttl: never
+    summary: Standalone trove created instead of extending existing; Phase 1 literal grep vs Phase 2 semantic matching; name-vs-concept confusion.
+  - doc: /docs/swain-retro/2026-03-27-spec-172-session-bootstrap.md
+    hash: 3a36d13089384694bccd88f7c77afa2e2f367eaad41e55559ea78e317fe587ea
+    freshness-ttl: never
+    summary: Bootstrap consolidation; 14 tests false confidence; "what did you miss?" surfaces 6 gaps; worktree branched from stale release tag.
+  - doc: /docs/swain-retro/2026-03-27-tdd-self-critique-and-behavioral-eval.md
+    hash: 66aee13a51f22b494b5c4e2c2b41f70f24602b4eb5ccda8f19e98782d796bc8d
+    freshness-ttl: never
+    summary: A/B subagent eval for behavioral instructions; "NEVER SAVE TO MEMORY — MUST be in the relevant SKILL"; superpowers skills are read-only.
+  - doc: /docs/swain-retro/2026-03-27-trove-research-and-contract-migration.md
+    hash: 26561248f56d6c1425192c4dba90825b1e1c2c79f91ebed695f80c564e7f790c
+    freshness-ttl: never
+    summary: evidence-pool → trove rename incomplete across 160 files; operator catches contract violation; migration completeness check missing.
+  - doc: /docs/swain-retro/2026-03-28-release-skill-deletion-incident.md
+    hash: 76be1197da2b64e38b9f4eadfa3d3e74a07e7caf1359c01e52035670341d951f
+    freshness-ttl: never
+    summary: Dispatched agent did git reset --hard from worktree; deleted 100+ skill files; worktree is wrong isolation for multi-branch ops.
+  - doc: /docs/swain-retro/2026-03-29-adr-019-script-convention.md
+    hash: 8a68cd70b516763a234c68edcb04b848f6e504bb2f42e7e34d1045ae49ef5404
+    freshness-ttl: never
+    summary: Bug → ADR → EPIC → Release in one session; distribution gap invisible from inside; duplicate specs accumulate silently; 4 worktrees per session.
+  - doc: /docs/swain-retro/2026-03-31-dead-code-in-release.md
+    hash: b1e3cda1b6cf015d1ea0b570678c99c9caf74d2d71da094e783ea4c6bae9ff68
+    freshness-ttl: never
+    summary: SPEC-199/200 scripts never invoked (dead code with passing tests); release aborted; "tested but not wired" decomposition failure.
+  - doc: /docs/swain-retro/2026-03-31-spec-204-collision-keeper-overwrites.md
+    hash: 71ac6209d12b23cce37aa9a651bc918d9a197e7e9cbbc17bea62e94f2bece0ea
+    freshness-ttl: never
+    summary: fix-collisions.sh naive global sed corrupted keeper references; "undo damage" pattern fragile; macOS path canonicalization bug.
+  - doc: /docs/swain-retro/2026-03-31-spec-206-missing-symlinks.md
+    hash: ef69966386916b783cbfd5fec4610d51cc9d063f26558c549fe0d66ad6c1786e
+    freshness-ttl: never
+    summary: SPEC-194 shipped scripts but not .agents/bin/ symlinks; test path vs deployment path divergence; worktree discipline violated.
+  - doc: /docs/swain-retro/2026-03-31-spec-214-operator-bin-auto-repair.md
+    hash: b6429f528a6d9b7f5a63f9ec6cdb336fa5bd2331ef3b3a55a8a13055edc79d11
+    freshness-ttl: never
+    summary: Doctor warn-only checks 15/19 never repaired; manifest directory pattern; SPEC created on trunk before worktree; smoke tests not run proactively.
+  - doc: /docs/swain-retro/2026-03-31-spec-219-worktree-pre-commit.md
+    hash: c72bb450131ac67277eb9432ac7fbf1d58cc0d6547627763a27d808c20e0277c
+    freshness-ttl: never
+    summary: Artifact created before worktree entry invisible inside worktree; git add -A over-broad; committed/uncommitted boundary assumption.
+  - doc: /docs/swain-retro/2026-03-31-spec-222-doctor-auto-repair-audit.md
+    hash: ec0bf4326e21813c677d94b45c78bb0f3e8f5a2fddca63de6fc18531672f5e74
+    freshness-ttl: never
+    summary: 5 warn-only checks promoted to auto-repair; repair-safety rubric; awk -v multi-line limitation; ambient crash debris.
+  - doc: /docs/swain-retro/2026-04-01-doctor-artifact-index-repair.md
+    hash: 66ee3c5de5b545cabdbd1d7ae2508dea0470bdd6a02ace9111cead2255bdddc2
+    freshness-ttl: never
+    summary: Doctor auto-repair for index staleness; smoke tests mutate real files; index repair validated with diff.
+  - doc: /docs/swain-retro/2026-04-01-session-bookmark-handoff.md
+    hash: 192382a044c0dac24531cd49c5b02c8bcd516fe7a51150b40ed71797d92218cc
+    freshness-ttl: never
+    summary: Trunk bookmark overwritten before worktree creation; launcher template bypasses canonical entry point; handoff boundary failures.
+  - doc: /docs/swain-retro/2026-04-01-teardown-rewrite-release.md
+    hash: bcd6628ac4b8f392a9fadd13befffbd0b72dec330b9f00e3f03cb4043b736691
+    freshness-ttl: never
+    summary: Session-state tolerance fix; changelog anti-patterns (Supporting mutually exclusive with Features/Roadmap); three specs closed in one pass.
+  - doc: /docs/swain-retro/2026-04-01-teardown-skill-implementation.md
+    hash: 5838d4b1864f9b77ee53f388a590aa0e4daa2e69cdb305d6275ea10da63f4fb7
+    freshness-ttl: never
+    summary: New swain-teardown skill; symlink staging path failure; swain-retro chain blocked by no-active-session; orphan worktrees accumulate.

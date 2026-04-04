@@ -35,8 +35,13 @@ _ARTIFACT_ID_RE = re.compile(r"[A-Z]+-\d+")
 
 
 def _extract_type(artifact_id: str) -> str:
-    """Derive artifact type from ID prefix (e.g., 'EPIC-005' -> 'EPIC')."""
-    return re.sub(r"-\d+$", "", artifact_id)
+    """Derive artifact type from ID prefix (e.g., 'EPIC-005' -> 'EPIC').
+
+    Handles both numeric IDs (EPIC-005) and date-slug IDs
+    (RETRO-2026-03-22-overnight-sweep).
+    """
+    m = re.match(r"^([A-Z]+)-", artifact_id)
+    return m.group(1) if m else artifact_id
 
 
 def _extract_description(

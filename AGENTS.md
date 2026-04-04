@@ -15,8 +15,10 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | Intent | Skill |
 |--------|-------|
 | Create, plan, update, transition, or review any artifact (Vision, Initiative, Journey, Epic, Spec, Spike, ADR, Persona, Runbook, Design) | **swain-design** |
-| Project status, progress, "what's next?", session management | **swain-session** |
-| Task tracking, execution progress, implementation plans | **swain-do** |
+| Project status, roadmap, "what's next?", dashboard | **swain-roadmap** |
+| Task tracking, execution progress, implementation plans, bookmarks, decisions | **swain-do** |
+| Session start, focus lane, onboarding | **swain-init** |
+| Session end, teardown, cleanup, merge worktrees | **swain-teardown** |
 
 This project uses **tk (ticket)** for ALL task tracking. Do NOT use markdown TODOs or built-in task systems.
 
@@ -48,7 +50,7 @@ All artifacts produced by swain skills must meet a Flesch-Kincaid grade level of
 
 ### Session startup
 
-Session initialization is handled by the `swain` shell launcher, which invokes `/swain-init` as the initial prompt. If a session starts without the launcher, the operator can manually run `/swain-session`.
+Session initialization is handled by the `swain` shell launcher, which invokes `/swain-init` as the initial prompt. If a session starts without the launcher, the operator can manually run `/swain-init`.
 
 ### Bug reporting
 

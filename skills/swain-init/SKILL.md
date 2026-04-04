@@ -1,6 +1,6 @@
 ---
 name: swain-init
-description: "Project onboarding and session entry point for swain. On first run, performs full onboarding: migrates CLAUDE.md to AGENTS.md, verifies vendored tk, configures pre-commit security hooks, and offers swain governance rules — then writes a .swain-init marker. On subsequent runs, detects the marker and delegates directly to swain-session. Use as a single entry point — it routes automatically."
+description: "Project onboarding and session entry point for swain. On first run, performs full onboarding: migrates CLAUDE.md to AGENTS.md, verifies vendored tk, configures pre-commit security hooks, and offers swain governance rules — then writes a .swain-init marker. On subsequent runs, detects the marker and runs the per-session fast path (greeting, focus lane, session state). Use as a single entry point — it routes automatically. Triggers also on: 'session', 'session info', 'focus on', 'tab name'."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion, Skill
@@ -36,13 +36,13 @@ Read `marker.action` from the preflight JSON.
 - **`"delegate"`** — same major version. Tell the user:
   > Project already initialized (swain `marker.last_version`). Delegating to swain-session.
 
-  Invoke the **swain-session** skill and stop. Do not run Phases 1–6.
+  Skip to **Phase 7 (Session Start)** below. Do not run Phases 1–6.
 
 - **`"upgrade"`** — newer major version available. Tell the user:
   > Project was initialized with swain `marker.last_version` (current: `marker.current_version`). Consider running `/swain update` to pick up new features.
   > Starting session.
 
-  Invoke the **swain-session** skill and stop.
+  Skip to **Phase 7 (Session Start)** below. Do not re-run onboarding — upgrades are handled by swain-update, not swain-init.
 
 - **`"onboard"`** — no marker found. Proceed with full onboarding (Phases 1–6).
 
@@ -320,7 +320,7 @@ If true, report "tmux: already installed" and continue to Phase 4.5.
 
 If false, ask the user:
 
-> tmux is not installed. swain-session (tab naming) uses tmux when available. It is optional — swain works without it, but session tab-naming will be unavailable.
+> tmux is not installed. swain uses tmux for tab naming when available. It is optional — swain works without it, but session tab-naming will be unavailable.
 >
 > Install tmux now? (yes/no)
 
@@ -550,10 +550,122 @@ Report what was done:
 
 ### Step 6.6 — Start session
 
-After successful onboarding, invoke the **swain-session** skill to start the first session. This ensures the user lands in a fully active session regardless of whether they entered via `/swain-init` or `/swain-session`.
+After successful onboarding, proceed to **Phase 7 (Session Start)** below.
+
+## Phase 7: Session Start (ADR-023)
+
+This phase runs every time — both after fresh onboarding (Phase 6) and on the already-initialized fast path (Phase 0). It replaces the former swain-session startup sequence.
+
+### Step 7.1 — Fast greeting
+
+Run the fast greeting script. This handles tab naming, worktree detection, session.json loading, bookmark display, and lightweight preflight warnings — all in ~500ms.
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-greeting.sh" --json
+```
+
+The greeting emits structured JSON:
+
+```json
+{
+  "greeting": true,
+  "branch": "trunk",
+  "dirty": false,
+  "isolated": false,
+  "bookmark": "Left off implementing the bootstrap script",
+  "focus": "VISION-001",
+  "tab": "project @ branch",
+  "warnings": []
+}
+```
+
+**After receiving the greeting JSON:**
+
+1. Present the greeting to the operator — branch, dirty state, bookmark (if any), focus lane (if any), and warnings.
+
+2. If `bookmark` is not null, display it:
+   > **Resuming session** — Last time: {bookmark}
+
+3. If `isolated` is `false`, **do not create a worktree now** — worktree creation is deferred to swain-do task dispatch (SPEC-195).
+
+**If `$TMUX` is NOT set** (detected by absence of `tab` in the JSON), check whether tmux is installed:
+- **tmux not installed:** Offer to install it (`brew install tmux`).
+- **tmux installed but not in a session:** Show: `[note] Not in a tmux session — session tab and pane features unavailable`
+
+### Step 7.2 — Session state init
+
+Check for a previous session and offer resume or fresh start:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+PREV_SESSION=$(bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" resume 2>/dev/null)
+```
+
+If a previous session exists, display its focus lane, walkaway note, and decision count. Ask the operator: "Continue previous session or start fresh?"
+
+If starting fresh (or no previous session):
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" init \
+  --focus "<FOCUS-ID>" \
+  --session-roadmap "$(pwd)/SESSION-ROADMAP.md" \
+  --repo-root "$REPO_ROOT"
+```
+
+### Step 7.3 — Focus lane
+
+The focus lane scopes recommendations to a single vision or initiative. It is set when the operator decides what to work on.
+
+**If the greeting JSON included a `focus` value:** Confirm with the operator:
+> Focus lane: {focus}. Continue with this focus, or change?
+
+**If no focus is set:** Ask the operator what they want to work on. Resolve names to artifact IDs:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/chart.sh" --ids --flat 2>/dev/null | grep -i "<name>"
+```
+
+If exactly one match, use it. If multiple, ask the operator to clarify. If no match, tell the operator and offer to create one.
+
+Set the focus:
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-focus.sh" set <RESOLVED-ID>
+```
+
+Display the focus artifact context:
+
+```bash
+bash "$REPO_ROOT/.agents/bin/artifact-context.sh" <RESOLVED-ID> 2>/dev/null
+```
+
+The focus lane is stored in `.agents/session.json` under the `focus_lane` key and persists across the session.
+
+### Step 7.4 — Session purpose text
+
+When the operator launches with free text (e.g., `swain new bug about timestamps`), the launcher passes it as part of the initial prompt: `/swain-init Session purpose: new bug about timestamps`.
+
+When session purpose text is present:
+1. Write it as the session bookmark note (using swain-bookmark.sh)
+2. Display it: `**Session purpose:** <text>`
+
+Detection: if the skill is invoked with text containing "Session purpose: ", extract everything after that prefix.
+
+For runtimes that don't support initial prompts, check the `SWAIN_PURPOSE` environment variable as a fallback.
+
+### Worktree / branch changes
+
+When an agent enters a worktree or switches branches, re-run the bootstrap with `--path` to update the tab name:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-bootstrap.sh" --path "$NEW_WORKDIR" --skip-worktree --auto
+```
 
 ## Re-running init
 
-If the user runs `/swain-init` on a project that's already set up, Phase 0 reads the preflight JSON's `marker.action` field and delegates directly to swain-session — no onboarding phases run, no interactive prompts appear. This lets users build muscle memory around `/swain-init` as a single entry point.
+If the user runs `/swain-init` on a project that's already set up, Phase 0 reads the preflight JSON's `marker.action` field and skips to Phase 7 (Session Start) — no onboarding phases run, no interactive prompts appear. This lets users build muscle memory around `/swain-init` as a single entry point.
 
 To force re-onboarding, delete `.swain-init` and re-run.
