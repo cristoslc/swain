@@ -114,4 +114,4 @@ For non-interactive contexts (dispatched agents, CI), `swain-doctor --auto-fix` 
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-03 | -- | Initial creation |
+| Active | 2026-04-03 | 3435901 | Initial creation |

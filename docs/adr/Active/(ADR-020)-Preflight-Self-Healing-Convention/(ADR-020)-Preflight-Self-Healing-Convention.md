@@ -128,4 +128,4 @@ When adding a new preflight check, classify it:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-03-29 | — | Surfaced during RETRO-2026-03-29-adr-019-script-convention |
-| Active | 2026-04-03 | -- | Extended with bundle-and-offer pattern for external installs |
+| Active | 2026-04-03 | 3435901 | Extended with bundle-and-offer pattern for external installs |
