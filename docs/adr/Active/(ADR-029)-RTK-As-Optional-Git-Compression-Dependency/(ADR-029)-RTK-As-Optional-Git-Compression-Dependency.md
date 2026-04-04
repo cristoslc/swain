@@ -56,4 +56,4 @@ When RTK is absent, `git-compact` passes all commands through to raw git with no
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-03 | -- | Initial creation |
+| Active | 2026-04-03 | 1e95f94 | Initial creation |
