@@ -702,7 +702,7 @@ check_crash_debris() {
   output=$(check_all_crash_debris "$REPO_ROOT" 2>/dev/null || true)
 
   local found_count
-  found_count=$(echo "$output" | grep -c 'found' 2>/dev/null || echo "0")
+  found_count=$(echo "$output" | grep -c 'found' 2>/dev/null) || found_count=0
 
   if [[ "$found_count" -eq 0 ]]; then
     add_check "crash_debris" "ok" "no crash debris detected"
