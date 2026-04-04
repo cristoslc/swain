@@ -2,7 +2,7 @@
 title: "Alignment Audit"
 artifact: SPEC-250
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-04-04
 last-updated: 2026-04-04

@@ -2,7 +2,7 @@
 title: "swain-teardown Integration"
 artifact: SPEC-247
 track: implementable
-status: Proposed
+status: Complete
 author: cristos
 created: 2026-04-04
 last-updated: 2026-04-04
