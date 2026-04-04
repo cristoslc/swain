@@ -16,7 +16,205 @@ metadata:
 
 Single entry point for ending a session. Runs the full shutdown sequence: digest, retro, merge, cleanup, close, commit. Replaces the former swain-session close handler (ADR-023).
 
-## Session check
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
+```
+If `session-chain` is NOT passed and the JSON output has `"status"` other than `"active"`, inform the operator: "No active session to tear down." Exit cleanly with code 0.
+
+---
+
+## What this skill does
+
+Session teardown runs a sequence of hygiene checks before a session closes:
+
+1. Orphan worktree detection — finds worktrees with no corresponding session bookmark (SPEC-233: actionable with safety checks)
+2. Git dirty-state check — surfaces uncommitted changes before the operator leaves
+3. Ticket sync prompt — prompts the operator to verify tickets match what was done (SPEC-234: notes degraded state if no session)
+4. Handoff summary — appends a session summary to SESSION-ROADMAP.md
+
+**Note on retro:** Retro invocation was moved to the swain-session close handler (SPEC-234 AC2) so it runs while the session is still active. Do not invoke retro from here.
+
+---
+
+## Step 0 — Release current lockfile claim (SPEC-247)
+
+If the current session is running in a worktree with an active lockfile, release the claim. This runs first so that subsequent orphan detection does not flag the current worktree as active.
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+LOCKFILE_SCRIPT="$REPO_ROOT/.agents/bin/swain-lockfile.sh"
+GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+
+if [ "$GIT_COMMON" != "$GIT_DIR" ] && [ -f "$LOCKFILE_SCRIPT" ]; then
+  BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  bash "$LOCKFILE_SCRIPT" release "$BRANCH" 2>/dev/null || true
+fi
+```
+
+## Step 1 — Orphan worktree check (SPEC-233, SPEC-247)
+
+This step reads worktree bookmarks from the `worktrees` array in session.json and cross-references lockfile state (SPEC-247). Orphan worktrees are offered for operator-confirmed removal with safety checks. **This step always runs** regardless of `--session-chain`.
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SESSION_FILE="$REPO_ROOT/.agents/session.json"
+LOCKFILE_SCRIPT="$REPO_ROOT/.agents/bin/swain-lockfile.sh"
+
+# Build a list of bookmarked worktree paths from session.json
+bookmarked_wts=$(jq -r '(.worktrees // [])[] | .path' "$SESSION_FILE" 2>/dev/null)
+
+orphan_candidates=()
+orphan_results=()
+ready_candidates=()
+
+# Get all physical worktrees
+git worktree list --porcelain 2>/dev/null | grep "^worktree " | while read -r line; do
+  wt_path="${line#worktree }"
+  wt_branch="$(git -C "$wt_path" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+
+  # Skip trunk (protected)
+  if [ "$wt_path" = "$REPO_ROOT" ]; then
+    echo "protected: $wt_path (trunk)"
+    continue
+  fi
+
+  # Check lockfile state (SPEC-247)
+  if [ -f "$LOCKFILE_SCRIPT" ]; then
+    lock_branch="${wt_branch##*/}"  # strip refs/heads/ prefix
+    lockfile="$REPO_ROOT/.agents/worktrees/${lock_branch}.lock"
+    if [ -f "$lockfile" ]; then
+      # Check if ready_for_cleanup — safe to remove without confirmation
+      if grep -q 'ready_for_cleanup=true' "$lockfile" 2>/dev/null; then
+        echo "ready: $wt_path ($wt_branch) — marked ready_for_cleanup"
+        ready_candidates+=("$wt_path|$wt_branch|$lockfile")
+        continue
+      fi
+      # Check if actively claimed by another session
+      if ! bash "$LOCKFILE_SCRIPT" is-stale "$lock_branch" >/dev/null 2>&1; then
+        echo "claimed: $wt_path ($wt_branch) — active lockfile, skip"
+        continue
+      fi
+    fi
+  fi
+
+  # Check if bookmarked in session.json
+  is_orphan=true
+  reason=""
+  if echo "$bookmarked_wts" | grep -qF "$wt_path"; then
+    is_orphan=false
+    echo "linked: $wt_path ($wt_branch)"
+  fi
+
+  if [ "$is_orphan" = true ]; then
+    # Safety checks per SPEC-233 AC1-AC3
+    if [ "$wt_path" = "$(pwd)" ]; then
+      reason="current directory"
+    elif [ -n "$(git -C "$wt_path" status --porcelain 2>/dev/null)" ]; then
+      reason="uncommitted changes"
+    elif ! git merge-base --is-ancestor "$wt_branch" trunk 2>/dev/null; then
+      reason="branch not fully merged"
+    else
+      reason="safe to remove"
+      orphan_candidates+=("$wt_path|$wt_branch")
+    fi
+    echo "orphan: $wt_path ($wt_branch) — $reason"
+    orphan_results+=("$wt_path|$wt_branch|$reason")
+  fi
+done
+```
+
+If orphan worktrees are found, display the message: "The following worktrees have no active session bookmark — consider removing them."
+
+### Auto-remove ready_for_cleanup worktrees (SPEC-247)
+
+Worktrees marked `ready_for_cleanup` have been merged and pushed — safe to remove without operator confirmation. Archive session.json first (SPEC-248):
+
+```bash
+ARCHIVE_SCRIPT="$REPO_ROOT/.agents/bin/swain-session-archive.sh"
+for candidate in "${ready_candidates[@]}"; do
+  IFS='|' read -r wt_path wt_branch lockfile <<< "$candidate"
+
+  # Archive session.json before deletion
+  if [ -f "$ARCHIVE_SCRIPT" ]; then
+    bash "$ARCHIVE_SCRIPT" save "$wt_path" 2>/dev/null || true
+  fi
+
+  if git worktree remove "$wt_path" 2>/dev/null; then
+    rm -f "$lockfile"  # Clean up lockfile (SPEC-247 AC3)
+    bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree remove "$wt_path" 2>/dev/null || true
+    echo "Auto-removed (ready_for_cleanup): $wt_path"
+  fi
+done
+```
+
+### Operator confirmation for safe orphans
+
+Only offer orphans with `reason="safe to remove"` for removal. For each safe orphan:
+
+```bash
+removed_worktrees=()
+for candidate in "${orphan_candidates[@]}"; do
+  wt_path="${candidate%%|*}"
+  wt_branch="${candidate##*|}"
+
+  echo "> Remove orphan worktree $wt_path ($wt_branch)? [y/N]"
+  read -r response
+  if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
+    # Archive session.json before deletion (SPEC-248)
+    if [ -f "$ARCHIVE_SCRIPT" ]; then
+      bash "$ARCHIVE_SCRIPT" save "$wt_path" 2>/dev/null || true
+    fi
+    if git worktree remove "$wt_path" 2>/dev/null; then
+      removed_worktrees+=("$wt_path|$wt_branch")
+      # Clean up lockfile if present (SPEC-247 AC3)
+      lock_branch="${wt_branch##*/}"
+      rm -f "$REPO_ROOT/.agents/worktrees/${lock_branch}.lock" 2>/dev/null || true
+      # Clear the bookmark from session.json
+      bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree remove "$wt_path"
+      echo "Removed: $wt_path"
+    else
+      echo "ERROR: Failed to remove $wt_path — skipping bookmark cleanup"
+    fi
+  fi
+done
+```
+
+### Safety rules (SPEC-233 AC1-AC3, AC7)
+
+- **Current directory:** Never offer for removal. Flag as `reason="current directory"`.
+- **Uncommitted changes:** Never offer for removal. Flag as `reason="uncommitted changes"`.
+- **Unmerged branch:** Never offer for removal. Flag as `reason="branch not fully merged"`.
+- **Trunk:** Never offer for removal. Always show as `protected: <repo_root> (trunk)`.
+- **Confirmation required:** Always prompt operator. Never auto-remove.
+
+---
+
+## Step 2 — Git dirty-state check
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+cd "$REPO_ROOT"
+git_status=$(git status --porcelain 2>/dev/null)
+
+if [ -n "$git_status" ]; then
+  echo "WARN: Dirty git working tree — uncommitted changes detected."
+  echo "Changes:"
+  echo "$git_status" | head -20
+else
+  echo "OK: Working tree is clean."
+fi
+```
+
+Report findings with an actionable recommendation.
+
+---
+
+## Step 3 — Ticket sync prompt (SPEC-234 AC3)
+
+Always run this step. Note degraded state if no active session:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"

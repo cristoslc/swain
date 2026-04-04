@@ -426,8 +426,70 @@ check_worktrees() {
     fi
   done < <(git worktree list --porcelain 2>/dev/null; echo "")
 
-  if [[ $orphaned -gt 0 || $stale -gt 0 ]]; then
-    add_check "worktrees" "warning" "$orphaned orphaned, $stale stale (merged) worktree(s)"
+  # SPEC-246: Cross-reference lockfiles with worktrees
+  local lockfile_orphans=0
+  local unclaimed=0
+  local stale_locks=0
+  local lockfile_dir="$REPO_ROOT/.agents/worktrees"
+  local lockfile_script="$REPO_ROOT/.agents/bin/swain-lockfile.sh"
+
+  if [[ -d "$lockfile_dir" ]] && [[ -f "$lockfile_script" ]]; then
+    # Check lockfiles without corresponding worktrees
+    for lockfile in "$lockfile_dir"/*.lock; do
+      [[ -f "$lockfile" ]] || continue
+      local lock_wt_path=""
+      lock_wt_path=$(grep '^worktree_path=' "$lockfile" | head -1 | cut -d= -f2-)
+      if [[ -n "$lock_wt_path" ]] && [[ ! -d "$lock_wt_path" ]]; then
+        lockfile_orphans=$((lockfile_orphans + 1))
+      fi
+      # Check for stale lockfiles
+      local lock_branch
+      lock_branch="$(basename "$lockfile" .lock)"
+      if bash "$lockfile_script" is-stale "$lock_branch" >/dev/null 2>&1; then
+        stale_locks=$((stale_locks + 1))
+      fi
+    done
+
+    # Check worktrees without lockfiles (non-trunk)
+    local wt_in_first=1
+    local wt_path=""
+    while IFS= read -r line; do
+      if [[ "$line" == worktree\ * ]]; then
+        wt_path="${line#worktree }"
+      elif [[ -z "$line" ]]; then
+        if [[ $wt_in_first -eq 1 ]]; then
+          wt_in_first=0
+          wt_path=""
+          continue
+        fi
+        if [[ -n "$wt_path" ]]; then
+          # Check if any lockfile references this path
+          local has_lock=false
+          for lf in "$lockfile_dir"/*.lock; do
+            [[ -f "$lf" ]] || continue
+            if grep -q "worktree_path=$wt_path" "$lf" 2>/dev/null; then
+              has_lock=true
+              break
+            fi
+          done
+          if [[ "$has_lock" = false ]]; then
+            unclaimed=$((unclaimed + 1))
+          fi
+        fi
+        wt_path=""
+      fi
+    done < <(git worktree list --porcelain 2>/dev/null; echo "")
+  fi
+
+  local total_issues=$((orphaned + stale + lockfile_orphans + unclaimed + stale_locks))
+  if [[ $total_issues -gt 0 ]]; then
+    local details=""
+    [[ $orphaned -gt 0 ]] && details="$orphaned orphaned"
+    [[ $stale -gt 0 ]] && details="${details:+$details, }$stale stale (merged)"
+    [[ $lockfile_orphans -gt 0 ]] && details="${details:+$details, }$lockfile_orphans lockfile(s) without worktree"
+    [[ $unclaimed -gt 0 ]] && details="${details:+$details, }$unclaimed unclaimed worktree(s)"
+    [[ $stale_locks -gt 0 ]] && details="${details:+$details, }$stale_locks stale lockfile(s)"
+    add_check "worktrees" "warning" "$details"
   else
     add_check "worktrees" "ok" "$((worktree_count - 1)) linked worktree(s), all active"
   fi
