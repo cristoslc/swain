@@ -9,7 +9,7 @@ These tools are needed by multiple skills. If missing, warn the user.
 | Tool | Check | Used by | Install hint (macOS) |
 |------|-------|---------|---------------------|
 | `git` | `command -v git` | All skills | Xcode Command Line Tools |
-| `jq` | `command -v jq` | swain-session, swain-session, swain-do | `brew install jq` |
+| `jq` | `command -v jq` | swain-init, swain-teardown, swain-do | `brew install jq` |
 
 ## Optional tools
 
@@ -17,10 +17,10 @@ These tools enable specific features. If missing, note which features are degrad
 
 | Tool | Check | Used by | Degradation | Install hint (macOS) |
 |------|-------|---------|-------------|---------------------|
-| `tk` | `[ -x "$SKILLS_ROOT/swain-do/bin/tk" ]` | swain-do, swain-session (tasks) | Task tracking unavailable; status skips task section | Vendored at `swain-do/bin/tk` -- reinstall swain if missing |
+| `tk` | `[ -x "$SKILLS_ROOT/swain-do/bin/tk" ]` | swain-do | Task tracking unavailable; status skips task section | Vendored at `swain-do/bin/tk` -- reinstall swain if missing |
 | `uv` | `command -v uv` | swain-do (plan ingestion) | Plan ingestion unavailable | `brew install uv` |
-| `gh` | `command -v gh` | swain-session (GitHub issues), swain-release | Status skips issues section; release can't create GitHub releases | `brew install gh` |
-| `tmux` | `which tmux` | swain-session | Session tab-naming unavailable outside tmux | `brew install tmux` |
+| `gh` | `command -v gh` | swain-roadmap (GitHub issues), swain-release, swain-teardown | Status skips issues section; release can't create GitHub releases | `brew install gh` |
+| `tmux` | `which tmux` | swain-init | Session tab-naming unavailable outside tmux | `brew install tmux` |
 | `fswatch` | `command -v fswatch` | swain-design (specwatch live mode) | Live artifact watching unavailable; on-demand `specwatch.sh scan` still works | `brew install fswatch` |
 | `ssh` | `command -v ssh` | swain-keys, git SSH alias remotes | Project-specific GitHub SSH aliases cannot be used from this runtime | `brew install openssh` |
 

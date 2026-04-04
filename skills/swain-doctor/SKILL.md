@@ -228,7 +228,7 @@ Verify that `README.md` exists at the repo root. The README is the most public s
 - **ok** — README.md exists. Silent.
 - **warning** — README.md missing. Report: `README.md missing — swain alignment loop has no public intent anchor. Run swain-init to seed one.`
 
-This is an existence check only — no content analysis. Content reconciliation is handled by swain-session (session start), swain-retro (retrospective), and swain-release (release gate).
+This is an existence check only — no content analysis. Content reconciliation is handled by swain-retro (retrospective), swain-sync (commit advisory), and swain-release (release gate).
 
 ## Artifact index health
 

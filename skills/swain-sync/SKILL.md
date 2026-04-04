@@ -18,7 +18,7 @@ Before proceeding with any state-changing operation, check for an active session
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-init`?" Proceed if they dismiss.
 
 Run through the following steps in order without pausing for confirmation unless a decision point is explicitly marked as requiring one.
 
@@ -190,6 +190,23 @@ For each DESIGN with findings (STALE or BROKEN `sourcecode-refs`), collect the o
 This step is **advisory** — it warns but never blocks the commit. Continue to Step 4 regardless.
 
 If the `design-check.sh` script is not found or fails with exit code 2, skip silently — the check is only available in repos with swain-design installed.
+
+## Step 3.85 — README reconciliation (ADR-023)
+
+If README.md exists and the staged changes include artifacts or code that could affect README claims, run a lightweight drift check:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [ -f "$REPO_ROOT/README.md" ]; then
+  STAGED_ARTIFACTS=$(git diff --cached --name-only | grep -E "^docs/(spec|epic|vision|design)/" || true)
+  STAGED_CODE=$(git diff --cached --name-only | grep -vE "^docs/" | grep -E "\.(py|js|ts|sh|go|rs)$" || true)
+  if [ -n "$STAGED_ARTIFACTS" ] || [ -n "$STAGED_CODE" ]; then
+    echo "README_CHECK: staged changes touch artifacts or code — verify README alignment"
+  fi
+fi
+```
+
+This step is **advisory** — it reminds the agent to check README accuracy when commits touch code or artifacts that could affect README claims. It does not block the commit. The full README gate lives in swain-release (Step 5.7).
 
 ## Step 3.9 — Artifact number collision check
 

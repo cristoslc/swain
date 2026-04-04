@@ -168,7 +168,7 @@ If it already exists, this step is silent.
 If the memory directory exists but `status-cache.json` does not, and the status script is available, seed an initial cache so that consumers have data on first use.
 
 ```bash
-STATUS_SCRIPT="$SKILLS_ROOT/swain-session/scripts/swain-status.sh"
+STATUS_SCRIPT="$REPO_ROOT/.agents/bin/swain-status.sh"
 if [[ -f "$STATUS_SCRIPT" && ! -f "$MEMORY_DIR/status-cache.json" ]]; then
   bash "$STATUS_SCRIPT" --json > /dev/null 2>&1 || true
 fi
@@ -177,4 +177,4 @@ fi
 If the cache was created, tell the user:
 > Seeded initial status cache. The MOTD and status dashboard now have data.
 
-If the script is not available or the cache already exists, this step is silent. If the script fails, ignore — the cache will be created on the next `swain-session` invocation.
+If the script is not available or the cache already exists, this step is silent. If the script fails, ignore — the cache will be created on the next `swain-roadmap` invocation.

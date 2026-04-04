@@ -1,11 +1,11 @@
 ---
 name: swain-do
-description: Task tracking and implementation execution for swain projects. Invoke whenever a SPEC needs an implementation plan, the user asks what to work on next, wants to check or update task status, claim or close tasks, manage dependencies, or abandon work. Also invoked by swain-design after creating a SPEC that's ready for implementation. Tracks SPECs and SPIKEs — not EPICs, VISIONs, or JOURNEYs directly (those get decomposed into SPECs first).
+description: "Task tracking and implementation execution for swain projects. Invoke whenever a SPEC needs an implementation plan, the user asks what to work on next, wants to check or update task status, claim or close tasks, manage dependencies, abandon work, bookmark context, or record a decision. Also invoked by swain-design after creating a SPEC that's ready for implementation. Tracks SPECs and SPIKEs — not EPICs, VISIONs, or JOURNEYs directly (those get decomposed into SPECs first). Triggers also on: 'bookmark', 'remember where I am', 'record decision'."
 license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
-  short-description: Bootstrap and operate external task tracking
-  version: 3.2.0
+  short-description: Task tracking, bookmarks, decisions, and progress
+  version: 4.0.0
   author: cristos
   source: swain
 ---
@@ -20,7 +20,7 @@ Before proceeding with any state-changing operation, check for an active session
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-init`?" Proceed if they dismiss.
 
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
@@ -219,7 +219,7 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **Operator override:** If the operator explicitly says "work on trunk" or "don't isolate," respect the override and proceed on trunk. Log a warning: "Proceeding on trunk at operator request — changes will land directly on the development branch."
 
-**Note (SPEC-195):** swain-session no longer creates worktrees at startup — worktree creation is deferred to this preamble, which runs when swain-do dispatches actual work. This ensures worktree names reflect the work context and allows overlap detection.
+**Note (SPEC-195):** swain-init does not create worktrees at startup — worktree creation is deferred to this preamble, which runs when swain-do dispatches actual work. This ensures worktree names reflect the work context and allows overlap detection.
 
 When all tasks in the plan complete, or when the operator requests, run the plan completion handoff (see below) before exiting the worktree.
 
@@ -273,6 +273,59 @@ If the operator declines, call `ExitWorktree` without merging — the branch is 
 ### Skipping the chain
 
 The operator can say "just exit" or "skip the handoff" to bypass steps 2–3 and go directly to `ExitWorktree`. Log a note on the plan epic: `tk add-note <epic-id> "Exited worktree without completion handoff"`.
+
+## Bookmark management (ADR-023)
+
+Bookmarks track what the operator is working on. They persist across sessions so the next session can pick up where this one left off.
+
+### Set bookmark
+
+When the operator says "bookmark this", "remember where I am", or after state-changing operations:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" "<context note>"
+```
+
+Infer the note from conversation context or the operator's explicit text. Do not prompt for a note if the context is clear.
+
+### Worktree bookmarks
+
+When entering a worktree (already handled in the worktree isolation preamble, Step 5), the worktree is registered:
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree add "$WT_PATH" "$WT_BRANCH"
+```
+
+### Clear bookmark
+
+When the operator says "clear bookmark" or "fresh start":
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" --clear
+```
+
+## Decision recording (ADR-023)
+
+When the operator or agent makes a significant decision (approves a spec, chooses an approach, sets direction), record it:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" record-decision --note "Approved SPEC-119 implementation approach"
+```
+
+Decisions are tracked against the session's decision budget. When the budget is reached, inform the operator and suggest running `/swain-teardown`.
+
+## Progress log (ADR-023)
+
+After completing tasks or reaching milestones, update the progress log:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-progress-log.sh" --digest "$REPO_ROOT/.agents/session-log.jsonl"
+```
+
+This updates each touched EPIC/Initiative's `progress.md` and `## Progress` section.
 
 ## Fallback
 
