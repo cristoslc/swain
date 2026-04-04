@@ -2,7 +2,7 @@
 title: "Artifact Model Correction — Three Tracks with Correct Types"
 artifact: ADR-025
 track: standing
-status: Active
+status: Accepted
 author: cristos
 created: 2026-04-04
 last-updated: 2026-04-04
@@ -130,18 +130,9 @@ The artifact model is foundational to swain's chart rendering, priority inherita
 - chart.sh track lookup needs correction
 - swain-design skill needs updated type→track mapping
 
-## User Interview Required
-
-This ADR requires operator confirmation:
-1. Is SPIKE correctly classified as Implementable? (vs Container)
-2. Is INITIATIVE correctly classified as Container? (vs Standing)
-3. Is TRAIN a Standing type? (not in ADR-003)
-4. Any other missing artifact types?
-
-**Action:** Schedule user interview before implementation.
-
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-04 | — | Drafted from worktree isolation redesign conversation |
+| Accepted | 2026-04-04 | — | Operator interview completed; all questions confirmed |
