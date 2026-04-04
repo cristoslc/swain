@@ -1,4 +1,4 @@
-# uinitiative
+# Initiatives
 
 ## Proposed
 
@@ -12,7 +12,8 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| INITIATIVE-003 | Agent Runtime Efficiency | 2026-03-16 | -- |
+| INITIATIVE-002 | Artifact System Maturity | 2026-04-02 | — |
+| INITIATIVE-003 | Agent Runtime Efficiency | 2026-03-30 | -- |
 | INITIATIVE-004 | Security & Trust | 2026-03-20 | — |
 | INITIATIVE-005 | Operator Situational Awareness | 2026-03-15 | — |
 | INITIATIVE-008 | Automated Work Intake | 2026-03-16 | — |
@@ -29,7 +30,6 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| INITIATIVE-002 | Artifact System Maturity | 2026-03-15 | — |
 | INITIATIVE-006 | Multi-Agent Orchestration | 2026-03-15 | — |
 | INITIATIVE-011 | Autonomous Agent Safety | 2026-03-18 | — |
 | INITIATIVE-012 | Unified Runtime Architecture | 2026-03-18 | — |

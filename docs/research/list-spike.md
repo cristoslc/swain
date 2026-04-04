@@ -64,4 +64,5 @@
 | SPIKE-031 | Credential Scoping Analysis Across Sandbox Types | 2026-03-19 | — |
 | SPIKE-032 | Docker Sandboxes OAuth Limitation Workaround | 2026-03-19 | — |
 | SPIKE-038 | PreToolUse Hook Adapter Feasibility | 2026-03-23 | 09d824a |
+| SPIKE-051 | Session Crash Recovery | 2026-03-28 | — |
 

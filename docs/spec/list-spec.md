@@ -131,6 +131,8 @@
 | SPEC-238 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-242 | Worktree Ticket Isolation | 2026-03-21 | — |
 | SPEC-243 | Session Sleep Operation | 2026-03-28 | — |
+| SPEC-251 | Exclude Docker MCP Gateway from Crash Debris Detection | 2026-04-03 | — |
+| SPEC-252 | Retro ID renumbering migration | 2026-04-03 | -- |
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 
 ## Complete
