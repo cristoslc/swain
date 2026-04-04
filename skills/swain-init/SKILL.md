@@ -16,89 +16,65 @@ metadata:
 
 One-time setup for adopting swain in a project. This skill is **not idempotent** — it migrates files and installs tools. For per-session health checks, use swain-doctor.
 
+## Preflight
+
+Before any phase, run the preflight script to gather environment state. This single call replaces all inline check blocks — phases below read from the JSON output instead of running shell commands.
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+PREFLIGHT_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-init/scripts/swain-init-preflight.sh' -print -quit 2>/dev/null)"
+PREFLIGHT_JSON=$( bash "$PREFLIGHT_SCRIPT" --repo-root "$REPO_ROOT" 2>/dev/null )
+echo "$PREFLIGHT_JSON"
+```
+
+Store `PREFLIGHT_JSON` for use in all phases below. Every decision references a field from this JSON — do not run additional check commands unless performing a mutation.
+
 ## Phase 0: Already-initialized detection
 
-Before running onboarding, check for the `.swain-init` marker file:
+Read `marker.action` from the preflight JSON.
 
-```bash
-cat .swain-init 2>/dev/null
-```
-
-### If `.swain-init` exists
-
-The project has already been initialized. Parse the file (JSON format) and check the latest entry in the `history` array:
-
-```bash
-LAST_VERSION=$(jq -r '.history[-1].version' .swain-init 2>/dev/null)
-CURRENT_VERSION=$(find . .claude .agents -path '*/swain-init/SKILL.md' -print -quit 2>/dev/null | xargs head -20 2>/dev/null | grep 'version:' | awk '{print $2}')
-```
-
-**Version comparison:**
-
-- **Same major version** (e.g., both `4.x.x`): Project is current. Tell the user:
-  > Project already initialized (swain $LAST_VERSION). Delegating to swain-session.
+- **`"delegate"`** — same major version. Tell the user:
+  > Project already initialized (swain `marker.last_version`). Delegating to swain-session.
 
   Invoke the **swain-session** skill and stop. Do not run Phases 1–6.
 
-- **Newer major version available** (e.g., initialized with `3.x.x`, current is `4.x.x`): Suggest upgrade. Tell the user:
-  > Project was initialized with swain $LAST_VERSION (current: $CURRENT_VERSION). Consider running `/swain update` to pick up new features.
+- **`"upgrade"`** — newer major version available. Tell the user:
+  > Project was initialized with swain `marker.last_version` (current: `marker.current_version`). Consider running `/swain update` to pick up new features.
   > Starting session.
 
-  Invoke the **swain-session** skill and stop. Do not re-run onboarding — upgrades are handled by swain-update, not swain-init.
+  Invoke the **swain-session** skill and stop.
 
-### If `.swain-init` does not exist
-
-Proceed with full onboarding (Phases 1–6).
+- **`"onboard"`** — no marker found. Proceed with full onboarding (Phases 1–6).
 
 ## Phase 1: CLAUDE.md → AGENTS.md migration
 
 Goal: establish the `@AGENTS.md` include pattern so project instructions live in AGENTS.md (which works across Claude Code, GitHub, and other tools that read AGENTS.md natively).
 
-### Step 1.1 — Survey existing files
+Read `migration.state` from the preflight JSON.
 
-```bash
-cat CLAUDE.md 2>/dev/null; echo "---SEPARATOR---"; cat AGENTS.md 2>/dev/null
-```
+### If `"fresh"`
 
-Classify the current state:
+Create both files:
 
-| CLAUDE.md | AGENTS.md | State |
-|-----------|-----------|-------|
-| Missing or empty | Missing or empty | **Fresh** — no migration needed |
-| Contains only `@AGENTS.md` | Any | **Already migrated** — skip to Phase 2 |
-| Has real content | Missing or empty | **Standard** — migrate CLAUDE.md → AGENTS.md |
-| Has real content | Has real content | **Split** — needs merge (ask user) |
+- **CLAUDE.md:** `@AGENTS.md`
+- **AGENTS.md:** `# AGENTS.md` (empty — governance added in Phase 5)
 
-### Step 1.2 — Migrate
+### If `"migrated"`
 
-**Fresh state:** Create both files.
+Skip to Phase 2.
 
-```
-# CLAUDE.md
-@AGENTS.md
-```
-
-```
-# AGENTS.md
-(empty — governance will be added in Phase 3)
-```
-
-**Already migrated:** Skip to Phase 2.
-
-**Standard state:**
+### If `"standard"`
 
 1. Copy CLAUDE.md content to AGENTS.md (preserve everything).
-2. If CLAUDE.md contains a `<!-- swain governance -->` block, strip it from the AGENTS.md copy — it will be re-added cleanly in Phase 3.
-3. Replace CLAUDE.md with:
-
-```
-@AGENTS.md
-```
+2. If CLAUDE.md contains a `<!-- swain governance -->` block, strip it from the AGENTS.md copy — it will be re-added cleanly in Phase 5.
+3. Replace CLAUDE.md with `@AGENTS.md`.
 
 Tell the user:
 > Migrated your CLAUDE.md content to AGENTS.md and replaced CLAUDE.md with `@AGENTS.md`. Your existing instructions are preserved — Claude Code reads AGENTS.md via the include directive.
 
-**Split state:** Both files have content. Ask the user:
+### If `"split"`
+
+Both files have content. Ask the user:
 
 > Both CLAUDE.md and AGENTS.md have content. How should I proceed?
 > 1. **Merge** — append CLAUDE.md content to the end of AGENTS.md, then replace CLAUDE.md with `@AGENTS.md`
@@ -109,17 +85,11 @@ If merge: append CLAUDE.md content (minus any `<!-- swain governance -->` block)
 
 ## Phase 2: Verify dependencies
 
-Goal: ensure uv is available and the vendored tk script is accessible.
+### Step 2.1 — uv
 
-### Step 2.1 — Check uv availability
+Read `uv.available` from the preflight JSON.
 
-```bash
-command -v uv
-```
-
-If uv is found, skip to Step 2.2.
-
-If missing, install:
+If `false`, install:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -128,55 +98,40 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 If installation fails, tell the user:
 > uv installation failed. You can install it manually (https://docs.astral.sh/uv/getting-started/installation/) — swain scripts require uv for Python execution.
 
-Then skip the rest of Phase 2 (don't block init on uv, but warn that scripts will not function without it).
+Skip the rest of Phase 2 on failure (don't block init on uv, but warn that scripts will not function without it).
 
-### Step 2.2 — Verify vendored tk
+### Step 2.2 — Vendored tk
 
-tk (ticket) is vendored in the swain skill tree — no external installation is needed.
+Read `tk.path` and `tk.healthy` from the preflight JSON.
 
-```bash
-TK_PATH="$(find . .claude .agents -path '*/swain-do/bin/tk' -print -quit 2>/dev/null)"
-test -x "$TK_PATH" && echo "tk found at $TK_PATH" || echo "tk not found"
-```
-
-If found, verify it runs:
-
-```bash
-"$TK_PATH" help >/dev/null 2>&1 && echo "tk works" || echo "tk broken"
-```
-
-If tk is not found or broken, tell the user:
-> The vendored tk script was not found. This usually means the swain-do skill was not fully installed. Try running `/swain update` to reinstall skills.
+If `tk.path` is null or `tk.healthy` is false, tell the user:
+> The vendored tk script was not found or is broken. This usually means the swain-do skill was not fully installed. Try running `/swain update` to reinstall skills.
 
 ### Step 2.3 — Migrate from beads (if applicable)
 
-Check if this project has existing beads data:
+Read `beads.exists` and `beads.has_backup` from the preflight JSON.
 
+If `beads.exists` is true and `beads.has_backup` is true, offer migration:
+
+> Found existing `.beads/` data. Migrate tasks to tk?
+> This will convert `.beads/backup/issues.jsonl` to `.tickets/` markdown files.
+
+If user agrees, run migration:
 ```bash
-test -d .beads && echo "beads found" || echo "no beads"
+TK_BIN="$(cd "$(dirname "$(find . .claude .agents -path '*/swain-do/bin/tk' -print -quit 2>/dev/null)")" && pwd)"
+export PATH="$TK_BIN:$PATH"
+cp .beads/backup/issues.jsonl .beads/issues.jsonl 2>/dev/null
+ticket-migrate-beads
+ls .tickets/*.md 2>/dev/null | wc -l
 ```
 
-If `.beads/` exists:
+Tell the user the results and that `.beads/` can be removed after verification.
 
-1. Check for backup data: `ls .beads/backup/issues.jsonl 2>/dev/null`
-2. If backup exists, offer migration:
-   > Found existing `.beads/` data. Migrate tasks to tk?
-   > This will convert `.beads/backup/issues.jsonl` to `.tickets/` markdown files.
-3. If user agrees, run migration:
-   ```bash
-   TK_BIN="$(cd "$(dirname "$TK_PATH")" && pwd)"
-   export PATH="$TK_BIN:$PATH"
-   cp .beads/backup/issues.jsonl .beads/issues.jsonl 2>/dev/null  # migrate-beads expects this location
-   ticket-migrate-beads
-   ```
-4. Verify: `ls .tickets/*.md 2>/dev/null | wc -l`
-5. Tell the user the results and that `.beads/` can be removed after verification.
-
-If `.beads/` does not exist, skip this step. tk creates `.tickets/` on first `tk create`.
+If `beads.exists` is false, skip. tk creates `.tickets/` on first `tk create`.
 
 ### Step 2.4 — Operator bin/ symlinks (SPEC-214, ADR-019)
 
-Create `bin/` symlinks for all operator-facing scripts declared in `.agents/skills/*/usr/bin/` manifest directories. This is the same logic swain-doctor uses for auto-repair.
+Read `bin_manifests` from the preflight JSON. For each entry, create `bin/` symlinks:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -206,7 +161,7 @@ done
 
 Tell the user which operator commands are now available in `bin/`.
 
-If no `usr/bin/` manifest directories are found, skip silently.
+If `bin_manifests` is empty, skip silently.
 
 ## Phase 2.5: Branch model
 
@@ -225,13 +180,11 @@ This phase is informational only — do not modify branches automatically. The o
 
 Goal: configure pre-commit hooks for secret scanning so credentials are caught before they enter git history. Default scanner is gitleaks; additional scanners (TruffleHog, Trivy, OSV-Scanner) are opt-in.
 
-### Step 3.1 — Check for existing `.pre-commit-config.yaml`
+### Step 3.1 — Check for existing config
 
-```bash
-test -f .pre-commit-config.yaml && echo "exists" || echo "missing"
-```
+Read `precommit.config_exists` from the preflight JSON.
 
-**If exists:** Present the current config and ask:
+**If true:** Present the current `.pre-commit-config.yaml` content and ask:
 
 > Found existing `.pre-commit-config.yaml`. How should I proceed?
 > 1. **Merge** — add swain's gitleaks hook alongside your existing hooks
@@ -240,15 +193,13 @@ test -f .pre-commit-config.yaml && echo "exists" || echo "missing"
 
 If user chooses Skip, skip to Phase 4.
 
-**If missing:** Proceed to Step 3.2.
+**If false:** Proceed to Step 3.2.
 
-### Step 3.2 — Check pre-commit framework
+### Step 3.2 — Install pre-commit framework
 
-```bash
-command -v pre-commit && pre-commit --version
-```
+Read `precommit.framework` from the preflight JSON.
 
-If `pre-commit` is not found, install it:
+If false, install:
 
 ```bash
 uv tool install pre-commit
@@ -303,9 +254,7 @@ Write the config file. If merging with an existing config, append the new repo e
 
 ### Step 3.4 — Install hooks
 
-```bash
-pre-commit install
-```
+Run `pre-commit install` to activate the hooks.
 
 ### Step 3.5 — Update swain.settings.json
 
@@ -331,15 +280,13 @@ Tell the user:
 
 ## Phase 4: Superpowers companion
 
-Goal: offer to install `obra/superpowers` if it is not already present. Superpowers provides TDD enforcement, brainstorming, plan writing, and verification skills that swain chains into — the full AGENTS.md workflow depends on them being installed.
+Goal: offer to install `obra/superpowers` if it is not already present.
 
 ### Step 4.1 — Detect superpowers
 
-```bash
-ls .agents/skills/brainstorming/SKILL.md .claude/skills/brainstorming/SKILL.md 2>/dev/null | head -1
-```
+Read `superpowers.installed` from the preflight JSON.
 
-If any result is returned, superpowers is already installed. Report "Superpowers: already installed" and skip to Phase 5.
+If true, report "Superpowers: already installed" and skip to Phase 4.4.
 
 ### Step 4.2 — Offer installation
 
@@ -349,7 +296,7 @@ Ask the user:
 >
 > Install superpowers now? (yes/no)
 
-If the user says **no**, note "Superpowers: skipped" and continue to Phase 5. They can always install later: `npx skills add obra/superpowers`.
+If the user says **no**, note "Superpowers: skipped" and continue to Phase 4.4. They can always install later: `npx skills add obra/superpowers`.
 
 ### Step 4.3 — Install
 
@@ -363,25 +310,21 @@ If the install succeeds, tell the user:
 If it fails, warn:
 > Superpowers installation failed. You can retry manually: `npx skills add obra/superpowers`
 
-Continue to Phase 5 regardless.
+Continue to Phase 4.4 regardless.
 
 ### Step 4.4 — Tmux
 
-Check if tmux is installed:
+Read `tmux.installed` from the preflight JSON.
 
-```bash
-which tmux
-```
+If true, report "tmux: already installed" and continue to Phase 4.5.
 
-If tmux is **already installed**, report "tmux: already installed" and continue to Phase 5.
-
-If tmux is **not found**, ask the user:
+If false, ask the user:
 
 > tmux is not installed. swain-session (tab naming) uses tmux when available. It is optional — swain works without it, but session tab-naming will be unavailable.
 >
 > Install tmux now? (yes/no)
 
-If the user says **yes**:
+If yes:
 
 ```bash
 brew install tmux
@@ -393,48 +336,33 @@ If the install succeeds, tell the user:
 If the install fails, warn:
 > tmux installation failed. You can install it manually: `brew install tmux`
 
-If the user says **no**, note "tmux: skipped" and continue to Phase 4.5.
+If no, note "tmux: skipped" and continue to Phase 4.5.
 
 ## Phase 4.5: Shell launcher
 
 Goal: offer to install a `swain` shell function so the user can launch swain with a single command. Templates are stored per-runtime, per-shell in `templates/launchers/{runtime}/swain.{shell}` (relative to this skill's directory) — inspect them to see exactly what gets added. Supported runtimes are defined in ADR-017.
 
-### Step 4.5.1 — Detect shell runtime
+### Step 4.5.1 — Detect shell
 
-```bash
-SHELL_NAME=$(basename "$SHELL")
-```
+Read `launcher.shell` from the preflight JSON.
 
-Supported shells: `zsh`, `bash`, `fish`. If the detected shell is not in this list, tell the user:
+Supported shells: `zsh`, `bash`, `fish`. If the shell is not in this list, tell the user:
 
-> Shell launcher templates are available for zsh, bash, and fish. Your shell ($SHELL_NAME) is not yet supported — skipping launcher setup.
+> Shell launcher templates are available for zsh, bash, and fish. Your shell (`launcher.shell`) is not yet supported — skipping launcher setup.
 
 Skip to Phase 5.
 
 ### Step 4.5.2 — Check for existing launcher
 
-Map the shell to its rc file and detection pattern:
+Read `launcher.already_installed` from the preflight JSON.
 
-| Shell | RC file | Detection pattern |
-|-------|---------|-------------------|
-| zsh | `~/.zshrc` | `grep -q 'swain\s*()' ~/.zshrc 2>/dev/null` |
-| bash | `~/.bashrc` | `grep -q 'swain\s*()' ~/.bashrc 2>/dev/null` |
-| fish | `~/.config/fish/config.fish` | `grep -q 'function swain' ~/.config/fish/config.fish 2>/dev/null` |
+If true, report "Shell launcher: already installed" and skip to Phase 5. Do not modify existing functions.
 
-If the pattern matches, report "Shell launcher: already installed" and skip to Phase 5. Do not modify existing functions.
+### Step 4.5.3 — Detect runtimes
 
-### Step 4.5.3 — Detect installed agentic runtimes
+Read `launcher.runtimes` from the preflight JSON.
 
-```bash
-RUNTIMES=""
-command -v claude >/dev/null 2>&1 && RUNTIMES="$RUNTIMES claude"
-command -v gemini >/dev/null 2>&1 && RUNTIMES="$RUNTIMES gemini"
-command -v codex >/dev/null 2>&1 && RUNTIMES="$RUNTIMES codex"
-command -v copilot >/dev/null 2>&1 && RUNTIMES="$RUNTIMES copilot"
-command -v crush >/dev/null 2>&1 && RUNTIMES="$RUNTIMES crush"
-```
-
-If no runtimes are found, tell the user:
+If the array is empty, tell the user:
 
 > No supported agentic CLI runtimes found (checked: claude, gemini, codex, copilot, crush). Install one first, then re-run `/swain-init`.
 
@@ -445,11 +373,10 @@ Skip to Phase 5.
 - **One runtime found:** Offer it directly.
 - **Multiple runtimes found:** Present a numbered list and ask which one to use. Default to `claude` if available.
 
-Locate the template:
+Read `launcher.template_dir` from the preflight JSON. Construct the template path:
 
-```bash
-TEMPLATE_DIR="$(find . .claude .agents -path '*/swain-init/templates/launchers' -type d -print -quit 2>/dev/null)"
-TEMPLATE_FILE="$TEMPLATE_DIR/$SELECTED_RUNTIME/swain.$SHELL_NAME"
+```
+$TEMPLATE_DIR/$SELECTED_RUNTIME/swain.$SHELL_NAME
 ```
 
 ### Step 4.5.5 — Show template and offer installation
@@ -470,11 +397,7 @@ For Crush templates, add a note: "Crush has partial support — it cannot accept
 
 ### Step 4.5.6 — Install
 
-If the user accepts, append the template content to the rc file:
-
-```bash
-cat "$TEMPLATE_FILE" >> <rc-file>
-```
+If the user accepts, append the template content to the rc file (read `launcher.rc_file` from preflight JSON, e.g. `cat "$TEMPLATE_FILE" >> "$RC_FILE"`).
 
 Tell the user:
 
@@ -488,11 +411,9 @@ Goal: add swain's routing and governance rules to AGENTS.md.
 
 ### Step 5.1 — Check for existing governance
 
-```bash
-grep -l "swain governance" AGENTS.md CLAUDE.md 2>/dev/null
-```
+Read `governance.installed` from the preflight JSON.
 
-If found in either file, governance is already installed. Tell the user and skip to Phase 6.
+If true, governance is already installed. Tell the user and skip to Phase 5.5.
 
 ### Step 5.2 — Ask permission
 
@@ -506,17 +427,11 @@ Ask the user:
 >
 > Add governance rules to AGENTS.md? (yes/no)
 
-If no, skip to Phase 6.
+If no, skip to Phase 5.5.
 
 ### Step 5.3 — Inject governance
 
-Read the canonical governance content from the sibling `swain-doctor/references/AGENTS.content.md`. Locate it by searching for the file relative to the installed skills directory:
-
-```bash
-find .claude/skills .agents/skills skills -path '*/swain-doctor/references/AGENTS.content.md' -print -quit 2>/dev/null
-```
-
-Append the full contents of that file to AGENTS.md.
+Read the canonical governance content from `swain-doctor/references/AGENTS.content.md` (search `.claude/skills`, `.agents/skills`, and `skills` directories for the file). Append the full contents of that file to AGENTS.md.
 
 Tell the user:
 > Governance rules added to AGENTS.md. These ensure swain skills are routable and conventions are enforced. You can customize anything outside the `<!-- swain governance -->` markers.
@@ -527,22 +442,12 @@ Goal: ensure every swain project has a README, and offer to bootstrap artifacts 
 
 ### Step 5.5.1 — Check for README
 
-```bash
-[ -f "README.md" ] && echo "exists" || echo "missing"
-```
+Read `readme.exists` from the preflight JSON.
 
 ### Step 5.5.2 — Seed README if missing
 
-If README.md does not exist, determine the project's context and seed one:
+If `readme.exists` is false, determine the project's context using `readme.has_code` and `readme.has_artifacts` from the preflight JSON:
 
-**Context detection:**
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-HAS_CODE=$(find "$REPO_ROOT" -maxdepth 3 \( -name '*.py' -o -name '*.js' -o -name '*.ts' -o -name '*.go' -o -name '*.rs' -o -name '*.sh' \) -not -path '*/node_modules/*' -not -path '*/.git/*' -print -quit 2>/dev/null)
-HAS_ARTIFACTS=$(find "$REPO_ROOT/docs" -name '*.md' -path '*/Active/*' -print -quit 2>/dev/null)
-```
-
-**Seeding strategy:**
 - **No code, no artifacts** — Interview the operator: "What does this project do?" Write the README from their answer.
 - **Code exists, no artifacts** — Infer project purpose from code (read entry points, package.json/pyproject.toml/go.mod, etc.). Present a draft README to the operator for editing.
 - **Artifacts exist, no README** — Compile from Active Visions, Designs, Journeys, and Personas. Present a draft to the operator for editing.
@@ -551,14 +456,9 @@ Present the draft to the operator. They can approve, edit, or skip. If they skip
 
 ### Step 5.5.3 — Propose seed artifacts from README
 
-If README.md exists (or was just created) but the artifact tree is empty or thin (fewer than 3 Active artifacts across Vision, Design, Journey, and Persona types):
+Read `readme.active_count` from the preflight JSON.
 
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-ACTIVE_COUNT=$(find "$REPO_ROOT/docs" -path "*/Active/*" -name "*.md" 2>/dev/null | grep -cE "\(VISION|DESIGN|JOURNEY|PERSONA\)" || echo "0")
-```
-
-If `ACTIVE_COUNT < 3`, read the README and extract intent claims using semantic analysis. Propose seed artifacts:
+If `readme.active_count < 3` and README.md exists, read the README and extract intent claims using semantic analysis. Propose seed artifacts:
 
 - **Vision** — from the README's description of what the project does and why.
 - **Personas** — from who the README addresses and what problems it describes.
@@ -573,15 +473,11 @@ Present each proposal individually. The operator approves, edits, or rejects eac
 
 ### Step 6.1 — Create .agents directory
 
-```bash
-mkdir -p .agents
-```
-
-This directory is used by swain-do for configuration and by swain-design scripts for logs.
+Create `.agents/` if it does not exist (`mkdir -p .agents`). This directory is used by swain-do for configuration and by swain-design scripts for logs.
 
 ### Step 6.1.1 — Bootstrap .agents/bin/ (ADR-019)
 
-Create `.agents/bin/` and populate it with symlinks for all agent-facing scripts in the skill tree. This gives skills a stable, O(1) resolution path instead of `find`-based lookups.
+Create `.agents/bin/` and populate it with symlinks for all agent-facing scripts in the skill tree:
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -602,12 +498,7 @@ for skill_scripts_dir in "$SKILLS_ROOT"/*/scripts; do
 done
 ```
 
-Add `.agents/bin/` and `.agents/session.json` to `.gitignore` if not already present (consumer projects should not track these):
-
-```bash
-grep -qx '.agents/bin/' .gitignore 2>/dev/null || echo '.agents/bin/' >> .gitignore
-grep -qx '.agents/session.json' .gitignore 2>/dev/null || echo '.agents/session.json' >> .gitignore
-```
+Add `.agents/bin/` and `.agents/session.json` to `.gitignore` if not already present (consumer projects should not track these).
 
 ### Step 6.2 — Run swain-doctor
 
@@ -619,12 +510,7 @@ Invoke the **swain-help** skill in onboarding mode to give the user a guided ori
 
 ### Step 6.4 — Write `.swain-init` marker
 
-After all onboarding phases complete, write the `.swain-init` marker file. This is the authoritative record that init has run.
-
-```bash
-CURRENT_VERSION=$(find . .claude .agents -path '*/swain-init/SKILL.md' -print -quit 2>/dev/null | xargs head -20 2>/dev/null | grep 'version:' | awk '{print $2}')
-TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-```
+After all onboarding phases complete, write the `.swain-init` marker file. Read `marker.current_version` from the preflight JSON for the version.
 
 If `.swain-init` already exists (partial re-init), read it and append to the history array. Otherwise create a new file:
 
@@ -642,11 +528,7 @@ If `.swain-init` already exists (partial re-init), read it and append to the his
 
 For upgrades (future use by swain-update), append an entry with `"action": "upgrade"` instead.
 
-Write the file and ensure it is gitignored (it's project-local state, not shared):
-
-```bash
-grep -q '.swain-init' .gitignore 2>/dev/null || echo '.swain-init' >> .gitignore
-```
+Write the file and ensure `.swain-init` is in `.gitignore` (it's project-local state, not shared).
 
 ### Step 6.5 — Summary
 
@@ -672,6 +554,6 @@ After successful onboarding, invoke the **swain-session** skill to start the fir
 
 ## Re-running init
 
-If the user runs `/swain-init` on a project that's already set up, Phase 0 reads `.swain-init` and delegates directly to swain-session — no onboarding phases run, no interactive prompts appear. This lets users build muscle memory around `/swain-init` as a single entry point.
+If the user runs `/swain-init` on a project that's already set up, Phase 0 reads the preflight JSON's `marker.action` field and delegates directly to swain-session — no onboarding phases run, no interactive prompts appear. This lets users build muscle memory around `/swain-init` as a single entry point.
 
 To force re-onboarding, delete `.swain-init` and re-run.
