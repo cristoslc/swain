@@ -156,7 +156,7 @@ assert "clean project → silent (no output)" "$([ -z "$RESULT" ] && echo true |
 touch "$TMPDIR5/.git/MERGE_HEAD"
 echo "99999999" > "$TMPDIR5/.git/index.lock"
 RESULT=$(check_all_crash_debris "$TMPDIR5" 2>/dev/null || echo "MISSING")
-FOUND_COUNT=$(echo "$RESULT" | grep -c 'found' || echo "0")
+FOUND_COUNT=$(echo "$RESULT" | grep -c 'found') || FOUND_COUNT=0
 assert "multiple debris → multiple findings" "$([ "$FOUND_COUNT" -ge 2 ] && echo true || echo false)"
 
 rm -rf "$TMPDIR5"

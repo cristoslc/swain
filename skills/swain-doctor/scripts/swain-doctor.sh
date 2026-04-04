@@ -390,7 +390,7 @@ check_evidence_pools() {
 # ============================================================
 check_worktrees() {
   local worktree_count
-  worktree_count=$(git worktree list --porcelain 2>/dev/null | grep -c '^worktree ' || echo "0")
+  worktree_count=$(git worktree list --porcelain 2>/dev/null | grep -c '^worktree ') || worktree_count=0
 
   if [[ "$worktree_count" -le 1 ]]; then
     add_check "worktrees" "ok" "no linked worktrees"
@@ -598,7 +598,7 @@ check_ssh_readiness() {
   ssh_output=$(bash "$ssh_helper" --check 2>/dev/null || true)
   if [[ -n "$ssh_output" ]]; then
     local issue_count
-    issue_count=$(echo "$ssh_output" | grep -c "ISSUE:" || echo "0")
+    issue_count=$(echo "$ssh_output" | grep -c "ISSUE:") || issue_count=0
     add_check "ssh_readiness" "warning" "$issue_count SSH readiness issue(s)" "$ssh_output"
   else
     add_check "ssh_readiness" "ok" "SSH alias readiness OK"
@@ -735,7 +735,7 @@ check_crash_debris() {
   if [[ "$lock_removed" == "true" ]]; then
     # Lock removed but other debris remains — warn about remaining items
     local remaining_count
-    remaining_count=$(echo "$other_lines" | grep -c . 2>/dev/null || echo "0")
+    remaining_count=$(echo "$other_lines" | grep -c . 2>/dev/null) || remaining_count=0
     local details
     details=$(echo "$other_lines" | cut -f3 | tr '\n' '; ' | sed 's/; $//')
     add_check "crash_debris" "warning" "removed .git/index.lock; $remaining_count other debris item(s) remain" "$details"
