@@ -19,6 +19,7 @@ __pycache__/
 .agents/status-cache.json
 .agents/session.json
 .agents/session-state.json
+.agents/search-snapshots/
 SESSION-ROADMAP.md
 
 # Skill eval workspaces

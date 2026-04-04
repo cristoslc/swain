@@ -102,6 +102,7 @@
 | SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | 57c7822 |
 | SPEC-178 | Worktree Timestamp Zeroed Time Component | 2026-03-28 | — |
 | SPEC-179 | Launcher Free-Text Session Purpose | 2026-03-28 | — |
+| SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 | SPEC-184 | Session End Operation | 2026-03-28 | — |
 | SPEC-191 | Preflight Self-Healing Compliance Audit | 2026-03-29 | — |
 | SPEC-194 | Flesch-Kincaid Readability Enforcement | 2026-03-30 | _pending_ |
@@ -133,7 +134,7 @@
 | SPEC-243 | Session Sleep Operation | 2026-03-28 | — |
 | SPEC-251 | Exclude Docker MCP Gateway from Crash Debris Detection | 2026-04-03 | — |
 | SPEC-252 | Retro ID renumbering migration | 2026-04-03 | -- |
-| SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
+| SPEC-253 | Git-Compact Wrapper Script | 2026-04-03 | 52f5c81 |
 
 ## Complete
 

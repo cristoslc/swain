@@ -18,6 +18,7 @@
 | DESIGN-014 | Hierarchy Placement and _unparented Surfaces | 2026-04-02 | — |
 | DESIGN-015 | Usage Logging and Telemetry | 2026-04-03 | pending |
 | DESIGN-016 | Related Artifacts Materialization | 2026-04-03 | pending |
+| DESIGN-017 | Git-Compact CLI Contract | 2026-04-03 | 52f5c81 |
 
 ## Superseded
 
