@@ -180,13 +180,15 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **If `IN_WORKTREE=no`** (main worktree) and the operation will produce file changes:
 
-1. **Commit any untracked files before the branch is cut.** A worktree is created from git history — files not yet committed are invisible inside it. This matters for artifacts created moments earlier in the same session (new SPECs, ADRs, etc.). Only untracked files need committing; modified tracked files are already in history and appear in the worktree regardless.
+1. **Commit any dirty files before the branch is cut.** A worktree checks out from HEAD — both untracked files and uncommitted modifications to tracked files are invisible inside it. This matters for artifacts created or edited moments earlier in the same session.
    ```bash
    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
    UNTRACKED=$(git -C "$REPO_ROOT" ls-files --others --exclude-standard 2>/dev/null)
-   if [ -n "$UNTRACKED" ]; then
-     echo "$UNTRACKED" | xargs -d '\n' git -C "$REPO_ROOT" add -- && \
-     git -C "$REPO_ROOT" commit -m "chore: stage artifacts before worktree creation" || {
+   MODIFIED=$(git -C "$REPO_ROOT" diff --name-only 2>/dev/null)
+   if [ -n "$UNTRACKED" ] || [ -n "$MODIFIED" ]; then
+     [ -n "$UNTRACKED" ] && echo "$UNTRACKED" | xargs -d '\n' git -C "$REPO_ROOT" add --
+     [ -n "$MODIFIED" ] && echo "$MODIFIED" | xargs -d '\n' git -C "$REPO_ROOT" add --
+     git -C "$REPO_ROOT" commit -m "chore: stage dirty tree before worktree creation" || {
        echo "ERROR: pre-commit step failed — aborting worktree creation"
        exit 1
      }
