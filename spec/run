@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Run the full swain BDD suite, or a subset by domain.
+#
+# Usage:
+#   spec/run                    # all specs
+#   spec/run session            # just session specs
+#   spec/run session worktree   # session + worktree specs
+#   spec/run --tap              # TAP output (for CI)
+set -euo pipefail
+
+SPEC_DIR="$(cd "$(dirname "$0")" && pwd)"
+FORMATTER="pretty"
+DOMAINS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --tap)    FORMATTER="tap13" ;;
+    --junit)  FORMATTER="junit" ;;
+    *)        DOMAINS+=("$arg") ;;
+  esac
+done
+
+if [[ ${#DOMAINS[@]} -eq 0 ]]; then
+  # Run all domain directories, excluding support/lib (bats helpers have their own tests)
+  PATHS=()
+  for dir in "$SPEC_DIR"/*/; do
+    [[ "$(basename "$dir")" == "support" ]] && continue
+    [[ "$(basename "$dir")" == "fixtures" ]] && continue
+    PATHS+=("$dir")
+  done
+  bats --formatter "$FORMATTER" --recursive "${PATHS[@]}"
+else
+  PATHS=()
+  for domain in "${DOMAINS[@]}"; do
+    if [[ -d "$SPEC_DIR/$domain" ]]; then
+      PATHS+=("$SPEC_DIR/$domain")
+    else
+      echo "Unknown domain: $domain (expected directory at $SPEC_DIR/$domain)" >&2
+      exit 1
+    fi
+  done
+  bats --formatter "$FORMATTER" --recursive "${PATHS[@]}"
+fi
