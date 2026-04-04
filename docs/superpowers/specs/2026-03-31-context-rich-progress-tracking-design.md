@@ -54,7 +54,7 @@ Each EPIC and Initiative gets a `progress.md` file in its artifact directory.
 # Progress Log
 
 ## 2026-03-30
-Completed SPIKE-001 timing instrumentation. Baseline measurements show 4.2s startup. Discovered specgraph import bug (SPEC-197) adding ~800ms. 4 implementation specs planned, none started.
+Completed SPIKE-052 timing instrumentation. Baseline measurements show 4.2s startup. Discovered specgraph import bug (SPEC-197) adding ~800ms. 4 implementation specs planned, none started.
 
 ## 2026-03-29
 Created epic and decomposed into 4 specs + 1 spike. Spike activated for baseline timing.

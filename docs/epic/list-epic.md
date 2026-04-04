@@ -19,6 +19,8 @@
 | EPIC-033 | Swain MCP Server | 2026-03-18 | — |
 | EPIC-040 | Sandbox Capability Bridges | 2026-03-20 | -- |
 | EPIC-041 | Worktree Discipline | 2026-03-22 | — |
+| EPIC-057 | Usage Telemetry Implementation | 2026-04-03 | pending |
+| EPIC-058 | Related Artifacts Symlink Materialization | 2026-04-03 | pending |
 
 ## Active
 
@@ -39,8 +41,6 @@
 | EPIC-049 | Context-Rich Progress Tracking | 2026-03-31 | _pending_ |
 | EPIC-052 | Automated Test Gates | 2026-03-31 | — |
 | EPIC-053 | Deprecate and Replace Superpowers with Native Skills | 2026-04-01 | TBD |
-| EPIC-054 | Formalize Session Teardown | 2026-04-02 | — |
-| EPIC-055 | Session Bookmark Lifecycle Integrity | 2026-04-02 | — |
 
 ## Complete
 
@@ -68,6 +68,7 @@
 | EPIC-047 | ADR-019 Script Convention Implementation | 2026-03-29 | — |
 | EPIC-050 | README as Ambient Intent | 2026-03-31 | — |
 | EPIC-051 | Worktree Path Link Safety on Merge | 2026-03-31 | — |
+| EPIC-055 | Materialized Artifact Parenting View | 2026-04-03 | — |
 
 ## Superseded
 

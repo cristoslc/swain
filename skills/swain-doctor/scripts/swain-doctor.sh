@@ -51,6 +51,16 @@ add_check() {
 }
 
 # ============================================================
+# CLI flags
+# ============================================================
+FIX_FLAT=false
+for arg in "$@"; do
+  case "$arg" in
+    --fix-flat-artifacts) FIX_FLAT=true ;;
+  esac
+done
+
+# ============================================================
 # Check 1: Governance (SPEC-222: auto-repair stale block when markers present)
 # ============================================================
 check_governance() {
@@ -380,7 +390,7 @@ check_evidence_pools() {
 # ============================================================
 check_worktrees() {
   local worktree_count
-  worktree_count=$(git worktree list --porcelain 2>/dev/null | grep -c '^worktree ' || echo "0")
+  worktree_count=$(git worktree list --porcelain 2>/dev/null | grep -c '^worktree ') || worktree_count=0
 
   if [[ "$worktree_count" -le 1 ]]; then
     add_check "worktrees" "ok" "no linked worktrees"
@@ -588,7 +598,7 @@ check_ssh_readiness() {
   ssh_output=$(bash "$ssh_helper" --check 2>/dev/null || true)
   if [[ -n "$ssh_output" ]]; then
     local issue_count
-    issue_count=$(echo "$ssh_output" | grep -c "ISSUE:" || echo "0")
+    issue_count=$(echo "$ssh_output" | grep -c "ISSUE:") || issue_count=0
     add_check "ssh_readiness" "warning" "$issue_count SSH readiness issue(s)" "$ssh_output"
   else
     add_check "ssh_readiness" "ok" "SSH alias readiness OK"
@@ -692,7 +702,7 @@ check_crash_debris() {
   output=$(check_all_crash_debris "$REPO_ROOT" 2>/dev/null || true)
 
   local found_count
-  found_count=$(echo "$output" | grep -c 'found' 2>/dev/null || echo "0")
+  found_count=$(echo "$output" | grep -c 'found' 2>/dev/null) || found_count=0
 
   if [[ "$found_count" -eq 0 ]]; then
     add_check "crash_debris" "ok" "no crash debris detected"
@@ -725,7 +735,7 @@ check_crash_debris() {
   if [[ "$lock_removed" == "true" ]]; then
     # Lock removed but other debris remains — warn about remaining items
     local remaining_count
-    remaining_count=$(echo "$other_lines" | grep -c . 2>/dev/null || echo "0")
+    remaining_count=$(echo "$other_lines" | grep -c . 2>/dev/null) || remaining_count=0
     local details
     details=$(echo "$other_lines" | cut -f3 | tr '\n' '; ' | sed 's/; $//')
     add_check "crash_debris" "warning" "removed .git/index.lock; $remaining_count other debris item(s) remain" "$details"
@@ -851,6 +861,121 @@ check_agents_bin_symlinks() {
   fi
 }
 
+# Check: Flat-file artifact detection (ADR-027, SPEC-225)
+check_flat_artifacts() {
+  local fix_mode=false
+  [[ "${1:-}" == "--fix" ]] && fix_mode=true
+
+  # Artifact directories to scan (type -> docs subdir)
+  # Retros excluded — SPEC-252 handles retro renumbering + foldering separately
+  local -a dirs=()
+  for d in docs/spec docs/epic docs/adr docs/initiative docs/research \
+           docs/vision docs/design docs/persona docs/runbook docs/journey \
+           docs/train; do
+    [[ -d "$d" ]] && dirs+=("$d")
+  done
+
+  if [[ ${#dirs[@]} -eq 0 ]]; then
+    add_check "flat_artifacts" "ok" "no artifact directories found (skipped)"
+    return
+  fi
+
+  # Find .md files in phase directories that are NOT inside a (TYPE-NNN) folder.
+  # Flat files sit at: docs/<type>/<Phase>/filename.md
+  # Foldered files sit at: docs/<type>/<Phase>/(TYPE-NNN)-Title/filename.md
+  # Also catch flat retros: docs/swain-retro/filename.md (no phase subdir)
+  local -a flat_files=()
+  for d in "${dirs[@]}"; do
+    while IFS= read -r f; do
+      [[ -z "$f" ]] && continue
+      local parent_name
+      parent_name="$(basename "$(dirname "$f")")"
+      # Skip index files and READMEs
+      local fname
+      fname="$(basename "$f")"
+      [[ "$fname" == list-* ]] && continue
+      [[ "$fname" == README.md ]] && continue
+      # If parent dir name starts with ( it's inside a folder — skip
+      [[ "$parent_name" == \(* ]] && continue
+      flat_files+=("$f")
+    done < <(find "$d" -maxdepth 3 -name "*.md" -not -path "*/_unparented/*" -not -path "*/_Related/*" -not -path "*/_Depends-On/*" 2>/dev/null)
+  done
+
+  if [[ ${#flat_files[@]} -eq 0 ]]; then
+    add_check "flat_artifacts" "ok" "all artifacts are foldered"
+    return
+  fi
+
+  if $fix_mode; then
+    local migrated=0
+    local failed=0
+    for f in "${flat_files[@]}"; do
+      # Parse artifact ID from frontmatter
+      local artifact_id
+      artifact_id=$(sed -n 's/^artifact: *//p' "$f" | head -1 | tr -d '[:space:]')
+      if [[ -z "$artifact_id" ]]; then
+        failed=$((failed + 1))
+        continue
+      fi
+
+      # Derive folder name from filename convention
+      local fname parent_dir folder_name target_dir target_file
+      fname="$(basename "$f" .md)"
+      parent_dir="$(dirname "$f")"
+
+      # Build canonical folder name from frontmatter title
+      local raw_title
+      raw_title=$(sed -n 's/^title: *"\{0,1\}\(.*\)"\{0,1\}$/\1/p' "$f" | head -1 | sed 's/^ *//;s/ *$//')
+      if [[ -n "$raw_title" ]]; then
+        # Title-Case with hyphens: lowercase → capitalize first letter of each word → spaces to hyphens
+        local title_slug
+        title_slug=$(echo "$raw_title" | sed 's/[^a-zA-Z0-9 -]//g; s/  */ /g; s/ /-/g')
+        folder_name="(${artifact_id})-${title_slug}"
+      elif [[ "$fname" == \(* ]]; then
+        # Filename already has parens — use as-is
+        folder_name="$fname"
+      elif [[ "$fname" == "${artifact_id}"* ]]; then
+        # Filename starts with artifact ID — wrap in parens
+        local title_part="${fname#"${artifact_id}"}"
+        title_part="${title_part#-}"
+        folder_name="(${artifact_id})-${title_part}"
+      else
+        # Fallback: wrap artifact ID + filename
+        folder_name="(${artifact_id})-${fname}"
+      fi
+
+      target_dir="${parent_dir}/${folder_name}"
+      target_file="${target_dir}/${folder_name}.md"
+
+      if [[ -d "$target_dir" ]]; then
+        failed=$((failed + 1))
+        continue
+      fi
+
+      mkdir -p "$target_dir"
+      git mv "$f" "$target_file" 2>/dev/null
+      if [[ $? -eq 0 ]]; then
+        migrated=$((migrated + 1))
+      else
+        # Fallback: plain move if not tracked
+        mv "$f" "$target_file" 2>/dev/null && migrated=$((migrated + 1)) || failed=$((failed + 1))
+      fi
+    done
+
+    if [[ $failed -gt 0 ]]; then
+      add_check "flat_artifacts" "warning" "migrated $migrated, failed $failed flat-file artifact(s)"
+    else
+      add_check "flat_artifacts" "advisory" "migrated $migrated flat-file artifact(s) to folders"
+    fi
+  else
+    # Report only
+    local detail
+    detail=$(printf '%s;' "${flat_files[@]:0:10}")
+    [[ ${#flat_files[@]} -gt 10 ]] && detail="${detail}... and $((${#flat_files[@]} - 10)) more"
+    add_check "flat_artifacts" "warning" "${#flat_files[@]} flat-file artifact(s) — run swain-doctor --fix-flat-artifacts to migrate" "$detail"
+  fi
+}
+
 # ============================================================
 # Run all checks (set +e so failures don't cascade)
 # ============================================================
@@ -878,6 +1003,11 @@ check_commit_signing
 check_ssh_readiness
 check_crash_debris
 check_agents_bin_symlinks
+if $FIX_FLAT; then
+  check_flat_artifacts --fix
+else
+  check_flat_artifacts
+fi
 
 set -e
 

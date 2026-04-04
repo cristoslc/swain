@@ -14,7 +14,7 @@ linked-artifacts:
   - SPEC-175
   - SPEC-122
 depends-on-artifacts:
-  - SPIKE-001
+  - SPIKE-052
   - SPEC-196
 addresses: []
 evidence-pool: ""

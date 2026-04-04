@@ -150,7 +150,7 @@ assert_file_exists "start generates SESSION-ROADMAP.md" "$SESSION_ROADMAP"
 
 # T2.2: SESSION-ROADMAP.md references the focus lane
 if [ -f "$SESSION_ROADMAP" ]; then
-  HAS_FOCUS=$(grep -c "INITIATIVE-019" "$SESSION_ROADMAP" 2>/dev/null || echo "0")
+  HAS_FOCUS=$(grep -c "INITIATIVE-019" "$SESSION_ROADMAP" 2>/dev/null) || HAS_FOCUS=0
   assert "SESSION-ROADMAP references focus lane" "$([ "$HAS_FOCUS" -gt 0 ] && echo true || echo false)"
 else
   assert "SESSION-ROADMAP references focus lane" "false"
@@ -181,7 +181,7 @@ bash "$STATE_SCRIPT" init --focus "INITIATIVE-019" --state-file "$SWAIN_SESSION_
 # T3.1: Close appends walk-away signal to SESSION-ROADMAP.md
 bash "$STATE_SCRIPT" close --walkaway "Finished SPEC-119 RED tests" --state-file "$SWAIN_SESSION_STATE" --session-roadmap "$SESSION_ROADMAP" 2>/dev/null
 if [ -f "$SESSION_ROADMAP" ]; then
-  HAS_WALKAWAY=$(grep -c "Finished SPEC-119 RED tests" "$SESSION_ROADMAP" 2>/dev/null || echo "0")
+  HAS_WALKAWAY=$(grep -c "Finished SPEC-119 RED tests" "$SESSION_ROADMAP" 2>/dev/null) || HAS_WALKAWAY=0
   assert "close appends walkaway to SESSION-ROADMAP" "$([ "$HAS_WALKAWAY" -gt 0 ] && echo true || echo false)"
 else
   assert "close appends walkaway to SESSION-ROADMAP" "false"
@@ -210,15 +210,15 @@ RESUME_OUTPUT=$(bash "$STATE_SCRIPT" resume --state-file "$SWAIN_SESSION_STATE" 
 assert "resume produces output" "$([ -n "$RESUME_OUTPUT" ] && echo true || echo false)"
 
 # T4.2: Resume output includes previous focus lane
-HAS_PREV_FOCUS=$(echo "$RESUME_OUTPUT" | grep -c "INITIATIVE-019" 2>/dev/null || echo "0")
+HAS_PREV_FOCUS=$(echo "$RESUME_OUTPUT" | grep -c "INITIATIVE-019" 2>/dev/null) || HAS_PREV_FOCUS=0
 assert "resume includes previous focus lane" "$([ "$HAS_PREV_FOCUS" -gt 0 ] && echo true || echo false)"
 
 # T4.3: Resume output includes walkaway note
-HAS_PREV_WALKAWAY=$(echo "$RESUME_OUTPUT" | grep -c "Left off at RED tests" 2>/dev/null || echo "0")
+HAS_PREV_WALKAWAY=$(echo "$RESUME_OUTPUT" | grep -c "Left off at RED tests" 2>/dev/null) || HAS_PREV_WALKAWAY=0
 assert "resume includes previous walkaway" "$([ "$HAS_PREV_WALKAWAY" -gt 0 ] && echo true || echo false)"
 
 # T4.4: Resume output includes decision count
-HAS_DECISION_COUNT=$(echo "$RESUME_OUTPUT" | grep -c "1" 2>/dev/null || echo "0")
+HAS_DECISION_COUNT=$(echo "$RESUME_OUTPUT" | grep -c "1" 2>/dev/null) || HAS_DECISION_COUNT=0
 assert "resume includes decision count" "$([ "$HAS_DECISION_COUNT" -gt 0 ] && echo true || echo false)"
 
 teardown_tmpdir
