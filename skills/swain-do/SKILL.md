@@ -2,7 +2,7 @@
 name: swain-do
 description: "Task tracking and implementation execution for swain projects. Invoke whenever a SPEC needs an implementation plan, the user asks what to work on next, wants to check or update task status, claim or close tasks, manage dependencies, abandon work, bookmark context, or record a decision. Also invoked by swain-design after creating a SPEC that's ready for implementation. Tracks SPECs and SPIKEs — not EPICs, VISIONs, or JOURNEYs directly (those get decomposed into SPECs first). Triggers also on: 'bookmark', 'remember where I am', 'record decision'."
 license: UNLICENSED
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Task tracking, bookmarks, decisions, and progress
   version: 4.0.0
@@ -165,9 +165,14 @@ When evidence confirms prior implementation, skip full task decomposition:
 All mutating work tracked by swain-do happens in a worktree — regardless of whether it touches source code, artifacts, skill files, or data. This prevents half-finished changes from polluting trunk and avoids collisions between parallel agents. Before any operation that will produce file changes (plan creation, task claim, code writing, artifact editing, skill file changes, spec transitions, execution handoff), run this detection:
 
 ```bash
-GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
-GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
-[ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
+# SPEC-250: Check env var first (set by bin/swain), then git plumbing
+if [ -n "${SWAIN_WORKTREE_PATH:-}" ]; then
+  IN_WORKTREE=yes
+else
+  GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
+  GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+  [ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
+fi
 ```
 
 **Read-only operations skip this check entirely** — proceed in the current context. The explicit read-only allowlist:
@@ -201,23 +206,25 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
    bash "$REPO_ROOT/.agents/bin/swain-worktree-overlap.sh" "<SPEC-ID>"
    ```
-   If the JSON output has `"found": true`, offer to reuse: "Worktree for `<SPEC-ID>` already exists at `<path>`. Reuse it?" If yes, use `EnterWorktree` with the existing branch name. If no, create a new one with a fresh suffix.
+   If the JSON output has `"found": true`, offer to reuse: "Worktree for `<SPEC-ID>` already exists at `<path>`. Reuse it?" If yes, inform the operator to restart the session with `swain --resume <name>`. If no, inform the operator to start a new session with the purpose text.
 
-3. **Create a new worktree** with a spec-derived name. Use the SPEC ID + slug (e.g., `spec-174-branch-collision`) or generate a timestamped name by running `bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh" "<context>"` (e.g., output: `session-20260327-143022-a7f3`). Never use a static name like "session" — concurrent sessions will collide. If `EnterWorktree` fails with a branch-exists error, re-run the name script and retry once. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
+3. **Worktree creation is handled by bin/swain pre-launch** (SPEC-245, EPIC-056). Most runtimes (Gemini CLI, Codex, Copilot, Crush) cannot change their working directory mid-session — only Claude Code can via `EnterWorktree`, and that is a runtime-specific crutch, not a universal pattern. The correct universal approach is pre-launch isolation via `bin/swain`.
 
-4. After entering, re-run tab naming to reflect the new branch:
+   If `SWAIN_WORKTREE_PATH` is set, the agent is already in a managed worktree. If `IN_WORKTREE=yes` via git plumbing, the agent is in a worktree (possibly entered manually). In both cases, proceed with work.
+
+   If `IN_WORKTREE=no` and the operation requires isolation, inform the operator: "Not in a worktree. Start a new session with `swain \"<purpose>\"` to get worktree isolation."
+
+4. After entering (if worktree was just created by bin/swain), re-run tab naming to reflect the new branch:
    ```bash
    bash "$REPO_ROOT/.agents/bin/swain-tab-name.sh" --path "$(pwd)" --auto
    ```
 
-5. **Record the worktree bookmark** (SPEC-235). After `EnterWorktree` succeeds, call swain-bookmark.sh to register the worktree in session.json. This prevents orphan worktrees from accumulating and enables teardown to identify them cleanly.
+5. **Record the worktree bookmark** (SPEC-235). After entering a worktree, call swain-bookmark.sh to register it in session.json.
    ```bash
    WT_PATH="$(pwd)"
    WT_BRANCH="$(git branch --show-current 2>/dev/null || echo 'unknown')"
    bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree add "$WT_PATH" "$WT_BRANCH"
    ```
-
-6. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
 
 **Operator override:** If the operator explicitly says "work on trunk" or "don't isolate," respect the override and proceed on trunk. Log a warning: "Proceeding on trunk at operator request — changes will land directly on the development branch."
 
@@ -265,16 +272,16 @@ After the SPEC transition completes, offer to merge and clean up:
 
 If the operator accepts:
 1. Ensure all changes are committed
-2. Call `ExitWorktree` to return to the main checkout
-3. The worktree cleanup is handled by the ExitWorktree tool
+2. Run `/swain-sync` to merge and push (marks lockfile `ready_for_cleanup`)
+3. Worktree cleanup is handled by bin/swain after the runtime exits (SPEC-245)
 
-If the operator declines, call `ExitWorktree` without merging — the branch is preserved for later.
+If the operator declines, the branch is preserved. bin/swain will show it in the menu next launch.
 
-**Note (ADR-015):** `.tickets/` files in the worktree are ephemeral scaffolding and should not block removal. When ExitWorktree warns about uncommitted files that are only tickets, it is safe to proceed with `discard_changes: true` — tickets have no archival value after SPEC completion.
+**Note (ADR-015):** `.tickets/` files in the worktree are ephemeral scaffolding and should not block cleanup. Tickets have no archival value after SPEC completion.
 
 ### Skipping the chain
 
-The operator can say "just exit" or "skip the handoff" to bypass steps 2–3 and go directly to `ExitWorktree`. Log a note on the plan epic: `tk add-note <epic-id> "Exited worktree without completion handoff"`.
+The operator can say "just exit" or "skip the handoff" to bypass steps 2–3. Log a note on the plan epic: `tk add-note <epic-id> "Exited without completion handoff"`. The worktree remains for the next session.
 
 ## Bookmark management (ADR-023)
 
