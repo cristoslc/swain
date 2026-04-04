@@ -126,22 +126,42 @@ This breaks swain's "Swain Everywhere" vision (VISION-003) — worktree discipli
 
 ## Retrospective
 
-**Terminal state:** Proposed (retro at completion)
+**Terminal state:** Active (implementation complete, pending operator verification)
+**Period:** 2026-04-04 (single session)
+**Related artifacts:** ADR-025, SPIKE-053, SPIKE-056, SPIKE-057, DESIGN-004, SPEC-244, SPEC-245, SPEC-246, SPEC-247, SPEC-248, SPEC-249, SPEC-250, SPEC-251, SPEC-252
 
 ### Summary
 
-Started from "tmux window title isn't changing" → discovered fundamental worktree isolation broken for non-Claude-Code runtimes → expanded to full redesign.
+Started from "tmux window title isn't changing" in a prior session. Discovered that worktree isolation was broken for non-Claude-Code runtimes and expanded to a full redesign. This session resolved all research prerequisites (3 SPIKEs, 1 ADR), materialized 9 implementation SPECs, and implemented all of them with 83 passing tests across 5 test suites.
+
+The key reframe: CWD persistence is the exception (Claude Code only), not the norm. Pre-launch worktree creation via bin/swain is the only universal approach. EnterWorktree was always a Claude Code-specific crutch.
 
 ### Key Decisions
 
-1. **Lockfiles over JSON registry** — simpler, git-ignorable, atomic
-2. **Dual-check stale detection** — PID dead AND pane dead
-3. **bin/swain does cleanup** — swain-sync marks ready, bin/swain prunes
-4. **Artifact-aware naming** — containers ask for purpose, implementable/standing use title
-5. **session.json archival** — survives worktree deletion for retro
+1. **Lockfiles over JSON registry** — simpler, git-ignorable, atomic (SPEC-244)
+2. **Dual-check stale detection** — PID dead AND pane dead (SPEC-244)
+3. **bin/swain does cleanup** — swain-sync marks ready, bin/swain prunes (SPEC-245, SPEC-249)
+4. **Artifact-aware naming** — containers ask for purpose, implementable/standing use title (SPEC-251, ADR-025)
+5. **session.json archival** — survives worktree deletion for retro (SPEC-248)
+6. **Child process, not exec** — bin/swain runs runtime as child with signal forwarding so it can clean up after exit (SPEC-245)
+7. **Targeted stash pop** — prevents cross-worktree stash interference (SPEC-252)
 
 ### Learnings
 
-- **Operator corrections were high-signal:** "you're proposing multiple happy paths AND we need to think about edge cases" caught premature decomposition
-- **swain-sync mechanics required multiple iterations:** finally confirmed git merge/push work from worktree
-- **Artifact model was outdated:** ADR-003 misclassifies SPIKE/INITIATIVE — needs superseding ADR
+- **Operator corrections were high-signal:** "you're proposing multiple happy paths AND we need to think about edge cases" caught premature decomposition in the design phase
+- **SPIKEs had answers baked in:** All three SPIKEs (053, 056, 057) were drafted with confirmed answers already in the text. The "User Interview Required" section in ADR-025 was stale — the interview had happened in a prior session. Operator caught this, saving a round-trip.
+- **Research agents worked well in parallel:** SPIKE-053 and SPIKE-057 ran as parallel background agents, each taking ~3 minutes. Combined findings were comprehensive and required minimal correction.
+- **Pre-commit config missing in worktrees:** The worktree lacked `.pre-commit-config.yaml`, requiring `PRE_COMMIT_ALLOW_NO_CONFIG=1` for every commit. This is a worktree hygiene gap.
+- **TDD subshell PID trap:** Tests calling `bash "$SCRIPT" claim` create a subshell with a new PID. The lockfile records the subshell PID, which is dead by the time stale detection runs. Fixed by writing lockfiles directly in tests with `$$` (the test process PID).
+- **DESIGN-004 ID collision:** The worktree router design was assigned DESIGN-004, but that ID already existed (swain-stage Interaction Design). The find command returned the wrong file initially. Artifact ID collision is a recurring issue.
+
+### SPEC candidates
+
+1. **Pre-commit config in worktrees** — worktrees created by bin/swain should inherit or symlink `.pre-commit-config.yaml` from the main checkout. Currently requires manual env var override on every commit.
+2. **Artifact ID collision prevention** — `next-artifact-id.sh` should check across ALL artifact types, not just the requested type. DESIGN-004 was allocated twice because the script only checked `docs/design/`.
+3. **EPIC-056 integration testing** — the individual unit tests pass, but there is no end-to-end test that runs the full flow: bin/swain creates worktree -> claims lockfile -> runtime runs -> swain-sync marks ready -> bin/swain prunes. This should be a dedicated test script.
+
+### README drift
+
+- README says "swain-do automatically creates a linked git worktree" — **stale**: bin/swain now handles worktree creation pre-launch, not swain-do mid-session.
+- README says "swain-sync lands the changes on trunk and prunes the worktree automatically" — **stale**: swain-sync now marks `ready_for_cleanup` instead of pruning. bin/swain handles pruning after runtime exit.
