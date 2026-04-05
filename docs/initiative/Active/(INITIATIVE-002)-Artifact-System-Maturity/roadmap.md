@@ -13,7 +13,7 @@
 |------|------|--------|---------|
 | 2026-04-02 | 23:24 | `a65153d` | fix(chart): ignore materialized symlink paths during discovery |
 | 2026-04-02 | 22:51 | `a27b743` | feat(chart): materialize hierarchy parenting view |
-| 2026-04-02 | 22:35 | `f475b61` | docs(session): add SPEC-237 and EPIC-055 execution plans |
+| 2026-04-02 | 22:35 | `f475b61` | docs(session): add SPEC-264 and EPIC-060 execution plans |
 
 ## Priority Subset
 
@@ -73,6 +73,6 @@
   - [SPEC-045](../../../spec/Complete/(SPEC-045)-Fast-Path-Authoring-Mode/(SPEC-045)-Fast-Path-Authoring-Mode.md) — Fast-Path Authoring Mode for Low-Complexity Artifacts (Complete, done)
   - [SPEC-046](../../../spec/Complete/(SPEC-046)-Inline-Lifecycle-Hash-Stamping/(SPEC-046)-Inline-Lifecycle-Hash-Stamping.md) — Inline Lifecycle Hash Stamping for Trivial Artifacts (Complete, done)
   - [SPEC-047](../../../spec/Complete/(SPEC-047)-lazy-index-refresh/(SPEC-047)-lazy-index-refresh.md) — Lazy Index Refresh for list-*.md Artifact Indices (Complete, done)
-- [EPIC-055](../../../epic/Complete/(EPIC-055)-Materialized-Artifact-Parenting-View/(EPIC-055)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View (0/2)
+- [EPIC-060](../../../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View (0/2)
   - [SPEC-240](../../../spec/Proposed/(SPEC-240)-Session-State-Tolerance-in-Retro-and-Teardown/(SPEC-240)-Session-State-Tolerance-in-Retro-and-Teardown.md) — Session-State Tolerance in Retro and Teardown (Proposed, in progress)
   - [SPEC-241](../../../spec/Proposed/(SPEC-241)-Bookmark-Creation-During-Worktree-Lifecycle/(SPEC-241)-Bookmark-Creation-During-Worktree-Lifecycle.md) — Bookmark Creation During Worktree Lifecycle (Proposed, in progress)

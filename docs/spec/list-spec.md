@@ -27,6 +27,9 @@
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
 | SPEC-166 | Refactor Skill Chaining Table Into Reference File | 2026-03-24 | 3d696d0 |
+| SPEC-233 | Worktree-Bookmark Lifecycle Coupling | — | — |
+| SPEC-234 | Session-State Tolerance in Retro and Teardown | — | — |
+| SPEC-235 | Bookmark Creation During Worktree Lifecycle | — | — |
 | SPEC-236 | next-artifact-id Misses Untracked Artifacts In Other Worktrees | 2026-04-02 | — |
 | SPEC-237 | Session Gate Must Offer Startup Before Mutating Work | 2026-04-02 | — |
 | SPEC-240 | Session-State Tolerance in Retro and Teardown | — | — |
@@ -38,6 +41,11 @@
 | SPEC-248 | Extend Projection Schema with Relationship Fields | 2026-04-03 | — |
 | SPEC-249 | Materialize Related Artifacts Symlinks | 2026-04-03 | — |
 | SPEC-250 | Cleanup Stale Relationship Symlinks | 2026-04-03 | — |
+| SPEC-264 | Remove swain-session Skill Directory | 2026-04-04 | — |
+| SPEC-265 | Structural Cross-Skill Invariant Tests | 2026-04-04 | — |
+| SPEC-266 | Specgraph Hierarchy Projection Output | 2026-04-02 | — |
+| SPEC-267 | Lifecycle-Scoped Materialized Child Views | 2026-04-02 | — |
+| SPEC-268 | Automatic Hierarchy Reconciliation | 2026-04-02 | — |
 
 ## Active
 
@@ -129,12 +137,16 @@
 | SPEC-229 | Native Implementation Planning in swain-do | 2026-04-01 | TBD |
 | SPEC-230 | Native Socratic Discovery in swain-design | 2026-04-01 | TBD |
 | SPEC-231 | Global Debugging Loop in AGENTS.md | 2026-04-01 | TBD |
-| SPEC-238 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-242 | Worktree Ticket Isolation | 2026-03-21 | — |
 | SPEC-243 | Session Sleep Operation | 2026-03-28 | — |
 | SPEC-251 | Exclude Docker MCP Gateway from Crash Debris Detection | 2026-04-03 | — |
 | SPEC-252 | Retro ID renumbering migration | 2026-04-03 | -- |
 | SPEC-253 | Git-Compact Wrapper Script | 2026-04-03 | 52f5c81 |
+| SPEC-254 | Audit grep -c || echo fallback pattern across swain scripts | 2026-04-03 | — |
+| SPEC-255 | Doctor Bundle-And-Offer Fixes | 2026-04-03 | 3435901 |
+| SPEC-256 | Worktree preamble must commit dirty tracked files before branching | 2026-04-03 | — |
+| SPEC-259 | Swain-Sync Preflight Script | 2026-04-04 | — |
+| SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 
 ## Complete
 
@@ -254,10 +266,10 @@
 | SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | 2f49e1f |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | ee81e05 |
 | SPEC-227 | Doctor Artifact Index Staleness Repair | 2026-04-01 | — |
-| SPEC-233 | Specgraph Hierarchy Projection Output | 2026-04-02 | — |
-| SPEC-234 | Lifecycle-Scoped Materialized Child Views | 2026-04-03 | — |
-| SPEC-235 | Automatic Hierarchy Reconciliation | 2026-04-02 | — |
 | SPEC-239 | Worktree-Bookmark Lifecycle Coupling | — | — |
+| SPEC-261 | Specgraph Hierarchy Projection Output | 2026-04-02 | — |
+| SPEC-262 | Lifecycle-Scoped Materialized Child Views | 2026-04-03 | — |
+| SPEC-263 | Automatic Hierarchy Reconciliation | 2026-04-02 | — |
 
 ## Superseded
 

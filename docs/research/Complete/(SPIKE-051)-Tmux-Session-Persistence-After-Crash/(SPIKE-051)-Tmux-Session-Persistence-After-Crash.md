@@ -259,7 +259,7 @@ Four active ADRs constrain crash recovery design:
 
 **ADR-012 (Lifecycle Hashes Must Be Reachable From Main):** Bans squash-merge, force-push to main, and git filter-branch. Ensures lifecycle commit hashes in artifact tables survive any recovery operation. Crash recovery must not use destructive git operations.
 
-**ADR-024 (Merge Tickets To Trunk, amended):** Originally declared tickets ephemeral; caused data loss when `ExitWorktree discard_changes: true` silently discarded unmerged commits. **Amended:** tickets are now committed coordination state. `ExitWorktree` must use `discard_changes: false` (default). Crash recovery should never auto-discard worktree state.
+**ADR-031 (Merge Tickets To Trunk, amended):** Originally declared tickets ephemeral; caused data loss when `ExitWorktree discard_changes: true` silently discarded unmerged commits. **Amended:** tickets are now committed coordination state. `ExitWorktree` must use `discard_changes: false` (default). Crash recovery should never auto-discard worktree state.
 
 **ADR-018 (Structural Not Prosaic Session Invocation):** Session initialization is structural (CLI args), not prosaic (markdown directives). Crash recovery must also be structural — triggered by detectable state on disk, not by hoping the LLM reads a directive.
 

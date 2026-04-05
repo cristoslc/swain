@@ -55,7 +55,7 @@ assert_not_contains() {
 echo "=== ADR-023 AC1: ADR Artifact Exists and is Active ==="
 # ============================================================
 
-ADR_FILE="$REPO_ROOT/docs/adr/Active/(ADR-023)-Deprecate-Swain-Session/(ADR-023)-Deprecate-Swain-Session.md"
+ADR_FILE="$REPO_ROOT/docs/adr/Active/(ADR-030)-Deprecate-Swain-Session/(ADR-030)-Deprecate-Swain-Session.md"
 assert_file_exists "ADR-023 artifact exists" "$ADR_FILE"
 assert_contains "ADR-023 status is Active" "$ADR_FILE" "status: Active"
 assert_contains "ADR-023 references ADR-018" "$ADR_FILE" "ADR-018"

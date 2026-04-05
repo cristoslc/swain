@@ -9,7 +9,7 @@ last-updated: 2026-03-20
 parent-vision: VISION-004
 priority-weight: high
 linked-artifacts:
-  - SPEC-237
+  - SPEC-264
 depends-on-artifacts: []
 trove: session-decision-support@01095c4
 ---
@@ -39,7 +39,7 @@ Rebuild swain's session and status infrastructure around a bounded, evidence-ind
 
 | Spec | Title | Status |
 |------|-------|--------|
-| SPEC-237 | Session Gate Must Offer Startup Before Mutating Work | Proposed |
+| SPEC-264 | Session Gate Must Offer Startup Before Mutating Work | Proposed |
 
 ## Lifecycle
 

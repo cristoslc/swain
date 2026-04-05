@@ -21,6 +21,7 @@
 | EPIC-041 | Worktree Discipline | 2026-03-22 | — |
 | EPIC-057 | Usage Telemetry Implementation | 2026-04-03 | pending |
 | EPIC-058 | Related Artifacts Symlink Materialization | 2026-04-03 | pending |
+| EPIC-061 | Materialized Artifact Parenting View | 2026-04-02 | — |
 
 ## Active
 
@@ -68,7 +69,7 @@
 | EPIC-047 | ADR-019 Script Convention Implementation | 2026-03-29 | — |
 | EPIC-050 | README as Ambient Intent | 2026-03-31 | — |
 | EPIC-051 | Worktree Path Link Safety on Merge | 2026-03-31 | — |
-| EPIC-055 | Materialized Artifact Parenting View | 2026-04-03 | — |
+| EPIC-060 | Materialized Artifact Parenting View | 2026-04-03 | — |
 
 ## Superseded
 

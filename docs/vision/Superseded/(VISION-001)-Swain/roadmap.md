@@ -13,7 +13,7 @@
 |------|------|--------|---------|
 | 2026-04-02 | 23:24 | `a65153d` | fix(chart): ignore materialized symlink paths during discovery |
 | 2026-04-02 | 22:51 | `a27b743` | feat(chart): materialize hierarchy parenting view |
-| 2026-04-02 | 22:35 | `f475b61` | docs(session): add SPEC-237 and EPIC-055 execution plans |
+| 2026-04-02 | 22:35 | `f475b61` | docs(session): add SPEC-264 and EPIC-060 execution plans |
 
 ## Priority Subset
 
@@ -138,7 +138,7 @@
   - [EPIC-008](../../../epic/Complete/(EPIC-008)-Normalize-Artifact-Lifecycle-States/(EPIC-008)-Normalize-Artifact-Lifecycle-States.md) — Normalize Artifact Lifecycle States (Complete, 5/5)
   - [EPIC-013](../../../epic/Complete/(EPIC-013)-Specgraph-Python-Rewrite/(EPIC-013)-Specgraph-Python-Rewrite.md) — Specgraph Python Rewrite (Complete, 5/5)
   - [EPIC-014](../../../epic/Complete/(EPIC-014)-Artifact-Workflow-Efficiency/(EPIC-014)-Artifact-Workflow-Efficiency.md) — Artifact Workflow Efficiency (Complete, 5/5)
-  - [EPIC-055](../../../epic/Complete/(EPIC-055)-Materialized-Artifact-Parenting-View/(EPIC-055)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View (Complete, 0/2)
+  - [EPIC-060](../../../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View (Complete, 0/2)
 - [INITIATIVE-003](../../../initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) — Agent Runtime Efficiency (in progress)
   - [EPIC-031](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) — Skill Audit Remediation (Active, 1/9)
   - [EPIC-048](../../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md) — Session Startup Fast Path (Active, 0/4)
@@ -289,7 +289,7 @@
   - [SPEC-157](../../../spec/Complete/(SPEC-157)-SKILL-MD-Allocator-Integration/(SPEC-157)-SKILL-MD-Allocator-Integration.md) — swain-design SKILL.md Allocator Integration (Complete, done)
   - [SPEC-158](../../../spec/Complete/(SPEC-158)-Artifact-Number-Collision-Detection/(SPEC-158)-Artifact-Number-Collision-Detection.md) — Artifact Number Collision Detection (Complete, done)
   - [SPEC-159](../../../spec/Complete/(SPEC-159)-Migrate-Existing-Number-Callers/(SPEC-159)-Migrate-Existing-Number-Callers.md) — Migrate Existing Number Allocation Callers (Complete, done)
-- [EPIC-055](../../../epic/Complete/(EPIC-055)-Materialized-Artifact-Parenting-View/(EPIC-055)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View (0/2)
+- [EPIC-060](../../../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View (0/2)
   - [SPEC-240](../../../spec/Proposed/(SPEC-240)-Session-State-Tolerance-in-Retro-and-Teardown/(SPEC-240)-Session-State-Tolerance-in-Retro-and-Teardown.md) — Session-State Tolerance in Retro and Teardown (Proposed, in progress)
   - [SPEC-241](../../../spec/Proposed/(SPEC-241)-Bookmark-Creation-During-Worktree-Lifecycle/(SPEC-241)-Bookmark-Creation-During-Worktree-Lifecycle.md) — Bookmark Creation During Worktree Lifecycle (Proposed, in progress)
 - [INITIATIVE-006](../../../initiative/Complete/(INITIATIVE-006)-Multi-Agent-Orchestration/(INITIATIVE-006)-Multi-Agent-Orchestration.md) — Multi-Agent Orchestration (done)

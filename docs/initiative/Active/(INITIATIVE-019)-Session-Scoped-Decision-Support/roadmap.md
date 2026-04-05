@@ -12,7 +12,7 @@
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
 | 2026-04-02 | 22:51 | `a27b743` | feat(chart): materialize hierarchy parenting view |
-| 2026-04-02 | 22:35 | `f475b61` | docs(session): add SPEC-237 and EPIC-055 execution plans |
+| 2026-04-02 | 22:35 | `f475b61` | docs(session): add SPEC-264 and EPIC-060 execution plans |
 | 2026-03-31 | 12:44 | `818b49d` | docs(SPEC-205): bug — wire progress-log into session close |
 
 ## Priority Subset
@@ -36,7 +36,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Session Gate Must Offer Startup Before Mutating Work](docs/spec/Proposed/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) | 0/0 | 0 | **activate or drop** |
+| [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Session Gate Must Offer Startup Before Mutating Work](docs/spec/Proposed/(SPEC-264)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-264)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -73,7 +73,7 @@
 - [SPEC-243](../../../spec/Active/(SPEC-243)-Session-Sleep-Operation/(SPEC-243)-Session-Sleep-Operation.md) — Session Sleep Operation (in progress)
 ### Proposed
 
-- [SPEC-237](../../../spec/Proposed/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) — Session Gate Must Offer Startup Before Mutating Work (in progress)
+- [SPEC-264](../../../spec/Proposed/(SPEC-264)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-264)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) — Session Gate Must Offer Startup Before Mutating Work (in progress)
 ### Complete
 
 - [EPIC-039](../../../epic/Complete/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (7/7)

@@ -5,13 +5,13 @@ track: standing
 status: Active
 created: 2026-03-27
 last-updated: 2026-03-27
-scope: "SPEC-176 implementation, ADR-023 decision, and the process of turning a retro learning into a verified skill change"
+scope: "SPEC-176 implementation, ADR-030 decision, and the process of turning a retro learning into a verified skill change"
 period: "2026-03-27"
 linked-artifacts:
   - SPEC-175
   - SPEC-176
   - SPIKE-048
-  - ADR-023
+  - ADR-030
 ---
 
 # Retro: TDD Self-Critique Gate and Behavioral Eval
@@ -25,7 +25,7 @@ Turned a retro learning (from SPEC-175's session) into a verified behavioral ins
 | Artifact | Title | Outcome |
 |----------|-------|---------|
 | SPEC-176 | TDD Coverage Self-Critique Gate | Implemented — added to tdd-enforcement.md |
-| ADR-023 | A/B Subagent Eval for Behavioral Skill Instructions | Active — methodology decision recorded |
+| ADR-030 | A/B Subagent Eval for Behavioral Skill Instructions | Active — methodology decision recorded |
 | SPIKE-048 | Noisy Tool-Call Pattern Audit | Filed, not yet investigated |
 
 ## Reflection
@@ -49,7 +49,7 @@ Turned a retro learning (from SPEC-175's session) into a verified behavioral ins
 
 ### Patterns observed
 
-- **Recurring: operator asks "what did you miss?" and the agent can answer.** This happened in both the SPEC-175 session (test coverage gaps) and this session (behavioral verification). The self-critique gate (SPEC-176) addresses the first pattern. ADR-023 addresses the second. Both are symptoms of the same root: the agent doesn't audit its own work before declaring done.
+- **Recurring: operator asks "what did you miss?" and the agent can answer.** This happened in both the SPEC-175 session (test coverage gaps) and this session (behavioral verification). The self-critique gate (SPEC-176) addresses the first pattern. ADR-030 addresses the second. Both are symptoms of the same root: the agent doesn't audit its own work before declaring done.
 - **Learnings that become artifacts have higher fidelity than memory files.** A SPEC with ACs and a behavioral eval is more actionable than a memory file with "Why" and "How to apply" fields. The artifact forces structure; the memory allows drift.
 
 ## Learnings captured
@@ -57,4 +57,4 @@ Turned a retro learning (from SPEC-175's session) into a verified behavioral ins
 | Artifact | Type | Summary |
 |----------|------|---------|
 | SPEC-176 | enhancement | Post-GREEN self-critique gate in tdd-enforcement.md |
-| ADR-023 | decision | A/B subagent eval methodology for behavioral instructions |
+| ADR-030 | decision | A/B subagent eval methodology for behavioral instructions |

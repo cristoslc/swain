@@ -1,17 +1,18 @@
 ---
-title: "Retro: Deprecate swain-session (ADR-023)"
+title: "Retro: Deprecate swain-session (ADR-030)"
 artifact: RETRO-2026-04-04-deprecate-swain-session
 track: standing
 status: Active
 created: 2026-04-04
 last-updated: 2026-04-04
-scope: "ADR-023 implementation — split swain-session into swain-init (startup) and swain-teardown (shutdown), distribute mid-session features"
+scope: "ADR-030 implementation — split swain-session into swain-init (startup) and swain-teardown (shutdown), distribute mid-session features"
 period: "2026-04-04"
 linked-artifacts:
-  - ADR-023
+  - ADR-030
+  - SPEC-259
 ---
 
-# Retro: Deprecate swain-session (ADR-023)
+# Retro: Deprecate swain-session (ADR-030)
 
 ## Summary
 
@@ -21,7 +22,7 @@ Deprecated swain-session by splitting its responsibilities across five skills. T
 
 | Artifact | Title | Outcome |
 |----------|-------|---------|
-| ADR-023 | Deprecate swain-session | Created (Active) |
+| ADR-030 | Deprecate swain-session | Created (Active) |
 | swain-teardown v3.0.0 | Full shutdown sequence | Rewritten |
 | swain-init Phase 7 | Session start absorption | Expanded |
 | swain-roadmap v2.0.0 | Status dashboard absorption | Expanded |
@@ -62,6 +63,48 @@ The session skill should never have accumulated this many responsibilities. Star
 
 | Item | Type | Summary |
 |------|------|---------|
-| SPEC-237: Remove swain-session skill directory | SPEC | Delete `skills/swain-session/`, relocate scripts to surviving skill directories |
-| SPEC-238: Structural cross-skill invariant tests | SPEC | Grep-based test suite validating routing, preamble, and reference consistency across all skills |
-| ADR-024: Skill naming convention — verbs not nouns | ADR | Name skills by their action (init, teardown, sync) not their domain noun (session, project) |
+| SPEC-264: Remove swain-session skill directory | SPEC | Delete `skills/swain-session/`, relocate scripts to surviving skill directories |
+| SPEC-265: Structural cross-skill invariant tests | SPEC | Grep-based test suite validating routing, preamble, and reference consistency across all skills |
+| ADR-031: Skill naming convention — verbs not nouns | ADR | Name skills by their action (init, teardown, sync) not their domain noun (session, project) |
+
+## Session 2: Collision resolution and SPEC-259
+
+**Period:** 2026-04-04 (continuation session)
+
+### Summary
+
+Merged trunk into the worktree, resolved 13 artifact number collisions introduced by concurrent worktree work, and wrote SPEC-259 (swain-sync preflight script). The collision fix renumbered artifacts across SPECs, EPICs, and ADRs — including ADR-023→ADR-030 (the main deliverable of this worktree). BDD tests were updated to track the renumber and re-verified at 66/66 pass.
+
+### Reflection
+
+#### What went well
+
+SPEC-259 was fast to scope. The operator identified the optimization (extract Steps 1–3.9 to a script), the preflight/subagent split was obvious, and the JSON output contract fell out naturally. The feedback memory about script placement (`skills/<name>/bin/`, not `.agents/bin/`) prevented a structural mistake before it happened.
+
+The collision tooling handled the bulk of renumbering automatically — 13 artifacts across 9 collision groups, with cross-reference rewrites touching 40+ files. Without `fix-collisions.sh` and `renumber-artifact.sh`, this would have been a multi-hour manual job.
+
+#### What was surprising
+
+`fix-collisions.sh` hit a stale `index.lock` mid-run on the 6th of 9 renumbers. The manual retry with `renumber-artifact.sh` then picked the wrong artifact (alphabetically first match) instead of the intended one. This created a duplicate (two artifacts both numbered SPEC-265 pointing to "Improve-swain-search-snapshots") that required manual cleanup: `git rm` the wrong one, re-run with `--source-dir` to target the correct artifact. The collision script's lack of atomicity (partial failure leaves staged-but-incomplete state) made recovery harder than it needed to be.
+
+A second round of `fix-collisions.sh` was needed because the first round only renumbered the "newer" artifact in each collision group, but some groups had three-way collisions (trunk Proposed + trunk Complete + worktree Proposed). The second round caught the remaining 4.
+
+#### What would change
+
+`renumber-artifact.sh` should refuse to run when multiple directories match the source ID unless `--source-dir` is provided. The current behavior (pick first match, emit a warning) is too dangerous — it silently renumbers the wrong artifact. A hard error would have prevented the SPEC-265 mess.
+
+`fix-collisions.sh` should handle `index.lock` gracefully — either wait-and-retry or clean up its own staged state before exiting. Partial completion with "commit when ready" leaves the tree in a state where the next run may pick different renumber targets.
+
+#### Patterns observed
+
+**Collision resolution is worktree merge tax.** Every worktree that creates artifacts risks ID collisions when merging back. The `next-artifact-id.sh` cross-branch scan (SPEC-193) prevents collisions within a single session, but can't prevent two concurrent sessions from picking the same IDs. This is an inherent cost of worktree isolation.
+
+**Multi-match tooling needs explicit targeting.** When a tool finds multiple candidates, "pick the first one" is almost never right. Hard-fail with disambiguation is safer than soft-warn with a guess. This applies beyond `renumber-artifact.sh` — any script that resolves artifact IDs from partial input should follow this pattern.
+
+### Learnings captured
+
+| Item | Type | Summary |
+|------|------|---------|
+| SPEC-259: Swain-sync preflight script | SPEC | Extract Steps 1–3.9 into `skills/swain-sync/bin/swain-sync-preflight.sh` to reduce subagent token spend |
+| renumber-artifact.sh should hard-fail on ambiguous source | SPEC candidate | Refuse to proceed when multiple directories match; require `--source-dir` |
+| fix-collisions.sh needs atomicity or rollback | SPEC candidate | Handle index.lock, ensure partial failures don't corrupt subsequent runs |

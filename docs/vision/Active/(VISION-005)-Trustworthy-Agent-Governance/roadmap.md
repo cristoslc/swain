@@ -11,7 +11,7 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-31 | 23:12 | `635b9a6` | docs(epic): EPIC-052 Automated Test Gates — SPEC-220/221/223/224/225/226 + SPEC-215 re-parent |
+| 2026-03-31 | 23:12 | `635b9a6` | docs(epic): EPIC-052 Automated Test Gates — SPEC-260/221/223/224/225/226 + SPEC-215 re-parent |
 | 2026-03-23 | 09:19 | `09d824a` | docs: complete SPIKE-038 + write findings to INITIATIVE-020 |
 | 2026-03-22 | 23:18 | `60846ba` | docs: stamp lifecycle hashes for VISION-005 + INITIATIVE-020 + SPIKE-038..041 730b957 |
 
@@ -50,7 +50,7 @@
 
 - [EPIC-052](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) — Automated Test Gates (0/7)
   - [SPEC-215](../../../spec/Active/(SPEC-215)-Consumer-Integration-Test-Harness/(SPEC-215)-Consumer-Integration-Test-Harness.md) — Consumer integration test harness (Active, in progress)
-  - [SPEC-220](../../../spec/Active/(SPEC-220)-swain-test-sh-Script/(SPEC-220)-swain-test-sh-Script.md) — swain-test.sh script (Active, in progress)
+  - [SPEC-260](../../../spec/Active/(SPEC-260)-swain-test-sh-Script/(SPEC-260)-swain-test-sh-Script.md) — swain-test.sh script (Active, in progress)
   - [SPEC-221](../../../spec/Active/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill (Active, in progress)
   - [SPEC-223](../../../spec/Active/(SPEC-223)-swain-sync-Test-Gate-Integration/(SPEC-223)-swain-sync-Test-Gate-Integration.md) — swain-sync test gate integration (Active, in progress)
   - [SPEC-224](../../../spec/Active/(SPEC-224)-swain-release-Test-Gate-Integration/(SPEC-224)-swain-release-Test-Gate-Integration.md) — swain-release test gate integration (Active, in progress)

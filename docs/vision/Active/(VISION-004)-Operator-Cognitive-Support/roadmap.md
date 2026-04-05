@@ -36,7 +36,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Session Gate Must Offer Startup Before Mutating Work](docs/spec/Proposed/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) | 0/0 | 0 | **activate or drop** |
+| [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Session Gate Must Offer Startup Before Mutating Work](docs/spec/Proposed/(SPEC-264)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-264)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -73,7 +73,7 @@
   - [SPEC-178](../../../spec/Active/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component.md) — Worktree Timestamp Zeroed Time Component (Active, in progress)
   - [SPEC-184](../../../spec/Active/(SPEC-184)-Session-End-Operation/(SPEC-184)-Session-End-Operation.md) — Session End Operation (Active, in progress)
   - [SPEC-194](../../../spec/Active/(SPEC-194)-Flesch-Kincaid-Readability-Enforcement/(SPEC-194)-Flesch-Kincaid-Readability-Enforcement.md) — Flesch-Kincaid Readability Enforcement (Active, in progress)
-  - [SPEC-237](../../../spec/Proposed/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) — Session Gate Must Offer Startup Before Mutating Work (Proposed, in progress)
+  - [SPEC-264](../../../spec/Proposed/(SPEC-264)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-264)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) — Session Gate Must Offer Startup Before Mutating Work (Proposed, in progress)
   - [SPEC-243](../../../spec/Active/(SPEC-243)-Session-Sleep-Operation/(SPEC-243)-Session-Sleep-Operation.md) — Session Sleep Operation (Active, in progress)
   - [EPIC-039](../../../epic/Complete/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (Complete, 7/7)
   - [EPIC-046](../../../epic/Complete/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) — Pre-Runtime Crash Recovery (Complete, 3/3)
@@ -84,7 +84,7 @@
   - [SPEC-121](../../../spec/Complete/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Complete, done)
   - [SPEC-122](../../../spec/Complete/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) — Absorb swain-status into swain-session (Complete, done)
   - [SPEC-123](../../../spec/Complete/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) — Skill and Script Alignment Audit (Complete, done)
-- [SPEC-238](../../../spec/Active/(SPEC-238)-Improve-swain-search-snapshots/(SPEC-238)-Improve-swain-search-snapshots.md) — Improve swain-search snapshot evidence (in progress)
+- [SPEC-260](../../../spec/Active/(SPEC-260)-Improve-swain-search-snapshots/SPEC-260.md) — Improve swain-search snapshot evidence (in progress)
 ### Complete
 
 - [EPIC-039](../../../epic/Complete/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (7/7)
