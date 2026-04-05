@@ -1,6 +1,6 @@
 ---
 title: "swain-doctor Orphan Scanning"
-artifact: SPEC-246
+artifact: SPEC-278
 track: implementable
 status: Complete
 author: cristos
@@ -9,11 +9,11 @@ last-updated: 2026-04-04
 parent-epic: EPIC-056
 priority-weight: medium
 depends-on-artifacts:
-  - SPEC-244
+  - SPEC-276
 linked-artifacts: []
 ---
 
-# SPEC-246: swain-doctor Orphan Scanning
+# SPEC-278: swain-doctor Orphan Scanning
 
 ## Goal
 

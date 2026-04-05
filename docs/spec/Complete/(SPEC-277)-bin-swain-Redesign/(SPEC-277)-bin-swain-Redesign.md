@@ -1,6 +1,6 @@
 ---
 title: "bin/swain Redesign"
-artifact: SPEC-245
+artifact: SPEC-277
 track: implementable
 status: Complete
 author: cristos
@@ -9,14 +9,14 @@ last-updated: 2026-04-04
 parent-epic: EPIC-056
 priority-weight: critical
 depends-on-artifacts:
-  - SPEC-244
+  - SPEC-276
   - SPEC-251
 linked-artifacts:
   - DESIGN-004
   - SPIKE-053
 ---
 
-# SPEC-245: bin/swain Redesign
+# SPEC-277: bin/swain Redesign
 
 ## Goal
 

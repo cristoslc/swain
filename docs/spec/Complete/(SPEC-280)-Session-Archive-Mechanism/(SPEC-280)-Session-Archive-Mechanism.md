@@ -1,6 +1,6 @@
 ---
 title: "Session Archive Mechanism"
-artifact: SPEC-248
+artifact: SPEC-280
 track: implementable
 status: Complete
 author: cristos
@@ -12,7 +12,7 @@ depends-on-artifacts: []
 linked-artifacts: []
 ---
 
-# SPEC-248: Session Archive Mechanism
+# SPEC-280: Session Archive Mechanism
 
 ## Goal
 

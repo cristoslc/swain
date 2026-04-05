@@ -84,7 +84,7 @@
   - [SPEC-121](../../../spec/Complete/(SPEC-121)-Session-Detection-Hooks/SPEC-121.md) — Session Detection Hooks Across All Skills (Complete, done)
   - [SPEC-122](../../../spec/Complete/(SPEC-122)-Absorb-swain-status-Into-swain-session/SPEC-122.md) — Absorb swain-status into swain-session (Complete, done)
   - [SPEC-123](../../../spec/Complete/(SPEC-123)-Skill-And-Script-Alignment-Audit/SPEC-123.md) — Skill and Script Alignment Audit (Complete, done)
-- [SPEC-260](../../../spec/Active/(SPEC-260)-Improve-swain-search-snapshots/SPEC-260.md) — Improve swain-search snapshot evidence (in progress)
+- [SPEC-285](../../../spec/Active/(SPEC-285)-Improve-swain-search-snapshots/SPEC-285.md) — Improve swain-search snapshot evidence (in progress)
 ### Complete
 
 - [EPIC-039](../../../epic/Complete/(EPIC-039)-Session-Facilitation-Rebuild/(EPIC-039)-Session-Facilitation-Rebuild.md) — Session Facilitation Rebuild (7/7)

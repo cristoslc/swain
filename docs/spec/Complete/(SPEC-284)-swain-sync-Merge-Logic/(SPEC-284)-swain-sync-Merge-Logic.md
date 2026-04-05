@@ -1,6 +1,6 @@
 ---
 title: "swain-sync Merge Logic"
-artifact: SPEC-252
+artifact: SPEC-284
 track: implementable
 status: Complete
 author: cristos
@@ -13,7 +13,7 @@ linked-artifacts:
   - SPIKE-057
 ---
 
-# SPEC-252: swain-sync Merge Logic
+# SPEC-284: swain-sync Merge Logic
 
 ## Goal
 
@@ -41,7 +41,7 @@ Ensure swain-sync's merge-from-worktree logic is correct and tested. swain-sync 
 
 - [ ] **AC2: No self-removal**
   - swain-sync does NOT call `git worktree remove` after push
-  - Cleanup deferred to bin/swain (via ready_for_cleanup in SPEC-249)
+  - Cleanup deferred to bin/swain (via ready_for_cleanup in SPEC-281)
 
 - [ ] **AC3: Merge from worktree tested**
   - Test: merge trunk into worktree branch succeeds

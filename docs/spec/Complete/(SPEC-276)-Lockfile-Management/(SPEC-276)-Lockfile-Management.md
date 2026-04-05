@@ -1,6 +1,6 @@
 ---
 title: "Lockfile Management"
-artifact: SPEC-244
+artifact: SPEC-276
 track: implementable
 status: Complete
 author: cristos
@@ -15,7 +15,7 @@ linked-artifacts:
   - SPIKE-057
 ---
 
-# SPEC-244: Lockfile Management
+# SPEC-276: Lockfile Management
 
 ## Goal
 

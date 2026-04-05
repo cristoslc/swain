@@ -1,6 +1,6 @@
 ---
 title: "Raise FK Grade Threshold To 10"
-artifact: SPEC-260
+artifact: SPEC-285
 track: implementable
 status: Active
 author: operator

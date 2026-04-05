@@ -1,6 +1,6 @@
 ---
 title: "bin/swain Worktree Router"
-artifact: DESIGN-004
+artifact: DESIGN-021
 track: standing
 status: Proposed
 author: cristos
@@ -15,7 +15,7 @@ depends-on-artifacts:
   - ADR-025
 ---
 
-# DESIGN-004: bin/swain Worktree Router
+# DESIGN-021: bin/swain Worktree Router
 
 ## Interaction Surface
 

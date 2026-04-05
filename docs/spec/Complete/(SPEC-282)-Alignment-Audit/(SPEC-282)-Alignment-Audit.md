@@ -1,6 +1,6 @@
 ---
 title: "Alignment Audit"
-artifact: SPEC-250
+artifact: SPEC-282
 track: implementable
 status: Complete
 author: cristos
@@ -9,15 +9,15 @@ last-updated: 2026-04-04
 parent-epic: EPIC-056
 priority-weight: low
 depends-on-artifacts:
-  - SPEC-244
-  - SPEC-245
-  - SPEC-249
+  - SPEC-276
+  - SPEC-277
+  - SPEC-281
   - SPEC-251
 linked-artifacts:
   - SPIKE-053
 ---
 
-# SPEC-250: Alignment Audit
+# SPEC-282: Alignment Audit
 
 ## Goal
 

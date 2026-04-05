@@ -1,6 +1,6 @@
 ---
 title: "swain-teardown Integration"
-artifact: SPEC-247
+artifact: SPEC-279
 track: implementable
 status: Complete
 author: cristos
@@ -9,11 +9,11 @@ last-updated: 2026-04-04
 parent-epic: EPIC-056
 priority-weight: medium
 depends-on-artifacts:
-  - SPEC-244
+  - SPEC-276
 linked-artifacts: []
 ---
 
-# SPEC-247: swain-teardown Integration
+# SPEC-279: swain-teardown Integration
 
 ## Goal
 

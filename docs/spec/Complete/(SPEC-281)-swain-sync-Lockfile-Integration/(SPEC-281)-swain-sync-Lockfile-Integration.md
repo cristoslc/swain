@@ -1,6 +1,6 @@
 ---
 title: "swain-sync Lockfile Integration"
-artifact: SPEC-249
+artifact: SPEC-281
 track: implementable
 status: Complete
 author: cristos
@@ -9,13 +9,13 @@ last-updated: 2026-04-04
 parent-epic: EPIC-056
 priority-weight: high
 depends-on-artifacts:
-  - SPEC-244
+  - SPEC-276
   - SPEC-252
 linked-artifacts:
   - SPIKE-057
 ---
 
-# SPEC-249: swain-sync Lockfile Integration
+# SPEC-281: swain-sync Lockfile Integration
 
 ## Goal
 

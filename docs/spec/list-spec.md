@@ -151,8 +151,8 @@
 | SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 | SPEC-259 | Swain-Sync Preflight Script | 2026-04-04 | — |
 | SPEC-259 | Consumer Gitignore Coverage Gaps | 2026-04-04 | — |
-| SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
-| SPEC-260 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
+| SPEC-285 | Improve swain-search snapshot evidence | 2026-04-02 | — |
+| SPEC-285 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
 
 ## Complete
 

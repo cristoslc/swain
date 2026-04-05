@@ -1,6 +1,6 @@
 ---
 title: "Artifact-Aware Worktree Naming"
-artifact: SPEC-251
+artifact: SPEC-283
 track: implementable
 status: Complete
 author: cristos
@@ -14,7 +14,7 @@ linked-artifacts:
   - SPIKE-056
 ---
 
-# SPEC-251: Artifact-Aware Worktree Naming
+# SPEC-283: Artifact-Aware Worktree Naming
 
 ## Goal
 

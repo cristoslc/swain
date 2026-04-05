@@ -99,7 +99,7 @@ Design and test swain-sync integration with lockfile claiming:
 
 **No `flock` usage in the codebase.** Explicitly rejected in ADR-011 (POSIX-local, doesn't fix the core merge problem).
 
-### 4. Proposed Lockfile Format (from DESIGN-004)
+### 4. Proposed Lockfile Format (from DESIGN-021)
 
 ```bash
 version=1
@@ -190,7 +190,7 @@ Currently checks session.json bookmarks and git merge-base. Must also check/clea
 ## Acceptance Criteria
 
 - [x] **SPIKE-057-AC1: Git operations verified** — full matrix tested; merge, push, fetch, tag all work; stash is shared (risk); self-removal does not work (bin/swain handles from outside)
-- [x] **SPIKE-057-AC2: Lockfile protocol defined** — DESIGN-004 format with ready_for_cleanup + ready_commit extension; atomic via mkdir or temp+mv
+- [x] **SPIKE-057-AC2: Lockfile protocol defined** — DESIGN-021 format with ready_for_cleanup + ready_commit extension; atomic via mkdir or temp+mv
 - [x] **SPIKE-057-AC3: bin/swain verification logic** — commit hash comparison; mismatch offers re-entry or forced cleanup
 - [x] **SPIKE-057-AC4: Error handling tested** — merge conflicts abort without marking; push rejection retries; lockfile write failure warns but continues
 

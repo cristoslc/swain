@@ -1,6 +1,6 @@
 ---
 title: "Worktree Isolation Redesign"
-artifact: EPIC-056
+artifact: EPIC-063
 track: container
 status: Complete
 author: cristos
@@ -30,18 +30,18 @@ linked-artifacts:
   - SPIKE-056
   - SPIKE-057
   - DESIGN-004
-  - SPEC-244
-  - SPEC-245
-  - SPEC-246
-  - SPEC-247
-  - SPEC-248
-  - SPEC-249
-  - SPEC-250
-  - SPEC-251
-  - SPEC-252
+  - SPEC-276
+  - SPEC-277
+  - SPEC-278
+  - SPEC-279
+  - SPEC-280
+  - SPEC-281
+  - SPEC-282
+  - SPEC-283
+  - SPEC-284
 ---
 
-# EPIC-056: Worktree Isolation Redesign
+# EPIC-063: Worktree Isolation Redesign
 
 ## Goal
 
@@ -94,15 +94,15 @@ This breaks swain's "Swain Everywhere" vision (VISION-003) — worktree discipli
 - **DESIGN-004** — bin/swain Worktree Router (menu UI, flags, lockfile format)
 
 ### Implementation
-- **SPEC-244** — Lockfile Management (claim/release/stale detection)
-- **SPEC-245** — bin/swain Redesign (worktree router)
-- **SPEC-246** — swain-doctor Orphan Scanning
-- **SPEC-247** — swain-teardown Integration (claim release, cleanup)
-- **SPEC-248** — session.json Archive Mechanism
-- **SPEC-249** — swain-sync Lockfile Integration (ready_for_cleanup)
-- **SPEC-250** — Alignment Audit (update all skills)
-- **SPEC-251** — Artifact-Aware Worktree Naming
-- **SPEC-252** — swain-sync Merge Logic (trunk → worktree → push)
+- **SPEC-276** — Lockfile Management (claim/release/stale detection)
+- **SPEC-277** — bin/swain Redesign (worktree router)
+- **SPEC-278** — swain-doctor Orphan Scanning
+- **SPEC-279** — swain-teardown Integration (claim release, cleanup)
+- **SPEC-280** — session.json Archive Mechanism
+- **SPEC-281** — swain-sync Lockfile Integration (ready_for_cleanup)
+- **SPEC-282** — Alignment Audit (update all skills)
+- **SPEC-283** — Artifact-Aware Worktree Naming
+- **SPEC-284** — swain-sync Merge Logic (trunk → worktree → push)
 
 ## Dependencies
 
@@ -128,7 +128,7 @@ This breaks swain's "Swain Everywhere" vision (VISION-003) — worktree discipli
 
 **Terminal state:** Active (implementation complete, pending operator verification)
 **Period:** 2026-04-04 (single session)
-**Related artifacts:** ADR-025, SPIKE-053, SPIKE-056, SPIKE-057, DESIGN-004, SPEC-244, SPEC-245, SPEC-246, SPEC-247, SPEC-248, SPEC-249, SPEC-250, SPEC-251, SPEC-252
+**Related artifacts:** ADR-025, SPIKE-053, SPIKE-056, SPIKE-057, DESIGN-004, SPEC-276, SPEC-277, SPEC-278, SPEC-279, SPEC-280, SPEC-281, SPEC-282, SPEC-283, SPEC-284
 
 ### Summary
 
@@ -138,13 +138,13 @@ The key reframe: CWD persistence is the exception (Claude Code only), not the no
 
 ### Key Decisions
 
-1. **Lockfiles over JSON registry** — simpler, git-ignorable, atomic (SPEC-244)
-2. **Dual-check stale detection** — PID dead AND pane dead (SPEC-244)
-3. **bin/swain does cleanup** — swain-sync marks ready, bin/swain prunes (SPEC-245, SPEC-249)
-4. **Artifact-aware naming** — containers ask for purpose, implementable/standing use title (SPEC-251, ADR-025)
-5. **session.json archival** — survives worktree deletion for retro (SPEC-248)
-6. **Child process, not exec** — bin/swain runs runtime as child with signal forwarding so it can clean up after exit (SPEC-245)
-7. **Targeted stash pop** — prevents cross-worktree stash interference (SPEC-252)
+1. **Lockfiles over JSON registry** — simpler, git-ignorable, atomic (SPEC-276)
+2. **Dual-check stale detection** — PID dead AND pane dead (SPEC-276)
+3. **bin/swain does cleanup** — swain-sync marks ready, bin/swain prunes (SPEC-277, SPEC-281)
+4. **Artifact-aware naming** — containers ask for purpose, implementable/standing use title (SPEC-283, ADR-025)
+5. **session.json archival** — survives worktree deletion for retro (SPEC-280)
+6. **Child process, not exec** — bin/swain runs runtime as child with signal forwarding so it can clean up after exit (SPEC-277)
+7. **Targeted stash pop** — prevents cross-worktree stash interference (SPEC-284)
 
 ### Learnings
 
@@ -159,7 +159,7 @@ The key reframe: CWD persistence is the exception (Claude Code only), not the no
 
 1. **Pre-commit config in worktrees** — worktrees created by bin/swain should inherit or symlink `.pre-commit-config.yaml` from the main checkout. Currently requires manual env var override on every commit.
 2. **Artifact ID collision prevention** — `next-artifact-id.sh` should check across ALL artifact types, not just the requested type. DESIGN-004 was allocated twice because the script only checked `docs/design/`.
-3. **EPIC-056 integration testing** — the individual unit tests pass, but there is no end-to-end test that runs the full flow: bin/swain creates worktree -> claims lockfile -> runtime runs -> swain-sync marks ready -> bin/swain prunes. This should be a dedicated test script.
+3. **EPIC-063 integration testing** — the individual unit tests pass, but there is no end-to-end test that runs the full flow: bin/swain creates worktree -> claims lockfile -> runtime runs -> swain-sync marks ready -> bin/swain prunes. This should be a dedicated test script.
 
 ### README drift
 
