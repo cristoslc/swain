@@ -82,4 +82,4 @@ Skills check `SWAIN_WORKTREE_PATH` and refuse to write if unset, but never creat
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-05 | — | Initial creation — formalizes born-in-worktree model |
+| Active | 2026-04-05 | d2a8412a | Initial creation — formalizes born-in-worktree model |
