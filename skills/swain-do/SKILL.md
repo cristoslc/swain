@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
 metadata:
   short-description: Bootstrap and operate external task tracking
-  version: 3.2.0
+  version: 3.3.0
   author: cristos
   source: swain
 ---
@@ -238,7 +238,152 @@ OPEN_COUNT=$(ticket-query ".parent == \"<epic-id>\" and .status != \"closed\"" 2
 
 If `OPEN_COUNT > 0`, the plan is not complete — continue working or ask the operator. If `OPEN_COUNT == 0`, proceed.
 
-### Step 2 — Invoke swain-design for SPEC transition
+### Step 2 — Run completion pipeline (SPEC-257)
+
+After detecting plan completion, run the quality gate pipeline before transitioning the SPEC. This ensures BDD tests, smoke tests, and retro all fire automatically.
+
+#### 2a — Create completion state file
+
+Identify the SPEC ID from the plan epic's `--external-ref`:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SPEC_ID=$(tk show <epic-id> 2>/dev/null | grep -i 'external_ref' | awk '{print $NF}')
+if [ -z "$SPEC_ID" ]; then
+  echo "WARNING: No SPEC linked to plan epic — skipping completion pipeline."
+fi
+```
+
+If `SPEC_ID` is empty, skip Step 2 entirely and proceed to Step 3. Log the warning.
+
+Create the state file per DESIGN-018:
+
+```bash
+mkdir -p "$REPO_ROOT/.agents"
+jq -n --arg spec "$SPEC_ID" --arg branch "$(git branch --show-current)" \
+  '{spec_id: $spec, branch: $branch, pipeline_started: (now | todate), steps: {bdd_tests: {status: "pending", timestamp: null, detail: null}, smoke_test: {status: "pending", timestamp: null, detail: null}, retro: {status: "pending", timestamp: null, detail: null}}}' \
+  > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+  && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+```
+
+#### 2b — Run BDD tests
+
+Check if `swain-test.sh` is available:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SWAIN_TEST="$REPO_ROOT/.agents/bin/swain-test.sh"
+```
+
+**If `swain-test.sh` exists:** Run it once, capture output and exit code:
+
+```bash
+BDD_OUTPUT=$(bash "$SWAIN_TEST" --artifacts "$SPEC_ID" 2>&1)
+BDD_EXIT=$?
+```
+
+- If exit code is 0 → update state to `passed`:
+  ```bash
+  BDD_DETAIL=$(echo "$BDD_OUTPUT" | head -5 | tr '\n' ' ')
+  jq --arg status "passed" --arg detail "$BDD_DETAIL" \
+    '.steps.bdd_tests.status = $status | .steps.bdd_tests.timestamp = (now | todate) | .steps.bdd_tests.detail = $detail' \
+    "$REPO_ROOT/.agents/completion-state.json" > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+    && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+  ```
+- If exit code is non-zero → update state to `failed`:
+  ```bash
+  BDD_DETAIL=$(echo "$BDD_OUTPUT" | tail -10 | tr '\n' ' ')
+  jq --arg status "failed" --arg detail "$BDD_DETAIL" \
+    '.steps.bdd_tests.status = $status | .steps.bdd_tests.timestamp = (now | todate) | .steps.bdd_tests.detail = $detail' \
+    "$REPO_ROOT/.agents/completion-state.json" > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+    && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+  ```
+  Stop the pipeline. Report the failure to the operator: "BDD tests failed. Details: {detail}. Say **retry** to re-run, or **skip BDD** to continue without."
+
+**If `swain-test.sh` does not exist:** Warn and mark skipped:
+
+```bash
+jq --arg status "skipped" --arg detail "swain-test.sh not available" \
+  '.steps.bdd_tests.status = $status | .steps.bdd_tests.timestamp = (now | todate) | .steps.bdd_tests.detail = $detail' \
+  "$REPO_ROOT/.agents/completion-state.json" > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+  && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+```
+
+Display: "swain-test not available — skipping BDD gate."
+
+#### 2c — Run smoke tests
+
+Only proceed if `bdd_tests` is `passed` or `skipped`. If `bdd_tests` is `failed`, the pipeline is paused — do not run smoke.
+
+```bash
+BDD_STATUS=$(jq -r '.steps.bdd_tests.status' "$REPO_ROOT/.agents/completion-state.json")
+```
+
+If `BDD_STATUS` is `passed` or `skipped`:
+
+**If `swain-test.sh` exists:** The smoke test output from `swain-test.sh` includes a `## SMOKE` section with manual verification steps. Extract and present these to the operator:
+
+```bash
+SMOKE_SECTION=$(bash "$SWAIN_TEST" --artifacts "$SPEC_ID" 2>&1 | sed -n '/^## SMOKE/,/^## /p' | head -20)
+```
+
+Present the smoke instructions and ask for confirmation:
+
+> Smoke test instructions:
+> {smoke section content}
+>
+> Did the smoke test pass? (yes / no / skip)
+
+- **yes** → update `smoke_test` to `passed` with detail "operator confirmed"
+- **no** → update `smoke_test` to `failed` with detail from operator. Stop pipeline: "Smoke test failed. Say **retry** to re-check, or **skip smoke** to continue."
+- **skip** → update `smoke_test` to `skipped` with detail "operator chose to skip"
+
+Use the same jq update pattern from 2b to write state.
+
+**If `swain-test.sh` does not exist:** Mark skipped with detail "swain-test.sh not available", same as BDD fallback.
+
+#### 2d — Run retrospective
+
+Only proceed if both `bdd_tests` and `smoke_test` are `passed` or `skipped`. Retro **cannot be skipped** — if the operator says "skip retro", refuse: "Retro always runs. It captures learning even from imperfect work."
+
+Invoke the swain-retro skill using the agent's Skill tool (this is a tool invocation, not a bash command):
+
+> Use the **Skill** tool: invoke `swain-retro` with args: `"SPEC completion — run retro for <SPEC-ID> before phase transition."`
+
+After swain-retro completes, update the state:
+
+```bash
+jq --arg status "passed" --arg detail "retro captured" \
+  '.steps.retro.status = $status | .steps.retro.timestamp = (now | todate) | .steps.retro.detail = $detail' \
+  "$REPO_ROOT/.agents/completion-state.json" > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+  && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+```
+
+If swain-retro fails (skill invocation error), update state to `failed` and report. The operator can say **retry** to re-run.
+
+#### 2e — Skip and resume handling
+
+**Skip handling:** At any point during the pipeline, the operator can say:
+- "skip BDD" → set `bdd_tests` to `skipped` with detail "operator requested skip", continue to 2c
+- "skip smoke" → set `smoke_test` to `skipped` with detail "operator requested skip", continue to 2d
+- "skip retro" → **refuse**. Retro always runs. Say: "Retro captures learning even from imperfect work — it cannot be skipped."
+
+**Resume handling:** If a step failed and the operator says "retry" or "continue":
+1. Read `.agents/completion-state.json`
+2. Find the first step with status `pending` or `failed`
+3. Resume the pipeline from that step — do not re-run steps that already `passed` or were `skipped`
+
+**Pipeline gate:** After all three steps, verify completion:
+
+```bash
+PENDING=$(jq -r '.steps | to_entries[] | select(.value.status == "pending" or .value.status == "failed") | .key' "$REPO_ROOT/.agents/completion-state.json")
+```
+
+If `PENDING` is empty (all steps `passed` or `skipped`), proceed to Step 3 (SPEC transition). If not, the pipeline is blocked — report which steps remain.
+
+### Step 3 — Invoke swain-design for SPEC transition
+
+**Pipeline gate (SPEC-257):** Only proceed to SPEC transition if the completion pipeline passed. Check: `jq -r '.steps | to_entries[] | select(.value.status == "pending" or .value.status == "failed") | .key' "$REPO_ROOT/.agents/completion-state.json"`. If any steps are `pending` or `failed`, do not transition — return to Step 2 to resolve.
 
 Identify the SPEC linked to the plan epic (via `--external-ref`):
 
@@ -253,9 +398,9 @@ Invoke **swain-design** to transition the SPEC forward. The target phase depends
 
 swain-design handles the downstream chain automatically:
 - Checks whether the parent EPIC should also transition (all child SPECs complete → EPIC Complete)
-- If the EPIC reaches a terminal state → invokes **swain-retro** to capture the retrospective
+- If the EPIC reaches a terminal state → invokes **swain-retro** for the EPIC-level retrospective (the SPEC-level retro already ran in Step 2d)
 
-### Step 3 — Offer merge and cleanup
+### Step 4 — Offer merge and cleanup
 
 After the SPEC transition completes, offer to merge and clean up:
 
@@ -272,7 +417,9 @@ If the operator declines, call `ExitWorktree` without merging — the branch is 
 
 ### Skipping the chain
 
-The operator can say "just exit" or "skip the handoff" to bypass steps 2–3 and go directly to `ExitWorktree`. Log a note on the plan epic: `tk add-note <epic-id> "Exited worktree without completion handoff"`.
+The operator can say "just exit" or "skip the handoff" to bypass Steps 2–4 and go directly to `ExitWorktree`. Log a note on the plan epic: `tk add-note <epic-id> "Exited worktree without completion handoff"`.
+
+**Note:** Skipping the chain means the completion pipeline did not run. If `.agents/completion-state.json` was already created (Step 2a ran), any `pending` steps remain pending. swain-teardown will detect this and invoke the missing steps before sync.
 
 ## Fallback
 
