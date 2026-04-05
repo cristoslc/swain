@@ -6,7 +6,7 @@ license: MIT
 allowed-tools: Bash, Read, Glob
 metadata:
   short-description: Session teardown hygiene checks before closing
-  version: 2.0.0
+  version: 2.1.0
   author: cristos
   source: swain
 ---
@@ -31,10 +31,11 @@ Session teardown runs a sequence of hygiene checks before a session closes:
 
 1. Orphan worktree detection — finds worktrees with no corresponding session bookmark (SPEC-233: actionable with safety checks)
 2. Git dirty-state check — surfaces uncommitted changes before the operator leaves
-3. Ticket sync prompt — prompts the operator to verify tickets match what was done (SPEC-234: notes degraded state if no session)
-4. Handoff summary — appends a session summary to SESSION-ROADMAP.md
+3. Completion pipeline check — verifies BDD, smoke, and retro ran; invokes missing steps (SPEC-258)
+4. Ticket sync prompt — prompts the operator to verify tickets match what was done (SPEC-234: notes degraded state if no session)
+5. Handoff summary — appends a session summary to SESSION-ROADMAP.md
 
-**Note on retro:** Retro invocation was moved to the swain-session close handler (SPEC-234 AC2) so it runs while the session is still active. Do not invoke retro from here.
+**Note on retro:** The SPEC-level retro now runs as part of the completion pipeline (Step 3 / swain-do Step 2d). The EPIC-level retro is invoked by swain-session's close handler. Teardown invokes retro only as a catch-up if the pipeline's retro step was missed.
 
 ---
 
@@ -147,7 +148,133 @@ Report findings with an actionable recommendation.
 
 ---
 
-## Step 3 — Ticket sync prompt (SPEC-234 AC3)
+## Step 3 — Completion pipeline check (SPEC-258)
+
+Before proceeding to ticket sync, verify that the completion pipeline ran for any finished work in this worktree. If steps were missed, run them now.
+
+### 3a — Detect pipeline state
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+STATE_FILE="$REPO_ROOT/.agents/completion-state.json"
+SWAIN_TEST="$REPO_ROOT/.agents/bin/swain-test.sh"
+```
+
+**If `completion-state.json` exists:** read it and find incomplete steps:
+
+```bash
+PENDING_STEPS=$(jq -r '.steps | to_entries[] | select(.value.status == "pending" or .value.status == "failed") | .key' "$STATE_FILE" 2>/dev/null)
+SPEC_ID=$(jq -r '.spec_id // empty' "$STATE_FILE" 2>/dev/null)
+```
+
+- If `PENDING_STEPS` is empty → all steps passed or were skipped. Display "Completion pipeline: all steps done." and proceed.
+- If `PENDING_STEPS` is not empty → display which steps need attention and run them (see 3b).
+
+**If `completion-state.json` does not exist:** check whether the worktree has closed tasks:
+
+```bash
+export PATH="$REPO_ROOT/.agents/bin:$PATH"
+CLOSED_COUNT=$(ticket-query '.status == "closed"' 2>/dev/null | wc -l | tr -d ' ')
+```
+
+- If `CLOSED_COUNT > 0` → work was done but the pipeline never started. Create the state file with all steps `pending` and run them:
+  ```bash
+  # Try to find the SPEC ID from the plan epic
+  EPIC_ID=$(ticket-query '.type == "epic"' 2>/dev/null | head -1 | jq -r '.id // empty')
+  SPEC_ID=$(tk show "$EPIC_ID" 2>/dev/null | grep -i 'external_ref' | awk '{print $NF}')
+  mkdir -p "$REPO_ROOT/.agents"
+  jq -n --arg spec "${SPEC_ID:-unknown}" --arg branch "$(git branch --show-current)" \
+    '{spec_id: $spec, branch: $branch, pipeline_started: (now | todate), steps: {bdd_tests: {status: "pending", timestamp: null, detail: null}, smoke_test: {status: "pending", timestamp: null, detail: null}, retro: {status: "pending", timestamp: null, detail: null}}}' \
+    > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+  ```
+- If `CLOSED_COUNT == 0` → no finished work, skip this step silently.
+
+### 3b — Run missing steps
+
+For each step in the pipeline order (`bdd_tests` → `smoke_test` → `retro`), check its status. Skip steps that are `passed` or `skipped`. Run steps that are `pending` or `failed`.
+
+**`bdd_tests`:**
+
+```bash
+BDD_STATUS=$(jq -r '.steps.bdd_tests.status' "$STATE_FILE")
+```
+
+If `BDD_STATUS` is `pending` or `failed`:
+
+- **If `swain-test.sh` exists:**
+  ```bash
+  BDD_OUTPUT=$(bash "$SWAIN_TEST" --artifacts "$SPEC_ID" 2>&1)
+  BDD_EXIT=$?
+  ```
+  - Exit 0 → update to `passed` with detail from first 5 lines of output.
+  - Non-zero → update to `failed` with detail from last 10 lines. Ask: "BDD failed. **retry**, **skip**, or **abort**?"
+    - **retry** → re-run this step
+    - **skip** → set to `skipped` with detail "operator skipped during teardown"
+    - **abort** → stop teardown entirely, do not proceed to sync
+
+- **If `swain-test.sh` does not exist:** set to `skipped` with detail "swain-test.sh not available". Display warning.
+
+Use the atomic jq update pattern from DESIGN-018 for all state writes:
+```bash
+jq --arg step "$STEP" --arg status "$STATUS" --arg detail "$DETAIL" \
+  '.steps[$step].status = $status | .steps[$step].timestamp = (now | todate) | .steps[$step].detail = $detail' \
+  "$STATE_FILE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+```
+
+**`smoke_test`:**
+
+If `pending` or `failed`:
+
+- **If `swain-test.sh` exists:** extract the `## SMOKE` section from swain-test output and present to the operator. Ask: "Did the smoke test pass? (yes / no / skip)"
+  - **yes** → set to `passed` with detail "operator confirmed during teardown"
+  - **no** → set to `failed`. Ask: "**retry**, **skip**, or **abort**?"
+  - **skip** → set to `skipped` with detail "operator skipped during teardown"
+
+- **If `swain-test.sh` does not exist:** set to `skipped` with detail "swain-test.sh not available".
+
+**`retro`:**
+
+If `pending` or `failed`:
+
+Invoke swain-retro using the Skill tool:
+
+> Use the **Skill** tool: invoke `swain-retro` with args: `"Teardown catch-up — run retro for <SPEC-ID> before sync."`
+
+- On success → set to `passed` with detail "retro captured during teardown"
+- On failure → ask: "Retro failed. **retry** or **abort**?" (retro cannot be skipped)
+
+### 3c — Force bypass
+
+If the operator invoked teardown with `--force` (detected via the invocation args containing "force" or "--force"):
+
+```bash
+# Mark all pending steps as skipped
+for step in bdd_tests smoke_test retro; do
+  STEP_STATUS=$(jq -r ".steps.$step.status" "$STATE_FILE")
+  if [ "$STEP_STATUS" = "pending" ] || [ "$STEP_STATUS" = "failed" ]; then
+    jq --arg step "$step" \
+      '.steps[$step].status = "skipped" | .steps[$step].timestamp = (now | todate) | .steps[$step].detail = "operator forced bypass"' \
+      "$STATE_FILE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+  fi
+done
+```
+
+Display: "Force bypass — all pending pipeline steps marked as skipped." Proceed to Step 4.
+
+### 3d — Pipeline gate
+
+After running or skipping all steps, verify:
+
+```bash
+REMAINING=$(jq -r '.steps | to_entries[] | select(.value.status == "pending" or .value.status == "failed") | .key' "$STATE_FILE")
+```
+
+- If empty → proceed to Step 4
+- If not empty → teardown is blocked. Display which steps remain and stop.
+
+---
+
+## Step 4 — Ticket sync prompt (SPEC-234 AC3, renumbered from Step 3)
 
 Always run this step. Note degraded state if no active session:
 
@@ -167,7 +294,7 @@ Wait for a response. Do not modify tickets automatically.
 
 ---
 
-## Step 4 — Handoff summary
+## Step 5 — Handoff summary
 
 Append a session summary to SESSION-ROADMAP.md, including any worktrees removed during this teardown:
 
@@ -210,7 +337,7 @@ If SESSION-ROADMAP.md does not exist, create it with a header first, then append
 
 ---
 
-## Step 5 — Report findings
+## Step 6 — Report findings
 
 After all checks, display a summary that distinguishes clean, degraded, and error states (SPEC-234 AC5):
 
