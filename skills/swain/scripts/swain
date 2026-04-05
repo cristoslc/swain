@@ -590,6 +590,15 @@ build_launch_cmd() {
 PHASE1_FINDINGS=""
 RESUME_PROMPT=""
 
+# --- SPEC-276: Tmux session name helper ---
+tmux_session_name() {
+  local context="${1:-swain}"
+  printf '%s\n' "swain-$context" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed 's/[^a-z0-9_-]/-/g; s/--*/-/g; s/^-//; s/-$//' \
+    | cut -c1-32
+}
+
 # --- Phase 3: Runtime invocation ---
 phase3_launch_runtime() {
   prepare_session_workspace
@@ -622,11 +631,28 @@ phase3_launch_runtime() {
   local cmd
   cmd=$(build_launch_cmd "$runtime" "$prompt")
 
+  # --- SPEC-276: Determine tmux action ---
+  local tmux_action="none"
+  local session_name=""
+  session_name="$(tmux_session_name "$(derive_worktree_context)")"
+
+  if [[ -z "${TMUX:-}" ]]; then
+    if command -v tmux &>/dev/null; then
+      tmux_action="new-session"
+    else
+      echo "warning: tmux not found; launching without session wrapping" >&2
+    fi
+  else
+    tmux_action="rename-window"
+  fi
+
   if [[ "$FLAG_DRY_RUN" == "true" ]]; then
     echo "runtime: $runtime"
     echo "prompt: $prompt"
     echo "launch_root: $LAUNCH_ROOT"
     echo "command: $cmd"
+    echo "tmux_action: $tmux_action"
+    echo "tmux_session: $session_name"
     return
   fi
 
@@ -645,14 +671,26 @@ phase3_launch_runtime() {
     export SWAIN_LOCKFILE_PATH="$REPO_ROOT/.agents/worktrees/${branch}.lock"
   fi
 
+  # --- SPEC-276: Rename tmux window if inside tmux ---
+  if [[ "$tmux_action" == "rename-window" ]]; then
+    tmux rename-window "$session_name" 2>/dev/null || true
+  fi
+
   # --- SPEC-245: Launch runtime as child process (not exec) ---
   # Running as child allows post-runtime cleanup (lockfile verification, worktree pruning).
   # Forward signals to the child so Ctrl-C propagates cleanly.
   local child_pid=""
   trap '[[ -n "$child_pid" ]] && kill -TERM "$child_pid" 2>/dev/null' TERM INT HUP
 
-  eval "$cmd" &
-  child_pid=$!
+  # --- SPEC-276: Wrap in tmux if outside tmux ---
+  if [[ "$tmux_action" == "new-session" ]]; then
+    tmux new-session -s "$session_name" -d "cd '$LAUNCH_ROOT' && $cmd" 2>/dev/null
+    tmux attach-session -t "$session_name" &
+    child_pid=$!
+  else
+    eval "$cmd" &
+    child_pid=$!
+  fi
   wait "$child_pid" 2>/dev/null
   local exit_code=$?
   child_pid=""
