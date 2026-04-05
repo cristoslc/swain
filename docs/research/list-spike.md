@@ -32,6 +32,7 @@
 | SPIKE-048 | Noisy Tool-Call Pattern Audit | 2026-03-26 | — |
 | SPIKE-049 | Doctor Single-Script Consolidation | 2026-03-27 | — |
 | SPIKE-050 | PR Queue MCP for Merge Handoff | 2026-03-27 | — |
+| SPIKE-058 | Embedding Nearest-Neighbor Artifact Navigation | 2026-04-04 | 0032246a |
 
 ## Complete
 
@@ -64,4 +65,5 @@
 | SPIKE-031 | Credential Scoping Analysis Across Sandbox Types | 2026-03-19 | — |
 | SPIKE-032 | Docker Sandboxes OAuth Limitation Workaround | 2026-03-19 | — |
 | SPIKE-038 | PreToolUse Hook Adapter Feasibility | 2026-03-23 | 09d824a |
+| SPIKE-051 | Session Crash Recovery | 2026-03-28 | — |
 

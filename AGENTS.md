@@ -15,8 +15,10 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | Intent | Skill |
 |--------|-------|
 | Create, plan, update, transition, or review any artifact (Vision, Initiative, Journey, Epic, Spec, Spike, ADR, Persona, Runbook, Design) | **swain-design** |
-| Project status, progress, "what's next?", session management | **swain-session** |
-| Task tracking, execution progress, implementation plans | **swain-do** |
+| Project status, roadmap, "what's next?", dashboard | **swain-roadmap** |
+| Task tracking, execution progress, implementation plans, bookmarks, decisions | **swain-do** |
+| Session start, focus lane, onboarding | **swain-init** |
+| Session end, teardown, cleanup, merge worktrees | **swain-teardown** |
 
 This project uses **tk (ticket)** for ALL task tracking. Do NOT use markdown TODOs or built-in task systems.
 
@@ -30,7 +32,11 @@ Standalone specs can attach directly to an initiative for small work without nee
 
 ### Worktree isolation
 
-**All file-mutating work happens in a worktree.** Read-only investigation (git log, reading files, checking state) is fine on trunk. The moment you create, edit, move, or delete files — enter a worktree first. This applies to code, scripts, skill files, artifacts, and symlinks equally. swain-do's worktree preamble handles creation; follow it before any file changes, even for "quick" fixes. Partial changes on trunk require manual cleanup and waste operator attention.
+**All file-mutating work happens in a worktree.** Read-only investigation (git log, reading files, checking state) is fine on trunk. The moment you create, edit, move, or delete files — you must be in a worktree. This applies to code, scripts, skill files, artifacts, and symlinks equally.
+
+**bin/swain is the primary isolation mechanism** (EPIC-056). It creates worktrees pre-launch, claims them via lockfiles, and cleans up after the runtime exits. Most runtimes (Gemini CLI, Codex, Copilot, Crush) cannot change their working directory mid-session — pre-launch isolation is the only universal approach. If the `SWAIN_WORKTREE_PATH` env var is set, you are in a managed worktree.
+
+If you find yourself on trunk and need to mutate files, inform the operator to start a new session with `swain "<purpose>"` for proper isolation. Partial changes on trunk require manual cleanup and waste operator attention.
 
 ### Superpowers skill chaining
 
@@ -48,7 +54,7 @@ All artifacts produced by swain skills must meet a Flesch-Kincaid grade level of
 
 ### Session startup
 
-Session initialization is handled by the `swain` shell launcher, which invokes `/swain-init` as the initial prompt. If a session starts without the launcher, the operator can manually run `/swain-session`.
+Session initialization is handled by the `swain` shell launcher, which invokes `/swain-init` as the initial prompt. If a session starts without the launcher, the operator can manually run `/swain-init`.
 
 ### Bug reporting
 

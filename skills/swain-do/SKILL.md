@@ -1,11 +1,11 @@
 ---
 name: swain-do
-description: Task tracking and implementation execution for swain projects. Invoke whenever a SPEC needs an implementation plan, the user asks what to work on next, wants to check or update task status, claim or close tasks, manage dependencies, or abandon work. Also invoked by swain-design after creating a SPEC that's ready for implementation. Tracks SPECs and SPIKEs — not EPICs, VISIONs, or JOURNEYs directly (those get decomposed into SPECs first).
+description: "Task tracking and implementation execution for swain projects. Invoke whenever a SPEC needs an implementation plan, the user asks what to work on next, wants to check or update task status, claim or close tasks, manage dependencies, abandon work, bookmark context, or record a decision. Also invoked by swain-design after creating a SPEC that's ready for implementation. Tracks SPECs and SPIKEs — not EPICs, VISIONs, or JOURNEYs directly (those get decomposed into SPECs first). Triggers also on: 'bookmark', 'remember where I am', 'record decision'."
 license: UNLICENSED
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
-  short-description: Bootstrap and operate external task tracking
-  version: 3.2.0
+  short-description: Task tracking, bookmarks, decisions, and progress
+  version: 4.0.0
   author: cristos
   source: swain
 ---
@@ -20,7 +20,7 @@ Before proceeding with any state-changing operation, check for an active session
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-init`?" Proceed if they dismiss.
 
 Abstraction layer for agent execution tracking. Other skills (e.g., swain-design) express intent using abstract terms; this skill translates that intent into concrete CLI commands.
 
@@ -165,9 +165,14 @@ When evidence confirms prior implementation, skip full task decomposition:
 All mutating work tracked by swain-do happens in a worktree — regardless of whether it touches source code, artifacts, skill files, or data. This prevents half-finished changes from polluting trunk and avoids collisions between parallel agents. Before any operation that will produce file changes (plan creation, task claim, code writing, artifact editing, skill file changes, spec transitions, execution handoff), run this detection:
 
 ```bash
-GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
-GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
-[ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
+# SPEC-250: Check env var first (set by bin/swain), then git plumbing
+if [ -n "${SWAIN_WORKTREE_PATH:-}" ]; then
+  IN_WORKTREE=yes
+else
+  GIT_COMMON=$(git rev-parse --git-common-dir 2>/dev/null)
+  GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+  [ "$GIT_COMMON" != "$GIT_DIR" ] && IN_WORKTREE=yes || IN_WORKTREE=no
+fi
 ```
 
 **Read-only operations skip this check entirely** — proceed in the current context. The explicit read-only allowlist:
@@ -180,13 +185,15 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 
 **If `IN_WORKTREE=no`** (main worktree) and the operation will produce file changes:
 
-1. **Commit any untracked files before the branch is cut.** A worktree is created from git history — files not yet committed are invisible inside it. This matters for artifacts created moments earlier in the same session (new SPECs, ADRs, etc.). Only untracked files need committing; modified tracked files are already in history and appear in the worktree regardless.
+1. **Commit any dirty files before the branch is cut.** A worktree checks out from HEAD — both untracked files and uncommitted modifications to tracked files are invisible inside it. This matters for artifacts created or edited moments earlier in the same session.
    ```bash
    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
    UNTRACKED=$(git -C "$REPO_ROOT" ls-files --others --exclude-standard 2>/dev/null)
-   if [ -n "$UNTRACKED" ]; then
-     echo "$UNTRACKED" | xargs -d '\n' git -C "$REPO_ROOT" add -- && \
-     git -C "$REPO_ROOT" commit -m "chore: stage artifacts before worktree creation" || {
+   MODIFIED=$(git -C "$REPO_ROOT" diff --name-only 2>/dev/null)
+   if [ -n "$UNTRACKED" ] || [ -n "$MODIFIED" ]; then
+     [ -n "$UNTRACKED" ] && echo "$UNTRACKED" | xargs -d '\n' git -C "$REPO_ROOT" add --
+     [ -n "$MODIFIED" ] && echo "$MODIFIED" | xargs -d '\n' git -C "$REPO_ROOT" add --
+     git -C "$REPO_ROOT" commit -m "chore: stage dirty tree before worktree creation" || {
        echo "ERROR: pre-commit step failed — aborting worktree creation"
        exit 1
      }
@@ -199,27 +206,29 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
    bash "$REPO_ROOT/.agents/bin/swain-worktree-overlap.sh" "<SPEC-ID>"
    ```
-   If the JSON output has `"found": true`, offer to reuse: "Worktree for `<SPEC-ID>` already exists at `<path>`. Reuse it?" If yes, use `EnterWorktree` with the existing branch name. If no, create a new one with a fresh suffix.
+   If the JSON output has `"found": true`, offer to reuse: "Worktree for `<SPEC-ID>` already exists at `<path>`. Reuse it?" If yes, inform the operator to restart the session with `swain --resume <name>`. If no, inform the operator to start a new session with the purpose text.
 
-3. **Create a new worktree** with a spec-derived name. Use the SPEC ID + slug (e.g., `spec-174-branch-collision`) or generate a timestamped name by running `bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh" "<context>"` (e.g., output: `session-20260327-143022-a7f3`). Never use a static name like "session" — concurrent sessions will collide. If `EnterWorktree` fails with a branch-exists error, re-run the name script and retry once. This is the only mechanism that actually changes the agent's working directory — manual `git worktree add` + `cd` does not persist across tool calls.
+3. **Worktree creation is handled by bin/swain pre-launch** (SPEC-245, EPIC-056). Most runtimes (Gemini CLI, Codex, Copilot, Crush) cannot change their working directory mid-session — only Claude Code can via `EnterWorktree`, and that is a runtime-specific crutch, not a universal pattern. The correct universal approach is pre-launch isolation via `bin/swain`.
 
-4. After entering, re-run tab naming to reflect the new branch:
+   If `SWAIN_WORKTREE_PATH` is set, the agent is already in a managed worktree. If `IN_WORKTREE=yes` via git plumbing, the agent is in a worktree (possibly entered manually). In both cases, proceed with work.
+
+   If `IN_WORKTREE=no` and the operation requires isolation, inform the operator: "Not in a worktree. Start a new session with `swain \"<purpose>\"` to get worktree isolation."
+
+4. After entering (if worktree was just created by bin/swain), re-run tab naming to reflect the new branch:
    ```bash
    bash "$REPO_ROOT/.agents/bin/swain-tab-name.sh" --path "$(pwd)" --auto
    ```
 
-5. **Record the worktree bookmark** (SPEC-235). After `EnterWorktree` succeeds, call swain-bookmark.sh to register the worktree in session.json. This prevents orphan worktrees from accumulating and enables teardown to identify them cleanly.
+5. **Record the worktree bookmark** (SPEC-235). After entering a worktree, call swain-bookmark.sh to register it in session.json.
    ```bash
    WT_PATH="$(pwd)"
    WT_BRANCH="$(git branch --show-current 2>/dev/null || echo 'unknown')"
    bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree add "$WT_PATH" "$WT_BRANCH"
    ```
 
-6. If **`EnterWorktree` fails** — stop. Surface the error to the operator. Do not begin any mutating work.
-
 **Operator override:** If the operator explicitly says "work on trunk" or "don't isolate," respect the override and proceed on trunk. Log a warning: "Proceeding on trunk at operator request — changes will land directly on the development branch."
 
-**Note (SPEC-195):** swain-session no longer creates worktrees at startup — worktree creation is deferred to this preamble, which runs when swain-do dispatches actual work. This ensures worktree names reflect the work context and allows overlap detection.
+**Note (SPEC-195):** swain-init does not create worktrees at startup — worktree creation is deferred to this preamble, which runs when swain-do dispatches actual work. This ensures worktree names reflect the work context and allows overlap detection.
 
 When all tasks in the plan complete, or when the operator requests, run the plan completion handoff (see below) before exiting the worktree.
 
@@ -238,7 +247,152 @@ OPEN_COUNT=$(ticket-query ".parent == \"<epic-id>\" and .status != \"closed\"" 2
 
 If `OPEN_COUNT > 0`, the plan is not complete — continue working or ask the operator. If `OPEN_COUNT == 0`, proceed.
 
-### Step 2 — Invoke swain-design for SPEC transition
+### Step 2 — Run completion pipeline (SPEC-257)
+
+After detecting plan completion, run the quality gate pipeline before transitioning the SPEC. This ensures BDD tests, smoke tests, and retro all fire automatically.
+
+#### 2a — Create completion state file
+
+Identify the SPEC ID from the plan epic's `--external-ref`:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SPEC_ID=$(tk show <epic-id> 2>/dev/null | grep -i 'external_ref' | awk '{print $NF}')
+if [ -z "$SPEC_ID" ]; then
+  echo "WARNING: No SPEC linked to plan epic — skipping completion pipeline."
+fi
+```
+
+If `SPEC_ID` is empty, skip Step 2 entirely and proceed to Step 3. Log the warning.
+
+Create the state file per DESIGN-018:
+
+```bash
+mkdir -p "$REPO_ROOT/.agents"
+jq -n --arg spec "$SPEC_ID" --arg branch "$(git branch --show-current)" \
+  '{spec_id: $spec, branch: $branch, pipeline_started: (now | todate), steps: {bdd_tests: {status: "pending", timestamp: null, detail: null}, smoke_test: {status: "pending", timestamp: null, detail: null}, retro: {status: "pending", timestamp: null, detail: null}}}' \
+  > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+  && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+```
+
+#### 2b — Run BDD tests
+
+Check if `swain-test.sh` is available:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SWAIN_TEST="$REPO_ROOT/.agents/bin/swain-test.sh"
+```
+
+**If `swain-test.sh` exists:** Run it once, capture output and exit code:
+
+```bash
+BDD_OUTPUT=$(bash "$SWAIN_TEST" --artifacts "$SPEC_ID" 2>&1)
+BDD_EXIT=$?
+```
+
+- If exit code is 0 → update state to `passed`:
+  ```bash
+  BDD_DETAIL=$(echo "$BDD_OUTPUT" | head -5 | tr '\n' ' ')
+  jq --arg status "passed" --arg detail "$BDD_DETAIL" \
+    '.steps.bdd_tests.status = $status | .steps.bdd_tests.timestamp = (now | todate) | .steps.bdd_tests.detail = $detail' \
+    "$REPO_ROOT/.agents/completion-state.json" > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+    && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+  ```
+- If exit code is non-zero → update state to `failed`:
+  ```bash
+  BDD_DETAIL=$(echo "$BDD_OUTPUT" | tail -10 | tr '\n' ' ')
+  jq --arg status "failed" --arg detail "$BDD_DETAIL" \
+    '.steps.bdd_tests.status = $status | .steps.bdd_tests.timestamp = (now | todate) | .steps.bdd_tests.detail = $detail' \
+    "$REPO_ROOT/.agents/completion-state.json" > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+    && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+  ```
+  Stop the pipeline. Report the failure to the operator: "BDD tests failed. Details: {detail}. Say **retry** to re-run, or **skip BDD** to continue without."
+
+**If `swain-test.sh` does not exist:** Warn and mark skipped:
+
+```bash
+jq --arg status "skipped" --arg detail "swain-test.sh not available" \
+  '.steps.bdd_tests.status = $status | .steps.bdd_tests.timestamp = (now | todate) | .steps.bdd_tests.detail = $detail' \
+  "$REPO_ROOT/.agents/completion-state.json" > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+  && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+```
+
+Display: "swain-test not available — skipping BDD gate."
+
+#### 2c — Run smoke tests
+
+Only proceed if `bdd_tests` is `passed` or `skipped`. If `bdd_tests` is `failed`, the pipeline is paused — do not run smoke.
+
+```bash
+BDD_STATUS=$(jq -r '.steps.bdd_tests.status' "$REPO_ROOT/.agents/completion-state.json")
+```
+
+If `BDD_STATUS` is `passed` or `skipped`:
+
+**If `swain-test.sh` exists:** The smoke test output from `swain-test.sh` includes a `## SMOKE` section with manual verification steps. Extract and present these to the operator:
+
+```bash
+SMOKE_SECTION=$(bash "$SWAIN_TEST" --artifacts "$SPEC_ID" 2>&1 | sed -n '/^## SMOKE/,/^## /p' | head -20)
+```
+
+Present the smoke instructions and ask for confirmation:
+
+> Smoke test instructions:
+> {smoke section content}
+>
+> Did the smoke test pass? (yes / no / skip)
+
+- **yes** → update `smoke_test` to `passed` with detail "operator confirmed"
+- **no** → update `smoke_test` to `failed` with detail from operator. Stop pipeline: "Smoke test failed. Say **retry** to re-check, or **skip smoke** to continue."
+- **skip** → update `smoke_test` to `skipped` with detail "operator chose to skip"
+
+Use the same jq update pattern from 2b to write state.
+
+**If `swain-test.sh` does not exist:** Mark skipped with detail "swain-test.sh not available", same as BDD fallback.
+
+#### 2d — Run retrospective
+
+Only proceed if both `bdd_tests` and `smoke_test` are `passed` or `skipped`. Retro **cannot be skipped** — if the operator says "skip retro", refuse: "Retro always runs. It captures learning even from imperfect work."
+
+Invoke the swain-retro skill using the agent's Skill tool (this is a tool invocation, not a bash command):
+
+> Use the **Skill** tool: invoke `swain-retro` with args: `"SPEC completion — run retro for <SPEC-ID> before phase transition."`
+
+After swain-retro completes, update the state:
+
+```bash
+jq --arg status "passed" --arg detail "retro captured" \
+  '.steps.retro.status = $status | .steps.retro.timestamp = (now | todate) | .steps.retro.detail = $detail' \
+  "$REPO_ROOT/.agents/completion-state.json" > "$REPO_ROOT/.agents/completion-state.json.tmp" \
+  && mv "$REPO_ROOT/.agents/completion-state.json.tmp" "$REPO_ROOT/.agents/completion-state.json"
+```
+
+If swain-retro fails (skill invocation error), update state to `failed` and report. The operator can say **retry** to re-run.
+
+#### 2e — Skip and resume handling
+
+**Skip handling:** At any point during the pipeline, the operator can say:
+- "skip BDD" → set `bdd_tests` to `skipped` with detail "operator requested skip", continue to 2c
+- "skip smoke" → set `smoke_test` to `skipped` with detail "operator requested skip", continue to 2d
+- "skip retro" → **refuse**. Retro always runs. Say: "Retro captures learning even from imperfect work — it cannot be skipped."
+
+**Resume handling:** If a step failed and the operator says "retry" or "continue":
+1. Read `.agents/completion-state.json`
+2. Find the first step with status `pending` or `failed`
+3. Resume the pipeline from that step — do not re-run steps that already `passed` or were `skipped`
+
+**Pipeline gate:** After all three steps, verify completion:
+
+```bash
+PENDING=$(jq -r '.steps | to_entries[] | select(.value.status == "pending" or .value.status == "failed") | .key' "$REPO_ROOT/.agents/completion-state.json")
+```
+
+If `PENDING` is empty (all steps `passed` or `skipped`), proceed to Step 3 (SPEC transition). If not, the pipeline is blocked — report which steps remain.
+
+### Step 3 — Invoke swain-design for SPEC transition
+
+**Pipeline gate (SPEC-257):** Only proceed to SPEC transition if the completion pipeline passed. Check: `jq -r '.steps | to_entries[] | select(.value.status == "pending" or .value.status == "failed") | .key' "$REPO_ROOT/.agents/completion-state.json"`. If any steps are `pending` or `failed`, do not transition — return to Step 2 to resolve.
 
 Identify the SPEC linked to the plan epic (via `--external-ref`):
 
@@ -253,9 +407,9 @@ Invoke **swain-design** to transition the SPEC forward. The target phase depends
 
 swain-design handles the downstream chain automatically:
 - Checks whether the parent EPIC should also transition (all child SPECs complete → EPIC Complete)
-- If the EPIC reaches a terminal state → invokes **swain-retro** to capture the retrospective
+- If the EPIC reaches a terminal state → invokes **swain-retro** for the EPIC-level retrospective (the SPEC-level retro already ran in Step 2d)
 
-### Step 3 — Offer merge and cleanup
+### Step 4 — Offer merge and cleanup
 
 After the SPEC transition completes, offer to merge and clean up:
 
@@ -263,16 +417,71 @@ After the SPEC transition completes, offer to merge and clean up:
 
 If the operator accepts:
 1. Ensure all changes are committed
-2. Call `ExitWorktree` to return to the main checkout
-3. The worktree cleanup is handled by the ExitWorktree tool
+2. Run `/swain-sync` to merge and push (marks lockfile `ready_for_cleanup`)
+3. Worktree cleanup is handled by bin/swain after the runtime exits (SPEC-245)
 
-If the operator declines, call `ExitWorktree` without merging — the branch is preserved for later.
+If the operator declines, the branch is preserved. bin/swain will show it in the menu next launch.
 
-**Note (ADR-015):** `.tickets/` files in the worktree are ephemeral scaffolding and should not block removal. When ExitWorktree warns about uncommitted files that are only tickets, it is safe to proceed with `discard_changes: true` — tickets have no archival value after SPEC completion.
+**Note (ADR-015):** `.tickets/` files in the worktree are ephemeral scaffolding and should not block cleanup. Tickets have no archival value after SPEC completion.
 
 ### Skipping the chain
 
-The operator can say "just exit" or "skip the handoff" to bypass steps 2–3 and go directly to `ExitWorktree`. Log a note on the plan epic: `tk add-note <epic-id> "Exited worktree without completion handoff"`.
+The operator can say "just exit" or "skip the handoff" to bypass Steps 2–4 and go directly to `ExitWorktree`. Log a note on the plan epic: `tk add-note <epic-id> "Exited without completion handoff"`. The worktree remains for the next session.
+
+**Note:** Skipping the chain means the completion pipeline did not run. If `.agents/completion-state.json` was already created (Step 2a ran), any `pending` steps remain pending. swain-teardown will detect this and invoke the missing steps before sync.
+
+## Bookmark management (ADR-023)
+
+Bookmarks track what the operator is working on. They persist across sessions so the next session can pick up where this one left off.
+
+### Set bookmark
+
+When the operator says "bookmark this", "remember where I am", or after state-changing operations:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" "<context note>"
+```
+
+Infer the note from conversation context or the operator's explicit text. Do not prompt for a note if the context is clear.
+
+### Worktree bookmarks
+
+When entering a worktree (already handled in the worktree isolation preamble, Step 5), the worktree is registered:
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree add "$WT_PATH" "$WT_BRANCH"
+```
+
+### Clear bookmark
+
+When the operator says "clear bookmark" or "fresh start":
+
+```bash
+bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" --clear
+```
+
+## Decision recording (ADR-023)
+
+When the operator or agent makes a significant decision (approves a spec, chooses an approach, sets direction), record it:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" record-decision --note "Approved SPEC-119 implementation approach"
+```
+
+Decisions are tracked against the session's decision budget. When the budget is reached, inform the operator and suggest running `/swain-teardown`.
+
+## Progress log (ADR-023)
+
+After completing tasks or reaching milestones, update the progress log:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/swain-progress-log.sh" --digest "$REPO_ROOT/.agents/session-log.jsonl"
+```
+
+This updates each touched EPIC/Initiative's `progress.md` and `## Progress` section.
 
 ## Fallback
 

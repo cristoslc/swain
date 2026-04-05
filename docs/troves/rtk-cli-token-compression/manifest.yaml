@@ -1,0 +1,31 @@
+trove: rtk-cli-token-compression
+created: 2026-04-03
+refreshed: 2026-04-03
+tags:
+  - token-compression
+  - context-window
+  - cli-output-filtering
+  - agent-efficiency
+  - rust-tooling
+  - session-longevity
+  - cost-optimization
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-04-03
+    commit: "c94bfc1"
+    sources: 1
+
+referenced-by: []
+
+sources:
+  - source-id: "rtk-ai-homepage"
+    type: web
+    url: "https://www.rtk-ai.app/"
+    fetched: 2026-04-03T22:03:00Z
+    title: "RTK — Rust Token Killer"
+    hash: "9b92d91b4263537a05fed180a2a6b8c7b6bf03da9abda145689645bf80e392ae"
+    snapshot-verified: true

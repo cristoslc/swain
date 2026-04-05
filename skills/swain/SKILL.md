@@ -12,15 +12,14 @@ Invoke the Skill tool for exactly one match. Pass the user's full prompt as args
 
 | swain-design | vision, initiative, epic, story, spec, ADR, spike, bug, persona, runbook, journey, design |
 | swain-search | research, evidence, gather sources, search for, evidence pool, what do we know about |
-| swain-do | tasks, implementation, tracking, tk, ticket |
+| swain-do | tasks, implementation, tracking, tk, ticket, bookmark, remember where I am |
 | swain-sync | commit, push, stage, sync, fetch |
 | swain-release | release, version, changelog, tag |
 | swain-update | update/upgrade swain |
-| swain-doctor | session init, governance, doctor, health check, gitignore |
-| swain-roadmap | roadmap, priority matrix, show roadmap, refresh roadmap |
+| swain-doctor | governance, doctor, health check, gitignore |
+| swain-roadmap | roadmap, priority matrix, show roadmap, refresh roadmap, status, dashboard, what's next, overview, where are we, what should I work on, show me priorities |
 | swain-help | help, how do I, what is, reference, cheat sheet, commands |
-| swain-init | init, onboard, setup, bootstrap (one-time project setup) |
-| swain-session | session, status, progress, what's next, dashboard, overview, where are we, what should I work on, tab name, preferences, bookmark, remember where I am, focus on |
+| swain-init | init, onboard, setup, bootstrap, session, session info, tab name, preferences, focus on |
 | swain-keys | SSH keys, signing, provision keys, configure signing, key setup |
 | swain-retro | retro, retrospective, reflect, what did we learn, learnings |
-| swain-teardown | teardown, clean up, wrap up, session end, end session, close session, log off, sign off |
+| swain-teardown | teardown, clean up, wrap up, session end, end session, close session, done, log off, sign off |

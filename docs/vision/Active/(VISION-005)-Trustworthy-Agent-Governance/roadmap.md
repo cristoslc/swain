@@ -5,31 +5,33 @@
 
 ## Progress
 
-██░░░░░░░░░░ 1/5 complete (20%)
+█░░░░░░░░░░░ 1/13 complete (8%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
+| 2026-03-31 | 23:12 | `635b9a6` | docs(epic): EPIC-052 Automated Test Gates — SPEC-260/221/223/224/225/226 + SPEC-215 re-parent |
 | 2026-03-23 | 09:19 | `09d824a` | docs: complete SPIKE-038 + write findings to INITIATIVE-020 |
 | 2026-03-22 | 23:18 | `60846ba` | docs: stamp lifecycle hashes for VISION-005 + INITIATIVE-020 + SPIKE-038..041 730b957 |
-| 2026-03-22 | 23:18 | `7ee9546` | docs: create VISION-005 Trustworthy Agent Governance with INITIATIVE-020 + SPIKE-038..041 |
 
 ## Priority Subset
 
 ### Do First
 *High priority, active or unblocking*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Security & Trust](docs/initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](docs/epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 0/7 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Platform Enforcement Substrate](../../../initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) | [MCP Session-State Tracker Design](../../../research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) | 0/0 | 0 | **activate or drop** |
-|  | [Post-Hoc Process Audit Pipeline](../../../research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) | 0/0 | 0 | **activate or drop** |
-|  | [Cross-Platform Deny-Rule Portability](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) | 0/0 | 0 | **activate or drop** |
+| [Platform Enforcement Substrate](docs/initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) | [MCP Session-State Tracker Design](docs/research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) | 0/0 | 0 | **activate or drop** |
+|  | [Post-Hoc Process Audit Pipeline](docs/research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) | 0/0 | 0 | **activate or drop** |
+|  | [Cross-Platform Deny-Rule Portability](docs/research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -44,6 +46,16 @@
 
 ## Children
 
+### Active
+
+- [EPIC-052](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) — Automated Test Gates (0/7)
+  - [SPEC-215](../../../spec/Active/(SPEC-215)-Consumer-Integration-Test-Harness/(SPEC-215)-Consumer-Integration-Test-Harness.md) — Consumer integration test harness (Active, in progress)
+  - [SPEC-260](../../../spec/Active/(SPEC-260)-swain-test-sh-Script/(SPEC-260)-swain-test-sh-Script.md) — swain-test.sh script (Active, in progress)
+  - [SPEC-221](../../../spec/Active/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill (Active, in progress)
+  - [SPEC-223](../../../spec/Active/(SPEC-223)-swain-sync-Test-Gate-Integration/(SPEC-223)-swain-sync-Test-Gate-Integration.md) — swain-sync test gate integration (Active, in progress)
+  - [SPEC-224](../../../spec/Active/(SPEC-224)-swain-release-Test-Gate-Integration/(SPEC-224)-swain-release-Test-Gate-Integration.md) — swain-release test gate integration (Active, in progress)
+  - [SPEC-225](../../../spec/Active/(SPEC-225)-Flat-Artifact-Migration/(SPEC-225)-Flat-Artifact-Migration.md) — Flat artifact migration (Active, in progress)
+  - [SPEC-226](../../../spec/Active/(SPEC-226)-Verification-Evidence-Recording/(SPEC-226)-Verification-Evidence-Recording.md) — Verification evidence recording (Active, in progress)
 ### Proposed
 
 - [INITIATIVE-020](../../../initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) — Platform Enforcement Substrate (in progress)

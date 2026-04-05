@@ -1,0 +1,7 @@
+# Vendored bats helper libraries — cloned at dev setup time
+# Keep the directories tracked so the test suite works out of the box
+!bats-support/
+!bats-assert/
+!bats-file/
+# But ignore their .git dirs
+*/.git

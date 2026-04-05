@@ -27,14 +27,14 @@ After installing, run `/swain-init` in your first session to set up governance r
 Two skills auto-run at the start of every session:
 
 1. **swain-doctor** checks project health — governance rules, file permissions, stale config — and repairs what it finds.
-2. **swain-session** restores your context, proposes a focus lane, and generates a SESSION-ROADMAP.md scoped to your current work area.
+2. **swain-init** restores your context, proposes a focus lane, and generates a SESSION-ROADMAP.md scoped to your current work area.
 
-Sessions have a bounded lifecycle: **start → work → close**. The session tracks decisions you make (with a configurable budget), and on close writes a walk-away signal so the next session knows where you left off.
+Sessions have a bounded lifecycle: **start → work → close**. The session tracks decisions you make (with a configurable budget), and on close **swain-teardown** fires a retro, merges worktree branches, cleans up worktrees, and writes a walk-away signal so the next session knows where you left off.
 
 Then you ask what's going on:
 
 ```
-/swain-session
+/swain-roadmap
 ```
 
 or
@@ -48,8 +48,8 @@ This shows active epics with progress, decisions waiting on you, implementation-
 From there, the core loop is:
 
 - **Design** (`/swain-design`) — create and evolve artifacts: Visions, Initiatives, Epics, Specs, Spikes, ADRs, Personas, Runbooks, Journeys, and Designs. Each follows a lifecycle tracked in git — phases vary by type (e.g., Proposed → Ready → In Progress → Complete for specs).
-- **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies. When starting implementation work, swain-do automatically creates a linked git worktree so agent changes are isolated from your main workspace.
-- **Ship** (`/swain-sync`, `/swain-release`) — fetch, rebase, commit with conventional messages, cut versioned releases. When running from a linked worktree, swain-sync lands the changes on `trunk` and prunes the worktree automatically.
+- **Execute** (`/swain-do`) — turn approved specs into tracked implementation plans with tasks and dependencies. The `bin/swain` launcher creates a linked git worktree before the agent starts, so all changes are isolated from your main workspace.
+- **Ship** (`/swain-sync`, `/swain-release`) — fetch, merge, commit with conventional messages, cut versioned releases. When running from a linked worktree, swain-sync merges and pushes to `trunk`, then marks the worktree for cleanup. `bin/swain` prunes it after the session ends.
 
 Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions are commits. Everything is inspectable, diffable, and version-controlled.
 
@@ -57,17 +57,17 @@ Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions 
 
 | Skill | What it does |
 |-------|-------------|
-| **swain-init** | One-time project setup — governance rules, task tracking, AGENTS.md |
+| **swain-init** | Session entry point — onboarding, greeting, focus lane, session state |
 | **swain-doctor** | Session-start health checks — auto-repairs config, permissions, stale state |
-| **swain-session** | Context bookmarks, preferences, dashboard — active work, blockers, next steps, GitHub issues |
 | **swain-design** | Artifact lifecycle — Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect and cache research sources as reusable markdown |
-| **swain-do** | Task tracking — implementation plans, dependencies, progress |
+| **swain-do** | Task tracking — implementation plans, dependencies, bookmarks, decisions, progress |
+| **swain-roadmap** | Status dashboard and roadmap — active work, blockers, next steps, priorities |
 | **swain-sync** | Fetch, rebase, commit, and push with conventional commit messages |
 | **swain-release** | Changelog, version bump, git tag |
 | **swain-keys** | Per-project SSH keys for git signing and auth |
 | **swain-retro** | Capture learnings at EPIC completion or on demand |
-| **swain-teardown** | Session hygiene — orphan worktree detection, git dirty-state guard, bookmark cleanup |
+| **swain-teardown** | Full session shutdown — retro, merge worktrees, cleanup, close session |
 | **swain-update** | Pull latest skills, reconcile config |
 | **swain-help** | Quick reference and onboarding guidance |
 
