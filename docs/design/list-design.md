@@ -1,5 +1,11 @@
 # Designs
 
+## Proposed
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| DESIGN-021 | bin/swain Worktree Router | 2026-04-04 | — |
+
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
@@ -19,6 +25,7 @@
 | DESIGN-015 | Usage Logging and Telemetry | 2026-04-03 | pending |
 | DESIGN-016 | Related Artifacts Materialization | 2026-04-03 | pending |
 | DESIGN-017 | Git-Compact CLI Contract | 2026-04-03 | 52f5c81 |
+| DESIGN-018 | Completion Pipeline State Tracking | 2026-04-04 | 683a04e6 |
 
 ## Superseded
 

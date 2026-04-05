@@ -42,6 +42,7 @@
 | EPIC-049 | Context-Rich Progress Tracking | 2026-03-31 | _pending_ |
 | EPIC-052 | Automated Test Gates | 2026-03-31 | — |
 | EPIC-053 | Deprecate and Replace Superpowers with Native Skills | 2026-04-01 | TBD |
+| EPIC-059 | Automated Completion Pipeline | 2026-04-04 | 683a04e6 |
 
 ## Complete
 
@@ -69,8 +70,8 @@
 | EPIC-047 | ADR-019 Script Convention Implementation | 2026-03-29 | — |
 | EPIC-050 | README as Ambient Intent | 2026-03-31 | — |
 | EPIC-051 | Worktree Path Link Safety on Merge | 2026-03-31 | — |
-| EPIC-056 | Worktree Isolation Redesign | 2026-04-04 | — |
 | EPIC-060 | Materialized Artifact Parenting View | 2026-04-03 | — |
+| EPIC-063 | Worktree Isolation Redesign | 2026-04-04 | — |
 
 ## Superseded
 
