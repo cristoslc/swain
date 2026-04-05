@@ -92,7 +92,7 @@ The script outputs one JSON object with a key per check. The skill file's phases
 - The preflight script is read-only --- it checks state but never changes it. All writes (file creation, installs, symlinks) stay in the skill file or in action scripts.
 - The JSON schema is noted in the script header so future editors know what each key means.
 - The script must run without jq (use Python or pure bash for JSON output) since jq may not be present on first run.
-- [SPEC-196](../Active/SPEC-196-collapse-init-session-skill-chain.md) handles the launcher-side shortcut (skip init entirely). This spec handles the init-side cleanup (less inline bash when init does run).
+- [SPEC-196]((SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path.md) handles the launcher-side shortcut (skip init entirely). This spec handles the init-side cleanup (less inline bash when init does run).
 - Phase 0 fast-path (marker check) may move into the launcher per SPEC-196; the preflight script still includes it so init works on its own.
 
 ## Implementation Approach

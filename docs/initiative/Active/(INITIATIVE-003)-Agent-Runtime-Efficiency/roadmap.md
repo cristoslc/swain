@@ -22,9 +22,9 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
-|  | [Session Startup Fast Path](docs/epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md) | 0/4 | 0 | — |
-|  | [Specgraph Module Import Shadowing](docs/spec/Active/(SPEC-197)-Specgraph-Module-Import-Shadowing/(SPEC-197)-Specgraph-Module-Import-Shadowing.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
+|  | [Session Startup Fast Path](../../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md) | 0/4 | 0 | — |
+|  | [Specgraph Module Import Shadowing](../../../spec/Active/(SPEC-197)-Specgraph-Module-Import-Shadowing/(SPEC-197)-Specgraph-Module-Import-Shadowing.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -36,9 +36,9 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](docs/spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](docs/research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Doctor Single-Script Consolidation](docs/research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Doctor Single-Script Consolidation](../../../research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -61,8 +61,8 @@
   - [SPEC-079](../../../spec/Active/(SPEC-079)-Progressive-Disclosure-Cleanup/(SPEC-079)-Progressive-Disclosure-Cleanup.md) — Progressive disclosure cleanup (Active, in progress)
   - [SPEC-080](../../../spec/Active/(SPEC-080)-Prune-Deprecated-Swain-Push/(SPEC-080)-Prune-Deprecated-Swain-Push.md) — Prune deprecated swain-push (Active, in progress)
 - [EPIC-048](../../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md) — Session Startup Fast Path (0/4)
-  - [SPEC-195](../../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer Worktree Creation to Task Dispatch (Active, in progress)
-  - [SPEC-196](../../../spec/Active/(SPEC-196)-Collapse-Init-Session-Skill-Chain/(SPEC-196)-Collapse-Init-Session-Skill-Chain.md) — Collapse Init-Session Skill Chain (Active, in progress)
+  - [SPEC-195](../../../spec/Complete/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer Worktree Creation to Task Dispatch (Active, in progress)
+  - [SPEC-196](../../../spec/Active/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path.md) — Collapse Init-Session Skill Chain (Active, in progress)
   - [SPEC-198](../../../spec/Active/(SPEC-198)-Fast-Path-Session-Greeting/(SPEC-198)-Fast-Path-Session-Greeting.md) — Fast-Path Session Greeting (Active, in progress)
   - [SPEC-203](../../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md) — Fast-Path Session Greeting (Active, in progress)
 - [SPEC-162](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) — EPIC Child Specs Section Not Updated on Completion (in progress)
@@ -81,4 +81,4 @@
   - [SPEC-026](../../../spec/Complete/(SPEC-026)-Model-Tier-Annotations-And-Routing/(SPEC-026)-Model-Tier-Annotations-And-Routing.md) — Model Tier Annotations and Routing (Complete, done)
 - [SPEC-057](../../../spec/Complete/(SPEC-057)-Tk-Close-Must-Release-Claim-Lock/SPEC-057.md) — tk close Must Release Claim Lock (done)
 - [SPEC-103](../../../spec/Complete/(SPEC-103)-Artifact-Cross-Reference-Hyperlinking/SPEC-103.md) — Artifact cross-reference hyperlinking (done)
-- [SPEC-192](../../../spec/Complete/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) — swain-doctor parallel check cascade failure (done)
+- [SPEC-192](../../../spec/Complete/(SPEC-192)-swain-doctor-parallel-check-cascade-failure/(SPEC-192)-swain-doctor-parallel-check-cascade-failure.md) — swain-doctor parallel check cascade failure (done)
