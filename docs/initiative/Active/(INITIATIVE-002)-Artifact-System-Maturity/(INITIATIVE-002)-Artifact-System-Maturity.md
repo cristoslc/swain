@@ -5,7 +5,7 @@ track: container
 status: Active
 author: cristos
 created: 2026-03-15
-last-updated: 2026-04-02
+last-updated: 2026-04-04
 parent-vision: VISION-001
 success-criteria:
   - Unified artifact type system with consistent lifecycle tracks
@@ -23,6 +23,8 @@ linked-artifacts:
   - DESIGN-014
   - EPIC-055
   - SPEC-236
+  - EPIC-059
+  - DESIGN-018
 ---
 
 # Artifact System Maturity
