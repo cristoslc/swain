@@ -12,7 +12,7 @@
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
-| INITIATIVE-002 | Artifact System Maturity | 2026-04-02 | — |
+| INITIATIVE-002 | Artifact System Maturity | 2026-04-04 | — |
 | INITIATIVE-003 | Agent Runtime Efficiency | 2026-03-30 | -- |
 | INITIATIVE-004 | Security & Trust | 2026-03-20 | — |
 | INITIATIVE-005 | Operator Situational Awareness | 2026-03-15 | — |

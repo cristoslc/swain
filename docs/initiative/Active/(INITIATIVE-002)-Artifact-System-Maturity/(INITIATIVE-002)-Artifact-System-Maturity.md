@@ -22,6 +22,10 @@ linked-artifacts:
   - DESIGN-013
   - DESIGN-014
   - EPIC-056
+  - EPIC-060
+  - DESIGN-019
+  - DESIGN-020
+  - ADR-030
   - SPEC-236
   - EPIC-059
   - DESIGN-018
@@ -47,6 +51,7 @@ Build the document model and tooling that encode decisions, research, and plans.
 - EPIC-013: Specgraph Python Rewrite (Complete)
 - EPIC-014: Artifact Workflow Efficiency (Complete)
 - EPIC-056: Materialized Artifact Parenting View (Complete)
+- EPIC-060: BDD Traceability (Active)
 
 ## Small Work (Epic-less Specs)
 

@@ -26,6 +26,8 @@
 | DESIGN-016 | Related Artifacts Materialization | 2026-04-03 | pending |
 | DESIGN-017 | Git-Compact CLI Contract | 2026-04-03 | 52f5c81 |
 | DESIGN-018 | Completion Pipeline State Tracking | 2026-04-04 | 683a04e6 |
+| DESIGN-019 | Operator BDD Workflow | 2026-04-04 | _pending_ |
+| DESIGN-020 | Agent BDD Contract | 2026-04-04 | _pending_ |
 
 ## Superseded
 

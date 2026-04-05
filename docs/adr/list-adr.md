@@ -7,7 +7,6 @@
 | ADR-007 | Event-Driven Orchestrator Replaces Prose Chaining Table | 2026-03-17 | — |
 | ADR-019 | Project-Root Script Convention | 2026-03-28 | — |
 | ADR-022 | Chart Is The Canonical Hierarchy Interface | 2026-04-02 | — |
-| ADR-022 | Chart Is The Canonical Hierarchy Interface | 2026-04-02 | — |
 | ADR-031 | Skill Naming Convention: Verbs Not Nouns | 2026-04-04 | — |
 
 ## Active
@@ -39,6 +38,7 @@
 | ADR-028 | Numeric Retro Artifact IDs | 2026-04-03 | -- |
 | ADR-029 | RTK As Optional Git Compression Dependency | 2026-04-03 | 1e95f94 |
 | ADR-030 | Deprecate swain-session — Split Lifecycle into Init and Teardown | 2026-04-04 | — |
+| ADR-030 | Gherkin As Notation, Not Infrastructure | 2026-04-04 | _pending_ |
 
 ## Superseded
 
