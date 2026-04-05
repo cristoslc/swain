@@ -123,6 +123,8 @@
 | SPEC-232 | swain-teardown Skill and Session Chain | 2026-04-02 | — |
 || SPEC-233 | Worktree-Bookmark Lifecycle Coupling | 2026-04-02 |  
 | SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
+| SPEC-259 | Consumer Gitignore Coverage Gaps | 2026-04-04 | — |
+| SPEC-260 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
 
 ## Complete
 
