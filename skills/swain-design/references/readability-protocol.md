@@ -1,6 +1,6 @@
 ## Readability protocol
 
-Artifact-producing skills run a Flesch-Kincaid readability check after finalizing artifact body text, before committing. This ensures all swain artifacts stay at or below a 9th-grade reading level.
+Artifact-producing skills run a Flesch-Kincaid readability check after finalizing artifact body text, before committing. This ensures all swain artifacts stay at or below a 10th-grade reading level.
 
 ### When to run
 

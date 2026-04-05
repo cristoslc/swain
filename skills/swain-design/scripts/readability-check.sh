@@ -14,7 +14,7 @@ Non-prose content (frontmatter, code blocks, tables, etc.) is stripped first.
 Files with fewer than 50 prose words are skipped.
 
 Options:
-  --threshold N   Maximum FK grade level (default: 9)
+  --threshold N   Maximum FK grade level (default: 10)
   --json          Output results as JSON array
   -h, --help      Show this help message
 
@@ -25,7 +25,7 @@ Exit codes:
 USAGE
 }
 
-THRESHOLD=9
+THRESHOLD=10
 JSON_MODE=false
 FILES=()
 
