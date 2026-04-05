@@ -9,10 +9,10 @@ last-updated: 2026-04-02
 linked-artifacts:
   - INITIATIVE-002
   - EPIC-013
-  - EPIC-055
+  - EPIC-061
   - DESIGN-013
-  - SPEC-233
-  - SPEC-235
+  - SPEC-266
+  - SPEC-268
 depends-on-artifacts: []
 evidence-pool: ""
 ---

@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from .resolved import _STANDING_TYPES
 from .parser import (
     extract_list_ids,
     extract_scalar_id,
@@ -17,6 +18,9 @@ from .parser import (
     parse_artifact,
 )
 from .xref import compute_xref, _XREF_LIST_FIELDS
+
+_PARENT_EDGE_TYPES = {"parent-epic", "parent-vision", "parent-initiative"}
+_PARENT_SPECIFICITY = {"parent-epic": 3, "parent-initiative": 2, "parent-vision": 1}
 
 
 def _is_valid_ref(val: str) -> bool:
@@ -42,6 +46,13 @@ def _find_artifact_files(docs_dir: Path) -> list[Path]:
     """Find all markdown files in docs/ that could be artifacts."""
     files = []
     for md in sorted(docs_dir.rglob("*.md")):
+        relative_parents = md.relative_to(docs_dir).parents
+        if md.is_symlink() or any(
+            (docs_dir / parent).is_symlink()
+            for parent in relative_parents
+            if str(parent) != "."
+        ):
+            continue
         if md.name in ("README.md",) or md.name.startswith("list-"):
             continue
         files.append(md)
@@ -58,6 +69,7 @@ def build_graph(
     docs_dir = repo_root / "docs"
     nodes: dict[str, dict] = {}
     edges: list[dict] = []
+    duplicates: dict[str, list[str]] = {}
 
     def add_edge(from_id: str, to_val: str, edge_type: str) -> None:
         if not _is_valid_ref(to_val):
@@ -72,6 +84,10 @@ def build_graph(
             continue
 
         aid = artifact.artifact
+        if aid in nodes:
+            if nodes[aid]["title"] != artifact.title:
+                duplicates.setdefault(aid, [nodes[aid]["file"]]).append(artifact.file)
+            continue
         fields = artifact.raw_fields
         track = fields.get("track", "")
         priority_weight = fields.get("priority-weight", "")
@@ -158,6 +174,13 @@ def build_graph(
             "frontmatter": fields,
         })
 
+    if duplicates:
+        details = "; ".join(
+            f"{artifact_id}: {', '.join(paths)}"
+            for artifact_id, paths in sorted(duplicates.items())
+        )
+        raise ValueError(f"Duplicate artifact IDs detected: {details}")
+
     xref = compute_xref(artifact_dicts, edges)
 
     # Append dual-parent warnings to xref
@@ -182,6 +205,85 @@ def build_graph(
         "edges": edges,
         "xref": xref,
     }
+
+
+def _select_direct_parent(artifact_id: str, edges: list[dict]) -> str | None:
+    """Select one direct parent using chart's specificity rule.
+
+    Ties at the same specificity are resolved deterministically by parent ID.
+    """
+    parent_edges = [
+        e for e in edges
+        if e["from"] == artifact_id and e["type"] in _PARENT_EDGE_TYPES
+    ]
+    if not parent_edges:
+        return None
+    parent_edges.sort(
+        key=lambda e: (-_PARENT_SPECIFICITY.get(e["type"], 0), e["to"])
+    )
+    return parent_edges[0]["to"]
+
+
+def _canonical_path(artifact_id: str, relative_file: str) -> str:
+    """Return the lifecycle-scoped folder path for materialization.
+
+    Foldered artifacts already live inside their own directories.
+    Flat artifacts (for example some ADRs) synthesize a folder target by
+    stripping the markdown suffix from the file path.
+    """
+    file_path = Path(relative_file)
+    parent_dir = file_path.parent
+    if parent_dir.name.startswith(f"({artifact_id})"):
+        return str(parent_dir).replace("\\", "/")
+    return str(file_path.with_suffix("")).replace("\\", "/")
+
+
+def build_projection(nodes: dict[str, dict], edges: list[dict]) -> list[dict[str, Any]]:
+    """Build machine-readable hierarchy projection records."""
+    projection: list[dict[str, Any]] = []
+    for artifact_id in sorted(nodes):
+        node = nodes[artifact_id]
+        direct_parent = _select_direct_parent(artifact_id, edges)
+        placement_state = "placed"
+        if direct_parent is not None and direct_parent not in nodes:
+            direct_parent = None
+            placement_state = "unparented"
+        elif direct_parent is None:
+            art_type = node.get("type", "")
+            if art_type == "VISION":
+                placement_state = "root"
+            elif art_type in _STANDING_TYPES:
+                placement_state = "standalone"
+            else:
+                placement_state = "unparented"
+        
+        # Extract relationship IDs from edges
+        linked = {
+            e["to"] for e in edges
+            if e["from"] == artifact_id
+            and e["type"] in ("linked-artifacts", "artifact-refs")
+            and e["to"] in nodes
+        }
+        
+        depends = {
+            e["to"] for e in edges
+            if e["from"] == artifact_id
+            and e["type"] == "depends-on"
+            and e["to"] in nodes
+        }
+        
+        projection.append({
+            "artifact": artifact_id,
+            "type": node.get("type", ""),
+            "status": node.get("status", ""),
+            "canonical_file": node.get("file", ""),
+            "canonical_path": _canonical_path(artifact_id, node.get("file", "")),
+            "direct_parent": direct_parent,
+            "placement_state": placement_state,
+            "linked_artifacts": sorted(linked),
+            "depends_on_artifacts": sorted(depends),
+        })
+    return projection
 
 
 def needs_rebuild(cache_file: Path, docs_dir: Path) -> bool:

@@ -27,6 +27,25 @@
 | SPEC-131 | Docker MCP Gateway Profile Access for Sandboxed Agents | 2026-03-20 | -- |
 | SPEC-149 | Generalize Trunk Change Detection | 2026-03-22 | — |
 | SPEC-166 | Refactor Skill Chaining Table Into Reference File | 2026-03-24 | 3d696d0 |
+| SPEC-233 | Worktree-Bookmark Lifecycle Coupling | — | — |
+| SPEC-234 | Session-State Tolerance in Retro and Teardown | — | — |
+| SPEC-235 | Bookmark Creation During Worktree Lifecycle | — | — |
+| SPEC-236 | next-artifact-id Misses Untracked Artifacts In Other Worktrees | 2026-04-02 | — |
+| SPEC-237 | Session Gate Must Offer Startup Before Mutating Work | 2026-04-02 | — |
+| SPEC-240 | Session-State Tolerance in Retro and Teardown | — | — |
+| SPEC-241 | Bookmark Creation During Worktree Lifecycle | — | — |
+| SPEC-244 | Telemetry Configuration Management | 2026-04-03 | — |
+| SPEC-245 | Telemetry Event Emission Framework | 2026-04-03 | — |
+| SPEC-246 | Telemetry Aggregator and Summary Generation | 2026-04-03 | — |
+| SPEC-247 | Telemetry Export Mechanism | 2026-04-03 | — |
+| SPEC-248 | Extend Projection Schema with Relationship Fields | 2026-04-03 | — |
+| SPEC-249 | Materialize Related Artifacts Symlinks | 2026-04-03 | — |
+| SPEC-250 | Cleanup Stale Relationship Symlinks | 2026-04-03 | — |
+| SPEC-264 | Remove swain-session Skill Directory | 2026-04-04 | — |
+| SPEC-265 | Structural Cross-Skill Invariant Tests | 2026-04-04 | — |
+| SPEC-266 | Specgraph Hierarchy Projection Output | 2026-04-02 | — |
+| SPEC-267 | Lifecycle-Scoped Materialized Child Views | 2026-04-02 | — |
+| SPEC-268 | Automatic Hierarchy Reconciliation | 2026-04-02 | — |
 
 ## Active
 
@@ -65,7 +84,6 @@
 | SPEC-137 | Doctor Trunk/Release Migration Detection | 2026-03-21 | — |
 | SPEC-140 | Artifact ID Collision Detection | 2026-03-21 | -- |
 | SPEC-141 | Spec-Level Priority Weight | 2026-03-21 | — |
-| SPEC-142 | Worktree Ticket Isolation | 2026-03-21 | — |
 | SPEC-144 | Brief Description Frontmatter Field | 2026-03-21 | — |
 | SPEC-145 | Design Creation Prompts | 2026-03-21 | -- |
 | SPEC-146 | Design Coverage Audit Lens | 2026-03-21 | -- |
@@ -92,7 +110,7 @@
 | SPEC-177 | Remove Tmux-Based swain-stage | 2026-03-27 | 57c7822 |
 | SPEC-178 | Worktree Timestamp Zeroed Time Component | 2026-03-28 | — |
 | SPEC-179 | Launcher Free-Text Session Purpose | 2026-03-28 | — |
-| SPEC-183 | Session Sleep Operation | 2026-03-28 | — |
+| SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
 | SPEC-184 | Session End Operation | 2026-03-28 | — |
 | SPEC-191 | Preflight Self-Healing Compliance Audit | 2026-03-29 | — |
 | SPEC-194 | Flesch-Kincaid Readability Enforcement | 2026-03-30 | _pending_ |
@@ -108,7 +126,6 @@
 | SPEC-205 | Wire Progress Log Into Session Close | 2026-03-31 | _pending_ |
 | SPEC-213 | Portable skill path resolution | 2026-03-31 | — |
 | SPEC-215 | Consumer integration test harness | 2026-03-31 | — |
-| SPEC-220 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-220 | swain-test.sh script | 2026-03-31 | — |
 | SPEC-221 | swain-test skill | 2026-03-31 | — |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | — |
@@ -120,9 +137,17 @@
 | SPEC-229 | Native Implementation Planning in swain-do | 2026-04-01 | TBD |
 | SPEC-230 | Native Socratic Discovery in swain-design | 2026-04-01 | TBD |
 | SPEC-231 | Global Debugging Loop in AGENTS.md | 2026-04-01 | TBD |
-| SPEC-232 | swain-teardown Skill and Session Chain | 2026-04-02 | — |
-|| SPEC-233 | Worktree-Bookmark Lifecycle Coupling | 2026-04-02 |  
-| SPEC-183 | finishing-a-development-branch: Merge Locally fails in worktrees | 2026-03-28 | — |
+| SPEC-242 | Worktree Ticket Isolation | 2026-03-21 | — |
+| SPEC-243 | Session Sleep Operation | 2026-03-28 | — |
+| SPEC-251 | Exclude Docker MCP Gateway from Crash Debris Detection | 2026-04-03 | — |
+| SPEC-252 | Retro ID renumbering migration | 2026-04-03 | -- |
+| SPEC-253 | Git-Compact Wrapper Script | 2026-04-03 | 52f5c81 |
+| SPEC-254 | Audit grep -c || echo fallback pattern across swain scripts | 2026-04-03 | — |
+| SPEC-255 | Doctor Bundle-And-Offer Fixes | 2026-04-03 | 3435901 |
+| SPEC-256 | Worktree preamble must commit dirty tracked files before branching | 2026-04-03 | — |
+| SPEC-259 | Swain-Sync Preflight Script | 2026-04-04 | — |
+| SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
+| SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 
 ## Complete
 
@@ -242,6 +267,19 @@
 | SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | 2f49e1f |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | ee81e05 |
 | SPEC-227 | Doctor Artifact Index Staleness Repair | 2026-04-01 | — |
+| SPEC-239 | Worktree-Bookmark Lifecycle Coupling | — | — |
+| SPEC-244 | Lockfile Management | 2026-04-04 | — |
+| SPEC-245 | bin/swain Redesign | 2026-04-04 | — |
+| SPEC-246 | swain-doctor Orphan Scanning | 2026-04-04 | — |
+| SPEC-247 | swain-teardown Integration | 2026-04-04 | — |
+| SPEC-248 | Session Archive Mechanism | 2026-04-04 | — |
+| SPEC-249 | swain-sync Lockfile Integration | 2026-04-04 | — |
+| SPEC-250 | Alignment Audit | 2026-04-04 | — |
+| SPEC-251 | Artifact-Aware Worktree Naming | 2026-04-04 | — |
+| SPEC-252 | swain-sync Merge Logic | 2026-04-04 | — |
+| SPEC-261 | Specgraph Hierarchy Projection Output | 2026-04-02 | — |
+| SPEC-262 | Lifecycle-Scoped Materialized Child Views | 2026-04-03 | — |
+| SPEC-263 | Automatic Hierarchy Reconciliation | 2026-04-02 | — |
 
 ## Superseded
 

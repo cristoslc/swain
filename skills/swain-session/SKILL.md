@@ -3,7 +3,7 @@ name: swain-session
 description: "Session management and project status dashboard. Owns the full session lifecycle (start/work/close/resume), focus lane, bookmarks, worktree detection, and tab naming. Also serves as the project status dashboard — shows active epics, progress, actionable next steps, blocked items, tasks, GitHub issues, and recommendations. Worktree creation is deferred to swain-do task dispatch (SPEC-195). Triggers on: 'session', 'status', 'what's next', 'dashboard', 'overview', 'where are we', 'what should I work on', 'show me priorities', 'bookmark', 'focus on', 'session info'."
 user-invocable: true
 license: MIT
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob, EnterWorktree, ExitWorktree
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 metadata:
   short-description: Session state and identity management
   version: 1.4.0
@@ -70,7 +70,7 @@ The greeting emits structured JSON:
 
 1. Present the greeting to the operator — branch, dirty state, bookmark (if any), focus lane (if any), and warnings.
 
-2. If `isolated` is `false` and the operator has not started work yet, **do not create a worktree now** — worktree creation is deferred to swain-do task dispatch (SPEC-195). If EnterWorktree is needed before swain-do, generate the name:
+2. If `isolated` is `false` and the operator has not started work yet, **do not create a worktree now** — worktree creation is handled by bin/swain pre-launch (SPEC-245). If a worktree name is needed for reference, generate it:
    ```bash
    bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh" "context"
    ```
@@ -88,7 +88,7 @@ The greeting emits structured JSON:
 - **tmux not installed:** Offer to install it (`brew install tmux`).
 - **tmux installed but not in a session:** Show: `[note] Not in a tmux session — session tab and pane features unavailable`
 
-The operator can say "exit worktree" or "back to main" at any time — call `ExitWorktree` to leave isolation.
+The operator can say "exit worktree" or "back to main" at any time — this ends the session. bin/swain handles worktree cleanup after the runtime exits (SPEC-245).
 
 ### Worktree / branch changes (agent-agnostic)
 

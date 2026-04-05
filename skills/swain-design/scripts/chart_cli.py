@@ -15,7 +15,15 @@ from pathlib import Path
 SCRIPTS_DIR = str(Path(__file__).resolve().parent)
 sys.path.insert(0, SCRIPTS_DIR)
 
-from specgraph.graph import cache_path, read_cache, build_graph, needs_rebuild, write_cache
+from specgraph.graph import (
+    cache_path,
+    read_cache,
+    build_graph,
+    build_projection,
+    needs_rebuild,
+    write_cache,
+)
+from specgraph.materialize import materialize_children
 from specgraph.tree_renderer import render_vision_tree
 from specgraph.lenses import LENSES, RecommendLens, AttentionLens
 from specgraph.roadmap import render_roadmap, render_roadmap_markdown, collect_roadmap_items
@@ -127,6 +135,10 @@ def main():
     session_p.add_argument("--focus", type=str, default=None,
                            help="Initiative or Vision ID to scope the session")
 
+    projection_p = sub.add_parser("projection", help="Machine-readable hierarchy projection")
+    projection_p.add_argument("--json", action="store_true", dest="json_output",
+                              help="JSON output")
+
     # Passthrough commands (delegate to specgraph CLI)
     for cmd in _PASSTHROUGH_COMMANDS:
         p = sub.add_parser(cmd, help=f"(specgraph) {cmd}")
@@ -146,6 +158,23 @@ def main():
     # If no command, use default lens
     if command is None or command == "default":
         command = "default"
+
+    if command == "build":
+        repo_root = _get_repo_root()
+        data = build_graph(Path(repo_root))
+        cp = cache_path(repo_root)
+        write_cache(data, cp)
+        skipped = materialize_children(Path(repo_root), build_projection(data["nodes"], data["edges"]))
+        print(f"Graph built: {cp}")
+        print(f"  Nodes: {len(data['nodes'])}")
+        print(f"  Edges: {len(data['edges'])}")
+        if skipped:
+            print(f"  Skipped {len(skipped)} flat-file artifact(s) — run swain-doctor --fix-flat-artifacts to migrate:")
+            for aid in skipped[:10]:
+                print(f"    {aid}")
+            if len(skipped) > 10:
+                print(f"    ... and {len(skipped) - 10} more")
+        return
 
     # Passthrough to specgraph CLI
     if command in _PASSTHROUGH_COMMANDS:
@@ -218,6 +247,13 @@ def main():
         with open(session_path, "w", encoding="utf-8") as f:
             f.write(md)
         print(f"Wrote {session_path}")
+        return
+
+    if command == "projection":
+        repo_root = _get_repo_root()
+        data = _ensure_cache(repo_root)
+        projection = build_projection(data["nodes"], data["edges"])
+        print(json.dumps(projection, indent=2))
         return
 
     # Lens-based tree rendering
