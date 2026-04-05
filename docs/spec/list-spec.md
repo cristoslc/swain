@@ -147,6 +147,7 @@
 | SPEC-256 | Worktree preamble must commit dirty tracked files before branching | 2026-04-03 | — |
 | SPEC-259 | Swain-Sync Preflight Script | 2026-04-04 | — |
 | SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
+| SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 
 ## Complete
 
@@ -267,6 +268,15 @@
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | ee81e05 |
 | SPEC-227 | Doctor Artifact Index Staleness Repair | 2026-04-01 | — |
 | SPEC-239 | Worktree-Bookmark Lifecycle Coupling | — | — |
+| SPEC-244 | Lockfile Management | 2026-04-04 | — |
+| SPEC-245 | bin/swain Redesign | 2026-04-04 | — |
+| SPEC-246 | swain-doctor Orphan Scanning | 2026-04-04 | — |
+| SPEC-247 | swain-teardown Integration | 2026-04-04 | — |
+| SPEC-248 | Session Archive Mechanism | 2026-04-04 | — |
+| SPEC-249 | swain-sync Lockfile Integration | 2026-04-04 | — |
+| SPEC-250 | Alignment Audit | 2026-04-04 | — |
+| SPEC-251 | Artifact-Aware Worktree Naming | 2026-04-04 | — |
+| SPEC-252 | swain-sync Merge Logic | 2026-04-04 | — |
 | SPEC-261 | Specgraph Hierarchy Projection Output | 2026-04-02 | — |
 | SPEC-262 | Lifecycle-Scoped Materialized Child Views | 2026-04-03 | — |
 | SPEC-263 | Automatic Hierarchy Reconciliation | 2026-04-02 | — |
