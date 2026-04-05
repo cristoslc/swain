@@ -73,3 +73,4 @@ swain → bootstrap (no worktree) → greeting → ... → /swain-do start SPEC-
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-30 | -- | Initial creation; operator-requested |
+| Complete | 2026-04-05 | cd6f0ccb | Retroactive verification; all 5 ACs pass |
