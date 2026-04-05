@@ -43,7 +43,7 @@
 | EPIC-052 | Automated Test Gates | 2026-03-31 | — |
 | EPIC-053 | Deprecate and Replace Superpowers with Native Skills | 2026-04-01 | TBD |
 | EPIC-059 | Automated Completion Pipeline | 2026-04-04 | 683a04e6 |
-| EPIC-060 | BDD Traceability | 2026-04-04 | _pending_ |
+| EPIC-062 | BDD Traceability | 2026-04-04 | _pending_ |
 
 ## Complete
 

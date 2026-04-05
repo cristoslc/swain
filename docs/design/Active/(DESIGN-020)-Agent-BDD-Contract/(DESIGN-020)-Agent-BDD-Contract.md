@@ -9,7 +9,7 @@ created: 2026-04-04
 last-updated: 2026-04-04
 superseded-by: ""
 linked-artifacts:
-  - EPIC-060
+  - EPIC-062
 artifact-refs: []
 sourcecode-refs: []
 depends-on-artifacts: []

@@ -46,6 +46,13 @@
 | SPEC-266 | Specgraph Hierarchy Projection Output | 2026-04-02 | — |
 | SPEC-267 | Lifecycle-Scoped Materialized Child Views | 2026-04-02 | — |
 | SPEC-268 | Automatic Hierarchy Reconciliation | 2026-04-02 | — |
+| SPEC-269 | Gherkin Notation Convention | 2026-04-05 | _pending_ |
+| SPEC-270 | BDD Test-Code Markers | 2026-04-05 | _pending_ |
+| SPEC-271 | Test Results JSON Contract | 2026-04-05 | _pending_ |
+| SPEC-272 | Evidence Sidecars | 2026-04-05 | _pending_ |
+| SPEC-273 | Commit-Hash Staleness Detection | 2026-04-05 | _pending_ |
+| SPEC-274 | Swain-Verify Command | 2026-04-05 | _pending_ |
+| SPEC-275 | BDD Retrofit Migration | 2026-04-05 | _pending_ |
 
 ## Active
 
@@ -114,7 +121,6 @@
 | SPEC-184 | Session End Operation | 2026-03-28 | — |
 | SPEC-191 | Preflight Self-Healing Compliance Audit | 2026-03-29 | — |
 | SPEC-194 | Flesch-Kincaid Readability Enforcement | 2026-03-30 | _pending_ |
-| SPEC-195 | Defer Worktree Creation to Task Dispatch | 2026-03-30 | -- |
 | SPEC-196 | Collapse Init-Session Skill Chain | 2026-03-30 | -- |
 | SPEC-197 | Specgraph Module Import Shadowing | 2026-03-30 | — |
 | SPEC-198 | Fast-Path Session Greeting | 2026-03-30 | -- |
@@ -256,6 +262,7 @@
 | SPEC-190 | Migrate All Skills to .agents/bin/ Resolution | 2026-03-29 | — |
 | SPEC-192 | swain-doctor parallel check cascade failure | 2026-03-29 | — |
 | SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-31 | — |
+| SPEC-195 | Defer Worktree Creation to Task Dispatch | 2026-04-05 | cd6f0ccb |
 | SPEC-204 | fix-collisions.sh Over-Rewrites Keeper References | 2026-03-31 | 85c7d96 |
 | SPEC-206 | Missing session greeting script | 2026-03-31T13:22:00Z | af41336 |
 | SPEC-207 | README Seeding in swain-init | 2026-03-31 | 61379ba |

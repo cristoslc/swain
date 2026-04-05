@@ -1,6 +1,6 @@
 ---
 title: "BDD Traceability"
-artifact: EPIC-060
+artifact: EPIC-062
 track: container
 status: Active
 author: cristos
@@ -60,15 +60,15 @@ Designs, Runbooks, and Journeys may carry Gherkin. Epics, Initiatives, and Visio
 
 <!-- Updated as Agent Specs are created under this epic. -->
 
-| Spec | Title | Status |
-|------|-------|--------|
-| _TBD_ | Gherkin notation convention and `@id:` auto-minting | — |
-| _TBD_ | `@bdd:` test-code markers and drift detection | — |
-| _TBD_ | `test-results.json` swain-do contract | — |
-| _TBD_ | Evidence sidecars and symlink hierarchy | — |
-| _TBD_ | Commit-hash staleness detection | — |
-| _TBD_ | `swain-verify` command | — |
-| _TBD_ | Retrofit migration for existing specs | — |
+| Spec | Title | Status | Depends on |
+|------|-------|--------|------------|
+| [SPEC-269](../../../spec/Proposed/(SPEC-269)-Gherkin-Notation-Convention/(SPEC-269)-Gherkin-Notation-Convention.md) | Gherkin Notation Convention | Proposed | — |
+| [SPEC-270](../../../spec/Proposed/(SPEC-270)-BDD-Test-Code-Markers/(SPEC-270)-BDD-Test-Code-Markers.md) | BDD Test-Code Markers | Proposed | SPEC-269 |
+| [SPEC-271](../../../spec/Proposed/(SPEC-271)-Test-Results-JSON-Contract/(SPEC-271)-Test-Results-JSON-Contract.md) | Test Results JSON Contract | Proposed | SPEC-270 |
+| [SPEC-272](../../../spec/Proposed/(SPEC-272)-Evidence-Sidecars/(SPEC-272)-Evidence-Sidecars.md) | Evidence Sidecars | Proposed | SPEC-271 |
+| [SPEC-273](../../../spec/Proposed/(SPEC-273)-Commit-Hash-Staleness-Detection/(SPEC-273)-Commit-Hash-Staleness-Detection.md) | Commit-Hash Staleness Detection | Proposed | SPEC-272 |
+| [SPEC-274](../../../spec/Proposed/(SPEC-274)-Swain-Verify-Command/(SPEC-274)-Swain-Verify-Command.md) | Swain-Verify Command | Proposed | SPEC-271, 272, 273 |
+| [SPEC-275](../../../spec/Proposed/(SPEC-275)-BDD-Retrofit-Migration/(SPEC-275)-BDD-Retrofit-Migration.md) | BDD Retrofit Migration | Proposed | SPEC-269, 270 |
 
 ## Key Dependencies
 
