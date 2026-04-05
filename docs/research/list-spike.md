@@ -32,6 +32,7 @@
 | SPIKE-048 | Noisy Tool-Call Pattern Audit | 2026-03-26 | — |
 | SPIKE-049 | Doctor Single-Script Consolidation | 2026-03-27 | — |
 | SPIKE-050 | PR Queue MCP for Merge Handoff | 2026-03-27 | — |
+| SPIKE-058 | Embedding Nearest-Neighbor Artifact Navigation | 2026-04-04 | 0032246a |
 
 ## Complete
 
