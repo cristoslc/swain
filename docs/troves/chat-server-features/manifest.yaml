@@ -24,6 +24,9 @@ tags:
   - zulip-cloud
   - hosted-vs-selfhosted
   - python-sdk
+  - whatsapp
+  - whatsapp-business-api
+  - pywa
 
 freshness-ttl:
   web: 14d
@@ -45,6 +48,10 @@ history:
     date: 2026-04-06
     commit: "81575e1"
     sources: 5
+  - event: extended
+    date: 2026-04-06
+    commit: "--"
+    sources: 2
 
 referenced-by: []
 
@@ -223,3 +230,17 @@ sources:
     fetched: 2026-04-06T22:00:00Z
     title: "Microsoft Teams — Graph API Complexity, M365 Requirement, and Enterprise Lock-In"
     hash: "9178a0029f486b952867f40dfd8d3ca95e4bc930ceb258cc51abe51a519139d3"
+
+  - source-id: "whatsapp-business-api-platform"
+    type: web
+    url: "https://business.whatsapp.com/products/platform-pricing"
+    fetched: 2026-04-06T22:00:00Z
+    title: "WhatsApp Business API — Pricing, Rate Limits, Threading, and Provisioning for Bot-Driven Workflows"
+    hash: "7470ecb95907d76e9b9bd48d794c0b5071c508faf4e98ea90c757ff7f5dec87c"
+
+  - source-id: "whatsapp-pywa-python-sdk"
+    type: web
+    url: "https://github.com/david-lev/pywa"
+    fetched: 2026-04-06T22:00:00Z
+    title: "PyWa — Python SDK for WhatsApp Cloud API: Features, Maturity, and Bot Development"
+    hash: "b6e6dc3e33d69ca8c0e2f040e07b8867f45313ee8fd5a1345e0bef047b6b000d"
