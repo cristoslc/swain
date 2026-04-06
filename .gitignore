@@ -80,3 +80,4 @@ skills/*
 .superpowers
 .sandboxes/
 .swain-init
+.env
