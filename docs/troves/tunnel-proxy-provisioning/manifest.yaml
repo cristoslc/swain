@@ -1,0 +1,89 @@
+trove: tunnel-proxy-provisioning
+created: 2026-04-06
+refreshed: 2026-04-06
+tags:
+  - tunnel
+  - reverse-proxy
+  - dns
+  - tls
+  - ingress
+  - cloudflare
+  - tailscale
+  - caddy
+  - traefik
+  - nginx
+  - ngrok
+  - commodore
+  - self-hosted
+
+freshness-ttl:
+  web: 30d
+  repository: 14d
+
+history:
+  - event: created
+    date: 2026-04-06
+    commit: "--"
+    sources: 8
+
+sources:
+  - source-id: cloudflare-tunnel-setup-docs
+    type: web
+    url: "https://developers.cloudflare.com/tunnel/setup/"
+    fetched: 2026-04-06T17:02:55Z
+    title: "Set up Cloudflare Tunnel -- Cloudflare Docs"
+    hash: "993d37512d4acc67051db4e657ba5c33f15b74b5a638857afc2d41c9bb4726dc"
+
+  - source-id: tailscale-funnel-docs
+    type: web
+    url: "https://tailscale.com/kb/1223/funnel"
+    fetched: 2026-04-06T17:02:56Z
+    title: "Tailscale Funnel -- Tailscale Docs"
+    hash: "580677f8302ecb9857d56c327a86bffb6bae17590ee3e65ed6421185de3d4498"
+
+  - source-id: caddy-automatic-https-docs
+    type: web
+    url: "https://caddyserver.com/docs/automatic-https"
+    fetched: 2026-04-06T17:02:58Z
+    title: "Automatic HTTPS -- Caddy Documentation"
+    hash: "2c8fbc145c019981d2be96eb9d2f15c476f1682a55117b95f6e8083a560bb4d3"
+
+  - source-id: onidel-funnel-cf-nginx-comparison
+    type: web
+    url: "https://onidel.com/blog/tailscale-cloudflare-nginx-vps-2025"
+    fetched: 2026-04-06T17:02:58Z
+    title: "Tailscale Funnel vs Cloudflare Tunnel vs Nginx Reverse Proxy on VPS in 2025"
+    hash: "67d6a4a9634bf1153599b59504f4e1067a22e9c69cdc82849a1c6fcce18e6ca8"
+
+  - source-id: zeonedge-nginx-caddy-traefik-comparison
+    type: web
+    url: "https://zeonedge.com/blog/nginx-vs-caddy-vs-traefik-comparison"
+    fetched: 2026-04-06T17:02:59Z
+    title: "Nginx vs Caddy vs Traefik: Choosing the Right Reverse Proxy in 2026"
+    hash: "0fab0bbf79e74d6006325714d43cefa8881b1696ed9a356e1cf434a82e801990"
+
+  - source-id: commodore-infra-repo
+    type: repository
+    url: "https://github.com/cristoslc/commodore-infra"
+    fetched: 2026-04-06T17:03:00Z
+    title: "Commodore Infrastructure Platform (cristoslc/commodore-infra)"
+    hash: "c90dc4fc0d4f3fe09392044298abf82a56c475e19ec76eafd5d2bc705d879a0c"
+    selective: true
+    highlights:
+      - "README.md"
+      - "architecture-overview.md"
+      - "VISION-001 vision doc"
+
+  - source-id: ngrok-pricing-limits
+    type: web
+    url: "https://ngrok.com/docs/pricing-limits"
+    fetched: 2026-04-06T17:03:01Z
+    title: "ngrok Pricing and Limits"
+    hash: "3b2f08b4e3d9a89952556ecbc5c741b278350394b649362574f9859d56299b30"
+
+  - source-id: mutagen-overview
+    type: web
+    url: "https://mutagen.io/documentation/introduction"
+    fetched: 2026-04-06T17:03:02Z
+    title: "Mutagen Overview -- File Synchronization and Network Forwarding"
+    hash: "b4b570a3c6e6001d58bc406c5338676767f208c228fad4363e01dd62a1247bc5"
