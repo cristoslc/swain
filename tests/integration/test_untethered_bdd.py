@@ -25,10 +25,9 @@ from unittest.mock import AsyncMock, MagicMock, patch, call
 import pytest
 
 from untethered.protocol import Event, Command
-from untethered.bridges.host import HostBridge
 from untethered.bridges.project import ProjectBridge
-from untethered.adapters.zulip_chat import ZulipChatAdapter, parse_zulip_message
-from untethered.main import _poll_zulip_events, _stream_to_bridge
+from untethered.adapters.zulip_chat import ZulipChatAdapter
+from untethered.plugins.zulip_chat import _poll_zulip
 
 
 # ---------------------------------------------------------------------------
@@ -57,118 +56,69 @@ def _make_get_events_response(messages: list[dict], *, last_id: int = 0) -> dict
 # Scenario: Zulip message routes to the correct project bridge
 # ---------------------------------------------------------------------------
 
+_STREAM_MAP = {"swain": "swain"}  # stream name → project name
+
+
+def _make_poll_client(responses: list) -> MagicMock:
+    """Build a mock Zulip client that returns given get_events responses in order."""
+    client = MagicMock()
+    client.email = "bot@zulip.com"
+    client.register.return_value = {
+        "result": "success", "queue_id": "q1", "last_event_id": 0,
+    }
+    it = iter(responses)
+
+    def get_events(**_kw):
+        try:
+            return next(it)
+        except StopIteration:
+            raise asyncio.CancelledError()
+
+    client.get_events.side_effect = get_events
+    return client
+
+
 class TestZulipMessageRouting:
-    """Given a host bridge with 'swain' registered, Zulip messages reach it."""
+    """_poll_zulip emits the correct Command for each Zulip message type."""
 
-    async def test_plain_text_routes_to_project_bridge(self):
+    async def test_plain_text_becomes_send_prompt(self):
         received: list[Command] = []
-        host = HostBridge(domain="personal")
-        bridge = ProjectBridge(project="swain", on_event=lambda e: None)
-        host.register_project("swain", on_command=received.append)
-
-        chat_adapter = ZulipChatAdapter(control_topic="control")
-        projects_config = [{"name": "swain", "stream": "swain"}]
-
-        client = MagicMock()
-        client.email = "bot@zulip.com"
-        client.register.return_value = {
-            "result": "success", "queue_id": "q1", "last_event_id": 0,
-        }
-
-        call_count = 0
-
-        def get_events(**kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                return _make_get_events_response(
-                    [_make_zulip_msg("fix the tests")], last_id=0,
-                )
-            # Second call: cancel the polling loop
-            raise asyncio.CancelledError()
-
-        client.get_events.side_effect = get_events
-
+        client = _make_poll_client([
+            _make_get_events_response([_make_zulip_msg("fix the tests")]),
+        ])
+        loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip_events(
-                client, chat_adapter, host, projects_config=projects_config,
-            )
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, loop)
 
         assert len(received) == 1
-        cmd = received[0]
-        assert cmd.type == "send_prompt"
-        assert cmd.payload["text"] == "fix the tests"
-        assert cmd.bridge == "swain"
+        assert received[0].type == "send_prompt"
+        assert received[0].payload["text"] == "fix the tests"
+        assert received[0].bridge == "swain"
 
-    async def test_approve_slash_command_routes_correctly(self):
+    async def test_approve_slash_command(self):
         received: list[Command] = []
-        host = HostBridge(domain="personal")
-        host.register_project("swain", on_command=received.append)
-
-        chat_adapter = ZulipChatAdapter(control_topic="control")
-        projects_config = [{"name": "swain", "stream": "swain"}]
-
-        client = MagicMock()
-        client.email = "bot@zulip.com"
-        client.register.return_value = {
-            "result": "success", "queue_id": "q1", "last_event_id": 0,
-        }
-
-        call_count = 0
-
-        def get_events(**kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                return _make_get_events_response(
-                    [_make_zulip_msg("/approve call-123", topic="sess-abc")],
-                )
-            raise asyncio.CancelledError()
-
-        client.get_events.side_effect = get_events
-
+        client = _make_poll_client([
+            _make_get_events_response(
+                [_make_zulip_msg("/approve call-123", topic="sess-abc")]
+            ),
+        ])
+        loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip_events(
-                client, chat_adapter, host, projects_config=projects_config,
-            )
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, loop)
 
         assert len(received) == 1
-        cmd = received[0]
-        assert cmd.type == "approve"
-        assert cmd.payload["call_id"] == "call-123"
-        assert cmd.payload["approved"] is True
+        assert received[0].type == "approve"
+        assert received[0].payload["call_id"] == "call-123"
+        assert received[0].payload["approved"] is True
 
-    async def test_bot_own_messages_are_skipped(self):
+    async def test_bot_own_messages_skipped(self):
         received: list[Command] = []
-        host = HostBridge(domain="personal")
-        host.register_project("swain", on_command=received.append)
-        chat_adapter = ZulipChatAdapter(control_topic="control")
-        projects_config = [{"name": "swain", "stream": "swain"}]
-
-        client = MagicMock()
-        client.email = "bot@zulip.com"
-        client.register.return_value = {
-            "result": "success", "queue_id": "q1", "last_event_id": 0,
-        }
-
-        bot_msg = _make_zulip_msg("I am the bot's own message")
+        bot_msg = _make_zulip_msg("I am the bot")
         bot_msg["sender_email"] = "bot@zulip.com"
-
-        call_count = 0
-
-        def get_events(**kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                return _make_get_events_response([bot_msg])
-            raise asyncio.CancelledError()
-
-        client.get_events.side_effect = get_events
-
+        client = _make_poll_client([_make_get_events_response([bot_msg])])
+        loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip_events(
-                client, chat_adapter, host, projects_config=projects_config,
-            )
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, loop)
 
         assert len(received) == 0
 
@@ -182,43 +132,33 @@ class TestZulipQueueReregistration:
 
     async def test_reregisters_on_bad_queue_id(self):
         received: list[Command] = []
-        host = HostBridge(domain="personal")
-        host.register_project("swain", on_command=received.append)
-        chat_adapter = ZulipChatAdapter(control_topic="control")
-        projects_config = [{"name": "swain", "stream": "swain"}]
+        register_calls: list[str] = []
 
         client = MagicMock()
         client.email = "bot@zulip.com"
 
-        register_calls: list[str] = []
-
-        def register(**kwargs):
+        def register(**_kw):
             register_calls.append("register")
             return {"result": "success", "queue_id": f"q{len(register_calls)}", "last_event_id": 0}
 
         client.register.side_effect = register
 
-        call_count = 0
+        responses = iter([
+            {"result": "error", "code": "BAD_EVENT_QUEUE_ID"},
+            _make_get_events_response([_make_zulip_msg("hello after re-register")]),
+        ])
 
-        def get_events(**kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                # First call: queue expired
-                return {"result": "error", "code": "BAD_EVENT_QUEUE_ID"}
-            if call_count == 2:
-                # After re-registration: deliver a message
-                return _make_get_events_response(
-                    [_make_zulip_msg("hello after re-register")]
-                )
-            raise asyncio.CancelledError()
+        def get_events(**_kw):
+            try:
+                return next(responses)
+            except StopIteration:
+                raise asyncio.CancelledError()
 
         client.get_events.side_effect = get_events
+        loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip_events(
-                client, chat_adapter, host, projects_config=projects_config,
-            )
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, loop)
 
         assert len(register_calls) == 2  # initial + re-register
         assert len(received) == 1
@@ -241,38 +181,25 @@ class TestZulipBlockingCallsAreOffloaded:
         barrier = asyncio.Event()
         executor_ran = threading.Event()
 
-        host = HostBridge(domain="personal")
-        chat_adapter = ZulipChatAdapter(control_topic="control")
-        projects_config: list[dict] = []
-
         client = MagicMock()
         client.email = "bot@zulip.com"
         client.register.return_value = {
             "result": "success", "queue_id": "q1", "last_event_id": 0,
         }
 
-        call_count = 0
-
         def get_events(**_kw):
-            nonlocal call_count
-            call_count += 1
-            # Signal from worker thread using the captured loop reference
             loop.call_soon_threadsafe(barrier.set)
             executor_ran.set()
             import time
-            time.sleep(0.02)  # simulate blocking HTTP
-            # Return empty events so polling loops back
+            time.sleep(0.02)
             return {"result": "success", "events": []}
 
         client.get_events.side_effect = get_events
 
         poll_task = asyncio.create_task(
-            _poll_zulip_events(
-                client, chat_adapter, host, projects_config=projects_config,
-            )
+            _poll_zulip(client, {}, "control", lambda _cmd: None, loop)
         )
 
-        # Event loop must stay responsive while get_events blocks in executor
         await asyncio.wait_for(barrier.wait(), timeout=2.0)
         assert executor_ran.is_set()
 
@@ -399,35 +326,32 @@ class TestAdapterWiring:
 class TestSmoke:
     """Minimal wiring test — nothing crashes on import or instantiation."""
 
-    def test_imports_succeed(self):
-        from untethered.protocol import Event, Command
-        from untethered.bridges.host import HostBridge
+    def test_kernel_imports(self):
+        from untethered.kernel import HostKernel, PluginProcess
+        from untethered.plugins.zulip_chat import _poll_zulip, _relay_events
+        from untethered.plugins.project_bridge import _amain
+
+    def test_kernel_instantiates(self):
+        from untethered.kernel import HostKernel
+        kernel = HostKernel()
+        assert kernel._chat_plugin is None
+        assert kernel._project_plugins == {}
+
+    def test_project_bridge_library_still_works(self):
+        """ProjectBridge is still usable as a library (used by project_bridge plugin)."""
         from untethered.bridges.project import ProjectBridge
-        from untethered.adapters.zulip_chat import ZulipChatAdapter
-        from untethered.adapters.claude_code import ClaudeCodeAdapter
+        from untethered.protocol import Event
+        delivered = []
+        bridge = ProjectBridge(project="swain", on_event=delivered.append)
+        event = Event.text_output(bridge="swain", session_id="s1", content="hello")
+        bridge.handle_runtime_event(event)
+        assert delivered[0].payload["content"] == "hello"
 
-    def test_full_pipeline_instantiates(self):
-        host = HostBridge(domain="personal")
-        project = ProjectBridge(project="swain", project_dir="/tmp/swain")
-        chat = ZulipChatAdapter(control_topic="control")
-
-        host.register_project("swain", on_command=project.handle_command)
-        host.on_chat_event = lambda e: chat.post_event(e)
-
-        assert "swain" in host.projects
-
-    async def test_event_flows_host_to_chat(self):
-        """Runtime event reaches the chat adapter callback."""
-        delivered: list[Event] = []
-        host = HostBridge(domain="personal", on_chat_event=delivered.append)
-        project = ProjectBridge(project="swain", on_event=host.route_project_event)
-
-        host.register_project("swain", on_command=project.handle_command)
-
-        # Simulate an event from a runtime adapter
-        event = Event.text_output(bridge="swain", session_id="s1", content="Hello!")
-        project.handle_runtime_event(event)
-
-        assert len(delivered) == 1
-        assert delivered[0].type == "text_output"
-        assert delivered[0].payload["content"] == "Hello!"
+    def test_protocol_encode_decode_roundtrip(self):
+        """ConfigMessage roundtrips correctly (used by kernel → plugin handshake)."""
+        from untethered.protocol import ConfigMessage, encode_message, decode_message
+        cfg = ConfigMessage(plugin_type="chat", config={"bot_email": "x@y.com"})
+        line = encode_message(cfg)
+        restored = decode_message(line)
+        assert isinstance(restored, ConfigMessage)
+        assert restored.config["bot_email"] == "x@y.com"
