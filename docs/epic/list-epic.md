@@ -50,6 +50,12 @@
 | EPIC-062 | BDD Traceability | 2026-04-04 | _pending_ |
 | EPIC-064 | Title-Based Artifact Migration | 2026-04-06 | — |
 | EPIC-068 | Doctor Script Reconciliation | 2026-04-06 | _pending_ |
+| EPIC-069 | Plugin-Namespaced Script Aggregation | 2026-04-06 | -- |
+| EPIC-070 | Host Bridge Kernel | 2026-04-06 | -- |
+| EPIC-071 | Project Bridge Kernel | 2026-04-06 | -- |
+| EPIC-072 | Chat Plugin System | 2026-04-06 | -- |
+| EPIC-073 | Runtime Plugin System | 2026-04-06 | -- |
+| EPIC-074 | Provisioning (swain-stage) | 2026-04-06 | -- |
 
 ## Complete
 
