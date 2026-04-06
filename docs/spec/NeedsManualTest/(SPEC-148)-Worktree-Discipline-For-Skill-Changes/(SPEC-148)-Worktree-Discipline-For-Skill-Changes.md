@@ -31,7 +31,7 @@ This asymmetry means skill changes skip the review, isolation, and merge-with-re
 
 ## Desired Outcomes
 
-Skill authors (both the operator and agents) get the same isolation guarantees for skill changes that they already get for code changes. Non-trivial skill edits go through worktree branches, get proper commit history, and land via the merge-with-retry workflow ([ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md)). Trivial fixes (typos, single-line corrections) remain fast-path — no ceremony overhead for low-risk edits.
+Skill authors (both the operator and agents) get the same isolation guarantees for skill changes that they already get for code changes. Non-trivial skill edits go through worktree branches, get proper commit history, and land via the merge-with-retry workflow ([ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md)). Trivial fixes (typos, single-line corrections) remain fast-path — no ceremony overhead for low-risk edits.
 
 ## External Behavior
 

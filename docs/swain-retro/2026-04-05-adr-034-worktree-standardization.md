@@ -43,7 +43,7 @@ The ADR was initially written on trunk then manually copied to the worktree — 
 
 ### Patterns observed
 
-This is the third worktree-infrastructure simplification in rapid succession: [EPIC-056](../epic/Complete/(EPIC-056)-Worktree-Isolation-Redesign/(EPIC-056)-Worktree-Isolation-Redesign.md) (full redesign), [ADR-033](../adr/Active/(ADR-033)-Born-in-Worktree-Session-Isolation.md) (born-in-worktree model), now ADR-034 (path standardization). Each one removed complexity left over from the previous iteration. The pattern suggests a healthy convergence — each pass tightens the model, and the remaining surface area for future simplification is shrinking.
+This is the third worktree-infrastructure simplification in rapid succession: [EPIC-056](../epic/Proposed/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity.md) (full redesign), [ADR-033](../adr/Active/(ADR-033)-Born-in-Worktree-Session-Isolation.md) (born-in-worktree model), now ADR-034 (path standardization). Each one removed complexity left over from the previous iteration. The pattern suggests a healthy convergence — each pass tightens the model, and the remaining surface area for future simplification is shrinking.
 
 ## Learnings captured
 

@@ -23,7 +23,7 @@ linked-artifacts:
 | Artifact | Title | Outcome |
 |----------|-------|---------|
 | [SPEC-219](../spec/Complete/(SPEC-219)-Worktree-Pre-Commit-Artifact-Flush/(SPEC-219)-Worktree-Pre-Commit-Artifact-Flush.md) | Worktree Entry Must Commit Staged Artifacts First | Complete |
-| [SPEC-193](../spec/Complete/(SPEC-193)-artifact-id-allocation-must-check-all-branches.md) | Artifact ID allocation must check all branches | Annotated (related finding) |
+| [SPEC-193](../spec/Complete/(SPEC-193)-Artifact-ID-allocation-must-check-all-local-branches/(SPEC-193)-Artifact-ID-allocation-must-check-all-local-branches.md) | Artifact ID allocation must check all branches | Annotated (related finding) |
 
 ## Reflection
 

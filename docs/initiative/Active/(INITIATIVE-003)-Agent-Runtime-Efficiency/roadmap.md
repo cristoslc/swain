@@ -61,7 +61,7 @@
   - [SPEC-079](../../../spec/Active/(SPEC-079)-Progressive-Disclosure-Cleanup/(SPEC-079)-Progressive-Disclosure-Cleanup.md) — Progressive disclosure cleanup (Active, in progress)
   - [SPEC-080](../../../spec/Active/(SPEC-080)-Prune-Deprecated-Swain-Push/(SPEC-080)-Prune-Deprecated-Swain-Push.md) — Prune deprecated swain-push (Active, in progress)
 - [EPIC-048](../../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md) — Session Startup Fast Path (0/4)
-  - [SPEC-195](../../../spec/Complete/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer Worktree Creation to Task Dispatch (Active, in progress)
+  - [SPEC-195](../../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer Worktree Creation to Task Dispatch (Active, in progress)
   - [SPEC-196](../../../spec/Active/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path.md) — Collapse Init-Session Skill Chain (Active, in progress)
   - [SPEC-198](../../../spec/Active/(SPEC-198)-Fast-Path-Session-Greeting/(SPEC-198)-Fast-Path-Session-Greeting.md) — Fast-Path Session Greeting (Active, in progress)
   - [SPEC-203](../../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md) — Fast-Path Session Greeting (Active, in progress)

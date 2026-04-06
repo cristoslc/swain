@@ -18,7 +18,7 @@ evidence-pool: ""
 
 ## Context
 
-Swain artifacts started as flat Markdown files (e.g. `SPEC-183-title.md` sitting in `docs/spec/Active/`). Over time, features began needing storage beyond the main document. Verification logs ([SPEC-226](../../spec/Active/(SPEC-226)-Verification-Evidence-Recording/(SPEC-226)-Verification-Evidence-Recording.md)) and relationship symlinks ([SPEC-249](../../spec/Proposed/SPEC-249-Materialize-Related-Artifacts-Symlinks.md)) both need a folder.
+Swain artifacts started as flat Markdown files (e.g. `SPEC-183-title.md` sitting in `docs/spec/Active/`). Over time, features began needing storage beyond the main document. Verification logs ([SPEC-226](../../../spec/Active/(SPEC-226)-Verification-Evidence-Recording/(SPEC-226)-Verification-Evidence-Recording.md)) and relationship symlinks ([SPEC-249](../../../spec/Proposed/(SPEC-249)-Materialize-Related-Artifacts-Symlinks/(SPEC-249)-Materialize-Related-Artifacts-Symlinks.md)) both need a folder.
 
 When the materializer hits a flat file and needs to create `_Related/` symlinks, it builds a directory at the file's path minus `.md`. This creates shadow directories next to the flat file -- untracked and rebuilt on every `chart.sh build`. The materializer should not create directories. It should work with what exists.
 
@@ -44,7 +44,7 @@ This applies to all artifact types in all consumer projects, not just the swain 
 
 2. **Let the materializer create directories.** This is the current (broken) behavior. The materializer should link, not build structure. Mixing roles creates shadow directories.
 
-3. **Only enforce for new artifacts.** Creates a two-tier system forever. Doctor already has migration logic ([SPEC-225](../../spec/Active/(SPEC-225)-Flat-Artifact-Migration/(SPEC-225)-Flat-Artifact-Migration.md)); full migration cost is low.
+3. **Only enforce for new artifacts.** Creates a two-tier system forever. Doctor already has migration logic ([SPEC-225](../../../spec/Active/(SPEC-225)-Flat-Artifact-Migration/(SPEC-225)-Flat-Artifact-Migration.md)); full migration cost is low.
 
 ## Consequences
 

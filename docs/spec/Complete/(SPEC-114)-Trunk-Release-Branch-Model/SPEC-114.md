@@ -27,7 +27,7 @@ swain-do: required
 
 ## Problem Statement
 
-Swain's current branch model uses `main` as both the development target and the distribution channel. [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) replaces rebase with merge for worktree landing, which introduces merge commits on the development branch. [ADR-013](../../../adr/Active/(ADR-013)-Release-Branch-With-Squash-Merge.md) separates development from distribution by introducing a `trunk` + `release` branch model. This SPEC implements both decisions and the one-time migration.
+Swain's current branch model uses `main` as both the development target and the distribution channel. [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) replaces rebase with merge for worktree landing, which introduces merge commits on the development branch. [ADR-013](../../../adr/Active/(ADR-013)-Release-Branch-With-Squash-Merge-From-Trunk/(ADR-013)-Release-Branch-With-Squash-Merge-From-Trunk.md) separates development from distribution by introducing a `trunk` + `release` branch model. This SPEC implements both decisions and the one-time migration.
 
 ## External Behavior
 
@@ -51,7 +51,7 @@ Swain's current branch model uses `main` as both the development target and the 
 **Outputs:**
 - Worktree agents land on `trunk` via merge-and-retry without operator intervention
 - `release` branch receives squash-merged snapshots at release time
-- Tags exist on trunk (for lifecycle traceability per [ADR-012](../../../adr/Active/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md))
+- Tags exist on trunk (for lifecycle traceability per [ADR-012](../../../adr/Active/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md))
 
 ## Acceptance Criteria
 
@@ -126,7 +126,7 @@ Swain's current branch model uses `main` as both the development target and the 
 
 **Constraints:**
 - Must not break existing installs — `npx skills add cristoslc/swain` must continue to work throughout migration
-- Lifecycle hash reachability invariant ([ADR-012](../../../adr/Active/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md)) must be preserved
+- Lifecycle hash reachability invariant ([ADR-012](../../../adr/Active/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md)) must be preserved
 - Migration must be reversible if issues are discovered
 
 ## Lifecycle

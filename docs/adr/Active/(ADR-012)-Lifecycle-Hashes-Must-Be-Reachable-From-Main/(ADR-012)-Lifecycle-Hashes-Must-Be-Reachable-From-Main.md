@@ -21,7 +21,7 @@ Every swain artifact embeds a lifecycle table that records phase transitions wit
 
 The invariant: **every commit hash recorded in a lifecycle table must be reachable from main via `git log`.** Any git operation that orphans, rewrites, or removes commits referenced in lifecycle tables breaks artifact traceability.
 
-This was surfaced explicitly during [ADR-011]((ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) discussion (worktree landing strategy) when squash-merge was evaluated and rejected — squash-merge orphans the agent's commits, making lifecycle hashes point to unreachable commits after worktree pruning.
+This was surfaced explicitly during [ADR-011](../(ADR-011)-Worktree-Landing-Via-Merge-With-Retry/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) discussion (worktree landing strategy) when squash-merge was evaluated and rejected — squash-merge orphans the agent's commits, making lifecycle hashes point to unreachable commits after worktree pruning.
 
 ## Decision
 
@@ -61,8 +61,8 @@ Rejected — an unreachable hash is useless for auditing. If the hash can't be r
 
 ## Linked Artifacts
 
-- [ADR-011]((ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) — depends on this; merge-based landing preserves reachability
-- [SPIKE-022](../../research/Active/(SPIKE-022)-Multi-Agent-Collision-Vectors/(SPIKE-022)-Multi-Agent-Collision-Vectors.md) — investigated collision vectors; squash-merge rejected due to this invariant
+- [ADR-011](../(ADR-011)-Worktree-Landing-Via-Merge-With-Retry/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) — depends on this; merge-based landing preserves reachability
+- [SPIKE-022](../../../research/Active/(SPIKE-022)-Multi-Agent-Collision-Vectors/(SPIKE-022)-Multi-Agent-Collision-Vectors.md) — investigated collision vectors; squash-merge rejected due to this invariant
 
 ## Lifecycle
 

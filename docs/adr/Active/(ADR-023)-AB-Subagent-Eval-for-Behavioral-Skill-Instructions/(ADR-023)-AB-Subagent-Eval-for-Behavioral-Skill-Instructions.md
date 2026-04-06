@@ -17,7 +17,7 @@ evidence-pool: ""
 
 ## Context
 
-Skill instructions that change agent behavior (e.g., "pause after GREEN and enumerate untested dimensions") cannot be verified by reading the file or running a linter. The instruction exists, but there's no evidence it works until an agent follows it. [SPEC-176](../../spec/Active/(SPEC-176)-TDD-Coverage-Self-Critique-Gate/(SPEC-176)-TDD-Coverage-Self-Critique-Gate.md) added a post-GREEN self-critique gate to `tdd-enforcement.md` — the only way to verify it was to observe whether an agent actually self-critiques when given the instructions.
+Skill instructions that change agent behavior (e.g., "pause after GREEN and enumerate untested dimensions") cannot be verified by reading the file or running a linter. The instruction exists, but there's no evidence it works until an agent follows it. [SPEC-176](../../../spec/Active/(SPEC-176)-TDD-Coverage-Self-Critique-Gate/(SPEC-176)-TDD-Coverage-Self-Critique-Gate.md) added a post-GREEN self-critique gate to `tdd-enforcement.md` — the only way to verify it was to observe whether an agent actually self-critiques when given the instructions.
 
 Unit tests verify code. Behavioral evals verify instructions.
 
@@ -47,7 +47,7 @@ Both agents run in parallel for speed. The eval passes if the behavioral delta i
 ## Alternatives Considered
 
 1. **Manual test in a new session** — start a fresh session, implement something, observe whether the agent self-critiques. Accurate but slow, non-repeatable, and conflates session state with the instruction's effect.
-2. **Accept the limitation** — ship behavioral instructions without verification and observe in practice. Fast but provides no evidence before merge. The [SPEC-175](../../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) retro showed that "ship and observe" misses real bugs.
+2. **Accept the limitation** — ship behavioral instructions without verification and observe in practice. Fast but provides no evidence before merge. The [SPEC-175](../../../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md) retro showed that "ship and observe" misses real bugs.
 3. **Full eval harness (SPEC)** — build reusable tooling for behavioral evals. Valuable but premature — the A/B subagent pattern is simple enough to run ad-hoc until we know the eval shapes we need.
 
 ## Consequences

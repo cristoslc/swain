@@ -22,15 +22,15 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Project Identity Enforcement](docs/spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Trove Analysis Layer](docs/spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Eliminate swain-sync context disruption](docs/spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Read Before Reasoning](docs/spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Evidence Basis For All Actions](docs/spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Roadmap legend should display epic names alongside initiative names](docs/spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Artifact ID Collision Detection](docs/spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Spec-Level Priority Weight](docs/spec/Active/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Brief Description Frontmatter Field](docs/spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) | 0/0 | 0 | **needs decomposition** |
+| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Project Identity Enforcement](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Trove Analysis Layer](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Eliminate swain-sync context disruption](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Read Before Reasoning](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Evidence Basis For All Actions](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Roadmap legend should display epic names alongside initiative names](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Artifact ID Collision Detection](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Spec-Level Priority Weight](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Brief Description Frontmatter Field](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -42,15 +42,15 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](docs/epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/6 | 0 | — |
+| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/6 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Work Scope Progress Visualizations For Swain-Status](docs/epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) | 0/0 | 0 | **activate or drop** |
-|  | [Postflight Summaries](docs/epic/Proposed/(EPIC-022)-Postflight-Summaries/(EPIC-022)-Postflight-Summaries.md) | 0/0 | 0 | **activate or drop** |
+| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Work Scope Progress Visualizations For Swain-Status](../../../epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) | 0/0 | 0 | **activate or drop** |
+|  | [Postflight Summaries](../../../epic/Proposed/(EPIC-022)-Postflight-Summaries/(EPIC-022)-Postflight-Summaries.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children

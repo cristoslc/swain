@@ -22,7 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Security & Trust](docs/initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](docs/epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 0/7 | 0 | — |
+| [Security & Trust]((INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 0/7 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
@@ -34,8 +34,8 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Security & Trust](docs/initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Security Vulnerability Scanning Skill](docs/epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) | 0/4 | 1 | — |
-|  | [Security Gates in swain-do Execution Flow](docs/epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) | 0/4 | 0 | — |
+| [Security & Trust]((INITIATIVE-004)-Security-And-Trust.md) | [Security Vulnerability Scanning Skill](../../../epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) | 0/4 | 1 | — |
+|  | [Security Gates in swain-do Execution Flow](../../../epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) | 0/4 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -59,7 +59,7 @@
   - [SPEC-065](../../../spec/Proposed/(SPEC-065)-External-Security-Skill-Hook-Interface/(SPEC-065)-External-Security-Skill-Hook-Interface.md) — External Security Skill Hook Interface (Proposed, in progress)
 - [EPIC-052](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) — Automated Test Gates (0/7)
   - [SPEC-215](../../../spec/Active/(SPEC-215)-Consumer-Integration-Test-Harness/(SPEC-215)-Consumer-Integration-Test-Harness.md) — Consumer integration test harness (Active, in progress)
-  - [SPEC-285](../../../spec/Active/(SPEC-285)-swain-test-sh-Script/(SPEC-285)-swain-test-sh-Script.md) — swain-test.sh script (Active, in progress)
+  - [SPEC-285](../../../spec/Active/(SPEC-285)-Raise-FK-Grade-Threshold-To-10/(SPEC-285)-Raise-FK-Grade-Threshold-To-10.md) — swain-test.sh script (Active, in progress)
   - [SPEC-221](../../../spec/Active/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill (Active, in progress)
   - [SPEC-223](../../../spec/Active/(SPEC-223)-swain-sync-Test-Gate-Integration/(SPEC-223)-swain-sync-Test-Gate-Integration.md) — swain-sync test gate integration (Active, in progress)
   - [SPEC-224](../../../spec/Active/(SPEC-224)-swain-release-Test-Gate-Integration/(SPEC-224)-swain-release-Test-Gate-Integration.md) — swain-release test gate integration (Active, in progress)

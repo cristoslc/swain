@@ -26,7 +26,7 @@ This split creates several problems:
 - **Overhead for skill authors** who must understand isolation mechanics.
 - **Two isolation models** that solve the same problem in different ways.
 
-[EPIC-056](../../epic/Complete/(EPIC-056)-Worktree-Isolation-Redesign/(EPIC-056)-Worktree-Isolation-Redesign.md) established `bin/swain` as the primary isolation mechanism and proved the pre-launch model works for external runtimes. This ADR extends that model to all runtimes, including Claude Code.
+[EPIC-056](../../epic/Proposed/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity.md) established `bin/swain` as the primary isolation mechanism and proved the pre-launch model works for external runtimes. This ADR extends that model to all runtimes, including Claude Code.
 
 ## Decision
 

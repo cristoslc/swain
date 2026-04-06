@@ -37,7 +37,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [next-artifact-id Misses Untracked Artifacts In Other Worktrees](docs/spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) | 0/0 | 0 | **activate or drop** |
+| [Artifact System Maturity]((INITIATIVE-002)-Artifact-System-Maturity.md) | [next-artifact-id Misses Untracked Artifacts In Other Worktrees](../../../spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children

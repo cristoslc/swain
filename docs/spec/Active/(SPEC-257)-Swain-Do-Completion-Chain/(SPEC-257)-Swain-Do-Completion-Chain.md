@@ -34,7 +34,7 @@ When swain-do closes all tasks for a SPEC, it moves the phase and offers a merge
 **Trigger:** All tasks for a SPEC close (`OPEN_COUNT == 0`).
 
 **Steps:**
-1. Create `.agents/completion-state.json` per [DESIGN-018](../../design/Active/(DESIGN-018)-Completion-Pipeline-State-Tracking/(DESIGN-018)-Completion-Pipeline-State-Tracking.md)
+1. Create `.agents/completion-state.json` per [DESIGN-018](../../../design/Active/(DESIGN-018)-Completion-Pipeline-State-Tracking/(DESIGN-018)-Completion-Pipeline-State-Tracking.md)
 2. Run swain-test for BDD, update `bdd_tests`
 3. If BDD passes, run smoke test, update `smoke_test`
 4. If smoke passes, run swain-retro, update `retro`

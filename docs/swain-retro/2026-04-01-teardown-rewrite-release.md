@@ -8,10 +8,10 @@ last-updated: 2026-04-01
 scope: "SPEC-261 orphan removal, SPEC-262 session-state tolerance, SPEC-263 worktree bookmark lifecycle, v0.28.0-alpha release"
 period: "2026-04-01"
 linked-artifacts:
-  - [SPEC-261](../spec/Proposed/(SPEC-261)-Specgraph-Hierarchy-Projection-Output/(SPEC-261)-Specgraph-Hierarchy-Projection-Output.md)
-  - [SPEC-262](../spec/Proposed/(SPEC-262)-Session-State-Tolerance-in-Retro-and-Teardown/(SPEC-262)-Session-State-Tolerance-in-Retro-and-Teardown.md)
-  - [SPEC-263](../spec/Active/(SPEC-263)-Worktree-Bookmark-Lifecycle-via-session-json/(SPEC-263)-Worktree-Bookmark-Lifecycle-via-session-json.md)
-  - [EPIC-060](../epic/Proposed/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md)
+  - [SPEC-261](../spec/Complete/(SPEC-261)-Specgraph-Hierarchy-Projection-Output/(SPEC-261)-Specgraph-Hierarchy-Projection-Output.md)
+  - [SPEC-262](../spec/Complete/(SPEC-262)-Lifecycle-Scoped-Materialized-Child-Views/(SPEC-262)-Lifecycle-Scoped-Materialized-Child-Views.md)
+  - [SPEC-263](../spec/Complete/(SPEC-263)-Automatic-Hierarchy-Reconciliation/(SPEC-263)-Automatic-Hierarchy-Reconciliation.md)
+  - [EPIC-060](../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md)
   - SPEC-232
 ---
 
@@ -25,10 +25,10 @@ Three specs closed in one session, each building on the previous: session-state 
 
 | Artifact | Title | Outcome |
 |----------|-------|---------|
-| [SPEC-261](../spec/Proposed/(SPEC-261)-Specgraph-Hierarchy-Projection-Output/(SPEC-261)-Specgraph-Hierarchy-Projection-Output.md) | Orphan Worktree Removal | Implemented in swain-teardown |
-| [SPEC-262](../spec/Proposed/(SPEC-262)-Session-State-Tolerance-in-Retro-and-Teardown/(SPEC-262)-Session-State-Tolerance-in-Retro-and-Teardown.md) | Session-State Tolerance in Retro/Teardown | AC1-AC5 all implemented |
-| [SPEC-263](../spec/Active/(SPEC-263)-Worktree-Bookmark-Lifecycle-via-session-json/(SPEC-263)-Worktree-Bookmark-Lifecycle-via-session-json.md) | Worktree Bookmark Lifecycle via session.json | Implemented via swain-bookmark.sh |
-| [EPIC-060](../epic/Proposed/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) | Session Bookmark Lifecycle Integrity | All children complete |
+| [SPEC-261](../spec/Complete/(SPEC-261)-Specgraph-Hierarchy-Projection-Output/(SPEC-261)-Specgraph-Hierarchy-Projection-Output.md) | Orphan Worktree Removal | Implemented in swain-teardown |
+| [SPEC-262](../spec/Complete/(SPEC-262)-Lifecycle-Scoped-Materialized-Child-Views/(SPEC-262)-Lifecycle-Scoped-Materialized-Child-Views.md) | Session-State Tolerance in Retro/Teardown | AC1-AC5 all implemented |
+| [SPEC-263](../spec/Complete/(SPEC-263)-Automatic-Hierarchy-Reconciliation/(SPEC-263)-Automatic-Hierarchy-Reconciliation.md) | Worktree Bookmark Lifecycle via session.json | Implemented via swain-bookmark.sh |
+| [EPIC-060](../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) | Session Bookmark Lifecycle Integrity | All children complete |
 | v0.28.0-alpha | Release | Pushed |
 
 ## Reflection

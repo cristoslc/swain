@@ -22,8 +22,8 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [User Documentation System](docs/epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | 0/1 | 0 | — |
-|  | [Remove Tmux-Based swain-stage](docs/spec/Active/(SPEC-177)-Remove-Tmux-Swain-Stage/(SPEC-177)-Remove-Tmux-Swain-Stage.md) | 0/0 | 0 | **needs decomposition** |
+| [swain-stage Redesign]((INITIATIVE-015)-swain-stage-Redesign.md) | [User Documentation System](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | 0/1 | 0 | — |
+|  | [Remove Tmux-Based swain-stage](../../../spec/Active/(SPEC-177)-Remove-Tmux-Swain-Stage/(SPEC-177)-Remove-Tmux-Swain-Stage.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -35,7 +35,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [Documentation Viewer](docs/spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
+| [swain-stage Redesign]((INITIATIVE-015)-swain-stage-Redesign.md) | [Documentation Viewer](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*

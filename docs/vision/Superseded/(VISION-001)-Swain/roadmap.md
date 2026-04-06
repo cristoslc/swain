@@ -127,7 +127,7 @@
 - [EPIC-044](../../../epic/Active/(EPIC-044)-Swain-Memory-Architecture/(EPIC-044)-Swain-Memory-Architecture.md) — Swain Memory Architecture (—)
   - [SPIKE-044](../../../research/Active/(SPIKE-044)-Memory-Architecture-Spike/(SPIKE-044)-Memory-Architecture-Spike.md) — Memory Architecture Spike (Active, in progress)
 - [EPIC-048](../../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md) — Session Startup Fast Path (0/4)
-  - [SPEC-195](../../../spec/Complete/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer Worktree Creation to Task Dispatch (Active, in progress)
+  - [SPEC-195](../../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer Worktree Creation to Task Dispatch (Active, in progress)
   - [SPEC-196](../../../spec/Active/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path.md) — Collapse Init-Session Skill Chain (Active, in progress)
   - [SPEC-198](../../../spec/Active/(SPEC-198)-Fast-Path-Session-Greeting/(SPEC-198)-Fast-Path-Session-Greeting.md) — Fast-Path Session Greeting (Active, in progress)
   - [SPEC-203](../../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md) — Fast-Path Session Greeting (Active, in progress)

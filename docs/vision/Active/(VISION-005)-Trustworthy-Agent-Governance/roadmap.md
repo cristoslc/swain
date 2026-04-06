@@ -22,16 +22,16 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Security & Trust](docs/initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](docs/epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 0/7 | 0 | — |
+| [Security & Trust](../../../initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 0/7 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Platform Enforcement Substrate](docs/initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) | [MCP Session-State Tracker Design](docs/research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) | 0/0 | 0 | **activate or drop** |
-|  | [Post-Hoc Process Audit Pipeline](docs/research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) | 0/0 | 0 | **activate or drop** |
-|  | [Cross-Platform Deny-Rule Portability](docs/research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) | 0/0 | 0 | **activate or drop** |
+| [Platform Enforcement Substrate](../../../initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) | [MCP Session-State Tracker Design](../../../research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) | 0/0 | 0 | **activate or drop** |
+|  | [Post-Hoc Process Audit Pipeline](../../../research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) | 0/0 | 0 | **activate or drop** |
+|  | [Cross-Platform Deny-Rule Portability](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -50,7 +50,7 @@
 
 - [EPIC-052](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) — Automated Test Gates (0/7)
   - [SPEC-215](../../../spec/Active/(SPEC-215)-Consumer-Integration-Test-Harness/(SPEC-215)-Consumer-Integration-Test-Harness.md) — Consumer integration test harness (Active, in progress)
-  - [SPEC-285](../../../spec/Active/(SPEC-285)-swain-test-sh-Script/(SPEC-285)-swain-test-sh-Script.md) — swain-test.sh script (Active, in progress)
+  - [SPEC-285](../../../spec/Active/(SPEC-285)-Raise-FK-Grade-Threshold-To-10/(SPEC-285)-Raise-FK-Grade-Threshold-To-10.md) — swain-test.sh script (Active, in progress)
   - [SPEC-221](../../../spec/Active/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill (Active, in progress)
   - [SPEC-223](../../../spec/Active/(SPEC-223)-swain-sync-Test-Gate-Integration/(SPEC-223)-swain-sync-Test-Gate-Integration.md) — swain-sync test gate integration (Active, in progress)
   - [SPEC-224](../../../spec/Active/(SPEC-224)-swain-release-Test-Gate-Integration/(SPEC-224)-swain-release-Test-Gate-Integration.md) — swain-release test gate integration (Active, in progress)

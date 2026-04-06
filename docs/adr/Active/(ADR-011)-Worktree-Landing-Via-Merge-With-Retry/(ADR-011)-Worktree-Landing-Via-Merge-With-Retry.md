@@ -24,7 +24,7 @@ trove: "multi-agent-collision-vectors"
 
 ## Context
 
-[ADR-005](../Superseded/(ADR-005)-swain-sync-worktree-completion-workflow/(ADR-005)-swain-sync-worktree-completion-workflow.md) established a worktree completion workflow: rebase onto `origin/main`, then `git push origin HEAD:main`. On non-fast-forward rejection, the agent stops and reports.
+[ADR-005](../../Superseded/(ADR-005)-swain-sync-worktree-completion-workflow/(ADR-005)-swain-sync-worktree-completion-workflow.md) established a worktree completion workflow: rebase onto `origin/main`, then `git push origin HEAD:main`. On non-fast-forward rejection, the agent stops and reports.
 
 During EPIC-038, two parallel worktree agents (SPEC-107, SPEC-108) both modified `roadmap.py`. SPEC-107 (sort-order) landed first. SPEC-108 (data model refactor) landed second. After both landed, SPEC-108's enrichment fields were missing from main — SPEC-107's changes were intact.
 
@@ -36,7 +36,7 @@ We cannot prove this was the exact mechanism without the git reflog from that se
 - The recovery path on push rejection is to stop — there is no retry or merge fallback
 - The agent reported success despite the data loss, meaning either rebase produced a fast-forwardable result (no rejection), or the agent continued past a rejection
 
-Independently of the EPIC-038 root cause, swain is moving toward a swarming model where agents self-merge, making concurrent worktree completion the normal case rather than an edge case. This motivates revisiting the landing workflow. See [SPIKE-022](../../research/Active/(SPIKE-022)-Multi-Agent-Collision-Vectors/(SPIKE-022)-Multi-Agent-Collision-Vectors.md) for the full investigation.
+Independently of the EPIC-038 root cause, swain is moving toward a swarming model where agents self-merge, making concurrent worktree completion the normal case rather than an edge case. This motivates revisiting the landing workflow. See [SPIKE-022](../../../research/Active/(SPIKE-022)-Multi-Agent-Collision-Vectors/(SPIKE-022)-Multi-Agent-Collision-Vectors.md) for the full investigation.
 
 Two questions follow:
 
@@ -70,7 +70,7 @@ This is what fixes the EPIC-038 failure class.
 - **Merge preserves both sides.** Git's three-way merge combines the agent's changes with whatever landed on main since the agent branched. If both sides modified different regions of the same file, both are preserved. If they overlap textually, git raises a conflict — which is correct behavior. The agent should not silently resolve ambiguous cases.
 - **Rebase can silently drop changes.** Rebase replays the agent's commits onto a new base. When the base has changed (another agent landed), the replay can auto-resolve textual conflicts by favoring one side, silently dropping the other's additions. This is the most plausible explanation for the EPIC-038 data loss.
 - **Merge conflicts are explicit.** When merge cannot auto-resolve, it stops and reports a conflict. Rebase can auto-resolve in ways that produce a subtly different result. Explicit failure is better than silent data loss.
-- **Rebase rewrites history.** In a swarming model, rewritten commit hashes break lifecycle stamps and cross-references between artifacts (see [ADR-012](../Active/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md) — lifecycle hashes must be reachable from main).
+- **Rebase rewrites history.** In a swarming model, rewritten commit hashes break lifecycle stamps and cross-references between artifacts (see [ADR-012](../(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md) — lifecycle hashes must be reachable from main).
 
 ### Secondary change: retry instead of stop
 

@@ -95,8 +95,8 @@ Add an explicit note to the SPEC and EPIC creation steps in `swain-design/SKILL.
 ## Scope & Constraints
 
 - The `--fix-flat-artifacts` flag stages changes but does not commit — the operator or swain-sync handles the commit.
-- Per [ADR-027](../../adr/Active/(ADR-027)-All-Artifacts-Must-Be-Foldered/(ADR-027)-All-Artifacts-Must-Be-Foldered.md), all artifact types must be foldered. Doctor's flat-file detection must scan all artifact directories, not just spec and epic.
-- This spec does not create or modify verification logs — it only ensures the infrastructure for [SPEC-226](../Active/(SPEC-226)-Verification-Evidence-Recording/(SPEC-226)-Verification-Evidence-Recording.md) exists in any project.
+- Per [ADR-027](../../../adr/Active/(ADR-027)-All-Artifacts-Must-Be-Foldered/(ADR-027)-All-Artifacts-Must-Be-Foldered.md), all artifact types must be foldered. Doctor's flat-file detection must scan all artifact directories, not just spec and epic.
+- This spec does not create or modify verification logs — it only ensures the infrastructure for [SPEC-226](../(SPEC-226)-Verification-Evidence-Recording/(SPEC-226)-Verification-Evidence-Recording.md) exists in any project.
 - If additional flat files are discovered during migration, migrate them as part of this spec.
 
 ## Lifecycle

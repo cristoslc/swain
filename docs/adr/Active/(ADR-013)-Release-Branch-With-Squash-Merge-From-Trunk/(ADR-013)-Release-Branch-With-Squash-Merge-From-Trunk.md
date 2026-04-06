@@ -20,13 +20,13 @@ trove: ""
 
 ## Context
 
-[ADR-011](../Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) replaces rebase with merge for worktree landing. This produces merge commits on the development branch — correct for concurrent agent completion, but noisy for consumers who install swain skills via `npx skills add cristoslc/swain`.
+[ADR-011](../(ADR-011)-Worktree-Landing-Via-Merge-With-Retry/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) replaces rebase with merge for worktree landing. This produces merge commits on the development branch — correct for concurrent agent completion, but noisy for consumers who install swain skills via `npx skills add cristoslc/swain`.
 
 The `npx skills add` command always pulls from the repository's default branch. There is no `--branch` flag. The git clone fallback also uses the default branch. This means whatever branch is set as default on GitHub is what every user installs.
 
 Currently `main` is both the development target (where agents land work) and the distribution channel (what users install). These have conflicting requirements:
 
-- **Development** needs full merge history, lifecycle stamps, and traceability ([ADR-012](../Active/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md))
+- **Development** needs full merge history, lifecycle stamps, and traceability ([ADR-012](../(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md))
 - **Distribution** needs clean, infrequent updates that don't churn the consumer's install
 
 ## Decision
@@ -53,7 +53,7 @@ release: ────S₁─────────────S₂────
 
 1. Determine the version bump (from conventional commits on trunk since last release tag)
 2. Generate changelog from trunk's commit history
-3. Tag trunk at HEAD (e.g., `v0.10.0`) — this preserves lifecycle hash reachability per [ADR-012](../Active/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md)
+3. Tag trunk at HEAD (e.g., `v0.10.0`) — this preserves lifecycle hash reachability per [ADR-012](../(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md)
 4. Squash-merge trunk into release: `git checkout release && git merge --squash trunk && git commit`
 5. Tag release at HEAD with the same version tag (or a `-release` suffix if tags must be unique)
 6. Push both branches and tags
@@ -61,7 +61,7 @@ release: ────S₁─────────────S₂────
 ### Why squash into release
 
 - Consumers see one commit per release — clean, predictable, easy to diff between versions
-- Lifecycle hashes stay on trunk where they belong — [ADR-012](../Active/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md) requires reachability from the development branch, not the distribution branch
+- Lifecycle hashes stay on trunk where they belong — [ADR-012](../(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main/(ADR-012)-Lifecycle-Hashes-Must-Be-Reachable-From-Main.md) requires reachability from the development branch, not the distribution branch
 - Merge commit noise from concurrent agent landing never reaches consumers
 - Release commits are self-contained — each one is a complete snapshot of the skill state
 

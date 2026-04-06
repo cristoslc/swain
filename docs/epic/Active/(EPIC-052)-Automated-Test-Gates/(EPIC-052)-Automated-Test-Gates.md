@@ -70,7 +70,7 @@ The operator no longer needs to intervene before merges. Agents self-verify befo
 
 - [SPEC-024](../../../spec/Complete/(SPEC-024)-Pre-Commit-Verification-In-Sync/(SPEC-024)-Pre-Commit-Verification-In-Sync.md) (Complete) — pre-commit hook verification in swain-sync (existing gate this extends)
 - [SPEC-211](../../../spec/Complete/(SPEC-211)-Release-README-Gate/(SPEC-211)-Release-README-Gate.md) (Complete) — README gate in swain-release (gate this follows in the insertion order)
-- [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) — worktree landing via merge with retry (the retry loop where the gate must re-run)
+- [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) — worktree landing via merge with retry (the retry loop where the gate must re-run)
 
 ## Lifecycle
 

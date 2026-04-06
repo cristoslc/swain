@@ -60,7 +60,7 @@ Build a pre-runtime structural layer that detects crashed sessions, cleans crash
 
 - ADR-017 (runtime support tiers and flags)
 - ADR-018 (structural not prosaic — crash detection must be bash, not LLM)
-- [ADR-015](../../../adr/Active/(ADR-015)-Tickets-Are-Ephemeral-Execution-Scaffolding.md) (never auto-discard worktree state)
+- [ADR-015](../../../adr/Active/(ADR-015)-Tickets-Are-Ephemeral-Execution-Scaffolding/(ADR-015)-Tickets-Are-Ephemeral-Execution-Scaffolding.md) (never auto-discard worktree state)
 - [EPIC-045](../../Active/(EPIC-045)-Shell-Launcher-Onboarding/(EPIC-045)-Shell-Launcher-Onboarding.md) (shell launcher — current `swain` function being refactored)
 - Claude Code `~/.claude/sessions/` (primary crash detection data source)
 

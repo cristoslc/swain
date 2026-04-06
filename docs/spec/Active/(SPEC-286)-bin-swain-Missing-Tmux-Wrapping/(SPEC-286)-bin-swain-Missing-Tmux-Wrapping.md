@@ -83,7 +83,7 @@ high — the primary launch path bypasses tmux, breaking session persistence and
 - Only touches `phase3_launch_runtime` in `skills/swain/scripts/swain`
 - Does not change the launcher templates — they already delegate to `bin/swain`
 - Signal forwarding and post-runtime cleanup must still work inside the tmux session
-- The child-process model (not `exec`) from [SPEC-245](../../Complete/(SPEC-245)-bin-swain-Redesign/(SPEC-245)-bin-swain-Redesign.md) AC4 is preserved
+- The child-process model (not `exec`) from [SPEC-245](../../Proposed/(SPEC-245)-Telemetry-Event-Emission-Framework/(SPEC-245)-Telemetry-Event-Emission-Framework.md) AC4 is preserved
 - tmux session name must be safe (no special characters that tmux rejects)
 
 ## Implementation Approach

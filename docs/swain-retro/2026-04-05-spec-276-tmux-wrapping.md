@@ -18,7 +18,7 @@ linked-artifacts:
 
 ## Summary
 
-The shell launcher function `swain()` delegates to `bin/swain` via `exec` when it exists. [SPEC-245](../spec/Complete/(SPEC-245)-bin-swain-Redesign/(SPEC-245)-bin-swain-Redesign.md) redesigned `bin/swain` as the worktree router but did not port the tmux wrapping logic from the shell function. The fix added tmux session creation (outside tmux), window renaming (inside tmux), and graceful fallback when tmux is not installed.
+The shell launcher function `swain()` delegates to `bin/swain` via `exec` when it exists. [SPEC-245](../spec/Proposed/(SPEC-245)-Telemetry-Event-Emission-Framework/(SPEC-245)-Telemetry-Event-Emission-Framework.md) redesigned `bin/swain` as the worktree router but did not port the tmux wrapping logic from the shell function. The fix added tmux session creation (outside tmux), window renaming (inside tmux), and graceful fallback when tmux is not installed.
 
 ## Artifacts
 
@@ -36,7 +36,7 @@ The shell launcher function `swain()` delegates to `bin/swain` via `exec` when i
 
 ### What was surprising
 
-- [DESIGN-004](../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md) explicitly shows "Rename tmux window" in its flow diagram, yet [SPEC-245](../spec/Complete/(SPEC-245)-bin-swain-Redesign/(SPEC-245)-bin-swain-Redesign.md) has no AC for tmux behavior. The design documented the intent; the spec didn't capture it. The design-to-spec translation dropped a visible step.
+- [DESIGN-004](../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md) explicitly shows "Rename tmux window" in its flow diagram, yet [SPEC-245](../spec/Proposed/(SPEC-245)-Telemetry-Event-Emission-Framework/(SPEC-245)-Telemetry-Event-Emission-Framework.md) has no AC for tmux behavior. The design documented the intent; the spec didn't capture it. The design-to-spec translation dropped a visible step.
 - There are two artifacts with the ID DESIGN-004 — one Proposed ("bin/swain Worktree Router") and one Active ("swain-stage Interaction Design"). This is an ID collision that `next-artifact-id.sh` should have caught.
 
 ### What would change

@@ -2,17 +2,17 @@
 title: "Chart Is The Canonical Hierarchy Interface"
 artifact: ADR-022
 track: standing
-status: Proposed
+status: Active
 author: cristos
 created: 2026-04-02
-last-updated: 2026-04-02
+last-updated: 2026-04-06
 linked-artifacts:
   - INITIATIVE-002
   - EPIC-013
-  - EPIC-061
+  - EPIC-056
   - DESIGN-013
-  - SPEC-266
-  - SPEC-268
+  - SPEC-239
+  - SPEC-241
 depends-on-artifacts: []
 evidence-pool: ""
 ---
@@ -62,3 +62,4 @@ Negative:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-02 | — | Initial creation |
+| Active | 2026-04-06 | -- | Approved by operator |

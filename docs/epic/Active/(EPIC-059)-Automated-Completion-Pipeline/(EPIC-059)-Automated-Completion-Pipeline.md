@@ -47,12 +47,12 @@ The user wraps up a SPEC and the rest runs on its own. Tests, smoke, and retro f
 
 ## Child Specs
 
-- [SPEC-257](../../spec/Active/(SPEC-257)-Swain-Do-Completion-Chain/(SPEC-257)-Swain-Do-Completion-Chain.md) — swain-do completion chain (BDD → smoke → retro)
-- [SPEC-258](../../spec/Active/(SPEC-258)-Swain-Teardown-Completion-Guardrail/(SPEC-258)-Swain-Teardown-Completion-Guardrail.md) — swain-teardown completion guardrail (verify & invoke)
+- [SPEC-257](../../../spec/Active/SPEC-257-consolidate-swain-init-preflight.md) — swain-do completion chain (BDD → smoke → retro)
+- [SPEC-258](../../../spec/Active/(SPEC-258)-Swain-Teardown-Completion-Guardrail/(SPEC-258)-Swain-Teardown-Completion-Guardrail.md) — swain-teardown completion guardrail (verify & invoke)
 
 ## Key Dependencies
 
-- [DESIGN-018](../../design/Active/(DESIGN-018)-Completion-Pipeline-State-Tracking/(DESIGN-018)-Completion-Pipeline-State-Tracking.md) — state tracking contract
+- [DESIGN-018](../../../design/Active/(DESIGN-018)-Completion-Pipeline-State-Tracking/(DESIGN-018)-Completion-Pipeline-State-Tracking.md) — state tracking contract
 - swain-test skill (SPEC-220/221) — BDD test gate
 - swain-retro skill — already works
 

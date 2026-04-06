@@ -19,11 +19,11 @@ trove: ""
 
 ## Context
 
-swain-dispatch ([SPEC-025](../../spec/Complete/(SPEC-025)-Swain-Dispatch-Skill/(SPEC-025)-Swain-Dispatch-Skill.md), [EPIC-010](../../epic/Complete/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues.md)) dispatched swain-design artifacts to background agents via GitHub Issues, using `anthropics/claude-code-action@v1` on GitHub Actions runners. The skill required an `ANTHROPIC_API_KEY` repository secret with per-token API billing.
+swain-dispatch ([SPEC-025](../../../spec/Complete/(SPEC-025)-Swain-Dispatch-Skill/(SPEC-025)-Swain-Dispatch-Skill.md), [EPIC-010](../../../epic/Complete/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues.md)) dispatched swain-design artifacts to background agents via GitHub Issues, using `anthropics/claude-code-action@v1` on GitHub Actions runners. The skill required an `ANTHROPIC_API_KEY` repository secret with per-token API billing.
 
 Anthropic's Max and Pro subscription plans provide Claude Code access without per-token billing, but their credentials cannot be used as API keys in GitHub Actions workflows. Since the project operates on a Max/Pro subscription, swain-dispatch is non-functional without incurring separate API costs.
 
-Additionally, two high-severity functional bugs were identified in the skill ([SPEC-074](../../spec/Abandoned/(SPEC-074)-Fix-Dispatch-Functional-Bugs/(SPEC-074)-Fix-Dispatch-Functional-Bugs.md)) — broken `repository_dispatch` triggering and broken heredoc variable expansion — which were never fixed.
+Additionally, two high-severity functional bugs were identified in the skill ([SPEC-074](../../../spec/Abandoned/(SPEC-074)-Fix-Dispatch-Functional-Bugs/(SPEC-074)-Fix-Dispatch-Functional-Bugs.md)) — broken `repository_dispatch` triggering and broken heredoc variable expansion — which were never fixed.
 
 ## Decision
 
@@ -33,9 +33,9 @@ Deprecate and remove swain-dispatch entirely:
 2. **GitHub Actions workflow deleted** (`.github/workflows/agent-dispatch.yml`)
 3. **Router and help references removed** (swain router table, quick-ref)
 4. **Doctor cleanup registered** (`legacy-skills.json` retired map) so swain-doctor will auto-delete the skill folder if a future swain-update reinstalls it
-5. **Bug-fix spec abandoned** ([SPEC-074](../../spec/Abandoned/(SPEC-074)-Fix-Dispatch-Functional-Bugs/(SPEC-074)-Fix-Dispatch-Functional-Bugs.md))
+5. **Bug-fix spec abandoned** ([SPEC-074](../../../spec/Abandoned/(SPEC-074)-Fix-Dispatch-Functional-Bugs/(SPEC-074)-Fix-Dispatch-Functional-Bugs.md))
 
-The original implementation specs ([SPEC-025](../../spec/Complete/(SPEC-025)-Swain-Dispatch-Skill/(SPEC-025)-Swain-Dispatch-Skill.md), [SPEC-029](../../spec/Complete/(SPEC-029)-Swain-Dispatch-Prerequisites-And-Invocation-Docs/(SPEC-029)-Swain-Dispatch-Prerequisites-And-Invocation-Docs.md)) remain in Complete as historical record.
+The original implementation specs ([SPEC-025](../../../spec/Complete/(SPEC-025)-Swain-Dispatch-Skill/(SPEC-025)-Swain-Dispatch-Skill.md), [SPEC-029](../../../spec/Complete/(SPEC-029)-Swain-Dispatch-Prerequisites-And-Invocation-Docs/(SPEC-029)-Swain-Dispatch-Prerequisites-And-Invocation-Docs.md)) remain in Complete as historical record.
 
 ## Alternatives Considered
 

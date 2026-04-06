@@ -27,7 +27,7 @@ evidence-pool: ""
 
 ## Goal / Objective
 
-Move swain from serial IDs to title-based IDs per [ADR-035](../../adr/Active/(ADR-035)-Title-Based-Artifact-Identifiers/(ADR-035)-Title-Based-Artifact-Identifiers.md). Artifacts get stable paths that do not change. Lifecycle dirs hold symlinks instead of files.
+Move swain from serial IDs to title-based IDs per [ADR-035](../../../adr/Active/(ADR-035)-Title-Based-Artifact-Identifiers/(ADR-035)-Title-Based-Artifact-Identifiers.md). Artifacts get stable paths that do not change. Lifecycle dirs hold symlinks instead of files.
 
 ## Desired Outcomes
 
