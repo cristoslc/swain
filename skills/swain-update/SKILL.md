@@ -162,7 +162,14 @@ If files were backed up in Step 2:
 
 ## Step 7 — Report
 
-List the installed swain skill directories and extract each skill's version from its `SKILL.md` frontmatter:
+Display the current release version (from the latest git tag):
+
+```bash
+release_tag=$(git tag --sort=-v:refname | head -1)
+echo "swain ${release_tag:-(unreleased)}"
+```
+
+Then list the installed swain skill directories and extract each skill's version from its `SKILL.md` frontmatter:
 
 ```bash
 for skill in .claude/skills/swain-*/SKILL.md; do

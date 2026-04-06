@@ -404,12 +404,7 @@ phase1_crash_detection() {
   fi
 
   # Offer cleanup with confirmation (per ADR-015: never auto-discard)
-  read -r -p "Clean up crash debris? (y/n): " cleanup_choice </dev/tty
-  if [[ "$cleanup_choice" != "y" ]] && [[ "$cleanup_choice" != "Y" ]]; then
-    PHASE1_FINDINGS="$findings"
-    return
-  fi
-  echo ""
+  echo "Clean up crash debris? (y/n/q — q skips remaining)"
   local item_num=0
   while IFS=$'\t' read -r type status detail; do
     [[ "$status" != "found" ]] && continue
@@ -739,19 +734,17 @@ phase3_launch_runtime() {
   trap '[[ -n "$child_pid" ]] && kill -TERM "$child_pid" 2>/dev/null' TERM INT HUP
 
   # --- SPEC-276: Wrap in tmux if outside tmux ---
-  local exit_code=0
   if [[ "$tmux_action" == "new-session" ]]; then
     tmux new-session -s "$session_name" -d "cd '$LAUNCH_ROOT' && $cmd" 2>/dev/null
-    # Attach in foreground — returns when session ends or user detaches.
-    tmux attach-session -t "$session_name"
-    exit_code=$?
+    tmux attach-session -t "$session_name" &
+    child_pid=$!
   else
     eval "$cmd" &
     child_pid=$!
-    wait "$child_pid" 2>/dev/null
-    exit_code=$?
-    child_pid=""
   fi
+  wait "$child_pid" 2>/dev/null
+  local exit_code=$?
+  child_pid=""
 
   # --- SPEC-245: Post-runtime cleanup ---
   if [[ -n "$branch" ]] && [[ "$branch" != "trunk" ]] && [[ -f "$lockfile_script" ]]; then
