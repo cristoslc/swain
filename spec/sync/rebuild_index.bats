@@ -140,7 +140,7 @@ EOF
 
   bash "$AGENTS_BIN/rebuild-index.sh" spec
   # The index should only contain SPEC-001, not itself
-  count=$(grep -c "SPEC-001" docs/spec/list-spec.md || echo 0)
+  count=$(grep -c "SPEC-001" docs/spec/list-spec.md) || count=0
   [ "$count" -eq 1 ]
 
   # Should not reference "Old Index"

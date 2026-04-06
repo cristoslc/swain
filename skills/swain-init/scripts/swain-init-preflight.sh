@@ -328,7 +328,7 @@ check_readme() {
   fi
 
   # Count Active VISION/DESIGN/JOURNEY/PERSONA artifacts
-  README_ACTIVE_COUNT=$(find docs -path "*/Active/*" -name "*.md" 2>/dev/null | grep -cE "(VISION|DESIGN|JOURNEY|PERSONA)" || echo "0")
+  README_ACTIVE_COUNT=$(find docs -path "*/Active/*" -name "*.md" 2>/dev/null | grep -cE "(VISION|DESIGN|JOURNEY|PERSONA)") || README_ACTIVE_COUNT=0
 }
 
 # --- .agents/ dir check ---

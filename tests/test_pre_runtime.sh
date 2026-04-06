@@ -210,9 +210,9 @@ cat > "$ACTIVE_WT/.agents/session.json" <<'SESSJSON'
 }
 SESSJSON
 
-WORKTREE_COUNT_BEFORE=$(git -C "$TMPDIR_ACTIVE_WT" worktree list --porcelain 2>/dev/null | grep -c '^worktree ')
+WORKTREE_COUNT_BEFORE=$(git -C "$TMPDIR_ACTIVE_WT" worktree list --porcelain 2>/dev/null | grep -c '^worktree ') || WORKTREE_COUNT_BEFORE=0
 ACTIVE_DRY=$(REPO_ROOT="$ACTIVE_WT" bash "$SCRIPT" --fresh --_non_interactive --_dry_run new unrelated task 2>&1 || true)
-WORKTREE_COUNT_AFTER=$(git -C "$TMPDIR_ACTIVE_WT" worktree list --porcelain 2>/dev/null | grep -c '^worktree ')
+WORKTREE_COUNT_AFTER=$(git -C "$TMPDIR_ACTIVE_WT" worktree list --porcelain 2>/dev/null | grep -c '^worktree ') || WORKTREE_COUNT_AFTER=0
 
 assert "active worktree bookmark redirects to resume prompt" "$(echo "$ACTIVE_DRY" | grep -q 'resume — existing worktree session' && echo true || echo false)"
 assert "active worktree bookmark does not reuse the new purpose" "$(echo "$ACTIVE_DRY" | grep -qv 'new unrelated task' && echo true || echo false)"
