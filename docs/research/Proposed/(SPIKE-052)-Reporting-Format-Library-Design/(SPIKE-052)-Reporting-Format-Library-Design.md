@@ -19,7 +19,7 @@ linked-artifacts:
   - EPIC-049
   - VISION-004
   - SPEC-163
-evidence-pool: ""
+evidence-pool:
 ---
 
 # Reporting Format Library Design
@@ -74,10 +74,10 @@ Mine existing artifacts for every case where the operator needed shaped output. 
 | Superpowers retro design | Trust gap: approving output faster than grasping it | Past | Future-self | Persuade |
 | SPEC-011 | Learnings evaporate between sessions | Past | Future-self | Inform |
 | INITIATIVE-005 SC | "What needs my decision?" in <30 seconds | Present | Operator-as-decider | Decide |
-| (This conversation) | 6 specs to approve — need a compressed decision surface | Future | Operator-as-decider | Decide |
-| (This conversation) | Overnight session ran — need action digest | Past | Operator-as-reviewer | Inform |
-| (This conversation) | Scoped README for a feature slice | Current | Future-self | Inform |
-| (This conversation) | Should I undo this ADR? What was the impact? | Past | Future-self | Persuade |
+| Operator request (2026-04-06) | 6 specs to approve — need a compressed decision surface | Future | Operator-as-decider | Decide |
+| Operator request (2026-04-06) | Overnight session ran — need action digest | Past | Operator-as-reviewer | Inform |
+| Operator request (2026-04-06) | Scoped README for a feature slice | Current | Future-self | Inform |
+| Operator request (2026-04-06) | Should I undo this ADR? What was the impact? | Past | Future-self | Persuade |
 
 **Task:** Group these into format clusters. Look for cells with ≥2 cases that share enough structure for one template. Name each cluster.
 
@@ -120,4 +120,4 @@ How does operator intent map to a format?
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-04-06 | _pending_ | Created from operator discussion; evidence pre-seeded from artifact mining |
+| Proposed | 2026-04-06 | c213c99 | Created from operator discussion; evidence pre-seeded from artifact mining |
