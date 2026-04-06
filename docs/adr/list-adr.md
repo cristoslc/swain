@@ -30,6 +30,7 @@
 | ADR-018 | Structural Not Prosaic Session Invocation | 2026-03-27 | — |
 | ADR-020 | Preflight Self-Healing Convention | 2026-03-29 | 3435901 |
 | ADR-021 | Bake Superpowers Practices into Core Swain without Vendored Chaining | 2026-04-01 | TBD |
+| ADR-022 | Chart Is The Canonical Hierarchy Interface | 2026-04-06 | 30391a5a |
 | ADR-023 | A/B Subagent Eval for Behavioral Skill Instructions | 2026-03-27 | — |
 | ADR-024 | Merge Tickets To Trunk For Cross-Session Coordination | 2026-03-25 | -- |
 | ADR-026 | Standalone Placement for Standing-Track Artifact Types | 2026-04-03 | 761829e |
@@ -41,7 +42,6 @@
 | ADR-033 | Born-in-Worktree Session Isolation | 2026-04-05 | d2a8412a |
 | ADR-034 | Standardize Worktree Location to .worktrees/ | 2026-04-05 | — |
 | ADR-035 | Title-Based Artifact Identifiers | 2026-04-05 | — |
-| ADR-022 | Chart Is The Canonical Hierarchy Interface | 2026-04-06 | 30391a5a |
 
 ## Superseded
 

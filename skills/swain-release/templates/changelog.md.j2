@@ -3,14 +3,10 @@
 
 ### Features
 {% for item in features %}
-{% if item.heading %}
 
 #### {{ item.heading }}
 
 {{ item.body }}
-{% elif item.text %}
-- {{ item.text }}
-{% endif %}
 {% endfor %}
 {% endif %}
 {% if roadmap %}

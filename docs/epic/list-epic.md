@@ -44,6 +44,7 @@
 | EPIC-053 | Deprecate and Replace Superpowers with Native Skills | 2026-04-01 | TBD |
 | EPIC-059 | Automated Completion Pipeline | 2026-04-04 | 683a04e6 |
 | EPIC-062 | BDD Traceability | 2026-04-04 | _pending_ |
+| EPIC-064 | Title-Based Artifact Migration | 2026-04-06 | — |
 
 ## Complete
 
