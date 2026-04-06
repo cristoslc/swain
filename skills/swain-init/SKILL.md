@@ -558,7 +558,7 @@ This phase runs every time — both after fresh onboarding (Phase 6) and on the 
 
 ### Step 7.1 — Fast greeting
 
-Run the fast greeting script. This handles tab naming, worktree detection, session.json loading, bookmark display, and lightweight preflight warnings — all in ~500ms.
+Run the fast greeting script. It calls the session preflight internally for all read-only state, then applies lightweight mutations (tab naming, lock cleanup). No subprocess chain — one preflight pass.
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -580,6 +580,13 @@ The greeting emits structured JSON:
 }
 ```
 
+The session preflight (called internally by the greeting) also gathers previous session state. To access it directly:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+PREFLIGHT_JSON=$( bash "$REPO_ROOT/.agents/bin/swain-session-preflight.sh" --repo-root "$REPO_ROOT" 2>/dev/null )
+```
+
 **After receiving the greeting JSON:**
 
 1. Present the greeting to the operator — branch, dirty state, bookmark (if any), focus lane (if any), and warnings.
@@ -595,18 +602,12 @@ The greeting emits structured JSON:
 
 ### Step 7.2 — Session state init
 
-Check for a previous session and offer resume or fresh start:
-
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-PREV_SESSION=$(bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" resume 2>/dev/null)
-```
-
-If a previous session exists, display its focus lane, walkaway note, and decision count. Ask the operator: "Continue previous session or start fresh?"
+Read `prev_session` from the session preflight JSON (or call the preflight directly if the greeting didn't expose it). If `prev_session.exists` is true, display its focus lane, walkaway note, and decision count. Ask the operator: "Continue previous session or start fresh?"
 
 If starting fresh (or no previous session):
 
 ```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" init \
   --focus "<FOCUS-ID>" \
   --session-roadmap "$(pwd)/SESSION-ROADMAP.md" \
