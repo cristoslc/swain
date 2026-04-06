@@ -63,6 +63,8 @@ The novel work is the session orchestration layer — managing lifecycles, mappi
 
 Low. One person, hours per month. Components (chat server, tunnel, proxy) swap without touching the core. The session orchestrator and runtime adapters are custom code. Everything else is off-the-shelf or handled by Commodore.
 
+External-facing services (chat server, ingress/tunnel) run containerized — they're internet-exposed and need isolation. Internal components (host bridges, project bridges, runtime adapters) run natively on the host — they need direct access to tmux, the filesystem, and runtime CLIs.
+
 ## Two Modalities
 
 **v1: Chat bridge.** Chat threads that spawn, reconnect to, and steer headless agent sessions. Room per project, thread per session, optional artifact binding. This is the highest-return unlock — it works for swain itself and every swain-governed project.
