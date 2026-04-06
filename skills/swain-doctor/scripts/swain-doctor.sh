@@ -484,9 +484,15 @@ check_worktrees() {
   # SPEC-290: Repair missing .swain-init symlinks in existing worktrees.
   # Worktrees created before the symlink code existed (or via using-git-worktrees)
   # lack .swain-init, causing swain-init-preflight to report "onboard" instead of "delegate".
+  #
+  # Source is always the MAIN repo root (first entry in git worktree list), not $REPO_ROOT,
+  # which may itself be a linked worktree. Repair covers all linked worktrees including
+  # the current one when running from inside a worktree.
   local swain_init_repaired=0
   local swain_init_missing=0
-  if [[ -f "$REPO_ROOT/.swain-init" ]]; then
+  local main_root=""
+  main_root="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+  if [[ -n "$main_root" ]] && [[ -f "$main_root/.swain-init" ]]; then
     local si_in_first=1
     local si_path=""
     while IFS= read -r line; do
@@ -500,7 +506,7 @@ check_worktrees() {
         fi
         if [[ -n "$si_path" ]] && [[ -d "$si_path" ]]; then
           if [[ ! -e "$si_path/.swain-init" ]]; then
-            ln -s "$REPO_ROOT/.swain-init" "$si_path/.swain-init" 2>/dev/null \
+            ln -s "$main_root/.swain-init" "$si_path/.swain-init" 2>/dev/null \
               && swain_init_repaired=$((swain_init_repaired + 1)) \
               || swain_init_missing=$((swain_init_missing + 1))
           fi
@@ -508,6 +514,12 @@ check_worktrees() {
         si_path=""
       fi
     done < <(git worktree list --porcelain 2>/dev/null; echo "")
+    # Also repair the current worktree if it's a linked worktree (REPO_ROOT != main_root).
+    if [[ "$REPO_ROOT" != "$main_root" ]] && [[ ! -e "$REPO_ROOT/.swain-init" ]]; then
+      ln -s "$main_root/.swain-init" "$REPO_ROOT/.swain-init" 2>/dev/null \
+        && swain_init_repaired=$((swain_init_repaired + 1)) \
+        || swain_init_missing=$((swain_init_missing + 1))
+    fi
   fi
 
   local total_issues=$((orphaned + stale + lockfile_orphans + unclaimed + stale_locks + swain_init_missing))
