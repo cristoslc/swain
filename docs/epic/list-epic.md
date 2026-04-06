@@ -22,6 +22,10 @@
 | EPIC-057 | Usage Telemetry Implementation | 2026-04-03 | pending |
 | EPIC-058 | Related Artifacts Symlink Materialization | 2026-04-03 | pending |
 | EPIC-061 | Materialized Artifact Parenting View | 2026-04-02 | — |
+| EPIC-064 | Appraisal Value Model | 2026-04-06 | — |
+| EPIC-065 | Framework Cost Model | 2026-04-06 | — |
+| EPIC-066 | ROI Scoring Engine | 2026-04-06 | — |
+| EPIC-067 | Backlog Appraisal Bootstrap | 2026-04-06 | — |
 
 ## Active
 
@@ -45,6 +49,7 @@
 | EPIC-059 | Automated Completion Pipeline | 2026-04-04 | 683a04e6 |
 | EPIC-062 | BDD Traceability | 2026-04-04 | _pending_ |
 | EPIC-064 | Title-Based Artifact Migration | 2026-04-06 | — |
+| EPIC-068 | Doctor Script Reconciliation | 2026-04-06 | _pending_ |
 
 ## Complete
 

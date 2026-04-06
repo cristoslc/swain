@@ -18,6 +18,7 @@ linked-artifacts:
   - EPIC-048
   - SPEC-026
   - SPIKE-026
+  - EPIC-068
 ---
 
 # Agent Runtime Efficiency

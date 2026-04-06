@@ -1,0 +1,114 @@
+id: agent-script-directory-conventions
+created: 2026-04-06
+refreshed: 2026-04-06
+tags:
+  - agent-skills
+  - directory-conventions
+  - scripts
+  - bin
+  - agentic-coding
+  - industry-standards
+
+sources:
+  - id: agentskills-specification
+    type: documentation-site
+    url: https://agentskills.io/specification
+    title: "Agent Skills Specification"
+    fetched: 2026-04-06
+    content-hash: f179f21970d9071c00fde3aa8877028ddd82934dfab54cadda76f97d972dd39a
+    freshness-ttl: 30d
+
+  - id: codex-skills-discovery
+    type: web-page
+    url: https://developers.openai.com/codex/skills
+    title: "Agent Skills — Codex (OpenAI)"
+    fetched: 2026-04-06
+    content-hash: 5495deaba7f42dd1276355ad949d7ba497f2c9937f1e365eddc013eff61d30c2
+    freshness-ttl: 30d
+
+  - id: microsoft-agent-framework-skills
+    type: web-page
+    url: https://learn.microsoft.com/en-us/agent-framework/agents/skills
+    title: "Agent Skills — Microsoft Agent Framework"
+    fetched: 2026-04-06
+    content-hash: 84de6fb28ff510a1b6030d1f859cffa1cb41b17d88b9e3c544c69b81f1306d12
+    freshness-ttl: 30d
+
+  - id: opencode-skills-paths
+    type: web-page
+    url: https://opencode.ai/docs/skills/
+    title: "Agent Skills — OpenCode"
+    fetched: 2026-04-06
+    content-hash: 79c3a9c3bd2de8a230d9a6eadd4f1309247fa139f575f4cef7753ba261ad02ed
+    freshness-ttl: 30d
+
+  - id: claude-platform-skills
+    type: web-page
+    url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
+    title: "Agent Skills Overview — Claude Platform"
+    fetched: 2026-04-06
+    content-hash: 67ada1d1b7bb27c74082f81ba0432d7ac39265cbc01c8986fe58c5d5881fd456
+    freshness-ttl: 30d
+
+  - id: kiro-skills
+    type: web-page
+    url: https://kiro.dev/docs/skills/
+    title: "Agent Skills — Kiro IDE"
+    fetched: 2026-04-06
+    content-hash: 5109c2395d7370e2c4ffbba9e0a79b7e985ac5f421fa160f8a5e14fc4f1a162f
+    freshness-ttl: 30d
+
+  - id: spring-ai-skills
+    type: web-page
+    url: https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills/
+    title: "Spring AI Agent Skills"
+    fetched: 2026-04-06
+    content-hash: 93173f9ee1351302e8aa01df0159fd3986eb272f62e628b6a18956aa5bcbe887
+    freshness-ttl: 60d
+
+  - id: vscode-copilot-skills
+    type: web-page
+    url: https://code.visualstudio.com/docs/copilot/customization/agent-skills
+    title: "Agent Skills — VS Code / GitHub Copilot"
+    fetched: 2026-04-06
+    content-hash: ef95461aac9321be31f693d290b31e0d3a1666235bdca84eb2415d1dd56298ad
+    freshness-ttl: 30d
+
+  - id: everything-claude-code-layout
+    type: web-page
+    url: https://github.com/affaan-m/everything-claude-code/blob/main/AGENTS.md
+    title: "everything-claude-code — Community Plugin Layout"
+    fetched: 2026-04-06
+    content-hash: 9a8ed7fe73e195ad609a66d17e25187c19ee9256816e62b89ea55c52eeaf2abc
+    freshness-ttl: 30d
+
+  - id: aaif-agents-md-standard
+    type: web-page
+    url: https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation
+    title: "AAIF Announcement — Linux Foundation"
+    fetched: 2026-04-06
+    content-hash: 7fe50c27ead3051464497836301f61041bac4c55e66972790f9c6178297dcd8f
+    freshness-ttl: never
+
+  - id: reddit-agentsmd-standard
+    type: forum-thread
+    url: https://www.reddit.com/r/ClaudeCode/comments/1rlc8zi/agentsmd_standard/
+    title: "r/ClaudeCode: AGENTS.MD standard"
+    fetched: 2026-04-06
+    content-hash: 1cf19580c972f93baf80ebf31488b32360d45263d2fbf91145dff7e285d2296a
+    freshness-ttl: 30d
+    notes: "Fetched from search snippets; Reddit blocks direct fetch."
+
+  - id: deployhq-config-files-guide
+    type: web-page
+    url: https://www.deployhq.com/blog/ai-coding-config-files-guide
+    title: "Every AI Config File Explained"
+    fetched: 2026-04-06
+    content-hash: 3b0daf310a70a66be39033f24bf7085a3d8f8edf53ecfb80061c2cb25c03ee7e
+    freshness-ttl: 30d
+
+history:
+  - event: created
+    date: 2026-04-06
+    commit: "--"
+    sources: 12

@@ -163,19 +163,6 @@ Tell the user which operator commands are now available in `bin/`.
 
 If `bin_manifests` is empty, skip silently.
 
-## Phase 2.5: Branch model
-
-swain recommends a **trunk+release** branch model (see ADR-013):
-
-- **trunk** — development branch; agents land work here via merge-with-retry
-- **release** — default/distribution branch; updated from trunk via squash-merge at release time
-
-Tell the user:
-
-> swain recommends a trunk+release branch model (ADR-013). If you'd like to adopt it, run `scripts/migrate-to-trunk-release.sh` (or `--dry-run` to preview). This is optional — swain works with any branch model, but sync and release features assume trunk+release when configured.
-
-This phase is informational only — do not modify branches automatically. The operator decides whether to adopt the model.
-
 ## Phase 3: Pre-commit security hooks
 
 Goal: configure pre-commit hooks for secret scanning so credentials are caught before they enter git history. Default scanner is gitleaks; additional scanners (TruffleHog, Trivy, OSV-Scanner) are opt-in.
