@@ -29,7 +29,7 @@ Two skills auto-run at the start of every session:
 1. **swain-doctor** checks project health — governance rules, file permissions, stale config — and repairs what it finds.
 2. **swain-init** restores your context, proposes a focus lane, and generates a SESSION-ROADMAP.md scoped to your current work area.
 
-Sessions have a bounded lifecycle: **start → work → close**. The session tracks decisions you make (with a configurable budget), and on close **swain-teardown** fires a retro, merges worktree branches, cleans up worktrees, and writes a walk-away signal so the next session knows where you left off.
+Sessions have a bounded lifecycle: **start → work → close**. swain-init owns session startup — context restoration, focus lane selection, and worktree detection. On close, **swain-teardown** fires a retro, merges worktree branches, cleans up worktrees, and writes a walk-away signal so the next session knows where you left off.
 
 Then you ask what's going on:
 
@@ -57,7 +57,7 @@ Artifacts are markdown files in `docs/`. Phases are subdirectories. Transitions 
 
 | Skill | What it does |
 |-------|-------------|
-| **swain-init** | Session entry point — onboarding, greeting, focus lane, session state |
+| **swain-init** | Session entry point — onboarding, context restoration, focus lane, worktree detection |
 | **swain-doctor** | Session-start health checks — auto-repairs config, permissions, stale state |
 | **swain-design** | Artifact lifecycle — Vision, Initiative, Epic, Spec, Spike, ADR, Persona, Runbook, Journey, Design |
 | **swain-search** | Evidence pools — collect and cache research sources as reusable markdown |
@@ -92,49 +92,17 @@ Optional:
 - **gh** — GitHub CLI for issue integration and releases
 - **fswatch** — live artifact file watching
 
-## Companion
-
-[obra/superpowers](https://github.com/obra/superpowers) is a recommended companion for plan authoring. Not a dependency.
-
 ## Isolated execution with swain-box
 
-`swain-box` launches Claude Code inside a Docker Sandbox — a hypervisor-level microVM per sandbox provided by Docker Desktop 4.58+. Each sandbox has a private Docker daemon and credential proxy, so the host filesystem and Docker socket are not exposed.
+> **Experimental.** swain-box is under active redesign. OAuth is broken in Docker Sandboxes, and the launcher is being reworked to support both microVM and container isolation modes. See open issues for current status.
 
-**Requirement:** Docker Desktop 4.58 or later (Docker Sandboxes feature).
+`swain-box` launches Claude Code inside a Docker Sandbox — a hypervisor-level microVM per sandbox provided by Docker Desktop 4.58+.
 
 `scripts/swain-box` ships with swain. After running `swain-init` (or `swain-doctor`) in your project, a `./swain-box` symlink is created at the project root pointing to the script.
 
-### Usage
-
-```sh
-./swain-box                 # open sandbox for current directory
-./swain-box ~/my-project    # open sandbox for a specific project
-```
-
-### Sandbox scoping
-
-Each sandbox is scoped to a **project directory**, not a git worktree. The sandbox name is `claude-<dirname>` (e.g., `claude-swain` for `~/Documents/code/swain`). Key implications:
-
-- Running `./swain-box` from the same project root always reconnects to the same sandbox
-- Git worktrees do not get separate sandboxes — they share the project's sandbox
-- To isolate a worktree, run `./swain-box /path/to/worktree` to create a distinct sandbox for that directory
-
-### Sandbox management
-
-```sh
-docker sandbox ls           # list all sandboxes
-docker sandbox rm <name>    # remove a sandbox (destroy and rebuild)
-```
-
-### Credentials
-
-On first launch, run `/login` inside the sandbox to authenticate with your Claude subscription (Pro/Max). Credentials are stored inside the sandbox and reused on subsequent runs.
-
-> **Note:** `docker sandbox` does not forward environment variables from the current shell session. The sandbox daemon reads env vars from your shell profile (`~/.zshrc`) only at Docker Desktop startup. Setting `ANTHROPIC_API_KEY` in your profile and restarting Docker Desktop is an alternative to `/login`, but OAuth via `/login` is recommended.
-
 ### Native sandboxing (lighter alternative)
 
-`scripts/claude-sandbox` uses `claude --sandbox` (macOS Seatbelt / Linux Landlock) — no Docker required, near-zero startup overhead. Use `swain-box` when you want full hypervisor-level isolation; use `claude-sandbox` for a lighter local sandbox.
+`scripts/claude-sandbox` uses `claude --sandbox` (macOS Seatbelt / Linux Landlock) — no Docker required, near-zero startup overhead.
 
 ## License
 
