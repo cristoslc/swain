@@ -287,6 +287,124 @@ test_governance_present() {
   cleanup_temp "$dir"
 }
 
+# --- Test 10: Release version from git tag ---
+
+test_release_version_from_tag() {
+  local dir
+  dir=$(setup_temp)
+
+  # Create a semver tag
+  git -C "$dir" commit --allow-empty -m "init" -q
+  git -C "$dir" tag -a "v0.29.0-alpha" -m "test"
+
+  local output
+  output=$(bash "$PREFLIGHT" --repo-root "$dir" 2>/dev/null)
+
+  assert_json_valid "$output" "release-tag: valid JSON"
+  assert_json_key "$output" "marker.release_version" "v0.29.0-alpha" "release-tag: marker.release_version"
+
+  cleanup_temp "$dir"
+}
+
+# --- Test 11: No git tags — release version fallback ---
+
+test_release_version_no_tags() {
+  local dir
+  dir=$(setup_temp)
+
+  local output
+  output=$(bash "$PREFLIGHT" --repo-root "$dir" 2>/dev/null)
+
+  assert_json_valid "$output" "release-notag: valid JSON"
+  assert_json_key "$output" "marker.release_version" "(unreleased)" "release-notag: marker.release_version"
+
+  cleanup_temp "$dir"
+}
+
+# --- Test 12: Last release version from marker ---
+
+test_last_release_version_from_marker() {
+  local dir
+  dir=$(setup_temp)
+
+  # Create marker with release field
+  cat > "$dir/.swain-init" << 'MARKER'
+{
+  "history": [
+    {
+      "version": "4.0.0",
+      "release": "v0.28.0-alpha",
+      "timestamp": "2026-04-01T00:00:00Z",
+      "action": "init"
+    }
+  ]
+}
+MARKER
+
+  mkdir -p "$dir/.claude/skills/swain-init"
+  cat > "$dir/.claude/skills/swain-init/SKILL.md" << 'SKILL'
+---
+name: swain-init
+metadata:
+  version: 4.0.0
+---
+SKILL
+
+  # Create a newer tag
+  git -C "$dir" commit --allow-empty -m "init" -q
+  git -C "$dir" tag -a "v0.29.0-alpha" -m "test"
+
+  local output
+  output=$(bash "$PREFLIGHT" --repo-root "$dir" 2>/dev/null)
+
+  assert_json_valid "$output" "release-marker: valid JSON"
+  assert_json_key "$output" "marker.last_release_version" "v0.28.0-alpha" "release-marker: marker.last_release_version"
+  assert_json_key "$output" "marker.release_version" "v0.29.0-alpha" "release-marker: marker.release_version"
+
+  cleanup_temp "$dir"
+}
+
+# --- Test 13: Old marker without release field ---
+
+test_old_marker_no_release_field() {
+  local dir
+  dir=$(setup_temp)
+
+  # Create marker WITHOUT release field (old format)
+  cat > "$dir/.swain-init" << 'MARKER'
+{
+  "history": [
+    {
+      "version": "3.0.0",
+      "timestamp": "2026-01-01T00:00:00Z",
+      "action": "init"
+    }
+  ]
+}
+MARKER
+
+  mkdir -p "$dir/.claude/skills/swain-init"
+  cat > "$dir/.claude/skills/swain-init/SKILL.md" << 'SKILL'
+---
+name: swain-init
+metadata:
+  version: 4.0.0
+---
+SKILL
+
+  git -C "$dir" commit --allow-empty -m "init" -q
+  git -C "$dir" tag -a "v0.29.0-alpha" -m "test"
+
+  local output
+  output=$(bash "$PREFLIGHT" --repo-root "$dir" 2>/dev/null)
+
+  assert_json_valid "$output" "release-oldmarker: valid JSON"
+  assert_json_key "$output" "marker.last_release_version" "(unknown)" "release-oldmarker: marker.last_release_version"
+  assert_json_key "$output" "marker.release_version" "v0.29.0-alpha" "release-oldmarker: marker.release_version"
+
+  cleanup_temp "$dir"
+}
+
 # --- Run all tests ---
 
 echo "Running swain-init-preflight tests..."
@@ -301,6 +419,10 @@ test_already_migrated
 test_beads_present
 test_readme_with_artifacts
 test_governance_present
+test_release_version_from_tag
+test_release_version_no_tags
+test_last_release_version_from_marker
+test_old_marker_no_release_field
 
 echo ""
 echo "Results: $PASS passed, $FAIL failed"

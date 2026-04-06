@@ -13,6 +13,8 @@
 #   marker.last_version    string  — version from last history entry (null if no marker)
 #   marker.current_version string  — version from installed swain-init SKILL.md
 #   marker.action          string  — "delegate" | "upgrade" | "onboard"
+#   marker.release_version      string  — current release version from latest git tag ("(unreleased)" if none)
+#   marker.last_release_version string  — release version from last marker entry (null if no marker, "(unknown)" if old marker)
 #
 #   migration.state        string  — "fresh" | "migrated" | "standard" | "split"
 #   migration.claude_md    string  — "missing" | "empty" | "include_only" | "has_content"
@@ -108,6 +110,36 @@ except Exception:
       MARKER_ACTION="delegate"
     else
       MARKER_ACTION="upgrade"
+    fi
+  fi
+}
+
+# --- Release version check ---
+check_release_version() {
+  RELEASE_VERSION="(unreleased)"
+  LAST_RELEASE_VERSION=""
+
+  # Current release version from latest semver git tag
+  local latest_tag
+  latest_tag=$(git tag --sort=-v:refname 2>/dev/null | head -1)
+  if [ -n "$latest_tag" ]; then
+    RELEASE_VERSION="$latest_tag"
+  fi
+
+  # Last release version from marker (if marker exists and has release field)
+  if [ "$MARKER_EXISTS" = true ] && [ -f ".swain-init" ]; then
+    LAST_RELEASE_VERSION=$(python3 -c "
+import json, sys
+try:
+    d = json.load(open('.swain-init'))
+    r = d['history'][-1].get('release', '')
+    print(r)
+except Exception:
+    sys.exit(1)
+" 2>/dev/null || echo "")
+    # Old markers without release field → "(unknown)"
+    if [ -z "$LAST_RELEASE_VERSION" ]; then
+      LAST_RELEASE_VERSION="(unknown)"
     fi
   fi
 }
@@ -343,6 +375,7 @@ check_agents_dir() {
 # --- Run all checks ---
 # Each check is wrapped in a subshell-safe pattern; failures don't abort the script.
 check_marker || true
+check_release_version || true
 check_migration || true
 check_uv || true
 check_tk || true
@@ -388,53 +421,55 @@ data = {
         'last_version': to_str_or_null(sys.argv[2]),
         'current_version': to_str_or_null(sys.argv[3]),
         'action': sys.argv[4],
+        'release_version': sys.argv[5],
+        'last_release_version': to_str_or_null(sys.argv[6]),
     },
     'migration': {
-        'state': sys.argv[5],
-        'claude_md': sys.argv[6],
-        'agents_md': sys.argv[7],
+        'state': sys.argv[7],
+        'claude_md': sys.argv[8],
+        'agents_md': sys.argv[9],
     },
     'uv': {
-        'available': to_bool(sys.argv[8]),
-        'path': to_str_or_null(sys.argv[9]),
+        'available': to_bool(sys.argv[10]),
+        'path': to_str_or_null(sys.argv[11]),
     },
     'tk': {
-        'path': to_str_or_null(sys.argv[10]),
-        'healthy': to_bool(sys.argv[11]),
+        'path': to_str_or_null(sys.argv[12]),
+        'healthy': to_bool(sys.argv[13]),
     },
     'beads': {
-        'exists': to_bool(sys.argv[12]),
-        'has_backup': to_bool(sys.argv[13]),
+        'exists': to_bool(sys.argv[14]),
+        'has_backup': to_bool(sys.argv[15]),
     },
-    'bin_manifests': parse_bin_manifests(sys.argv[14]),
+    'bin_manifests': parse_bin_manifests(sys.argv[16]),
     'precommit': {
-        'config_exists': to_bool(sys.argv[15]),
-        'framework': to_bool(sys.argv[16]),
+        'config_exists': to_bool(sys.argv[17]),
+        'framework': to_bool(sys.argv[18]),
     },
     'superpowers': {
-        'installed': to_bool(sys.argv[17]),
+        'installed': to_bool(sys.argv[19]),
     },
     'tmux': {
-        'installed': to_bool(sys.argv[18]),
+        'installed': to_bool(sys.argv[20]),
     },
     'launcher': {
-        'shell': sys.argv[19],
-        'rc_file': to_str_or_null(sys.argv[20]),
-        'already_installed': to_bool(sys.argv[21]),
-        'runtimes': to_list(sys.argv[22]),
-        'template_dir': to_str_or_null(sys.argv[23]),
+        'shell': sys.argv[21],
+        'rc_file': to_str_or_null(sys.argv[22]),
+        'already_installed': to_bool(sys.argv[23]),
+        'runtimes': to_list(sys.argv[24]),
+        'template_dir': to_str_or_null(sys.argv[25]),
     },
     'governance': {
-        'installed': to_bool(sys.argv[24]),
+        'installed': to_bool(sys.argv[26]),
     },
     'readme': {
-        'exists': to_bool(sys.argv[25]),
-        'has_code': to_bool(sys.argv[26]),
-        'has_artifacts': to_bool(sys.argv[27]),
-        'active_count': to_int(sys.argv[28]),
+        'exists': to_bool(sys.argv[27]),
+        'has_code': to_bool(sys.argv[28]),
+        'has_artifacts': to_bool(sys.argv[29]),
+        'active_count': to_int(sys.argv[30]),
     },
     'agents_dir': {
-        'exists': to_bool(sys.argv[29]),
+        'exists': to_bool(sys.argv[31]),
     },
 }
 
@@ -442,6 +477,7 @@ json.dump(data, sys.stdout, indent=2)
 print()
 " \
   "$MARKER_EXISTS" "$MARKER_LAST_VERSION" "$MARKER_CURRENT_VERSION" "$MARKER_ACTION" \
+  "$RELEASE_VERSION" "$LAST_RELEASE_VERSION" \
   "$MIGRATION_STATE" "$MIGRATION_CLAUDE_MD" "$MIGRATION_AGENTS_MD" \
   "$UV_AVAILABLE" "$UV_PATH" \
   "$TK_PATH" "$TK_HEALTHY" \
