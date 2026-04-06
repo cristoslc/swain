@@ -205,6 +205,16 @@ create_session_worktree() {
   path="$parent/$name"
 
   git -C "$base_root" worktree add "$path" -b "$name" >/dev/null 2>&1 || return 1
+
+  # Symlink skill directories from main tree into worktree.
+  # Skills are gitignored, so worktrees won't have them without this.
+  for skill_dir in .claude/skills .agents/skills; do
+    if [[ -d "$base_root/$skill_dir" ]]; then
+      mkdir -p "$path/$(dirname "$skill_dir")"
+      ln -s "$base_root/$skill_dir" "$path/$skill_dir"
+    fi
+  done
+
   echo "$path"
 }
 
@@ -538,16 +548,45 @@ resolve_runtime() {
     fi
   fi
 
-  # 4. Auto-detect installed runtimes (first match wins)
+  # 4. Auto-detect installed runtimes
   local runtimes=(claude gemini codex copilot crush)
+  local available=()
   for rt in "${runtimes[@]}"; do
     if command -v "$rt" &>/dev/null; then
-      echo "$rt"
-      return
+      available+=("$rt")
     fi
   done
 
-  echo ""
+  if [[ ${#available[@]} -eq 0 ]]; then
+    echo ""
+    return
+  fi
+
+  # Single runtime — use it directly.
+  if [[ ${#available[@]} -eq 1 ]]; then
+    echo "${available[0]}"
+    return
+  fi
+
+  # Multiple runtimes — prompt if interactive, otherwise first match.
+  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]] || ! [[ -t 0 ]]; then
+    echo "${available[0]}"
+    return
+  fi
+
+  echo "Multiple runtimes detected:" >&2
+  local i=1
+  for rt in "${available[@]}"; do
+    echo "  [$i] $rt" >&2
+    i=$((i + 1))
+  done
+  echo "" >&2
+  read -r -p "Choose runtime (1-${#available[@]}): " choice </dev/tty
+  if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -ge 1 ]] && [[ "$choice" -le ${#available[@]} ]]; then
+    echo "${available[$((choice - 1))]}"
+  else
+    echo "${available[0]}"
+  fi
 }
 
 # Build launch command for a given runtime
