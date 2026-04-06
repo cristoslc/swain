@@ -168,8 +168,13 @@ if [[ "$_origin_url" != *"cristoslc/swain"* ]]; then
   for _base in .claude/skills .agents/skills; do
     [ -d "$_base" ] || continue
     for _skill_path in "$_base"/swain "$_base"/swain-*/; do
-      if [[ -d "$_skill_path" ]] && ! git check-ignore -q "$_skill_path" 2>/dev/null; then
-        echo "swain-preflight: $REPO_ROOT/$_skill_path not gitignored (advisory)"
+      if [[ -d "$_skill_path" ]]; then
+        git check-ignore -q "$_skill_path" 2>/dev/null
+        _ignore_rc=$?
+        # 0=ignored (ok), 1=not ignored (warn), 128=beyond symlink (skip)
+        if [[ $_ignore_rc -eq 1 ]]; then
+          echo "swain-preflight: $REPO_ROOT/$_skill_path not gitignored (advisory)"
+        fi
       fi
     done
   done
