@@ -27,8 +27,8 @@ _ALL_EVENT_TYPES = _PROJECT_EVENT_TYPES | _HOST_EVENT_TYPES
 
 # Command types — project scope
 _PROJECT_COMMAND_TYPES = {
-    "start_session", "send_prompt", "approve", "cancel", "bind_artifact",
-    "control_message",
+    "start_session", "launch_session", "send_prompt", "approve", "cancel",
+    "bind_artifact", "control_message",
 }
 
 # Command types — host scope
@@ -194,6 +194,16 @@ class Command:
             payload["prompt"] = prompt
         return cls(
             type="start_session", bridge=bridge, session_id=None,
+            timestamp=_now_ms(), payload=payload,
+        )
+
+    @classmethod
+    def launch_session(cls, *, bridge: str, text: str | None = None) -> Command:
+        payload: dict[str, Any] = {}
+        if text:
+            payload["text"] = text
+        return cls(
+            type="launch_session", bridge=bridge, session_id=None,
             timestamp=_now_ms(), payload=payload,
         )
 

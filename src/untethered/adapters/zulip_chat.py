@@ -176,12 +176,9 @@ def _parse_slash_command(
         session_id = topic if topic != control_topic else ""
         return Command.cancel(bridge=bridge, session_id=session_id)
 
-    if cmd_name == "/work" and topic == control_topic:
-        artifact = args[0] if args else None
-        return Command.start_session(
-            bridge=bridge, runtime="claude",
-            artifact=artifact,
-        )
+    if cmd_name in ("/work", "/session") and topic == control_topic:
+        text = " ".join(args) if args else None
+        return Command.launch_session(bridge=bridge, text=text)
 
     if cmd_name == "/kill" and topic == control_topic and args:
         return Command.cancel(bridge=bridge, session_id=args[0])

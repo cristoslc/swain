@@ -342,11 +342,44 @@ class ProjectBridge:
     def _cmd_control_message(self, cmd: Command) -> None:
         """Handle natural language from the control topic.
 
-        First message: spawns bin/swain --non-interactive --format ndjson
-        as a launcher subprocess. The operator's text is passed as purpose args.
+        If there's an active launcher interview, relay as an answer.
+        Otherwise, spawn a lightweight Claude session that answers in
+        the control topic. No launcher interview, no dedicated thread.
+        """
+        text = cmd.payload.get("text", "")
 
-        Follow-up messages (same session in INTERVIEWING state): relayed
-        as answers to the launcher's stdin.
+        # Relay to active interview if one exists.
+        for sid, session in self.sessions.items():
+            if session.origin == "control" and session.state == SessionState.INTERVIEWING:
+                launcher = self._launchers.get(sid)
+                if launcher:
+                    self._schedule(launcher.send_answer(text))
+                    return
+
+        # No active interview — lightweight query session.
+        session_id = f"sess-{uuid.uuid4().hex[:8]}"
+        session = Session(session_id=session_id, runtime="claude", origin="control")
+        self.sessions[session_id] = session
+
+        adapter = ClaudeCodeAdapter(
+            bridge=self.project,
+            session_id=session_id,
+            project_dir=self.project_dir,
+            on_event=self.handle_runtime_event,
+        )
+        self._adapters[session_id] = adapter
+        self._schedule(adapter.start(prompt=text))
+
+    def _cmd_launch_session(self, cmd: Command) -> None:
+        """Handle /work or /session — full launcher interview flow.
+
+        Spawns bin/swain --non-interactive --format ndjson. The launcher
+        runs the session interview (crash recovery, worktree selection,
+        purpose). Output posts to control topic. On ready, promotes the
+        session to a dedicated thread and spawns the runtime adapter.
+
+        Follow-up control_messages while INTERVIEWING are relayed as
+        answers to the launcher's stdin.
         """
         text = cmd.payload.get("text", "")
 
@@ -358,7 +391,7 @@ class ProjectBridge:
                     self._schedule(launcher.send_answer(text))
                     return
 
-        # No active interview — start a new one.
+        # Start a new launcher interview.
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
         session = Session(
             session_id=session_id, runtime="claude",
