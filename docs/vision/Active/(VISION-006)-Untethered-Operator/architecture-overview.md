@@ -129,13 +129,18 @@ Pluggable translator. One per chat surface. Location flexible — wherever it ca
 
 **Posting behavior:** The chat adapter posts continuously as events arrive — tool calls, text output, progress. The thread is a live feed, not a request-response channel. The adapter `@`s the operator only when the orchestrator emits `approval_needed` or other events requiring human input. The operator checks in by reading, not by asking.
 
+**Graceful failure:** When the runtime produces an interaction the bridge doesn't recognize (new prompt format, unexpected TUI state), the chat adapter surfaces a warning in the thread — not a fatal error. The operator can intervene manually (kill and restart via the control thread) or the bridge can time out and report the stuck state.
+
 **Chat-protocol-specific mapping:**
 
 | Concept | Matrix | Zulip | Campfire |
 |---------|--------|-------|----------|
 | Project container | Space or Room | Stream | Room |
 | Session container | Thread | Topic | Message thread (limited) |
+| Control thread | Pinned thread in room | Pinned topic | Pinned message (limited) |
 | Artifact binding | Thread metadata | Topic name | N/A |
+
+**Control thread:** Each project room has a dedicated control thread where the host bridge posts session inventory (active, adoptable, stuck) and accepts lifecycle commands (spawn, kill, restart, adopt). This is the operator's management surface for the project — distinct from per-session live feed threads. The host bridge's chat adapter posts here; the project bridge's chat adapter posts to session threads.
 
 ---
 
