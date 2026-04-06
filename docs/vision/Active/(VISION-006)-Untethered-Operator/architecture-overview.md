@@ -417,9 +417,9 @@ Runtime builds Astro site → Runtime adapter emits event
 These are observations about what the architecture requires, not ADR-level decisions. The ADRs will record the specific choices made.
 
 1. **Outbound-only from project hosts.** All connections are initiated by the host. Chat adapters on bridges connect outbound to the chat service. The chat service never opens connections to bridges. Same security model as Claude Code Remote Control.
-2. **Microkernel architecture.** The kernel (host bridge + project bridge) defines the domain and the plugin contract (published language). Chat adapters and runtime adapters are plugins — operator-replaceable, independently installable. We ship reference plugins; adopters write their own for any platform. 2 bridge types × N chat plugins = 2N permutations, only 2 + N components to write.
+2. **Two microkernel boundaries.** The host bridge is a microkernel for chat adapter plugins — it spawns one shared chat adapter per security domain and routes all events through it. The project bridge is a microkernel for runtime adapter plugins — it spawns one per runtime session. Both plugin types conform to the kernel's published language. What protocol a plugin uses internally (ACP, native CLI streaming, regex parsing) is the plugin's concern, not the kernel's.
 3. **Host bridge is scoped to a security domain, not a physical host.** One host can run multiple host bridges — one per security domain (e.g., personal, work, client-A). Each host bridge only sees and manages project bridges in its domain. An include/exclude list determines which projects belong to which domain. This prevents a single host bridge from having cross-domain visibility.
-4. **Plugins are Python modules (v1), MCP servers (future option).** v1 uses Python base classes for simplicity. The kernel loads plugins by config. Future: MCP as plugin protocol enables language-agnostic plugins.
+4. **Plugins are subprocess executables speaking NDJSON over stdio.** Language-agnostic. Secured by absolute paths + SHA-256 pinning + scoped config + file permissions. Future option: MCP as plugin protocol for capability negotiation.
 5. **Hosted chat platform by default, self-hosted as an option.** The simplest v1 path uses a hosted platform (Zulip Cloud, Slack) — zero server ops. Self-hosting on a VPS is available for operators who need full control. The chat adapter code is identical either way. Tunnels are a v2 concern for the web pipe (content on project hosts behind NAT).
 6. **Multiple chat services can coexist.** Personal and work chat services are separate VPS instances. Each project bridge connects to exactly one. Each host bridge connects to exactly one (matching its security domain).
 7. **Session-scoped web outputs go through the project bridge (v2).** Long-lived web services register with the ingress layer independently. Two paths, intentionally not unified. Both require tunnel infrastructure from project hosts — a v2 problem.
@@ -431,9 +431,7 @@ These are observations about what the architecture requires, not ADR-level decis
 
 Documented in [child-artifacts.md](child-artifacts.md). Key questions:
 
-- Which chat server? (Trove research → ADR.)
-- Chat adapter deployment location — colocated with orchestrator on project host, or elsewhere? (ADR.)
+- Which chat platform and deployment model? Hosted vs. self-hosted. (Trove research → ADR.)
 - Session persistence and recovery after host restart. (Spike.)
-- Chat bot topology — how many adapters, where do they run? (Design.)
-- Orchestrator event schema — full specification of the published language. (Design.)
-- Provisioning UX — what `/swain` commands exist and what do they automate? (Spec.)
+- Orchestrator event schema — full specification of the published language, including routing metadata for hub-and-spoke. (Design.)
+- Provisioning UX — what `/swain-stage` commands exist and what do they automate? (Spec.)
