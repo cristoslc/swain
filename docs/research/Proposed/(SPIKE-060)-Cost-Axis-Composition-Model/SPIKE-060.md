@@ -1,6 +1,6 @@
 ---
 title: "Cost Axis Composition Model"
-artifact: SPIKE-053
+artifact: SPIKE-060
 track: container
 status: Proposed
 author: cristos
@@ -9,9 +9,9 @@ last-updated: 2026-04-06
 question: "How should operator-attention and compute-budget cost axes compose into a single cost value for ROI calculation?"
 parent-vision: VISION-004
 linked-artifacts:
-  - SPIKE-052
+  - SPIKE-059
   - INITIATIVE-021
-  - EPIC-057
+  - EPIC-065
 depends-on-artifacts: []
 gate: Pre-Implementation
 ---
@@ -24,7 +24,7 @@ How should operator-attention and compute-budget cost axes compose into a single
 
 ## Context
 
-SPIKE-052 established that cost has two axes: operator-attention (finite, doesn't scale) and compute-budget (finite but scalable with money). The ROI formula needs a single cost denominator. The composition choice matters because the two axes have different scarcity profiles.
+SPIKE-059 established that cost has two axes: operator-attention (finite, doesn't scale) and compute-budget (finite but scalable with money). The ROI formula needs a single cost denominator. The composition choice matters because the two axes have different scarcity profiles.
 
 ## Candidate Models
 
@@ -50,7 +50,7 @@ Attention is the primary cost; compute contributes but at reduced weight. Reflec
 
 ## Research Approach
 
-1. Apply each model to the four Initiatives appraised in SPIKE-052
+1. Apply each model to the four Initiatives appraised in SPIKE-059
 2. Compare ROI rankings under each model
 3. Check whether the ranking matches operator intuition
 4. Look for cases where the models disagree and determine which disagreement is correct

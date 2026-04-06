@@ -1,6 +1,6 @@
 ---
 title: "ROI Scoring Engine"
-artifact: EPIC-058
+artifact: EPIC-066
 track: container
 status: Proposed
 author: cristos
@@ -17,11 +17,11 @@ success-criteria:
   - Artifacts without appraisal data produce identical scores to current formula
   - priority-weight demoted to tiebreaker when ROI data is present
 depends-on-artifacts:
-  - EPIC-056
-  - EPIC-057
+  - EPIC-064
+  - EPIC-065
   - SPIKE-054
 linked-artifacts:
-  - SPIKE-052
+  - SPIKE-059
   - ADR-010
 addresses: []
 ---
@@ -30,7 +30,7 @@ addresses: []
 
 ## Goal / Objective
 
-Wire the value model (EPIC-056) and cost model (EPIC-057) into specgraph's scoring pipeline. The recommendation formula becomes `score = max(1, own_roi) × (1 + downstream_roi)` where leverage is transitive downstream return, not artifact count. Fully backwards compatible — no appraisal data means identical behavior to today.
+Wire the value model (EPIC-064) and cost model (EPIC-065) into specgraph's scoring pipeline. The recommendation formula becomes `score = max(1, own_roi) × (1 + downstream_roi)` where leverage is transitive downstream return, not artifact count. Fully backwards compatible — no appraisal data means identical behavior to today.
 
 ## Desired Outcomes
 
@@ -40,16 +40,16 @@ Wire the value model (EPIC-056) and cost model (EPIC-057) into specgraph's scori
 
 **In scope:** graph.py field parsing, priority.py ROI computation, transitive leverage with depth decay (shaped by SPIKE-054), CLI output formatting, recommendation JSON output, backwards compatibility tests.
 
-**Out of scope:** Value and cost schema (EPIC-056, EPIC-057), migration of existing artifacts (EPIC-059), portfolio-level views, value reconciliation.
+**Out of scope:** Value and cost schema (EPIC-064, EPIC-065), migration of existing artifacts (EPIC-067), portfolio-level views, value reconciliation.
 
 ## Child Specs
 
-To be decomposed after EPIC-056 and EPIC-057 complete and SPIKE-054 answers its question.
+To be decomposed after EPIC-064 and EPIC-065 complete and SPIKE-054 answers its question.
 
 ## Key Dependencies
 
-- EPIC-056 (value model) — need the schema to parse
-- EPIC-057 (cost model) — need the cost composition to compute ROI
+- EPIC-064 (value model) — need the schema to parse
+- EPIC-065 (cost model) — need the cost composition to compute ROI
 - SPIKE-054 (depth decay) — shapes the transitive leverage algorithm
 
 ## Lifecycle

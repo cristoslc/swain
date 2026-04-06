@@ -1,6 +1,6 @@
 ---
 title: "Framework Cost Model"
-artifact: EPIC-057
+artifact: EPIC-065
 track: container
 status: Proposed
 author: cristos
@@ -15,9 +15,9 @@ success-criteria:
   - Cost composition formula is decided and documented in an ADR
   - Cost cascades down parent chain like serves-goals
 depends-on-artifacts:
-  - SPIKE-053
+  - SPIKE-060
 linked-artifacts:
-  - SPIKE-052
+  - SPIKE-059
 addresses: []
 ---
 
@@ -29,21 +29,21 @@ Define how cost is estimated and composed across the artifact hierarchy. Cost ha
 
 ## Desired Outcomes
 
-When an agent creates a Spec, the template prompts for `cost-estimate` with both dimensions. The operator can see that a task is "cheap in tokens but expensive in my time" vs "expensive in tokens but I barely have to think about it." The cost composition formula (how the two axes combine into a single cost number for ROI) is settled by SPIKE-053 and documented in an ADR.
+When an agent creates a Spec, the template prompts for `cost-estimate` with both dimensions. The operator can see that a task is "cheap in tokens but expensive in my time" vs "expensive in tokens but I barely have to think about it." The cost composition formula (how the two axes combine into a single cost number for ROI) is settled by SPIKE-060 and documented in an ADR.
 
 ## Scope Boundaries
 
-**In scope:** Frontmatter schema for `cost-estimate` (two-axis t-shirt sizing), cost axis documentation in swain framework docs, cost composition formula (blocked on SPIKE-053), frontmatter contract, definition updates, template updates.
+**In scope:** Frontmatter schema for `cost-estimate` (two-axis t-shirt sizing), cost axis documentation in swain framework docs, cost composition formula (blocked on SPIKE-060), frontmatter contract, definition updates, template updates.
 
-**Out of scope:** Value model (EPIC-056), scoring formula (EPIC-058), project-level cost axis weighting (follow-on — lets operator say "I'm attention-constrained right now").
+**Out of scope:** Value model (EPIC-064), scoring formula (EPIC-066), project-level cost axis weighting (follow-on — lets operator say "I'm attention-constrained right now").
 
 ## Child Specs
 
-To be decomposed after SPIKE-053 completes.
+To be decomposed after SPIKE-060 completes.
 
 ## Key Dependencies
 
-- SPIKE-053 (Cost Axis Composition Model) must complete first — its answer shapes the formula.
+- SPIKE-060 (Cost Axis Composition Model) must complete first — its answer shapes the formula.
 
 ## Lifecycle
 

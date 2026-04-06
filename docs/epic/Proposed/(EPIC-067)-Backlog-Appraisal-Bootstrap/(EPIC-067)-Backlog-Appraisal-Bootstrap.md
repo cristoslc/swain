@@ -1,6 +1,6 @@
 ---
 title: "Backlog Appraisal Bootstrap"
-artifact: EPIC-059
+artifact: EPIC-067
 track: container
 status: Proposed
 author: cristos
@@ -15,9 +15,9 @@ success-criteria:
   - Agent-proposed estimates are reviewed and confirmed by the operator
   - chart.sh recommend produces differentiated scores across the active backlog
 depends-on-artifacts:
-  - EPIC-058
+  - EPIC-066
 linked-artifacts:
-  - SPIKE-052
+  - SPIKE-059
 addresses: []
 ---
 
@@ -39,11 +39,11 @@ The operator runs a bootstrap pass across the active backlog. Agents propose est
 
 ## Child Specs
 
-To be decomposed after EPIC-058 is complete.
+To be decomposed after EPIC-066 is complete.
 
 ## Key Dependencies
 
-- EPIC-058 (ROI Scoring Engine) — schema and tooling must exist before estimates can be entered and validated
+- EPIC-066 (ROI Scoring Engine) — schema and tooling must exist before estimates can be entered and validated
 
 ## Lifecycle
 

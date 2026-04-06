@@ -1,6 +1,6 @@
 ---
 title: "Appraisal Value Model"
-artifact: EPIC-056
+artifact: EPIC-064
 track: container
 status: Proposed
 author: cristos
@@ -17,7 +17,7 @@ success-criteria:
   - Artifacts with no serves-goals and no ancestor with serves-goals are flagged as unappraised
 depends-on-artifacts: []
 linked-artifacts:
-  - SPIKE-052
+  - SPIKE-059
   - ADR-010
 addresses: []
 ---
@@ -36,7 +36,7 @@ When an operator creates a Vision, the template prompts for appraisal-goals — 
 
 **In scope:** PURPOSE.md appraisal section, frontmatter schema for `appraisal-goals` and `serves-goals`, frontmatter contract updates, vision/initiative/epic/spec definition updates, template updates, "unappraised" flagging in specgraph.
 
-**Out of scope:** Cost model (EPIC-057), scoring formula (EPIC-058), migration of existing artifacts (EPIC-059).
+**Out of scope:** Cost model (EPIC-065), scoring formula (EPIC-066), migration of existing artifacts (EPIC-067).
 
 ## Child Specs
 
@@ -44,7 +44,7 @@ To be decomposed after the Initiative is activated.
 
 ## Key Dependencies
 
-None — this Epic can proceed independently of EPIC-057.
+None — this Epic can proceed independently of EPIC-065.
 
 ## Lifecycle
 

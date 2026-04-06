@@ -16,7 +16,7 @@ success-criteria:
   - Existing artifacts without appraisal data score identically to current behavior
 depends-on-artifacts: []
 linked-artifacts:
-  - SPIKE-052
+  - SPIKE-059
   - ADR-010
   - VISION-002
   - VISION-003
@@ -32,7 +32,7 @@ Ground swain's prioritization in portfolio economics instead of arbitrary priori
 
 This initiative replaces gut-feel `priority-weight: high | medium | low` with a structured appraisal model adapted from strategic portfolio management, WSJF, and multi-criteria decision analysis — compressed for a solo operator with AI agents.
 
-SPIKE-052 validated the model against swain's live backlog. Axis-weighted ROI differentiates work that priority labels cannot: all four active Visions are "high priority" but they bet on different axes at different intensities. The model makes this visible and computable.
+SPIKE-059 validated the model against swain's live backlog. Axis-weighted ROI differentiates work that priority labels cannot: all four active Visions are "high priority" but they bet on different axes at different intensities. The model makes this visible and computable.
 
 ## Desired Outcomes
 
@@ -60,26 +60,26 @@ Agents creating artifacts are guided by the appraisal model. A new Spec prompts 
 
 ## Child Epics
 
-- EPIC-056: Appraisal Value Model — PURPOSE.md axes, Vision appraisal-goals, serves-goals on children
-- EPIC-057: Framework Cost Model — cost axes, cost-estimate field, composition formula
-- EPIC-058: ROI Scoring Engine — graph.py parsing, priority.py rewrite, transitive leverage, CLI output
-- EPIC-059: Backlog Appraisal Bootstrap — apply estimates to existing artifacts, migration tooling
+- EPIC-064: Appraisal Value Model — PURPOSE.md axes, Vision appraisal-goals, serves-goals on children
+- EPIC-065: Framework Cost Model — cost axes, cost-estimate field, composition formula
+- EPIC-066: ROI Scoring Engine — graph.py parsing, priority.py rewrite, transitive leverage, CLI output
+- EPIC-067: Backlog Appraisal Bootstrap — apply estimates to existing artifacts, migration tooling
 
 ## Research (Spikes)
 
-- SPIKE-052: ROI Appraisal Model For Portfolio Economics (Active — validated the model)
-- SPIKE-053: Cost Axis Composition Model (Proposed — how do attention and compute combine?)
+- SPIKE-059: ROI Appraisal Model For Portfolio Economics (Active — validated the model)
+- SPIKE-060: Cost Axis Composition Model (Proposed — how do attention and compute combine?)
 - SPIKE-054: Transitive Leverage Depth Decay (Proposed — full sum vs diminishing returns at depth?)
 
 ## Key Dependencies
 
-- SPIKE-053 and SPIKE-054 should complete before EPIC-058 (scoring engine) begins — their answers shape the formula
-- EPIC-056 and EPIC-057 can proceed in parallel — value model and cost model are independent
-- EPIC-058 depends on both EPIC-056 and EPIC-057 — the scoring engine needs both models settled
-- EPIC-059 depends on EPIC-058 — can't bootstrap estimates until the schema and tooling exist
+- SPIKE-060 and SPIKE-054 should complete before EPIC-066 (scoring engine) begins — their answers shape the formula
+- EPIC-064 and EPIC-065 can proceed in parallel — value model and cost model are independent
+- EPIC-066 depends on both EPIC-064 and EPIC-065 — the scoring engine needs both models settled
+- EPIC-067 depends on EPIC-066 — can't bootstrap estimates until the schema and tooling exist
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-04-06 | | Initial creation from SPIKE-052 findings |
+| Proposed | 2026-04-06 | | Initial creation from SPIKE-059 findings |

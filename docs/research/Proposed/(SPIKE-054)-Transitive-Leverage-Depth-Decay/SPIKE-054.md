@@ -9,9 +9,9 @@ last-updated: 2026-04-06
 question: "Should transitive downstream return be summed fully or decay with dependency depth, and if decay, what function?"
 parent-vision: VISION-004
 linked-artifacts:
-  - SPIKE-052
+  - SPIKE-059
   - INITIATIVE-021
-  - EPIC-058
+  - EPIC-066
 depends-on-artifacts: []
 gate: Pre-Implementation
 ---
@@ -24,7 +24,7 @@ Should transitive downstream return be summed fully or decay with dependency dep
 
 ## Context
 
-SPIKE-052 established that leverage should be transitive downstream return — the sum of ROI of everything an artifact unblocks, recursively. If A unblocks B (roi=3) and B unblocks C (roi=5), A's leverage includes both.
+SPIKE-059 established that leverage should be transitive downstream return — the sum of ROI of everything an artifact unblocks, recursively. If A unblocks B (roi=3) and B unblocks C (roi=5), A's leverage includes both.
 
 The question is whether distant downstream return should count the same as immediate downstream return. Full sum means A gets leverage of 3+5=8. With decay, B's contribution of 5 might be discounted because it's two steps away.
 
