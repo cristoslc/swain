@@ -1,6 +1,6 @@
 ---
 title: "Agent Runtime I/O Compatibility for Mobile Bridge"
-artifact: SPIKE-002
+artifact: SPIKE-058
 track: container
 status: Proposed
 author: cristos
@@ -13,6 +13,7 @@ risks-addressed:
   - Building a brittle TUI parser when structured I/O exists
   - Committing to a runtime that lacks headless mode and forces degraded mobile UX
   - Over-engineering an abstraction layer when runtimes share similar structured output
+  - Runtimes with interactive or subscription-based auth that cannot run headless without operator presence
 evidence-pool: ""
 ---
 
