@@ -1,5 +1,48 @@
 # Changelog
 
+## [0.29.1-alpha] - 2026-04-06
+
+### Features
+
+#### Consumer Script Resolution Fix
+
+migrate-to-trunk-release.sh was missing in consumer projects because
+it lived only in the swain source repo. The preflight told consumers
+to run it, but the script never reached them via skill installation.
+Moved to skills/swain-doctor/scripts/ so it gets symlinked into
+.agents/bin/ during init, like all other agent-facing scripts.
+
+#### Dual Version Display Restored
+
+Version display changes from SPEC-287 were lost during a merge.
+Re-applied so init messages, the swain marker, and update reports
+show both the release version and installed skill version.
+
+### Planned
+
+- Plugin-namespaced script aggregation (ADR-036, EPIC-069) — agent-facing
+  scripts move to .agents/scripts/swain/, operator-facing to
+  .agents/bin/swain/. Eliminates flat-namespace collision risk and
+  aligns with the Agent Skills standard.
+- Runtime adapter architecture (SPIKE-061) — evaluating whether swain
+  should present a Claude Code plugin shape while conforming to the
+  Agent Skills standard for other runtimes.
+
+### Research
+
+- Ollama launch wrapper spike (SPIKE-060) complete — validated
+  local model invocation.
+- Agent runtime I/O compatibility research (SPIKE-059) complete.
+- Agent script directory conventions trove — 12 sources surveyed
+  across the Agent Skills standard, Claude plugins, and 9 runtime
+  implementations.
+
+### Supporting Changes
+
+- Readability checker bug filed (SPEC-289) — markdown link regex
+  breaks on parentheses in artifact paths, inflating FK scores.
+- ADR-019 superseded by ADR-036.
+
 ## [0.29.0-alpha] - 2026-04-06
 
 ### Features
