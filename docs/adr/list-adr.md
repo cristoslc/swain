@@ -6,8 +6,6 @@
 |----------|-------|-------------|--------|
 | ADR-007 | Event-Driven Orchestrator Replaces Prose Chaining Table | 2026-03-17 | — |
 | ADR-019 | Project-Root Script Convention | 2026-03-28 | — |
-| ADR-022 | Chart Is The Canonical Hierarchy Interface | 2026-04-02 | — |
-| ADR-022 | Chart Is The Canonical Hierarchy Interface | 2026-04-02 | — |
 | ADR-031 | Skill Naming Convention: Verbs Not Nouns | 2026-04-04 | — |
 
 ## Active
@@ -43,6 +41,7 @@
 | ADR-033 | Born-in-Worktree Session Isolation | 2026-04-05 | d2a8412a |
 | ADR-034 | Standardize Worktree Location to .worktrees/ | 2026-04-05 | — |
 | ADR-035 | Title-Based Artifact Identifiers | 2026-04-05 | — |
+| ADR-022 | Chart Is The Canonical Hierarchy Interface | 2026-04-06 | 30391a5a |
 
 ## Superseded
 
