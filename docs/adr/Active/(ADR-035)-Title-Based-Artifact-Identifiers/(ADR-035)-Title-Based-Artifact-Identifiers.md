@@ -148,7 +148,7 @@ Keep the current system. Rejected — the collision cost is high (4 specs, 486 r
 Migration from ~1,300 serial-ID artifacts is a major operation. The implementation epic must define the full migration path, covering at minimum:
 - Global rewrite of all in-repo references (frontmatter, prose links, scripts) to use canonical paths
 - Backward-compatible symlinks from old serial-ID paths to new canonical paths as a stopgap for external references (GitHub issues, bookmarks, etc.)
-- After rewriting, `swain-doctor` should detect when no in-repo references point through a compat symlink and prompt the operator to decide whether to keep or prune it — external sources may still link to the old path. The operator's pruning decision should be recorded as a project-level migration choice
+- After rewriting, `swain-doctor` should report when no in-repo references point through compat symlinks. The operator then makes a single project-wide decision: keep all compat symlinks (for external references like GitHub issues) or prune them all. This decision is recorded as a project-level migration choice, not made per-link
 - Dual-format recognition in all tooling during the transition window
 - Hierarchy view updates (DESIGN-013, DESIGN-014) to use canonical paths with lifecycle symlinks
 - `swain-doctor` detection of unmigrated artifacts, with an interactive migration offer
