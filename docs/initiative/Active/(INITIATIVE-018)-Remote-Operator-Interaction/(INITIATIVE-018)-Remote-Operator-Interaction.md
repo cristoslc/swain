@@ -5,7 +5,8 @@ track: container
 status: Active
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20parent-vision: VISION-001
+last-updated: 2026-04-06
+parent-vision: VISION-006
 priority-weight: high
 success-criteria:
   - Operator can steer, monitor, and approve agent work from phone or messaging app without losing local environment context

@@ -27,7 +27,7 @@ The operator ([PERSONA-001](../../../persona/Active/(PERSONA-001)-Swain-Project-
 
 ## Value Proposition
 
-[VISION-001](../../Superseded/(VISION-001)-Swain/(VISION-001)-Swain.md) defines what swain is. [VISION-003](../(VISION-003)-Swain-Everywhere/(VISION-003)-Swain-Everywhere.md) asks "can swain run everywhere?" This vision asks: **"can swain be trusted everywhere?"**
+[VISION-001](../../Superseded/(VISION-001)-Swain/(VISION-001)-Swain.md) defines what swain is. [VISION-003](../(VISION-003)-Runtime-Portability/(VISION-003)-Runtime-Portability.md) asks "can swain run everywhere?" This vision asks: **"can swain be trusted everywhere?"**
 
 Today, swain's governance is documentary — AGENTS.md, skill files, and lifecycle conventions live in prompt context. Research confirms that agents treat documentary governance as advisory: they optimize for task completion, not process fidelity, and bypass every workflow rule when a faster direct path exists. The vk4-swain compliance audit found zero spec artifacts re-read during implementation. The OpenAI monitoring study found the same pattern at the security layer.
 

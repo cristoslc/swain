@@ -1,12 +1,12 @@
 ---
-title: "Swain Everywhere"
+title: "Runtime Portability"
 artifact: VISION-003
 track: standing
 status: Active
 product-type: personal
 author: cristos
 created: 2026-03-18
-last-updated: 2026-03-18
+last-updated: 2026-04-06
 priority-weight: high
 linked-artifacts:
   - VISION-005
@@ -15,7 +15,7 @@ depends-on-artifacts:
 trove: ""
 ---
 
-# Swain Everywhere
+# Runtime Portability
 
 ## Target Audience
 

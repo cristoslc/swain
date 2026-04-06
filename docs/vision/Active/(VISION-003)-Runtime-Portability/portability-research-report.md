@@ -149,7 +149,7 @@ Actions:
 
 | Artifact | Type | Status | Path |
 |----------|------|--------|------|
-| VISION-003 | Vision | Active | `docs/vision/Active/(VISION-003)-Swain-Everywhere/` |
+| VISION-003 | Vision | Active | `docs/vision/Active/(VISION-003)-Runtime-Portability/` |
 | INITIATIVE-014 | Initiative | Active | `docs/initiative/Active/(INITIATIVE-014)-Cross-Surface-Portability/` |
 | SPIKE-028 | Research Spike | Active | `docs/research/Active/(SPIKE-028)-Claude-Web-Desktop-Extension-Model/` |
 | SPIKE-029 | Research Spike | Active | `docs/research/Active/(SPIKE-029)-Cross-Runtime-Portability-Substrate/` |
