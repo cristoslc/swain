@@ -569,6 +569,73 @@ class TestZulipCloudMessageFormat:
 
 
 # ---------------------------------------------------------------------------
+# Scenario: Full round trip — mock LLM
+# ---------------------------------------------------------------------------
+
+class TestFullRoundTripMockLlm:
+    """End-to-end: control_message → mock response → event back to control."""
+
+    async def test_mock_llm_returns_response_to_control(self):
+        """With UNTETHERED_MOCK_LLM=1, control_message gets a canned response."""
+        import os
+        delivered: list[Event] = []
+
+        with patch.dict(os.environ, {"UNTETHERED_MOCK_LLM": "1"}):
+            bridge = ProjectBridge(
+                project="swain", project_dir="/tmp/swain",
+                on_event=delivered.append,
+            )
+            bridge.handle_command(
+                Command.control_message(bridge="swain", text="what specs are ready?")
+            )
+            await asyncio.sleep(0.1)
+
+        # Should have text_output + session_died
+        text_events = [e for e in delivered if e.type == "text_output"]
+        died_events = [e for e in delivered if e.type == "session_died"]
+        assert len(text_events) == 1
+        assert "[mock] Received your message: what specs are ready?" in text_events[0].payload["content"]
+        assert text_events[0].payload.get("origin") == "control"
+        assert len(died_events) == 1
+
+    async def test_mock_response_posts_to_control_topic_via_relay(self):
+        """Full pipeline: mock response event → _relay_events → Zulip control post."""
+        client = MagicMock()
+        registry = SessionTopicRegistry()
+        loop = asyncio.get_running_loop()
+
+        # Simulate the events the mock LLM would produce
+        text_event = Event.text_output(
+            bridge="swain", session_id="sess-mock",
+            content="[mock] Here are your specs",
+        )
+        text_event.payload["origin"] = "control"
+
+        died_event = Event.session_died(
+            bridge="swain", session_id="sess-mock", reason="mock complete",
+        )
+        died_event.payload["origin"] = "control"
+
+        lines = iter([
+            encode_message(text_event),
+            encode_message(died_event),
+            "",
+        ])
+
+        with patch("sys.stdin") as mock_stdin:
+            mock_stdin.readline = lambda: next(lines)
+            await _relay_events(
+                client, {"swain": "swain"}, None, "control", registry, loop,
+            )
+
+        # Text output should post to control topic
+        assert client.send_message.call_count == 1
+        call_args = client.send_message.call_args[0][0]
+        assert call_args["topic"] == "control"
+        assert "[mock] Here are your specs" in call_args["content"]
+
+
+# ---------------------------------------------------------------------------
 # Scenario: bin/swain NDJSON mode (subprocess test)
 # ---------------------------------------------------------------------------
 

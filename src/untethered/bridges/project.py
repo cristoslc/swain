@@ -10,6 +10,7 @@ import enum
 import json
 import logging
 import os
+import os
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -357,10 +358,28 @@ class ProjectBridge:
                     self._schedule(launcher.send_answer(text))
                     return
 
-        # No active interview — lightweight query session via opencode.
+        # No active interview — lightweight query session.
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
         session = Session(session_id=session_id, runtime="opencode", origin="control")
         self.sessions[session_id] = session
+
+        self._schedule(self._run_control_session(session_id, text))
+
+    async def _run_control_session(self, session_id: str, text: str) -> None:
+        """Run a lightweight control-topic session.
+
+        Uses UNTETHERED_MOCK_LLM=1 env var to return canned responses
+        for testing the return path without a real LLM.
+        """
+        if os.environ.get("UNTETHERED_MOCK_LLM") == "1":
+            self.handle_runtime_event(Event.text_output(
+                bridge=self.project, session_id=session_id,
+                content=f"[mock] Received your message: {text}",
+            ))
+            self.handle_runtime_event(Event.session_died(
+                bridge=self.project, session_id=session_id, reason="mock complete",
+            ))
+            return
 
         adapter = OpenCodeAdapter(
             bridge=self.project,
@@ -369,7 +388,7 @@ class ProjectBridge:
             on_event=self.handle_runtime_event,
         )
         self._adapters[session_id] = adapter
-        self._schedule(adapter.start(prompt=text))
+        await adapter.start(prompt=text)
 
     def _cmd_launch_session(self, cmd: Command) -> None:
         """Handle /work or /session — full launcher interview flow.
