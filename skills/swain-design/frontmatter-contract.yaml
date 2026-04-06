@@ -256,55 +256,6 @@ schema:
           - value: "critical"
             why: "Not a valid weight value — only high/medium/low accepted"
 
-  value-estimate:
-    type: object
-    required: false
-    semantic: >
-      Operator's assessment of expected value across three dimensions:
-      capability (enables something new), efficiency (reduces ongoing
-      cost), and risk-reduction (prevents or bounds a potential loss).
-      Each dimension is scored 0-3 where 0 = none, 1 = minor,
-      2 = significant, 3 = transformative. The composite value is
-      the sum (range 0-9). Used by priority.py to compute ROI.
-    source: >
-      Set by the operator at artifact creation or refinement.
-      Never computed — always a human judgment.
-    quality:
-      rules:
-        - Each dimension must be an integer 0-3
-        - At least one dimension should be non-zero (otherwise why do this work?)
-      examples:
-        good:
-          - value: "{capability: 2, efficiency: 3, risk-reduction: 1}"
-            why: "A new feature that also removes significant manual steps and slightly reduces risk"
-        bad:
-          - value: "high"
-            why: "Not a structured assessment — use the three dimensions"
-
-  cost-estimate:
-    type: string
-    required: false
-    semantic: >
-      Estimated investment required to complete this work, expressed
-      as a t-shirt size. Mapped to numeric values for ROI calculation:
-      XS=1, S=2, M=3, L=5, XL=8. The scale is deliberately
-      non-linear — large work is disproportionately expensive due to
-      coordination overhead, context switching, and integration risk.
-    source: >
-      Set by the operator at artifact creation or refinement.
-      Represents total cost including design, implementation, testing,
-      and integration — not just coding time.
-    quality:
-      rules:
-        - Must be one of: XS, S, M, L, XL (or empty to skip ROI)
-      examples:
-        good:
-          - value: "M"
-            why: "Medium-effort work — a few sessions of focused implementation"
-        bad:
-          - value: "3 hours"
-            why: "Use t-shirt sizes, not time estimates — precision is false"
-
   sort_order:
     type: integer
     required: false
@@ -578,8 +529,6 @@ schema:
 # depends-on-artif.  |  O  |  O  |  O  |  O  |  -  |  O  |  O  |  O  |  O  |  O  |  -  |  -
 # addresses          |  -  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
 # priority-weight    |  O  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
-# value-estimate     |  O  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
-# cost-estimate      |  -  |  O  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
 # trove              |  O  |  O  |  O  |  O  |  O  |  O  |  -  |  O  |  -  |  -  |  -  |  -
 # source-issue       |  -  |  -  |  -  |  O  |  -  |  -  |  -  |  -  |  -  |  -  |  -  |  -
 # superseded-by      |  -  |  -  |  -  |  -  |  -  |  O  |  O  |  -  |  -  |  -  |  O  |  -
