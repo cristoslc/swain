@@ -145,7 +145,14 @@ Keep the current system. Rejected — the collision cost is high (4 specs, 486 r
 - Redirect symlinks build up over time if not cleaned.
 
 **Migration:**
-Migration from ~1,300 serial-ID artifacts is a major operation. The implementation epic must define the migration path in detail, including: dual-format tooling during transition, batch rename strategy, cross-reference rewriting, hierarchy view updates (DESIGN-013, DESIGN-014), and retirement of collision infrastructure (`next-artifact-id.sh`, `fix-collisions.sh`).
+Migration from ~1,300 serial-ID artifacts is a major operation. The implementation epic must define the full migration path, covering at minimum:
+- Backward-compatible symlinks from old serial-ID paths to new canonical paths, so existing links and bookmarks keep working
+- Dual-format recognition in all tooling during the transition window
+- Batch rename strategy and cross-reference rewriting
+- Hierarchy view updates (DESIGN-013, DESIGN-014) to use canonical paths with lifecycle symlinks
+- `swain-doctor` detection of unmigrated artifacts, with an interactive migration offer
+- Retirement of collision infrastructure (`next-artifact-id.sh`, `fix-collisions.sh`) after migration completes
+- Skill file updates (swain-design, swain-do, swain-sync, etc.) to produce and consume the new format
 
 ## Lifecycle
 

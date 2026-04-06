@@ -42,6 +42,7 @@
 | ADR-032 | Gherkin As Notation, Not Infrastructure | 2026-04-04 | _pending_ |
 | ADR-033 | Born-in-Worktree Session Isolation | 2026-04-05 | d2a8412a |
 | ADR-034 | Standardize Worktree Location to .worktrees/ | 2026-04-05 | — |
+| ADR-035 | Title-Based Artifact Identifiers | 2026-04-05 | — |
 
 ## Superseded
 

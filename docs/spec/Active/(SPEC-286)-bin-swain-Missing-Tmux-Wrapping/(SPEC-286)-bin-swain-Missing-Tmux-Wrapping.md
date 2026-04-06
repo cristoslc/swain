@@ -1,6 +1,6 @@
 ---
 title: "bin/swain Missing Tmux Wrapping"
-artifact: SPEC-276
+artifact: SPEC-286
 track: implementable
 status: Active
 author: cristos
@@ -21,7 +21,7 @@ source-issue: ""
 swain-do: required
 ---
 
-# SPEC-276: bin/swain Missing Tmux Wrapping
+# SPEC-286: bin/swain Missing Tmux Wrapping
 
 ## Problem Statement
 

@@ -1,5 +1,5 @@
 ---
-title: "Retro: SPEC-276 bin/swain Missing Tmux Wrapping"
+title: "Retro: SPEC-286 bin/swain Missing Tmux Wrapping"
 artifact: RETRO-2026-04-05-spec-276-tmux-wrapping
 track: standing
 status: Active
@@ -8,13 +8,13 @@ last-updated: 2026-04-05
 scope: "Bugfix — bin/swain lost tmux wrapping when it replaced the shell function"
 period: "2026-04-05"
 linked-artifacts:
-  - SPEC-276
+  - SPEC-286
   - SPEC-245
   - DESIGN-004
   - EPIC-056
 ---
 
-# Retro: SPEC-276 bin/swain Missing Tmux Wrapping
+# Retro: SPEC-286 bin/swain Missing Tmux Wrapping
 
 ## Summary
 
@@ -24,7 +24,7 @@ The shell launcher function `swain()` delegates to `bin/swain` via `exec` when i
 
 | Artifact | Title | Outcome |
 |----------|-------|---------|
-| [SPEC-276](../spec/Active/(SPEC-276)-bin-swain-Missing-Tmux-Wrapping/(SPEC-276)-bin-swain-Missing-Tmux-Wrapping.md) | bin/swain Missing Tmux Wrapping | Active — fix implemented, tests passing |
+| [SPEC-286](../spec/Active/(SPEC-286)-bin-swain-Missing-Tmux-Wrapping/(SPEC-286)-bin-swain-Missing-Tmux-Wrapping.md) | bin/swain Missing Tmux Wrapping | Active — fix implemented, tests passing |
 
 ## Reflection
 
@@ -41,7 +41,7 @@ The shell launcher function `swain()` delegates to `bin/swain` via `exec` when i
 
 ### What would change
 
-- The spec for [SPEC-276](../spec/Active/(SPEC-276)-bin-swain-Missing-Tmux-Wrapping/(SPEC-276)-bin-swain-Missing-Tmux-Wrapping.md) was created on trunk's working tree before the worktree existed. This is the same pattern flagged in the 2026-04-03 retro (SPEC-251): file mutations landing on trunk instead of the worktree. The discipline is clear — create the worktree first, then write the spec inside it — but the swain-design skill doesn't enforce this because it doesn't know whether a worktree exists yet.
+- The spec for [SPEC-286](../spec/Active/(SPEC-286)-bin-swain-Missing-Tmux-Wrapping/(SPEC-286)-bin-swain-Missing-Tmux-Wrapping.md) was created on trunk's working tree before the worktree existed. This is the same pattern flagged in the 2026-04-03 retro (SPEC-251): file mutations landing on trunk instead of the worktree. The discipline is clear — create the worktree first, then write the spec inside it — but the swain-design skill doesn't enforce this because it doesn't know whether a worktree exists yet.
 - When a DESIGN document describes a flow with named steps, those steps should map 1:1 to spec ACs or have an explicit "out of scope" note. A mechanical checklist during spec creation — "does the linked DESIGN have steps not covered by ACs?" — would have caught this.
 
 ### Patterns observed

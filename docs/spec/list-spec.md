@@ -121,7 +121,8 @@
 | SPEC-184 | Session End Operation | 2026-03-28 | — |
 | SPEC-191 | Preflight Self-Healing Compliance Audit | 2026-03-29 | — |
 | SPEC-194 | Flesch-Kincaid Readability Enforcement | 2026-03-30 | _pending_ |
-| SPEC-196 | Collapse Init-Session Skill Chain | 2026-03-30 | -- |
+| SPEC-195 | Defer Worktree Creation to Task Dispatch | 2026-03-30 | -- |
+| SPEC-196 | Shell-Level Marker Check for Init Fast Path | 2026-04-05 | -- |
 | SPEC-197 | Specgraph Module Import Shadowing | 2026-03-30 | — |
 | SPEC-198 | Fast-Path Session Greeting | 2026-03-30 | -- |
 | SPEC-199 | Session Digest Auto-Generation | 2026-03-31 | _pending_ |
@@ -157,6 +158,7 @@
 | SPEC-259 | Swain-Sync Preflight Script | 2026-04-04 | — |
 | SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-285 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
+| SPEC-286 | bin/swain Missing Tmux Wrapping | 2026-04-05 | -- |
 | SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 
 ## Complete
@@ -262,7 +264,6 @@
 | SPEC-190 | Migrate All Skills to .agents/bin/ Resolution | 2026-03-29 | — |
 | SPEC-192 | swain-doctor parallel check cascade failure | 2026-03-29 | — |
 | SPEC-193 | Artifact ID allocation must check all local branches | 2026-03-31 | — |
-| SPEC-195 | Defer Worktree Creation to Task Dispatch | 2026-04-05 | cd6f0ccb |
 | SPEC-204 | fix-collisions.sh Over-Rewrites Keeper References | 2026-03-31 | 85c7d96 |
 | SPEC-206 | Missing session greeting script | 2026-03-31T13:22:00Z | af41336 |
 | SPEC-207 | README Seeding in swain-init | 2026-03-31 | 61379ba |
