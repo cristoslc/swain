@@ -159,7 +159,9 @@
 | SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-285 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
 | SPEC-286 | bin/swain Missing Tmux Wrapping | 2026-04-05 | -- |
+| SPEC-288 | Reconcile Doctor Script and Skill | 2026-04-06 | _pending_ |
 | SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
+| SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 
 ## Complete
 

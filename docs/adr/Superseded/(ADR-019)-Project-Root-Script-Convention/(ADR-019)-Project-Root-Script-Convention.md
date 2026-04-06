@@ -2,10 +2,11 @@
 title: "Project-Root Script Convention"
 artifact: ADR-019
 track: standing
-status: Proposed
+status: Superseded
+superseded-by: ADR-036
 author: cristos
 created: 2026-03-28
-last-updated: 2026-03-28
+last-updated: 2026-04-06
 linked-artifacts:
   - SPEC-067
   - SPEC-180
@@ -157,3 +158,4 @@ The existing skill pattern (`find "$REPO_ROOT" -path '*/skill/scripts/name' -pri
 |-------|------|--------|-------|
 | Proposed | 2026-03-28 | — | Initial creation; codifies pattern established by SPEC-067 (swain-box) |
 | Proposed | 2026-03-28 | — | Added two-tier model: operator-facing (`bin/`) vs agent-facing (`.agents/bin/`); motivated by swain-trunk.sh distribution gap (EPIC-029) |
+| Superseded | 2026-04-06 | -- | Superseded by [ADR-036](../../Active/(ADR-036)-Plugin-Namespaced-Script-Aggregation/(ADR-036)-Plugin-Namespaced-Script-Aggregation.md). Flat namespace collision risk, industry misalignment with Agent Skills standard. |

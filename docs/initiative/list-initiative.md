@@ -7,6 +7,7 @@
 | INITIATIVE-007 | Product Design | 2026-03-15 | — |
 | INITIATIVE-009 | Unified Project State Graph | 2026-03-17 | — |
 | INITIATIVE-020 | Platform Enforcement Substrate | 2026-03-23 | 730b957 |
+| INITIATIVE-021 | Portfolio Economics | 2026-04-06 | — |
 
 ## Active
 

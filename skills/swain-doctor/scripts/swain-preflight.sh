@@ -310,7 +310,7 @@ else
   # Check if release branch exists (ADR-013 trunk+release model)
   if ! git rev-parse --verify release 2>/dev/null >/dev/null; then
     echo "advisory: no 'release' branch found — trunk+release model (ADR-013) not configured"
-    echo "  run: bash scripts/migrate-to-trunk-release.sh --dry-run"
+    echo "  run: bash .agents/bin/migrate-to-trunk-release.sh --dry-run"
   fi
 fi
 

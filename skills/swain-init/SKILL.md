@@ -34,12 +34,12 @@ Store `PREFLIGHT_JSON` for use in all phases below. Every decision references a 
 Read `marker.action` from the preflight JSON.
 
 - **`"delegate"`** — same major version. Tell the user:
-  > Project already initialized (swain `marker.last_version`). Delegating to swain-session.
+  > Project already initialized (swain `marker.release_version`, init v`marker.last_version`). Delegating to swain-session.
 
   Skip to **Phase 7 (Session Start)** below. Do not run Phases 1–6.
 
 - **`"upgrade"`** — newer major version available. Tell the user:
-  > Project was initialized with swain `marker.last_version` (current: `marker.current_version`). Consider running `/swain update` to pick up new features.
+  > Project was initialized with swain `marker.last_release_version` (init v`marker.last_version`). Current: `marker.release_version` (init v`marker.current_version`). Consider running `/swain update` to pick up new features.
   > Starting session.
 
   Skip to **Phase 7 (Session Start)** below. Do not re-run onboarding — upgrades are handled by swain-update, not swain-init.
@@ -162,19 +162,6 @@ done
 Tell the user which operator commands are now available in `bin/`.
 
 If `bin_manifests` is empty, skip silently.
-
-## Phase 2.5: Branch model
-
-swain recommends a **trunk+release** branch model (see ADR-013):
-
-- **trunk** — development branch; agents land work here via merge-with-retry
-- **release** — default/distribution branch; updated from trunk via squash-merge at release time
-
-Tell the user:
-
-> swain recommends a trunk+release branch model (ADR-013). If you'd like to adopt it, run `scripts/migrate-to-trunk-release.sh` (or `--dry-run` to preview). This is optional — swain works with any branch model, but sync and release features assume trunk+release when configured.
-
-This phase is informational only — do not modify branches automatically. The operator decides whether to adopt the model.
 
 ## Phase 3: Pre-commit security hooks
 
@@ -510,7 +497,7 @@ Invoke the **swain-help** skill in onboarding mode to give the user a guided ori
 
 ### Step 6.4 — Write `.swain-init` marker
 
-After all onboarding phases complete, write the `.swain-init` marker file. Read `marker.current_version` from the preflight JSON for the version.
+After all onboarding phases complete, write the `.swain-init` marker file. Read `marker.current_version` from the preflight JSON for the skill version and `marker.release_version` for the release version.
 
 If `.swain-init` already exists (partial re-init), read it and append to the history array. Otherwise create a new file:
 
@@ -519,6 +506,7 @@ If `.swain-init` already exists (partial re-init), read it and append to the his
   "history": [
     {
       "version": "4.0.0",
+      "release": "v0.29.0-alpha",
       "timestamp": "2026-03-26T18:30:00Z",
       "action": "init"
     }

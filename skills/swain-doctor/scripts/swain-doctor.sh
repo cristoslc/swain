@@ -1039,6 +1039,104 @@ check_flat_artifacts() {
 }
 
 # ============================================================
+# Check: Branch model (ADR-013)
+# ============================================================
+check_branch_model() {
+  local has_trunk has_release
+  has_trunk=$(git rev-parse --verify trunk >/dev/null 2>&1 && echo "yes" || echo "no")
+  has_release=$(git rev-parse --verify release >/dev/null 2>&1 && echo "yes" || echo "no")
+
+  if [[ "$has_trunk" == "yes" && "$has_release" == "yes" ]]; then
+    add_check "branch_model" "ok" "trunk+release branches present"
+  else
+    local missing=""
+    [[ "$has_trunk" == "no" ]] && missing="trunk"
+    [[ "$has_release" == "no" ]] && missing="${missing:+$missing, }release"
+    add_check "branch_model" "advisory" "missing branch(es): $missing — see ADR-013"
+  fi
+}
+
+# ============================================================
+# Check: Platform dotfolder cleanup
+# ============================================================
+check_platform_dotfolders() {
+  if ! command -v jq >/dev/null 2>&1; then
+    add_check "platform_dotfolders" "skipped" "jq not available"
+    return
+  fi
+
+  local json_file="$SKILL_DIR/references/platform-dotfolders.json"
+  if [[ ! -f "$json_file" ]]; then
+    add_check "platform_dotfolders" "skipped" "platform-dotfolders.json not found"
+    return
+  fi
+
+  local stubs=()
+  while IFS= read -r entry; do
+    local dotfolder cmd det found=false
+    dotfolder=$(echo "$entry" | jq -r '.project_dotfolder')
+    cmd=$(echo "$entry" | jq -r '.command // empty')
+    det=$(echo "$entry" | jq -r '.detection // empty')
+
+    if [[ -n "$cmd" ]] && command -v "$cmd" &>/dev/null; then
+      found=true
+    fi
+    if [[ "$found" == "false" && -n "$det" ]]; then
+      local det_expanded
+      det_expanded=$(echo "$det" | sed "s|~|$HOME|g")
+      det_expanded=$(eval echo "$det_expanded" 2>/dev/null || echo "")
+      [[ -n "$det_expanded" && -d "$det_expanded" ]] && found=true
+    fi
+
+    # If platform not installed but dotfolder exists in project, it's a stub
+    if [[ "$found" == "false" && -d "$REPO_ROOT/$dotfolder" ]]; then
+      # Verify it's an installer stub (only contains skills/ or is empty)
+      local entries
+      entries=$(ls -A "$REPO_ROOT/$dotfolder" 2>/dev/null | wc -l | tr -d ' ')
+      if [[ "$entries" -le 1 ]] && { [[ -d "$REPO_ROOT/$dotfolder/skills" ]] || [[ "$entries" -eq 0 ]]; }; then
+        stubs+=("$dotfolder")
+      fi
+    fi
+  done < <(jq -c '.platforms[]' "$json_file")
+
+  if [[ ${#stubs[@]} -eq 0 ]]; then
+    add_check "platform_dotfolders" "ok" "no orphaned platform dotfolders"
+  else
+    add_check "platform_dotfolders" "warning" "${#stubs[@]} orphaned platform dotfolder(s): ${stubs[*]}"
+  fi
+}
+
+# ============================================================
+# Check: Skill folder gitignore hygiene
+# ============================================================
+check_skill_gitignore() {
+  # Skip if this is the swain source repo
+  local remote_url
+  remote_url="$(git remote get-url origin 2>/dev/null || true)"
+  if [[ "$remote_url" == *"cristoslc/swain"* ]]; then
+    add_check "skill_gitignore" "ok" "swain source repo — skill folders are tracked"
+    return
+  fi
+
+  local missing=()
+  for base in .claude/skills .agents/skills; do
+    [[ -d "$base" ]] || continue
+    for dir in "$base"/swain "$base"/swain-*/; do
+      [[ -d "$dir" ]] || continue
+      if ! git check-ignore -q "$dir" 2>/dev/null; then
+        missing+=("$dir")
+      fi
+    done
+  done
+
+  if [[ ${#missing[@]} -eq 0 ]]; then
+    add_check "skill_gitignore" "ok" "vendored swain skill folders gitignored (or none exist)"
+  else
+    add_check "skill_gitignore" "warning" "${#missing[@]} vendored swain skill folder(s) not gitignored: ${missing[*]}"
+  fi
+}
+
+# ============================================================
 # Run all checks (set +e so failures don't cascade)
 # ============================================================
 set +e
@@ -1065,6 +1163,9 @@ check_commit_signing
 check_ssh_readiness
 check_crash_debris
 check_agents_bin_symlinks
+check_branch_model
+check_platform_dotfolders
+check_skill_gitignore
 if $FIX_FLAT; then
   check_flat_artifacts --fix
 else
