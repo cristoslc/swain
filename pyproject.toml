@@ -1,0 +1,22 @@
+[project]
+name = "untethered"
+version = "0.1.0"
+description = "Untethered Operator — chat bridge for steering agentic sessions"
+requires-python = ">=3.11"
+dependencies = [
+    "zulip>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
