@@ -27,7 +27,7 @@ import pytest
 from untethered.protocol import Event, Command
 from untethered.bridges.project import ProjectBridge
 from untethered.adapters.zulip_chat import ZulipChatAdapter
-from untethered.plugins.zulip_chat import _poll_zulip
+from untethered.plugins.zulip_chat import _poll_zulip, SessionTopicRegistry
 
 
 # ---------------------------------------------------------------------------
@@ -88,7 +88,7 @@ class TestZulipMessageRouting:
         ])
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, loop)
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
 
         assert len(received) == 1
         assert received[0].type == "send_prompt"
@@ -104,7 +104,7 @@ class TestZulipMessageRouting:
         ])
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, loop)
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
 
         assert len(received) == 1
         assert received[0].type == "approve"
@@ -118,7 +118,7 @@ class TestZulipMessageRouting:
         client = _make_poll_client([_make_get_events_response([bot_msg])])
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, loop)
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
 
         assert len(received) == 0
 
@@ -158,7 +158,7 @@ class TestZulipQueueReregistration:
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, loop)
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
 
         assert len(register_calls) == 2  # initial + re-register
         assert len(received) == 1
@@ -197,7 +197,7 @@ class TestZulipBlockingCallsAreOffloaded:
         client.get_events.side_effect = get_events
 
         poll_task = asyncio.create_task(
-            _poll_zulip(client, {}, "control", lambda _cmd: None, loop)
+            _poll_zulip(client, {}, "control", lambda _cmd: None, SessionTopicRegistry(), loop)
         )
 
         await asyncio.wait_for(barrier.wait(), timeout=2.0)
