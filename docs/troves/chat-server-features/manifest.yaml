@@ -1,0 +1,82 @@
+trove: chat-server-features
+created: 2026-04-06
+refreshed: 2026-04-06
+tags:
+  - chat-server
+  - self-hosted
+  - bot-api
+  - threading
+  - matrix
+  - zulip
+  - campfire
+  - mattermost
+  - rocket-chat
+  - conduit
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-04-06
+    commit: "--"
+    sources: 8
+
+referenced-by: []
+
+sources:
+  - source-id: "zulip-self-hosting"
+    type: web
+    url: "https://zulip.com/self-hosting/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Self-host Zulip — Requirements, Features, and Pricing"
+    hash: "3fa87af51845cab5529ce4e5323baaf64acc7fff827f34576a2a35c7a572c4f8"
+
+  - source-id: "matrix-synapse-self-hosting-2025"
+    type: web
+    url: "https://blog.klein.ruhr/self-hosting-matrix-in-2025"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Self-hosting Matrix in 2025 — Matthias Klein"
+    hash: "cf4dd36b3155c9aa42bcdcf750e7fa6ce242bc0cf682de8d21fcd49608904705"
+
+  - source-id: "conduit-matrix-homeserver"
+    type: web
+    url: "https://conduit.rs/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Conduit and conduwuit — Lightweight Matrix Homeservers"
+    hash: "fbfc73cf5fc07430ced367aaff5f3e703e18a855c4da1ff85542194cb4757d22"
+
+  - source-id: "campfire-37signals"
+    type: web
+    url: "https://once.com/campfire"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Campfire by 37signals — Simple Self-Hosted Group Chat"
+    hash: "da8f04c9d7401b6c5b277ad5921a0f5ad23cd9e140cd7256906af82d63b06e5e"
+
+  - source-id: "mattermost-vs-rocketchat-comparison"
+    type: web
+    url: "https://blog.canadianwebhosting.com/mattermost-vs-rocket-chat-self-hosted-team-chat/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Mattermost vs Rocket.Chat — Self-Hosted Team Chat Comparison"
+    hash: "984396b6cf18bd379affd7307338e25879413818647e548a4a6fe26816430a62"
+
+  - source-id: "zulip-bot-api"
+    type: web
+    url: "https://zulip.com/api/writing-bots"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Zulip Bot API and ChatOps Integration"
+    hash: "61c1eb5a5864f68d07ee7222e4ee64feb3d9f76089689c42c79d1a38d7cccbc4"
+
+  - source-id: "matrix-threading-msc3440"
+    type: web
+    url: "https://matrix.org/blog/2022/09/29/matrix-v-1-4-release/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Matrix Threading via MSC3440 — Status and Implementation"
+    hash: "b9c037ee356c77cb288ec5d28caeeb8c1fed38da967050eee1bf52c3703fd344"
+
+  - source-id: "self-hosted-chat-comparison-2026"
+    type: web
+    url: "https://zap-hosting.com/en/blog/2026/02/the-best-self-hosted-discord-alternatives-2026-ranking-pros-cons/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Self-Hosted Chat Server Landscape — 2026 Overview"
+    hash: "c4534669a5e49cb46500d6bb96c34698dfdada8cfd9df21242845970961d5479"
