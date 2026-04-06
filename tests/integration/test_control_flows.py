@@ -544,6 +544,70 @@ class TestProtocolNewTypes:
 
 
 # ---------------------------------------------------------------------------
+# Scenario: Zulip Cloud message format (real-world format)
+# ---------------------------------------------------------------------------
+
+class TestZulipCloudMessageFormat:
+    """Messages from Zulip Cloud use specific sender_email and HTML content."""
+
+    def test_zulip_cloud_operator_message_parses(self):
+        """Zulip Cloud uses user{id}@domain sender emails and HTML content."""
+        msg = {
+            "type": "stream",
+            "sender_email": "user1065126@cristoslc.zulipchat.com",
+            "display_recipient": "swain",
+            "subject": "control",
+            "content": "<p>what specs are ready?</p>",
+        }
+        cmd = parse_zulip_message(msg, bridge="swain", control_topic="control")
+        assert cmd is not None
+        assert cmd.type == "control_message"
+        # Content includes HTML tags — that's what Zulip sends
+        assert "what specs are ready?" in cmd.payload["text"]
+
+    async def test_poll_receives_zulip_cloud_format(self):
+        """Full poll cycle with Zulip Cloud message format."""
+        received: list[Command] = []
+        zulip_msg = {
+            "type": "stream",
+            "sender_email": "user1065126@cristoslc.zulipchat.com",
+            "display_recipient": "swain",
+            "subject": "control",
+            "content": "<p>What gh issues are left?</p>",
+        }
+        client = _make_poll_client([
+            _make_get_events_response([zulip_msg]),
+        ])
+        registry = SessionTopicRegistry()
+        loop = asyncio.get_running_loop()
+
+        with pytest.raises(asyncio.CancelledError):
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+
+        assert len(received) == 1
+        assert received[0].type == "control_message"
+
+    async def test_poll_skips_heartbeat_events(self):
+        """Heartbeat events (type != 'message') are ignored."""
+        received: list[Command] = []
+        client = _make_poll_client([
+            {"result": "success", "events": [
+                {"type": "heartbeat", "id": 1},
+            ]},
+            _make_get_events_response([_make_zulip_msg("hello")], last_id=1),
+        ])
+        registry = SessionTopicRegistry()
+        loop = asyncio.get_running_loop()
+
+        with pytest.raises(asyncio.CancelledError):
+            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+
+        # Only the actual message, not the heartbeat
+        assert len(received) == 1
+        assert received[0].type == "control_message"
+
+
+# ---------------------------------------------------------------------------
 # Scenario: bin/swain NDJSON mode (subprocess test)
 # ---------------------------------------------------------------------------
 
