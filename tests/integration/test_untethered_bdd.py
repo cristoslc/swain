@@ -2,10 +2,10 @@
 
 Scenarios covered:
 
-  Zulip polling:
+  Zulip polling (via call_on_each_message):
     - Zulip message routes to the correct project bridge
-    - BAD_EVENT_QUEUE_ID triggers re-registration and polling continues
-    - Blocking SDK calls run in a thread executor, not on the event loop
+    - Bot's own messages are skipped
+    - Blocking SDK call runs in a thread executor
 
   Claude Code adapter wiring:
     - start_session spawns a ClaudeCodeAdapter
@@ -44,48 +44,33 @@ def _make_zulip_msg(content: str, stream: str = "swain", topic: str = "sess-abc"
     }
 
 
-def _make_get_events_response(messages: list[dict], *, last_id: int = 0) -> dict:
-    events = [
-        {"type": "message", "id": last_id + i + 1, "message": msg}
-        for i, msg in enumerate(messages)
-    ]
-    return {"result": "success", "events": events}
+def _make_poll_client(messages: list[dict]) -> MagicMock:
+    """Build a mock Zulip client that delivers messages via call_on_each_message."""
+    client = MagicMock()
+    client.email = "bot@zulip.com"
+
+    def call_on_each_message(callback):
+        for msg in messages:
+            callback(msg)
+        raise asyncio.CancelledError()
+
+    client.call_on_each_message.side_effect = call_on_each_message
+    return client
+
+
+_STREAM_MAP = {"swain": "swain"}
 
 
 # ---------------------------------------------------------------------------
 # Scenario: Zulip message routes to the correct project bridge
 # ---------------------------------------------------------------------------
 
-_STREAM_MAP = {"swain": "swain"}  # stream name → project name
-
-
-def _make_poll_client(responses: list) -> MagicMock:
-    """Build a mock Zulip client that returns given get_events responses in order."""
-    client = MagicMock()
-    client.email = "bot@zulip.com"
-    client.register.return_value = {
-        "result": "success", "queue_id": "q1", "last_event_id": 0,
-    }
-    it = iter(responses)
-
-    def get_events(**_kw):
-        try:
-            return next(it)
-        except StopIteration:
-            raise asyncio.CancelledError()
-
-    client.get_events.side_effect = get_events
-    return client
-
-
 class TestZulipMessageRouting:
     """_poll_zulip emits the correct Command for each Zulip message type."""
 
     async def test_plain_text_becomes_send_prompt(self):
         received: list[Command] = []
-        client = _make_poll_client([
-            _make_get_events_response([_make_zulip_msg("fix the tests")]),
-        ])
+        client = _make_poll_client([_make_zulip_msg("fix the tests")])
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
@@ -98,9 +83,7 @@ class TestZulipMessageRouting:
     async def test_approve_slash_command(self):
         received: list[Command] = []
         client = _make_poll_client([
-            _make_get_events_response(
-                [_make_zulip_msg("/approve call-123", topic="sess-abc")]
-            ),
+            _make_zulip_msg("/approve call-123", topic="sess-abc"),
         ])
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
@@ -115,7 +98,7 @@ class TestZulipMessageRouting:
         received: list[Command] = []
         bot_msg = _make_zulip_msg("I am the bot")
         bot_msg["sender_email"] = "bot@zulip.com"
-        client = _make_poll_client([_make_get_events_response([bot_msg])])
+        client = _make_poll_client([bot_msg])
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
@@ -124,57 +107,15 @@ class TestZulipMessageRouting:
 
 
 # ---------------------------------------------------------------------------
-# Scenario: BAD_EVENT_QUEUE_ID triggers re-registration
-# ---------------------------------------------------------------------------
-
-class TestZulipQueueReregistration:
-    """When get_events returns BAD_EVENT_QUEUE_ID, polling re-registers and continues."""
-
-    async def test_reregisters_on_bad_queue_id(self):
-        received: list[Command] = []
-        register_calls: list[str] = []
-
-        client = MagicMock()
-        client.email = "bot@zulip.com"
-
-        def register(**_kw):
-            register_calls.append("register")
-            return {"result": "success", "queue_id": f"q{len(register_calls)}", "last_event_id": 0}
-
-        client.register.side_effect = register
-
-        responses = iter([
-            {"result": "error", "code": "BAD_EVENT_QUEUE_ID"},
-            _make_get_events_response([_make_zulip_msg("hello after re-register")]),
-        ])
-
-        def get_events(**_kw):
-            try:
-                return next(responses)
-            except StopIteration:
-                raise asyncio.CancelledError()
-
-        client.get_events.side_effect = get_events
-        loop = asyncio.get_running_loop()
-
-        with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
-
-        assert len(register_calls) == 2  # initial + re-register
-        assert len(received) == 1
-        assert received[0].payload["text"] == "hello after re-register"
-
-
-# ---------------------------------------------------------------------------
-# Scenario: Blocking SDK calls run in executor
+# Scenario: Blocking SDK call runs in executor
 # ---------------------------------------------------------------------------
 
 class TestZulipBlockingCallsAreOffloaded:
-    """register() and get_events() must not run on the event loop thread."""
+    """call_on_each_message runs in a thread executor, not on the event loop."""
 
-    async def test_get_events_runs_in_executor(self):
+    async def test_sdk_runs_in_executor(self):
         """Verify run_in_executor is used: the event loop stays responsive
-        while get_events blocks in a worker thread."""
+        while call_on_each_message blocks in a worker thread."""
         import threading
 
         loop = asyncio.get_running_loop()
@@ -183,18 +124,14 @@ class TestZulipBlockingCallsAreOffloaded:
 
         client = MagicMock()
         client.email = "bot@zulip.com"
-        client.register.return_value = {
-            "result": "success", "queue_id": "q1", "last_event_id": 0,
-        }
 
-        def get_events(**_kw):
+        def call_on_each_message(callback):
             loop.call_soon_threadsafe(barrier.set)
             executor_ran.set()
             import time
             time.sleep(0.02)
-            return {"result": "success", "events": []}
 
-        client.get_events.side_effect = get_events
+        client.call_on_each_message.side_effect = call_on_each_message
 
         poll_task = asyncio.create_task(
             _poll_zulip(client, {}, "control", lambda _cmd: None, SessionTopicRegistry(), loop)

@@ -49,29 +49,17 @@ def _make_zulip_msg(content: str, stream: str = "swain", topic: str = "control")
     }
 
 
-def _make_get_events_response(messages: list[dict], *, last_id: int = 0) -> dict:
-    events = [
-        {"type": "message", "id": last_id + i + 1, "message": msg}
-        for i, msg in enumerate(messages)
-    ]
-    return {"result": "success", "events": events}
-
-
-def _make_poll_client(responses: list) -> MagicMock:
+def _make_poll_client(messages: list[dict]) -> MagicMock:
+    """Build a mock Zulip client that delivers messages via call_on_each_message."""
     client = MagicMock()
     client.email = "bot@zulip.com"
-    client.register.return_value = {
-        "result": "success", "queue_id": "q1", "last_event_id": 0,
-    }
-    it = iter(responses)
 
-    def get_events(**_kw):
-        try:
-            return next(it)
-        except StopIteration:
-            raise asyncio.CancelledError()
+    def call_on_each_message(callback):
+        for msg in messages:
+            callback(msg)
+        raise asyncio.CancelledError()
 
-    client.get_events.side_effect = get_events
+    client.call_on_each_message.side_effect = call_on_each_message
     return client
 
 
@@ -461,9 +449,7 @@ class TestZulipPollControlRouting:
 
     async def test_control_topic_plain_text_emits_control_message(self):
         received: list[Command] = []
-        client = _make_poll_client([
-            _make_get_events_response([_make_zulip_msg("what's next?", topic="control")]),
-        ])
+        client = _make_poll_client([_make_zulip_msg("what's next?", topic="control")])
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
 
@@ -476,9 +462,7 @@ class TestZulipPollControlRouting:
 
     async def test_control_topic_work_command_emits_launch_session(self):
         received: list[Command] = []
-        client = _make_poll_client([
-            _make_get_events_response([_make_zulip_msg("/work SPEC-142", topic="control")]),
-        ])
+        client = _make_poll_client([_make_zulip_msg("/work SPEC-142", topic="control")])
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
 
@@ -492,12 +476,9 @@ class TestZulipPollControlRouting:
     async def test_session_topic_plain_text_emits_send_prompt(self):
         received: list[Command] = []
         registry = SessionTopicRegistry()
-        # Register a session so topic resolution works
         registry.assign("sess-abc", "SPEC-142")
 
-        client = _make_poll_client([
-            _make_get_events_response([_make_zulip_msg("keep going", topic="SPEC-142")]),
-        ])
+        client = _make_poll_client([_make_zulip_msg("keep going", topic="SPEC-142")])
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
@@ -575,34 +556,13 @@ class TestZulipCloudMessageFormat:
             "subject": "control",
             "content": "<p>What gh issues are left?</p>",
         }
-        client = _make_poll_client([
-            _make_get_events_response([zulip_msg]),
-        ])
+        client = _make_poll_client([zulip_msg])
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
 
-        assert len(received) == 1
-        assert received[0].type == "control_message"
-
-    async def test_poll_skips_heartbeat_events(self):
-        """Heartbeat events (type != 'message') are ignored."""
-        received: list[Command] = []
-        client = _make_poll_client([
-            {"result": "success", "events": [
-                {"type": "heartbeat", "id": 1},
-            ]},
-            _make_get_events_response([_make_zulip_msg("hello")], last_id=1),
-        ])
-        registry = SessionTopicRegistry()
-        loop = asyncio.get_running_loop()
-
-        with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
-
-        # Only the actual message, not the heartbeat
         assert len(received) == 1
         assert received[0].type == "control_message"
 

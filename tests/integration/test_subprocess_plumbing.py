@@ -241,18 +241,14 @@ class TestChatPluginPollEmit:
         # - Runs _poll_zulip with _emit writing to real stdout
         # - The parent reads the Command from the pipe
         script = '''
-import asyncio, sys, json
+import asyncio, sys
 from unittest.mock import MagicMock
 
-# Make _emit write to real stdout (the pipe)
 from untethered.plugins.zulip_chat import _poll_zulip, _emit, SessionTopicRegistry
 
 def make_client():
     client = MagicMock()
     client.email = "bot@zulip.com"
-    client.register.return_value = {
-        "result": "success", "queue_id": "q1", "last_event_id": 0,
-    }
     msg = {
         "type": "stream",
         "sender_email": "user123@example.com",
@@ -260,18 +256,10 @@ def make_client():
         "subject": "control",
         "content": "what specs are ready?",
     }
-    responses = iter([
-        {"result": "success", "events": [
-            {"type": "message", "id": 1, "message": msg},
-        ]},
-    ])
-    def get_events(**kw):
-        try:
-            return next(responses)
-        except StopIteration:
-            # Exit cleanly after processing the one event
-            sys.exit(0)
-    client.get_events.side_effect = get_events
+    def call_on_each_message(callback):
+        callback(msg)
+        sys.exit(0)
+    client.call_on_each_message.side_effect = call_on_each_message
     return client
 
 async def main():

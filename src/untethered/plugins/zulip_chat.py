@@ -109,82 +109,39 @@ async def _poll_zulip(
     registry: SessionTopicRegistry,
     loop: asyncio.AbstractEventLoop,
 ) -> None:
-    """Long-poll Zulip for operator messages, emit Commands to kernel via stdout."""
+    """Poll Zulip for operator messages using the SDK's call_on_each_message.
 
-    async def _register() -> tuple[str, int]:
-        result = await loop.run_in_executor(
-            None,
-            lambda: client.register(
-                event_types=["message"],
-                narrow=[["is", "stream"]],
-            ),
+    Runs the blocking SDK poll in a thread. The SDK handles registration,
+    heartbeats, re-registration on BAD_EVENT_QUEUE_ID, and error backoff.
+    """
+
+    def _on_message(message: dict) -> None:
+        """Called by the SDK for each incoming message (in a worker thread)."""
+        if message.get("sender_email") == client.email:
+            return
+
+        stream_name = message.get("display_recipient", "")
+        bridge = stream_to_project.get(stream_name, stream_name)
+        cmd = parse_zulip_message(
+            message, bridge=bridge or "", control_topic=control_topic,
         )
-        if result.get("result") != "success":
-            raise RuntimeError(f"Zulip register failed: {result}")
-        log.info("Zulip event queue: %s", result["queue_id"])
-        return result["queue_id"], result["last_event_id"]
+        if not cmd:
+            return
 
-    try:
-        queue_id, last_event_id = await _register()
-    except Exception as exc:
-        log.error("Cannot start Zulip polling: %s", exc)
-        return
+        # Resolve Zulip topic → session_id.
+        if cmd.session_id and cmd.session_id != control_topic:
+            resolved = registry.session_for_topic(cmd.session_id)
+            if resolved:
+                cmd.session_id = resolved
 
-    while True:
-        log.debug("Polling (queue=%s, last_id=%s)", queue_id, last_event_id)
-        try:
-            result = await loop.run_in_executor(
-                None,
-                lambda: client.get_events(
-                    queue_id=queue_id,
-                    last_event_id=last_event_id,
-                ),
-            )
-        except Exception as exc:
-            log.error("Zulip poll error: %s", exc)
-            await asyncio.sleep(5)
-            continue
-        log.debug("Poll returned: %s events", len(result.get("events", [])))
+        log.info("Zulip message → %s (bridge=%s)", cmd.type, cmd.bridge)
+        emit(cmd)
 
-        if result.get("code") == "BAD_EVENT_QUEUE_ID":
-            log.warning("Zulip queue expired, re-registering")
-            try:
-                queue_id, last_event_id = await _register()
-            except Exception as exc:
-                log.error("Re-registration failed: %s", exc)
-                await asyncio.sleep(5)
-            continue
-
-        if result.get("result") != "success":
-            log.warning("Zulip events error: %s", result)
-            await asyncio.sleep(5)
-            continue
-
-        for ev in result.get("events", []):
-            last_event_id = max(last_event_id, ev.get("id", last_event_id))
-            if ev.get("type") != "message":
-                continue
-            message = ev.get("message", {})
-            if message.get("sender_email") == client.email:
-                continue
-
-            stream_name = message.get("display_recipient", "")
-            bridge = stream_to_project.get(stream_name, stream_name)
-            cmd = parse_zulip_message(
-                message, bridge=bridge or "", control_topic=control_topic,
-            )
-            if not cmd:
-                continue
-
-            # Resolve Zulip topic → session_id. When the operator writes in
-            # topic "SPEC-142", we need to route to the session assigned there,
-            # not treat "SPEC-142" as a literal session_id.
-            if cmd.session_id and cmd.session_id != control_topic:
-                resolved = registry.session_for_topic(cmd.session_id)
-                if resolved:
-                    cmd.session_id = resolved
-
-            emit(cmd)
+    log.info("Starting Zulip message poll...")
+    await loop.run_in_executor(
+        None,
+        lambda: client.call_on_each_message(_on_message),
+    )
 
 
 # ---------------------------------------------------------------------------
