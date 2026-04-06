@@ -131,6 +131,7 @@ async def _poll_zulip(
         return
 
     while True:
+        log.debug("Polling (queue=%s, last_id=%s)", queue_id, last_event_id)
         try:
             result = await loop.run_in_executor(
                 None,
@@ -143,6 +144,7 @@ async def _poll_zulip(
             log.error("Zulip poll error: %s", exc)
             await asyncio.sleep(5)
             continue
+        log.debug("Poll returned: %s events", len(result.get("events", [])))
 
         if result.get("code") == "BAD_EVENT_QUEUE_ID":
             log.warning("Zulip queue expired, re-registering")
