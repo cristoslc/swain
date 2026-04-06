@@ -17,6 +17,7 @@ from typing import Any, Callable
 
 from untethered.protocol import Event, Command
 from untethered.adapters.claude_code import ClaudeCodeAdapter
+from untethered.adapters.opencode import OpenCodeAdapter
 
 log = logging.getLogger(__name__)
 
@@ -356,12 +357,12 @@ class ProjectBridge:
                     self._schedule(launcher.send_answer(text))
                     return
 
-        # No active interview — lightweight query session.
+        # No active interview — lightweight query session via opencode.
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
-        session = Session(session_id=session_id, runtime="claude", origin="control")
+        session = Session(session_id=session_id, runtime="opencode", origin="control")
         self.sessions[session_id] = session
 
-        adapter = ClaudeCodeAdapter(
+        adapter = OpenCodeAdapter(
             bridge=self.project,
             session_id=session_id,
             project_dir=self.project_dir,

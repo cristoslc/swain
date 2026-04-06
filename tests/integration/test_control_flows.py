@@ -109,7 +109,7 @@ class TestControlMessageBridge:
     """ProjectBridge handles control_message by spawning a lightweight session."""
 
     async def test_control_message_spawns_session_with_origin_control(self):
-        with patch("untethered.bridges.project.ClaudeCodeAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.OpenCodeAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -122,6 +122,7 @@ class TestControlMessageBridge:
             assert len(bridge.sessions) == 1
             session = list(bridge.sessions.values())[0]
             assert session.origin == "control"
+            assert session.runtime == "opencode"
 
             # Adapter spawned with the text as prompt
             MockAdapter.assert_called_once()
@@ -134,7 +135,7 @@ class TestControlMessageBridge:
         delivered: list[Event] = []
         bridge = ProjectBridge(project="swain", on_event=delivered.append)
 
-        with patch("untethered.bridges.project.ClaudeCodeAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.OpenCodeAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
             bridge.handle_command(
