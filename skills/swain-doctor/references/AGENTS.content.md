@@ -30,7 +30,9 @@ Standalone specs can attach directly to an initiative for small work without nee
 
 ### Worktree isolation
 
-**All file-mutating work happens in a worktree.** Read-only investigation (git log, reading files, checking state) is fine on trunk. The moment you create, edit, move, or delete files — enter a worktree first. This applies to code, scripts, skill files, artifacts, and symlinks equally. swain-do's worktree preamble handles creation; follow it before any file changes, even for "quick" fixes. Partial changes on trunk require manual cleanup and waste operator attention.
+**Implementation work happens in a worktree.** Code changes, new features, multi-file refactors, and non-trivial artifact creation require worktree isolation. swain-do's worktree preamble handles creation; follow it before starting implementation work.
+
+**Lightweight operations land directly on trunk.** Artifact phase transitions, frontmatter metadata updates, single-file edits, and index refreshes are low-risk and trivially reversible — they do not need worktree isolation. Read-only investigation (git log, reading files, checking state) is also fine on trunk.
 
 ### Superpowers skill chaining
 
