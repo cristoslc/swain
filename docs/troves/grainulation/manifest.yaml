@@ -1,0 +1,123 @@
+trove: grainulation
+created: 2026-04-06
+refreshed: 2026-04-06
+tags:
+  - ai-agents
+  - structured-research
+  - decision-making
+  - knowledge-management
+  - claude-code
+  - mcp
+  - cli
+  - evidence-based-decisions
+  - npm
+  - zero-dependencies
+
+freshness-ttl:
+  repository: 30d
+
+history:
+  - event: created
+    date: 2026-04-06
+    commit: "--"
+    sources: 9
+
+sources:
+  - source-id: grainulation-org
+    type: repository
+    url: "https://github.com/grainulation/grainulation"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Grainulation — Structured Research Ecosystem for AI Agents"
+    hash: "f364e0a513121ee7499caf9228f5e3b8caab2d92e8cd8e891f81a5bd7f6ab77b"
+    highlights:
+      - "grainulation-org.md"
+    selective: true
+    notes: "Main org landing repo — unified CLI and ecosystem overview"
+
+  - source-id: grainulation-wheat
+    type: repository
+    url: "https://github.com/grainulation/wheat"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Wheat — CI/CD for Technical Decisions"
+    hash: "59a2c76416533af6119d56c49c120f2e0c84e98f4a02808619cd1f63c67d8749"
+    highlights:
+      - "grainulation-wheat.md"
+    selective: true
+    notes: "Core research engine — most-starred tool, primary entry point"
+
+  - source-id: grainulation-grainulator
+    type: repository
+    url: "https://github.com/grainulation/grainulator"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Grainulator — Research Sprint Orchestrator for Claude Code"
+    hash: "be14264a7622994a5c612f3a0d9a73967fb6eab5147ed47f5127bc5ae2efe18f"
+    highlights:
+      - "grainulation-grainulator.md"
+    selective: true
+    notes: "Claude Code plugin — 13 skills, autonomous subagent, demo PWA"
+
+  - source-id: grainulation-farmer
+    type: repository
+    url: "https://github.com/grainulation/farmer"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Farmer — Approve AI Agent Tool Calls from Anywhere"
+    hash: "3ee36fb4427d46416ee1ad1216dac2c3b48927748cd32c6fc8e40d0c27cb0f21"
+    highlights:
+      - "grainulation-farmer.md"
+    selective: true
+    notes: "Remote permission dashboard — Claude Code hook adapter; trust tiers"
+
+  - source-id: grainulation-barn
+    type: repository
+    url: "https://github.com/grainulation/barn"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Barn — Shared Tools for the Grainulation Ecosystem"
+    hash: "1979f3a5471cc53107ac8a503d6ecd6f951d17ee89cb53f3299c38f6947ddd88"
+    highlights:
+      - "grainulation-barn.md"
+    selective: true
+    notes: "Shared utility library — 17 HTML templates, sprint detection, manifest generation"
+
+  - source-id: grainulation-mill
+    type: repository
+    url: "https://github.com/grainulation/mill"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Mill — Export Sprint Evidence to 24 Formats"
+    hash: "9452e8d4e2ac09846ab8a4bb49b6403cfdf46b33f003adc1be441f3d5a72c799"
+    highlights:
+      - "grainulation-mill.md"
+    selective: true
+    notes: "Export engine — 24 formats; MCP server included; standalone (no wheat required)"
+
+  - source-id: grainulation-silo
+    type: repository
+    url: "https://github.com/grainulation/silo"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Silo — Reusable Knowledge for Research Sprints"
+    hash: "5b47000dbe913b723e5b491c04a515d234e6e8f0ed955337bf3eb9f44089deca"
+    highlights:
+      - "grainulation-silo.md"
+    selective: true
+    notes: "Persistent knowledge packs — 11 packs with 131 curated claims; filesystem-only"
+
+  - source-id: grainulation-harvest
+    type: repository
+    url: "https://github.com/grainulation/harvest"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Harvest — Sprint Analytics and Prediction Calibration"
+    hash: "f0440d1edf7aaa71a682777ef3b2e33a4960f303a5d725ed16586b3af7d9147e"
+    highlights:
+      - "grainulation-harvest.md"
+    selective: true
+    notes: "Read-only analytics — cross-sprint patterns, knowledge decay, prediction calibration"
+
+  - source-id: grainulation-orchard
+    type: repository
+    url: "https://github.com/grainulation/orchard"
+    fetched: 2026-04-06T15:00:00Z
+    title: "Orchard — Multi-Sprint Orchestration and Dependency Tracking"
+    hash: "2e3a3bf319fafc7ef3e5e90048a5f8829209d31b95892f5e3349836bcc89d411"
+    highlights:
+      - "grainulation-orchard.md"
+    selective: true
+    notes: "Multi-sprint coordinator — dependency graphs, cross-sprint conflict detection"
