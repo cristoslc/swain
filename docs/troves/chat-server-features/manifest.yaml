@@ -1,6 +1,6 @@
 trove: chat-server-features
 created: 2026-04-06
-refreshed: 2026-04-07
+refreshed: 2026-04-06
 tags:
   - chat-server
   - self-hosted
@@ -19,6 +19,11 @@ tags:
   - ntfy
   - hosted-transport
   - zero-ops
+  - slack
+  - teams
+  - zulip-cloud
+  - hosted-vs-selfhosted
+  - python-sdk
 
 freshness-ttl:
   web: 14d
@@ -36,6 +41,10 @@ history:
     date: 2026-04-07
     commit: "4a69c96"
     sources: 7
+  - event: extended
+    date: 2026-04-06
+    commit: "--"
+    sources: 5
 
 referenced-by: []
 
@@ -179,3 +188,38 @@ sources:
     fetched: 2026-04-07T06:00:00Z
     title: "Custom WebSocket Chat — Build vs. Buy Assessment for Minimal Chat Server"
     hash: "7f3795d237fc0db3762e029e8fc4c5f2dbe08865a1cfab8b1a7306ee4bdecb35"
+
+  - source-id: "zulip-cloud-hosted"
+    type: web
+    url: "https://zulip.com/plans/"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Zulip Cloud — Hosted Platform with Full API Parity to Self-Hosted"
+    hash: "872c41f359622d2eaecd509c59e1336dfe28317c3a6cee35a4450d79ea5e6d1b"
+
+  - source-id: "slack-hosted-bot-platform"
+    type: web
+    url: "https://docs.slack.dev/tools/bolt-python/"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Slack — Hosted Bot Platform with Bolt SDK and Threading"
+    hash: "7c09844c406d096a3dd25949c960ea937e8ec153c22489ac71d8220da25f9b1e"
+
+  - source-id: "discord-hosted-bot-detailed"
+    type: web
+    url: "https://docs.discord.com/developers/topics/rate-limits"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Discord — Hosted Bot Platform with Forum Channels, Rate Limits, and Security Trade-Offs"
+    hash: "cc7a6b402d132999085260b5b612193e7e40943bb4904aa2bd61b9cb45cf35d2"
+
+  - source-id: "telegram-bot-sdk-detailed"
+    type: web
+    url: "https://docs.python-telegram-bot.org/en/stable/index.html"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Telegram — python-telegram-bot SDK, Rate Limits, and Hosted Transport Details"
+    hash: "0ef6118d5bb1dbda80385760545cd60f3262ea218443908289c9fde17b22db90"
+
+  - source-id: "teams-hosted-bot-platform"
+    type: web
+    url: "https://github.com/microsoft/teams.py"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Microsoft Teams — Graph API Complexity, M365 Requirement, and Enterprise Lock-In"
+    hash: "9178a0029f486b952867f40dfd8d3ca95e4bc930ceb258cc51abe51a519139d3"

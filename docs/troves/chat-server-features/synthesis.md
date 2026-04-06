@@ -1,212 +1,243 @@
-# Synthesis: Self-Hostable Chat Servers for Bot-Driven Development
+# Synthesis: Chat Platforms for Bot-Driven Development
 
 ## Context
 
-This trove looks at self-hostable chat servers for a bot-driven dev workflow run by one person. The use case: one room per project, one thread per session. A bot posts updates nonstop. The operator reads and steers from a phone. This feeds an ADR for chat protocol selection under VISION-006 (Untethered Operator).
+This trove evaluates chat platforms for a bot-driven dev workflow run by one person. The use case: one room per project, one thread per session. A bot posts updates nonstop. The operator reads and steers from a phone. This feeds an ADR for chat protocol selection under VISION-006 (Untethered Operator).
 
-This revision adds a third lens: **full chat platforms vs. lightweight alternatives**. The earlier revisions compared Zulip, Matrix/conduwuit, Mattermost, and Campfire — all "real" chat platforms with varying ops weight. This revision asks whether we need a full platform at all. The interaction model is one human + N bots in rooms. Could a push notification service, a hosted platform's bot API, IRC, or a custom build serve the need with less burden?
+This revision reframes the central question. Earlier revisions compared self-hosted chat servers and asked which one to run on a VPS. This revision recognizes that **for v1, a hosted platform eliminates the VPS entirely**. The provisioning command (`/swain-stage`) just registers a bot and connects bridges. The chat adapter code speaks to an API and does not care where the server lives. Self-hosting becomes an option for operators who need it, not a requirement.
+
+## Hosted vs. Self-Hosted: The New Default
+
+### Why hosted is the v1 default.
+
+The earlier analysis revealed a three-way tension: threading UX vs. operational simplicity vs. vendor independence. Hosted platforms resolve the "operational simplicity" axis completely — there are zero servers to run, zero backups to manage, zero upgrades to perform. The bot code is the only thing to write and maintain.
+
+For a solo developer adopting swain for the first time, the path to value should be: install swain, run `/swain-stage`, start a session, see output on your phone. If the first step is "provision a VPS, install Docker, configure DNS, deploy a chat server," most operators will stop before they start. [zulip-cloud-hosted, slack-hosted-bot-platform, telegram-forum-topics-bot-api, discord-hosted-bot-transport]
+
+### The chat adapter abstraction.
+
+The bot code talks to an API. Whether that API is `https://yourorg.zulipchat.com` (Zulip Cloud) or `https://zulip.yourdomain.com` (self-hosted Zulip), the code is identical. The adapter layer abstracts the transport. This means:
+
+- Hosted is the default for new adopters.
+- Self-hosted is an option for operators who want data sovereignty or customization.
+- Migration between hosted and self-hosted is a config change, not a rewrite.
+
+This is most true for Zulip, where Cloud and self-hosted run the same open-source codebase with the same API. For Slack, Discord, and Telegram, there is no self-hosted equivalent — migration away means switching platforms entirely. [zulip-cloud-hosted, zulip-self-hosting]
+
+### Zulip Cloud is the recommended starting point.
+
+Zulip Cloud stands out because it is the only hosted platform where the bot code is identical to self-hosted and migration is bidirectional:
+
+- **Same API.** The `zulip` Python SDK works with both Cloud and self-hosted. Change the `site` URL, everything else stays the same.
+- **Same features.** No "open core" catch. Every feature on Cloud is available on self-hosted.
+- **Bidirectional migration.** Export from Cloud, import to self-hosted (or vice versa). Message history, streams, topics, and files transfer.
+- **Best threading.** Mandatory stream + topic model gives session-per-topic for free. No extra bot code to manage thread IDs.
+- **Free tier.** 10,000-message search limit. Adequate for getting started. $8/month for unlimited.
+
+No other hosted platform offers this combination. Slack, Discord, and Telegram are all one-way commitments with no self-hosted fallback. [zulip-cloud-hosted, zulip-bot-api, zulip-self-hosting]
 
 ## Key Findings
 
-### The field splits into three tiers, not two.
+### Hosted platform comparison.
 
-Earlier analysis compared "feature-rich but heavy" (Zulip, Mattermost) against "operationally simple" (conduwuit, Campfire). The lightweight alternatives reveal a third tier: **zero-ops hosted transport** — platforms where someone else runs the infrastructure entirely.
+| Platform | Python SDK | Threading | Rate Limit | Free Tier | Security | Self-Hosted Path | Provisioning |
+|---|---|---|---|---|---|---|---|
+| **Zulip Cloud** | `zulip` (official, mature) | Mandatory topics (best) | Same as self-hosted | 10K msg search | Good (open-source co.) | Seamless (same software) | Org signup manual; rest via API. |
+| **Slack** | Bolt for Python (excellent) | `thread_ts` (good) | 1 msg/sec/channel | 90-day history, 10 apps | SOC 2, ISO 27001 | None (no self-hosted Slack) | App creation manual; rest via API. |
+| **Discord** | discord.py (excellent) | Forum channels (good) | 50 req/sec global | Unlimited, free | Weak (community platform) | None | Bot app creation manual; rest via API. |
+| **Telegram** | python-telegram-bot (excellent) | Forum topics (good) | 20 msg/min/group | Unlimited, free | Adequate (cloud-stored) | None | BotFather manual; group setup manual. |
+| **Teams** | teams.py (alpha) | Reply chains (adequate) | 1 msg/2sec/thread | Requires M365 ($6/mo) | Enterprise-grade | None | Azure AD app registration (complex). |
 
-| Tier | Examples | Ops Burden | Threading | Mobile |
+[zulip-cloud-hosted, slack-hosted-bot-platform, discord-hosted-bot-detailed, telegram-bot-sdk-detailed, teams-hosted-bot-platform]
+
+### Python SDK quality and maturity.
+
+The SDKs fall into three tiers:
+
+1. **Excellent and production-ready.** Bolt for Python (Slack), discord.py, python-telegram-bot. All are async-native, actively maintained, well-documented, and handle rate limiting automatically. Any of these would be a solid foundation for the swain chat adapter.
+2. **Good and stable.** The `zulip` Python SDK. Official, functional, covers all API endpoints. Less community ecosystem than Slack/Discord, but reliable.
+3. **Immature.** teams.py (Microsoft). Alpha-stage, breaking changes expected, threading support undocumented. Not ready for production use.
+
+[slack-hosted-bot-platform, discord-hosted-bot-detailed, telegram-bot-sdk-detailed, zulip-bot-api, teams-hosted-bot-platform]
+
+### Rate limits for continuous bot posting.
+
+The bot posts every tool call, text output, status change, and error. This is high-frequency output. Rate limits determine whether the bot can stream output or must batch.
+
+| Platform | Effective Limit | Batching Required? | SDK Auto-Handling? |
+|---|---|---|---|
+| **Discord** | 50 req/sec global; ~5-10 msg/sec/channel practical | No | Yes (discord.py) |
+| **Slack** | 1 msg/sec/channel (60/min) | Light batching | Yes (Bolt SDK) |
+| **Zulip Cloud** | Not explicitly documented; same as self-hosted | Light batching likely | Partial (SDK retries on 429) |
+| **Teams** | 1 msg/2sec/thread (30/min) | Yes | Unknown (alpha SDK) |
+| **Telegram** | 20 msg/min/group | Yes (significant) | Yes (AIORateLimiter) |
+
+Discord is the most generous. Telegram is the most restrictive. For swain's use case (continuous bot output), Discord and Slack allow near-real-time streaming. Telegram requires batching every ~3 seconds. Teams is in the middle but the alpha SDK makes it impractical.
+
+[discord-hosted-bot-detailed, slack-hosted-bot-platform, telegram-bot-sdk-detailed, teams-hosted-bot-platform, telegram-forum-topics-bot-api]
+
+### Free tier viability for a single operator with N bots.
+
+| Platform | Free? | Practical Limit | When to Pay |
+|---|---|---|---|
+| **Telegram** | Completely free. No limits on messages, bots, or groups. | File upload (50 MB). Rate limits (20/min/group). | Never. |
+| **Discord** | Completely free for bot use. | File upload (25 MB). | Never for bot features. |
+| **Zulip Cloud** | Free tier: 10K message search limit. | ~100 days at moderate use. | $8/month for unlimited history. |
+| **Slack** | Free: 90-day history, 10 apps, data deleted after 1 year. | History loss and app limit are real constraints. | $7.25/month (Pro) for sustained use. |
+| **Teams** | Free Teams cannot deploy bots. | Requires M365 ($6/month minimum). | Immediately. |
+
+Telegram and Discord are free indefinitely. Zulip Cloud is free to start and cheap to scale. Slack's free tier works for evaluation but not production. Teams requires payment from day one.
+
+[zulip-cloud-hosted, slack-hosted-bot-platform, discord-hosted-bot-detailed, telegram-bot-sdk-detailed, teams-hosted-bot-platform]
+
+### Security: who can see your agent session data?
+
+| Platform | Data Stored By | Encryption | Compliance | Risk Level |
 |---|---|---|---|---|
-| **Full platform (self-hosted)** | Zulip, Mattermost | High (5 services) to medium (2 services) | Excellent (Zulip) to good (Mattermost) | Native apps |
-| **Lightweight self-hosted** | Conduwuit, Tinode, IRC+The Lounge | Low (single binary + optional DB) | Good (conduwuit/Matrix) to none (IRC) | Native (Element X) to PWA/web |
-| **Zero-ops hosted** | Telegram, Discord | None | Good (forum topics/channels) | Excellent native apps |
+| **Self-hosted (any)** | You | You control | You decide | Lowest (you own the data). |
+| **Zulip Cloud** | Zulip Inc. | TLS + at-rest | Open-source company, good reputation | Low. |
+| **Slack** | Slack (Salesforce/AWS) | TLS + at-rest | SOC 2, ISO 27001, FedRAMP | Low. |
+| **Teams** | Microsoft | TLS + at-rest | SOC 2, ISO 27001, FedRAMP, HIPAA | Lowest among hosted (enterprise-grade). |
+| **Telegram** | Telegram Inc. | TLS + at-rest (Telegram holds keys) | No formal compliance certs | Medium. No E2E for groups. |
+| **Discord** | Discord Inc. | TLS + at-rest | No formal compliance certs | Highest. Data harvesting, community platform design. |
 
-[zulip-self-hosting, conduwuit-deployment-operations, telegram-forum-topics-bot-api, discord-hosted-bot-transport, irc-thelounge-lightweight-chat, tinode-lightweight-chat-server]
+For development session data (code output, architecture decisions, build logs), all hosted platforms are adequate. For proprietary or security-sensitive work, self-hosted or Zulip Cloud (with eventual migration to self-hosted) is the safer choice. Discord is the weakest — its community-platform design and data practices are not optimized for private work.
 
-### Operational simplicity reshuffles the ranking.
+[zulip-cloud-hosted, slack-hosted-bot-platform, discord-hosted-bot-detailed, telegram-bot-sdk-detailed, teams-hosted-bot-platform]
 
-When "single binary, trivial upgrade, file-copy backup" is a primary criterion, the field reorders:
+### Provisioning automability.
 
-| Server | Deployment | Upgrade | Backup | Rollback |
-|---|---|---|---|---|
-| **Telegram/Discord** | Nothing to deploy. | Nothing to upgrade. | N/A (vendor holds data). | N/A. |
-| **Conduwuit** | Single binary or single Docker container. No external services. | Replace binary, restart. Seconds of downtime. | File copy of one directory. | Swap binary back. |
-| **IRC (Ergo) + The Lounge** | Two lightweight processes. No database. | Replace binaries. | File copy. | Swap binaries back. |
-| **Campfire** | Single Docker container, SQLite, no external services. | Pull new image, restart. | SQLite file copy. | Pull old image tag. |
-| **Tinode** | One binary + external database (PostgreSQL/MySQL/MongoDB). | Replace binary, run migrations. | File copy + DB dump. | Restore from backup. |
-| **Mattermost** | One binary + PostgreSQL. Docker Compose typical. | 12-step manual (binary) or image swap (Docker). Auto-migrations. | File copy + `pg_dump`. | Restore from backup. |
-| **Zulip** | Five services (app, PostgreSQL, Redis, RabbitMQ, Memcached). | Scripted upgrade, minutes of downtime. | Scripted tarball (PostgreSQL dump inside). | Minor: symlink swap. Major: restore from backup. |
+Every hosted platform requires at least one manual step (account/app creation). After that, the degree of API-driven automation varies:
 
-[conduwuit-deployment-operations, zulip-upgrade-operations, mattermost-upgrade-operations, campfire-37signals, telegram-forum-topics-bot-api, discord-hosted-bot-transport, irc-thelounge-lightweight-chat, tinode-lightweight-chat-server]
+- **Zulip Cloud:** Manual org signup. Then streams, bots, and topics are all API-creatable. Bot API keys returned on creation. `/swain-stage` can automate everything after signup.
+- **Slack:** Manual app creation in Slack App Directory. Then channels, bot invitations, and messaging are API-driven. OAuth token from app install.
+- **Discord:** Manual bot application in Developer Portal. Then servers, channels, forum posts, and permissions are API-driven.
+- **Telegram:** Manual BotFather chat to create bot. Group creation and forum mode enablement require operator action (Bot API cannot create groups). Topics are API-creatable after group exists.
+- **Teams:** Manual Azure AD app registration with permission configuration and admin consent. Most complex setup of any platform.
+
+Zulip Cloud and Slack have the best provisioning story. Telegram's limitation (cannot create groups via Bot API) adds a manual step. Teams is the most complex.
+
+[zulip-cloud-hosted, slack-hosted-bot-platform, discord-hosted-bot-detailed, telegram-bot-sdk-detailed, teams-hosted-bot-platform]
 
 ### Threading still decides the feature winner.
 
-The platforms fall into four tiers:
+Threading rankings are unchanged by adding hosted platform depth:
 
-1. **Zulip** — every message must have a stream and a topic. A bot sets `topic: "session-2026-04-06-001"` and gets an organized thread for free. Threading is built in, not bolted on. [zulip-self-hosting, zulip-bot-api]
-2. **Matrix, Mattermost, Telegram, Discord** — all support threads, but threads are opt-in. In Matrix, the bot tracks root event IDs and sets `m.thread` relations. In Telegram, the bot uses `message_thread_id` to post to forum topics. In Discord, the bot creates forum posts. More code for the same result, but the UX is good. [matrix-threading-msc3440, mattermost-vs-rocketchat-comparison, telegram-forum-topics-bot-api, discord-hosted-bot-transport]
-3. **Tinode** — no native threading. Groups support flat message streams only. Session separation requires one-group-per-session or application-layer tagging. [tinode-lightweight-chat-server]
-4. **Campfire, IRC** — no threads at all. IRC channels and Campfire rooms are flat streams. The prefix-as-thread workaround is not viable for either. [campfire-37signals, campfire-room-prefix-threading-analysis, irc-thelounge-lightweight-chat]
+1. **Zulip (Cloud or self-hosted)** — mandatory stream + topic. Best-in-class. Zero extra bot code for session separation.
+2. **Slack** — `thread_ts` threading. Good. One parent message per session, replies in thread. Mature and well-understood.
+3. **Discord** — forum channels. Good. Forum posts as sessions, tags for status. Auto-archiving adds friction.
+4. **Matrix (conduwuit)** — `m.thread` relations via MSC3440. Good but more complex bot code.
+5. **Telegram** — forum topics. Good. `message_thread_id` for topic posting. Topic CRUD via Bot API.
+6. **Teams** — reply chains. Adequate. Less prominent than dedicated threading models.
+7. **Mattermost** — threads. Good but requires self-hosting with PostgreSQL.
+8. **Tinode, Campfire, IRC** — no threading. Not viable for session-per-thread.
 
-### Telegram is the strongest zero-ops option.
+[zulip-bot-api, slack-hosted-bot-platform, discord-hosted-bot-detailed, telegram-forum-topics-bot-api, matrix-threading-msc3440, teams-hosted-bot-platform]
 
-Telegram with forum topics maps cleanly to swain's needs:
+### Self-hosted options remain valid for operators who need them.
 
-- **Supergroup = project room.** One group per project.
-- **Forum topic = session thread.** Bot creates topics via `createForumTopic`. Posts to them via `message_thread_id`.
-- **Bot API is rich.** Full CRUD on topics, inline keyboards for structured commands, markdown formatting, file attachments.
-- **Native mobile apps.** Already on most developers' phones. Push notifications built in.
-- **Zero cost, zero infrastructure.** No server, no Docker, no backups.
-- **Rate limit: 20 messages per minute to the same group.** Requires batching for rapid-fire bot output. One summary message per minute instead of per-event is workable.
+The self-hosted analysis from earlier revisions still stands. For operators who need data sovereignty, customization, or want to avoid vendor dependency:
 
-The trade-off is vendor dependency. Telegram is a proprietary service. If it changes API terms, rate limits, or goes down, there is no self-hosted fallback. [telegram-forum-topics-bot-api]
+- **Conduwuit (Matrix)** is the lightest self-hosted option. Single binary, 20-100 MB RAM, file-copy backup. Threading via MSC3440. Element X for mobile.
+- **Zulip self-hosted** has the best threading but requires five services. The highest ops burden.
+- **Mattermost** is a middle ground. One binary + PostgreSQL. Good threading, familiar Slack-like UX.
 
-### Discord is a viable alternative to Telegram but heavier.
+The key insight: **self-hosting is now a tier-2 option, not a prerequisite.** Start hosted, migrate to self-hosted when (and if) you need it.
 
-Discord forum channels provide slightly better threading organization than Telegram topics. The bot API is richer (slash commands, buttons, select menus). Rate limits are more generous (50 req/s). But Discord is heavier, pushes Nitro upsells, and has gaming-community associations that may feel odd for a dev tool. Thread auto-archiving adds friction. [discord-hosted-bot-transport]
+[conduwuit-deployment-operations, zulip-self-hosting, zulip-upgrade-operations, mattermost-vs-rocketchat-comparison, mattermost-upgrade-operations]
+
+### Migration paths vary dramatically.
+
+| From | To Self-Hosted | Effort |
+|---|---|---|
+| **Zulip Cloud** | Zulip self-hosted | Config change. Data export/import. Bot code unchanged. |
+| **Slack** | Any self-hosted | Platform switch. New adapter. Data export (JSON) requires ETL. |
+| **Discord** | Any self-hosted | Platform switch. New adapter. Data export limited (ToS restrictions). |
+| **Telegram** | Any self-hosted | Platform switch. New adapter. Desktop export available but import is custom. |
+| **Teams** | Any self-hosted | Platform switch. New adapter. Export via eDiscovery/Graph API. |
+
+Zulip Cloud is the only hosted platform where migration to self-hosted is a non-event. Every other platform requires a full platform switch.
+
+[zulip-cloud-hosted, slack-hosted-bot-platform, discord-hosted-bot-detailed, telegram-bot-sdk-detailed, teams-hosted-bot-platform]
+
+### Operational simplicity ranking (updated with hosted platforms at top).
+
+| Platform | Deployment | Upgrade | Backup | Cost |
+|---|---|---|---|---|
+| **Telegram** | Nothing. | Nothing. | N/A. | Free. |
+| **Discord** | Nothing. | Nothing. | N/A. | Free. |
+| **Zulip Cloud** | Nothing. | Nothing. | N/A. | Free / $8/mo. |
+| **Slack** | Nothing. | Nothing. | N/A. | Free / $7.25/mo. |
+| **Teams** | Nothing (but complex app setup). | Nothing. | N/A. | $6/mo (M365). |
+| **Conduwuit** | Single binary. | Replace binary. | File copy. | VPS cost (~$5/mo). |
+| **Campfire** | Single Docker container. | Pull image. | SQLite file copy. | $299 one-time. |
+| **Mattermost** | Binary + PostgreSQL. | 12-step or image swap. | File copy + pg_dump. | Free / VPS cost. |
+| **Zulip self-hosted** | 5 services. | Scripted upgrade. | Scripted tarball. | Free / VPS cost. |
+
+[conduwuit-deployment-operations, zulip-upgrade-operations, mattermost-upgrade-operations, campfire-37signals, zulip-cloud-hosted, slack-hosted-bot-platform]
 
 ### Push notification services (ntfy, Gotify) are not chat surfaces.
 
-ntfy and Gotify are one-way notification systems. They can deliver alerts to a phone and support action buttons for simple responses. But they lack: conversation UI, message threading, persistent history, and free-form reply. A bot could use ntfy to alert the operator "session needs input" and the operator could tap a button to approve, but the operator cannot type steering commands. ntfy is a complement to a chat system, not a replacement for one. [ntfy-push-notification-service]
+Unchanged from earlier analysis. ntfy is a one-way notification system. It complements a chat system but cannot replace one. [ntfy-push-notification-service]
 
-### IRC is ultra-lightweight but threadless.
+### Building a custom chat server is still the wrong trade-off.
 
-IRC (via Ergo) + The Lounge is the lightest self-hosted chat stack with a real web UI. Combined RAM under 250 MB. Bot development in IRC is trivial and mature. But IRC has zero threading support. One channel per session creates sprawl. For a flat conversation model, IRC is perfect. For structured session management, it is inadequate. [irc-thelounge-lightweight-chat]
+Unchanged from earlier analysis. Existing platforms provide more features with less code and less ongoing burden. [custom-websocket-chat-assessment]
 
-### Tinode is lighter than Mattermost but heavier than conduwuit.
+### Matterbridge enables hybrid approaches.
 
-Tinode is a Go-based chat server with native mobile apps (iOS, Android), a web client, and a bot plugin system. It needs an external database (PostgreSQL, MySQL, or MongoDB). It is lighter than Mattermost or Rocket.Chat but has no native threading. The mobile apps exist but are less polished than Telegram or Element X. [tinode-lightweight-chat-server]
-
-### Matterbridge is glue, not a platform.
-
-Matterbridge bridges messages between 30+ platforms. It is useful if swain supports multiple chat backends and needs to relay messages between them. It preserves threading when both endpoints support it. But it is not a standalone solution — you still need at least one actual chat platform. Its main value is enabling a hybrid approach: bot posts to Matrix, operator reads on Telegram via bridge. [matterbridge-chat-bridge]
-
-### Building a custom chat server is the wrong trade-off.
-
-A minimal WebSocket chat server with rooms, threads, and a mobile-friendly UI is 4000-8000 lines of code and 1-3 weeks of initial development. But the ongoing maintenance cost (security patches, mobile UX polish, edge cases in reconnection and message ordering) makes it a poor choice. Every swain adopter would inherit this maintenance. Existing platforms provide more features with less code and less ongoing burden. [custom-websocket-chat-assessment]
-
-### The Campfire prefix-as-thread workaround is not viable.
-
-Three blocking problems remain from earlier analysis: no room creation API, no room hierarchy, and PWA-only mobile. No one in the Campfire community has proposed or documented this pattern. [campfire-bot-kit-api, campfire-room-prefix-threading-analysis]
-
-### Bot APIs range from rich to bare.
-
-| Platform | Bot API Quality | Key Capability |
-|---|---|---|
-| **Discord** | Excellent | Slash commands, buttons, embeds, forum CRUD |
-| **Zulip** | Excellent | Full CRUD on streams/topics, official SDKs |
-| **Telegram** | Very good | Forum topic CRUD, inline keyboards, webhooks |
-| **Mattermost** | Very good | Full CRUD on channels/posts, official SDKs |
-| **Matrix** | Good | Client-server API covers everything, but thread handling is complex |
-| **IRC** | Good (simple) | PRIVMSG, join, part. No REST API — persistent connection required |
-| **Tinode** | Good | gRPC + WebSocket, plugin system, scriptable CLI |
-| **Campfire** | Poor | Webhooks only. No room CRUD, no history, no membership management |
-
-[zulip-bot-api, telegram-forum-topics-bot-api, discord-hosted-bot-transport, mattermost-vs-rocketchat-comparison, campfire-bot-kit-api, irc-thelounge-lightweight-chat, tinode-lightweight-chat-server]
-
-### Resource requirements span three orders of magnitude.
-
-| Platform | RAM | External Services | Docker Containers |
-|---|---|---|---|
-| **Telegram/Discord** | 0 (hosted) | 0 | 0 |
-| **Ergo (IRC server)** | ~20 MB | 0 | 1 (optional) |
-| **Conduwuit** | 20-100 MB | 0 | 1 |
-| **The Lounge (IRC client)** | ~100-200 MB | IRC server | 1 |
-| **Campfire** | ~2 GB | 0 | 1 |
-| **Tinode** | ~200-500 MB | Database (PostgreSQL/MySQL) | 2 |
-| **Mattermost** | 2-4 GB | PostgreSQL | 2 |
-| **Synapse (Matrix)** | 350 MB+ (grows with federation) | PostgreSQL | 2+ |
-| **Zulip** | 2 GB+ | PostgreSQL, Redis, RabbitMQ, Memcached | 5 |
-
-[conduit-matrix-homeserver, conduwuit-deployment-operations, zulip-self-hosting, mattermost-vs-rocketchat-comparison, irc-thelounge-lightweight-chat, tinode-lightweight-chat-server, telegram-forum-topics-bot-api]
-
-### Mobile apps vary in quality.
-
-- **Telegram and Discord:** Best-in-class native apps. Already on most phones.
-- **Matrix (Element X):** Fast, polished native app. Many other clients exist.
-- **Zulip:** Native iOS and Android apps. Push alerts free for up to 10 self-hosted users.
-- **Mattermost:** Native mobile apps. Solid.
-- **Tinode:** Native iOS and Android apps. Functional but less polished.
-- **Campfire:** PWA only. No native apps.
-- **IRC (The Lounge):** Responsive web app. Works in mobile browser. Not a native app.
-
-## Full Platform vs. Lightweight: The Core Trade-Off
-
-The research reveals a spectrum, not a binary choice. The decision depends on which cost the operator is willing to pay.
-
-### Hosted transport (Telegram, Discord): Zero ops, vendor risk.
-
-**Best for:** A solo operator who wants to start using swain immediately with no infrastructure setup. The bot code is the only thing to write and maintain.
-
-**Cost:** Vendor dependency. Messages live on someone else's server. API terms can change. If the platform goes down, you wait. No self-hosted fallback.
-
-**Threading:** Good enough. Telegram forum topics and Discord forum channels both provide session separation. Not as clean as Zulip's mandatory topics, but adequate.
-
-### Lightweight self-hosted (conduwuit, IRC): Minimal ops, some gaps.
-
-**Best for:** An operator who wants data sovereignty and a self-hosted stack, but does not want to manage PostgreSQL, Redis, or multi-service deployments.
-
-**Cost:** Some ops burden (trivial for conduwuit — file-copy backup, binary swap upgrades). Conduwuit has good threading via Matrix protocol. IRC has none. The gap is in the middle: there is no single-binary self-hosted server with both great threading AND great mobile apps.
-
-**Threading:** Conduwuit (Matrix) has it via MSC3440. IRC does not. Tinode does not. The lightweight self-hosted tier has a threading gap outside of Matrix.
-
-### Full platform (Zulip, Mattermost): Best features, highest ops.
-
-**Best for:** An operator who wants the best threading UX (Zulip) or Slack-like familiarity (Mattermost) and is willing to manage a multi-service deployment.
-
-**Cost:** Significant ops burden. Zulip needs five services. Mattermost needs PostgreSQL. Upgrades are multi-step. Backups require database dumps.
-
-**Threading:** Zulip is the gold standard. Mattermost threads are good.
-
-### The hybrid option: Hosted transport + matterbridge + self-hosted archive.
-
-Matterbridge enables a hybrid model. The bot posts to a self-hosted platform (conduwuit for data sovereignty). Matterbridge bridges to Telegram for mobile convenience. The operator reads and replies on Telegram. Messages are archived on the self-hosted server. This gives zero mobile ops burden with data sovereignty as a secondary property.
-
-**Cost:** Two systems to understand. Bridge fidelity is best-effort on threading. More moving parts than either pure approach.
+Matterbridge bridges messages between 30+ platforms. If swain supports multiple chat backends, Matterbridge can relay between them. The main hybrid scenario: bot posts to Zulip (self-hosted, for data sovereignty), Matterbridge bridges to Telegram (for mobile convenience). Thread fidelity across bridges is best-effort. [matterbridge-chat-bridge]
 
 ## Points of Agreement
 
 All sources agree on these points:
 
-- Self-hosted chat is easier in 2026 than ever.
+- Hosted platforms eliminate ops burden entirely for the chat layer.
 - Threading quality is the top factor when choosing a platform for structured bot output.
-- Zulip has the best threading model for organized, searchable conversations.
-- Fewer moving parts means fewer failure modes for a solo operator.
-- Push notification services (ntfy, Gotify) are not chat replacements.
-- Building a custom chat server is not worth the maintenance cost when existing options exist.
-- Hosted platforms (Telegram, Discord) eliminate ops burden at the cost of vendor dependency.
+- Zulip has the best threading model regardless of deployment method.
+- Python SDKs for Slack, Discord, and Telegram are mature and production-ready.
+- Microsoft Teams is over-engineered for a solo developer use case.
+- Push notification services are not chat replacements.
+- Building a custom chat server is not worth the maintenance cost.
 
 ## Points of Disagreement
 
-- **Self-hosted vs. hosted transport.** Privacy advocates say messages must live on your server. Pragmatists say Telegram's reliability and UX outweigh data sovereignty concerns for a development tool (not a personal messenger).
-- **Matrix vs. Zulip for bots.** Matrix fans say the federated protocol and client ecosystem outweigh the threading gap. Zulip fans say first-class threading removes a whole class of bot problems.
-- **Mattermost licensing.** Some see the open-core model as fine. Others call the 10,000-message search cap on the free tier a dealbreaker.
-- **Conduwuit governance.** Fork drama (Conduit -> conduwuit -> Continuwuity) raises questions about long-term maintenance.
-- **Discord for dev tools.** Some see Discord as a natural fit (many dev communities already use it). Others find the gaming associations and Nitro upsells off-putting.
-- **Telegram rate limits.** 20 msg/min/group is tight for rapid bot output. Some see batching as trivial. Others see it as a UX compromise.
+- **Hosted vs. self-hosted default.** Privacy advocates insist on self-hosting. Pragmatists argue hosted is the right default for a development tool, with self-hosting as an escape hatch.
+- **Telegram rate limits.** 20 msg/min/group is tight. Some see batching as trivial and transparent (AIORateLimiter handles it). Others see it as a UX compromise that delays output visibility.
+- **Discord security.** Some developers already use Discord for all project communication and see no issue. Others consider it inappropriate for anything beyond open-source work.
+- **Slack pricing.** $7.25/month is cheap. But the free tier's 90-day history and 10-app limit make evaluation awkward — you outgrow free quickly but must pay before you know if you will stick with it.
+- **Zulip Cloud free tier.** 10K messages is either "plenty to evaluate" or "gone in two weeks" depending on bot output volume.
+- **Matrix vs. Zulip threading.** Matrix fans prefer the federated protocol and client ecosystem. Zulip fans prefer first-class mandatory threading.
 
 ## Gaps
 
-- **Telegram bot thread code.** No source shows working code for a bot managing forum topics. The API is documented but real-world patterns (error handling, topic lifecycle) are untested.
-- **Matterbridge thread fidelity.** How well do Zulip topics bridge to Telegram forum topics? No source tests this cross-platform thread mapping.
-- **Conduwuit long-term governance.** The fork lineage is messy. Worth monitoring.
-- **Signal as transport.** Signal has no official bot API. Unofficial bridges exist but are fragile. Not evaluated.
-- **Revolt/Stoat.** Formerly known as Revolt, rebranded to Stoat in 2025. A Discord-like self-hosted platform in Rust. Has channels but threading support and bot API maturity are unclear. Not deeply evaluated.
-- **Chatwoot.** Designed for customer support, not developer workflows. Requires Docker + PostgreSQL. Not a lightweight option. Not deeply evaluated.
+- **Zulip Cloud bot billing.** Documentation does not confirm whether bots count as billable users. Need to confirm with Zulip sales.
+- **Zulip Cloud rate limits.** Not separately documented. Assumed to match self-hosted but unconfirmed for high-volume bot use.
+- **Slack Socket Mode at scale.** Socket Mode avoids needing a public endpoint, but behavior under sustained high-throughput bot output is undocumented.
+- **Discord ToS for automated posting.** Discord's Terms of Service restrict automated bulk messaging. Continuous bot output to a private server may technically be fine, but the line is fuzzy.
+- **Telegram group creation automation.** The Bot API cannot create groups. MTProto API can, but requires a user account. The provisioning story has a manual gap.
+- **Matterbridge thread fidelity.** How well do Zulip topics bridge to Telegram forum topics or Slack threads? No source tests this cross-platform thread mapping.
+- **Signal as transport.** No official bot API. Not evaluated.
 
-## Recommendation Signal
+## Recommendation
 
 For this use case (one operator, room per project, thread per session, bot posts nonstop, operator steers from mobile, minimal ops burden):
 
-**Telegram is the easiest path to value.** Zero infrastructure. Rich bot API with forum topic support. The operator installs nothing new — Telegram is already on their phone. The rate limit (20 msg/min/group) is manageable with batched updates. The vendor risk is real but acceptable for a development tool. If swain wants the fastest time-to-value for adopters, Telegram is the answer.
+**Zulip Cloud is the recommended starting point for v1.** It uniquely combines:
 
-**Conduwuit (Matrix) is the best self-hosted option.** Single binary, 20-100 MB RAM, file-copy backup. Threading works via MSC3440. Element X is a polished mobile client. The bot code is more complex than Telegram (thread relation tracking), but the protocol is open and the data is yours. For operators who want self-hosting without the weight of Zulip, conduwuit is the pick.
+1. **Zero ops.** Hosted platform, nothing to deploy.
+2. **Best threading.** Mandatory stream + topic maps directly to session-per-topic.
+3. **Seamless migration.** Same API as self-hosted. Bot code unchanged. Data export/import supported.
+4. **Good free tier.** 10K messages to evaluate. $8/month for unlimited.
+5. **Mature Python SDK.** Official `zulip` package covers all API endpoints.
 
-**Zulip remains the best feature fit if ops burden is acceptable.** Mandatory topic threading maps straight to sessions with zero extra bot code. But five services and PostgreSQL backups are a real cost for a solo operator.
+The migration path is the decisive factor. Every other hosted platform is a one-way commitment. Zulip Cloud is the only platform where starting hosted and moving to self-hosted later is a config change, not a rewrite.
 
-**The pragmatic answer may be a tiered approach.** Swain could support multiple chat backends:
+**Tiered backend support:**
 
-1. **Tier 1 (zero ops):** Telegram. The default for new adopters. No infrastructure needed.
-2. **Tier 2 (minimal ops):** Conduwuit/Matrix. For operators who want self-hosting. Single binary, low maintenance.
-3. **Tier 3 (full features):** Zulip. For operators who want the best threading UX and are willing to manage the stack.
+1. **Tier 1 (recommended default): Zulip Cloud.** Best threading, seamless self-hosted migration, good SDK. The adapter code works for both Cloud and self-hosted.
+2. **Tier 2 (alternative hosted): Slack or Telegram.** Slack for operators in Slack-native orgs. Telegram for operators who want completely free with good-enough threading. Both have excellent Python SDKs.
+3. **Tier 3 (self-hosted): Conduwuit or Zulip self-hosted.** For operators who need data sovereignty. Conduwuit is lighter. Zulip self-hosted has better threading.
+4. **Not recommended: Discord (security concerns), Teams (complexity and cost), Campfire (no threading), IRC (no threading).**
 
-Matterbridge could bridge between tiers, allowing an operator to start with Telegram and migrate to self-hosted later without losing conversation history.
-
-**The tradeoff is no longer just threading vs. ops.** It is now a three-way tension: **threading UX vs. operational simplicity vs. vendor independence.** No single option wins on all three. The tiered approach lets each adopter pick their own balance point.
+**The adapter abstraction makes this viable.** The bot code talks to a platform-specific adapter. The adapter talks to the platform API. Adding a new backend means writing a new adapter, not rewriting the bot. Start with the Zulip adapter (covers both Cloud and self-hosted). Add Slack and Telegram adapters later if there is demand.

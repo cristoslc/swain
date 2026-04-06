@@ -21,13 +21,27 @@ The vision serves two interaction surfaces under one infrastructure stack.
 
 ### Bridge (core domain — two types, shared published language)
 
-Two bridge types share a common event/command language so that any chat adapter works with either. The chat adapter is generic — it renders events and routes commands regardless of which bridge type it's paired with.
+The kernel has two bridge types (host and project) connected in a hub-and-spoke topology. The host bridge is the hub — it spawns and supervises project bridges, spawns the shared chat adapter, and routes all events between them. Project bridges never talk to the chat adapter directly.
 
-**2 bridge types × N chat adapters = 2N permutations, but only 2 + N components to write.**
+**Hub-and-spoke:**
+```
+Chat Adapter ←→ Host Bridge ←→ Project Bridge (swain)
+                            ←→ Project Bridge (rk)
+                            ←→ Project Bridge (houseops)
+```
 
-#### Host Bridge
+If the host bridge goes down, all project bridges in that domain stop cleanly. It is unsafe to continue unmonitored agent sessions without the operator's steering surface.
 
-Local daemon scoped to a security domain on a machine. One host can run multiple host bridges — one per security domain (personal, work, client, etc.). Each host bridge only sees projects in its domain via an include/exclude list. Does not connect to the network directly — its chat adapter handles that.
+#### Host Bridge (hub)
+
+Local daemon scoped to a security domain on a machine. One host can run multiple host bridges — one per security domain (personal, work, client, etc.). Each host bridge only sees projects in its domain via an include/exclude list.
+
+The host bridge is the **single point of coordination** for its domain. It:
+- Spawns and supervises project bridges.
+- Spawns the shared chat adapter plugin (one per domain, one bot account).
+- Routes events from project bridges to the chat adapter (with bridge ID for room routing).
+- Routes commands from the chat adapter to the correct project bridge.
+- Polls tmux for unmanaged sessions and posts discovery events through the chat adapter.
 
 **Aggregates:**
 - **Domain** — security domain identity, project include/exclude rules, associated chat service.
@@ -43,15 +57,18 @@ Local daemon scoped to a security domain on a machine. One host can run multiple
 **Domain commands (consumed — host scope):**
 - `clone_project(repo_url, host_path?)` — clone a repo onto this host.
 - `init_project(project_path)` — initialize swain in an existing project.
-- `start_bridge(project_path, chat_service)` — spawn a project bridge and connect it.
+- `start_bridge(project_path)` — spawn a project bridge.
 - `stop_bridge(project)` — stop a project bridge.
 - `adopt_session(tmux_target, project, runtime?, artifact?)` — hand an unmanaged session to a project bridge.
 
 **Ports:**
-- **Inbound: Chat port** — receives host-level commands from chat adapters.
-- **Outbound: Chat delivery port** — publishes host events to chat adapters.
+- **Inbound: Project bridge event port** — receives events from all project bridges in the domain.
+- **Inbound: Chat adapter command port** — receives operator commands from the shared chat adapter.
+- **Outbound: Chat adapter event port** — forwards events (with bridge ID routing metadata) to the shared chat adapter.
+- **Outbound: Project bridge command port** — forwards operator commands to the correct project bridge.
 - **Outbound: Session discovery port** — polls tmux sessions on the host.
 - **Outbound: Bridge lifecycle port** — spawns/stops project bridges.
+- **Outbound: Chat adapter lifecycle port** — spawns the shared chat adapter plugin.
 
 #### Project Bridge (Session Orchestrator)
 
@@ -77,16 +94,15 @@ Manages session lifecycle, artifact binding, and collision detection for one pro
 - `cancel(session_id)` — terminate session.
 - `bind_artifact(session_id, artifact_id)` — associate session with an artifact.
 
-The chat adapter surfaces session events as a live feed in per-session threads. The operator reads passively and types only to steer. The host bridge handles session discovery and adoption — the project bridge receives already-adopted sessions.
+Project bridges do not talk to the chat adapter directly. They emit events and receive commands through the host bridge, which routes to/from the shared chat adapter. This keeps project bridges simple — they manage sessions and runtimes, nothing else.
 
 **Ports:**
-- **Inbound: Chat port** — receives operator commands from chat adapters. The connection is outbound-initiated (bridge connects to chat service), but the protocol is bidirectional: events stream out, commands flow in over the same connection.
+- **Inbound: Host bridge command port** — receives operator commands routed from the host bridge.
 - **Inbound: Runtime event port** — receives normalized events from runtime adapters.
-- **Inbound: Host bridge port** — receives adopted sessions from the host bridge.
-- **Outbound: Chat delivery port** — publishes domain events to chat adapters.
+- **Outbound: Host bridge event port** — publishes domain events to the host bridge (which forwards to the chat adapter).
 - **Outbound: Runtime command port** — sends commands to runtime adapters.
 - **Outbound: Session management port** — creates/destroys/reconnects tmux sessions.
-- **Outbound: Ingress registration port (v2)** — registers/deregisters session-scoped web routes. Route lifecycle follows session lifecycle. Not needed for v1 chat bridge.
+- **Outbound: Ingress registration port (v2)** — registers/deregisters session-scoped web routes. Not needed for v1.
 
 ---
 
@@ -210,27 +226,45 @@ Ingress Layer (v2) ←──shared-kernel──→ Web App
 
 ## Plugin Loading
 
-Plugins (chat adapters, runtime adapters) are loaded by the kernel at startup via configuration. The v1 mechanism is simple: a Python base class that plugins implement, discovered by config.
+Plugins are executables that speak NDJSON over stdio. The kernel spawns each plugin as a child process. Language-agnostic — write plugins in Python, Go, Rust, Node, shell, whatever.
 
 ```yaml
-# Example bridge config
+# Example host bridge config
 chat:
-  plugin: swain_chat_zulip        # Python module path
+  command: /usr/local/bin/swain-chat-zulip
+  sha256: a1b2c3d4e5f6...
   config:
     server_url: https://myorg.zulipchat.com
     bot_email: swain-bot@myorg.zulipchat.com
     bot_api_key: ${ZULIP_BOT_API_KEY}
 
 runtimes:
-  - plugin: swain_runtime_claude   # Python module path
+  claude:
+    command: /usr/local/bin/swain-runtime-claude
+    sha256: f6e5d4c3b2a1...
     config:
       allowed_tools: ["Bash", "Read", "Write", "Edit"]
-  - plugin: swain_runtime_opencode
+  opencode:
+    command: /usr/local/bin/swain-runtime-opencode
+    sha256: 1a2b3c4d5e6f...
 ```
 
-**Plugin distribution:** `pip install swain-chat-zulip` or `pip install swain-chat-slack`. Each package provides a module implementing the base class. Operators can also point to a local module for custom plugins.
+**Protocol:** The kernel passes config as the first JSON line on stdin. Then events and commands stream as NDJSON in both directions. Events from the kernel include a `bridge` field for routing (which project the event belongs to). Commands from the chat adapter include the same field so the kernel routes to the correct project bridge.
 
-**Future option:** MCP as the plugin protocol. Instead of Python base classes, plugins are MCP servers that the kernel communicates with over stdio. This would make plugins language-agnostic. Deferred — Python base classes are sufficient for v1 and simpler to implement.
+**Security:**
+- **Stdio is process-locked.** The pipe exists only between the kernel and its child. No network port, no socket to hijack.
+- **Absolute paths + SHA-256 pinning.** Config uses full paths to executables with content hashes. The kernel checks the hash before spawning. Catches path hijacking and tampering.
+- **Config file permissions.** The config contains credentials and plugin paths. Owner-readable only (`chmod 600`). The host bridge refuses to start if permissions are too open.
+- **Scoped config.** Each plugin receives only its own credentials. Chat adapters never see runtime credentials. Runtime adapters never see chat credentials.
+
+**Plugin distribution:** Package-manager-agnostic. Any executable on `$PATH` or at an absolute path.
+- `brew install swain-chat-zulip` (Go binary).
+- `cargo install swain-chat-slack` (Rust binary).
+- `npx swain-chat-discord` (Node).
+- `uv tool install swain-chat-telegram` (Python).
+- Or a script in `~/.local/bin/`.
+
+**Future option:** MCP as the plugin protocol. Instead of raw NDJSON, plugins speak MCP over stdio. This adds capability negotiation and tool schemas. Deferred — raw NDJSON is sufficient for v1.
 
 ---
 
@@ -310,7 +344,8 @@ The laptop runs two host bridges — one for the personal security domain (→ C
 
 ```
 Phone → Chat app → Chat service → Chat adapter
-    → Session orchestrator (resolves thread → session)
+    → Host bridge (routes by room → project bridge)
+    → Project bridge (resolves thread → session)
     → Runtime adapter (denormalizes to runtime-specific input)
     → Runtime (headless CLI in tmux)
 ```
@@ -319,19 +354,22 @@ Phone → Chat app → Chat service → Chat adapter
 
 ```
 Runtime → Runtime adapter (normalizes to domain event)
-    → Session orchestrator (enriches with session context)
-    → Chat adapter (formats as chat message)
+    → Project bridge (enriches with session context)
+    → Host bridge (forwards with bridge ID)
+    → Chat adapter (formats as chat message, posts to correct room/thread)
     → Chat service → Chat app → Phone
 ```
 
 ### Operator starts a new session
 
 ```
-Phone: "/work SPEC-142"
-    → Chat adapter parses command
-    → Orchestrator checks session registry for SPEC-142 binding
+Phone: "/work SPEC-142" in project room
+    → Chat adapter parses command, includes room → bridge routing
+    → Host bridge routes to project bridge
+    → Project bridge checks session registry for SPEC-142 binding
     → If found: reconnects thread to existing session
     → If not found: spawns new tmux session, starts runtime, binds artifact
+    → Project bridge emits session_spawned → Host bridge → Chat adapter
     → Chat adapter creates thread, posts "Session started on SPEC-142"
 ```
 
@@ -339,24 +377,25 @@ Phone: "/work SPEC-142"
 
 ```
 Host bridge polls tmux → finds unmanaged session "swain-spec-142"
-    → Host bridge emits unmanaged_session_found
-    → Host chat adapter posts to status thread in host room
-Operator sees listing, replies "adopt swain-spec-142 to swain project"
-    → Host bridge routes adopt_session to swain project bridge
+    → Host bridge emits unmanaged_session_found → Chat adapter
+    → Chat adapter posts to control thread in project room
+Operator sees listing, replies "adopt swain-spec-142"
+    → Chat adapter → Host bridge routes adopt_session to project bridge
     → Project bridge attaches runtime adapter to tmux session
-    → Project chat adapter creates new thread, begins posting live feed
+    → Project bridge emits session_spawned → Host bridge → Chat adapter
+    → Chat adapter creates new thread, begins posting live feed
 ```
 
 ### Operator clones a new project from phone
 
 ```
 Phone: "clone cristoslc/some-repo" in host room
-    → Host chat adapter parses clone_project command
+    → Chat adapter → Host bridge receives clone_project command
     → Host bridge clones repo, inits swain
-    → Host bridge spawns project bridge + chat adapter
-    → Project chat adapter creates project room on chat service
-    → Host bridge emits bridge_started
-    → Host chat adapter posts "Project some-repo ready" with link to room
+    → Host bridge spawns project bridge
+    → Host bridge emits bridge_started → Chat adapter
+    → Chat adapter creates project room on chat service
+    → Chat adapter posts "Project some-repo ready" with link to room
 ```
 
 ### Session-scoped web output (v1 bridge to v2)
