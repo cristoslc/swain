@@ -11,6 +11,7 @@
 | SPIKE-039 | MCP Session-State Tracker Design | 2026-03-22 | 730b957 |
 | SPIKE-040 | Post-Hoc Process Audit Pipeline | 2026-03-22 | 730b957 |
 | SPIKE-041 | Cross-Platform Deny-Rule Portability | 2026-03-22 | 730b957 |
+| SPIKE-052 | Reporting Format Library Design | 2026-04-06 | _pending_ |
 
 ## Active
 
