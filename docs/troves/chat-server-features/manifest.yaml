@@ -50,7 +50,7 @@ history:
     sources: 5
   - event: extended
     date: 2026-04-06
-    commit: "--"
+    commit: "cb0917c"
     sources: 2
 
 referenced-by: []
