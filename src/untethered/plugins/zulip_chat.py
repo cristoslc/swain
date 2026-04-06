@@ -112,7 +112,26 @@ async def _relay_events(
     control_topic: str,
     loop: asyncio.AbstractEventLoop,
 ) -> None:
-    """Read Events from stdin (kernel), post them to Zulip."""
+    """Read Events from stdin (kernel), post them to Zulip.
+
+    Session lifecycle events (session_spawned, session_died) are announced
+    in the control topic so the operator knows which thread to interact with.
+    All other events are posted to the session's own topic.
+    """
+
+    async def _post(stream: str, topic: str, content: str) -> None:
+        await loop.run_in_executor(
+            None,
+            lambda: client.send_message({
+                "type": "stream",
+                "to": stream,
+                "topic": topic,
+                "content": content,
+            }),
+        )
+
+    mention = f"@**{operator_email}** " if operator_email else ""
+
     while True:
         line = await loop.run_in_executor(None, sys.stdin.readline)
         if not line:
@@ -121,21 +140,35 @@ async def _relay_events(
         msg = decode_message(line)
         if not isinstance(msg, Event):
             continue
+
         stream = project_to_stream.get(msg.bridge or "", msg.bridge or "")
+        session_id = msg.session_id or ""
+
+        # Announce session lifecycle in the control topic so the operator
+        # knows which thread to navigate to.
+        if msg.type == "session_spawned":
+            artifact = msg.payload.get("artifact", "")
+            suffix = f" on `{artifact}`" if artifact else ""
+            await _post(
+                stream, control_topic,
+                f"{mention}New session **{session_id}**{suffix}. "
+                f"Interact in topic **{session_id}**.",
+            )
+
+        elif msg.type == "session_died":
+            reason = msg.payload.get("reason", "unknown")
+            await _post(
+                stream, control_topic,
+                f"Session **{session_id}** ended: {reason}.",
+            )
+
+        # Post the event itself to the session topic (or control for host events).
         zulip_msg = format_event_for_zulip(
             msg,
             operator_email=operator_email,
             control_topic=control_topic,
         )
-        await loop.run_in_executor(
-            None,
-            lambda: client.send_message({
-                "type": "stream",
-                "to": stream,
-                "topic": zulip_msg["topic"],
-                "content": zulip_msg["content"],
-            }),
-        )
+        await _post(stream, zulip_msg["topic"], zulip_msg["content"])
 
 
 async def _amain() -> None:
