@@ -12,6 +12,13 @@ tags:
   - mattermost
   - rocket-chat
   - conduit
+  - lightweight
+  - telegram
+  - discord
+  - irc
+  - ntfy
+  - hosted-transport
+  - zero-ops
 
 freshness-ttl:
   web: 14d
@@ -25,6 +32,10 @@ history:
     date: 2026-04-07
     commit: "2e691eb"
     sources: 5
+  - event: extended
+    date: 2026-04-07
+    commit: "--"
+    sources: 7
 
 referenced-by: []
 
@@ -119,3 +130,52 @@ sources:
     fetched: 2026-04-06T22:00:00Z
     title: "Mattermost Operational Profile — Upgrade, Rollback, and Backup"
     hash: "e822db50e649dab745e4e5627543759c539075c18e8d378e211413369fba9495"
+
+  - source-id: "ntfy-push-notification-service"
+    type: web
+    url: "https://ntfy.sh/"
+    fetched: 2026-04-07T06:00:00Z
+    title: "ntfy — Lightweight Push Notification Service as Pseudo-Chat Surface"
+    hash: "3055c624d862ec7d2bc9dd6b78f595332dbc7502cf7c334d100fa162681b74db"
+
+  - source-id: "telegram-forum-topics-bot-api"
+    type: web
+    url: "https://core.telegram.org/api/forum"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Telegram Forum Topics and Bot API — Zero-Ops Chat Transport"
+    hash: "6e5fde1dbbf46654311e36f8179b1954d8eef0cf20fe3ee8d4b26d302d84dcff"
+
+  - source-id: "tinode-lightweight-chat-server"
+    type: web
+    url: "https://github.com/tinode/chat"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Tinode — Lightweight Self-Hosted Chat Server with Native Clients and Bot Support"
+    hash: "ccae5a0d4f4be655109d3838cf458dcf6196636389a3f270b64e2b8c3b8729c6"
+
+  - source-id: "discord-hosted-bot-transport"
+    type: web
+    url: "https://discord.com/developers/docs/topics/threads"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Discord as Hosted Bot Transport — Threads, Forums, and Zero-Ops Trade-Offs"
+    hash: "a164e42f60d365c7883496a2826f11576c4b403110f40f196d1a26ae6848b941"
+
+  - source-id: "irc-thelounge-lightweight-chat"
+    type: web
+    url: "https://thelounge.chat/"
+    fetched: 2026-04-07T06:00:00Z
+    title: "IRC + The Lounge — Ultra-Lightweight Self-Hosted Chat with Modern Web UI"
+    hash: "a251bb9e50eaa771c8a1a10de74211d15bf440e43e6849099f42a327cdac6c4e"
+
+  - source-id: "matterbridge-chat-bridge"
+    type: web
+    url: "https://github.com/42wim/matterbridge"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Matterbridge — Single-Binary Chat Bridge Across 30+ Platforms"
+    hash: "0fc0e7bf0c292968a8775750af6fea9d373dab75ab65f92ff37bbf6548f12f3e"
+
+  - source-id: "custom-websocket-chat-assessment"
+    type: web
+    url: "https://socket.io/get-started/chat"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Custom WebSocket Chat — Build vs. Buy Assessment for Minimal Chat Server"
+    hash: "7f3795d237fc0db3762e029e8fc4c5f2dbe08865a1cfab8b1a7306ee4bdecb35"
