@@ -136,34 +136,104 @@ Operator (control)      Chat Plugin       Kernel        Project Bridge      Laun
     |    topic thread)      |               |                |                 |
 ```
 
+### Runtime in tmux — the "untethered" model
+
+The runtime (claude, opencode, etc.) does NOT run as a subprocess of the project bridge. It runs in a **tmux session** that is independent of any chat surface. This is the core "untethered" concept:
+
+- The chat adapter relays messages to/from the tmux pane via `tmux send-keys` and `tmux capture-pane`.
+- The operator can also `tmux attach` and interact with the runtime directly in a terminal.
+- Multiple surfaces (Zulip, local terminal) can connect to the same running session.
+- If the bridge crashes, the runtime keeps running. The operator can still attach locally.
+- If the operator disconnects from Zulip, the runtime keeps running. They can come back later.
+
+This means the project bridge's role is:
+1. **Launch**: Create a tmux session, run `bin/swain` (or the runtime directly) inside it.
+2. **Relay inbound**: Translate chat commands into `tmux send-keys` to the pane.
+3. **Relay outbound**: Periodically `tmux capture-pane` (or tail a log) to detect new output and emit events.
+4. **Lifecycle**: Detect when the tmux pane exits (session died).
+
+The runtime adapter is NOT a subprocess pipe adapter. It is a **tmux pane adapter**.
+
+### Sequence: Zulip control topic
+
+```
+Operator (control)      Chat Plugin       Kernel        Project Bridge      tmux pane
+    |                       |               |                |                 |
+    |-- "What should I      |               |                |                 |
+    |    work on?"          |               |                |                 |
+    |                       |--control_msg-->|--control_msg-->|                 |
+    |                       |               |                |--spawn launcher->|
+    |                       |               |                |                 |
+    |                       |<--text_output--|<--text_output--|<--capture-pane---|
+    |<--post to control-----|               |                |                 |
+    |                       |               |                |                 |
+    |-- "Work on SPEC-142"  |               |                |                 |
+    |                       |--control_msg-->|--control_msg-->|--send-keys----->|
+    |                       |               |                |                 |
+    |                       |               |                |<--capture-pane---|
+    |                       |               |                |--create worktree-|
+    |                       |<--promoted-----|<--promoted-----|                 |
+    |<--"Moved to SPEC-142"-|               |                |                 |
+    |                       |               |                |                 |
+    |   (now in SPEC-142    |               |                |                 |
+    |    topic thread)      |  Operator attaches locally:    |                 |
+    |                       |  tmux attach -t swain-spec142  |                 |
+    |                       |               |                |                 |
+```
+
 ### Sequence: Terminal (`bin/swain`)
 
-No change. `bin/swain` continues to run interactively. The non-interactive mode is an addition, not a replacement.
+No change to the operator's experience. `bin/swain` creates the tmux session and launches the runtime inside it. The operator interacts directly. The project bridge (if running) detects the tmux session and begins relaying events to Zulip.
+
+### Outbound relay strategies
+
+The project bridge needs to detect runtime output without owning the process. Options:
+
+1. **Periodic `tmux capture-pane` diff.** Poll the pane contents, diff against last capture, emit new lines as `text_output` events. Simple but lossy for fast output.
+2. **Runtime log tailing.** If the runtime writes a log file (e.g., Claude Code's `~/.claude/projects/.../session.jsonl`), tail the log and translate entries to events. More reliable, runtime-specific.
+3. **Shared pipe.** `bin/swain` runs the runtime with `script` or `tee` to duplicate output to a pipe that the project bridge reads. Universal but adds complexity.
+
+Strategy 2 (log tailing) is preferred where available. Strategy 1 (capture-pane) is the universal fallback.
+
+### Inbound relay
+
+The project bridge translates commands to tmux input:
+
+- `send_prompt` → `tmux send-keys -t <pane> "the prompt text" Enter`
+- `approve` → `tmux send-keys -t <pane> "y" Enter` (or the appropriate key sequence)
+- `cancel` → `tmux send-keys -t <pane> C-c` (SIGINT)
+
+For runtimes with structured input (Claude Code `--input-format stream-json`), the bridge could write to a named pipe instead.
 
 ## Migration
 
 ### Phase A (current state)
 
-`control_message` spawns a session immediately. All output goes to control topic. No thread creation. No interview. This is the MVP committed today.
+`control_message` spawns a mock response. `/work` triggers the launcher NDJSON flow. `session_promoted` creates threads. All tested but runtime is not in tmux.
 
-### Phase B (this design)
+### Phase B (tmux adapter)
 
-1. Add `--non-interactive --format ndjson` mode to `bin/swain`.
-2. Project bridge spawns the launcher for `control_message` instead of directly spawning a runtime.
-3. Add `session_promoted` event type to protocol.
-4. Chat adapter delays thread creation until `session_promoted`.
+1. Replace `ClaudeCodeAdapter` / `OpenCodeAdapter` subprocess model with `TmuxPaneAdapter`.
+2. `TmuxPaneAdapter.start()` creates a tmux session and runs the runtime inside it.
+3. `TmuxPaneAdapter` polls `capture-pane` for output, emits events.
+4. `TmuxPaneAdapter` translates commands to `send-keys`.
+5. `bin/swain` (terminal path) continues to create tmux sessions as before — the bridge can adopt them.
 
 ### Phase C (future)
 
 - Query triage: control-origin sessions that answer a question and die without binding an artifact never create a thread.
 - Multi-project: control topic can route to different project bridges based on context.
+- Session adoption: bridge discovers existing tmux sessions (from `bin/swain` terminal launches) and begins relaying.
 
 ## Decisions
 
 1. **`--non-interactive` flag on `bin/swain`**, not a separate script. Keeps the control surface in sync between terminal and non-terminal interactions.
 2. **NDJSON** for launcher-to-bridge communication. Consistent with the rest of the plugin protocol (DESIGN-024).
 3. **No timeout.** Interview sessions persist in control until the operator cancels or completes them. The operator can leave and come back. This matches the Zulip model where topics are durable.
+4. **Runtime in tmux, not subprocess pipes.** The runtime is untethered from the bridge process. The operator can attach locally. The chat adapter relays via tmux.
 
 ## Open Questions
 
-None at this time.
+1. Which outbound relay strategy to use for the MVP? `capture-pane` polling is universal but lossy. Log tailing is reliable but runtime-specific.
+2. How does `approve` translate to tmux input for different runtimes? Claude Code has `--input-format stream-json` but others may need literal keystrokes.
+3. How frequently should `capture-pane` poll? Too fast wastes CPU, too slow misses rapid output.
