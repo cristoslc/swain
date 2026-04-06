@@ -1,7 +1,7 @@
 ---
 title: "Agent Runtime I/O Compatibility for Mobile Bridge"
 artifact: SPIKE-059
-track: container
+track: research
 status: Complete
 author: cristos
 created: 2026-04-06
