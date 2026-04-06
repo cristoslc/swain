@@ -88,11 +88,15 @@ class PluginProcess:
                 except asyncio.CancelledError:
                     pass
         if self._proc:
-            self._proc.terminate()
-            try:
-                await asyncio.wait_for(self._proc.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
-                self._proc.kill()
+            if self._proc.returncode is None:
+                try:
+                    self._proc.terminate()
+                except ProcessLookupError:
+                    pass
+                try:
+                    await asyncio.wait_for(self._proc.wait(), timeout=5.0)
+                except asyncio.TimeoutError:
+                    self._proc.kill()
             log.info("Plugin stopped: %s", self.name)
 
     async def _read_stdout(self) -> None:

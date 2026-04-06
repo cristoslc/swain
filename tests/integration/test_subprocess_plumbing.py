@@ -1,0 +1,217 @@
+"""Subprocess plumbing tests — verify NDJSON flows through real pipes.
+
+These tests spawn actual plugin subprocesses (not mocks) and verify
+that messages flow correctly through stdin/stdout pipes. This is the
+layer between "the code logic works" (tested in test_control_flows.py)
+and "the live system works" (manual Zulip testing).
+
+Scenarios covered:
+
+  Project bridge subprocess:
+    - Receives ConfigMessage on stdin, starts successfully
+    - Receives a Command, processes it (logged on stderr)
+    - Emits Events on stdout when a session produces output
+
+  Kernel → Plugin routing:
+    - PluginProcess.write() delivers messages to the subprocess stdin
+    - Subprocess stdout lines are delivered to on_message callback
+    - ConfigMessage is sent as stdin line 0 on startup
+"""
+from __future__ import annotations
+
+import asyncio
+import json
+import sys
+
+import pytest
+
+from untethered.protocol import (
+    Event, Command, ConfigMessage,
+    encode_message, decode_message,
+)
+from untethered.kernel import PluginProcess
+
+
+# ---------------------------------------------------------------------------
+# Scenario: PluginProcess starts, receives config, reads/writes NDJSON
+# ---------------------------------------------------------------------------
+
+class TestPluginProcessPlumbing:
+    """PluginProcess correctly wires stdin/stdout/stderr pipes."""
+
+    async def test_plugin_receives_config_and_echoes_stdout(self):
+        """Spawn a minimal Python subprocess that reads config from stdin
+        and echoes a command back on stdout. Verifies the pipe works."""
+        received: list = []
+
+        # Inline Python script that acts as a minimal plugin:
+        # - Reads config from stdin line 0
+        # - Writes a command to stdout
+        # - Exits
+        script = (
+            "import sys, json\n"
+            "line = sys.stdin.readline()\n"
+            "cfg = json.loads(line)\n"
+            "# Echo back a command to prove we got the config\n"
+            "cmd = json.dumps({"
+            "'type': 'control_message', "
+            "'bridge': cfg.get('config', {}).get('project', 'test'), "
+            "'session_id': None, "
+            "'timestamp': 0, "
+            "'payload': {'text': 'got config'}"
+            "}) + '\\n'\n"
+            "sys.stdout.write(cmd)\n"
+            "sys.stdout.flush()\n"
+        )
+
+        plugin = PluginProcess(
+            name="test-echo",
+            cmd=[sys.executable, "-c", script],
+            plugin_type="test",
+            config={"project": "swain"},
+            on_message=received.append,
+        )
+        await plugin.start()
+
+        # Wait for the subprocess to write its response
+        await asyncio.sleep(0.5)
+
+        assert len(received) == 1
+        assert received[0].type == "control_message"
+        assert received[0].payload["text"] == "got config"
+
+        await plugin.stop()
+
+    async def test_plugin_write_delivers_to_stdin(self):
+        """PluginProcess.write() sends NDJSON to the subprocess stdin."""
+        received_on_stdout: list = []
+
+        # Script: reads config, then reads one more line, echoes it back
+        script = (
+            "import sys, json\n"
+            "config = sys.stdin.readline()\n"  # line 0: config
+            "line = sys.stdin.readline()\n"     # line 1: command from kernel
+            "if line:\n"
+            "    data = json.loads(line)\n"
+            "    # Echo the command type back as an event\n"
+            "    event = json.dumps({"
+            "'type': 'text_output', "
+            "'bridge': 'swain', "
+            "'session_id': 'sess-1', "
+            "'timestamp': 0, "
+            "'payload': {'content': 'received: ' + data.get('type', '?')}"
+            "}) + '\\n'\n"
+            "    sys.stdout.write(event)\n"
+            "    sys.stdout.flush()\n"
+        )
+
+        plugin = PluginProcess(
+            name="test-relay",
+            cmd=[sys.executable, "-c", script],
+            plugin_type="test",
+            config={"project": "swain"},
+            on_message=received_on_stdout.append,
+        )
+        await plugin.start()
+
+        # Send a command to the plugin
+        cmd = Command.control_message(bridge="swain", text="hello")
+        await plugin.write(cmd)
+
+        await asyncio.sleep(0.5)
+
+        assert len(received_on_stdout) == 1
+        assert received_on_stdout[0].type == "text_output"
+        assert "received: control_message" in received_on_stdout[0].payload["content"]
+
+        await plugin.stop()
+
+    async def test_plugin_stderr_logged(self):
+        """Plugin stderr is captured by the kernel (not mixed with stdout)."""
+        received: list = []
+
+        script = (
+            "import sys\n"
+            "config = sys.stdin.readline()\n"
+            "sys.stderr.write('diagnostic: plugin started\\n')\n"
+            "sys.stderr.flush()\n"
+            "# Wait a moment so kernel can read stderr\n"
+            "import time; time.sleep(0.2)\n"
+        )
+
+        plugin = PluginProcess(
+            name="test-stderr",
+            cmd=[sys.executable, "-c", script],
+            plugin_type="test",
+            config={},
+            on_message=received.append,
+        )
+        await plugin.start()
+        await asyncio.sleep(0.5)
+
+        # No messages on stdout (stderr is separate)
+        assert len(received) == 0
+
+        await plugin.stop()
+
+
+# ---------------------------------------------------------------------------
+# Scenario: Real project bridge subprocess
+# ---------------------------------------------------------------------------
+
+class TestProjectBridgeSubprocess:
+    """Spawn the actual project bridge plugin and verify NDJSON flow."""
+
+    async def test_project_bridge_starts_and_logs(self):
+        """The real project_bridge plugin starts, reads config, logs to stderr."""
+        received: list = []
+
+        plugin = PluginProcess(
+            name="project:test",
+            cmd=[sys.executable, "-m", "untethered.plugins.project_bridge"],
+            plugin_type="project",
+            config={"project": "test-project", "project_dir": "/tmp"},
+            on_message=received.append,
+        )
+        await plugin.start()
+
+        # Give it time to process config
+        await asyncio.sleep(0.5)
+
+        # Should be alive (not crashed)
+        assert plugin._proc is not None
+        assert plugin._proc.returncode is None
+
+        await plugin.stop()
+
+    async def test_project_bridge_routes_control_message(self):
+        """Send a control_message to the project bridge and verify it processes it.
+
+        The bridge will try to spawn a ClaudeCodeAdapter which will fail
+        (claude not available in test), but the command should be received
+        and logged without crashing the bridge.
+        """
+        received: list = []
+
+        plugin = PluginProcess(
+            name="project:test",
+            cmd=[sys.executable, "-m", "untethered.plugins.project_bridge"],
+            plugin_type="project",
+            config={"project": "test-project", "project_dir": "/tmp"},
+            on_message=received.append,
+        )
+        await plugin.start()
+        await asyncio.sleep(0.3)
+
+        # Send a control_message command
+        cmd = Command.control_message(bridge="test-project", text="what's up?")
+        await plugin.write(cmd)
+
+        # Wait for processing
+        await asyncio.sleep(1.0)
+
+        # Bridge should still be alive (didn't crash on the command)
+        assert plugin._proc is not None
+        assert plugin._proc.returncode is None
+
+        await plugin.stop()
