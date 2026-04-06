@@ -5,7 +5,7 @@ track: container
 status: Active
 author: cristos
 created: 2026-03-15
-last-updated: 2026-04-02
+last-updated: 2026-04-04
 parent-vision: VISION-001
 success-criteria:
   - Unified artifact type system with consistent lifecycle tracks
@@ -21,8 +21,14 @@ linked-artifacts:
   - ADR-022
   - DESIGN-013
   - DESIGN-014
-  - EPIC-055
+  - EPIC-056
+  - EPIC-062
+  - DESIGN-019
+  - DESIGN-020
+  - ADR-032
   - SPEC-236
+  - EPIC-059
+  - DESIGN-018
 ---
 
 # Artifact System Maturity
@@ -44,7 +50,8 @@ Build the document model and tooling that encode decisions, research, and plans.
 - EPIC-008: Normalize Artifact Lifecycle States (Complete)
 - EPIC-013: Specgraph Python Rewrite (Complete)
 - EPIC-014: Artifact Workflow Efficiency (Complete)
-- EPIC-055: Materialized Artifact Parenting View (Proposed)
+- EPIC-056: Materialized Artifact Parenting View (Complete)
+- EPIC-062: BDD Traceability (Active)
 
 ## Small Work (Epic-less Specs)
 

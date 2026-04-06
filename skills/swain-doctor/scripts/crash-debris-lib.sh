@@ -189,7 +189,7 @@ check_orphaned_mcp() {
       printf "orphaned_mcp\tfound\tPID %s: %s\n" "$pid" "$cmd"
       found=$((found + 1))
     fi
-  done < <(ps aux 2>/dev/null | grep -i '[m]cp.*server\|[m]cp.*gateway' | awk '{print $2, $11, $12, $13}' || true)
+  done < <(ps aux 2>/dev/null | grep -i '[m]cp.*server\|[m]cp.*gateway' | grep -iv 'docker\|containerd' | awk '{print $2, $11, $12, $13}' || true)
 
   [[ $found -eq 0 ]] && printf "orphaned_mcp\tclean\n"
 }

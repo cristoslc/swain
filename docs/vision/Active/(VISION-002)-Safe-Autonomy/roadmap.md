@@ -5,15 +5,15 @@
 
 ## Progress
 
-███████░░░░░ 20/34 complete (59%)
+███████░░░░░ 24/43 complete (56%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-29 | 12:18 | `3aaf98c` | feat(epic-047): complete ADR-019 script convention implementation |
-| 2026-03-21 | 23:03 | `c063592` | docs: renumber artifact IDs, add 3 new SPECs, complete EPIC-038 |
-| 2026-03-20 | 00:23 | `ffdf7df` | feat(safety): add INITIATIVE-017, EPIC-037, SPIKE-037 for unattended agent safety guardrails |
+| 2026-04-02 | 19:26 | `d835957` | docs(*): approve EPIC-053 and related artifacts |
+| 2026-04-02 | 01:56 | `d0874da` | feat(design): split native agent interaction into per-context documents |
+| 2026-04-01 | 23:58 | `210c411` | feat: design native interaction surface flow |
 
 ## Priority Subset
 
@@ -22,6 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
+| — | [Deprecate and Replace Superpowers with Native Skills](../../../epic/Active/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills.md) | 0/4 | 0 | — |
 | [Unattended Agent Safety](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
@@ -47,6 +48,11 @@
 ### Active
 
 - [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails (—)
+- [EPIC-053](../../../epic/Active/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills.md) — Deprecate and Replace Superpowers with Native Skills (0/4)
+  - [SPEC-228](../../../spec/Active/(SPEC-228)-Remove-Vendored-Superpowers/(SPEC-228)-Remove-Vendored-Superpowers.md) — Remove Vendored Superpowers Chaining (Active, in progress)
+  - [SPEC-229](../../../spec/Active/(SPEC-229)-Native-Implementation-Planning/(SPEC-229)-Native-Implementation-Planning.md) — Native Implementation Planning in swain-do (Active, in progress)
+  - [SPEC-230](../../../spec/Active/(SPEC-230)-Native-Socratic-Discovery/(SPEC-230)-Native-Socratic-Discovery.md) — Native Socratic Discovery in swain-design (Active, in progress)
+  - [SPEC-231](../../../spec/Active/(SPEC-231)-Global-Debugging-Loop/(SPEC-231)-Global-Debugging-Loop.md) — Global Debugging Loop in AGENTS.md (Active, in progress)
 - [INITIATIVE-017](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) — Unattended Agent Safety (in progress)
   - [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails (Active, —)
   - [EPIC-040](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) — Sandbox Capability Bridges (Proposed, 0/2)
@@ -71,6 +77,10 @@
   - [SPEC-068](../../../spec/Complete/(SPEC-068)-swain-box-Agent-Runtime-Detection-And-Selection-Menu/(SPEC-068)-swain-box-Agent-Runtime-Detection-And-Selection-Menu.md) — swain-box: Agent Runtime Detection & Selection Menu (Complete, done)
   - [SPEC-069](../../../spec/Complete/(SPEC-069)-swain-box-GitHub-Copilot-Runtime-Support/(SPEC-069)-swain-box-GitHub-Copilot-Runtime-Support.md) — swain-box: GitHub Copilot Runtime Support (Complete, done)
   - [SPEC-070](../../../spec/Complete/(SPEC-070)-swain-box-OpenAI-Codex-Runtime-Support/(SPEC-070)-swain-box-OpenAI-Codex-Runtime-Support.md) — swain-box: OpenAI Codex Runtime Support (Complete, done)
+- [EPIC-051](../../../epic/Complete/(EPIC-051)-Worktree-Path-Link-Safety-on-Merge/(EPIC-051)-Worktree-Path-Link-Safety-on-Merge.md) — Worktree Path Link Safety on Merge (3/3)
+  - [SPEC-216](../../../spec/Complete/(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md) — Worktree-Relative Link Detection Script (Complete, done)
+  - [SPEC-217](../../../spec/Complete/(SPEC-217)-Worktree-Link-Resolution-on-Merge/(SPEC-217)-Worktree-Link-Resolution-on-Merge.md) — Worktree Link Resolution on Merge (Complete, done)
+  - [SPEC-218](../../../spec/Complete/(SPEC-218)-Link-Safety-Worktree-Completion-Integration/(SPEC-218)-Link-Safety-Worktree-Completion-Integration.md) — Link Safety Worktree Completion Integration (Complete, done)
 - [INITIATIVE-010](../../../initiative/Active/(INITIATIVE-010)-Isolation-Foundations/(INITIATIVE-010)-Isolation-Foundations.md) — Isolation Foundations (done)
   - [EPIC-005](../../../epic/Complete/(EPIC-005)-Isolated-Claude-Code-Environment/(EPIC-005)-Containerized-Claude-Code-Environment.md) — Isolated Claude Code Environment (Complete, 2/2)
   - [SPEC-067](../../../spec/Complete/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md) — swain-box: Docker Sandboxes Launcher (Complete, done)

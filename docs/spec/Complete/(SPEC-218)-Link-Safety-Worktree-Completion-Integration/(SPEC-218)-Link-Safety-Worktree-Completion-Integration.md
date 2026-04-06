@@ -37,7 +37,7 @@ The worktree completion workflow — whether driven by `finishing-a-development-
 
 ## External Behavior
 
-**Hook point:** After `git fetch origin && git merge origin/main` (per [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) step 2) and before `git push`.
+**Hook point:** After `git fetch origin && git merge origin/main` (per [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) step 2) and before `git push`.
 
 **Behavior:**
 1. Identify changed files in the worktree branch vs. merge base (`git diff --name-only MERGE_BASE HEAD`)

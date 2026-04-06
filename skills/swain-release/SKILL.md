@@ -19,7 +19,7 @@ Before proceeding with any state-changing operation, check for an active session
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-init`?" Proceed if they dismiss.
 
 Cut a release by detecting the project's versioning context, generating a changelog, bumping versions, and tagging. Works across any repo by reading context from git history and project structure rather than hardcoding assumptions.
 
@@ -100,55 +100,62 @@ The changelog is rendered from a Jinja2 template (`templates/changelog.md.j2`) f
 
 | Bucket | What belongs here | What does NOT belong here |
 |--------|-------------------|--------------------------|
-| `features` | Shipped capability: new skills, CLI flags, scripts, bug fixes that change behavior, refactors that change UX | Planning artifacts that describe future work |
-| `roadmap` | Forward-looking previews of planned work — what's coming and why it matters to the user. Write as "X is being planned/designed because Y" not "SPEC-NNN created". Omit artifact IDs unless the reader would search for them. Skip items that are pure internal housekeeping. | Artifact state transitions ("EPIC activated", "SPEC created"), anything that shipped (that's features) |
-| `research` | Trove collections, spike completions, research artifacts, evidence gathered | Specs that resulted from research (those are roadmap) |
-| `supporting` | Chores, dependency bumps, cross-ref enrichment, minor refactors, CI changes | Anything that changes user-visible behavior (that's features) |
+| `features` | Shipped capability that the operator can interact with today: new skills, new CLI commands, new scripts the operator invokes, bug fixes to operator-facing workflows. The test: "can the operator do something new or different because of this?" | Planning artifacts, internal quality improvements, threshold tweaks to internal tools, internal test suites, bug fixes to scripts the operator never invokes directly. |
+| `roadmap` | Forward-looking previews of planned work — what's coming and why it matters to the user. Write as "X is being planned/designed because Y" not "SPEC-NNN created". Omit artifact IDs unless the reader would search for them. Skip items that are pure internal housekeeping. | Artifact state transitions ("EPIC activated", "SPEC created"), anything that shipped (that's features). |
+| `research` | Trove collections, spike completions, research artifacts, evidence gathered. | Specs that resulted from research (those are roadmap). |
+| `supporting` | Internal quality improvements, internal test suites, threshold changes to internal tools, bug fixes to internal scripts, dependency bumps, cross-ref enrichment, minor refactors, CI changes. | Anything the operator interacts with directly (that's features). |
 
 The key distinction agents get wrong: **creating a SPEC or EPIC is a roadmap change, not a feature.** A feature is something the operator can use *today* because it shipped in this release. A SPEC is a plan for something that will ship *later*.
+
+The second distinction agents get wrong: **internal improvements are supporting, not features.** Raising an internal threshold, fixing an anti-pattern in internal scripts, adding a test suite for swain's own code — these improve quality but don't give the operator a new capability. Ask: "would the operator notice this in their daily workflow?" If the answer is "only if something was broken before," it's supporting.
 
 **Roadmap anti-pattern:** "EPIC-029 activated with 3 child SPECs (SPEC-118, SPEC-119, SPEC-120)" is noise — it describes artifact state transitions that only matter to the project maintainer. Instead write: "Trunk detection is being generalized so swain works on any branch name without configuration." The reader should understand *what's coming and why they'd care*, not which internal tracking artifacts changed state.
 
 **Supporting anti-patterns — things that do NOT go in supporting:**
-- Development process changes ("close handler reordered", "session-state tolerance added") — these are implementation details, not user-visible behavior
-- Artifact state transitions ("EPIC-053 approved and activated", "SPEC-220 created") — these describe planning activity, not shipped work
-- Untracked files that existed before the release window — only include files that changed in the diff
-- Bug fixes or features that changed behavior — those are features, not supporting
+- Development process changes ("close handler reordered", "session-state tolerance added") — these are implementation details; omit them entirely.
+- Artifact state transitions ("EPIC-053 approved and activated", "SPEC-220 created") — these describe planning activity, not shipped work; omit or put in roadmap.
+- Untracked files that existed before the release window — only include files that changed in the diff.
+- Bug fixes to operator-facing workflows — those are features, not supporting.
 
-**Supporting includes only:** dependency bumps, CI/config changes, internal refactors that don't change behavior, cleanup of dead code, readability fixes.
+**Supporting includes:** dependency bumps, CI/config changes, internal refactors, cleanup of dead code, readability fixes, internal test suites, threshold changes to internal tools, bug fixes to internal scripts (scripts the operator never invokes directly).
 
 Omit mechanical commits entirely: merge commits, lifecycle hash stamps, index refreshes, bookmark advances.
 
 **Bucket assignment is mutually exclusive.** If something appears in features it does not appear in roadmap or supporting. If it appears in roadmap it is not in supporting. Every commit goes in exactly one bucket or is omitted.
 
-**Step 4b — Build the JSON data file.** Write a temporary JSON file with this structure:
+**Step 4b — Write the changelog markdown directly.** Use the template at `templates/changelog.md.j2` as a **structure guide**, not as a render target. Write the markdown yourself following this format:
 
-```json
-{
-  "version": "0.10.0-alpha",
-  "date": "2026-03-21",
-  "features": [
-    {"heading": "CLI Roadmap Renderer", "body": "chart.sh roadmap --cli produces deterministic, terminal-friendly\noutput grouped by Eisenhower quadrant with all first-degree children\nnested under their parent initiative. New swain-roadmap skill wraps\nit as the user-facing entry point: regenerate, open, display."},
-    {"text": "Dependency graph rendering switched to flowchart TD for clearer layout"}
-  ],
-  "roadmap": ["Session facilitation rebuild — rethinking how swain helps the operator maintain focus, make decisions, and recover context across sessions"],
-  "research": ["Google Stitch SDK trove — 7 sources collected"],
-  "supporting": ["Cross-reference enrichment across ~100 doc files"]
-}
+```markdown
+## [0.10.0-alpha] - 2026-03-21
+
+### Features
+
+#### CLI Roadmap Renderer
+
+chart.sh roadmap --cli produces deterministic, terminal-friendly
+output grouped by Eisenhower quadrant with all first-degree children
+nested under their parent initiative. New swain-roadmap skill wraps
+it as the user-facing entry point: regenerate, open, display.
+
+### Planned
+
+- Session facilitation rebuild — rethinking how swain helps the operator maintain focus, make decisions, and recover context across sessions.
+
+### Research
+
+- Google Stitch SDK trove — 7 sources collected.
+
+### Supporting Changes
+
+- Dependency graph rendering switched to flowchart TD for clearer layout.
+- Cross-reference enrichment across ~100 doc files.
 ```
 
-Feature and roadmap items use `{"heading": "Title", "body": "Narrative..."}` for major work (renders as `#### Title` with a narrative paragraph) or `{"text": "..."}` for smaller bullets. Roadmap items can also be plain strings for one-liners. Use headings when a topic has enough substance for a paragraph; use bullets for one-liners. Research and supporting sections are flat string arrays. Empty arrays are fine — the template omits empty sections.
-
-**Step 4c — Render.** Run the render script:
-
-```bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-uv run --with jinja2 python "$REPO_ROOT/.agents/bin/render_changelog.py" /tmp/changelog_data.json
-```
-
-This prints the rendered markdown to stdout. Review it, then prepend to CHANGELOG.md.
-
-If jinja2 is unavailable, fall back to writing the markdown directly using the same four-section structure — the template encodes the format, not the only way to produce it.
+**Formatting rules:**
+- The Features section uses **headings only** — each feature gets an `#### Heading` with a narrative paragraph. No standalone bullets in Features. If a change is too small for its own heading, fold it into a related heading's narrative or move it to Supporting.
+- Planned and Roadmap sections can mix headings and bullets — headings for major planned work with enough substance for a paragraph, bullets for one-liners.
+- Research and Supporting sections are always flat bullet lists.
+- Omit empty sections entirely.
 
 #### What to omit
 

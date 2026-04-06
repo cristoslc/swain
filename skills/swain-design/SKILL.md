@@ -19,7 +19,7 @@ Before proceeding with any state-changing operation, check for an active session
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)" && bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-init`?" Proceed if they dismiss.
 
 This skill defines the canonical artifact types, phases, and hierarchy. Detailed definitions and templates live in `references/` (relative to this skill's directory). If the host repo has an AGENTS.md, keep its artifact sections in sync with the skill's reference data.
 

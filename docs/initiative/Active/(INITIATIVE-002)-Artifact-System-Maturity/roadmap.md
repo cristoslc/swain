@@ -5,19 +5,46 @@
 
 ## Progress
 
-████████████ 26/26 complete (100%)
+███████████░ 27/30 complete (90%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-15 | 22:11 | `bd39467` | feat: create initiative layer and re-parent all 23 epics |
-| 2026-03-14 | 03:10 | `2081fb1` | fix(tests): update integration tests for current repo artifact state |
-| 2026-03-14 | 03:08 | `4dafca2` | docs(EPIC-014): stamp lifecycle hash for Complete transition |
+| 2026-04-02 | 23:24 | `a65153d` | fix(chart): ignore materialized symlink paths during discovery |
+| 2026-04-02 | 22:51 | `a27b743` | feat(chart): materialize hierarchy parenting view |
+| 2026-04-02 | 22:35 | `f475b61` | docs(session): add SPEC-264 and EPIC-060 execution plans |
+
+## Priority Subset
+
+### Do First
+*High priority, active or unblocking*
+
+*(none)*
+
+### Schedule
+*High priority, not yet started*
+
+*(none)*
+
+### In Progress
+*Active or unblocking, medium priority*
+
+*(none)*
+
+### Backlog
+*Not yet prioritized or started*
+
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Artifact System Maturity]((INITIATIVE-002)-Artifact-System-Maturity.md) | [next-artifact-id Misses Untracked Artifacts In Other Worktrees](../../../spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
 
+### Proposed
+
+- [SPEC-236](../../../spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) — next-artifact-id Misses Untracked Artifacts In Other Worktrees (in progress)
 ### Complete
 
 - [EPIC-001](../../../epic/Complete/(EPIC-001)-Evidence-Pool-Collection-And-Normalization/(EPIC-001)-Evidence-Pool-Collection-And-Normalization.md) — Evidence Pool Collection and Normalization (3/3)
@@ -46,3 +73,6 @@
   - [SPEC-045](../../../spec/Complete/(SPEC-045)-Fast-Path-Authoring-Mode/(SPEC-045)-Fast-Path-Authoring-Mode.md) — Fast-Path Authoring Mode for Low-Complexity Artifacts (Complete, done)
   - [SPEC-046](../../../spec/Complete/(SPEC-046)-Inline-Lifecycle-Hash-Stamping/(SPEC-046)-Inline-Lifecycle-Hash-Stamping.md) — Inline Lifecycle Hash Stamping for Trivial Artifacts (Complete, done)
   - [SPEC-047](../../../spec/Complete/(SPEC-047)-lazy-index-refresh/(SPEC-047)-lazy-index-refresh.md) — Lazy Index Refresh for list-*.md Artifact Indices (Complete, done)
+- [EPIC-060](../../../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View (0/2)
+  - [SPEC-240](../../../spec/Proposed/(SPEC-240)-Session-State-Tolerance-in-Retro-and-Teardown/(SPEC-240)-Session-State-Tolerance-in-Retro-and-Teardown.md) — Session-State Tolerance in Retro and Teardown (Proposed, in progress)
+  - [SPEC-241](../../../spec/Proposed/(SPEC-241)-Bookmark-Creation-During-Worktree-Lifecycle/(SPEC-241)-Bookmark-Creation-During-Worktree-Lifecycle.md) — Bookmark Creation During Worktree Lifecycle (Proposed, in progress)

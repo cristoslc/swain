@@ -13,8 +13,10 @@ Your job is to stay aligned with the artifacts. The operator's job is to make de
 | Intent | Skill |
 |--------|-------|
 | Create, plan, update, transition, or review any artifact (Vision, Initiative, Journey, Epic, Spec, Spike, ADR, Persona, Runbook, Design) | **swain-design** |
-| Project status, progress, "what's next?", session management | **swain-session** |
-| Task tracking, execution progress, implementation plans | **swain-do** |
+| Project status, roadmap, "what's next?", dashboard | **swain-roadmap** |
+| Task tracking, execution progress, implementation plans, bookmarks, decisions | **swain-do** |
+| Session start, focus lane, onboarding | **swain-init** |
+| Session end, teardown, cleanup, merge worktrees | **swain-teardown** |
 
 This project uses **tk (ticket)** for ALL task tracking. Do NOT use markdown TODOs or built-in task systems.
 
@@ -28,7 +30,9 @@ Standalone specs can attach directly to an initiative for small work without nee
 
 ### Worktree isolation
 
-**All file-mutating work happens in a worktree.** Read-only investigation (git log, reading files, checking state) is fine on trunk. The moment you create, edit, move, or delete files — enter a worktree first. This applies to code, scripts, skill files, artifacts, and symlinks equally. swain-do's worktree preamble handles creation; follow it before any file changes, even for "quick" fixes. Partial changes on trunk require manual cleanup and waste operator attention.
+**Implementation work happens in a worktree.** Code changes, new features, multi-file refactors, and non-trivial artifact creation require worktree isolation. swain-do's worktree preamble handles creation; follow it before starting implementation work.
+
+**Lightweight operations land directly on trunk.** Artifact phase transitions, frontmatter metadata updates, single-file edits, and index refreshes are low-risk and trivially reversible — they do not need worktree isolation. Read-only investigation (git log, reading files, checking state) is also fine on trunk.
 
 ### Superpowers skill chaining
 
@@ -42,11 +46,13 @@ If superpowers is not installed, these chains are skipped, not blocked. Swain-to
 
 ### Readability
 
-All artifacts produced by swain skills must meet a Flesch-Kincaid grade level of 9 or below on prose content. After writing or editing an artifact, run `readability-check.sh` on it. If the score exceeds the threshold, revise the prose — use shorter sentences, simpler words, and active voice — then re-check. Do not rewrite content that already passes. If three revision attempts still fail, note the score in the commit message and proceed.
+All artifacts produced by swain skills must meet a Flesch-Kincaid grade level of 10 or below on prose content. After writing or editing an artifact, run `readability-check.sh` on it. If the score exceeds the threshold, revise the prose — use shorter sentences, simpler words, and active voice — then re-check. Do not rewrite content that already passes. If three revision attempts still fail, note the score in the commit message and proceed.
+
+End every bulleted and numbered list item with a period. The readability checker treats un-terminated bullets as a single run-on sentence, which inflates the grade level.
 
 ### Session startup
 
-Session initialization is handled by the `swain` shell launcher, which invokes `/swain-init` as the initial prompt. If a session starts without the launcher, the operator can manually run `/swain-session`.
+Session initialization is handled by the `swain` shell launcher, which invokes `/swain-init` as the initial prompt. If a session starts without the launcher, the operator can manually run `/swain-init`.
 
 ### Bug reporting
 

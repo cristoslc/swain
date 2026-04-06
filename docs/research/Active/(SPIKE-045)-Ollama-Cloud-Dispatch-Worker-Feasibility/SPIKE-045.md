@@ -29,7 +29,7 @@ Can OpenCode + Ollama Cloud (qwen3-coder:480b or deepseek-v3.1:671b) reliably ex
 
 ## Context
 
-swain-dispatch is deprecated ([ADR-016](../../../adr/Active/(ADR-016)-Deprecate-swain-dispatch.md)) because it required `ANTHROPIC_API_KEY` with per-token billing. Ollama Cloud (public beta since January 2026) offers an OpenAI-compatible API with simple API key auth — no subscription, no interactive login. The `ollama launch opencode` command can start an open-source coding agent backed by Ollama Cloud models, creating a potential path for auth-free dispatch workers under [INITIATIVE-008](../../../initiative/Active/(INITIATIVE-008)-Automated-Work-Intake/(INITIATIVE-008)-Automated-Work-Intake.md) (Automated Work Intake).
+swain-dispatch is deprecated ([ADR-016](../../../adr/Active/(ADR-016)-Deprecate-swain-dispatch/(ADR-016)-Deprecate-swain-dispatch.md)) because it required `ANTHROPIC_API_KEY` with per-token billing. Ollama Cloud (public beta since January 2026) offers an OpenAI-compatible API with simple API key auth — no subscription, no interactive login. The `ollama launch opencode` command can start an open-source coding agent backed by Ollama Cloud models, creating a potential path for auth-free dispatch workers under [INITIATIVE-008](../../../initiative/Active/(INITIATIVE-008)-Automated-Work-Intake/(INITIATIVE-008)-Automated-Work-Intake.md) (Automated Work Intake).
 
 Key unknowns: whether open-source models can reliably follow swain's AGENTS.md governance conventions, handle YAML frontmatter artifact formats, and maintain coherent multi-step editing sessions.
 

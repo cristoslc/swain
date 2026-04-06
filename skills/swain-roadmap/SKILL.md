@@ -1,12 +1,12 @@
 ---
 name: swain-roadmap
-description: "Refresh and display the project roadmap. Regenerates ROADMAP.md from the artifact graph (quadrant chart, Eisenhower tables, Gantt timeline, dependency graph), creates it if missing, and opens it for review. Use when the user says 'roadmap', 'show roadmap', 'refresh roadmap', 'open roadmap', 'regenerate roadmap', 'update roadmap', 'priority matrix', or 'what does the roadmap look like'. Also use when any skill needs to ensure ROADMAP.md is fresh before consuming it."
+description: "Refresh and display the project roadmap and status dashboard. Regenerates ROADMAP.md from the artifact graph (quadrant chart, Eisenhower tables, Gantt timeline, dependency graph), creates it if missing, and opens it for review. Also serves as the project status dashboard — shows active epics, progress, actionable next steps, blocked items, and recommendations. Use when the user says 'roadmap', 'show roadmap', 'refresh roadmap', 'status', 'dashboard', 'what's next', 'overview', 'where are we', 'what should I work on', 'show me priorities', 'priority matrix', or 'what does the roadmap look like'. Also use when any skill needs to ensure ROADMAP.md is fresh before consuming it."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Glob
 metadata:
-  short-description: Roadmap refresh and display
-  version: 1.0.0
+  short-description: Roadmap refresh, display, and status dashboard
+  version: 2.0.0
   author: cristos
   source: swain
 ---
@@ -20,7 +20,7 @@ Before proceeding with any state-changing operation, check for an active session
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-init`?" Proceed if they dismiss.
 
 Regenerates `ROADMAP.md` from the artifact graph and opens it. The heavy lifting is done by `chart.sh roadmap` in swain-design — this skill is the user-facing entry point.
 
@@ -125,11 +125,42 @@ If a focus lane is set in `.agents/session.json`, mention it at the end.
 FOCUS="$(bash "$REPO_ROOT/.agents/bin/swain-focus.sh" 2>/dev/null)"
 ```
 
-If focus is set, note: "Focus: {FOCUS}. Use swain-session for focus-scoped recommendations."
+If focus is set, note: "Focus: {FOCUS}. Recommendations are scoped to this lane."
 
 ## Freshness check (for other skills)
 
-Other skills (like swain-session) can call chart.sh directly for staleness-based regeneration. This skill always regenerates unconditionally — it is the "force refresh" path.
+Other skills can call chart.sh directly for staleness-based regeneration. This skill always regenerates unconditionally — it is the "force refresh" path.
+
+## Status Dashboard (ADR-023, formerly SPEC-122)
+
+When the operator says "status", "what's next", "dashboard", "overview", "where are we", or "what should I work on", run the status script:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+STATUS_SCRIPT="$REPO_ROOT/.agents/bin/swain-status.sh"
+[ -f "$STATUS_SCRIPT" ] && bash "$STATUS_SCRIPT" --refresh || echo "status dashboard script not found"
+```
+
+For compact mode (MOTD): `bash "$STATUS_SCRIPT" --compact`
+
+### Cache
+
+Status writes to `.agents/status-cache.json` with 120-second TTL. Use `--refresh` to bypass, `--json` for raw output.
+
+### Recommendation
+
+Read `.priority.recommendations[0]` from the JSON cache. When a focus lane is set, recommendations scope to that vision/initiative.
+
+### Mode Inference
+
+1. Both specs in review AND strategic decisions pending -> ask operator
+2. Specs awaiting review -> detail mode
+3. Focus lane + pending decisions -> vision mode
+4. Nothing actionable -> vision mode (master plan mirror)
+
+### Decisions Needed (roadmap integration)
+
+Uses `chart.sh roadmap --json` for Eisenhower classification. Show top 5 items from "Do First" and "Schedule" quadrants that need operator decisions.
 
 ## Error handling
 

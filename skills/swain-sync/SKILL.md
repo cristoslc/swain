@@ -18,7 +18,7 @@ Before proceeding with any state-changing operation, check for an active session
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 bash "$REPO_ROOT/.agents/bin/swain-session-check.sh" 2>/dev/null
 ```
-If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-session`?" Proceed if they dismiss.
+If the JSON output has `"status"` other than `"active"`, inform the operator: "No active session — start one with `/swain-init`?" Proceed if they dismiss.
 
 Run through the following steps in order without pausing for confirmation unless a decision point is explicitly marked as requiring one.
 
@@ -36,7 +36,7 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 TRUNK=$(bash "$REPO_ROOT/.agents/bin/swain-trunk.sh")
 ```
 
-`IN_WORKTREE=yes` means the current directory is inside a linked worktree (e.g., `.claude/worktrees/agent-abc123`). Use this flag in Steps 3, 6, and the session bookmark step.
+`IN_WORKTREE=yes` means the current directory is inside a linked worktree (e.g., `.worktrees/agent-abc123`). Use this flag in Steps 3, 6, and the session bookmark step.
 
 Next, check whether the current branch has an upstream tracking branch:
 
@@ -50,20 +50,22 @@ If there is an upstream, fetch and rebase to incorporate upstream changes BEFORE
 git fetch origin
 ```
 
-If there are local changes (dirty working tree), stash them first:
+If there are local changes (dirty working tree), stash them first. Use a targeted pop to avoid interfering with stashes from other worktrees (SPEC-252: shared stash is a collision vector):
 
 ```bash
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-git stash push -m "swain-sync: auto-stash [$BRANCH]"
+STASH_MSG="swain-sync: auto-stash [$BRANCH]"
+git stash push -m "$STASH_MSG"
+STASH_REF=$(git stash list --format='%gd %s' | grep -F "$STASH_MSG" | head -1 | cut -d' ' -f1)
 git --no-pager rebase origin/$BRANCH
-git stash pop
+git stash pop "$STASH_REF"
 ```
 
 If the rebase has conflicts after stash pop, abort and report:
 
 ```bash
 git rebase --abort  # if rebase itself conflicts
-git stash pop       # recover stashed changes
+git stash pop "$STASH_REF"  # recover stashed changes (targeted, not bare pop)
 ```
 
 Show the user the conflicting files and stop. Do not force-push or drop changes.
@@ -190,6 +192,23 @@ For each DESIGN with findings (STALE or BROKEN `sourcecode-refs`), collect the o
 This step is **advisory** — it warns but never blocks the commit. Continue to Step 4 regardless.
 
 If the `design-check.sh` script is not found or fails with exit code 2, skip silently — the check is only available in repos with swain-design installed.
+
+## Step 3.85 — README reconciliation (ADR-023)
+
+If README.md exists and the staged changes include artifacts or code that could affect README claims, run a lightweight drift check:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [ -f "$REPO_ROOT/README.md" ]; then
+  STAGED_ARTIFACTS=$(git diff --cached --name-only | grep -E "^docs/(spec|epic|vision|design)/" || true)
+  STAGED_CODE=$(git diff --cached --name-only | grep -vE "^docs/" | grep -E "\.(py|js|ts|sh|go|rs)$" || true)
+  if [ -n "$STAGED_ARTIFACTS" ] || [ -n "$STAGED_CODE" ]; then
+    echo "README_CHECK: staged changes touch artifacts or code — verify README alignment"
+  fi
+fi
+```
+
+This step is **advisory** — it reminds the agent to check README accuracy when commits touch code or artifacts that could affect README claims. It does not block the commit. The full README gate lives in swain-release (Step 5.7).
 
 ## Step 3.9 — Artifact number collision check
 
@@ -345,26 +364,23 @@ gh pr create --base "$TRUNK" --head "$BRANCH" --title "$SUBJECT" --body "$BODY"
 
 Report the PR URL. Do not retry the push. Proceed to worktree pruning below.
 
-After a successful push or PR creation, clean up the worktree — but only if swain-sync created it. Worktrees entered via `EnterWorktree` (branch name matches `worktree-*`) must be left for `ExitWorktree` to clean up, since `ExitWorktree` properly restores the session's CWD before removal. Removing them here would leave the parent session's CWD pointing at a deleted directory, causing ENOENT on all subsequent hook spawns (SPEC-127).
+After a successful push or PR creation, mark the lockfile as ready for cleanup (SPEC-249, EPIC-056). swain-sync does NOT remove the worktree itself — cleanup is deferred to bin/swain, which runs after the runtime exits and can verify the commit hash before pruning.
 
 ```bash
-WORKTREE_PATH=$(pwd)
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-MAIN_REPO=$(git rev-parse --git-common-dir | sed 's|/.git$||')
 
-case "$BRANCH" in worktree-*)
-  # SPEC-127: Worktree entered via EnterWorktree — do NOT remove.
-  # ExitWorktree handles cleanup and CWD restoration.
-  echo "Worktree branch '$BRANCH' entered via EnterWorktree — skipping removal (ExitWorktree will clean up)."
-  ;;
-*)
-  # SPEC-100: Restore CWD *before* removal — otherwise the session is stuck
-  # in a deleted directory and all subsequent commands (hooks, git, etc.) fail.
-  cd "$MAIN_REPO" || cd "$HOME"
-  git -C "$MAIN_REPO" worktree remove --force "$WORKTREE_PATH" 2>/dev/null || true
-  git -C "$MAIN_REPO" worktree prune 2>/dev/null || true
-  ;;
-esac
+# Mark lockfile ready_for_cleanup if lockfile library is available
+LOCKFILE_SCRIPT="$REPO_ROOT/.agents/bin/swain-lockfile.sh"
+if [ -f "$LOCKFILE_SCRIPT" ]; then
+  bash "$LOCKFILE_SCRIPT" mark-ready "$BRANCH" 2>/dev/null || true
+  echo "Worktree marked ready_for_cleanup — bin/swain will prune after session ends."
+else
+  echo "Note: lockfile library not found — worktree cleanup must be done manually."
+fi
+```
+
+Do NOT call `git worktree remove` from swain-sync. The runtime cannot leave its own worktree directory (most runtimes lack CWD persistence), and removing the worktree from under a running runtime causes ENOENT failures.
 ```
 
 **If `IN_WORKTREE=no`** (main worktree, normal case):

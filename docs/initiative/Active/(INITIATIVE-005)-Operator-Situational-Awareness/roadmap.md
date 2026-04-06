@@ -5,15 +5,15 @@
 
 ## Progress
 
-█████░░░░░░░ 12/29 complete (41%)
+██████░░░░░░ 17/35 complete (49%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-22 | 01:50 | `d7cba68` | docs(spec): retroactive close SPEC-052, SPEC-091, SPEC-115, SPEC-138, SPEC-142 |
-| 2026-03-22 | 01:10 | `0300954` | docs(retro): session roadmap infrastructure sprint retrospective |
-| 2026-03-22 | 00:58 | `e6f4099` | docs(retro): SPEC-143 per-artifact roadmap slices retrospective |
+| 2026-03-31 | 13:43 | `dd49da1` | docs(retro): EPIC-050 retrospective — single-session skill-file epic |
+| 2026-03-31 | 13:39 | `7dc83ab` | chore(session): commit staged artifacts from prior session |
+| 2026-03-31 | 13:38 | `8e90563` | chore(session): update bookmark after EPIC-050 completion |
 
 ## Priority Subset
 
@@ -29,6 +29,7 @@
 |  | [Evidence Basis For All Actions](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Roadmap legend should display epic names alongside initiative names](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Artifact ID Collision Detection](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Spec-Level Priority Weight](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) | 0/0 | 0 | **needs decomposition** |
 |  | [Brief Description Frontmatter Field](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
@@ -70,6 +71,7 @@
 - [SPEC-117](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) — Evidence Basis For All Actions (in progress)
 - [SPEC-124](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) — Roadmap legend should display epic names alongside initiative names (in progress)
 - [SPEC-140](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) — Artifact ID Collision Detection (in progress)
+- [SPEC-141](../../../spec/Active/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight (in progress)
 - [SPEC-144](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) — Brief Description Frontmatter Field (in progress)
 ### Proposed
 
@@ -82,10 +84,15 @@
   - [SPEC-040](../../../spec/Complete/(SPEC-040)-MOTD-Textual-TUI-Animation-Fixes/(SPEC-040)-MOTD-Textual-TUI-Animation-Fixes.md) — MOTD Textual TUI Animation Fixes (Complete, done)
   - [SPEC-041](../../../spec/Complete/(SPEC-041)-MOTD-Reactive-Agent-Status-Via-Hooks/(SPEC-041)-MOTD-Reactive-Agent-Status-Via-Hooks.md) — MOTD Reactive Agent Status via Claude Code Hooks (Complete, done)
   - [SPEC-042](../../../spec/Complete/(SPEC-042)-MOTD-Uncommitted-File-Display-And-Commit-Button/(SPEC-042)-MOTD-Uncommitted-File-Display-And-Commit-Button.md) — MOTD Uncommitted File Display and Interactive Commit Button (Complete, done)
+- [EPIC-050](../../../epic/Complete/(EPIC-050)-README-as-Ambient-Intent/(EPIC-050)-README-as-Ambient-Intent.md) — README as Ambient Intent (6/6)
+  - [SPEC-207](../../../spec/Complete/(SPEC-207)-README-Seeding-in-swain-init/(SPEC-207)-README-Seeding-in-swain-init.md) — README Seeding in swain-init (Complete, done)
+  - [SPEC-208](../../../spec/Complete/(SPEC-208)-README-Existence-Check-in-swain-doctor/(SPEC-208)-README-Existence-Check-in-swain-doctor.md) — README Existence Check in swain-doctor (Complete, done)
+  - [SPEC-209](../../../spec/Complete/(SPEC-209)-Session-Start-README-Reconciliation/(SPEC-209)-Session-Start-README-Reconciliation.md) — Session-Start README Reconciliation (Complete, done)
+  - [SPEC-210](../../../spec/Complete/(SPEC-210)-Retro-README-Drift-Check/(SPEC-210)-Retro-README-Drift-Check.md) — Retro README Drift Check (Complete, done)
+  - [SPEC-211](../../../spec/Complete/(SPEC-211)-Release-README-Gate/(SPEC-211)-Release-README-Gate.md) — Release README Gate (Complete, done)
+  - [SPEC-212](../../../spec/Complete/(SPEC-212)-Design-Transition-README-Nudge/(SPEC-212)-Design-Transition-README-Nudge.md) — Design Transition README Nudge (Complete, done)
 - [SPEC-052](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy (done)
 - [SPEC-107](../../../spec/Complete/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) — Sibling order ranking for epics and specs (done)
 - [SPEC-114](../../../spec/Complete/(SPEC-114)-Trunk-Release-Branch-Model/SPEC-114.md) — Trunk + Release Branch Model With Merge-and-Retry Landing (done)
 - [SPEC-115](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based (done)
-- [SPEC-141](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight (done)
-- [SPEC-141](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight (done)
 - [SPEC-143](../../../spec/Complete/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices.md) — Per-Vision and Per-Initiative Roadmap Slices (done)

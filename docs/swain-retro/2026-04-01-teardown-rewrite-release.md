@@ -5,13 +5,13 @@ track: standing
 status: Active
 created: 2026-04-01
 last-updated: 2026-04-01
-scope: "SPEC-233 orphan removal, SPEC-234 session-state tolerance, SPEC-235 worktree bookmark lifecycle, v0.28.0-alpha release"
+scope: "SPEC-261 orphan removal, SPEC-262 session-state tolerance, SPEC-263 worktree bookmark lifecycle, v0.28.0-alpha release"
 period: "2026-04-01"
 linked-artifacts:
-  - [SPEC-233](../spec/Proposed/(SPEC-233)-Specgraph-Hierarchy-Projection-Output/(SPEC-233)-Specgraph-Hierarchy-Projection-Output.md)
-  - [SPEC-234](../spec/Proposed/(SPEC-234)-Session-State-Tolerance-in-Retro-and-Teardown/(SPEC-234)-Session-State-Tolerance-in-Retro-and-Teardown.md)
-  - [SPEC-235](../spec/Active/(SPEC-235)-Worktree-Bookmark-Lifecycle-via-session-json/(SPEC-235)-Worktree-Bookmark-Lifecycle-via-session-json.md)
-  - [EPIC-055](../epic/Proposed/(EPIC-055)-Materialized-Artifact-Parenting-View/(EPIC-055)-Materialized-Artifact-Parenting-View.md)
+  - [SPEC-261](../spec/Complete/(SPEC-261)-Specgraph-Hierarchy-Projection-Output/(SPEC-261)-Specgraph-Hierarchy-Projection-Output.md)
+  - [SPEC-262](../spec/Complete/(SPEC-262)-Lifecycle-Scoped-Materialized-Child-Views/(SPEC-262)-Lifecycle-Scoped-Materialized-Child-Views.md)
+  - [SPEC-263](../spec/Complete/(SPEC-263)-Automatic-Hierarchy-Reconciliation/(SPEC-263)-Automatic-Hierarchy-Reconciliation.md)
+  - [EPIC-060](../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md)
   - SPEC-232
 ---
 
@@ -19,16 +19,16 @@ linked-artifacts:
 
 ## Summary
 
-Three specs closed in one session, each building on the previous: session-state tolerance in retro (SPEC-234 AC1), close handler reordering so retro runs before session close (SPEC-234 AC2), then a complete rewrite of swain-teardown covering orphan removal (SPEC-233), session-chain integration (SPEC-234 AC3-5), and worktree bookmark lifecycle (SPEC-235). The release followed, with changelog anti-patterns refined through multiple user feedback rounds.
+Three specs closed in one session, each building on the previous: session-state tolerance in retro (SPEC-262 AC1), close handler reordering so retro runs before session close (SPEC-262 AC2), then a complete rewrite of swain-teardown covering orphan removal (SPEC-261), session-chain integration (SPEC-262 AC3-5), and worktree bookmark lifecycle (SPEC-263). The release followed, with changelog anti-patterns refined through multiple user feedback rounds.
 
 ## Artifacts
 
 | Artifact | Title | Outcome |
 |----------|-------|---------|
-| [SPEC-233](../spec/Proposed/(SPEC-233)-Specgraph-Hierarchy-Projection-Output/(SPEC-233)-Specgraph-Hierarchy-Projection-Output.md) | Orphan Worktree Removal | Implemented in swain-teardown |
-| [SPEC-234](../spec/Proposed/(SPEC-234)-Session-State-Tolerance-in-Retro-and-Teardown/(SPEC-234)-Session-State-Tolerance-in-Retro-and-Teardown.md) | Session-State Tolerance in Retro/Teardown | AC1-AC5 all implemented |
-| [SPEC-235](../spec/Active/(SPEC-235)-Worktree-Bookmark-Lifecycle-via-session-json/(SPEC-235)-Worktree-Bookmark-Lifecycle-via-session-json.md) | Worktree Bookmark Lifecycle via session.json | Implemented via swain-bookmark.sh |
-| [EPIC-055](../epic/Proposed/(EPIC-055)-Materialized-Artifact-Parenting-View/(EPIC-055)-Materialized-Artifact-Parenting-View.md) | Session Bookmark Lifecycle Integrity | All children complete |
+| [SPEC-261](../spec/Complete/(SPEC-261)-Specgraph-Hierarchy-Projection-Output/(SPEC-261)-Specgraph-Hierarchy-Projection-Output.md) | Orphan Worktree Removal | Implemented in swain-teardown |
+| [SPEC-262](../spec/Complete/(SPEC-262)-Lifecycle-Scoped-Materialized-Child-Views/(SPEC-262)-Lifecycle-Scoped-Materialized-Child-Views.md) | Session-State Tolerance in Retro/Teardown | AC1-AC5 all implemented |
+| [SPEC-263](../spec/Complete/(SPEC-263)-Automatic-Hierarchy-Reconciliation/(SPEC-263)-Automatic-Hierarchy-Reconciliation.md) | Worktree Bookmark Lifecycle via session.json | Implemented via swain-bookmark.sh |
+| [EPIC-060](../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) | Session Bookmark Lifecycle Integrity | All children complete |
 | v0.28.0-alpha | Release | Pushed |
 
 ## Reflection
@@ -53,7 +53,7 @@ Three specs closed in one session, each building on the previous: session-state 
 
 ### What would change
 
-**Add new skills to the README skills table during implementation, not after.** swain-teardown shipped in v0.28.0-alpha but wasn't in the skills table. This is a completeness check that should be part of the SPEC-235 acceptance criteria: "skill is listed in README.md skills table." Retroactively fixing it is easy; the gap shouldn't exist in the first place.
+**Add new skills to the README skills table during implementation, not after.** swain-teardown shipped in v0.28.0-alpha but wasn't in the skills table. This is a completeness check that should be part of the SPEC-263 acceptance criteria: "skill is listed in README.md skills table." Retroactively fixing it is easy; the gap shouldn't exist in the first place.
 
 **Automate stale bookmark cleanup earlier.** The `worktree prune` subcommand in swain-bookmark.sh existed but wasn't run automatically. Running it during session start (in swain-doctor or swain-session) would prevent stale entries from accumulating to the point where they're a manual cleanup task.
 
@@ -89,4 +89,4 @@ Suggested addition to the Skills table:
 | **swain-teardown** | Session hygiene — orphan worktree detection, git dirty-state guard, bookmark cleanup |
 ```
 
-**Deferred:** Decide whether EPIC-055 (session bookmark lifecycle integrity) warrants a mention in the README overview. The README currently says swain-session handles bookmarks but doesn't mention teardown. A brief mention of end-of-session hygiene would align with the shipped behavior.
+**Deferred:** Decide whether EPIC-060 (session bookmark lifecycle integrity) warrants a mention in the README overview. The README currently says swain-session handles bookmarks but doesn't mention teardown. A brief mention of end-of-session hygiene would align with the shipped behavior.

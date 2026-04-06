@@ -37,7 +37,7 @@ The operator gets immediate feedback: tmux tab is named, brief context is shown 
 - Collapsing the init -> session skill chain
 - Splitting fast greeting from full status dashboard
 - Deferring worktree creation to swain-do
-- Instrumenting startup to validate assumptions (SPIKE-001)
+- Instrumenting startup to validate assumptions (SPIKE-052)
 
 **Out of scope:**
 - Rewriting swain-session's status dashboard internals (those are fine once invoked)
@@ -46,31 +46,31 @@ The operator gets immediate feedback: tmux tab is named, brief context is shown 
 
 ## Child Specs
 
-- [SPIKE-001](../../../research/Complete/(SPIKE-001)-Replace-Beads-CLI-With-Backlog-Md/(SPIKE-001)-Replace-Beads-CLI-With-Backlog-Md.md) — Instrument startup time breakdown
+- [SPIKE-052](../../../spike/Active/(SPIKE-052)-Session-Startup-Time-Instrumentation/(SPIKE-052)-Session-Startup-Time-Instrumentation.md) — Instrument startup time breakdown
 - [SPEC-203](../../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md) — Fast-path session greeting
 - [SPEC-195](../../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md) — Defer worktree creation to task dispatch
-- [SPEC-196](../../../spec/Active/(SPEC-196)-Collapse-Init-Session-Skill-Chain/(SPEC-196)-Collapse-Init-Session-Skill-Chain.md) — Collapse init -> session skill chain
+- [SPEC-196](../../../spec/Active/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path.md) — Collapse init -> session skill chain
 
 ## Key Dependencies
 
 - SPEC-196 (chain collapse) should land before SPEC-203 (fast greeting) — the chain collapse removes a round-trip that the fast greeting then optimizes further.
-- SPIKE-001 should complete first to validate assumptions and set baseline measurements.
+- SPIKE-052 should complete first to validate assumptions and set baseline measurements.
 - [EPIC-046](../../Complete/(EPIC-046)-Pre-Runtime-Crash-Recovery/(EPIC-046)-Pre-Runtime-Crash-Recovery.md) touches the same shell launcher layer; coordinate to avoid conflicts.
 
 ## Retrospective
 
 **Terminal state:** Complete
 **Period:** 2026-03-30 — 2026-03-31
-**Related artifacts:** [SPIKE-001](../../../research/Complete/(SPIKE-001)-Replace-Beads-CLI-With-Backlog-Md/(SPIKE-001)-Replace-Beads-CLI-With-Backlog-Md.md), [SPEC-196](../../../spec/Active/(SPEC-196)-Collapse-Init-Session-Skill-Chain/(SPEC-196)-Collapse-Init-Session-Skill-Chain.md), [SPEC-203](../../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md), [SPEC-195](../../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md), [SPEC-197](../../../spec/Active/(SPEC-197)-Specgraph-Module-Import-Shadowing/(SPEC-197)-Specgraph-Module-Import-Shadowing.md)
+**Related artifacts:** [SPIKE-052](../../../spike/Active/(SPIKE-052)-Session-Startup-Time-Instrumentation/(SPIKE-052)-Session-Startup-Time-Instrumentation.md), [SPEC-196](../../../spec/Active/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path/(SPEC-196)-Shell-Level-Marker-Check-for-Init-Fast-Path.md), [SPEC-203](../../../spec/Active/(SPEC-203)-Fast-Path-Session-Greeting/(SPEC-203)-Fast-Path-Session-Greeting.md), [SPEC-195](../../../spec/Active/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md), [SPEC-197](../../../spec/Active/(SPEC-197)-Specgraph-Module-Import-Shadowing/(SPEC-197)-Specgraph-Module-Import-Shadowing.md)
 
 ### Summary
 
-All four success criteria met. Session greeting now runs in ~500ms (script time) down from 25-45s total. The work followed a clean spike-then-implement pattern: SPIKE-001 instrumented the startup chain, validated that LLM round-trips dominated (60-75% of wall time), and the three specs attacked different layers of the problem. SPEC-197 (specgraph bug) was discovered during spike instrumentation and fixed as a bonus.
+All four success criteria met. Session greeting now runs in ~500ms (script time) down from 25-45s total. The work followed a clean spike-then-implement pattern: SPIKE-052 instrumented the startup chain, validated that LLM round-trips dominated (60-75% of wall time), and the three specs attacked different layers of the problem. SPEC-197 (specgraph bug) was discovered during spike instrumentation and fixed as a bonus.
 
 ### Reflection
 
 **What went well:**
-- Spike-first approach paid off. SPIKE-001's timing data directly shaped which specs mattered most and set measurable targets. Without it, we might have optimized the wrong layer (scripts vs. LLM chain).
+- Spike-first approach paid off. SPIKE-052's timing data directly shaped which specs mattered most and set measurable targets. Without it, we might have optimized the wrong layer (scripts vs. LLM chain).
 - The operator's framing — "key purpose of `swain` is tmux naming and telling the user what's up, everything else deferred" — gave a clear design principle that made every scope decision easy.
 - Autonomous overnight execution worked: operator said "keep going until you hit something that needs an operator" and 3 specs + 1 bug fix landed without blocking.
 - TDD approach caught issues early — 24 new tests across 3 scripts, all passing on trunk.

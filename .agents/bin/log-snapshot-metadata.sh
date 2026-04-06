@@ -1,0 +1,1 @@
+../../skills/swain-search/scripts/log-snapshot-metadata.sh

@@ -39,6 +39,8 @@ FLAG_DRY_RUN=false
 FLAG_PHASE1_ONLY=false
 FLAG_PHASE2_ONLY=false
 FLAG_NON_INTERACTIVE=false
+FLAG_RESUME=""
+FLAG_TRUNK=false
 PURPOSE_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -67,12 +69,22 @@ while [[ $# -gt 0 ]]; do
       FLAG_NON_INTERACTIVE=true
       shift
       ;;
+    --resume)
+      FLAG_RESUME="$2"
+      shift 2
+      ;;
+    --trunk)
+      FLAG_TRUNK=true
+      shift
+      ;;
     --help|-h)
-      echo "Usage: swain [--fresh] [--runtime <name>] [purpose...]"
+      echo "Usage: swain [--fresh] [--runtime <name>] [--resume <name>] [--trunk] [purpose...]"
       echo ""
       echo "Options:"
       echo "  --fresh         Skip crash recovery, start a clean session"
       echo "  --runtime NAME  Force a specific runtime (claude, gemini, codex, copilot, crush)"
+      echo "  --resume NAME   Resume an existing worktree by name"
+      echo "  --trunk         Launch on trunk (no worktree isolation)"
       echo ""
       echo "Arguments after flags become the session purpose text."
       exit 0
@@ -159,17 +171,7 @@ derive_worktree_context() {
 
 choose_worktree_parent() {
   local base_root="$1"
-
-  if [[ -d "$base_root/.worktrees" ]] || git -C "$base_root" check-ignore -q .worktrees 2>/dev/null; then
-    echo "$base_root/.worktrees"
-    return
-  fi
-
-  if [[ -d "$base_root/.claude/worktrees" ]] || git -C "$base_root" check-ignore -q .claude/worktrees 2>/dev/null; then
-    echo "$base_root/.claude/worktrees"
-    return
-  fi
-
+  # ADR-034: .worktrees/ is the single canonical location. No fallback.
   echo "$base_root/.worktrees"
 }
 
@@ -203,11 +205,88 @@ create_session_worktree() {
   path="$parent/$name"
 
   git -C "$base_root" worktree add "$path" -b "$name" >/dev/null 2>&1 || return 1
+
+  # Symlink gitignored agentic structure from main tree into worktree.
+  # Without these, runtimes launched in worktrees can't find skills,
+  # re-run onboarding, or lose runtime-specific config.
+
+  # 1. Skill directories (.claude/skills, .agents/skills)
+  for skill_dir in .claude/skills .agents/skills; do
+    if [[ -d "$base_root/$skill_dir" ]]; then
+      mkdir -p "$path/$(dirname "$skill_dir")"
+      ln -s "$base_root/$skill_dir" "$path/$skill_dir"
+    fi
+  done
+
+  # 2. .swain-init marker — prevents re-onboarding in worktrees
+  if [[ -f "$base_root/.swain-init" ]] && [[ ! -e "$path/.swain-init" ]]; then
+    ln -s "$base_root/.swain-init" "$path/.swain-init"
+  fi
+
+  # 3. Runtime-specific dot-folders (gitignored agent config/skills dirs).
+  #    Matches the list in .gitignore — symlink any that exist on trunk.
+  local agent_dirs=(
+    .adal .agent .augment .codebuddy .commandcode .continue .codex
+    .cortex .crush .factory .goose .iflow .junie .kilocode .kiro
+    .kode .mcpjam .mux .neovate .openhands .pi .pochi .qoder .qwen
+    .roo .trae .vibe .windsurf .zencoder .superpowers
+  )
+  for agent_dir in "${agent_dirs[@]}"; do
+    if [[ -d "$base_root/$agent_dir" ]] && [[ ! -e "$path/$agent_dir" ]]; then
+      ln -s "$base_root/$agent_dir" "$path/$agent_dir"
+    fi
+  done
+
   echo "$path"
 }
 
 prepare_session_workspace() {
   detect_checkout_state
+
+  # SPEC-245: --trunk flag — launch on trunk with warning
+  if [[ "$FLAG_TRUNK" == "true" ]]; then
+    if [[ -t 0 ]] && [[ "$FLAG_NON_INTERACTIVE" != "true" ]]; then
+      echo "WARNING: Working on trunk violates worktree discipline."
+      echo ""
+      echo "This should only be used for:"
+      echo "  - Quick typo fixes (3 files or fewer)"
+      echo "  - Merge/rebase operations"
+      echo "  - Emergency hotfixes"
+      echo ""
+      read -r -p "Proceed on trunk? (y/N): " confirm </dev/tty
+      if [[ "$confirm" != "y" ]] && [[ "$confirm" != "Y" ]]; then
+        echo "Cancelled."
+        exit 0
+      fi
+    fi
+    LAUNCH_ROOT="$REPO_ROOT"
+    return
+  fi
+
+  # SPEC-245: --resume flag — find and resume existing worktree
+  if [[ -n "$FLAG_RESUME" ]]; then
+    local found_path=""
+    while IFS= read -r line; do
+      if [[ "$line" == worktree\ * ]]; then
+        local wt_path="${line#worktree }"
+        if [[ "$wt_path" == *"$FLAG_RESUME"* ]]; then
+          found_path="$wt_path"
+          break
+        fi
+      fi
+    done < <(git worktree list --porcelain 2>/dev/null)
+
+    if [[ -n "$found_path" ]]; then
+      LAUNCH_ROOT="$found_path"
+      RESUME_PROMPT="/swain-session Session purpose: resume — $FLAG_RESUME"
+      PURPOSE_ARGS=()
+      echo "Resuming worktree: $LAUNCH_ROOT"
+    else
+      echo "error: no worktree matching '$FLAG_RESUME' found" >&2
+      exit 1
+    fi
+    return
+  fi
 
   if [[ ${#PURPOSE_ARGS[@]} -eq 0 ]] || [[ -n "$RESUME_PROMPT" ]] || [[ "$VALID_GIT_REPO" != "true" ]]; then
     return
@@ -491,16 +570,45 @@ resolve_runtime() {
     fi
   fi
 
-  # 4. Auto-detect installed runtimes (first match wins)
+  # 4. Auto-detect installed runtimes
   local runtimes=(claude gemini codex copilot crush)
+  local available=()
   for rt in "${runtimes[@]}"; do
     if command -v "$rt" &>/dev/null; then
-      echo "$rt"
-      return
+      available+=("$rt")
     fi
   done
 
-  echo ""
+  if [[ ${#available[@]} -eq 0 ]]; then
+    echo ""
+    return
+  fi
+
+  # Single runtime — use it directly.
+  if [[ ${#available[@]} -eq 1 ]]; then
+    echo "${available[0]}"
+    return
+  fi
+
+  # Multiple runtimes — prompt if interactive, otherwise first match.
+  if [[ "$FLAG_NON_INTERACTIVE" == "true" ]] || ! [[ -t 0 ]]; then
+    echo "${available[0]}"
+    return
+  fi
+
+  echo "Multiple runtimes detected:" >&2
+  local i=1
+  for rt in "${available[@]}"; do
+    echo "  [$i] $rt" >&2
+    i=$((i + 1))
+  done
+  echo "" >&2
+  read -r -p "Choose runtime (1-${#available[@]}): " choice </dev/tty
+  if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -ge 1 ]] && [[ "$choice" -le ${#available[@]} ]]; then
+    echo "${available[$((choice - 1))]}"
+  else
+    echo "${available[0]}"
+  fi
 }
 
 # Build launch command for a given runtime
@@ -532,6 +640,15 @@ build_launch_cmd() {
 
 PHASE1_FINDINGS=""
 RESUME_PROMPT=""
+
+# --- SPEC-276: Tmux session name helper ---
+tmux_session_name() {
+  local context="${1:-swain}"
+  printf '%s\n' "swain-$context" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed 's/[^a-z0-9_-]/-/g; s/--*/-/g; s/^-//; s/-$//' \
+    | cut -c1-32
+}
 
 # --- Phase 3: Runtime invocation ---
 phase3_launch_runtime() {
@@ -565,18 +682,97 @@ phase3_launch_runtime() {
   local cmd
   cmd=$(build_launch_cmd "$runtime" "$prompt")
 
+  # --- SPEC-276: Determine tmux action ---
+  local tmux_action="none"
+  local session_name=""
+  session_name="$(tmux_session_name "$(derive_worktree_context)")"
+
+  if [[ -z "${TMUX:-}" ]]; then
+    if command -v tmux &>/dev/null; then
+      tmux_action="new-session"
+    else
+      echo "warning: tmux not found; launching without session wrapping" >&2
+    fi
+  else
+    tmux_action="rename-window"
+  fi
+
   if [[ "$FLAG_DRY_RUN" == "true" ]]; then
     echo "runtime: $runtime"
     echo "prompt: $prompt"
     echo "launch_root: $LAUNCH_ROOT"
     echo "command: $cmd"
+    echo "tmux_action: $tmux_action"
+    echo "tmux_session: $session_name"
     return
   fi
 
   cd "$LAUNCH_ROOT"
 
-  # Launch the runtime via exec (replaces this process)
-  eval exec "$cmd"
+  # --- SPEC-245: Lockfile claiming + env var export ---
+  local lockfile_script="$REPO_ROOT/.agents/bin/swain-lockfile.sh"
+  local branch=""
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
+
+  if [[ -n "$branch" ]] && [[ "$branch" != "trunk" ]] && [[ -f "$lockfile_script" ]]; then
+    local purpose_text="${PURPOSE_ARGS[*]:-}"
+    export SWAIN_RUNTIME="$runtime"
+    bash "$lockfile_script" claim "$branch" "$LAUNCH_ROOT" "$purpose_text" 2>/dev/null || true
+    export SWAIN_WORKTREE_PATH="$LAUNCH_ROOT"
+    export SWAIN_LOCKFILE_PATH="$REPO_ROOT/.agents/worktrees/${branch}.lock"
+  fi
+
+  # --- SPEC-276: Rename tmux window if inside tmux ---
+  if [[ "$tmux_action" == "rename-window" ]]; then
+    tmux rename-window "$session_name" 2>/dev/null || true
+  fi
+
+  # --- SPEC-245: Launch runtime as child process (not exec) ---
+  # Running as child allows post-runtime cleanup (lockfile verification, worktree pruning).
+  # Forward signals to the child so Ctrl-C propagates cleanly.
+  local child_pid=""
+  trap '[[ -n "$child_pid" ]] && kill -TERM "$child_pid" 2>/dev/null' TERM INT HUP
+
+  # --- SPEC-276: Wrap in tmux if outside tmux ---
+  if [[ "$tmux_action" == "new-session" ]]; then
+    tmux new-session -s "$session_name" -d "cd '$LAUNCH_ROOT' && $cmd" 2>/dev/null
+    tmux attach-session -t "$session_name" &
+    child_pid=$!
+  else
+    eval "$cmd" &
+    child_pid=$!
+  fi
+  wait "$child_pid" 2>/dev/null
+  local exit_code=$?
+  child_pid=""
+
+  # --- SPEC-245: Post-runtime cleanup ---
+  if [[ -n "$branch" ]] && [[ "$branch" != "trunk" ]] && [[ -f "$lockfile_script" ]]; then
+    # Check if worktree is ready for cleanup
+    local verify_exit=0
+    bash "$lockfile_script" verify-ready "$branch" >/dev/null 2>&1 || verify_exit=$?
+
+    if [[ $verify_exit -eq 0 ]]; then
+      # Commit hash matches — safe to prune
+      local archive_script="$REPO_ROOT/.agents/bin/swain-session-archive.sh"
+      if [[ -f "$archive_script" ]]; then
+        bash "$archive_script" save "$LAUNCH_ROOT" 2>/dev/null || true
+      fi
+      cd "$REPO_ROOT" || cd "$HOME"
+      git worktree remove "$LAUNCH_ROOT" 2>/dev/null || true
+      bash "$lockfile_script" release "$branch" 2>/dev/null || true
+      git worktree prune 2>/dev/null || true
+      echo "Worktree cleaned up: $LAUNCH_ROOT"
+    elif [[ $verify_exit -eq 1 ]]; then
+      # Commit mismatch — new work since ready mark
+      echo "Note: worktree has new commits since ready_for_cleanup — leaving in place."
+    else
+      # Not marked ready — leave lockfile for teardown
+      :
+    fi
+  fi
+
+  exit "$exit_code"
 }
 
 # --- Main ---

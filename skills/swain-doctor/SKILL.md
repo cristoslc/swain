@@ -228,7 +228,34 @@ Verify that `README.md` exists at the repo root. The README is the most public s
 - **ok** — README.md exists. Silent.
 - **warning** — README.md missing. Report: `README.md missing — swain alignment loop has no public intent anchor. Run swain-init to seed one.`
 
-This is an existence check only — no content analysis. Content reconciliation is handled by swain-session (session start), swain-retro (retrospective), and swain-release (release gate).
+This is an existence check only — no content analysis. Content reconciliation is handled by swain-retro (retrospective), swain-sync (commit advisory), and swain-release (release gate).
+
+## Artifact index health
+
+Verify that generated artifact index files (`docs/*/list-*.md`) are current for supported swain artifact types. These files are human-facing views built from artifact frontmatter, so they can drift between lazy refreshes.
+
+### Detection and repair
+
+Use the existing rebuild script:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+bash "$REPO_ROOT/.agents/bin/rebuild-index.sh" <type>
+```
+
+For each supported type whose docs directory exists (`spec`, `epic`, `initiative`, `spike`, `adr`, `persona`, `runbook`, `design`, `vision`, `journey`, `train`):
+
+1. Record whether `docs/<dir>/list-<type>.md` exists and its content hash
+2. Run `rebuild-index.sh <type>`
+3. Compare the resulting file against the pre-run state
+
+### Status values
+
+- **ok** — all supported artifact indices were already current
+- **advisory** — one or more stale or missing index files were regenerated
+- **warning** — the rebuild script is unavailable or one or more index rebuilds failed
+
+This check is auto-repair only. It should never block session startup.
 
 ## Artifact index health
 

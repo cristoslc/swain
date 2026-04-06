@@ -1,5 +1,11 @@
 # Designs
 
+## Proposed
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| DESIGN-021 | bin/swain Worktree Router | 2026-04-04 | — |
+
 ## Active
 
 | Artifact | Title | Last Updated | Commit |
@@ -14,7 +20,14 @@
 | DESIGN-009 | Socratic Discovery Interaction Flow | 2026-04-01 | TBD |
 | DESIGN-010 | Task Execution Interaction Flow | 2026-04-01 | TBD |
 | DESIGN-011 | Diagnostic Recovery Interaction Flow | 2026-04-01 | TBD |
-| DESIGN-012 | Session Teardown Interaction Flow | 2026-04-02 | — |
+| DESIGN-013 | Artifact Hierarchy Materialization Contract | 2026-04-02 | — |
+| DESIGN-014 | Hierarchy Placement and _unparented Surfaces | 2026-04-02 | — |
+| DESIGN-015 | Usage Logging and Telemetry | 2026-04-03 | pending |
+| DESIGN-016 | Related Artifacts Materialization | 2026-04-03 | pending |
+| DESIGN-017 | Git-Compact CLI Contract | 2026-04-03 | 52f5c81 |
+| DESIGN-018 | Completion Pipeline State Tracking | 2026-04-04 | 683a04e6 |
+| DESIGN-019 | Operator BDD Workflow | 2026-04-04 | _pending_ |
+| DESIGN-020 | Agent BDD Contract | 2026-04-04 | _pending_ |
 
 ## Superseded
 

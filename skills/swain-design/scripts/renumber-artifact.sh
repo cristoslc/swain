@@ -153,7 +153,7 @@ ref_belongs_to_collision() {
   [[ "$file" == "$NEW_DIR"/* ]] && return 0
 
   # File is inside a keeper directory — never rewrite
-  for kd in "${KEEPER_DIRS[@]}"; do
+  for kd in "${KEEPER_DIRS[@]-}"; do
     [[ "$file" == "$kd"/* ]] && return 1
   done
 

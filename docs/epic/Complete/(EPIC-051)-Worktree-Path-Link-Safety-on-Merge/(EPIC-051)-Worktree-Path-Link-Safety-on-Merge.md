@@ -50,7 +50,7 @@ Operators and agents can trust that a merged worktree branch leaves no broken pa
 
 ## Key Dependencies
 
-- [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) defines the current merge workflow; the integration spec hooks into this step
+- [ADR-011](../../../adr/Active/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry/(ADR-011)-Worktree-Landing-Via-Merge-With-Retry.md) defines the current merge workflow; the integration spec hooks into this step
 - [DESIGN-007](../../../design/Active/(DESIGN-007)-Worktree-Path-Link-Detection-and-Resolution/(DESIGN-007)-Worktree-Path-Link-Detection-and-Resolution.md) — System design for the detection and resolution contract
 
 ## Lifecycle

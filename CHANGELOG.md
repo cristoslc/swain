@@ -1,5 +1,60 @@
 # Changelog
 
+## [0.29.0-alpha] - 2026-04-06
+
+### Features
+
+#### Worktree Isolation Redesign
+
+EPIC-056 rebuilt worktree management from the ground up. Sessions now claim
+lockfiles to prevent collisions, worktrees get artifact-aware names derived from
+the spec being worked on, and completed sessions archive to a timestamped record.
+All worktrees live under .worktrees/ instead of scattered locations (ADR-034).
+
+#### Launcher Improvements
+
+bin/swain now wraps sessions in tmux for persistence across terminal disconnects.
+Skills are symlinked into worktrees at creation time, and runtime selection is
+interactive when multiple runtimes are available.
+
+#### Readability Threshold Raised
+
+Flesch-Kincaid grade threshold raised from 9 to 10 in swain-design, and the
+bullet-period governance rule added to prevent inflated scores from unterminated
+list items.
+
+### Planned
+
+- Title-based artifact identifiers (ADR-035) with timestamp suffixes to replace
+  numeric IDs. EPIC-064 tracks the migration.
+- BDD traceability (EPIC-060/062) — linking behavioral specs to artifact
+  acceptance criteria.
+- Born-in-worktree session isolation (ADR-033) — sessions that originate inside
+  a worktree stay scoped to it.
+- swain-session deprecation (ADR-023) — responsibilities redistributed to
+  swain-init, swain-do, and swain-teardown.
+
+### Research
+
+- RTK CLI token compression trove — 1 source collected.
+- AI development patterns trove — 1 source collected.
+- Retrospective resynthesize from all 29 retros.
+
+### Supporting Changes
+
+- BDD test suite with 84 behavioral specs and swain-test.sh gate.
+- Automated completion pipeline — swain-do auto-transitions parent epics.
+- Session preflight script consolidates startup reads into structured JSON.
+- git-compact wrapper for compressed git output via RTK.
+- Doctor detects and migrates flat-file artifacts to foldered format (ADR-027).
+- Doctor excludes Docker MCP gateway from crash debris detection.
+- grep -c anti-pattern audited and fixed across all scripts.
+- Chart extended with relationship symlinks and standalone placement.
+- 25 artifact number collisions from concurrent worktree work resolved.
+- Worktree location standardized to .worktrees/ (ADR-034).
+- swain-do commits dirty tracked files before worktree creation.
+- Sync stash handling hardened against data loss.
+
 ## [0.28.0-alpha] - 2026-04-01
 
 ### Features
