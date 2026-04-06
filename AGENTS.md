@@ -48,6 +48,8 @@ If superpowers is not installed, these chains are skipped, not blocked. Swain-to
 
 All artifacts produced by swain skills must meet a Flesch-Kincaid grade level of 10 or below on prose content. After writing or editing an artifact, run `readability-check.sh` on it. If the score exceeds the threshold, revise the prose — use shorter sentences, simpler words, and active voice — then re-check. Do not rewrite content that already passes. If three revision attempts still fail, note the score in the commit message and proceed.
 
+End every bulleted and numbered list item with a period. The readability checker treats un-terminated bullets as a single run-on sentence, which inflates the grade level.
+
 ### Session startup
 
 Session initialization is handled by the `swain` shell launcher, which invokes `/swain-init` as the initial prompt. If a session starts without the launcher, the operator can manually run `/swain-init`.
