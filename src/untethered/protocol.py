@@ -13,8 +13,8 @@ from typing import Any
 
 # Event types — project scope
 _PROJECT_EVENT_TYPES = {
-    "session_spawned", "text_output", "tool_call", "tool_result",
-    "approval_needed", "session_died", "web_output_available",
+    "session_spawned", "session_promoted", "text_output", "tool_call",
+    "tool_result", "approval_needed", "session_died", "web_output_available",
 }
 
 # Event types — host scope
@@ -96,6 +96,17 @@ class Event:
             payload["artifact"] = artifact
         return cls(
             type="session_spawned", bridge=bridge, session_id=session_id,
+            timestamp=_now_ms(), payload=payload,
+        )
+
+    @classmethod
+    def session_promoted(cls, *, bridge: str, session_id: str,
+                         artifact: str, topic: str | None = None) -> Event:
+        payload: dict[str, Any] = {"artifact": artifact}
+        if topic:
+            payload["topic"] = topic
+        return cls(
+            type="session_promoted", bridge=bridge, session_id=session_id,
             timestamp=_now_ms(), payload=payload,
         )
 

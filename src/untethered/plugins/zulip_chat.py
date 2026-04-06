@@ -243,6 +243,23 @@ async def _relay_events(
                 await _post(stream, control_topic, zulip_msg["content"])
             continue
 
+        # --- Session promoted: interview complete, create the thread ---
+        if msg.type == "session_promoted":
+            artifact = msg.payload.get("artifact", "")
+            topic = registry.assign(session_id, artifact or None)
+            suffix = f" on `{artifact}`" if artifact else ""
+
+            # Create the session thread
+            await _post(stream, topic, f"Session started{suffix}.")
+
+            # Announce in control so the operator can find the thread
+            await _post(
+                stream, control_topic,
+                f"{mention}Session ready in topic **{topic}**{suffix}. "
+                f"Reply there to interact or use `/cancel` to stop.",
+            )
+            continue
+
         # --- Regular sessions: dedicated thread per session ---
         if msg.type == "session_spawned":
             artifact = msg.payload.get("artifact")

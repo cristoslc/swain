@@ -75,6 +75,11 @@ def _render_event_content(event: Event, *, operator_email: str | None = None) ->
         suffix = f" on {artifact}" if artifact else ""
         return f"Session started ({runtime}){suffix}."
 
+    if t == "session_promoted":
+        artifact = p.get("artifact", "")
+        topic = p.get("topic", "")
+        return f"Session promoted to topic **{topic or artifact}**."
+
     if t == "session_died":
         reason = p.get("reason", "unknown")
         return f"Session ended: {reason}."
