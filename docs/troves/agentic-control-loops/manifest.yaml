@@ -1,0 +1,66 @@
+trove: agentic-control-loops
+created: 2026-04-06
+refreshed: 2026-04-06
+tags:
+  - agent-loops
+  - autonomous-agents
+  - ralph-wiggum
+  - openclaw
+  - agentic-runtime
+  - iteration-patterns
+  - claude-code
+  - control-loop
+  - daemon
+  - prompt-engineering
+
+freshness-ttl:
+  web: 14d
+  repository: 30d
+
+history:
+  - event: created
+    date: 2026-04-06
+    commit: "--"
+    sources: 4
+
+sources:
+  - source-id: ghuntley-ralph-technique
+    type: web
+    url: "https://ghuntley.com/ralph/"
+    fetched: 2026-04-06T16:00:00Z
+    title: "The Ralph Wiggum Technique — Geoffrey Huntley"
+    hash: "b40d8228ad4f30bf2d23933474dfeddcb3be0ce70fc3bf0f8ad096c3913973a9"
+    notes: "Original article; author is also behind the Claude Code source deobfuscation project"
+
+  - source-id: open-ralph-wiggum
+    type: repository
+    url: "https://github.com/Th0rgal/open-ralph-wiggum"
+    fetched: 2026-04-06T16:00:00Z
+    title: "Open Ralph Wiggum — Multi-Agent Autonomous Loop CLI"
+    hash: "b5af10f887a43096a4a2f2d71a026cbb5a92fecf5fef3dda43298385fc3294ab"
+    highlights:
+      - "open-ralph-wiggum.md"
+    selective: true
+    notes: "Most comprehensive OSS implementation; supports Claude Code, Codex, Copilot CLI, OpenCode; agent rotation; tasks mode"
+
+  - source-id: ralph-loop-quickstart
+    type: repository
+    url: "https://github.com/coleam00/ralph-loop-quickstart"
+    fetched: 2026-04-06T16:00:00Z
+    title: "Ralph Loop Quickstart — PRD-Driven Autonomous Development"
+    hash: "5538a602c0b3feaf3fd79886125c4ef1eb9c537b6bc8d68977a2093db49f07a6"
+    highlights:
+      - "ralph-loop-quickstart.md"
+    selective: true
+    notes: "Practical PRD-driven approach; bash loop (fresh context per iteration); agent-browser visual verification"
+
+  - source-id: openclaw-daemon
+    type: repository
+    url: "https://github.com/openclaw/openclaw"
+    fetched: 2026-04-06T16:00:00Z
+    title: "OpenClaw — Always-On Personal AI Assistant Daemon"
+    hash: "fbcd1be42726ebec14f54da4e9bd61bbf442eeb209063262437e6df4bd88b92b"
+    highlights:
+      - "openclaw-daemon.md"
+    selective: true
+    notes: "Daemon/always-on angle; distinct from messaging-adapter angle in agentic-runtime-chat-adapters trove"
