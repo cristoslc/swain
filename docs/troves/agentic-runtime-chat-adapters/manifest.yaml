@@ -1,6 +1,6 @@
 trove: agentic-runtime-chat-adapters
 created: 2026-04-06
-refreshed: 2026-04-06
+refreshed: 2026-04-06T17:14:00Z
 tags:
   - agentic-runtime
   - chat-adapter
@@ -9,6 +9,8 @@ tags:
   - openclaw
   - acpx
   - agent-client-protocol
+  - acp-python-sdk
+  - python-native
   - telegram
   - discord
   - messaging-bridge
@@ -28,6 +30,11 @@ history:
     date: 2026-04-06
     commit: "1bb29db"
     sources: 10
+  - event: extended
+    date: 2026-04-06
+    commit: "--"
+    sources-added: 4
+    sources-total: 14
 
 sources:
   # === Web UIs (multi-runtime) ===
@@ -102,3 +109,32 @@ sources:
     fetched: 2026-04-06T00:00:00Z
     title: "ACPX Inside Claude Code: Practical Multi-Agent Orchestration"
     hash: "e8169d4026cab11c89d2344d68eaa88a13fccd8de9fc37b5b665bfb37a8c3218"
+
+  # === ACP Python SDK and language support ===
+  - source-id: acp-python-sdk
+    type: web
+    url: "https://github.com/agentclientprotocol/python-sdk"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Agent Client Protocol Python SDK — Official Python SDK for ACP Clients and Agents"
+    hash: "1c42932729df6cac6147cc991aa8341533b8c29e68c2986800dfe370ba9bc235"
+
+  - source-id: claude-code-acp-pypi
+    type: web
+    url: "https://pypi.org/project/claude-code-acp/"
+    fetched: 2026-04-06T00:00:00Z
+    title: "claude-code-acp — Python ACP Server and Client for Claude Code"
+    hash: "5731212a556186875cdef5349d6d16dd2e8261038ca8df05db7aaee54b5be169"
+
+  - source-id: acp-protocol-org
+    type: web
+    url: "https://github.com/agentclientprotocol/agent-client-protocol"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Agent Client Protocol Specification — Official Protocol Repo and SDK Ecosystem"
+    hash: "3fe01420bcb7e9aa85135acf2ea8d0d519778b4763c90901b13d478011c3d4a5"
+
+  - source-id: acp-python-sdk-blog
+    type: web
+    url: "https://psiace.me/posts/acp-python-sdk-new-chapter/"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Agent Client Protocol Python SDK — A New Chapter (Official Org Adoption)"
+    hash: "4177319220adbcf3409f5039b84c5d149f343946836421e9285b3473de15286b"
