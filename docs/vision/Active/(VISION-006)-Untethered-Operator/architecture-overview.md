@@ -146,13 +146,17 @@ Pluggable translator. One per chat surface. Location flexible — wherever it ca
 
 ### Chat Service (external system)
 
-Not our domain logic. An off-the-shelf self-hostable chat server. Shared by default across projects. Isolated (dedicated instance) when security demands it.
+Not our domain logic. Either a hosted platform (Zulip Cloud, Slack, Discord) or a self-hosted server on a VPS. Shared by default across projects. Isolated (separate instance or workspace) when security demands it.
 
 **Responsibilities:** Message routing, auth, mobile/desktop client support, message persistence, room/thread management.
 
-**What we need from it:** A bot API (create rooms, post messages, read messages, manage threads), mobile clients, self-hostable, reasonable resource footprint.
+**What we need from it:** A bot API (create rooms, post messages, read messages, manage threads), mobile clients, reasonable rate limits for continuous bot posting.
 
-**Deployment:** Runs directly on a VPS — no tunnel, no ingress layer needed. The VPS has a public IP, DNS points to it, the chat server handles TLS (or sits behind Caddy on the same VPS). This is the simplest possible deployment for the one internet-facing service in v1. Bridges connect outbound to the VPS over open internet.
+**Deployment options (ordered by ops burden):**
+1. **Hosted platform (default for v1).** Zulip Cloud, Slack, etc. Zero server ops. The `/swain-stage` provisioning command registers a bot via the platform's API and connects bridges. The operator already has the mobile app installed. Zulip Cloud is notable because its API is identical to self-hosted — migration is seamless.
+2. **Self-hosted on VPS.** For operators who need full control or have privacy constraints. Chat server (containerized) + Caddy for TLS on a small VPS. DNS points to the VPS. Bridges connect outbound.
+
+The chat adapter code is identical in both cases — it speaks to an API regardless of where the server lives.
 
 ---
 
@@ -207,16 +211,16 @@ Ingress Layer (v2) ←──shared-kernel──→ Web App
 
 ## Deployment Topology
 
-Chat services and project hosts are decoupled. Project bridges connect outbound to their chat service via chat adapters. Chat services never initiate connections to bridges. Multiple chat services can coexist — each with its own ingress, or sharing one. Host bridges are scoped to security domains, not machines — one host can run multiple host bridges.
+Chat services and project hosts are decoupled. Project bridges connect outbound to their chat service via chat adapters. Chat services never initiate connections to bridges. Multiple chat services can coexist — hosted or self-hosted. Host bridges are scoped to security domains, not machines — one host can run multiple host bridges.
 
 ```mermaid
 flowchart LR
-    subgraph svcA["Chat Service A (personal VPS)"]
-        chatA["Chat Server A + Caddy"]
+    subgraph svcA["Chat Service A (Zulip Cloud)"]
+        chatA["Zulip API"]
     end
 
-    subgraph svcB["Chat Service B (work VPS)"]
-        chatB["Chat Server B + Caddy"]
+    subgraph svcB["Chat Service B (work Slack)"]
+        chatB["Slack API"]
     end
 
     subgraph laptop["Laptop"]
@@ -269,9 +273,9 @@ The laptop runs two host bridges — one for the personal security domain (→ C
 
 **Deployment modes:**
 
-- **Default:** Shared chat service on a VPS, per-project bridges on project hosts. The `/swain` provisioning command registers a new bridge and creates a room on the existing chat service.
-- **Isolated chat service:** A separate VPS for security-sensitive projects or work contexts.
-- **First-project bootstrap:** Provisions a VPS with the chat server (containerized) + Caddy for TLS, DNS record, and a host bridge + project bridge on the local machine.
+- **Default (hosted):** Shared hosted chat platform (Zulip Cloud, Slack, etc.), per-project bridges on project hosts. `/swain-stage` registers a bot on the platform, creates a room/stream, and starts the host bridge + project bridge locally. No server provisioning needed.
+- **Self-hosted:** Chat server on a VPS for operators who need full control. `/swain-stage` provisions the VPS, deploys the chat server (containerized) + Caddy, and connects bridges.
+- **Isolated:** Separate chat service instance (or workspace/organization) for security-sensitive projects or work contexts. Works with both hosted and self-hosted.
 
 ---
 
@@ -352,7 +356,7 @@ These are observations about what the architecture requires, not ADR-level decis
 2. **Two bridge types, one published language.** Host bridges and project bridges share an event/command schema. Chat adapters are generic — they pair with either bridge type. 2 bridge types × N chat adapters = 2N permutations, only 2 + N components to write.
 3. **Host bridge is scoped to a security domain, not a physical host.** One host can run multiple host bridges — one per security domain (e.g., personal, work, client-A). Each host bridge only sees and manages project bridges in its domain. An include/exclude list determines which projects belong to which domain. This prevents a single host bridge from having cross-domain visibility.
 4. **Chat protocol is a pluggable adapter.** Swapping from Matrix to Zulip replaces the chat adapter and chat service. Bridges don't change.
-5. **Chat server runs on a VPS, no tunnel needed for v1.** The simplest possible deployment for the one internet-facing service. DNS points to the VPS, Caddy handles TLS. Bridges connect outbound over open internet. Tunnels are a v2 concern for the web pipe (content on project hosts behind NAT).
+5. **Hosted chat platform by default, self-hosted as an option.** The simplest v1 path uses a hosted platform (Zulip Cloud, Slack) — zero server ops. Self-hosting on a VPS is available for operators who need full control. The chat adapter code is identical either way. Tunnels are a v2 concern for the web pipe (content on project hosts behind NAT).
 6. **Multiple chat services can coexist.** Personal and work chat services are separate VPS instances. Each project bridge connects to exactly one. Each host bridge connects to exactly one (matching its security domain).
 7. **Session-scoped web outputs go through the project bridge (v2).** Long-lived web services register with the ingress layer independently. Two paths, intentionally not unified. Both require tunnel infrastructure from project hosts — a v2 problem.
 8. **One project bridge per project-host pair.** A project on two hosts gets two project bridges sharing the same chat room. One or more host bridges per host, one per security domain.

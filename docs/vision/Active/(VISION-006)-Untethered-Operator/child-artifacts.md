@@ -55,8 +55,8 @@ These existing artifacts move under VISION-006:
 
 | ID (proposed) | Decision | Context |
 |---------------|----------|---------|
-| ADR-next | Chat protocol selection | Matrix vs. Zulip vs. Campfire vs. others. Informed by `chat-server-features` trove. Affects client options, self-hosting weight, thread model. |
-| ADR-next | Supported providers for stack components | Which tunnel, proxy, DNS, and cert tools are supported. Informed by `tunnel-proxy-provisioning` trove. |
+| ADR-next | Chat platform and deployment model | Hosted (Zulip Cloud, Slack, Discord) vs. self-hosted (Zulip, Conduwuit). Includes protocol selection and deployment model as one decision — they're coupled. Zulip Cloud is the leading candidate: best threading, same API as self-hosted, seamless migration path. Informed by `chat-server-features` trove. |
+| ADR-next | Supported providers for stack components (v2) | Which tunnel, proxy, DNS, and cert tools are supported for the web pipe. Informed by `tunnel-proxy-provisioning` trove. Deferred — not needed for v1. |
 | ADR-next | Chat adapter deployment location | Colocated with orchestrator on project host vs. colocated with chat service vs. standalone. Trade-offs: latency, security, operational complexity. |
 
 ---

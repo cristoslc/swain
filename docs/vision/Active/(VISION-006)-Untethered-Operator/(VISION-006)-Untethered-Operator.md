@@ -45,17 +45,18 @@ Working with swain today means using a terminal. Even at your desk, the TUI is t
 - **CloudCLI / claude-web-ui** — community projects wrapping Claude Code in a web UI. Single-runtime.
 - **OpenClaw** — persistent AI worker across 15+ messaging platforms. General-purpose, not dev-focused.
 - **Remote terminals (tmux + SSH)** — current workaround. Works but poor mobile UX.
-- **Commodore (cristoslc/commodore-infra)** — hexagonal infrastructure platform for service composition, DNS, ingress, reverse proxy, and placement across hosts. Directly useful for provisioning the infrastructure this vision needs.
+- **Hosted chat platforms (Zulip Cloud, Slack, Discord)** — eliminate server ops entirely. The bot registers via API, operator uses existing mobile/desktop clients.
+- **Commodore (cristoslc/commodore-infra)** — hexagonal infrastructure platform for self-hosted deployments and v2 tunnel/ingress needs.
 
-No existing solution provides a runtime-agnostic chat interface for agentic development with project-level organization. But most of the infrastructure pieces exist separately.
+No existing solution provides a runtime-agnostic chat interface for agentic development with project-level organization. But the infrastructure pieces exist — the novel work is the orchestration layer, not the chat server.
 
 ## Build vs. Buy
 
 Tier 2 (glue existing tools). The components exist:
 
 - Headless runtimes with JSON I/O (validated by [SPIKE-059](../../../spike/Complete/(SPIKE-059)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge/(SPIKE-059)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge.md)).
-- Self-hostable chat servers with bot APIs and mobile clients.
-- Commodore-infra for VPS provisioning and (in v2) tunnel/ingress for the web pipe.
+- Hosted chat platforms with bot APIs and mobile clients (Zulip Cloud, Slack, etc.). Self-hosted is an option, not a requirement.
+- Commodore-infra for self-hosted deployments and (in v2) tunnel/ingress for the web pipe.
 
 The novel work is the session orchestration layer — managing lifecycles, mapping projects to rooms, translating events between runtimes and chat, and routing sessions by artifact. Trove research on existing chat adapters for agentic runtimes will show how much of the bridge we can reuse.
 
@@ -63,7 +64,7 @@ The novel work is the session orchestration layer — managing lifecycles, mappi
 
 Low. One person, hours per month. Components swap without touching the core. The session orchestrator and runtime adapters are custom code. Everything else is off-the-shelf.
 
-The chat server runs containerized on a VPS — the one internet-facing service, kept simple and isolated. Internal components (host bridges, project bridges, runtime adapters) run natively on project hosts — they need direct access to tmux, the filesystem, and runtime CLIs.
+The default path uses a hosted chat platform (e.g., Zulip Cloud) — zero server ops, the operator just registers a bot. Self-hosting on a VPS is an option for operators who need full control. Either way, the bot code is identical — the chat adapter speaks to an API regardless of where the server lives. Internal components (host bridges, project bridges, runtime adapters) run natively on project hosts — they need direct access to tmux, the filesystem, and runtime CLIs.
 
 ## Two Modalities
 
@@ -84,7 +85,7 @@ The chat server runs containerized on a VPS — the one internet-facing service,
 - Building a custom chat protocol or client — we use existing servers and their mobile apps.
 - Multi-user collaboration — single-operator system.
 - Feature parity with the terminal — chat is for steering and monitoring, not deep debugging.
-- Always-on cloud hosting — agents run on the operator's machines. Only the chat server is central.
+- Always-on cloud hosting for agents — agents run on the operator's machines. The chat service is hosted (or self-hosted on a VPS), but agents never leave the operator's hardware.
 
 ## Lifecycle
 
