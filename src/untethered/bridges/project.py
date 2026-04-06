@@ -32,6 +32,7 @@ class Session:
     runtime: str
     state: SessionState = SessionState.SPAWNING
     artifact: str | None = None
+    origin: str | None = None  # "control" if spawned from control topic
     pending_approval_call_id: str | None = None
 
 
@@ -78,6 +79,11 @@ class ProjectBridge:
             if session.state == SessionState.WAITING_APPROVAL:
                 session.state = SessionState.ACTIVE
                 session.pending_approval_call_id = None
+
+        # Tag origin so the chat adapter routes control-origin events
+        # back to the control topic instead of creating a thread.
+        if session and session.origin:
+            event.payload["origin"] = session.origin
 
         if self.on_event:
             self.on_event(event)
@@ -156,6 +162,28 @@ class ProjectBridge:
         adapter = self._adapters.pop(session.session_id, None)
         if adapter:
             self._schedule(adapter.stop())
+
+    def _cmd_control_message(self, cmd: Command) -> None:
+        """Handle natural language from the control topic.
+
+        Spawns a session tagged with origin=control. The chat adapter
+        routes output from control-origin sessions back to the control
+        topic instead of creating a dedicated thread. When a session
+        needs real work, it can be promoted to its own thread later.
+        """
+        text = cmd.payload.get("text", "")
+        session_id = f"sess-{uuid.uuid4().hex[:8]}"
+        session = Session(session_id=session_id, runtime="claude", origin="control")
+        self.sessions[session_id] = session
+
+        adapter = ClaudeCodeAdapter(
+            bridge=self.project,
+            session_id=session_id,
+            project_dir=self.project_dir,
+            on_event=self.handle_runtime_event,
+        )
+        self._adapters[session_id] = adapter
+        self._schedule(adapter.start(prompt=text))
 
     def _cmd_bind_artifact(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")

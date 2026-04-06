@@ -28,6 +28,7 @@ _ALL_EVENT_TYPES = _PROJECT_EVENT_TYPES | _HOST_EVENT_TYPES
 # Command types — project scope
 _PROJECT_COMMAND_TYPES = {
     "start_session", "send_prompt", "approve", "cancel", "bind_artifact",
+    "control_message",
 }
 
 # Command types — host scope
@@ -206,6 +207,13 @@ class Command:
         return cls(
             type="cancel", bridge=bridge, session_id=session_id,
             timestamp=_now_ms(), payload={},
+        )
+
+    @classmethod
+    def control_message(cls, *, bridge: str, text: str) -> Command:
+        return cls(
+            type="control_message", bridge=bridge, session_id=None,
+            timestamp=_now_ms(), payload={"text": text},
         )
 
     @classmethod

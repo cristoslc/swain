@@ -223,7 +223,27 @@ async def _relay_events(
 
         stream = project_to_stream.get(msg.bridge or "", msg.bridge or "")
         session_id = msg.session_id or ""
+        origin = msg.payload.get("origin")
 
+        # --- Control-origin sessions: all output goes to control topic ---
+        if origin == "control":
+            if msg.type == "session_spawned":
+                # Silently track — no announcement needed
+                pass
+            elif msg.type == "session_died":
+                # Silent cleanup — no "session ended" noise
+                pass
+            else:
+                # Post content directly to control topic
+                zulip_msg = format_event_for_zulip(
+                    msg,
+                    operator_email=operator_email,
+                    control_topic=control_topic,
+                )
+                await _post(stream, control_topic, zulip_msg["content"])
+            continue
+
+        # --- Regular sessions: dedicated thread per session ---
         if msg.type == "session_spawned":
             artifact = msg.payload.get("artifact")
             topic = registry.assign(session_id, artifact)
