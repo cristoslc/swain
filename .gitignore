@@ -80,3 +80,5 @@ skills/*
 .superpowers
 .sandboxes/
 .swain-init
+.env
+bridge.json

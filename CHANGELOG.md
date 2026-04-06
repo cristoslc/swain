@@ -13,6 +13,7 @@ for paths beyond a symlink — and the script treated that error as
 "not ignored." Now only exit code 1 (explicitly not ignored) triggers
 the warning; symlink-traversal errors are silently skipped.
 
+
 ## [0.29.1-alpha] - 2026-04-06
 
 ### Features
