@@ -7,15 +7,18 @@ and "the live system works" (manual Zulip testing).
 
 Scenarios covered:
 
-  Project bridge subprocess:
-    - Receives ConfigMessage on stdin, starts successfully
-    - Receives a Command, processes it (logged on stderr)
-    - Emits Events on stdout when a session produces output
+  PluginProcess pipe I/O:
+    - Receives ConfigMessage on stdin, reads stdout response
+    - write() delivers NDJSON to subprocess stdin
+    - stderr is captured separately from stdout
 
-  Kernel → Plugin routing:
-    - PluginProcess.write() delivers messages to the subprocess stdin
-    - Subprocess stdout lines are delivered to on_message callback
-    - ConfigMessage is sent as stdin line 0 on startup
+  Project bridge subprocess:
+    - Starts, reads config, stays alive
+    - Receives a control_message Command without crashing
+
+  Chat plugin poll → emit → stdout:
+    - _poll_zulip + _emit in a subprocess writes commands to stdout
+    - Kernel reads them via PluginProcess._read_stdout
 """
 from __future__ import annotations
 
@@ -213,5 +216,104 @@ class TestProjectBridgeSubprocess:
         # Bridge should still be alive (didn't crash on the command)
         assert plugin._proc is not None
         assert plugin._proc.returncode is None
+
+        await plugin.stop()
+
+
+# ---------------------------------------------------------------------------
+# Scenario: Chat plugin poll → _emit → stdout pipe
+# ---------------------------------------------------------------------------
+
+class TestChatPluginPollEmit:
+    """Verify _poll_zulip + _emit writes commands through a real stdout pipe.
+
+    Spawns a subprocess that runs _poll_zulip with a mock Zulip client,
+    so we test the real pipe behavior without hitting Zulip.
+    """
+
+    async def test_poll_emits_command_to_stdout_pipe(self):
+        """_poll_zulip receives a message event and _emit writes a Command
+        to stdout, which the parent process reads via the pipe."""
+        received: list = []
+
+        # Python script that simulates the chat plugin's poll loop:
+        # - Creates a mock Zulip client with one message event
+        # - Runs _poll_zulip with _emit writing to real stdout
+        # - The parent reads the Command from the pipe
+        script = '''
+import asyncio, sys, json
+from unittest.mock import MagicMock
+
+# Make _emit write to real stdout (the pipe)
+from untethered.plugins.zulip_chat import _poll_zulip, _emit, SessionTopicRegistry
+
+def make_client():
+    client = MagicMock()
+    client.email = "bot@zulip.com"
+    client.register.return_value = {
+        "result": "success", "queue_id": "q1", "last_event_id": 0,
+    }
+    msg = {
+        "type": "stream",
+        "sender_email": "user123@example.com",
+        "display_recipient": "swain",
+        "subject": "control",
+        "content": "what specs are ready?",
+    }
+    responses = iter([
+        {"result": "success", "events": [
+            {"type": "message", "id": 1, "message": msg},
+        ]},
+    ])
+    def get_events(**kw):
+        try:
+            return next(responses)
+        except StopIteration:
+            # Exit cleanly after processing the one event
+            sys.exit(0)
+    client.get_events.side_effect = get_events
+    return client
+
+async def main():
+    loop = asyncio.get_running_loop()
+    client = make_client()
+    registry = SessionTopicRegistry()
+    try:
+        await _poll_zulip(
+            client, {"swain": "swain"}, "control", _emit, registry, loop,
+        )
+    except SystemExit:
+        pass
+
+asyncio.run(main())
+'''
+
+        plugin = PluginProcess(
+            name="test-chat-poll",
+            cmd=[sys.executable, "-c", script],
+            plugin_type="test",
+            config={},  # Not used — script doesn't read config
+            on_message=received.append,
+        )
+
+        # Start the subprocess — but PluginProcess sends a ConfigMessage
+        # on stdin line 0 which the script doesn't read. We need to handle
+        # this by making the script read and discard it.
+        # Actually, PluginProcess.start() writes config then starts readers.
+        # The script doesn't read stdin, but that's OK — the pipe buffer
+        # holds the config line and the script just ignores it.
+        await plugin.start()
+
+        # Wait for the script to process the mock event and emit a command
+        await asyncio.sleep(1.0)
+
+        # The poll should have parsed the operator message and emitted
+        # a control_message command via _emit (stdout)
+        assert len(received) >= 1, f"Expected command on stdout, got {len(received)} messages"
+        cmd = received[0]
+        assert cmd.type == "control_message"
+        assert cmd.payload["text"] == "what specs are ready?"
+
+        await plugin.stop()
 
         await plugin.stop()
