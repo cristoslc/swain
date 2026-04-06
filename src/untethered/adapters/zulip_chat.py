@@ -134,8 +134,8 @@ def parse_zulip_message(
         return _parse_slash_command(content, topic=topic, bridge=bridge,
                                     control_topic=control_topic)
 
-    # Plain text in a session topic → send_prompt
-    if topic and topic != control_topic:
+    # Plain text → send_prompt (works in any topic, including control)
+    if topic:
         return Command.send_prompt(
             bridge=bridge, session_id=topic, text=content,
         )

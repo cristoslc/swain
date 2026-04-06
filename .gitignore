@@ -81,3 +81,4 @@ skills/*
 .sandboxes/
 .swain-init
 .env
+bridge.json
