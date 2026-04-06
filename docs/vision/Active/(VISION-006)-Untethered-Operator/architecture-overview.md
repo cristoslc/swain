@@ -3,7 +3,7 @@
 **For:** VISION-006 (Untethered Operator)
 **Date:** 2026-04-06
 
-This document describes the system architecture using Domain-Driven Design bounded contexts and ports-and-adapters patterns. It is descriptive, not decisional. Individual choices (which chat server, which tunnel provider) belong in ADRs.
+This document describes the system architecture using a microkernel pattern with DDD bounded contexts. The kernel (host bridge + project bridge) defines the domain and the plugin contract. Plugins (chat adapters, runtime adapters) are operator-replaceable — we ship reference plugins, but adopters can write their own for any platform without touching the kernel. Individual choices (which chat platform, which runtime) belong in ADRs or operator config.
 
 ---
 
@@ -90,55 +90,54 @@ The chat adapter surfaces session events as a live feed in per-session threads. 
 
 ---
 
-### Runtime Adapter (integration context — runtime side)
+### Runtime Adapter (plugin — operator-replaceable)
 
-Dumb translator. One per runtime type. Lives on the project host, wraps tmux/process.
+A plugin that translates between a specific runtime's native I/O and the kernel's published language. One per runtime type. Lives on the project host, wraps tmux/process. Based on the adapter interface designed in SPIKE-059 and the ACP protocol (Python SDK available).
 
-**Responsibility:** Translates between a specific runtime's native I/O and the orchestrator's published event/command language. Based on the adapter interface designed in SPIKE-059.
-
-**Ports:**
-- **Inbound: Command port** — receives normalized commands from orchestrator.
-- **Outbound: Event port** — emits normalized events to orchestrator.
+**Plugin contract:** A runtime adapter must implement:
+- **Inbound: Command port** — receives normalized commands from the kernel.
+- **Outbound: Event port** — emits normalized events to the kernel.
 - **Outbound: Process port** — manages the actual runtime process (stdin/stdout, headless JSON streams).
 
-**Adapters (one per runtime):**
+**Reference plugins (shipped):**
 - Claude Code (`--output-format stream-json`, `--input-format stream-json`).
 - OpenCode (`--format json`).
-- Gemini CLI (`--output-format json`).
-- TUI fallback (regex pattern matching for terminal-only runtimes).
+- ACP-generic (any runtime implementing the Agent Communication Protocol — Python SDK `agent-client-protocol`).
+
+**Community plugins (operator-written):**
+- Any runtime with headless or structured output can be a plugin. TUI-only runtimes need a regex pattern-matching adapter (higher effort, lower reliability).
 
 ---
 
-### Chat Adapter (integration context — operator side)
+### Chat Adapter (plugin — operator-replaceable)
 
-Pluggable translator. One per chat surface. Location flexible — wherever it can reach both the chat service and the orchestrator.
+A plugin that translates between the kernel's published language and a specific chat platform. One per chat surface. The operator chooses which plugin to use — we ship reference plugins, adopters can write their own.
 
-**Responsibility:** Maps domain events to chat messages and chat messages to domain commands. Maps projects to rooms, sessions to threads. Handles room creation when a new project registers.
+**Plugin contract:** A chat adapter must implement:
+- **Inbound: Domain event port** — receives events from the kernel for display.
+- **Inbound: Chat message port** — receives operator messages from the chat platform.
+- **Outbound: Domain command port** — sends parsed commands to the kernel.
+- **Outbound: Chat API port** — posts messages, creates rooms/threads on the chat platform.
 
-**Ports:**
-- **Inbound: Domain event port** — receives events from orchestrator for display.
-- **Inbound: Chat message port** — receives operator messages from the chat service.
-- **Outbound: Domain command port** — sends parsed commands to orchestrator.
-- **Outbound: Chat API port** — posts messages, creates rooms/threads on the chat service.
+**Reference plugins (shipped):**
+- Zulip (via Zulip bot API — streams as rooms, topics as threads).
+- Additional reference plugins TBD based on trove research (Telegram, Slack, Discord are candidates).
 
-**Adapters (one per chat protocol):**
-- Matrix (via matrix-nio, maubot, or similar).
-- Zulip (via Zulip bot API).
-- Campfire (via Campfire API — rooms only, no threads).
-- Others as needed.
+**Community plugins (operator-written):**
+- Any platform with a bot API and some form of rooms + threads can be a plugin. The operator implements the contract, points config at it, done.
 
 **Posting behavior:** The chat adapter posts continuously as events arrive — tool calls, text output, progress. The thread is a live feed, not a request-response channel. The adapter `@`s the operator only when the orchestrator emits `approval_needed` or other events requiring human input. The operator checks in by reading, not by asking.
 
 **Graceful failure:** When the runtime produces an interaction the bridge doesn't recognize (new prompt format, unexpected TUI state), the chat adapter surfaces a warning in the thread — not a fatal error. The operator can intervene manually (kill and restart via the control thread) or the bridge can time out and report the stuck state.
 
-**Chat-protocol-specific mapping:**
+**Concept mapping (each plugin maps these to its platform's primitives):**
 
-| Concept | Matrix | Zulip | Campfire |
-|---------|--------|-------|----------|
-| Project container | Space or Room | Stream | Room |
-| Session container | Thread | Topic | Message thread (limited) |
-| Control thread | Pinned thread in room | Pinned topic | Pinned message (limited) |
-| Artifact binding | Thread metadata | Topic name | N/A |
+| Kernel concept | Zulip | Telegram | Slack | Matrix |
+|----------------|-------|----------|-------|--------|
+| Project container | Stream | Forum supergroup | Channel | Space or Room |
+| Session container | Topic | Forum topic | Thread | Thread (MSC3440) |
+| Control thread | Pinned topic | Pinned topic | Pinned thread | Pinned thread |
+| Artifact binding | Topic name | Topic name | Thread metadata | Thread metadata |
 
 **Control thread:** Each project room has a dedicated control thread where the host bridge posts session inventory (active, adoptable, stuck) and accepts lifecycle commands (spawn, kill, restart, adopt). This is the operator's management surface for the project — distinct from per-session live feed threads. The host bridge's chat adapter posts here; the project bridge's chat adapter posts to session threads.
 
@@ -185,16 +184,16 @@ The only connection to v1: the chat adapter may post a URL linking to the web ap
 ## Context Map
 
 ```
-Runtime Adapter ←──conformist──→ Project Bridge
-    (conforms to bridge's event/command schema)
+Runtime Adapter (plugin) ←──conformist──→ Project Bridge (kernel)
+    (plugin conforms to kernel's published language)
 
-Chat Adapter ←──conformist──→ Bridge (host or project)
-    (conforms to bridge's event/command schema — same adapter, either bridge type)
+Chat Adapter (plugin) ←──conformist──→ Bridge (kernel, host or project)
+    (plugin conforms to kernel's published language — same contract, either bridge type)
 
-Chat Adapter ←──customer/supplier──→ Chat Service
-    (adapter is customer of chat service's API)
+Chat Adapter (plugin) ←──customer/supplier──→ Chat Service (external)
+    (plugin is customer of chat platform's API)
 
-Host Bridge ←──supervisor──→ Project Bridge
+Host Bridge (kernel) ←──supervisor──→ Project Bridge (kernel)
     (host bridge spawns, stops, and hands adopted sessions to project bridges)
 
 Web App ←──(none)──→ Project Bridge
@@ -206,6 +205,32 @@ Web App ←──open-host──→ Project Data
 Ingress Layer (v2) ←──shared-kernel──→ Web App
     (shared DNS, TLS, tunnel routing — not needed for v1 chat)
 ```
+
+---
+
+## Plugin Loading
+
+Plugins (chat adapters, runtime adapters) are loaded by the kernel at startup via configuration. The v1 mechanism is simple: a Python base class that plugins implement, discovered by config.
+
+```yaml
+# Example bridge config
+chat:
+  plugin: swain_chat_zulip        # Python module path
+  config:
+    server_url: https://myorg.zulipchat.com
+    bot_email: swain-bot@myorg.zulipchat.com
+    bot_api_key: ${ZULIP_BOT_API_KEY}
+
+runtimes:
+  - plugin: swain_runtime_claude   # Python module path
+    config:
+      allowed_tools: ["Bash", "Read", "Write", "Edit"]
+  - plugin: swain_runtime_opencode
+```
+
+**Plugin distribution:** `pip install swain-chat-zulip` or `pip install swain-chat-slack`. Each package provides a module implementing the base class. Operators can also point to a local module for custom plugins.
+
+**Future option:** MCP as the plugin protocol. Instead of Python base classes, plugins are MCP servers that the kernel communicates with over stdio. This would make plugins language-agnostic. Deferred — Python base classes are sufficient for v1 and simpler to implement.
 
 ---
 
@@ -353,9 +378,9 @@ Runtime builds Astro site → Runtime adapter emits event
 These are observations about what the architecture requires, not ADR-level decisions. The ADRs will record the specific choices made.
 
 1. **Outbound-only from project hosts.** All connections are initiated by the host. Chat adapters on bridges connect outbound to the chat service. The chat service never opens connections to bridges. Same security model as Claude Code Remote Control.
-2. **Two bridge types, one published language.** Host bridges and project bridges share an event/command schema. Chat adapters are generic — they pair with either bridge type. 2 bridge types × N chat adapters = 2N permutations, only 2 + N components to write.
+2. **Microkernel architecture.** The kernel (host bridge + project bridge) defines the domain and the plugin contract (published language). Chat adapters and runtime adapters are plugins — operator-replaceable, independently installable. We ship reference plugins; adopters write their own for any platform. 2 bridge types × N chat plugins = 2N permutations, only 2 + N components to write.
 3. **Host bridge is scoped to a security domain, not a physical host.** One host can run multiple host bridges — one per security domain (e.g., personal, work, client-A). Each host bridge only sees and manages project bridges in its domain. An include/exclude list determines which projects belong to which domain. This prevents a single host bridge from having cross-domain visibility.
-4. **Chat protocol is a pluggable adapter.** Swapping from Matrix to Zulip replaces the chat adapter and chat service. Bridges don't change.
+4. **Plugins are Python modules (v1), MCP servers (future option).** v1 uses Python base classes for simplicity. The kernel loads plugins by config. Future: MCP as plugin protocol enables language-agnostic plugins.
 5. **Hosted chat platform by default, self-hosted as an option.** The simplest v1 path uses a hosted platform (Zulip Cloud, Slack) — zero server ops. Self-hosting on a VPS is available for operators who need full control. The chat adapter code is identical either way. Tunnels are a v2 concern for the web pipe (content on project hosts behind NAT).
 6. **Multiple chat services can coexist.** Personal and work chat services are separate VPS instances. Each project bridge connects to exactly one. Each host bridge connects to exactly one (matching its security domain).
 7. **Session-scoped web outputs go through the project bridge (v2).** Long-lived web services register with the ingress layer independently. Two paths, intentionally not unified. Both require tunnel infrastructure from project hosts — a v2 problem.
