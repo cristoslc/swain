@@ -55,21 +55,21 @@ Tier 2 (glue existing tools). The components exist:
 
 - Headless runtimes with JSON I/O (validated by [SPIKE-059](../../../spike/Complete/(SPIKE-059)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge/(SPIKE-059)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge.md)).
 - Self-hostable chat servers with bot APIs and mobile clients.
-- Commodore-infra for DNS, ingress, reverse proxy, and host-level service placement.
+- Commodore-infra for VPS provisioning and (in v2) tunnel/ingress for the web pipe.
 
 The novel work is the session orchestration layer — managing lifecycles, mapping projects to rooms, translating events between runtimes and chat, and routing sessions by artifact. Trove research on existing chat adapters for agentic runtimes will show how much of the bridge we can reuse.
 
 ## Maintenance Budget
 
-Low. One person, hours per month. Components (chat server, tunnel, proxy) swap without touching the core. The session orchestrator and runtime adapters are custom code. Everything else is off-the-shelf or handled by Commodore.
+Low. One person, hours per month. Components swap without touching the core. The session orchestrator and runtime adapters are custom code. Everything else is off-the-shelf.
 
-External-facing services (chat server, ingress/tunnel) run containerized — they're internet-exposed and need isolation. Internal components (host bridges, project bridges, runtime adapters) run natively on the host — they need direct access to tmux, the filesystem, and runtime CLIs.
+The chat server runs containerized on a VPS — the one internet-facing service, kept simple and isolated. Internal components (host bridges, project bridges, runtime adapters) run natively on project hosts — they need direct access to tmux, the filesystem, and runtime CLIs.
 
 ## Two Modalities
 
 **v1: Chat bridge.** Chat threads that spawn, reconnect to, and steer headless agent sessions. Room per project, thread per session, optional artifact binding. This is the highest-return unlock — it works for swain itself and every swain-governed project.
 
-**v2: Web pipe.** Web content that projects produce (sites, dashboards, interactive UIs) served through the same infrastructure the chat server uses. Links posted in chat threads. Shares the ingress layer but is otherwise separate from the chat bridge.
+**v2: Web pipe.** Web content that projects produce (sites, dashboards, interactive UIs) served from project hosts via tunnel infrastructure. Links posted in chat threads. Architecturally separate from the chat bridge — this is where tunnels become necessary, since the content lives on machines behind NAT.
 
 ## Success Metrics
 

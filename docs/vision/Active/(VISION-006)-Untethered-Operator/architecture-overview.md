@@ -13,7 +13,7 @@ The vision serves two interaction surfaces under one infrastructure stack.
 
 **v1: Chat bridge** — bidirectional chat threads that spawn, reconnect to, and steer headless agent sessions across any supported runtime. Room-per-project, thread-per-session, optional artifact binding.
 
-**v2: Web pipe** — project-generated web content (dashboards, static sites, interactive UIs) served through the same ingress infrastructure the chat server uses, linked from chat threads. Architecturally independent from the chat bridge. Shares only the ingress layer.
+**v2: Web pipe** — project-generated web content (dashboards, static sites, interactive UIs) served from project hosts via tunnel/ingress infrastructure, linked from chat threads. Architecturally independent from the chat bridge. The chat server runs on a VPS and needs no tunnel; the web pipe is where tunnels earn their keep (content lives on the operator's machines).
 
 ---
 
@@ -86,7 +86,7 @@ The chat adapter surfaces session events as a live feed in per-session threads. 
 - **Outbound: Chat delivery port** — publishes domain events to chat adapters.
 - **Outbound: Runtime command port** — sends commands to runtime adapters.
 - **Outbound: Session management port** — creates/destroys/reconnects tmux sessions.
-- **Outbound: Ingress registration port** — registers/deregisters session-scoped web routes. Route lifecycle follows session lifecycle.
+- **Outbound: Ingress registration port (v2)** — registers/deregisters session-scoped web routes. Route lifecycle follows session lifecycle. Not needed for v1 chat bridge.
 
 ---
 
@@ -152,39 +152,27 @@ Not our domain logic. An off-the-shelf self-hostable chat server. Shared by defa
 
 **What we need from it:** A bot API (create rooms, post messages, read messages, manage threads), mobile clients, self-hostable, reasonable resource footprint.
 
+**Deployment:** Runs directly on a VPS — no tunnel, no ingress layer needed. The VPS has a public IP, DNS points to it, the chat server handles TLS (or sits behind Caddy on the same VPS). This is the simplest possible deployment for the one internet-facing service in v1. Bridges connect outbound to the VPS over open internet.
+
 ---
 
-### Ingress Layer (shared infrastructure)
+### Ingress Layer (v2 only — not needed for v1 chat bridge)
 
-Routes external traffic to internal services. Provisions and maintains DNS, TLS, and tunnel.
+The chat server runs on a VPS with a public IP. No tunnel or ingress layer is needed for v1. Bridges connect outbound over open internet. The operator's phone reaches the chat server directly.
 
-**Candidate: Commodore (cristoslc/commodore-infra).** Commodore is an existing hexagonal infrastructure platform that handles service composition, DNS, ingress, reverse proxy, and classified placement across heterogeneous hosts (Docker, k3s, bare metal, Proxmox). Its ports-and-adapters architecture aligns directly with this layer's needs. The chat server, bridges, and web apps would be declared as Commodore services and deployed via `cdre apply`. Commodore already has adapters for DNS (Cloudflare), reverse proxy (Caddy, HAProxy), and container runtimes (Docker Compose).
+The ingress layer becomes relevant in v2 when the web pipe needs to expose content from project hosts (which sit behind NAT on home networks, Docker hosts, etc.). At that point, tunnels from project hosts to a reverse proxy make session-scoped previews reachable.
 
-If Commodore is used, this bounded context is not built — it's consumed.
+**Candidate: Commodore (cristoslc/commodore-infra).** Commodore handles service composition, DNS, ingress, reverse proxy, and classified placement. It needs one new adapter (`TunnelPort` for Cloudflare Tunnel) to cover the full v2 ingress chain. If Commodore is used, this bounded context is consumed, not built.
 
-**Ports (if built standalone):**
-- **Inbound: Public traffic port** — accepts HTTPS from the internet.
-- **Outbound: Backend port** — forwards to registered backends.
-- **Outbound: Provisioning port** — manages DNS records, certificates, tunnel lifecycle.
-
-**Adapters:**
-- Reverse proxy: Caddy, nginx, traefik.
-- Tunnel: Cloudflare Tunnel, Tailscale Funnel, TMNT/Mutagen, ngrok.
-- DNS: Cloudflare API, Route53, manual.
-- Cert: Let's Encrypt via proxy, or provided cert.
-
-**Consumers (v1):** Chat service.
-**Consumers (v2):** Chat service + web apps.
-
-Route registrations come from two sources:
-- **Session orchestrator** — session-scoped routes, auto-deregistered on session end.
-- **Long-lived web services** — self-registered, persistent, independent of any session.
+**v2 consumers:**
+- **Session-scoped web outputs** — tunneled from project hosts, auto-deregistered on session end.
+- **Long-lived web services** — persistent, independent of any session.
 
 ---
 
 ### Web App (separate bounded context, v2)
 
-Independent from the session orchestrator. Reads project data directly (artifacts, tk, filesystem, MCP server). Serves rendered content. Registered as a backend on the ingress layer.
+Independent from the session orchestrator. Reads project data directly (artifacts, tk, filesystem, MCP server). Serves rendered content. Reaches the internet via the v2 ingress layer (tunnel from project host).
 
 The only connection to v1: the chat adapter may post a URL linking to the web app's output. This is a message, not an architectural coupling.
 
@@ -211,8 +199,8 @@ Web App ←──(none)──→ Project Bridge
 Web App ←──open-host──→ Project Data
     (reads artifact graph, tk, filesystem)
 
-Ingress Layer ←──shared-kernel──→ Chat Service, Web App
-    (shared DNS, TLS, routing config)
+Ingress Layer (v2) ←──shared-kernel──→ Web App
+    (shared DNS, TLS, tunnel routing — not needed for v1 chat)
 ```
 
 ---
@@ -224,13 +212,11 @@ Chat services and project hosts are decoupled. Project bridges connect outbound 
 ```mermaid
 flowchart LR
     subgraph svcA["Chat Service A (personal VPS)"]
-        chatA["Chat Server A"]
-        ingressA["Ingress A"]
+        chatA["Chat Server A + Caddy"]
     end
 
     subgraph svcB["Chat Service B (work VPS)"]
-        chatB["Chat Server B"]
-        ingressB["Ingress B"]
+        chatB["Chat Server B + Caddy"]
     end
 
     subgraph laptop["Laptop"]
@@ -283,10 +269,9 @@ The laptop runs two host bridges — one for the personal security domain (→ C
 
 **Deployment modes:**
 
-- **Default:** Shared chat service, per-project bridges. The `/swain` provisioning command registers a new bridge and creates a room on the existing chat service.
-- **Isolated chat service:** A separate chat service instance for security-sensitive projects or work contexts. Full parallel stack with its own ingress, or registered as a backend on a shared ingress.
-- **Shared ingress, separate chat services:** Two chat services behind one ingress provider (e.g., same Commodore deployment, different subdomains). Bridges on each host connect to whichever chat service their project belongs to.
-- **First-project bootstrap:** Provisions the full stack — chat service, ingress, tunnel, DNS, TLS, bridge.
+- **Default:** Shared chat service on a VPS, per-project bridges on project hosts. The `/swain` provisioning command registers a new bridge and creates a room on the existing chat service.
+- **Isolated chat service:** A separate VPS for security-sensitive projects or work contexts.
+- **First-project bootstrap:** Provisions a VPS with the chat server (containerized) + Caddy for TLS, DNS record, and a host bridge + project bridge on the local machine.
 
 ---
 
@@ -348,9 +333,10 @@ Phone: "clone cristoslc/some-repo" in host room
 ### Session-scoped web output (v1 bridge to v2)
 
 ```
+(v2 — requires tunnel/ingress from project host)
 Runtime builds Astro site → Runtime adapter emits event
     → Orchestrator receives web_output_available
-    → Orchestrator registers route on ingress layer (session-scoped)
+    → Orchestrator registers route on ingress layer (session-scoped tunnel)
     → Orchestrator emits event to chat adapter
     → Chat adapter posts "Preview ready: https://project.example.com/preview"
     → Session ends → Orchestrator deregisters route
@@ -366,9 +352,10 @@ These are observations about what the architecture requires, not ADR-level decis
 2. **Two bridge types, one published language.** Host bridges and project bridges share an event/command schema. Chat adapters are generic — they pair with either bridge type. 2 bridge types × N chat adapters = 2N permutations, only 2 + N components to write.
 3. **Host bridge is scoped to a security domain, not a physical host.** One host can run multiple host bridges — one per security domain (e.g., personal, work, client-A). Each host bridge only sees and manages project bridges in its domain. An include/exclude list determines which projects belong to which domain. This prevents a single host bridge from having cross-domain visibility.
 4. **Chat protocol is a pluggable adapter.** Swapping from Matrix to Zulip replaces the chat adapter and chat service. Bridges don't change.
-5. **Multiple chat services can coexist.** Personal and work chat services are separate instances. They may share an ingress provider or each have their own. Each project bridge connects to exactly one chat service. Each host bridge connects to exactly one chat service (matching its security domain).
-6. **Session-scoped web outputs go through the project bridge.** Long-lived web services register with the ingress layer independently. Two paths, intentionally not unified.
-7. **One project bridge per project-host pair.** A project on two hosts gets two project bridges sharing the same chat room. One or more host bridges per host, one per security domain.
+5. **Chat server runs on a VPS, no tunnel needed for v1.** The simplest possible deployment for the one internet-facing service. DNS points to the VPS, Caddy handles TLS. Bridges connect outbound over open internet. Tunnels are a v2 concern for the web pipe (content on project hosts behind NAT).
+6. **Multiple chat services can coexist.** Personal and work chat services are separate VPS instances. Each project bridge connects to exactly one. Each host bridge connects to exactly one (matching its security domain).
+7. **Session-scoped web outputs go through the project bridge (v2).** Long-lived web services register with the ingress layer independently. Two paths, intentionally not unified. Both require tunnel infrastructure from project hosts — a v2 problem.
+8. **One project bridge per project-host pair.** A project on two hosts gets two project bridges sharing the same chat room. One or more host bridges per host, one per security domain.
 
 ---
 

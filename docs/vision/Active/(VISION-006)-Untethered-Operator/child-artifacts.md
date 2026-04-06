@@ -23,7 +23,7 @@ These existing artifacts move under VISION-006:
 |---------------------|-------|-----|
 | `chat-server-features` | Self-hostable chat servers — threads, rooms, bot APIs, mobile clients, resource footprint, self-hosting weight. | Chat protocol selection is an ADR that needs evidence. Campfire has no threads, Matrix has heavyweight homeservers, Zulip has streams+topics. The trove informs the trade-off. |
 | `agentic-runtime-chat-adapters` | Existing projects that adapt agentic runtimes to web/chat UIs (CloudCLI, OpenClaw, claude-web-ui, etc.). What they built, what works, build-vs-buy assessment. | The personal product priority stack says find existing solutions first. If someone already built a runtime-to-chat bridge, we should use it. |
-| `tunnel-proxy-provisioning` | Tools that automate DNS + TLS + reverse proxy + tunnel as a composable stack. Includes assessment of Commodore (cristoslc/commodore-infra) as the primary candidate — it already handles DNS, ingress, reverse proxy, and classified placement. | The ingress layer is shared infrastructure. Commodore may cover this entirely; the trove determines whether gaps exist. |
+| `tunnel-proxy-provisioning` | Tools that automate DNS + TLS + reverse proxy + tunnel as a composable stack. Includes assessment of Commodore (cristoslc/commodore-infra). | v2 concern — tunnels are needed for the web pipe (content on project hosts behind NAT), not for the v1 chat bridge (chat server on VPS, directly reachable). |
 | `process-supervision-patterns` | Daemon management across macOS (launchd), Linux (systemd), Docker (restart policies). | The orchestrator is swain's first persistent daemon. The maintenance budget demands reliability without manual babysitting. |
 
 ---
