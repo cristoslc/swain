@@ -206,12 +206,34 @@ create_session_worktree() {
 
   git -C "$base_root" worktree add "$path" -b "$name" >/dev/null 2>&1 || return 1
 
-  # Symlink skill directories from main tree into worktree.
-  # Skills are gitignored, so worktrees won't have them without this.
+  # Symlink gitignored agentic structure from main tree into worktree.
+  # Without these, runtimes launched in worktrees can't find skills,
+  # re-run onboarding, or lose runtime-specific config.
+
+  # 1. Skill directories (.claude/skills, .agents/skills)
   for skill_dir in .claude/skills .agents/skills; do
     if [[ -d "$base_root/$skill_dir" ]]; then
       mkdir -p "$path/$(dirname "$skill_dir")"
       ln -s "$base_root/$skill_dir" "$path/$skill_dir"
+    fi
+  done
+
+  # 2. .swain-init marker — prevents re-onboarding in worktrees
+  if [[ -f "$base_root/.swain-init" ]] && [[ ! -e "$path/.swain-init" ]]; then
+    ln -s "$base_root/.swain-init" "$path/.swain-init"
+  fi
+
+  # 3. Runtime-specific dot-folders (gitignored agent config/skills dirs).
+  #    Matches the list in .gitignore — symlink any that exist on trunk.
+  local agent_dirs=(
+    .adal .agent .augment .codebuddy .commandcode .continue .codex
+    .cortex .crush .factory .goose .iflow .junie .kilocode .kiro
+    .kode .mcpjam .mux .neovate .openhands .pi .pochi .qoder .qwen
+    .roo .trae .vibe .windsurf .zencoder .superpowers
+  )
+  for agent_dir in "${agent_dirs[@]}"; do
+    if [[ -d "$base_root/$agent_dir" ]] && [[ ! -e "$path/$agent_dir" ]]; then
+      ln -s "$base_root/$agent_dir" "$path/$agent_dir"
     fi
   done
 
