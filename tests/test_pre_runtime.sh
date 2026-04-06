@@ -273,7 +273,7 @@ mkdir -p "$TMPDIR_WT/skills/swain-doctor/scripts" "$TMPDIR_WT/.agents"
 cp "$REPO_ROOT/skills/swain-doctor/scripts/crash-debris-lib.sh" "$TMPDIR_WT/skills/swain-doctor/scripts/"
 
 # Create a worktree, add uncommitted file, simulate orphan
-WT_DIR="$TMPDIR_WT/.claude/worktrees/orphan-wt"
+WT_DIR="$TMPDIR_WT/.worktrees/orphan-wt"
 git -C "$TMPDIR_WT" worktree add -q "$WT_DIR" -b orphan-branch 2>/dev/null || true
 if [ -d "$WT_DIR" ]; then
   echo "dirty" > "$WT_DIR/uncommitted.txt"

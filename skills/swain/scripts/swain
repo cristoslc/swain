@@ -171,17 +171,7 @@ derive_worktree_context() {
 
 choose_worktree_parent() {
   local base_root="$1"
-
-  if [[ -d "$base_root/.worktrees" ]] || git -C "$base_root" check-ignore -q .worktrees 2>/dev/null; then
-    echo "$base_root/.worktrees"
-    return
-  fi
-
-  if [[ -d "$base_root/.claude/worktrees" ]] || git -C "$base_root" check-ignore -q .claude/worktrees 2>/dev/null; then
-    echo "$base_root/.claude/worktrees"
-    return
-  fi
-
+  # ADR-034: .worktrees/ is the single canonical location. No fallback.
   echo "$base_root/.worktrees"
 }
 

@@ -40,6 +40,8 @@
 | ADR-029 | RTK As Optional Git Compression Dependency | 2026-04-03 | 1e95f94 |
 | ADR-030 | Deprecate swain-session — Split Lifecycle into Init and Teardown | 2026-04-04 | — |
 | ADR-032 | Gherkin As Notation, Not Infrastructure | 2026-04-04 | _pending_ |
+| ADR-033 | Born-in-Worktree Session Isolation | 2026-04-05 | d2a8412a |
+| ADR-034 | Standardize Worktree Location to .worktrees/ | 2026-04-05 | — |
 
 ## Superseded
 

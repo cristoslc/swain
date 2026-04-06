@@ -3,9 +3,8 @@
 .env.local
 .env.*.local
 
-# Git worktrees
+# Git worktrees (ADR-034)
 .worktrees/
-.claude/worktrees/
 
 # Python
 __pycache__/

@@ -107,7 +107,7 @@ RESULT=$(check_dangling_worktrees "$TMPDIR4" 2>/dev/null || echo "MISSING")
 assert "no worktrees → clean" "$(echo "$RESULT" | grep -q 'clean' && echo true || echo false)"
 
 # T13: Worktree with missing directory → found
-WT_PATH="$TMPDIR4/.claude/worktrees/dead-session"
+WT_PATH="$TMPDIR4/.worktrees/dead-session"
 git -C "$TMPDIR4" worktree add -q "$WT_PATH" -b dead-branch 2>/dev/null
 rm -rf "$WT_PATH"
 RESULT=$(check_dangling_worktrees "$TMPDIR4" 2>/dev/null || echo "MISSING")

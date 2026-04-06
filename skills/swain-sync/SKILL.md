@@ -36,7 +36,7 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 TRUNK=$(bash "$REPO_ROOT/.agents/bin/swain-trunk.sh")
 ```
 
-`IN_WORKTREE=yes` means the current directory is inside a linked worktree (e.g., `.claude/worktrees/agent-abc123`). Use this flag in Steps 3, 6, and the session bookmark step.
+`IN_WORKTREE=yes` means the current directory is inside a linked worktree (e.g., `.worktrees/agent-abc123`). Use this flag in Steps 3, 6, and the session bookmark step.
 
 Next, check whether the current branch has an upstream tracking branch:
 

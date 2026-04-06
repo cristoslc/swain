@@ -6,9 +6,7 @@
       "mcp__MCP_DOCKER__webpage-to-markdown",
       "Skill(swain-doctor)",
       "Skill(swain-session)",
-      "Bash(gh issue:*)",
-      "Bash(git -C .claude/worktrees/bug-adr-numbering log --oneline origin/trunk..HEAD)",
-      "Bash(git -C .claude/worktrees/bug-adr-numbering status --short)"
+      "Bash(gh issue:*)"
     ]
   }
 }
