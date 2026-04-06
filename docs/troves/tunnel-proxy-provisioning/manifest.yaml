@@ -15,6 +15,12 @@ tags:
   - ngrok
   - commodore
   - self-hosted
+  - coolify
+  - kamal
+  - pangolin
+  - dokku
+  - paas
+  - composition
 
 freshness-ttl:
   web: 30d
@@ -25,6 +31,10 @@ history:
     date: 2026-04-06
     commit: "ad2b86a"
     sources: 8
+  - event: extended
+    date: 2026-04-06
+    commit: "--"
+    sources: 5
 
 sources:
   - source-id: cloudflare-tunnel-setup-docs
@@ -87,3 +97,38 @@ sources:
     fetched: 2026-04-06T17:03:02Z
     title: "Mutagen Overview -- File Synchronization and Network Forwarding"
     hash: "b4b570a3c6e6001d58bc406c5338676767f208c228fad4363e01dd62a1247bc5"
+
+  - source-id: coolify-paas-overview
+    type: web
+    url: "https://coolify.io/docs/get-started/introduction"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Coolify -- Self-Hosted PaaS with Integrated Proxy, TLS, and DNS"
+    hash: "a0a60094c13ad780c65c6324b3377f9a11e044a66fdc88ed41771cd4173d73fd"
+
+  - source-id: kamal-deploy-overview
+    type: web
+    url: "https://kamal-deploy.org/"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Kamal 2 -- Deploy Web Apps Anywhere (37signals)"
+    hash: "4967b247b86d990ddf90f651b102e5827b0258dd944cb6d57557ba1380661eb8"
+
+  - source-id: pangolin-tunneled-proxy
+    type: web
+    url: "https://docs.pangolin.net/about/how-pangolin-works"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Pangolin -- Self-Hosted Tunneled Reverse Proxy with Identity and Access Control"
+    hash: "93be2cc418b35c6a06290a4be95474ea2d61ca0e0a0ecaf5643bb19bb8acbc1d"
+
+  - source-id: dokku-architecture-overview
+    type: web
+    url: "https://dokku.com/docs/development/architecture/"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Dokku Architecture -- Plugin-Based PaaS with Swappable Proxy"
+    hash: "e4ae87f75ddc7b71139e774cc0e618b01b6718dbeeabd3555003ac8ea1b6b7f7"
+
+  - source-id: dokploy-paas-comparison
+    type: web
+    url: "https://docs.dokploy.com/docs/core/comparison"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Self-Hosted PaaS Feature Comparison -- Dokploy vs CapRover vs Dokku vs Coolify"
+    hash: "5f824b304c14c6f3392ee5fa3e4c3fd55f9c45fce32f5e2e61401a3ce47cdda8"
