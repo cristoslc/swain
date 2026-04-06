@@ -35,16 +35,29 @@ The launcher is responsible for choosing the checkout that will own that bookmar
 - If the operator starts inside a linked worktree that already has a bookmark, the launcher should steer them to resume/finish that worktree or open a different worktree before reusing the purpose text.
 
 When session purpose text is present in the invocation:
-1. Write it immediately as the session bookmark note (using swain-bookmark.sh) in the current checkout
+1. Write it immediately as the session bookmark note (using swain-bookmark.sh) in the current checkout.
 2. Display it: `**Session purpose:** <text>`
 
 Detection: if the skill is invoked with text after `/swain-session` (e.g., `/swain-session Session purpose: ...`), extract everything after "Session purpose: " as the purpose text.
 
 For runtimes that don't support initial prompts (e.g., crush), check the `SWAIN_PURPOSE` environment variable as a fallback.
 
+## Preflight
+
+Before any step, run the preflight script to gather all session state in a single pass. This replaces the old subprocess chain (greeting → bootstrap → tab-name) with one read-only script.
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+PREFLIGHT_SCRIPT="$(find "$REPO_ROOT" -path '*/swain-session/scripts/swain-session-preflight.sh' -print -quit 2>/dev/null)"
+PREFLIGHT_JSON=$( bash "$PREFLIGHT_SCRIPT" --repo-root "$REPO_ROOT" 2>/dev/null )
+echo "$PREFLIGHT_JSON"
+```
+
+Store `PREFLIGHT_JSON` for use in all steps below. Every decision references a field from this JSON — do not run additional check commands unless performing a mutation.
+
 ## Step 1 — Fast Greeting (SPEC-194)
 
-Run the fast greeting script in a single call. This handles tab naming, worktree detection, session.json loading, bookmark display, focus lane, and lightweight preflight warnings — all in ~500ms. It does **not** invoke specgraph, GitHub API, or the full status dashboard.
+Run the greeting script. It calls the preflight internally and applies lightweight mutations (tab naming, lock cleanup, .agents dir creation). It does **not** invoke specgraph, GitHub API, or the full status dashboard.
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -66,11 +79,31 @@ The greeting emits structured JSON:
 }
 ```
 
+The preflight JSON also includes previous session state under `prev_session`, which eliminates the need for a separate `swain-session-state.sh resume` call:
+
+```json
+{
+  "prev_session": {
+    "exists": true,
+    "status": "closed",
+    "session_id": "session-20260404-215204-9576",
+    "focus_lane": "INITIATIVE-002",
+    "phase": "closed",
+    "start_time": "2026-04-05T01:52:04Z",
+    "end_time": "2026-04-06T04:10:09Z",
+    "decisions_made": 0,
+    "walkaway": "Reviewed and fixed SPIKE-058"
+  }
+}
+```
+
 **After receiving the greeting JSON:**
 
 1. Present the greeting to the operator — branch, dirty state, bookmark (if any), focus lane (if any), and warnings.
 
-2. If `isolated` is `false` and the operator has not started work yet, **do not create a worktree now** — worktree creation is handled by bin/swain pre-launch (SPEC-245). If a worktree name is needed for reference, generate it:
+2. If `prev_session.exists` is true, display the previous session context (from the preflight JSON) so the operator can decide whether to continue or start fresh.
+
+3. If `isolated` is `false` and the operator has not started work yet, **do not create a worktree now** — worktree creation is handled by bin/swain pre-launch (SPEC-245). If a worktree name is needed for reference, generate it:
    ```bash
    bash "$REPO_ROOT/.agents/bin/swain-worktree-name.sh" "context"
    ```
@@ -253,14 +286,16 @@ Finally, commit SESSION-ROADMAP.md to git.
 
 ### Session resume
 
-On the next session start, after bootstrap, check for a previous session:
+On the next session start, read `prev_session` from the preflight JSON (see [Preflight](#preflight)). This includes the previous session's focus lane, walkaway note, decision count, and staleness status — no separate script call needed.
+
+If you need to call session-state.sh directly (e.g., from a script that doesn't have the preflight JSON):
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 bash "$REPO_ROOT/.agents/bin/swain-session-state.sh" resume
 ```
 
-This outputs the previous session's focus lane, walkaway note, and decision count. Display it to the operator so they can decide whether to continue or start fresh.
+Display the previous session context so the operator can decide whether to continue or start fresh.
 
 ### Session state schema
 
