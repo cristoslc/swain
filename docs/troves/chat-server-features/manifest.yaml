@@ -1,6 +1,6 @@
 trove: chat-server-features
 created: 2026-04-06
-refreshed: 2026-04-06
+refreshed: 2026-04-07
 tags:
   - chat-server
   - self-hosted
@@ -21,6 +21,10 @@ history:
     date: 2026-04-06
     commit: "d012d49"
     sources: 8
+  - event: extended
+    date: 2026-04-07
+    commit: "--"
+    sources: 5
 
 referenced-by: []
 
@@ -80,3 +84,38 @@ sources:
     fetched: 2026-04-06T20:00:00Z
     title: "Self-Hosted Chat Server Landscape — 2026 Overview"
     hash: "c4534669a5e49cb46500d6bb96c34698dfdada8cfd9df21242845970961d5479"
+
+  - source-id: "campfire-bot-kit-api"
+    type: web
+    url: "https://github.com/basecamp/campfire-bot-kit"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Campfire Bot Kit — API Capabilities and Limitations"
+    hash: "f8aa58a2b1118133255de536c664885871337d8b14c4b6df0c2dabf40fa48d14"
+
+  - source-id: "campfire-room-prefix-threading-analysis"
+    type: web
+    url: "https://github.com/basecamp/once-campfire/discussions"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Campfire Prefix-as-Thread Workaround — Viability Analysis"
+    hash: "e4da73cbd0cbd6f09c3923fea16f9a4a9b88c066703495f253bdb6cd1c819d07"
+
+  - source-id: "zulip-upgrade-operations"
+    type: web
+    url: "https://zulip.readthedocs.io/en/stable/production/upgrade.html"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Zulip Operational Profile — Upgrade, Rollback, and Backup"
+    hash: "059a181110f16b7e7918aa36f418afc1a3687c6bdc10d6f085caa206fe76b61b"
+
+  - source-id: "conduwuit-deployment-operations"
+    type: web
+    url: "https://github.com/girlbossceo/conduwuit"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Conduwuit Operational Profile — Deployment, Upgrade, and Backup"
+    hash: "2683e255abe19cdd793bd39ef30e3d7f68d8bde4015c2234d2c177ddcbf7f5f8"
+
+  - source-id: "mattermost-upgrade-operations"
+    type: web
+    url: "https://docs.mattermost.com/administration-guide/upgrade/upgrading-mattermost-server.html"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Mattermost Operational Profile — Upgrade, Rollback, and Backup"
+    hash: "e822db50e649dab745e4e5627543759c539075c18e8d378e211413369fba9495"
