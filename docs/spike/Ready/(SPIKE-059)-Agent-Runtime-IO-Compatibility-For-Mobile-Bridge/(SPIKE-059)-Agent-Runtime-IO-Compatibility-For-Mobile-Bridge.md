@@ -39,7 +39,7 @@ Three major runtimes offer production-grade structured JSON output: **OpenCode**
 2. Fall back to TUI pattern-matching for Crush and other terminal-only runtimes
 3. Normalize events to a common schema: `{type: 'tool_call'|'text'|'approval'|'complete', payload: {...}}`
 
-**Auth considerations:** All tested runtimes use API keys or OAuth tokens stored locally — no interactive auth required for headless operation once configured.
+**Auth considerations:** All tested runtimes use API keys or OAuth tokens stored locally — no interactive auth required for headless operation once configured. Claude Code uses `ANTHROPIC_API_KEY` environment variable or keychain storage with **no extra usage billing** for API calls (included in Claude Max subscription).
 
 **Swain integration:** All runtimes read AGENTS.md and/or SKILL.md from `.agents/skills/` paths. Swain skills will be discoverable without modification.
 
@@ -119,7 +119,7 @@ For terminal-only runtimes:
 
 | Runtime | I/O Mode | Output Format | Input Model | Prompt Patterns | Adapter Work | Auth | Swain Depth |
 |---------|----------|--------------|-------------|-----------------|-------------|------|-------------|
-| **Claude Code** | Structured + TUI | `--output-format stream-json` (NDJSON), `json` (single result) | `--input-format stream-json` (stdin), API | Permission prompts, tool approvals, model selection | Low — native JSON streaming | Subscription / API key | Full (CLAUDE.md) |
+| **Claude Code** | Structured + TUI | `--output-format stream-json` (NDJSON), `json` (single result) | `--input-format stream-json` (stdin), API | Permission prompts, tool approvals, model selection | Low — native JSON streaming | API key (ANTHROPIC_API_KEY) — no extra usage billing | Full (CLAUDE.md) |
 | **Gemini CLI** | Structured + TUI | `--output-format json` (single), `stream-json` (NDJSON) | `--prompt` (stdin), API | Approval mode prompts, tool confirmations | Low — JSON output, MCP noise suppressible | Google OAuth / API key | AGENTS.md + SKILL.md |
 | **OpenCode** | Structured + TUI | `--format json` (NDJSON event stream) | `--command` (stdin), API | Tool permissions, model selection | Low — clean event schema | API key (multi-provider) | AGENTS.md + SKILL.md (native) |
 | **Codex CLI** | Structured + TUI | `exec` subcommand (text), JSON capability unclear | Prompt arg, stdin | Tool approvals, edit confirmations | Medium — needs JSON testing | OpenAI API key | AGENTS.md (originator) |
@@ -266,11 +266,11 @@ Build the mobile bridge around structured JSON I/O. Three major runtimes (OpenCo
 
 **Auth considerations:**
 
-All tested runtimes store credentials locally after initial setup:
-- Claude Code: `~/.claude/settings.json` (API key or OAuth)
-- Gemini CLI: `~/.gemini/credentials.json` (Google OAuth)
-- OpenCode: Provider-specific (Anthropic, OpenAI, etc. API keys)
-- Crush: Provider config files
+All tested runtimes use API keys or OAuth tokens stored locally after initial setup:
+- **Claude Code:** `ANTHROPIC_API_KEY` env var or keychain — **no extra usage billing** (included in Claude Max subscription)
+- **Gemini CLI:** `~/.gemini/credentials.json` (Google OAuth)
+- **OpenCode:** Provider-specific (Anthropic, OpenAI, etc. API keys)
+- **Crush:** Provider config files
 
 No runtime requires interactive auth for headless operation once configured. The bridge can run unattended with pre-configured credentials.
 
