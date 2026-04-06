@@ -34,12 +34,12 @@ Store `PREFLIGHT_JSON` for use in all phases below. Every decision references a 
 Read `marker.action` from the preflight JSON.
 
 - **`"delegate"`** — same major version. Tell the user:
-  > Project already initialized (swain `marker.last_version`). Delegating to swain-session.
+  > Project already initialized (swain `marker.release_version`, init v`marker.last_version`). Delegating to swain-session.
 
   Skip to **Phase 7 (Session Start)** below. Do not run Phases 1–6.
 
 - **`"upgrade"`** — newer major version available. Tell the user:
-  > Project was initialized with swain `marker.last_version` (current: `marker.current_version`). Consider running `/swain update` to pick up new features.
+  > Project was initialized with swain `marker.last_release_version` (init v`marker.last_version`). Current: `marker.release_version` (init v`marker.current_version`). Consider running `/swain update` to pick up new features.
   > Starting session.
 
   Skip to **Phase 7 (Session Start)** below. Do not re-run onboarding — upgrades are handled by swain-update, not swain-init.
@@ -510,7 +510,7 @@ Invoke the **swain-help** skill in onboarding mode to give the user a guided ori
 
 ### Step 6.4 — Write `.swain-init` marker
 
-After all onboarding phases complete, write the `.swain-init` marker file. Read `marker.current_version` from the preflight JSON for the version.
+After all onboarding phases complete, write the `.swain-init` marker file. Read `marker.current_version` from the preflight JSON for the skill version and `marker.release_version` for the release version.
 
 If `.swain-init` already exists (partial re-init), read it and append to the history array. Otherwise create a new file:
 
@@ -519,6 +519,7 @@ If `.swain-init` already exists (partial re-init), read it and append to the his
   "history": [
     {
       "version": "4.0.0",
+      "release": "v0.29.0-alpha",
       "timestamp": "2026-03-26T18:30:00Z",
       "action": "init"
     }
