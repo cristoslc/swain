@@ -34,6 +34,8 @@ A strategic focus that coordinates multiple Epics toward a shared direction. The
   - `last-updated` — ISO-8601 date
 - **Optional frontmatter:**
   - `priority-weight` — high/medium/low (inherited from parent Vision unless overridden)
+  - `value-estimate` — object with `capability` (0-3), `efficiency` (0-3), `risk-reduction` (0-3). Appraises the expected value of this initiative. Inherits from parent Vision when absent, overrides when present. Composite value (sum, range 0-9) feeds into ROI calculation.
+  - `cost-estimate` — t-shirt size (XS/S/M/L/XL). Estimated total investment for this initiative. Used with value-estimate to compute ROI (value / cost). The ROI ratio feeds into recommendation scoring — higher-return work ranks above lower-return work at equal structural leverage.
   - `success-criteria` — list of measurable outcomes
   - `depends-on-artifacts` — list of blocking artifacts (VISION-*, EPIC-*, INITIATIVE-*, etc.)
   - `addresses` — list of journey pain points (`JOURNEY-NNN.PP-NN`)

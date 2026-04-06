@@ -62,6 +62,28 @@ Everything swain does serves one of three questions:
 
 **Reconciliation is not blame.** Drift between intent and evidence is normal and expected. The goal is detection and resolution, not attribution. Reconciliation surfaces divergence so the operator can decide what to do about it — which may mean updating the intent, not fixing the evidence.
 
+## Appraisal
+
+Every piece of work competes for two scarce resources: the operator's **attention** (cognitive load, decision-making capacity) and **calendar time** (which has opportunity cost — time spent here is time not spent elsewhere). Swain needs a way to express *why* work matters, not just *what order* to do it in. Priority labels without grounding are gut feelings dressed up as decisions.
+
+Swain appraises work on three value dimensions:
+
+**Capability** — does this work enable something the system cannot do today? New functionality, new integrations, new audiences served. Capability value is highest when the gap between "what exists" and "what's needed" is wide and clearly articulated.
+
+**Efficiency** — does this work reduce ongoing cost? Fewer manual steps, less cognitive overhead per session, faster feedback loops, less drift to detect and repair. Efficiency value compounds: a small reduction in per-session friction pays dividends across every future session.
+
+**Risk reduction** — does this work prevent or bound a potential loss? Security vulnerabilities, data loss scenarios, architectural dead-ends, bus-factor exposure. Risk value is asymmetric: the expected cost of the bad outcome, discounted by its probability, often dwarfs the cost of prevention.
+
+These dimensions are not exclusive — a single piece of work can deliver on all three. But naming them separately forces honest assessment. Work that scores zero on all three dimensions is work that should not be done, regardless of how easy it is.
+
+### Return
+
+Return is value delivered per unit of cost invested. Cost is measured in operator attention and calendar time — the two resources that don't scale.
+
+At the artifact level, this means every container (Vision, Initiative, Epic) and every implementable (Spec) can express its expected value and estimated cost. The ratio is the return. High-value, low-cost work should happen first. Low-value, high-cost work should be deferred or cut. This is not a replacement for judgment — it is a framework for making judgment legible and comparable.
+
+The system computes return from operator-supplied estimates. It does not pretend to be precise. A rough ratio that distinguishes "obviously worth doing" from "probably not worth doing" is more useful than a precise priority label that means different things on different days.
+
 ## What swain is not
 
 - **Not a team tool.** Solo operator with AI agents. Team coordination is a different problem with different solutions.
