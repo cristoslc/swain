@@ -2,7 +2,7 @@
 title: "ROI Appraisal Model For Portfolio Economics"
 artifact: SPIKE-052
 track: container
-status: Active
+status: Complete
 author: cristos
 created: 2026-04-06
 last-updated: 2026-04-06
@@ -10,6 +10,7 @@ question: "Can a portfolio economics model with structured value axes (project-d
 parent-vision: VISION-004
 linked-artifacts:
   - ADR-010
+  - INITIATIVE-021
   - VISION-002
   - VISION-003
   - VISION-004
