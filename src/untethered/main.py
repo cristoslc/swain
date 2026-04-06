@@ -84,6 +84,7 @@ async def run_bridge(config: dict[str, Any]) -> None:
 
         project_bridge = ProjectBridge(
             project=project_name,
+            project_dir=project_dir,
             on_event=host.route_project_event,
         )
 
@@ -120,30 +121,54 @@ async def _poll_zulip_events(
     *,
     projects_config: list[dict],
 ) -> None:
-    """Long-poll Zulip for new messages and route them as commands."""
-    # Register an event queue for messages
-    result = client.register(
-        event_types=["message"],
-        narrow=[["is", "stream"]],
-    )
+    """Long-poll Zulip for new messages and route them as commands.
 
-    if result.get("result") != "success":
-        log.error("Failed to register Zulip event queue: %s", result)
+    Zulip's SDK calls are synchronous blocking HTTP. We run them in a thread
+    pool executor so they don't freeze the event loop. get_events blocks for
+    up to ~90s (Zulip's server-side long-poll timeout), so this is important.
+    """
+    loop = asyncio.get_event_loop()
+
+    async def _register() -> tuple[str, int]:
+        result = await loop.run_in_executor(
+            None,
+            lambda: client.register(
+                event_types=["message"],
+                narrow=[["is", "stream"]],
+            ),
+        )
+        if result.get("result") != "success":
+            raise RuntimeError(f"Failed to register Zulip event queue: {result}")
+        log.info("Zulip event queue registered: %s", result["queue_id"])
+        return result["queue_id"], result["last_event_id"]
+
+    try:
+        queue_id, last_event_id = await _register()
+    except Exception as e:
+        log.error("Cannot start Zulip polling: %s", e)
         return
-
-    queue_id = result["queue_id"]
-    last_event_id = result["last_event_id"]
-    log.info("Zulip event queue registered: %s", queue_id)
 
     while True:
         try:
-            events_result = client.get_events(
-                queue_id=queue_id,
-                last_event_id=last_event_id,
+            events_result = await loop.run_in_executor(
+                None,
+                lambda: client.get_events(
+                    queue_id=queue_id,
+                    last_event_id=last_event_id,
+                ),
             )
         except Exception as e:
             log.error("Zulip polling error: %s", e)
             await asyncio.sleep(5)
+            continue
+
+        if events_result.get("code") == "BAD_EVENT_QUEUE_ID":
+            log.warning("Zulip event queue expired, re-registering")
+            try:
+                queue_id, last_event_id = await _register()
+            except Exception as e:
+                log.error("Re-registration failed: %s", e)
+                await asyncio.sleep(5)
             continue
 
         if events_result.get("result") != "success":
@@ -170,9 +195,6 @@ async def _poll_zulip_events(
                     )
                     if cmd:
                         host.route_chat_command(cmd)
-
-        # Short sleep to avoid tight-looping
-        await asyncio.sleep(0.5)
 
 
 def _stream_to_bridge(stream_name: str, projects_config: list[dict]) -> str | None:

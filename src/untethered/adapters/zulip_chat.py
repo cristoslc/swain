@@ -219,10 +219,9 @@ class ZulipChatAdapter:
             })
 
     def start_listening(self, *, bridge: str) -> None:
-        """Start listening for operator messages via Zulip's event system.
+        """No-op stub — polling is owned by main._poll_zulip_events.
 
-        In the full implementation, this would use Zulip's register + events
-        long-polling API. For MVP, this is called by the host bridge's event loop.
+        The host bridge's async event loop handles Zulip event queue
+        registration and long-polling via run_in_executor. This method
+        exists to satisfy the plugin interface contract.
         """
-        # TODO: implement Zulip event queue registration and polling
-        pass

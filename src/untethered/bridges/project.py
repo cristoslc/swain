@@ -5,13 +5,15 @@ commands from it. Does not talk to the chat adapter directly.
 """
 from __future__ import annotations
 
+import asyncio
 import enum
 import logging
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Callable
 
 from untethered.protocol import Event, Command
+from untethered.adapters.claude_code import ClaudeCodeAdapter
 
 log = logging.getLogger(__name__)
 
@@ -44,11 +46,14 @@ class ProjectBridge:
         self,
         project: str,
         *,
+        project_dir: str | None = None,
         on_event: Callable[[Event], None] | None = None,
     ):
         self.project = project
+        self.project_dir = project_dir
         self.on_event = on_event
         self.sessions: dict[str, Session] = {}
+        self._adapters: dict[str, ClaudeCodeAdapter] = {}
 
     def handle_command(self, cmd: Command) -> None:
         """Handle a command routed from the host bridge."""
@@ -83,28 +88,52 @@ class ProjectBridge:
     def active_sessions(self) -> list[Session]:
         return [s for s in self.sessions.values() if s.state == SessionState.ACTIVE]
 
+    # --- Internal helpers ---
+
+    def _schedule(self, coro: Any) -> None:
+        """Schedule a coroutine on the running event loop.
+
+        In production this is always called from within an async context
+        (main._poll_zulip_events). In unit tests with no running loop, the
+        coroutine is closed and logged at debug level — session state is
+        still updated synchronously, which is what unit tests verify.
+        """
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(coro)
+        except RuntimeError:
+            log.debug("No running event loop — async operation skipped (test context?)")
+            coro.close()
+
     # --- Command handlers ---
 
     def _cmd_start_session(self, cmd: Command) -> None:
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
         runtime = cmd.payload.get("runtime", "claude")
-        session = Session(session_id=session_id, runtime=runtime)
+        artifact = cmd.payload.get("artifact")
+        prompt = cmd.payload.get("prompt") or artifact
+        session = Session(session_id=session_id, runtime=runtime, artifact=artifact)
         self.sessions[session_id] = session
 
-        if self.on_event:
-            self.on_event(Event.session_spawned(
-                bridge=self.project,
-                session_id=session_id,
-                runtime=runtime,
-            ))
+        adapter = ClaudeCodeAdapter(
+            bridge=self.project,
+            session_id=session_id,
+            project_dir=self.project_dir,
+            on_event=self.handle_runtime_event,
+        )
+        self._adapters[session_id] = adapter
+        self._schedule(adapter.start(prompt=prompt))
 
     def _cmd_send_prompt(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")
         if not session:
             log.warning("send_prompt for unknown session: %s", cmd.session_id)
             return
-        # In the full implementation, this would forward to the runtime adapter.
-        # For now, the command is accepted and would be routed by the async loop.
+        adapter = self._adapters.get(session.session_id)
+        if adapter:
+            self._schedule(adapter.send_command(cmd))
+        else:
+            log.warning("No adapter for session: %s", session.session_id)
 
     def _cmd_approve(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")
@@ -114,6 +143,9 @@ class ProjectBridge:
         if session.state == SessionState.WAITING_APPROVAL:
             session.state = SessionState.ACTIVE
             session.pending_approval_call_id = None
+        adapter = self._adapters.get(session.session_id)
+        if adapter:
+            self._schedule(adapter.send_command(cmd))
 
     def _cmd_cancel(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")
@@ -121,6 +153,9 @@ class ProjectBridge:
             log.warning("cancel for unknown session: %s", cmd.session_id)
             return
         session.state = SessionState.DEAD
+        adapter = self._adapters.pop(session.session_id, None)
+        if adapter:
+            self._schedule(adapter.stop())
 
     def _cmd_bind_artifact(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")
