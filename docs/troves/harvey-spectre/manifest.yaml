@@ -1,0 +1,19 @@
+id: harvey-spectre
+created: 2026-04-07
+tags: [cloud-agents, collaborative-ai, agent-runtime, harvey-ai, spectre]
+freshness-ttl:
+  web: 30d
+  social: 90d
+
+sources:
+  - id: gabepereyra-spectre-post
+    url: https://x.com/gabepereyra/status/2041568552256197074
+    fetch_date: 2026-04-07
+    hash: 8909a5ffb6f84403496d192c1441baf443dfec89c73b45dbef12177bbb94b1d0
+    type: social
+
+history:
+  - event: created
+    date: 2026-04-07
+    commit: "--"
+    sources: 1
