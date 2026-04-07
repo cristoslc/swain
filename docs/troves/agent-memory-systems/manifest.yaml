@@ -1,6 +1,6 @@
 trove: agent-memory-systems
 created: 2026-03-23
-refreshed: 2026-03-23
+refreshed: 2026-04-07
 tags:
   - agent-memory
   - llm-memory
@@ -47,6 +47,12 @@ history:
     sources: 11
     sources-added: 5
     notes: "added OSS frameworks (Mem0, Letta/MemGPT, Cognee), graph memory (Zep/Graphiti), and MCP memory servers (Basic Memory)"
+  - event: extended
+    date: 2026-04-07
+    commit: "--"
+    sources: 12
+    sources-added: 1
+    notes: "added Pearl (2026) Sara Brain preprint — path-of-thought cognitive architecture, SQLite path-graph persistent memory, cortex-cerebellum LLM framing"
 
 sources:
   - source-id: langmem-conceptual-guide
@@ -126,3 +132,16 @@ sources:
     fetched: 2026-03-23T00:00:00Z
     title: "Basic Memory — Markdown Knowledge Graph MCP Server"
     hash: "2556307b66eee63a39dcca14a4fbb30582b46465aa427a0d1d47840ebcca1df0"
+
+  - source-id: pearl-2026-path-of-thought-sara-brain
+    type: document
+    url: "https://zenodo.org/records/19441821"
+    pdf-url: "https://zenodo.org/records/19441821/files/pearl_2026_path_of_thought_sara_brain-correction.pdf"
+    fetched: 2026-04-07T17:45:05Z
+    title: "Path-of-Thought: A Neuron-Chain Knowledge Representation System with Parallel Wavefront Recognition"
+    doi: "10.5281/zenodo.19441821"
+    authors:
+      - "Jennifer Pearl (University of Houston CNRCS; Eterna Massive Open Laboratory)"
+    published: 2026-04-06
+    hash: "148658c8b75f8964dd8d522f2039d1cb0096837ff142bf1f208b4932b8f05579"
+    snapshot: ".agents/search-snapshots/raw/2026-04-07T17-45-05Z-zenodo-org-records-19441821.txt"
