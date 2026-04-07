@@ -285,3 +285,73 @@ Key rules:
 - Preserve internal links where possible (adjust to relative paths)
 - For large sites, set `selective: true` and focus on relevant sections
 - Populate `highlights` with the most important pages
+
+## CLI tools
+
+CLI captures use markdown with code fences. Help output stays in original format.
+
+### Manpage capture
+
+```markdown
+---
+source-id: "git-manpage"
+title: "git manpage"
+type: cli-manpage
+tool-name: "git"
+fetched: 2026-04-07T16:00:00Z
+hash: "a1b2c3..."
+---
+
+# git manpage
+
+```
+[Raw manpage output here]
+```
+```
+
+### Help output capture
+
+```markdown
+---
+source-id: "git-help-output"
+title: "git --help output"
+type: cli-help
+tool-name: "git"
+fetched: 2026-04-07T16:00:00Z
+hash: "d4e5f6..."
+---
+
+# git --help output
+
+```
+[Raw help output here]
+```
+```
+
+### Subcommand help capture
+
+```markdown
+---
+source-id: "git-remote-help"
+title: "git remote --help"
+type: cli-subcommand-help
+tool-name: "git"
+command: "remote"
+depth: 1
+fetched: 2026-04-07T16:00:00Z
+hash: "g7h8i9..."
+---
+
+# git remote --help
+
+```
+[Raw subcommand help here]
+```
+```
+
+Key rules:
+- Keep exact formatting inside code fences.
+- Use tool name in source-id (like `git-manpage`, `git-help-output`).
+- Add command path for subcommands (like `git-remote-help`).
+- Set `depth: 1` for first-level subcommands, `depth: 2` for nested.
+- Set `failed: true` in frontmatter if capture fails.

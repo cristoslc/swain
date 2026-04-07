@@ -1,0 +1,47 @@
+trove: git-cli
+created: 2026-04-07
+refreshed: 2026-04-07
+tags:
+  - git
+  - cli
+  - version-control
+  - cli-tool-research
+
+freshness-ttl:
+  cli-manpage: never
+  cli-help: never
+  cli-subcommand-help: never
+
+history:
+  - event: created
+    date: 2026-04-07
+    commit: "--"
+    sources: 3
+
+referenced-by:
+  - artifact: SPEC-293
+    commit: "--"
+
+sources:
+  - source-id: git-manpage
+    type: cli-manpage
+    tool-name: git
+    fetched: 2026-04-07T16:00:00Z
+    title: "git manpage"
+    hash: "ce08403c4422..."
+
+  - source-id: git-help-output
+    type: cli-help
+    tool-name: git
+    fetched: 2026-04-07T16:00:00Z
+    title: "git --help output"
+    hash: "2c6a3100eb3f..."
+
+  - source-id: git-remote-help
+    type: cli-subcommand-help
+    tool-name: git
+    command: remote
+    depth: 1
+    fetched: 2026-04-07T16:00:00Z
+    title: "git remote --help"
+    hash: "a568342c5b34..."
