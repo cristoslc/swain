@@ -41,7 +41,7 @@ history:
     sources: 4
   - event: extended
     date: 2026-04-07
-    commit: "--"
+    commit: "4779e29"
     sources-added: 4
     notes: "Added Goose, Amp, Cline, Plandex; expanded skills/extensions dimension"
 
