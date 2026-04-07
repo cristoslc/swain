@@ -71,7 +71,8 @@ class TmuxPaneAdapter:
         open(self._fifo_path, "w").close()
 
         # Create tmux session with the runtime command
-        shell_cmd = " ".join(cmd)
+        import shlex
+        shell_cmd = " ".join(shlex.quote(c) for c in cmd)
         cwd = self.project_dir or os.getcwd()
 
         result = subprocess.run(

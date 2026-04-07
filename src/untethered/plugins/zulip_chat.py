@@ -23,7 +23,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
-from typing import Callable
+from typing import Any, Callable
 
 import zulip
 
@@ -159,6 +159,63 @@ async def _poll_zulip(
 # Text output batcher — coalesce rapid-fire lines into single posts
 # ---------------------------------------------------------------------------
 
+
+class TypingIndicator:
+    """Sends Zulip typing indicators while a session is working.
+
+    Pulses 'start' every 10s. Stops when output arrives or session dies.
+    Uses the Zulip set-typing-status API for stream/topic typing.
+    """
+
+    def __init__(self, client: Any, loop: asyncio.AbstractEventLoop) -> None:
+        self._client = client
+        self._loop = loop
+        self._active: dict[tuple[str, str], asyncio.Task] = {}
+
+    def start(self, stream: str, topic: str) -> None:
+        """Begin typing indicator for a stream/topic."""
+        key = (stream, topic)
+        if key in self._active:
+            return
+        self._active[key] = self._loop.create_task(self._pulse(stream, topic))
+
+    def stop(self, stream: str, topic: str) -> None:
+        """Stop typing indicator for a stream/topic."""
+        key = (stream, topic)
+        task = self._active.pop(key, None)
+        if task:
+            task.cancel()
+        self._send_typing(stream, topic, "stop")
+
+    def stop_all(self) -> None:
+        for key in list(self._active):
+            self.stop(*key)
+
+    async def _pulse(self, stream: str, topic: str) -> None:
+        """Send typing start every 10s until cancelled."""
+        try:
+            while True:
+                self._send_typing(stream, topic, "start")
+                await asyncio.sleep(10)
+        except asyncio.CancelledError:
+            pass
+
+    def _send_typing(self, stream: str, topic: str, op: str) -> None:
+        try:
+            # Get stream ID from name
+            result = self._client.get_stream_id(stream)
+            stream_id = result.get("stream_id")
+            if stream_id:
+                self._client.set_typing_status({
+                    "op": op,
+                    "type": "stream",
+                    "stream_id": stream_id,
+                    "topic": topic,
+                })
+        except Exception as exc:
+            log.debug("Typing indicator error: %s", exc)
+
+
 class TextBatcher:
     """Accumulates text_output lines per (stream, topic) and flushes after a quiet period."""
 
@@ -237,6 +294,7 @@ async def _relay_events(
 
     mention = f"@**{operator_email}** " if operator_email else ""
     batcher = TextBatcher(_post, delay=2.0)
+    typing = TypingIndicator(client, loop)
 
     while True:
         line = await loop.run_in_executor(None, sys.stdin.readline)
@@ -255,12 +313,14 @@ async def _relay_events(
         # --- Control-origin sessions: all output goes to control topic ---
         if origin == "control":
             if msg.type == "session_spawned":
-                # Silently track — no announcement needed
-                pass
+                # Start typing indicator — session is working
+                typing.start(stream, control_topic)
             elif msg.type == "session_died":
-                # Silent cleanup — no "session ended" noise
-                pass
+                # Stop typing and clean up silently
+                typing.stop(stream, control_topic)
             elif msg.type == "text_output":
+                # Stop typing — response arriving
+                typing.stop(stream, control_topic)
                 # Batch text lines before posting to control
                 content = msg.payload.get("content", "")
                 if content.strip():
