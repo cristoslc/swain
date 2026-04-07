@@ -156,6 +156,61 @@ async def _poll_zulip(
 
 
 # ---------------------------------------------------------------------------
+# Text output batcher — coalesce rapid-fire lines into single posts
+# ---------------------------------------------------------------------------
+
+class TextBatcher:
+    """Accumulates text_output lines per (stream, topic) and flushes after a quiet period."""
+
+    def __init__(
+        self,
+        post_fn: Callable,
+        delay: float = 2.0,
+    ) -> None:
+        self._post_fn = post_fn
+        self._delay = delay
+        self._buffers: dict[tuple[str, str], list[str]] = {}
+        self._timers: dict[tuple[str, str], asyncio.TimerHandle] = {}
+
+    def add(self, stream: str, topic: str, text: str) -> None:
+        """Add a line to the buffer. Schedules a flush after the quiet period."""
+        key = (stream, topic)
+        if key not in self._buffers:
+            self._buffers[key] = []
+        self._buffers[key].append(text)
+
+        # Reset the flush timer
+        if key in self._timers:
+            self._timers[key].cancel()
+
+        loop = asyncio.get_running_loop()
+        self._timers[key] = loop.call_later(
+            self._delay,
+            lambda k=key: loop.create_task(self._flush(k)),
+        )
+
+    async def _flush(self, key: tuple[str, str]) -> None:
+        """Post the accumulated buffer as a single message."""
+        lines = self._buffers.pop(key, [])
+        self._timers.pop(key, None)
+        if not lines:
+            return
+
+        # Filter blank lines and join
+        content = "\n".join(line for line in lines if line.strip())
+        if not content.strip():
+            return
+
+        stream, topic = key
+        await self._post_fn(stream, topic, content)
+
+    async def flush_all(self) -> None:
+        """Flush all pending buffers immediately."""
+        for key in list(self._buffers):
+            await self._flush(key)
+
+
+# ---------------------------------------------------------------------------
 # Kernel → Zulip: relay events to the correct thread
 # ---------------------------------------------------------------------------
 
@@ -181,11 +236,13 @@ async def _relay_events(
         )
 
     mention = f"@**{operator_email}** " if operator_email else ""
+    batcher = TextBatcher(_post, delay=2.0)
 
     while True:
         line = await loop.run_in_executor(None, sys.stdin.readline)
         if not line:
             log.info("stdin closed")
+            await batcher.flush_all()
             return
         msg = decode_message(line)
         if not isinstance(msg, Event):
@@ -203,8 +260,13 @@ async def _relay_events(
             elif msg.type == "session_died":
                 # Silent cleanup — no "session ended" noise
                 pass
+            elif msg.type == "text_output":
+                # Batch text lines before posting to control
+                content = msg.payload.get("content", "")
+                if content.strip():
+                    batcher.add(stream, control_topic, content)
             else:
-                # Post content directly to control topic
+                # Non-text events post immediately
                 zulip_msg = format_event_for_zulip(
                     msg,
                     operator_email=operator_email,
@@ -258,8 +320,6 @@ async def _relay_events(
 
         else:
             # All other events: post to the session's registered topic.
-            # Skip if we have no record — the session may have been started
-            # before this bridge instance came up.
             topic = registry.topic_for(session_id)
             if not topic:
                 log.warning(
@@ -267,12 +327,17 @@ async def _relay_events(
                     session_id, msg.type,
                 )
                 continue
-            zulip_msg = format_event_for_zulip(
-                msg,
-                operator_email=operator_email,
-                control_topic=control_topic,
-            )
-            await _post(stream, topic, zulip_msg["content"])
+            if msg.type == "text_output":
+                content = msg.payload.get("content", "")
+                if content.strip():
+                    batcher.add(stream, topic, content)
+            else:
+                zulip_msg = format_event_for_zulip(
+                    msg,
+                    operator_email=operator_email,
+                    control_topic=control_topic,
+                )
+                await _post(stream, topic, zulip_msg["content"])
 
 
 # ---------------------------------------------------------------------------
