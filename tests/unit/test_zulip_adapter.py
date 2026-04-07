@@ -112,8 +112,8 @@ class TestParseZulipMessage:
             "stream_id": 42,
         }
         cmd = parse_zulip_message(zulip_msg, bridge="swain", control_topic="control")
-        assert cmd.type == "start_session"
-        assert cmd.payload["runtime"] == "claude"
+        assert cmd.type == "launch_session"
+        assert cmd.payload["text"] == "SPEC-142"
 
     def test_kill_command_in_control_topic(self):
         zulip_msg = {

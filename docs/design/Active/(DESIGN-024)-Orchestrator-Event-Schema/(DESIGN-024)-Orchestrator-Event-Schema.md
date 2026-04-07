@@ -91,6 +91,7 @@ flowchart LR
 | Type | Payload fields | Description |
 |------|---------------|-------------|
 | `session_spawned` | `runtime`, `artifact?` | New session started. |
+| `session_promoted` | `artifact`, `topic?` | Session bound to an artifact; chat adapter creates dedicated thread. |
 | `text_output` | `content` | Runtime produced text. |
 | `tool_call` | `tool_name`, `input`, `call_id` | Runtime invoked a tool. |
 | `tool_result` | `call_id`, `output`, `success` | Tool returned. |
@@ -122,8 +123,10 @@ flowchart LR
 
 | Type | Payload fields | Description |
 |------|---------------|-------------|
-| `start_session` | `runtime`, `artifact?`, `prompt?` | Spawn a new session. |
-| `send_prompt` | `text` | Send operator input. |
+| `start_session` | `runtime`, `artifact?`, `prompt?` | Spawn a new session in a tmux pane. |
+| `launch_session` | `text?` | Start the launcher interview flow (`/work` or `/session`). |
+| `control_message` | `text` | Natural language from the control topic. Lightweight query session or relay to active interview. |
+| `send_prompt` | `text` | Send operator input to a running session. |
 | `approve` | `call_id`, `approved` | Respond to approval request. |
 | `cancel` | | Terminate session. |
 | `bind_artifact` | `artifact_id` | Associate session with artifact. |
@@ -182,3 +185,4 @@ _None yet. JSON Schema files to be generated during implementation._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Created from VISION-006 decomposition. Schema sketched in architecture-overview. |
+| Updated | 2026-04-06 | c59add66 | Added `session_promoted`, `launch_session`, `control_message`. Tmux adapter wired. |

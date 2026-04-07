@@ -53,4 +53,4 @@ The chat adapter is a plugin (subprocess speaking NDJSON over stdio). Platform c
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-06 | -- | Informed by chat-server-features trove (6 extensions, 20+ sources). |
+| Active | 2026-04-06 | 0c008b41 | Informed by chat-server-features trove (6 extensions, 20+ sources). |

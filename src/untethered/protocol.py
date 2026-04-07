@@ -13,8 +13,8 @@ from typing import Any
 
 # Event types — project scope
 _PROJECT_EVENT_TYPES = {
-    "session_spawned", "text_output", "tool_call", "tool_result",
-    "approval_needed", "session_died", "web_output_available",
+    "session_spawned", "session_promoted", "text_output", "tool_call",
+    "tool_result", "approval_needed", "session_died", "web_output_available",
 }
 
 # Event types — host scope
@@ -27,7 +27,8 @@ _ALL_EVENT_TYPES = _PROJECT_EVENT_TYPES | _HOST_EVENT_TYPES
 
 # Command types — project scope
 _PROJECT_COMMAND_TYPES = {
-    "start_session", "send_prompt", "approve", "cancel", "bind_artifact",
+    "start_session", "launch_session", "send_prompt", "approve", "cancel",
+    "bind_artifact", "control_message",
 }
 
 # Command types — host scope
@@ -95,6 +96,17 @@ class Event:
             payload["artifact"] = artifact
         return cls(
             type="session_spawned", bridge=bridge, session_id=session_id,
+            timestamp=_now_ms(), payload=payload,
+        )
+
+    @classmethod
+    def session_promoted(cls, *, bridge: str, session_id: str,
+                         artifact: str, topic: str | None = None) -> Event:
+        payload: dict[str, Any] = {"artifact": artifact}
+        if topic:
+            payload["topic"] = topic
+        return cls(
+            type="session_promoted", bridge=bridge, session_id=session_id,
             timestamp=_now_ms(), payload=payload,
         )
 
@@ -186,6 +198,16 @@ class Command:
         )
 
     @classmethod
+    def launch_session(cls, *, bridge: str, text: str | None = None) -> Command:
+        payload: dict[str, Any] = {}
+        if text:
+            payload["text"] = text
+        return cls(
+            type="launch_session", bridge=bridge, session_id=None,
+            timestamp=_now_ms(), payload=payload,
+        )
+
+    @classmethod
     def send_prompt(cls, *, bridge: str, session_id: str, text: str) -> Command:
         return cls(
             type="send_prompt", bridge=bridge, session_id=session_id,
@@ -206,6 +228,13 @@ class Command:
         return cls(
             type="cancel", bridge=bridge, session_id=session_id,
             timestamp=_now_ms(), payload={},
+        )
+
+    @classmethod
+    def control_message(cls, *, bridge: str, text: str) -> Command:
+        return cls(
+            type="control_message", bridge=bridge, session_id=None,
+            timestamp=_now_ms(), payload={"text": text},
         )
 
     @classmethod

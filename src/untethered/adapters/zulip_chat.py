@@ -75,6 +75,11 @@ def _render_event_content(event: Event, *, operator_email: str | None = None) ->
         suffix = f" on {artifact}" if artifact else ""
         return f"Session started ({runtime}){suffix}."
 
+    if t == "session_promoted":
+        artifact = p.get("artifact", "")
+        topic = p.get("topic", "")
+        return f"Session promoted to topic **{topic or artifact}**."
+
     if t == "session_died":
         reason = p.get("reason", "unknown")
         return f"Session ended: {reason}."
@@ -134,7 +139,11 @@ def parse_zulip_message(
         return _parse_slash_command(content, topic=topic, bridge=bridge,
                                     control_topic=control_topic)
 
-    # Plain text → send_prompt (works in any topic, including control)
+    # Plain text in control topic → control_message for bridge triage
+    if topic == control_topic:
+        return Command.control_message(bridge=bridge, text=content)
+
+    # Plain text in a session topic → send_prompt to that session
     if topic:
         return Command.send_prompt(
             bridge=bridge, session_id=topic, text=content,
@@ -167,12 +176,9 @@ def _parse_slash_command(
         session_id = topic if topic != control_topic else ""
         return Command.cancel(bridge=bridge, session_id=session_id)
 
-    if cmd_name == "/work" and topic == control_topic:
-        artifact = args[0] if args else None
-        return Command.start_session(
-            bridge=bridge, runtime="claude",
-            artifact=artifact,
-        )
+    if cmd_name in ("/work", "/session") and topic == control_topic:
+        text = " ".join(args) if args else None
+        return Command.launch_session(bridge=bridge, text=text)
 
     if cmd_name == "/kill" and topic == control_topic and args:
         return Command.cancel(bridge=bridge, session_id=args[0])
@@ -219,10 +225,9 @@ class ZulipChatAdapter:
             })
 
     def start_listening(self, *, bridge: str) -> None:
-        """Start listening for operator messages via Zulip's event system.
+        """No-op stub — polling is owned by main._poll_zulip_events.
 
-        In the full implementation, this would use Zulip's register + events
-        long-polling API. For MVP, this is called by the host bridge's event loop.
+        The host bridge's async event loop handles Zulip event queue
+        registration and long-polling via run_in_executor. This method
+        exists to satisfy the plugin interface contract.
         """
-        # TODO: implement Zulip event queue registration and polling
-        pass
