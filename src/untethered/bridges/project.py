@@ -19,6 +19,7 @@ from typing import Any, Callable
 from untethered.protocol import Event, Command
 from untethered.adapters.claude_code import ClaudeCodeAdapter
 from untethered.adapters.opencode import OpenCodeAdapter
+from untethered.adapters.tmux_pane import TmuxPaneAdapter
 
 log = logging.getLogger(__name__)
 
@@ -264,15 +265,21 @@ class ProjectBridge:
                     topic=purpose or None,
                 ))
 
-            # Spawn the runtime adapter in the launcher's worktree.
-            adapter = ClaudeCodeAdapter(
+            # Spawn the runtime in a tmux session in the launcher's worktree.
+            runtime_cmd = self._build_runtime_cmd(runtime, prompt)
+            session_name = f"swain-{purpose or session_id}"
+
+            adapter = TmuxPaneAdapter(
                 bridge=self.project,
                 session_id=session_id,
                 project_dir=worktree or self.project_dir,
                 on_event=self.handle_runtime_event,
             )
             self._adapters[session_id] = adapter
-            self._schedule(adapter.start(prompt=prompt or None))
+            self._schedule(adapter.start(
+                runtime_cmd=runtime_cmd,
+                session_name=session_name,
+            ))
 
         elif msg_type == "error":
             log.error("Launcher error for %s: %s", session_id, data.get("text", ""))
@@ -295,14 +302,35 @@ class ProjectBridge:
         session = Session(session_id=session_id, runtime=runtime, artifact=artifact)
         self.sessions[session_id] = session
 
-        adapter = ClaudeCodeAdapter(
+        # Build the runtime command for tmux
+        runtime_cmd = self._build_runtime_cmd(runtime, prompt)
+        session_name = f"swain-{artifact or session_id}"
+
+        adapter = TmuxPaneAdapter(
             bridge=self.project,
             session_id=session_id,
             project_dir=self.project_dir,
             on_event=self.handle_runtime_event,
         )
         self._adapters[session_id] = adapter
-        self._schedule(adapter.start(prompt=prompt))
+        self._schedule(adapter.start(
+            runtime_cmd=runtime_cmd,
+            session_name=session_name,
+        ))
+
+    @staticmethod
+    def _build_runtime_cmd(runtime: str, prompt: str | None) -> list[str]:
+        """Build the shell command for a runtime."""
+        if runtime == "opencode":
+            cmd = ["opencode", "run"]
+            if prompt:
+                cmd.append(prompt)
+            return cmd
+        # Default: claude
+        cmd = ["claude", "--dangerously-skip-permissions"]
+        if prompt:
+            cmd.extend(["--prompt", prompt])
+        return cmd
 
     def _cmd_send_prompt(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")
@@ -381,14 +409,18 @@ class ProjectBridge:
             ))
             return
 
-        adapter = OpenCodeAdapter(
+        runtime_cmd = ["opencode", "run", text] if text else ["opencode", "run"]
+        adapter = TmuxPaneAdapter(
             bridge=self.project,
             session_id=session_id,
             project_dir=self.project_dir,
             on_event=self.handle_runtime_event,
         )
         self._adapters[session_id] = adapter
-        await adapter.start(prompt=text)
+        await adapter.start(
+            runtime_cmd=runtime_cmd,
+            session_name=f"swain-ctrl-{session_id}",
+        )
 
     def _cmd_launch_session(self, cmd: Command) -> None:
         """Handle /work or /session — full launcher interview flow.

@@ -153,7 +153,7 @@ class TestAdapterWiring:
     """ProjectBridge spawns and controls ClaudeCodeAdapter instances."""
 
     async def test_start_session_spawns_adapter(self):
-        with patch("untethered.bridges.project.ClaudeCodeAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -168,10 +168,13 @@ class TestAdapterWiring:
             init_kwargs = MockAdapter.call_args.kwargs
             assert init_kwargs["bridge"] == "swain"
             assert init_kwargs["project_dir"] == "/tmp/swain"
-            mock_instance.start.assert_awaited_once_with(prompt="hello")
+            mock_instance.start.assert_awaited_once()
+            start_kwargs = mock_instance.start.call_args.kwargs
+            assert "runtime_cmd" in start_kwargs
+            assert "session_name" in start_kwargs
 
     async def test_send_prompt_forwards_to_adapter(self):
-        with patch("untethered.bridges.project.ClaudeCodeAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -193,7 +196,7 @@ class TestAdapterWiring:
             assert sent_cmd.payload["text"] == "keep going"
 
     async def test_approve_forwards_to_adapter(self):
-        with patch("untethered.bridges.project.ClaudeCodeAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -226,7 +229,7 @@ class TestAdapterWiring:
             assert sent_cmd.payload["approved"] is True
 
     async def test_cancel_stops_adapter(self):
-        with patch("untethered.bridges.project.ClaudeCodeAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 

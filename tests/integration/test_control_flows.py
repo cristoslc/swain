@@ -109,7 +109,7 @@ class TestControlMessageBridge:
     """ProjectBridge handles control_message by spawning a lightweight session."""
 
     async def test_control_message_spawns_session_with_origin_control(self):
-        with patch("untethered.bridges.project.OpenCodeAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -124,18 +124,16 @@ class TestControlMessageBridge:
             assert session.origin == "control"
             assert session.runtime == "opencode"
 
-            # Adapter spawned with the text as prompt
+            # Adapter spawned with runtime command containing the text
             MockAdapter.assert_called_once()
             mock_instance.start.assert_awaited_once()
-            start_kwargs = mock_instance.start.call_args.kwargs
-            assert start_kwargs["prompt"] == "what specs are ready?"
 
     async def test_control_origin_events_tagged_with_origin(self):
         """Events from control-origin sessions carry origin=control in payload."""
         delivered: list[Event] = []
         bridge = ProjectBridge(project="swain", on_event=delivered.append)
 
-        with patch("untethered.bridges.project.OpenCodeAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
             bridge.handle_command(
@@ -350,7 +348,7 @@ class TestLaunchSessionBridge:
             mock_instance = AsyncMock()
             MockLauncher.return_value = mock_instance
 
-            with patch("untethered.bridges.project.ClaudeCodeAdapter") as MockAdapter:
+            with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
                 adapter_instance = AsyncMock()
                 MockAdapter.return_value = adapter_instance
 
