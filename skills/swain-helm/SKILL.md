@@ -25,6 +25,14 @@ BRIDGE="$REPO_ROOT/bin/swain-bridge"
 
 If not found at that path, glob for `**/bin/swain-bridge`.
 
+## Runtime files
+
+| File | Purpose |
+|------|---------|
+| `/tmp/swain-bridge.pid` | Two-line PID file: line 1 = opencode serve PID, line 2 = untethered-host PID. |
+| `/tmp/swain-bridge.log` | Combined stdout/stderr from both processes in daemon mode. |
+| `/tmp/opencode-serve.log` | opencode serve log in foreground mode (separate from bridge log). |
+
 ## Commands
 
 ### start (default / "start bridge" / "helm up")
@@ -73,13 +81,13 @@ bash "$BRIDGE" --stop && bash "$BRIDGE" --daemon
 
 ### foreground ("helm foreground" / "bridge in foreground" / "interactive bridge")
 
-Start attached to the terminal — Ctrl-C stops both processes:
+The default mode when no flags are given — backward compatible. Start attached to the terminal; Ctrl-C stops both processes cleanly:
 
 ```bash
 bash "$BRIDGE"
 ```
 
-Use this for debugging or first-run verification.
+Logs go to `/tmp/opencode-serve.log` (opencode) and stdout (bridge). Use this for debugging or first-run verification.
 
 ## Options
 
