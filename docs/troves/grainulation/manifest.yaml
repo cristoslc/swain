@@ -17,6 +17,9 @@ freshness-ttl:
   repository: 30d
 
 history:
+  - event: gap-analysis-added
+    date: 2026-04-06
+    notes: "Added gap-analysis.md — deep comparison of grainulation vs. swain"
   - event: created
     date: 2026-04-06
     commit: "6f0a795"

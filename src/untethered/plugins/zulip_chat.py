@@ -18,6 +18,7 @@ owns the assignment:
   - On operator messages: resolve topic → session_id so the kernel routes
     to the right project bridge session.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -28,8 +29,11 @@ from typing import Any, Callable
 import zulip
 
 from untethered.protocol import (
-    Event, Command, ConfigMessage,
-    decode_message, encode_message,
+    Event,
+    Command,
+    ConfigMessage,
+    decode_message,
+    encode_message,
 )
 from untethered.adapters.zulip_chat import format_event_for_zulip, parse_zulip_message
 
@@ -39,6 +43,7 @@ log = logging.getLogger("untethered.plugins.zulip_chat")
 # ---------------------------------------------------------------------------
 # Session → topic registry
 # ---------------------------------------------------------------------------
+
 
 class SessionTopicRegistry:
     """Tracks which Zulip topic belongs to each active session.
@@ -91,6 +96,7 @@ class SessionTopicRegistry:
 # stdout emitter
 # ---------------------------------------------------------------------------
 
+
 def _emit(cmd: Command) -> None:
     """Write a Command as NDJSON to stdout (to the kernel)."""
     sys.stdout.write(encode_message(cmd))
@@ -100,6 +106,7 @@ def _emit(cmd: Command) -> None:
 # ---------------------------------------------------------------------------
 # Zulip → kernel: poll for operator messages
 # ---------------------------------------------------------------------------
+
 
 async def _poll_zulip(
     client: zulip.Client,
@@ -113,6 +120,9 @@ async def _poll_zulip(
 
     Runs the blocking SDK poll in a thread. The SDK handles registration,
     heartbeats, re-registration on BAD_EVENT_QUEUE_ID, and error backoff.
+
+    Messages are filtered so only streams matching configured projects are processed.
+    This prevents worktree bridges from processing messages intended for trunk.
     """
 
     seen_ids: set[int] = set()
@@ -132,9 +142,18 @@ async def _poll_zulip(
             return
 
         stream_name = message.get("display_recipient", "")
-        bridge = stream_to_project.get(stream_name, stream_name)
+
+        # Filter: only process messages from streams matching configured projects.
+        # This prevents worktree bridges from processing trunk messages (and vice versa).
+        if stream_name not in stream_to_project:
+            log.debug("Ignoring message from unconfigured stream: %s", stream_name)
+            return
+
+        bridge = stream_to_project[stream_name]
         cmd = parse_zulip_message(
-            message, bridge=bridge or "", control_topic=control_topic,
+            message,
+            bridge=bridge or "",
+            control_topic=control_topic,
         )
         if not cmd:
             return
@@ -206,12 +225,14 @@ class TypingIndicator:
             result = self._client.get_stream_id(stream)
             stream_id = result.get("stream_id")
             if stream_id:
-                self._client.set_typing_status({
-                    "op": op,
-                    "type": "stream",
-                    "stream_id": stream_id,
-                    "topic": topic,
-                })
+                self._client.set_typing_status(
+                    {
+                        "op": op,
+                        "type": "stream",
+                        "stream_id": stream_id,
+                        "topic": topic,
+                    }
+                )
         except Exception as exc:
             log.debug("Typing indicator error: %s", exc)
 
@@ -275,6 +296,7 @@ class TextBatcher:
 # Kernel → Zulip: relay events to the correct thread
 # ---------------------------------------------------------------------------
 
+
 async def _relay_events(
     client: zulip.Client,
     project_to_stream: dict[str, str],
@@ -288,12 +310,14 @@ async def _relay_events(
     async def _post(stream: str, topic: str, content: str) -> None:
         await loop.run_in_executor(
             None,
-            lambda: client.send_message({
-                "type": "stream",
-                "to": stream,
-                "topic": topic,
-                "content": content,
-            }),
+            lambda: client.send_message(
+                {
+                    "type": "stream",
+                    "to": stream,
+                    "topic": topic,
+                    "content": content,
+                }
+            ),
         )
 
     mention = f"@**{operator_email}** " if operator_email else ""
@@ -340,7 +364,10 @@ async def _relay_events(
         # --- Session promoted: interview complete, create the thread ---
         if msg.type == "session_promoted":
             artifact = msg.payload.get("artifact", "")
-            topic = registry.assign(session_id, artifact or None)
+            explicit_topic = msg.payload.get(
+                "topic"
+            )  # Use worktree basename if provided
+            topic = registry.assign(session_id, explicit_topic or artifact or None)
             suffix = f" on `{artifact}`" if artifact else ""
 
             # Create the session thread
@@ -348,7 +375,8 @@ async def _relay_events(
 
             # Announce in control so the operator can find the thread
             await _post(
-                stream, control_topic,
+                stream,
+                control_topic,
                 f"{mention}Session ready in topic **{topic}**{suffix}. "
                 f"Reply there to interact or use `/cancel` to stop.",
             )
@@ -366,7 +394,8 @@ async def _relay_events(
 
             # Announce in control so the operator can find the thread
             await _post(
-                stream, control_topic,
+                stream,
+                control_topic,
                 f"{mention}New session in topic **{topic}**{suffix}. "
                 f"Reply there to interact or use `/cancel` to stop.",
             )
@@ -376,7 +405,8 @@ async def _relay_events(
             reason = msg.payload.get("reason", "unknown")
             await _post(stream, topic, f"Session ended: {reason}.")
             await _post(
-                stream, control_topic,
+                stream,
+                control_topic,
                 f"Session **{topic}** ended: {reason}.",
             )
 
@@ -386,7 +416,8 @@ async def _relay_events(
             if not topic:
                 log.warning(
                     "Event for unregistered session %r (type: %s) — dropping",
-                    session_id, msg.type,
+                    session_id,
+                    msg.type,
                 )
                 continue
             if msg.type == "text_output":
@@ -405,6 +436,7 @@ async def _relay_events(
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+
 
 async def _amain() -> None:
     logging.basicConfig(

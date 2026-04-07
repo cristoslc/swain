@@ -160,6 +160,14 @@
 | SPEC-285 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
 | SPEC-286 | bin/swain Missing Tmux Wrapping | 2026-04-05 | -- |
 | SPEC-288 | Reconcile Doctor Script and Skill | 2026-04-06 | _pending_ |
+| SPEC-289 | Readability checker scores markdown syntax as prose | 2026-04-06 | -- |
+| SPEC-291 | Non-Interactive Launcher Mode | 2026-04-06 | — |
+| SPEC-292 | OpenCode Server Adapter | 2026-04-06 | — |
+| SPEC-293 | CLI Tool Research Pattern for swain-search | 2026-04-07 | - |
+| SPEC-293 | Output Shaping for Chat | 2026-04-07 | a194674c |
+| SPEC-294 | Mermaid Rendering for Chat | 2026-04-07 | a194674c |
+| SPEC-295 | swain-bridge Daemon Mode | 2026-04-07 | — |
+| SPEC-296 | Worktree Session Isolation with Dedicated opencode serve Processes | 2026-04-07 | — |
 | SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 

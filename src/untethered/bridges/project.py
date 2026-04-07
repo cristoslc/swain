@@ -3,6 +3,7 @@
 Manages session lifecycle, emits events to the host bridge, and receives
 commands from it. Does not talk to the chat adapter directly.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -23,6 +24,11 @@ from untethered.adapters.opencode_server import OpenCodeServerAdapter
 from untethered.adapters.tmux_pane import TmuxPaneAdapter
 
 log = logging.getLogger(__name__)
+
+# Type alias for any runtime adapter
+RuntimeAdapter = (
+    ClaudeCodeAdapter | OpenCodeAdapter | OpenCodeServerAdapter | TmuxPaneAdapter
+)
 
 
 class SessionState(enum.Enum):
@@ -152,7 +158,7 @@ class ProjectBridge:
         self.project_dir = project_dir
         self.on_event = on_event
         self.sessions: dict[str, Session] = {}
-        self._adapters: dict[str, ClaudeCodeAdapter] = {}
+        self._adapters: dict[str, RuntimeAdapter] = {}
         self._launchers: dict[str, LauncherProcess] = {}
 
     def handle_command(self, cmd: Command) -> None:
@@ -212,7 +218,9 @@ class ProjectBridge:
 
     # --- Launcher output handler ---
 
-    def _on_launcher_output(self, session_id: str, msg_type: str, data: dict[str, Any]) -> None:
+    def _on_launcher_output(
+        self, session_id: str, msg_type: str, data: dict[str, Any]
+    ) -> None:
         """Handle NDJSON output from the launcher subprocess."""
         session = self.sessions.get(session_id)
         if not session:
@@ -222,7 +230,8 @@ class ProjectBridge:
             # Relay info messages as text_output to the control topic.
             if self.on_event:
                 event = Event.text_output(
-                    bridge=self.project, session_id=session_id,
+                    bridge=self.project,
+                    session_id=session_id,
                     content=data.get("text", ""),
                 )
                 event.payload["origin"] = "control"
@@ -236,7 +245,8 @@ class ProjectBridge:
                 text += " (" + "/".join(options) + ")"
             if self.on_event:
                 event = Event.text_output(
-                    bridge=self.project, session_id=session_id,
+                    bridge=self.project,
+                    session_id=session_id,
                     content=text,
                 )
                 event.payload["origin"] = "control"
@@ -258,40 +268,100 @@ class ProjectBridge:
             if launcher:
                 self._schedule(launcher.stop())
 
+            # Extract worktree basename for Zulip topic naming.
+            worktree_basename = os.path.basename(worktree) if worktree else None
+
             # Emit session_promoted so the chat adapter creates the thread.
             if self.on_event:
-                self.on_event(Event.session_promoted(
-                    bridge=self.project, session_id=session_id,
-                    artifact=purpose or session_id,
-                    topic=purpose or None,
-                ))
+                self.on_event(
+                    Event.session_promoted(
+                        bridge=self.project,
+                        session_id=session_id,
+                        artifact=purpose or session_id,
+                        topic=worktree_basename or purpose,
+                    )
+                )
 
-            # Spawn the runtime in a tmux session in the launcher's worktree.
-            runtime_cmd = self._build_runtime_cmd(runtime, prompt)
-            session_name = f"swain-{purpose or session_id}"
+            # Spawn the runtime adapter based on runtime type.
+            if runtime == "opencode":
+                # Use OpenCodeServerAdapter for dedicated server per worktree.
+                adapter = OpenCodeServerAdapter(
+                    bridge=self.project,
+                    session_id=session_id,
+                    on_event=self.handle_runtime_event,
+                )
+                self._adapters[session_id] = adapter
+                self._schedule(self._spawn_opencode_server(adapter, worktree, prompt))
+            else:
+                # Use TmuxPaneAdapter for other runtimes (claude, gemini, etc.).
+                runtime_cmd = self._build_runtime_cmd(runtime, prompt)
+                session_name = f"swain-{purpose or session_id}"
 
-            adapter = TmuxPaneAdapter(
-                bridge=self.project,
-                session_id=session_id,
-                project_dir=worktree or self.project_dir,
-                on_event=self.handle_runtime_event,
-            )
-            self._adapters[session_id] = adapter
-            self._schedule(adapter.start(
-                runtime_cmd=runtime_cmd,
-                session_name=session_name,
-            ))
+                adapter = TmuxPaneAdapter(
+                    bridge=self.project,
+                    session_id=session_id,
+                    project_dir=worktree or self.project_dir,
+                    on_event=self.handle_runtime_event,
+                )
+                self._adapters[session_id] = adapter
+                self._schedule(
+                    adapter.start(
+                        runtime_cmd=runtime_cmd,
+                        session_name=session_name,
+                    )
+                )
 
         elif msg_type == "error":
             log.error("Launcher error for %s: %s", session_id, data.get("text", ""))
             if self.on_event:
                 event = Event.text_output(
-                    bridge=self.project, session_id=session_id,
+                    bridge=self.project,
+                    session_id=session_id,
                     content=f"Launcher error: {data.get('text', '')}",
                 )
                 event.payload["origin"] = "control"
                 self.on_event(event)
             session.state = SessionState.DEAD
+
+    async def _spawn_opencode_server(
+        self,
+        adapter: OpenCodeServerAdapter,
+        worktree: str | None,
+        prompt: str,
+    ) -> None:
+        """Spawn opencode serve in the worktree and send initial prompt."""
+        worktree_path = worktree or self.project_dir
+        if not worktree_path:
+            log.error(
+                "No worktree or project_dir available for session %s",
+                adapter.session_id,
+            )
+            return
+
+        spawned = await adapter.spawn_server(worktree_path)
+        if not spawned:
+            log.error(
+                "Failed to spawn opencode server for session %s", adapter.session_id
+            )
+            if self.on_event:
+                self.on_event(
+                    Event.text_output(
+                        bridge=self.project,
+                        session_id=adapter.session_id,
+                        content="Error: failed to start opencode server",
+                    )
+                )
+            return
+
+        # Send initial prompt if provided
+        if prompt:
+            await adapter.send_command(
+                Command.send_prompt(
+                    bridge=self.project,
+                    session_id=adapter.session_id,
+                    text=prompt,
+                )
+            )
 
     # --- Command handlers ---
 
@@ -314,10 +384,12 @@ class ProjectBridge:
             on_event=self.handle_runtime_event,
         )
         self._adapters[session_id] = adapter
-        self._schedule(adapter.start(
-            runtime_cmd=runtime_cmd,
-            session_name=session_name,
-        ))
+        self._schedule(
+            adapter.start(
+                runtime_cmd=runtime_cmd,
+                session_name=session_name,
+            )
+        )
 
     @staticmethod
     def _build_runtime_cmd(runtime: str, prompt: str | None) -> list[str]:
@@ -381,7 +453,10 @@ class ProjectBridge:
 
         # Relay to active interview if one exists.
         for sid, session in self.sessions.items():
-            if session.origin == "control" and session.state == SessionState.INTERVIEWING:
+            if (
+                session.origin == "control"
+                and session.state == SessionState.INTERVIEWING
+            ):
                 launcher = self._launchers.get(sid)
                 if launcher:
                     self._schedule(launcher.send_answer(text))
@@ -390,12 +465,15 @@ class ProjectBridge:
         # Reuse existing control session if alive.
         for sid, session in self.sessions.items():
             if session.origin == "control" and session.state in (
-                SessionState.SPAWNING, SessionState.ACTIVE,
+                SessionState.SPAWNING,
+                SessionState.ACTIVE,
             ):
                 adapter = self._adapters.get(sid)
                 if adapter:
                     follow_up = Command.send_prompt(
-                        bridge=self.project, session_id=sid, text=text,
+                        bridge=self.project,
+                        session_id=sid,
+                        text=text,
                     )
                     self._schedule(adapter.send_command(follow_up))
                     return
@@ -414,13 +492,20 @@ class ProjectBridge:
         for testing the return path without a real LLM.
         """
         if os.environ.get("UNTETHERED_MOCK_LLM") == "1":
-            self.handle_runtime_event(Event.text_output(
-                bridge=self.project, session_id=session_id,
-                content=f"[mock] Received your message: {text}",
-            ))
-            self.handle_runtime_event(Event.session_died(
-                bridge=self.project, session_id=session_id, reason="mock complete",
-            ))
+            self.handle_runtime_event(
+                Event.text_output(
+                    bridge=self.project,
+                    session_id=session_id,
+                    content=f"[mock] Received your message: {text}",
+                )
+            )
+            self.handle_runtime_event(
+                Event.session_died(
+                    bridge=self.project,
+                    session_id=session_id,
+                    reason="mock complete",
+                )
+            )
             return
 
         adapter = OpenCodeServerAdapter(
@@ -434,10 +519,13 @@ class ProjectBridge:
         healthy = await adapter.wait_for_health(timeout=10.0)
         if not healthy:
             log.error("opencode serve not healthy — is it running?")
-            self.handle_runtime_event(Event.text_output(
-                bridge=self.project, session_id=session_id,
-                content="Error: opencode serve not reachable. Start it with: opencode serve --port 4097",
-            ))
+            self.handle_runtime_event(
+                Event.text_output(
+                    bridge=self.project,
+                    session_id=session_id,
+                    content="Error: opencode serve not reachable. Start it with: opencode serve --port 4097",
+                )
+            )
             return
 
         log.info("Operator can attach: opencode attach %s", adapter.base_url)
@@ -459,7 +547,10 @@ class ProjectBridge:
 
         # Check if there's an active interviewing session to relay to.
         for sid, session in self.sessions.items():
-            if session.origin == "control" and session.state == SessionState.INTERVIEWING:
+            if (
+                session.origin == "control"
+                and session.state == SessionState.INTERVIEWING
+            ):
                 launcher = self._launchers.get(sid)
                 if launcher:
                     self._schedule(launcher.send_answer(text))
@@ -468,8 +559,10 @@ class ProjectBridge:
         # Start a new launcher interview.
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
         session = Session(
-            session_id=session_id, runtime="claude",
-            origin="control", state=SessionState.INTERVIEWING,
+            session_id=session_id,
+            runtime="claude",
+            origin="control",
+            state=SessionState.INTERVIEWING,
         )
         self.sessions[session_id] = session
 
@@ -477,7 +570,9 @@ class ProjectBridge:
             session_id=session_id,
             project_dir=self.project_dir,
             on_output=lambda msg_type, data: self._on_launcher_output(
-                session_id, msg_type, data,
+                session_id,
+                msg_type,
+                data,
             ),
         )
         self._launchers[session_id] = launcher
