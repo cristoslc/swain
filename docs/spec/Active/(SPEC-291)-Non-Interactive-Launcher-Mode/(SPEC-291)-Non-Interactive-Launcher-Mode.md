@@ -18,6 +18,7 @@ sourcecode-refs:
   - src/untethered/protocol.py
   - src/untethered/bridges/project.py
   - src/untethered/plugins/zulip_chat.py
+  - src/untethered/adapters/tmux_pane.py
 ---
 
 # Non-Interactive Launcher Mode
