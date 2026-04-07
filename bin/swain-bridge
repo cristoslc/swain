@@ -3,21 +3,28 @@
 #
 # Starts opencode serve and the host bridge. Ctrl-C stops both.
 #
-# Usage: swain-bridge [--domain <name>] [--port <N>]
+# Usage: swain-bridge [--domain <name>] [--port <N>] [--daemon]
 
 set -euo pipefail
 
 DOMAIN="personal"
 PORT=4097
 VERBOSE=""
+DAEMON=false
+ACTION="start"
+PID_FILE="/tmp/swain-bridge.pid"
+LOG_FILE="/tmp/swain-bridge.log"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --domain) DOMAIN="$2"; shift 2 ;;
     --port) PORT="$2"; shift 2 ;;
     --verbose) VERBOSE="--verbose"; shift ;;
+    --daemon) DAEMON=true; shift ;;
+    --stop) ACTION="stop"; shift ;;
+    --status) ACTION="status"; shift ;;
     --help|-h)
-      echo "Usage: swain-bridge [--domain <name>] [--port <N>] [--verbose]"
+      echo "Usage: swain-bridge [--domain <name>] [--port <N>] [--verbose] [--daemon] [--stop] [--status]"
       echo ""
       echo "Starts the untethered operator bridge:"
       echo "  1. opencode serve on the specified port"
@@ -27,11 +34,57 @@ while [[ $# -gt 0 ]]; do
       echo "  --domain NAME  Security domain (default: personal)"
       echo "  --port N       opencode serve port (default: 4097)"
       echo "  --verbose      Enable debug logging"
+      echo "  --daemon       Run in background (detached from terminal)"
+      echo "  --stop         Stop running daemon"
+      echo "  --status       Show daemon status and health"
       exit 0
       ;;
     *) echo "Unknown option: $1" >&2; exit 1 ;;
   esac
 done
+
+# Handle status action
+if [[ "$ACTION" == "status" ]]; then
+  if [[ -f "$PID_FILE" ]]; then
+    OPENCODE_PID=$(sed -n '1p' "$PID_FILE")
+    BRIDGE_PID=$(sed -n '2p' "$PID_FILE")
+    
+    echo "swain-bridge status:"
+    if kill -0 "$OPENCODE_PID" 2>/dev/null; then
+      echo "  opencode serve (PID $OPENCODE_PID): running"
+      curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' && echo "    health: healthy" || echo "    health: unhealthy"
+    else
+      echo "  opencode serve (PID $OPENCODE_PID): not running"
+    fi
+    if kill -0 "$BRIDGE_PID" 2>/dev/null; then
+      echo "  untethered-host (PID $BRIDGE_PID): running"
+    else
+      echo "  untethered-host (PID $BRIDGE_PID): not running"
+    fi
+  else
+    echo "swain-bridge: not running (no PID file)"
+  fi
+  exit 0
+fi
+
+# Handle stop action
+if [[ "$ACTION" == "stop" ]]; then
+  if [[ ! -f "$PID_FILE" ]]; then
+    echo "swain-bridge: not running (no PID file)"
+    exit 0
+  fi
+  
+  echo "Stopping swain-bridge..."
+  OPENCODE_PID=$(sed -n '1p' "$PID_FILE")
+  BRIDGE_PID=$(sed -n '2p' "$PID_FILE")
+  
+  [[ -n "$BRIDGE_PID" ]] && kill "$BRIDGE_PID" 2>/dev/null && echo "  Bridge stopped."
+  [[ -n "$OPENCODE_PID" ]] && kill "$OPENCODE_PID" 2>/dev/null && echo "  opencode serve stopped."
+  
+  rm -f "$PID_FILE"
+  echo "Cleanup complete."
+  exit 0
+fi
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
@@ -39,46 +92,91 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 OPENCODE_PID=""
 BRIDGE_PID=""
 
-cleanup() {
+if [[ "$DAEMON" == "true" ]]; then
+  # Daemon mode - detach from terminal
+  echo "Starting swain-bridge in daemon mode..."
+  
+  # Start opencode serve if not running
+  if ! curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' 2>/dev/null; then
+    echo "Starting opencode serve on port $PORT..."
+    nohup opencode serve --port "$PORT" --print-logs >> "$LOG_FILE" 2>&1 &
+    OPENCODE_PID=$!
+    
+    # Wait for health
+    for i in $(seq 1 30); do
+      if curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' 2>/dev/null; then
+        echo "opencode serve ready."
+        break
+      fi
+      sleep 0.5
+    done
+  else
+    echo "opencode serve already running on port $PORT."
+    # Find existing PID
+    OPENCODE_PID=$(pgrep -f "opencode serve.*--port $PORT" | head -1)
+  fi
+  
+  # Start bridge
+  echo "Starting bridge (domain: $DOMAIN)..."
+  cd "$REPO_ROOT"
+  nohup uv run untethered-host --domain "$DOMAIN" $VERBOSE >> "$LOG_FILE" 2>&1 &
+  BRIDGE_PID=$!
+  
+  # Write PID file
+  echo "$OPENCODE_PID" > "$PID_FILE"
+  echo "$BRIDGE_PID" >> "$PID_FILE"
+  
+  echo "swain-bridge started (PID file: $PID_FILE)"
+  echo "Logs: $LOG_FILE"
   echo ""
-  echo "Shutting down..."
-  [[ -n "$BRIDGE_PID" ]] && kill "$BRIDGE_PID" 2>/dev/null && echo "  Bridge stopped."
-  [[ -n "$OPENCODE_PID" ]] && kill "$OPENCODE_PID" 2>/dev/null && echo "  opencode serve stopped."
-  wait 2>/dev/null
-}
-trap cleanup EXIT INT TERM
-
-# 1. Start opencode serve if not already running.
-if curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' 2>/dev/null; then
-  echo "opencode serve already running on port $PORT."
+  echo "Operator can attach: opencode attach http://127.0.0.1:$PORT"
+  echo "Send messages in Zulip #swain > control."
+  echo "Use 'swain-bridge --stop' to stop."
+  exit 0
 else
-  echo "Starting opencode serve on port $PORT..."
-  opencode serve --port "$PORT" --print-logs 2>/tmp/opencode-serve.log &
-  OPENCODE_PID=$!
+  # Foreground mode - existing behavior
+  cleanup() {
+    echo ""
+    echo "Shutting down..."
+    [[ -n "$BRIDGE_PID" ]] && kill "$BRIDGE_PID" 2>/dev/null && echo "  Bridge stopped."
+    [[ -n "$OPENCODE_PID" ]] && kill "$OPENCODE_PID" 2>/dev/null && echo "  opencode serve stopped."
+    rm -f "$PID_FILE" 2>/dev/null
+    wait 2>/dev/null
+  }
+  trap cleanup EXIT INT TERM
 
-  # Wait for health.
-  for i in $(seq 1 30); do
-    if curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' 2>/dev/null; then
-      echo "opencode serve ready."
-      break
-    fi
-    sleep 0.5
-  done
+  # 1. Start opencode serve if not already running.
+  if curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' 2>/dev/null; then
+    echo "opencode serve already running on port $PORT."
+  else
+    echo "Starting opencode serve on port $PORT..."
+    opencode serve --port "$PORT" --print-logs 2>/tmp/opencode-serve.log &
+    OPENCODE_PID=$!
+
+    # Wait for health.
+    for i in $(seq 1 30); do
+      if curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' 2>/dev/null; then
+        echo "opencode serve ready."
+        break
+      fi
+      sleep 0.5
+    done
+  fi
+
+  echo ""
+  echo "Operator can attach: opencode attach http://127.0.0.1:$PORT"
+  echo ""
+
+  # 2. Start the bridge.
+  echo "Starting bridge (domain: $DOMAIN)..."
+  cd "$REPO_ROOT"
+  uv run untethered-host --domain "$DOMAIN" $VERBOSE &
+  BRIDGE_PID=$!
+
+  echo "Bridge running. Send messages in Zulip #swain > control."
+  echo "Press Ctrl-C to stop."
+  echo ""
+
+  # Wait for either child to exit.
+  wait
 fi
-
-echo ""
-echo "Operator can attach: opencode attach http://127.0.0.1:$PORT"
-echo ""
-
-# 2. Start the bridge.
-echo "Starting bridge (domain: $DOMAIN)..."
-cd "$REPO_ROOT"
-uv run untethered-host --domain "$DOMAIN" $VERBOSE &
-BRIDGE_PID=$!
-
-echo "Bridge running. Send messages in Zulip #swain > control."
-echo "Press Ctrl-C to stop."
-echo ""
-
-# Wait for either child to exit.
-wait

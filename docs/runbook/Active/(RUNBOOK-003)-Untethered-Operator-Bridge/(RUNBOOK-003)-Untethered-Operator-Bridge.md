@@ -75,6 +75,25 @@ You see the same conversation the bot is having. You can type directly.
 
 ---
 
+## Quick Start (Daemon Mode)
+
+To run the bridge in the background so you can keep using the terminal:
+
+```bash
+# Start in daemon mode
+./bin/swain-bridge --daemon
+
+# Check status anytime
+./bin/swain-bridge --status
+
+# Stop when done
+./bin/swain-bridge --stop
+```
+
+Logs are written to `/tmp/swain-bridge.log`.
+
+---
+
 ## Security Domain Setup
 
 The bridge reads credentials from `~/.config/swain/domains/<name>.json`. Create one:
@@ -142,6 +161,17 @@ In the Zulip `control` topic:
 | `/cancel` | Stops the current session. |
 | `/kill <session>` | Stops a named session. |
 
+## Options
+
+| Option | Effect |
+|--------|--------|
+| `--daemon` | Run in background (detached from terminal) |
+| `--stop` | Stop running daemon |
+| `--status` | Show daemon status and health |
+| `--domain NAME` | Security domain (default: personal) |
+| `--port N` | opencode serve port (default: 4097) |
+| `--verbose` | Enable debug logging |
+
 ---
 
 ## Troubleshooting
@@ -166,6 +196,18 @@ In the Zulip `control` topic:
 
 - The LLM provider determines speed. Ollama Cloud models vary.
 - The bridge adds a 2-second batching delay to coalesce output lines.
+
+### Daemon won't start
+
+- Check if already running: `swain-bridge --status`
+- Check logs: `tail -f /tmp/swain-bridge.log`
+- Stale PID file: `rm /tmp/swain-bridge.pid` and try again
+
+### Daemon stops unexpectedly
+
+- Check logs: `tail -f /tmp/swain-bridge.log`
+- Verify opencode serve is installed: `which opencode`
+- Verify domain config exists: `cat ~/.config/swain/domains/personal.json`
 
 ---
 
