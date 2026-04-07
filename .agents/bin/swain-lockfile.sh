@@ -1,1 +1,0 @@
-../../skills/swain/scripts/swain-lockfile.sh

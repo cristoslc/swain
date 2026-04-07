@@ -1,1 +1,0 @@
-../../skills/swain-session/scripts/swain-preflight-timing.sh

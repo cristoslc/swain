@@ -1,1 +1,0 @@
-../../skills/swain-doctor/scripts/check-skill-changes.sh

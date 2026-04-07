@@ -1,1 +1,0 @@
-../../skills/swain-do/scripts/ingest-plan.py

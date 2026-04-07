@@ -1,1 +1,0 @@
-../../skills/swain-security-check/scripts/context_file_scanner.py

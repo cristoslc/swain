@@ -1,1 +1,0 @@
-../../skills/swain-design/scripts/chart_cli.py

@@ -1,1 +1,0 @@
-../../skills/swain-doctor/scripts/migrate-to-trunk-release.sh
