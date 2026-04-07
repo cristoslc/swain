@@ -1,0 +1,66 @@
+trove: opencode-crush-cli
+created: 2026-04-07
+refreshed: 2026-04-07T01:57:00Z
+tags:
+  - opencode
+  - crush
+  - TUI
+  - terminal-ui
+  - ai-coding-agent
+  - server-mode
+  - headless-mode
+  - client-server-architecture
+  - charm
+  - bubbletea
+  - go
+  - cli-coding-tool
+  - multi-provider
+
+freshness-ttl:
+  web: 14d
+
+related-troves:
+  - agentic-runtime-chat-adapters
+  - claude-code-remote-interaction
+
+history:
+  - event: created
+    date: 2026-04-07
+    commit: "--"
+    sources: 5
+
+sources:
+  - source-id: opencode-server-docs
+    type: web
+    url: "https://opencode.ai/docs/server/"
+    fetched: 2026-04-07T01:57:48Z
+    title: "Server | OpenCode — HTTP server mode documentation"
+    hash: "ae3c8284a47d51b5e7a14d8f1d6beb115f70849046df21051fcdfbdb2d6ce20b"
+
+  - source-id: opencode-tui-docs
+    type: web
+    url: "https://opencode.ai/docs/tui/"
+    fetched: 2026-04-07T01:57:49Z
+    title: "TUI | OpenCode — Terminal user interface documentation"
+    hash: "27b6f876038a9e82aca8dc3b2d3d0ea6b659f5546bbe43e3447a23476e348a9d"
+
+  - source-id: opencode-cli-docs
+    type: web
+    url: "https://opencode.ai/docs/cli/"
+    fetched: 2026-04-07T01:57:50Z
+    title: "CLI | OpenCode — Command reference"
+    hash: "1fc08f30f8cdb307c7ed9fe95957e4fbbdc7211df50f2e031afc7f66fc833924"
+
+  - source-id: opencode-github-readme
+    type: web
+    url: "https://github.com/anomalyco/opencode"
+    fetched: 2026-04-07T01:57:51Z
+    title: "anomalyco/opencode — GitHub README"
+    hash: "a4d946e37663be856955c52d501c8cde6aa155f499508361f4eba992d01d6917"
+
+  - source-id: crush-deepwiki-architecture
+    type: web
+    url: "https://deepwiki.com/charmbracelet/crush"
+    fetched: 2026-04-07T01:57:51Z
+    title: "charmbracelet/crush — DeepWiki Architecture Overview"
+    hash: "4a7978c926a93b34870aa68451f7edcf054259f837411c0230316880eb4fcba0"
