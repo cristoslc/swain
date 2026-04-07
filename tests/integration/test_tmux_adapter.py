@@ -64,6 +64,30 @@ def tmux_capture_pane(target: str) -> str:
     return result.stdout
 
 
+# ---------------------------------------------------------------------------
+# ANSI stripping
+# ---------------------------------------------------------------------------
+
+class TestAnsiStripping:
+    """strip_ansi removes terminal escape codes."""
+
+    def test_strips_color_codes(self):
+        from untethered.adapters.tmux_pane import strip_ansi
+        assert strip_ansi("\x1b[91m\x1b[1mError:\x1b[0m unauthorized") == "Error: unauthorized"
+
+    def test_strips_cursor_codes(self):
+        from untethered.adapters.tmux_pane import strip_ansi
+        assert strip_ansi("\x1b[2Khello\x1b[0m") == "hello"
+
+    def test_preserves_plain_text(self):
+        from untethered.adapters.tmux_pane import strip_ansi
+        assert strip_ansi("plain text here") == "plain text here"
+
+    def test_empty_after_strip(self):
+        from untethered.adapters.tmux_pane import strip_ansi
+        assert strip_ansi("\x1b[0m") == ""
+
+
 pytestmark = pytest.mark.skipif(
     not tmux_available(),
     reason="tmux not available",

@@ -115,8 +115,19 @@ async def _poll_zulip(
     heartbeats, re-registration on BAD_EVENT_QUEUE_ID, and error backoff.
     """
 
+    seen_ids: set[int] = set()
+
     def _on_message(message: dict) -> None:
         """Called by the SDK for each incoming message (in a worker thread)."""
+        msg_id = message.get("id")
+        if msg_id in seen_ids:
+            return
+        if msg_id is not None:
+            seen_ids.add(msg_id)
+            # Keep the set bounded
+            if len(seen_ids) > 1000:
+                seen_ids.clear()
+
         if message.get("sender_email") == client.email:
             return
 

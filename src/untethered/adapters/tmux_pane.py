@@ -1,7 +1,8 @@
 """Tmux pane runtime adapter.
 
-Runs the runtime in a tmux session. Streams output via pipe-pane to a FIFO.
-Sends input via tmux send-keys. The operator can attach locally at any time.
+Runs the runtime in a tmux session. Streams output via pipe-pane to a log
+file, tailed by an async reader. Sends input via tmux send-keys. The
+operator can attach locally at any time.
 
 This is the "untethered" model: the runtime is independent of the bridge
 process. If the bridge crashes, the runtime keeps running.
@@ -11,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import re
 import subprocess
 import tempfile
 from typing import Any, Callable
@@ -18,6 +20,13 @@ from typing import Any, Callable
 from untethered.protocol import Event, Command
 
 log = logging.getLogger(__name__)
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07|\x1b\[.*?\x1b\\")
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape sequences from terminal output."""
+    return _ANSI_RE.sub("", text)
 
 
 class TmuxPaneAdapter:
@@ -120,7 +129,8 @@ class TmuxPaneAdapter:
                 line = await proc.stdout.readline()
                 if not line:
                     break
-                text = line.decode("utf-8", errors="replace").rstrip("\r\n")
+                raw = line.decode("utf-8", errors="replace").rstrip("\r\n")
+                text = strip_ansi(raw)
                 if text and self.on_event:
                     self.on_event(Event.text_output(
                         bridge=self.bridge,
