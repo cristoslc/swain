@@ -21,8 +21,10 @@ linked-artifacts:
 artifact-refs: []
 sourcecode-refs:
   - bin/swain
+  - src/untethered/adapters/zulip_chat.py
   - src/untethered/plugins/zulip_chat.py
   - src/untethered/bridges/project.py
+  - src/untethered/adapters/tmux_pane.py
 depends-on-artifacts:
   - ADR-038
   - DESIGN-024
@@ -200,7 +202,7 @@ Protocol, kernel, plugin subprocess architecture, Zulip polling via `call_on_eac
 ### Phase B (current — opencode server adapter)
 
 1. ~~Replace `ClaudeCodeAdapter` / `OpenCodeAdapter` subprocess model with `TmuxPaneAdapter`.~~ Done (tmux proof of concept working).
-2. Replace `TmuxPaneAdapter` for control sessions with `OpenCodeServerAdapter` (HTTP API). In progress — SPEC-292.
+2. Replace `TmuxPaneAdapter` for control sessions with `OpenCodeServerAdapter` (HTTP API). Spec'd — SPEC-292. Implementation next.
 3. `OpenCodeServerAdapter` manages `opencode serve` lifecycle, creates sessions, sends messages via HTTP, streams responses via SSE.
 4. Session persists across messages — server maintains chat history.
 5. Operator attaches via `opencode attach http://...:<port>`.
