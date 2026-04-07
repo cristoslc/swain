@@ -49,7 +49,7 @@ history:
     notes: "added OSS frameworks (Mem0, Letta/MemGPT, Cognee), graph memory (Zep/Graphiti), and MCP memory servers (Basic Memory)"
   - event: extended
     date: 2026-04-07
-    commit: "--"
+    commit: "215c84a"
     sources: 12
     sources-added: 1
     notes: "added Pearl (2026) Sara Brain preprint — path-of-thought cognitive architecture, SQLite path-graph persistent memory, cortex-cerebellum LLM framing"
