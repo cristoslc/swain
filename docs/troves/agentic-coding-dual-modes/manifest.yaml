@@ -26,6 +26,13 @@ tags:
   - recipes
   - mcp
   - permissions
+  - continue-cli
+  - github-copilot-cli
+  - security
+  - prompt-injection
+  - sandboxing
+  - tool-poisoning
+  - directory-trust
 
 freshness-ttl:
   web: 14d
@@ -44,6 +51,11 @@ history:
     commit: "4779e29"
     sources-added: 4
     notes: "Added Goose, Amp, Cline, Plandex; expanded skills/extensions dimension"
+  - event: extended
+    date: 2026-04-07
+    commit: "--"
+    sources-added: 5
+    notes: "Added Amazon Q/Kiro, Continue, GitHub Copilot CLI, Roo Code, security/permissions; expanded permission models and security dimensions"
 
 sources:
   - source-id: codex-noninteractive-docs
@@ -101,3 +113,41 @@ sources:
     fetched: 2026-04-07T02:30:02Z
     title: "CLI Reference | Plandex Docs"
     hash: "b7d385b325d90aecd2524793a0e82a8f31b6fff2ff5c0e83b269b112e847c464"
+
+  - source-id: amazon-q-kiro-cli
+    type: web
+    url: "https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-reference.html"
+    fetched: 2026-04-07T13:54:00Z
+    title: "Amazon Q / Kiro CLI Command Reference — AWS Docs"
+    hash: "f54f1559da6ce4c103001bdbdf42cad37015b6fabef7e9320dc72fd4dced7522"
+    notes: "AWS docs page returned empty body; content synthesized from command reference snippets and community sources"
+
+  - source-id: continue-cli
+    type: web
+    url: "https://docs.continue.dev/guides/cli"
+    fetched: 2026-04-07T13:54:13Z
+    title: "How to Use Continue CLI (cn) | Continue Docs"
+    hash: "b34e537491763450acaedfede3cc2c495ac384b9f9949dd04d2183e1e4af32f3"
+
+  - source-id: github-copilot-cli
+    type: web
+    url: "https://shubh7.medium.com/github-copilot-cli-architecture-features-and-operational-protocols-f230b8b3789f"
+    fetched: 2026-04-07T13:54:13Z
+    title: "GitHub Copilot CLI: Architecture, Features, and Operational Protocols"
+    hash: "e128f232e8b21b400f9d358b9dc7be3c19b1d79f5d02b7076b5b0a633891958e"
+    notes: "Medium 403 on export; content retrieved via webpage-to-markdown"
+
+  - source-id: roo-code-cli
+    type: web
+    url: "https://deepwiki.com/RooCodeInc/Roo-Code/15-cli-application"
+    fetched: 2026-04-07T13:54:13Z
+    title: "CLI Application | RooCodeInc/Roo-Code | DeepWiki"
+    hash: "b63be85198a12e612c2fe7a2b3405ac1af0cae9ce0635d2848a54e43666d0ca1"
+
+  - source-id: agentic-security-permissions
+    type: web
+    url: "https://arxiv.org/html/2601.17548v1"
+    fetched: 2026-04-07T13:54:21Z
+    title: "Prompt Injection Attacks on Agentic Coding Assistants: A Systematic Analysis of Vulnerabilities in Skills, Tools, and Protocol Ecosystems"
+    hash: "9d0e33e64d499fba91b1aa3858bc158803a8129125e4383f08d13f7b6bfe7e35"
+    notes: "arXiv SoK paper; NVIDIA blog retrieved as supplemental. No per-tool risk ratings table found; tool-specific risk characterizations synthesized from attack case studies."
