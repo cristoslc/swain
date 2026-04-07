@@ -136,78 +136,60 @@ Operator (control)      Chat Plugin       Kernel        Project Bridge      Laun
     |    topic thread)      |               |                |                 |
 ```
 
-### Runtime in tmux — the "untethered" model
+### Runtime adapter strategies — the "untethered" model
 
-The runtime (claude, opencode, etc.) does NOT run as a subprocess of the project bridge. It runs in a **tmux session** that is independent of any chat surface. This is the core "untethered" concept:
+The runtime is independent of the bridge process. If the bridge crashes, the runtime keeps running. The operator can connect directly. This is the core "untethered" concept.
 
-- The chat adapter relays messages to/from the tmux pane via `tmux send-keys` (inbound) and `tmux pipe-pane` + `tail -f` (outbound).
-- The operator can also `tmux attach` and interact with the runtime directly in a terminal.
-- Multiple surfaces (Zulip, local terminal) can connect to the same running session.
-- If the bridge crashes, the runtime keeps running. The operator can still attach locally.
-- If the operator disconnects from Zulip, the runtime keeps running. They can come back later.
+Two adapter strategies support different runtimes:
 
-This means the project bridge's role is:
-1. **Launch**: Create a tmux session, run `bin/swain` (or the runtime directly) inside it.
-2. **Relay inbound**: Translate chat commands into `tmux send-keys` to the pane.
-3. **Relay outbound**: `tmux pipe-pane` streams output to a log file; `tail -f` reads it and emits events in real time.
-4. **Lifecycle**: Detect when the tmux pane exits (session died).
+#### Strategy 1: HTTP API adapter (opencode)
 
-The runtime adapter is NOT a subprocess pipe adapter. It is a **tmux pane adapter**.
+OpenCode provides `opencode serve` — a headless HTTP server with a REST API. The adapter is an HTTP client:
 
-### Sequence: Zulip control topic
+- **Sessions** — `POST /session` creates a session, `POST /session/{id}/message` sends prompts. The server maintains chat history across messages.
+- **Streaming** — `GET /session/{id}/event` provides SSE (server-sent events) for real-time output.
+- **Operator attachment** — `opencode attach http://127.0.0.1:<port>` connects the operator to the same session interactively.
+- **Persistence** — if the bridge crashes, the opencode server keeps running. The bridge reconnects on restart.
 
-```
-Operator (control)      Chat Plugin       Kernel        Project Bridge      tmux pane
-    |                       |               |                |                 |
-    |-- "What should I      |               |                |                 |
-    |    work on?"          |               |                |                 |
-    |                       |--control_msg-->|--control_msg-->|                 |
-    |                       |               |                |--spawn launcher->|
-    |                       |               |                |                 |
-    |                       |<--text_output--|<--text_output--|<--pipe-pane/tail-|
-    |<--post to control-----|               |                |                 |
-    |                       |               |                |                 |
-    |-- "Work on SPEC-142"  |               |                |                 |
-    |                       |--control_msg-->|--control_msg-->|--send-keys----->|
-    |                       |               |                |                 |
-    |                       |               |                |<--pipe-pane/tail-|
-    |                       |               |                |--create worktree-|
-    |                       |<--promoted-----|<--promoted-----|                 |
-    |<--"Moved to SPEC-142"-|               |                |                 |
-    |                       |               |                |                 |
-    |   (now in SPEC-142    |               |                |                 |
-    |    topic thread)      |  Operator attaches locally:    |                 |
-    |                       |  tmux attach -t swain-spec142  |                 |
-    |                       |               |                |                 |
+This is the **MVP adapter** for control-topic queries and promoted sessions using opencode.
+
+#### Strategy 2: tmux pane adapter (Claude Code, others)
+
+For runtimes without a server mode (Claude Code, gemini, codex), the adapter runs the runtime in a tmux session:
+
+- **Output** — `tmux pipe-pane` streams to a log file; `tail -f` emits events.
+- **Input** — `tmux send-keys` relays operator messages.
+- **Operator attachment** — `tmux attach -t <session>` connects directly.
+- **Persistence** — if the bridge crashes, the tmux session keeps running.
+
+This is the **fallback adapter** for runtimes that only support terminal I/O.
+
+### Sequence: Zulip control topic (opencode serve)
+
+```mermaid
+flowchart LR
+    operator["Operator (Zulip control)"]
+    chat["Chat Plugin"]
+    kernel["Host Kernel"]
+    bridge["Project Bridge"]
+    oc_server["opencode serve"]
+
+    operator -->|"plain text"| chat
+    chat -->|"control_message"| kernel
+    kernel -->|"control_message"| bridge
+    bridge -->|"POST /session + POST /message"| oc_server
+    oc_server -->|"SSE events"| bridge
+    bridge -->|"text_output"| kernel
+    kernel -->|"text_output"| chat
+    chat -->|"post to control topic"| operator
+
+    operator_local["Operator (local)"]
+    operator_local -->|"opencode attach http://...:<port>"| oc_server
 ```
 
 ### Sequence: Terminal (`bin/swain`)
 
 No change to the operator's experience. `bin/swain` creates the tmux session and launches the runtime inside it. The operator interacts directly. The project bridge (if running) detects the tmux session and begins relaying events to Zulip.
-
-### Outbound relay — `pipe-pane` + `tail -f`
-
-The adapter uses `tmux pipe-pane -O` to stream all pane output to a log file. A `tail -f` subprocess reads the file and emits complete lines as `text_output` events. This is:
-
-- **Real-time** — no polling interval, output arrives as fast as tmux flushes it.
-- **Universal** — works with any runtime, no runtime-specific log format needed.
-- **Simple** — two standard Unix tools, no custom protocol.
-
-The log file lives in a temp directory per session. It is cleaned up when the adapter stops.
-
-Future refinements:
-- Strip ANSI escape codes before emitting to Zulip.
-- For runtimes with structured logs (Claude Code session JSONL), tail the structured log instead for richer events.
-
-### Inbound relay
-
-The project bridge translates commands to tmux input:
-
-- `send_prompt` → `tmux send-keys -t <pane> "the prompt text" Enter`
-- `approve` → `tmux send-keys -t <pane> "y" Enter` (or the appropriate key sequence)
-- `cancel` → `tmux send-keys -t <pane> C-c` (SIGINT)
-
-For runtimes with structured input (Claude Code `--input-format stream-json`), the bridge could write to a named pipe instead.
 
 ## Migration
 
@@ -215,19 +197,21 @@ For runtimes with structured input (Claude Code `--input-format stream-json`), t
 
 Protocol, kernel, plugin subprocess architecture, Zulip polling via `call_on_each_message`, `control_message` and `launch_session` command routing, `session_promoted` thread creation. All tested.
 
-### Phase B (current — tmux adapter)
+### Phase B (current — opencode server adapter)
 
-1. ~~Replace `ClaudeCodeAdapter` / `OpenCodeAdapter` subprocess model with `TmuxPaneAdapter`.~~ Done.
-2. ~~`TmuxPaneAdapter.start()` creates a tmux session and runs the runtime inside it.~~ Done.
-3. ~~`TmuxPaneAdapter` streams output via `pipe-pane` + `tail -f`, emits events.~~ Done.
-4. ~~`TmuxPaneAdapter` translates commands to `send-keys`.~~ Done.
-5. `bin/swain` (terminal path) continues to create tmux sessions as before — the bridge can adopt them. Not yet connected.
+1. ~~Replace `ClaudeCodeAdapter` / `OpenCodeAdapter` subprocess model with `TmuxPaneAdapter`.~~ Done (tmux proof of concept working).
+2. Replace `TmuxPaneAdapter` for control sessions with `OpenCodeServerAdapter` (HTTP API). In progress — SPEC-292.
+3. `OpenCodeServerAdapter` manages `opencode serve` lifecycle, creates sessions, sends messages via HTTP, streams responses via SSE.
+4. Session persists across messages — server maintains chat history.
+5. Operator attaches via `opencode attach http://...:<port>`.
+6. `TmuxPaneAdapter` remains available for runtimes without server mode (Claude Code).
+7. `bin/swain` (terminal path) continues to create tmux sessions — bridge adoption is a Phase C item.
 
 Remaining Phase B work:
-- Strip ANSI escape codes from output before posting to Zulip.
-- Deduplicate Zulip message delivery (messages sometimes arrive twice).
-- SPIKE: approval mechanism for different runtimes via tmux.
-- Connect `bin/swain` terminal-launched sessions to the bridge for relay.
+- ~~Strip ANSI escape codes from output before posting to Zulip.~~ Done.
+- ~~Deduplicate Zulip message delivery.~~ Done.
+- Build `OpenCodeServerAdapter` (SPEC-292).
+- SPIKE: approval mechanism for different runtimes.
 
 ### Phase C (future)
 
@@ -240,10 +224,11 @@ Remaining Phase B work:
 1. **`--non-interactive` flag on `bin/swain`**, not a separate script. Keeps the control surface in sync between terminal and non-terminal interactions.
 2. **NDJSON** for launcher-to-bridge communication. Consistent with the rest of the plugin protocol (DESIGN-024).
 3. **No timeout.** Interview sessions persist in control until the operator cancels or completes them. The operator can leave and come back. This matches the Zulip model where topics are durable.
-4. **Runtime in tmux, not subprocess pipes.** The runtime is untethered from the bridge process. The operator can attach locally. The chat adapter relays via tmux.
+4. **`opencode serve` HTTP API for MVP**, not tmux terminal scraping. Clean programmatic access, SSE streaming, server-managed session persistence. Operator attaches via `opencode attach`.
+5. **tmux fallback** for runtimes without server mode (Claude Code). `TmuxPaneAdapter` remains available.
 
 ## Open Questions
 
-1. ~~Which outbound relay strategy to use for the MVP?~~ **Answered:** `pipe-pane` + `tail -f`. Real-time, no polling.
-2. How does `approve` translate to tmux input for different runtimes? Claude Code has `--input-format stream-json` but others may need literal keystrokes. SPIKE needed.
-3. ~~How frequently should `capture-pane` poll?~~ **Answered:** No polling. `pipe-pane` streams in real time.
+1. ~~Which outbound relay strategy?~~ **Answered:** SSE from `opencode serve` for opencode; `pipe-pane` + `tail -f` for tmux fallback.
+2. How does `approve` work? OpenCode's HTTP API may have a permission endpoint. SPIKE needed.
+3. ~~How frequently should `capture-pane` poll?~~ **Answered:** No polling needed for either strategy.
