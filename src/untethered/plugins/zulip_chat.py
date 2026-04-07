@@ -319,8 +319,6 @@ async def _relay_events(
                 # Stop typing and clean up silently
                 typing.stop(stream, control_topic)
             elif msg.type == "text_output":
-                # Stop typing — response arriving
-                typing.stop(stream, control_topic)
                 # Batch text lines before posting to control
                 content = msg.payload.get("content", "")
                 if content.strip():
