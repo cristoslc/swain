@@ -109,14 +109,15 @@ class TestControlMessageBridge:
     """ProjectBridge handles control_message by spawning a lightweight session."""
 
     async def test_control_message_spawns_session_with_origin_control(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.OpenCodeServerAdapter") as MockAdapter:
             mock_instance = AsyncMock()
+            mock_instance.wait_for_health = AsyncMock(return_value=True)
             MockAdapter.return_value = mock_instance
 
             bridge = ProjectBridge(project="swain", project_dir="/tmp/swain")
             cmd = Command.control_message(bridge="swain", text="what specs are ready?")
             bridge.handle_command(cmd)
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.1)
 
             # Session created with origin=control
             assert len(bridge.sessions) == 1
@@ -124,22 +125,23 @@ class TestControlMessageBridge:
             assert session.origin == "control"
             assert session.runtime == "opencode"
 
-            # Adapter spawned with runtime command containing the text
+            # Adapter created and message sent
             MockAdapter.assert_called_once()
-            mock_instance.start.assert_awaited_once()
+            mock_instance.send_command.assert_awaited_once()
 
     async def test_control_origin_events_tagged_with_origin(self):
         """Events from control-origin sessions carry origin=control in payload."""
         delivered: list[Event] = []
         bridge = ProjectBridge(project="swain", on_event=delivered.append)
 
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
+        with patch("untethered.bridges.project.OpenCodeServerAdapter") as MockAdapter:
             mock_instance = AsyncMock()
+            mock_instance.wait_for_health = AsyncMock(return_value=True)
             MockAdapter.return_value = mock_instance
             bridge.handle_command(
                 Command.control_message(bridge="swain", text="status?")
             )
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.1)
 
         sid = list(bridge.sessions.keys())[0]
         event = Event.text_output(bridge="swain", session_id=sid, content="All good")

@@ -19,6 +19,7 @@ from typing import Any, Callable
 from untethered.protocol import Event, Command
 from untethered.adapters.claude_code import ClaudeCodeAdapter
 from untethered.adapters.opencode import OpenCodeAdapter
+from untethered.adapters.opencode_server import OpenCodeServerAdapter
 from untethered.adapters.tmux_pane import TmuxPaneAdapter
 
 log = logging.getLogger(__name__)
@@ -373,8 +374,8 @@ class ProjectBridge:
         """Handle natural language from the control topic.
 
         If there's an active launcher interview, relay as an answer.
-        Otherwise, spawn a lightweight Claude session that answers in
-        the control topic. No launcher interview, no dedicated thread.
+        If there's an existing control session, send follow-up text to it.
+        Otherwise, spawn a persistent control session in tmux.
         """
         text = cmd.payload.get("text", "")
 
@@ -386,7 +387,20 @@ class ProjectBridge:
                     self._schedule(launcher.send_answer(text))
                     return
 
-        # No active interview — lightweight query session.
+        # Reuse existing control session if alive.
+        for sid, session in self.sessions.items():
+            if session.origin == "control" and session.state in (
+                SessionState.SPAWNING, SessionState.ACTIVE,
+            ):
+                adapter = self._adapters.get(sid)
+                if adapter:
+                    follow_up = Command.send_prompt(
+                        bridge=self.project, session_id=sid, text=text,
+                    )
+                    self._schedule(adapter.send_command(follow_up))
+                    return
+
+        # No active session — spawn a persistent control session.
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
         session = Session(session_id=session_id, runtime="opencode", origin="control")
         self.sessions[session_id] = session
@@ -409,18 +423,26 @@ class ProjectBridge:
             ))
             return
 
-        runtime_cmd = ["opencode", "run", text] if text else ["opencode", "run"]
-        adapter = TmuxPaneAdapter(
+        adapter = OpenCodeServerAdapter(
             bridge=self.project,
             session_id=session_id,
-            project_dir=self.project_dir,
             on_event=self.handle_runtime_event,
         )
         self._adapters[session_id] = adapter
-        await adapter.start(
-            runtime_cmd=runtime_cmd,
-            session_name=f"swain-ctrl-{session_id}",
-        )
+
+        # Wait for the server to be healthy, then send the first message.
+        healthy = await adapter.wait_for_health(timeout=10.0)
+        if not healthy:
+            log.error("opencode serve not healthy — is it running?")
+            self.handle_runtime_event(Event.text_output(
+                bridge=self.project, session_id=session_id,
+                content="Error: opencode serve not reachable. Start it with: opencode serve --port 4097",
+            ))
+            return
+
+        log.info("Operator can attach: opencode attach %s", adapter.base_url)
+        cmd = Command.send_prompt(bridge=self.project, session_id=session_id, text=text)
+        await adapter.send_command(cmd)
 
     def _cmd_launch_session(self, cmd: Command) -> None:
         """Handle /work or /session — full launcher interview flow.
