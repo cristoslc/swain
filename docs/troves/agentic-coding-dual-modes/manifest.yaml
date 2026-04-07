@@ -1,6 +1,6 @@
 trove: agentic-coding-dual-modes
 created: 2026-04-07
-refreshed: 2026-04-07T02:08:00Z
+refreshed: 2026-04-07T02:30:00Z
 tags:
   - headless-mode
   - headful-mode
@@ -16,6 +16,16 @@ tags:
   - qwen-code
   - json-output
   - automation
+  - goose
+  - amp
+  - cline
+  - plandex
+  - extensions
+  - skills
+  - toolboxes
+  - recipes
+  - mcp
+  - permissions
 
 freshness-ttl:
   web: 14d
@@ -29,6 +39,11 @@ history:
     date: 2026-04-07
     commit: "a32f5f9"
     sources: 4
+  - event: extended
+    date: 2026-04-07
+    commit: "--"
+    sources-added: 4
+    notes: "Added Goose, Amp, Cline, Plandex; expanded skills/extensions dimension"
 
 sources:
   - source-id: codex-noninteractive-docs
@@ -58,3 +73,31 @@ sources:
     fetched: 2026-04-07T02:08:17Z
     title: "Headless Mode | Qwen Code Docs"
     hash: "0169e8b209d22dea8469d962a62bbb444f95767c6e27e9e83f890071d1a3f6fa"
+
+  - source-id: goose-cli-headless-extensions
+    type: web
+    url: "https://deepwiki.com/block/goose/3.2-command-line-interface"
+    fetched: 2026-04-07T02:30:01Z
+    title: "Command-Line Interface | block/goose | DeepWiki"
+    hash: "4305e4e9eed7185b5d92215802f8e14c148720a1815dcb50cda698e7c838059d"
+
+  - source-id: amp-manual-skills-toolboxes
+    type: web
+    url: "https://ampcode.com/manual"
+    fetched: 2026-04-07T02:30:07Z
+    title: "Amp Owner's Manual — Amp"
+    hash: "0ca8cff648eaaa3bdcc8cf927f9547f0c32a74e09f30d95c3e2df914cbf7659b"
+
+  - source-id: cline-cli-skills
+    type: web
+    url: "https://docs.cline.bot/cline-cli/overview"
+    fetched: 2026-04-07T02:30:02Z
+    title: "Cline CLI Overview + Skills | Cline Documentation"
+    hash: "9dddc268a46b880ab8308dcb20d858f3c85c27e02f7e9dcbbbad1de494e38925"
+
+  - source-id: plandex-scripting-cli
+    type: web
+    url: "https://docs.plandex.ai/cli-reference/"
+    fetched: 2026-04-07T02:30:02Z
+    title: "CLI Reference | Plandex Docs"
+    hash: "b7d385b325d90aecd2524793a0e82a8f31b6fff2ff5c0e83b269b112e847c464"
