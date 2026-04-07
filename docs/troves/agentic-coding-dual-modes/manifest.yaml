@@ -53,7 +53,7 @@ history:
     notes: "Added Goose, Amp, Cline, Plandex; expanded skills/extensions dimension"
   - event: extended
     date: 2026-04-07
-    commit: "--"
+    commit: "89a55dc"
     sources-added: 5
     notes: "Added Amazon Q/Kiro, Continue, GitHub Copilot CLI, Roo Code, security/permissions; expanded permission models and security dimensions"
 
