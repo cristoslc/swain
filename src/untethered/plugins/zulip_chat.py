@@ -223,9 +223,11 @@ class TextBatcher:
         self,
         post_fn: Callable,
         delay: float = 2.0,
+        on_flush: Callable | None = None,
     ) -> None:
         self._post_fn = post_fn
         self._delay = delay
+        self._on_flush = on_flush
         self._buffers: dict[tuple[str, str], list[str]] = {}
         self._timers: dict[tuple[str, str], asyncio.TimerHandle] = {}
 
@@ -260,6 +262,8 @@ class TextBatcher:
 
         stream, topic = key
         await self._post_fn(stream, topic, content)
+        if self._on_flush:
+            self._on_flush(stream, topic)
 
     async def flush_all(self) -> None:
         """Flush all pending buffers immediately."""
@@ -293,7 +297,7 @@ async def _relay_events(
         )
 
     mention = f"@**{operator_email}** " if operator_email else ""
-    batcher = TextBatcher(_post, delay=2.0)
+    batcher = TextBatcher(_post, delay=2.0, on_flush=lambda s, t: typing.stop(s, t))
     typing = TypingIndicator(client, loop)
 
     while True:
