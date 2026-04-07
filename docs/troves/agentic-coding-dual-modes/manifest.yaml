@@ -1,0 +1,60 @@
+trove: agentic-coding-dual-modes
+created: 2026-04-07
+refreshed: 2026-04-07T02:08:00Z
+tags:
+  - headless-mode
+  - headful-mode
+  - agentic-coding
+  - non-interactive
+  - CI-CD
+  - scripting
+  - coding-agent
+  - dual-mode
+  - codex-cli
+  - gemini-cli
+  - aider
+  - qwen-code
+  - json-output
+  - automation
+
+freshness-ttl:
+  web: 14d
+
+related-troves:
+  - opencode-crush-cli
+  - claude-code-remote-interaction
+
+history:
+  - event: created
+    date: 2026-04-07
+    commit: "--"
+    sources: 4
+
+sources:
+  - source-id: codex-noninteractive-docs
+    type: web
+    url: "https://developers.openai.com/codex/noninteractive"
+    fetched: 2026-04-07T02:08:17Z
+    title: "Non-interactive mode | Codex CLI — OpenAI Developers"
+    hash: "319576619977e0d302f5853191d626bad403c8948a01a48d771ef90d3f125e12"
+
+  - source-id: gemini-cli-headless-docs
+    type: web
+    url: "https://geminicli.com/docs/cli/headless/"
+    fetched: 2026-04-07T02:08:17Z
+    title: "Headless mode reference | Gemini CLI"
+    hash: "770937a761a0e089128519e6e70091e5f77ae8183a54e8fad79135cbb4b4b9f8"
+
+  - source-id: aider-scripting-docs
+    type: web
+    url: "https://aider.chat/docs/scripting.html"
+    fetched: 2026-04-07T02:08:17Z
+    title: "Scripting aider | aider documentation"
+    hash: "798dc631577b374436726a8fd88886357a8113eba6555a72c5eea4c57eab8e44"
+
+  - source-id: qwen-code-headless-docs
+    type: web
+    url: "https://qwenlm.github.io/qwen-code-docs/en/users/features/headless/"
+    fetched: 2026-04-07T02:08:17Z
+    title: "Headless Mode | Qwen Code Docs"
+    hash: "0169e8b209d22dea8469d962a62bbb444f95767c6e27e9e83f890071d1a3f6fa"
