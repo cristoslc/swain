@@ -1,0 +1,77 @@
+id: docs-blog-static-generators
+created: 2026-04-07
+refreshed: 2026-04-07
+tags:
+  - static-site-generator
+  - github-pages
+  - blog
+  - docs-folder
+  - ssg
+  - astro
+  - hugo
+  - eleventy
+  - jekyll
+description: Research on static site generators optimized for publishing a blog from a docs/ subdirectory on GitHub Pages
+
+sources:
+  - id: github-pages-docs
+    type: web-page
+    url: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+    title: "Configuring a publishing source for your GitHub Pages site"
+    fetched: 2026-04-07
+    content-hash: f012e855eeabd222f92c2016fd53946569dc4cece0762aa944bab3e366bb9436
+    freshness-ttl: 2592000
+    notes: "Official GitHub Pages documentation on publishing from /docs folder"
+
+  - id: astro-overview
+    type: web-page
+    url: https://astro.build/
+    title: "Astro - The web framework for content-driven websites"
+    fetched: 2026-04-07
+    content-hash: b637dd1f88ebd053b6233116f47ea7fbb735986ada324adba7955798a2b5870a
+    freshness-ttl: 2592000
+    notes: "Astro homepage with features and blog themes"
+
+  - id: eleventy-overview
+    type: web-page
+    url: https://www.11ty.dev/blog/
+    title: "Eleventy (11ty) - Build Awesome"
+    fetched: 2026-04-07
+    content-hash: cd10c68e5a5edd906631f5d2588ac164410bcc927bf7dc7085997340d5dd7272
+    freshness-ttl: 2592000
+    notes: "Eleventy blog and community page"
+
+  - id: hugo-overview
+    type: web-page
+    url: https://gohugo.io/
+    title: "Hugo - The world's fastest framework for building websites"
+    fetched: 2026-04-07
+    content-hash: 6701b2ede9b7301b8ab027bc6108a5da3c835725f95e72bd2e955fd053142931
+    freshness-ttl: 2592000
+    notes: "Hugo homepage with speed and feature highlights"
+
+  - id: ssg-comparison-2025
+    type: web-page
+    url: https://cloudcannon.com/blog/the-top-five-static-site-generators-for-2025-and-when-to-use-them/
+    title: "The top five static site generators for 2025 (and when to use them!)"
+    fetched: 2026-04-07
+    content-hash: 85ac619e316fa2400719c1e8b024a4d4ae544e3b8007203996748267d061e962
+    freshness-ttl: 2592000
+    notes: "CloudCannon comparison of top 5 SSGs for 2025"
+
+  - id: minimal-ssg-options
+    type: web-page
+    url: https://jamstack.org/generators/
+    title: "Static Site Generators - Jamstack.org"
+    fetched: 2026-04-07
+    content-hash: 1952fa1cf1e4494517663f42906488c83a44a7958ab1c5e5c9b2ff3408278b48
+    freshness-ttl: 2592000
+    notes: "Curated list including minimal and blog-focused generators"
+
+history:
+  - event: created
+    date: 2026-04-07
+    commit: "--"
+    sources: 6
+
+referenced-by: []
