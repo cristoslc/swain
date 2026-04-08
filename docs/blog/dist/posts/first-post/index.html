@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Introducing Swain | Swain</title>
-  <meta name="description" content="A decision-capture system for solo developers working with AI coding agents.">
+  <title>Why Swain Exists | Swain</title>
+  <meta name="description" content="AI agents ship code fast. Swain ensures they ship what actually matters.">
   <script>
     // Set theme BEFORE CSS loads to prevent FOUC
     (function() {
@@ -41,62 +41,49 @@
       
 <article class="post">
   <header class="post-header">
-    <h1 class="post-title">Introducing Swain</h1>
+    <h1 class="post-title">Why Swain Exists</h1>
     <time class="post-date" datetime="Mon Apr 06 2026 20:00:00 GMT-0400 (Eastern Daylight Time)">Apr 6, 2026</time>
   </header>
   
   <div class="post-content">
-    <p>AI coding agents are fast, stateless, and uncritical. They'll build whatever they're told — or whatever they infer from incomplete context. Left unsupervised, they produce code that passes tests but silently violates architectural constraints, drifts from prior decisions, and accumulates structural debt that no test suite can detect.</p>
-<p>Swain solves this by capturing your <strong>decisions</strong> as artifacts in git: what was decided, why, and what constraints apply. When the AI makes decisions, Swain makes those visible too, so you can review and course-correct.</p>
-<h2>The core problem</h2>
-<p>The gap between human decisions and agent execution widens silently over time. Decisions made in week one are forgotten by week twelve. The reasoning behind past choices evaporates when the conversation ends.</p>
-<p>You end up re-explaining context that should already be settled. Agents drift because the reasoning isn't there on disk. And you're constantly firefighting instead of steering.</p>
-<h2>How Swain works</h2>
+    <p>AI coding agents have a fundamental problem: they're fast, stateless, and uncritical. They'll implement whatever you ask — or whatever they infer from incomplete context — with real credentials and real consequences.</p>
+<p>The result isn't immediate failure. It's slower: architectural drift that compounds silently. Decisions made in week one are forgotten by week twelve. Constraints get violated under speed pressure. The reasoning behind past choices evaporates when the conversation ends.</p>
+<h2>The core insight</h2>
+<p><strong>Artifacts are the single source of truth.</strong> If it's not written down, it wasn't decided.</p>
+<p>Swain captures your decisions as markdown files in git: specs, ADRs, architectural constraints, component boundaries. These artifacts become the context that agents read before acting. When agents make decisions, those get captured too — visible for review, versioned for audit.</p>
+<h2>The methodology</h2>
 <p>Swain structures everything around a four-phase loop:</p>
-<p><strong>Intent</strong> → <strong>Execution</strong> → <strong>Evidence</strong> → <strong>Reconciliation</strong></p>
+<p><strong>Intent → Execution → Evidence → Reconciliation</strong></p>
 <ol>
-<li>
-<p><strong>Intent</strong>: You declare what should be true — specs, ADRs, architectural constraints, component boundaries. These live as markdown files in <code>docs/</code>, versioned in git.</p>
-</li>
-<li>
-<p><strong>Execution</strong>: Agents implement the specs. Swain provides the alignment context (what constraints apply, what decisions govern this work) but doesn't control how agents work internally.</p>
-</li>
-<li>
-<p><strong>Evidence</strong>: Swain observes what actually happened — git history, test results, dependency graphs, drift reports. Evidence is derived from verifiable sources, not declarations.</p>
-</li>
-<li>
-<p><strong>Reconciliation</strong>: Swain compares intent against evidence and surfaces divergence. Sometimes execution drifted and needs correction. Sometimes intent was wrong and needs updating.</p>
-</li>
+<li><strong>Intent</strong>: You declare what should be true. Human-authored specs, constraints, goals.</li>
+<li><strong>Execution</strong>: Agents implement the intent. Swain provides the context but doesn't control how agents work.</li>
+<li><strong>Evidence</strong>: Swain observes what actually happened — git history, test results, dependency graphs. Verifiable, not declared.</li>
+<li><strong>Reconciliation</strong>: Swain compares intent against evidence and surfaces divergence. Sometimes execution drifted. Sometimes intent was wrong.</li>
 </ol>
-<h2>What you get</h2>
+<p>The loop is continuous. Most often you fix the code. Sometimes you fix the decision.</p>
+<h2>What this gives you</h2>
 <ul>
 <li><strong>Session continuity</strong> — Every session picks up where the last left off. No re-explaining context.</li>
-<li><strong>Decision preservation</strong> — What was decided lives in artifacts, not conversations or memory.</li>
-<li><strong>Bounded risk</strong> — Agents run in isolated worktrees. Mistakes have bounded blast radius.</li>
-<li><strong>Automated integrity</strong> — Once you've made a call, downstream work is checked against that decision automatically.</li>
+<li><strong>Decision preservation</strong> — What was decided lives in artifacts, not memory.</li>
+<li><strong>Bounded risk</strong> — Agents run in isolated worktrees. Mistakes have limited blast radius.</li>
+<li><strong>Automated integrity</strong> — Downstream work is checked against prior decisions automatically.</li>
 </ul>
 <h2>Quick start</h2>
 <pre><code class="language-bash">npx skills add cristoslc/swain
 </code></pre>
-<p>After installing, run <code>/swain-init</code> in your first session to set up governance rules and task tracking. Then ask:</p>
+<p>Then run <code>/swain-init</code> in your first session and ask:</p>
 <pre><code>/swain-roadmap
 </code></pre>
-<p>This shows active epics with progress, decisions waiting on you, implementation-ready items, blocked work, tasks, and GitHub issues — all in one view with clickable links.</p>
+<p>This shows active epics, decisions waiting on you, implementation-ready work, blockers, and GitHub issues — all in one view.</p>
 <h2>Who this is for</h2>
-<p><strong>The operator</strong> — a solo developer who makes decisions and delegates implementation to AI coding agents. Swain is your decision-support system: it captures intent, surfaces what needs attention, and preserves the reasoning behind choices. You steer; Swain keeps the record.</p>
-<p><strong>The agent</strong> — any AI coding agent that reads markdown. Swain provides alignment context (acceptance criteria, scope boundaries, constraints, dependency graphs) and verifies outcomes against that context. How the agent works internally is irrelevant. Any agent that reads structured text can participate.</p>
+<p><strong>The operator</strong>: A solo developer who makes decisions and delegates implementation to AI agents. Swain is your decision-support system. You steer; Swain keeps the record.</p>
+<p><strong>The agent</strong>: Any AI that reads markdown. Swain provides alignment context and verifies outcomes. The agent runtime is interchangeable.</p>
 <h2>What's next</h2>
-<p>Swain is in early development. It's actively used in production by its author, but expect rough edges and shifting APIs. The core pieces are stable:</p>
-<ul>
-<li><strong>swain-design</strong> — Create and evolve artifacts (Visions, Initiatives, Epics, Specs, ADRs)</li>
-<li><strong>swain-do</strong> — Turn approved specs into tracked implementation plans with tasks</li>
-<li><strong>swain-sync</strong> — Fetch, rebase, commit with conventional messages</li>
-<li><strong>swain-release</strong> — Changelog, version bump, git tag</li>
-</ul>
-<p>More coming soon: drift detection, automated reconciliation reports, and better integration with GitHub issues.</p>
+<p>Swain is in early development — actively used but expect rough edges. The core is stable: design artifacts, task tracking, sync, and releases.</p>
+<p>Coming soon: drift detection, automated reconciliation reports, better GitHub integration.</p>
 <hr>
 <p><em>Named for the swain in boat<strong>swain</strong>, the officer who keeps the rigging tight.</em></p>
-<p><a href="https://github.com/cristoslc/swain">Read the full documentation →</a></p>
+<p><a href="https://github.com/cristoslc/swain">Read the documentation →</a></p>
 
   </div>
 </article>

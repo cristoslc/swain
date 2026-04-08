@@ -1,7 +1,7 @@
 ---
 layout: post.njk
-title: "Introducing Swain"
-description: "A decision-capture system for solo developers working with AI coding agents."
+title: "Why Swain Exists"
+description: "AI agents ship code fast. Swain ensures they ship what actually matters."
 date: 2026-04-07
 tags:
   - post
@@ -9,36 +9,35 @@ tags:
   - swain
 ---
 
-AI coding agents are fast, stateless, and uncritical. They'll build whatever they're told — or whatever they infer from incomplete context. Left unsupervised, they produce code that passes tests but silently violates architectural constraints, drifts from prior decisions, and accumulates structural debt that no test suite can detect.
+AI coding agents have a fundamental problem: they're fast, stateless, and uncritical. They'll implement whatever you ask — or whatever they infer from incomplete context — with real credentials and real consequences.
 
-Swain solves this by capturing your **decisions** as artifacts in git: what was decided, why, and what constraints apply. When the AI makes decisions, Swain makes those visible too, so you can review and course-correct.
+The result isn't immediate failure. It's slower: architectural drift that compounds silently. Decisions made in week one are forgotten by week twelve. Constraints get violated under speed pressure. The reasoning behind past choices evaporates when the conversation ends.
 
-## The core problem
+## The core insight
 
-The gap between human decisions and agent execution widens silently over time. Decisions made in week one are forgotten by week twelve. The reasoning behind past choices evaporates when the conversation ends.
+**Artifacts are the single source of truth.** If it's not written down, it wasn't decided.
 
-You end up re-explaining context that should already be settled. Agents drift because the reasoning isn't there on disk. And you're constantly firefighting instead of steering.
+Swain captures your decisions as markdown files in git: specs, ADRs, architectural constraints, component boundaries. These artifacts become the context that agents read before acting. When agents make decisions, those get captured too — visible for review, versioned for audit.
 
-## How Swain works
+## The methodology
 
 Swain structures everything around a four-phase loop:
 
-**Intent** → **Execution** → **Evidence** → **Reconciliation**
+**Intent → Execution → Evidence → Reconciliation**
 
-1. **Intent**: You declare what should be true — specs, ADRs, architectural constraints, component boundaries. These live as markdown files in `docs/`, versioned in git.
+1. **Intent**: You declare what should be true. Human-authored specs, constraints, goals.
+2. **Execution**: Agents implement the intent. Swain provides the context but doesn't control how agents work.
+3. **Evidence**: Swain observes what actually happened — git history, test results, dependency graphs. Verifiable, not declared.
+4. **Reconciliation**: Swain compares intent against evidence and surfaces divergence. Sometimes execution drifted. Sometimes intent was wrong.
 
-2. **Execution**: Agents implement the specs. Swain provides the alignment context (what constraints apply, what decisions govern this work) but doesn't control how agents work internally.
+The loop is continuous. Most often you fix the code. Sometimes you fix the decision.
 
-3. **Evidence**: Swain observes what actually happened — git history, test results, dependency graphs, drift reports. Evidence is derived from verifiable sources, not declarations.
-
-4. **Reconciliation**: Swain compares intent against evidence and surfaces divergence. Sometimes execution drifted and needs correction. Sometimes intent was wrong and needs updating.
-
-## What you get
+## What this gives you
 
 - **Session continuity** — Every session picks up where the last left off. No re-explaining context.
-- **Decision preservation** — What was decided lives in artifacts, not conversations or memory.
-- **Bounded risk** — Agents run in isolated worktrees. Mistakes have bounded blast radius.
-- **Automated integrity** — Once you've made a call, downstream work is checked against that decision automatically.
+- **Decision preservation** — What was decided lives in artifacts, not memory.
+- **Bounded risk** — Agents run in isolated worktrees. Mistakes have limited blast radius.
+- **Automated integrity** — Downstream work is checked against prior decisions automatically.
 
 ## Quick start
 
@@ -46,33 +45,28 @@ Swain structures everything around a four-phase loop:
 npx skills add cristoslc/swain
 ```
 
-After installing, run `/swain-init` in your first session to set up governance rules and task tracking. Then ask:
+Then run `/swain-init` in your first session and ask:
 
 ```
 /swain-roadmap
 ```
 
-This shows active epics with progress, decisions waiting on you, implementation-ready items, blocked work, tasks, and GitHub issues — all in one view with clickable links.
+This shows active epics, decisions waiting on you, implementation-ready work, blockers, and GitHub issues — all in one view.
 
 ## Who this is for
 
-**The operator** — a solo developer who makes decisions and delegates implementation to AI coding agents. Swain is your decision-support system: it captures intent, surfaces what needs attention, and preserves the reasoning behind choices. You steer; Swain keeps the record.
+**The operator**: A solo developer who makes decisions and delegates implementation to AI agents. Swain is your decision-support system. You steer; Swain keeps the record.
 
-**The agent** — any AI coding agent that reads markdown. Swain provides alignment context (acceptance criteria, scope boundaries, constraints, dependency graphs) and verifies outcomes against that context. How the agent works internally is irrelevant. Any agent that reads structured text can participate.
+**The agent**: Any AI that reads markdown. Swain provides alignment context and verifies outcomes. The agent runtime is interchangeable.
 
 ## What's next
 
-Swain is in early development. It's actively used in production by its author, but expect rough edges and shifting APIs. The core pieces are stable:
+Swain is in early development — actively used but expect rough edges. The core is stable: design artifacts, task tracking, sync, and releases.
 
-- **swain-design** — Create and evolve artifacts (Visions, Initiatives, Epics, Specs, ADRs)
-- **swain-do** — Turn approved specs into tracked implementation plans with tasks
-- **swain-sync** — Fetch, rebase, commit with conventional messages
-- **swain-release** — Changelog, version bump, git tag
-
-More coming soon: drift detection, automated reconciliation reports, and better integration with GitHub issues.
+Coming soon: drift detection, automated reconciliation reports, better GitHub integration.
 
 ---
 
 *Named for the swain in boat**swain**, the officer who keeps the rigging tight.*
 
-[Read the full documentation →](https://github.com/cristoslc/swain)
+[Read the documentation →](https://github.com/cristoslc/swain)
