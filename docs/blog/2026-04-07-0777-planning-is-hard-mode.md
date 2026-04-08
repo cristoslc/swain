@@ -27,13 +27,13 @@ Tests proved behavior, not architecture. The artifact graph answered "what exist
 
 The pattern repeated across retros:
 
-- **"Tested but not wired"** — release-skill-deletion incident (skill not invoked), dead-code-in-release retro (script not wired), changelog misclassification (development process not excluded)
+- **"Tested but not wired"** — [release-skill-deletion incident](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-28-release-skill-deletion-incident.md) (skill not invoked), [dead-code-in-release retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-31-dead-code-in-release.md) (script not wired), [changelog misclassification](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-01-teardown-rewrite-release.md) (development process not excluded)
 - **Stale state** — `.agents/bookmarks.txt` with a single stale entry from a worktree that no longer existed, never cleaned up because no skill owned the lifecycle
 - **Forward-linking is natural, back-propagation is not** — agents link new artifacts to dependencies but never update old artifacts when new evidence arrives
 
 The [Architecture Intent-Evidence Loop trove](https://github.com/cristoslc/swain/blob/trunk/docs/troves/architecture-intent-evidence-loop/synthesis.md) names the core problem: **architecture documents capture decisions so you don't have to re-derive them from code.** But they drift. Code changes. Decisions get forgotten. Reconciliation is the check: does what we wrote down still match what we built?
 
-But reconciliation was manual. Retro documents. Operator attention. The gap between intent (what was decided) and evidence (what exists) widened silently between sessions.
+But reconciliation was manual. Retro documents. Operator attention. The gap between intent (what was decided) and evidence (what exists) widened between sessions.
 
 ---
 

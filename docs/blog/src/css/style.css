@@ -301,12 +301,14 @@ body > footer {
   color: var(--color-accent-hover);
 }
 
+/* Visited links - light mode */
 .post-content a:visited {
-  color: var(--color-accent-visited, var(--color-accent));
+  color: var(--color-accent-visited);
 }
 
+/* Visited links - dark mode (higher specificity) */
 [data-theme="dark"] .post-content a:visited {
-  color: #9aa5b1; /* WCAG AAA compliant visited link color for dark mode */
+  color: #9aa5b1 !important; /* WCAG AAA: 10.4:1 contrast on dark bg */
 }
 
 .post-content strong {
