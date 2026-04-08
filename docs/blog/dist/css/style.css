@@ -187,13 +187,12 @@ body > footer {
   border-radius: var(--radius);
   padding: var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
-  transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
   box-shadow: var(--shadow-sm);
 }
 
 .post-item:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 .post-item:last-child {
@@ -290,26 +289,33 @@ body > footer {
   margin-bottom: var(--spacing-sm);
 }
 
-/* All links */
+/* All links - explicit colors, no transitions to prevent flicker */
 a {
-  color: var(--color-accent);
+  color: #0055cc;
   text-decoration: underline;
   text-underline-offset: 2px;
-  transition: color 0.2s ease;
 }
 
 a:hover {
-  color: var(--color-accent-hover);
+  color: #003d99;
 }
 
 /* Visited links - light mode */
 a:visited {
-  color: #551a8b; /* WCAG AAA: 8.1:1 on light bg */
+  color: #551a8b;
 }
 
 /* Visited links - dark mode */
+[data-theme="dark"] a {
+  color: #79c0ff;
+}
+
+[data-theme="dark"] a:hover {
+  color: #b3d7ff;
+}
+
 [data-theme="dark"] a:visited {
-  color: #9aa5b1 !important; /* WCAG AAA: 10.4:1 on dark bg */
+  color: #9aa5b1 !important;
 }
 
 /* Post content specific overrides (inherit from above) */
