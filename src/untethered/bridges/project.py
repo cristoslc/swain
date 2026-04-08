@@ -515,18 +515,44 @@ class ProjectBridge:
         )
         self._adapters[session_id] = adapter
 
+        # Emit session_starting before any blocking operations
+        self.handle_runtime_event(
+            Event.session_starting(
+                bridge=self.project,
+                session_id=session_id,
+                runtime="opencode",
+            )
+        )
+
         # Wait for the server to be healthy, then send the first message.
         healthy = await adapter.wait_for_health(timeout=10.0)
         if not healthy:
-            log.error("opencode serve not healthy — is it running?")
-            self.handle_runtime_event(
-                Event.text_output(
-                    bridge=self.project,
-                    session_id=session_id,
-                    content="Error: opencode serve not reachable. Start it with: opencode serve --port 4097",
+            log.warning("opencode serve not healthy, attempting to spawn...")
+            # Try to spawn the server
+            project_dir = self.project_dir or os.getcwd()
+            spawned = await adapter.spawn_server(project_dir)
+            if not spawned:
+                log.error("Failed to spawn opencode server for session %s", session_id)
+                self.handle_runtime_event(
+                    Event.text_output(
+                        bridge=self.project,
+                        session_id=session_id,
+                        content="Error: Failed to start opencode server",
+                    )
                 )
-            )
-            return
+                return
+            # Re-check health after spawn
+            healthy = await adapter.wait_for_health(timeout=60.0)
+            if not healthy:
+                log.error("Spawned opencode server failed health check")
+                self.handle_runtime_event(
+                    Event.text_output(
+                        bridge=self.project,
+                        session_id=session_id,
+                        content="Error: opencode serve started but not responding",
+                    )
+                )
+                return
 
         log.info("Operator can attach: opencode attach %s", adapter.base_url)
         cmd = Command.send_prompt(bridge=self.project, session_id=session_id, text=text)

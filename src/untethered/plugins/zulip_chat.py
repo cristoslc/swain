@@ -340,9 +340,12 @@ async def _relay_events(
 
         # --- Control-origin sessions: all output goes to control topic ---
         if origin == "control":
-            if msg.type == "session_spawned":
-                # Start typing indicator — session is working
+            if msg.type == "session_starting":
+                # Start typing indicator immediately when spawn begins
                 typing.start(stream, control_topic)
+            elif msg.type == "session_spawned":
+                # Session confirmed spawned — already typing
+                pass
             elif msg.type == "session_died":
                 # Stop typing and clean up silently
                 typing.stop(stream, control_topic)
