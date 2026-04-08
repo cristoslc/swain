@@ -45,9 +45,11 @@ But reconciliation was manual. Retro documents. Operator attention. The gap betw
 
 > "TDD rescued the session. The first half was spent debugging live... After that, tests drove every change. Every pivot was validated before going live."
 
-The 80-test suite didn't prevent the architectural violations. What it did: once the operator flagged a violation, tests ensured the fix didn't break existing behavior. When the HTTP adapter replaced the tmux adapter, tests proved the behavior matched. When the subprocess plugin model replaced in-process classes, tests caught regressions.
+The 80-test suite didn't prevent the architectural violations. But it gave the agent a way to self-correct. Each failing test was a constraint that forced a rewrite. The operator didn't fix the code — the operator fixed the tests, and the agent fixed the code.
 
-**Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated [ADR-038](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. Operator review caught it, not tests. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
+**The point:** write tests alongside the spec, before the agent starts coding. Not after as a check. The tests are the steering mechanism. The spec gives context; the tests give constraints. An agent with a spec and no tests will drift. An agent with tests and no spec will flail. An agent with both can iterate toward alignment.
+
+**Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated [ADR-038](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. The tests checked behavior, not architecture. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
 
 **This isn't model-specific.** This project has used: Opus 4.6 (frontier), Sonnet 4.6 (mid-tier), Qwen3.5:397b (mid-tier), Gemma 4:31b (budget). Opus built the POC. Sonnet built the test suite. Gemma 4 ran the bridge. All went off the rails without tests. All converged with tests.
 
@@ -186,6 +188,14 @@ This is speculative. I'm curious if this generalizes beyond swain:
    What else am I missing?
 
 ---
+
+## Counterpoint: This Doesn't Mean Abandon Specs
+
+Swain's artifact hierarchy started as a way to capture ideas and directions so context would be available to the agent between sessions. That work still matters. Product design, architectural thinking, capturing why decisions were made — none of that goes away.
+
+The shift is: **specs steer humans, tests constrain agents.**
+
+Write the spec to clarify your own thinking. Capture the product design. Document the architecture. But don't expect the spec to align the agent. Use tests for that. Specs give the agent context; tests give it guardrails. Both are necessary.
 
 ## What's Next
 

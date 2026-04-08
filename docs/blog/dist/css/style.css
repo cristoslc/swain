@@ -301,14 +301,14 @@ body > footer {
   color: var(--color-accent-hover);
 }
 
-/* Visited links - light mode */
+/* Visited links - default (light mode) */
 .post-content a:visited {
-  color: var(--color-accent-visited);
+  color: #551a8b; /* WCAG AAA: 8.1:1 on light bg */
 }
 
-/* Visited links - dark mode (maximum specificity) */
-html[data-theme="dark"] body .post-content a:visited {
-  color: #9aa5b1 !important; /* WCAG AAA: 10.4:1 contrast on dark bg */
+/* Visited links - dark mode */
+[data-theme="dark"] .post-content a:visited {
+  color: #9aa5b1 !important; /* WCAG AAA: 10.4:1 on dark bg */
 }
 
 .post-content strong {
