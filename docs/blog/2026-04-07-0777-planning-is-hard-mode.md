@@ -15,11 +15,11 @@ And yet: agents repeatedly went off the rails despite the elaborate artifact hie
 
 The [VISION-006 Full Session Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) tells the story. In a single session that produced 80 integration tests and 34 commits, the architecture shifted three times:
 
-1. **Hexagonal architecture → in-process adapters.** The initial design assumed adapters would be core contributions. Mid-implementation, the operator realized this would block community extensions. The architecture shifted to plugins before any code was committed.
+1. **Hexagonal → plugin (operator design shift).** The initial design assumed adapters would be core contributions. Mid-implementation, the operator realized this would block community extensions. The architecture shifted to plugins before the agent wrote any code.
 
-2. **In-process classes → subprocess plugins.** The first implementation violated [ADR-038: Microkernel Plugin Architecture](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. It worked. It had tests. It was architecturally wrong. Only operator review caught it.
+2. **In-process → subprocess (operator correction).** The agent implemented adapters as in-process Python classes. This violated [ADR-038: Microkernel Plugin Architecture](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. It worked. It had tests. It was architecturally wrong. Only operator review caught it.
 
-3. **tmux terminal scraping → HTTP API.** The tmux adapter worked but was fragile — ANSI escape codes, output batching, FIFO race conditions. The operator asked why sessions weren't visible in `tmux ls`. Answer: `opencode run` is single-shot. The fix was `opencode serve` — a completely different architecture. This wasn't a correction so much as a serendipitous pivot: the mismatch between expectation and implementation forced a better design.
+3. **tmux scraping → HTTP API (serendipitous pivot).** The agent built a tmux adapter that worked but was fragile — ANSI escape codes, output batching, FIFO race conditions. The operator asked why sessions weren't visible in `tmux ls`. Answer: `opencode run` is single-shot. The fix was `opencode serve` — a completely different architecture. The mismatch between expectation and implementation forced a better design.
 
 The hierarchy was designed to *tell* agents what to build. But telling doesn't work. The [retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) is blunt:
 
@@ -36,6 +36,10 @@ The pattern repeated across retros:
 The [Architecture Intent-Evidence Loop trove](https://github.com/cristoslc/swain/blob/trunk/docs/troves/architecture-intent-evidence-loop/synthesis.md) names the core problem: **architecture documents capture decisions so you don't have to re-derive them from code.** But they drift. Code changes. Decisions get forgotten. Reconciliation is the check: does what we wrote down still match what we built?
 
 But reconciliation was manual. Retro documents. Operator attention. The gap between intent (what was decided) and evidence (what exists) widened between sessions.
+
+Here's the shift: **specs steer humans, tests constrain agents.**
+
+Swain's artifact hierarchy started as a way to capture ideas and directions so context would be available to the agent between sessions. That work still matters. Product design, architectural thinking, capturing why decisions were made — none of that goes away. Write the spec to clarify your own thinking. Capture the product design. Document the architecture. But don't expect the spec to align the agent. Use tests for that. Specs give the agent context; tests give it guardrails.
 
 
 
@@ -191,11 +195,7 @@ This is speculative. I'm curious if this generalizes beyond swain:
 
 ## This Doesn't Mean Abandon Specs
 
-Swain's artifact hierarchy started as a way to capture ideas and directions so context would be available to the agent between sessions. That work still matters. Product design, architectural thinking, capturing why decisions were made — none of that goes away.
-
-The shift is: **specs steer humans, tests constrain agents.**
-
-Write the spec to clarify your own thinking. Capture the product design. Document the architecture. But don't expect the spec to align the agent. Use tests for that. Specs give the agent context; tests give it guardrails.
+The counterpoint: specs still matter. They clarify your thinking. They capture product design. They document architecture. They steer humans. But they don't steer agents. Tests do that.
 
 ## What's Next
 

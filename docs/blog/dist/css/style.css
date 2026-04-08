@@ -208,13 +208,15 @@ body > footer {
 }
 
 .post-title a {
-  color: var(--color-text);
   text-decoration: none;
-  transition: color 0.2s ease;
 }
 
 .post-title a:hover {
-  color: var(--color-accent);
+  color: #003d99;
+}
+
+[data-theme="dark"] .post-title a:hover {
+  color: #b3d7ff;
 }
 
 .post-date {
