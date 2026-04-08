@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Introducing Swain | Swain</title>
   <meta name="description" content="A decision-capture system for solo developers working with AI coding agents.">
+  <script>
+    // Set theme BEFORE CSS loads to prevent FOUC
+    (function() {
+      var savedTheme = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="/swain/css/style.css">
   <link rel="alternate" type="application/feed+xml" title="Swain" href="/swain/feed.xml">
 </head>

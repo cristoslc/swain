@@ -3,9 +3,9 @@
 **Date:** 2026-04-07  
 **Tags:** agentic-development, testing, architecture, swain
 
----
 
-## The Problem: You Can't Steer With Specs
+
+## You Can't Steer With Specs
 
 Swain was built on a hypothesis that seemed sound: if AI agents forget what you decided between sessions, capture those decisions in artifacts. Write them down in git. Make them durable. Build a hierarchy — Vision → Initiative → Epic → Spec — so agents can read what was decided before they act.
 
@@ -13,7 +13,7 @@ I spent 730 commits over 14 days building this system. Sixteen skills. Ten artif
 
 And yet: agents repeatedly went off the rails despite the elaborate artifact hierarchy.
 
-The [VISION-006 Capstone Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md) tells the story. In a single session that produced 80 integration tests and 34 commits, the architecture shifted three times:
+The [VISION-006 Full Session Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) tells the story. In a single session that produced 80 integration tests and 34 commits, the architecture shifted three times:
 
 1. **Hexagonal architecture → in-process adapters.** The initial design assumed adapters would be core contributions. Mid-implementation, the operator realized this would block community extensions. The architecture shifted to plugins before any code was committed.
 
@@ -25,7 +25,7 @@ The hierarchy was designed to *tell* agents what to build. But telling doesn't w
 
 > "The first half was spent debugging live... The operator said 'stop. reset. TDD from architectural plan.' After that, tests drove every change. Every pivot was validated before going live. **The live debugging wasted 60+ minutes; the TDD approach wasted zero.**"
 
-Tests proved behavior, not architecture. The artifact graph answered "what exists?" but not "what matters?" The [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md) found **9 specs that were already implemented but stuck in Active** — the code existed, features worked, but the specs were never transitioned. Artifact debt accumulates silently.
+Tests proved behavior, not architecture. The artifact graph answered "what exists?" but not "what matters?" The [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md) found **9 specs that were already implemented but stuck in Active** — the code existed, features worked, but the specs were never transitioned. Ceremony debt accumulated silently.
 
 The pattern repeated across retros:
 
@@ -37,11 +37,11 @@ The [Architecture Intent-Evidence Loop trove](https://github.com/cristoslc/swain
 
 But reconciliation was manual. Retro documents. Operator attention. The gap between intent (what was decided) and evidence (what exists) widened between sessions.
 
----
 
-## The Discovery: Test-Driven Iteration Is the Only Path That Works
 
-[VISION-006](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md)'s turnaround came when the operator invoked TDD after the live debugging failure. The [session retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) is explicit:
+## Test-Driven Iteration Is the Only Path That Works
+
+[VISION-006](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md)'s turnaround came when the operator invoked TDD after the live debugging failure. The [session retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) is explicit:
 
 > "TDD rescued the session. The first half was spent debugging live... After that, tests drove every change. Every pivot was validated before going live."
 
@@ -51,7 +51,7 @@ The 80-test suite didn't prevent the architectural violations. But it gave the a
 
 **Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated [ADR-038](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. The tests checked behavior, not architecture. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
 
-**This isn't model-specific.** This project has used: Opus 4.6 (frontier), Sonnet 4.6 (mid-tier), Qwen3.5:397b (mid-tier), Gemma 4:31b (budget). Opus built the POC. Sonnet built the test suite. Gemma 4 ran the bridge. All went off the rails without tests. All converged with tests.
+**This isn't model-specific.** This project has used: Opus 4.6 (frontier), Sonnet 4.6 (mid-tier), Qwen3.5:397b (mid-tier), and Gemma 4:31b (budget). Opus built the POC. Sonnet built the test suite. Gemma 4 ran the bridge. All went off the rails without tests. All converged with tests.
 
 The [BDD Test Suite Spec](https://github.com/cristoslc/swain/blob/trunk/docs/superpowers/specs/2026-04-04-bdd-test-suite-design.md) documents the coverage: 84 tests across 8 domains (session, worktree, artifact, sync). The [Automated Test Gates Spec](https://github.com/cristoslc/swain/blob/trunk/docs/superpowers/specs/2026-03-31-automated-test-gates-design.md) makes it official: two-phase verification (integration tests → smoke tests) as a hard gate before every merge.
 
@@ -64,13 +64,13 @@ But these tests check **user-facing behavior** — that scripts work, that artif
 
 The fitness functions are missing.
 
-**This isn't a cost problem — it's a capability problem.** [VISION-006](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md)'s POC was built with Opus, the frontier model for agentic development. It still went off the rails twice in one session. The 80-test suite caught regressions but NOT the architectural violations — operator review did that. The test suite's real value: once the operator flagged the violation, tests ensured the fix didn't break anything.
+**This isn't a cost problem — it's a capability problem.** [VISION-006](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md)'s POC was built with Opus, the frontier model for agentic development. It still went off the rails twice in one session. The 80-test suite caught regressions but NOT the architectural violations — operator review did that. But the test suite gave the agent a way to self-correct: each failing test forced a rewrite until the code aligned.
 
 Behavioral specs (BDD) are one useful form — natural language that models can read and write. But the broader category is: tests for everything the artifact hierarchy was supposed to enforce and couldn't.
 
----
 
-## The Implications: What Would Swain Look Like Built from This Assumption?
+
+## What Would Swain Look Like Built from This Assumption?
 
 If test-driven iteration is the only path that works, what changes?
 
@@ -168,7 +168,7 @@ The session would end not when the operator is tired, but when the decision budg
 
 **This connects back to testing:** the decision budget only works if tests can verify alignment autonomously. Without tests, every decision requires operator review. With tests, the operator reviews once, then the test suite enforces across rewrites.
 
----
+
 
 ## Open Questions
 
@@ -187,9 +187,9 @@ This is speculative. I'm curious if this generalizes beyond swain:
    
    What else am I missing?
 
----
 
-## Counterpoint: This Doesn't Mean Abandon Specs
+
+## This Doesn't Mean Abandon Specs
 
 Swain's artifact hierarchy started as a way to capture ideas and directions so context would be available to the agent between sessions. That work still matters. Product design, architectural thinking, capturing why decisions were made — none of that goes away.
 
@@ -215,7 +215,7 @@ I'm at [@cristoslc](https://github.com/cristoslc) on GitHub. The swain codebase 
 
 Come tell me what I'm missing.
 
----
+
 
 ## References
 
