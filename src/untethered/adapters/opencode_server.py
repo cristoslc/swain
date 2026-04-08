@@ -190,16 +190,60 @@ class OpenCodeServerAdapter:
             log.error("No response from opencode server")
             return
 
-        # Extract text from response parts.
+        log.debug("OpenCode response: %s", json.dumps(response))
+
+        # Extract events from response parts.
         parts = response.get("parts", [])
         for part in parts:
-            if part.get("type") == "text" and part.get("text"):
+            part_type = part.get("type")
+
+            if part_type == "text" and part.get("text"):
                 if self.on_event:
                     self.on_event(
                         Event.text_output(
                             bridge=self.bridge,
                             session_id=self.session_id,
                             content=part["text"],
+                        )
+                    )
+
+            elif part_type == "tool_call":
+                if self.on_event:
+                    self.on_event(
+                        Event.tool_call(
+                            bridge=self.bridge,
+                            session_id=self.session_id,
+                            tool_name=part.get("name", ""),
+                            input=part.get("input", {}),
+                            call_id=part.get("id", ""),
+                        )
+                    )
+
+            elif part_type == "tool_result":
+                if self.on_event:
+                    self.on_event(
+                        Event.tool_result(
+                            bridge=self.bridge,
+                            session_id=self.session_id,
+                            call_id=part.get("id", ""),
+                            output=part.get("output", ""),
+                            success=part.get("success", True),
+                        )
+                    )
+
+            elif part_type == "error":
+                error = part.get("error", {})
+                msg = (
+                    error.get("message", str(error))
+                    if isinstance(error, dict)
+                    else str(error)
+                )
+                if self.on_event:
+                    self.on_event(
+                        Event.text_output(
+                            bridge=self.bridge,
+                            session_id=self.session_id,
+                            content=f"Error: {msg}",
                         )
                     )
 
