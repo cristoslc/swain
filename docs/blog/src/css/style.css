@@ -293,18 +293,18 @@ body > footer {
 
 /* All links - explicit colors, no transitions to prevent flicker */
 a {
-  color: #0055cc;
+  color: #0055cc !important;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 a:hover {
-  color: #003d99;
+  color: #003d99 !important;
 }
 
 /* Visited links - light mode */
 a:visited {
-  color: #551a8b;
+  color: #551a8b !important;
 }
 
 /* Visited links - dark mode */
