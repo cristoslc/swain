@@ -47,7 +47,7 @@ The 80-test suite didn't prevent the architectural violations — but it **made 
 
 **Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated ADR-038's subprocess model. Operator review caught it, not tests. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
 
-**This isn't model-specific.** Claude Code usage (ccusage, swain project): Opus 4.6 (2,156 MTok), Sonnet 4.6 (278 MTok), Qwen3.5 (39.6 MTok), Haiku 4.5 (2.7 MTok), GLM-5 (0.2 MTok). Opencode usage: Qwen3.5:397b, DeepSeek V3.1:671b, GLM-5, Minimax-M2 via ollama-cloud and OpenRouter. Opus built the POC. Sonnet built most of the test suite. Qwen runs the bridge. All went off the rails without tests. All converged with tests.
+**This isn't model-specific.** This project has used: Opus 4.6 (frontier), Sonnet 4.6 (mid-tier), Qwen3.5:397b (mid-tier), Gemma 4:31b (budget). Opus built the POC. Sonnet built the test suite. Gemma 4 ran the bridge. All went off the rails without tests. All converged with tests.
 
 The BDD test suite spec documents the coverage: 84 tests across 8 domains (session, worktree, artifact, sync). The automated test gates spec makes it official: two-phase verification (integration tests → smoke tests) as a hard gate before every merge.
 
@@ -62,7 +62,7 @@ The fitness functions are missing.
 
 **This isn't a cost problem — it's a capability problem.** VISION-006's POC was built with Opus, the frontier model for agentic development. It still went off the rails twice in one session. The 80-test suite caught regressions but NOT the architectural violations — operator review did that. The test suite's real value: once the operator flagged the violation, tests ensured the fix didn't break anything.
 
-BDD is one useful form (behavioral specifications in natural language that models can read and write). We need tests for everything the artifact hierarchy was supposed to enforce — and couldn't.
+Behavioral specs (BDD) are one useful form — natural language that models can read and write. But the broader category is: tests for everything the artifact hierarchy was supposed to enforce and couldn't.
 
 ---
 
@@ -150,8 +150,6 @@ This inverts the loop. Instead of Intent → Execution → Evidence, it's Eviden
 
 Test-driven iteration keeps all three aligned. When tests fail, something drifted — maybe the code, maybe the spec, maybe our understanding of the problem. The test suite forces you to figure out which one.
 
-(This is probably a follow-up post.)
-
 ### 5. Decision Budget, Not Decision Hierarchy
 
 Swain's current model assumes the operator makes decisions (artifacts) and agents execute. The hierarchy exists to structure those decisions.
@@ -164,6 +162,8 @@ What if the system enforced a **decision budget** — N decisions per session, a
 
 The session would end not when the operator is tired, but when the decision budget is exhausted. The tests would run overnight. The retro would auto-generate. The operator would return to a report: "here's what was decided, here's what was built, here's where they diverge."
 
+**This connects back to testing:** the decision budget only works if tests can verify alignment autonomously. Without tests, every decision requires operator review. With tests, the operator reviews once, then the test suite enforces across rewrites.
+
 ---
 
 ## Open Questions
@@ -172,7 +172,7 @@ This is speculative. I'm curious if this generalizes beyond swain:
 
 1. **Is test-driven iteration specific to LLMs?** Or does it reveal something about planning in general? Humans also struggle to follow specs — but we can ask clarifying questions, notice ambiguities, push back on constraints. LLMs can't (reliably).
 
-2. **What's the right test mix for cheap models?** Unit tests are cheap. Integration tests are medium. Behavioral specs and fitness functions cost more to write and run. If you're trying to run a big project on cheap models, what's the minimum test suite that keeps drift bounded?
+2. **What's the minimum viable test suite?** Unit tests are cheap. Integration tests are medium. Behavioral specs and fitness functions cost more to write and run. What's the minimum test suite that keeps drift bounded on a big project?
 
 3. **Can evidence-first spec generation work?** Auto-generating specs from code + tests sounds useful until you realize the spec might be wrong in ways the tests don't catch. But maybe that's the point — the spec is a hypothesis, not a commandment.
 
@@ -184,6 +184,16 @@ This is speculative. I'm curious if this generalizes beyond swain:
    What else am I missing?
 
 ---
+
+## What's Next
+
+This post argues that test-driven iteration beats spec-driven planning for agentic development. Three followups are in the queue:
+
+1. **Problem Space vs Solution Space vs Intent Space** — How tests triangulate between what users need, what we built, and what we decided. When tests fail, which space drifted?
+
+2. **The Minimum Viable Test Suite** — What's the smallest test suite that keeps drift bounded on a big project? Unit tests are cheap. Fitness functions cost more. Where's the inflection point?
+
+3. **Evidence-First Spec Generation** — Can specs be auto-generated from code + tests, then corrected by the operator? Or do we need intent specified up front?
 
 ## Invitation
 
