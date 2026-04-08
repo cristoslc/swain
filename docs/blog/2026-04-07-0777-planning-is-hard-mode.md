@@ -13,11 +13,13 @@ I spent 730 commits over 14 days building this system. Sixteen skills. Ten artif
 
 And yet: agents repeatedly went off the rails despite the elaborate artifact hierarchy.
 
-The [VISION-006 Capstone Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md) tells the story. In a single session that produced 80 integration tests and 34 commits, the operator made **two major architectural corrections mid-stream**:
+The [VISION-006 Capstone Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md) tells the story. In a single session that produced 80 integration tests and 34 commits, the architecture shifted three times:
 
-1. **In-process classes → subprocess plugins.** The first implementation violated [ADR-038: Microkernel Plugin Architecture](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. It worked. It had tests. It was architecturally wrong. Only operator review caught it.
+1. **Hexagonal architecture → in-process adapters.** The initial design assumed adapters would be core contributions. Mid-implementation, the operator realized this would block community extensions. The architecture shifted to plugins before any code was committed.
 
-2. **tmux terminal scraping → HTTP API.** The tmux adapter worked but was fragile — ANSI escape codes, output batching, FIFO race conditions. The operator asked why sessions weren't visible in `tmux ls`. Answer: `opencode run` is single-shot. The fix was `opencode serve` — a completely different architecture.
+2. **In-process classes → subprocess plugins.** The first implementation violated [ADR-038: Microkernel Plugin Architecture](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. It worked. It had tests. It was architecturally wrong. Only operator review caught it.
+
+3. **tmux terminal scraping → HTTP API.** The tmux adapter worked but was fragile — ANSI escape codes, output batching, FIFO race conditions. The operator asked why sessions weren't visible in `tmux ls`. Answer: `opencode run` is single-shot. The fix was `opencode serve` — a completely different architecture. This wasn't a correction so much as a serendipitous pivot: the mismatch between expectation and implementation forced a better design.
 
 The hierarchy was designed to *tell* agents what to build. But telling doesn't work. The [retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) is blunt:
 
@@ -43,7 +45,7 @@ But reconciliation was manual. Retro documents. Operator attention. The gap betw
 
 > "TDD rescued the session. The first half was spent debugging live... After that, tests drove every change. Every pivot was validated before going live."
 
-The 80-test suite didn't prevent the architectural violations — but it **made convergence possible**. When the HTTP adapter replaced the tmux adapter, tests proved the behavior matched. When the subprocess plugin model replaced in-process classes, tests caught regressions immediately.
+The 80-test suite didn't prevent the architectural violations. What it did: once the operator flagged a violation, tests ensured the fix didn't break existing behavior. When the HTTP adapter replaced the tmux adapter, tests proved the behavior matched. When the subprocess plugin model replaced in-process classes, tests caught regressions.
 
 **Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated [ADR-038](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. Operator review caught it, not tests. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
 
