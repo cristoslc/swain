@@ -47,11 +47,11 @@ But reconciliation was manual. Retro documents. Operator attention. The gap betw
 
 The 80-test suite didn't prevent the architectural violations. But it gave the agent a way to self-correct. Each failing test was a constraint that forced a rewrite. The operator didn't fix the code — the operator fixed the tests, and the agent fixed the code.
 
-**The point:** write tests alongside the spec, before the agent starts coding. Not after as a check. The tests are the steering mechanism. The spec gives context; the tests give constraints. An agent with a spec and no tests will drift. An agent with tests and no spec will flail. An agent with both can iterate toward alignment.
+**The point:** write tests alongside the spec, before the agent starts coding. Not after as a check. The tests are the steering mechanism. The spec gives context; the tests give constraints.
 
-**Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated [ADR-038](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. The tests checked behavior, not architecture. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
+The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated [ADR-038](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. The tests checked behavior, not architecture. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
 
-**This isn't model-specific.** This project has used: Opus 4.6 (frontier), Sonnet 4.6 (mid-tier), Qwen3.5:397b (mid-tier), and Gemma 4:31b (budget). Opus built the POC. Sonnet built the test suite. Gemma 4 ran the bridge. All went off the rails without tests. All converged with tests.
+**This isn't model-specific.** This project has used: Opus 4.6 (frontier), Sonnet 4.6 (mid-tier), Qwen3.5:397b (mid-tier), and Gemma 4:31b (budget). Opus built the POC. Sonnet built the test suite. Gemma 4 ran the bridge. The pattern held across all of them: without tests, drift. With tests, convergence.
 
 The [BDD Test Suite Spec](https://github.com/cristoslc/swain/blob/trunk/docs/superpowers/specs/2026-04-04-bdd-test-suite-design.md) documents the coverage: 84 tests across 8 domains (session, worktree, artifact, sync). The [Automated Test Gates Spec](https://github.com/cristoslc/swain/blob/trunk/docs/superpowers/specs/2026-03-31-automated-test-gates-design.md) makes it official: two-phase verification (integration tests → smoke tests) as a hard gate before every merge.
 
@@ -76,7 +76,7 @@ If test-driven iteration is the only path that works, what changes?
 
 We need to codify *all* forms of testing, not just TDD. Unit tests cover functions. Integration tests cover component wiring. Behavioral tests (BDD) cover user-facing behavior. Fitness functions cover architectural constraints. Performance tests cover latency and throughput. Security tests cover vulnerabilities.
 
-**The actual finding:** Opus went off the rails. Sonnet went off the rails. The 80-test suite caught regressions but missed the architecture violations. Operator judgment caught those. One review session, then tests enforce it across rewrites.
+Here's what VISION-006 showed: the 80-test suite caught regressions but missed the architecture violations. Tests that check behavior won't catch structural drift. You need fitness functions for that — tests that encode architectural constraints the same way unit tests encode function contracts.
 
 ### 1. Fitness Functions from Day One
 
@@ -110,7 +110,7 @@ What if the hierarchy was just **Spec + Test Suite**?
 
 The spec declares acceptance criteria. The test suite verifies them — unit, integration, behavioral, architectural, performance, security. Git history provides the audit trail. Retrospectives capture learnings.
 
-The [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md) found 9 specs that were implemented but never transitioned. The hierarchy created ceremony overhead that accumulated debt. **Specific finding:** those 9 specs weren't read during implementation. They were written, then ignored. The test suite would have been run every commit — and failed, forcing a rewrite.
+The [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md) found 9 specs that were implemented but never transitioned. The hierarchy created ceremony overhead that accumulated debt. Those 9 specs weren't read during implementation. They were written, then ignored. A test suite would have run every commit — and failed, forcing a rewrite.
 
 ### 3. Architecture as Testable Constraints
 
@@ -166,7 +166,7 @@ What if the system enforced a **decision budget** — N decisions per session, a
 
 The session would end not when the operator is tired, but when the decision budget is exhausted. The tests would run overnight. The retro would auto-generate. The operator would return to a report: "here's what was decided, here's what was built, here's where they diverge."
 
-**This connects back to testing:** the decision budget only works if tests can verify alignment autonomously. Without tests, every decision requires operator review. With tests, the operator reviews once, then the test suite enforces across rewrites.
+**This connects back to testing:** the decision budget only works if tests can verify alignment autonomously. Without tests, every decision requires operator review. With tests, the operator sets the constraint once, then the test suite enforces it across rewrites.
 
 
 
@@ -195,7 +195,7 @@ Swain's artifact hierarchy started as a way to capture ideas and directions so c
 
 The shift is: **specs steer humans, tests constrain agents.**
 
-Write the spec to clarify your own thinking. Capture the product design. Document the architecture. But don't expect the spec to align the agent. Use tests for that. Specs give the agent context; tests give it guardrails. Both are necessary.
+Write the spec to clarify your own thinking. Capture the product design. Document the architecture. But don't expect the spec to align the agent. Use tests for that. Specs give the agent context; tests give it guardrails.
 
 ## What's Next
 
