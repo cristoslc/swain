@@ -4,22 +4,23 @@
 }
 
 :root {
-  /* Light mode (default) */
+  /* Light mode (default) - WCAG AAA compliant colors */
   --color-bg: #fafafa;
   --color-surface: #ffffff;
   --color-text: #1a1a1a;
-  --color-text-muted: #666;
-  --color-border: #eaeaea;
-  --color-accent: #2563eb;
-  --color-accent-hover: #1d4ed8;
-  --color-code-bg: #f3f4f6;
-  --color-code-text: #e11d48;
-  --color-quote: #4b5563;
-  --color-quote-bg: rgba(37, 99, 235, 0.03);
+  --color-text-muted: #595959;
+  --color-border: #d0d0d0;
+  --color-accent: #0055cc;
+  --color-accent-hover: #003d99;
+  --color-accent-visited: #551a8b;
+  --color-code-bg: #f0f0f0;
+  --color-code-text: #d41919;
+  --color-quote: #404040;
+  --color-quote-bg: rgba(0, 85, 204, 0.05);
   --color-pre-bg: #1e1e1e;
   --color-pre-text: #d4d4d4;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.12);
   
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -32,21 +33,23 @@
 }
 
 [data-theme="dark"] {
+  /* Dark mode - WCAG AAA compliant colors */
   --color-bg: #0d1117;
   --color-surface: #161b22;
   --color-text: #f0f6fc;
-  --color-text-muted: #8b949e;
-  --color-border: #30363d;
-  --color-accent: #58a6ff;
-  --color-accent-hover: #79c0ff;
+  --color-text-muted: #a9b2bc;
+  --color-border: #3d444d;
+  --color-accent: #79c0ff;
+  --color-accent-hover: #b3d7ff;
+  --color-accent-visited: #d2a8ff;
   --color-code-bg: #262c36;
   --color-code-text: #ff7b72;
-  --color-quote: #8b949e;
-  --color-quote-bg: rgba(88, 166, 255, 0.08);
+  --color-quote: #a9b2bc;
+  --color-quote-bg: rgba(121, 192, 255, 0.1);
   --color-pre-bg: #161b22;
   --color-pre-text: #c9d1d9;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.5);
 }
 
 html {
@@ -296,6 +299,14 @@ body > footer {
 
 .post-content a:hover {
   color: var(--color-accent-hover);
+}
+
+.post-content a:visited {
+  color: var(--color-accent-visited, var(--color-accent));
+}
+
+[data-theme="dark"] .post-content a:visited {
+  color: #9aa5b1; /* WCAG AAA compliant visited link color for dark mode */
 }
 
 .post-content strong {

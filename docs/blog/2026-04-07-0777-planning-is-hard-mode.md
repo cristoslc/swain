@@ -1,11 +1,11 @@
-# Planning Is Hard Mode: Test-Driven Iteration Is the Only Game in Town
+# For Agentic Coding, Test-Driven Iteration Is the Only Game in Town
 
 **Date:** 2026-04-07  
 **Tags:** agentic-development, testing, architecture, swain
 
 ---
 
-## The Problem: Planning Is Hard Mode
+## The Problem: You Can't Steer With Specs
 
 Swain was built on a hypothesis that seemed sound: if AI agents forget what you decided between sessions, capture those decisions in artifacts. Write them down in git. Make them durable. Build a hierarchy — Vision → Initiative → Epic → Spec — so agents can read what was decided before they act.
 
