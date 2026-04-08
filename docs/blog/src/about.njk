@@ -4,8 +4,23 @@ title: About
 ---
 
 <article class="about">
-  <h1>About</h1>
-  <p>Welcome to the blog. This is a minimal, fast-loading microblog built with Eleventy.</p>
+  <h1>About Swain</h1>
+  <p>Swain makes agentic development <strong>safe, aligned, and sustainable</strong> for a solo developer working with AI coding agents.</p>
   
-  <p>Posts are written in Markdown and deployed via GitHub Pages.</p>
+  <p>AI agents are fast, stateless, and uncritical. Left unsupervised, they produce code that passes tests but silently violates architectural constraints, drifts from prior decisions, and accumulates structural debt that no test suite can detect.</p>
+  
+  <p>Swain captures the operator's decisions as artifacts in git: what was decided and why. When the AI makes decisions, swain makes those visible too, so you can review and course-correct.</p>
+  
+  <h2>Core principles</h2>
+  <ul>
+    <li><strong>Artifacts are the single source of truth</strong> — If it's not in an artifact, it wasn't decided</li>
+    <li><strong>Git is the persistence layer</strong> — Everything is markdown files in version control</li>
+    <li><strong>Agents are black boxes</strong> — Swain provides inputs and verifies outputs, agent runtime is interchangeable</li>
+    <li><strong>Intent is malleable</strong> — Decisions are hypotheses, not commandments</li>
+  </ul>
+  
+  <h2>Install</h2>
+  <pre><code>npx skills add cristoslc/swain</code></pre>
+  
+  <p>See the <a href="https://github.com/cristoslc/swain">GitHub repo</a> for documentation.</p>
 </article>

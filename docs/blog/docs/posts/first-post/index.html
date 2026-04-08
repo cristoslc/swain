@@ -1,20 +1,55 @@
-<p>This is your first blog post. You can edit this file to introduce yourself and the blog.</p>
-<h2>Getting Started</h2>
-<p>To create a new post:</p>
+<h2>The problem</h2>
+<p>AI coding agents are fast, stateless, and uncritical. They build whatever they're told — or whatever they infer from incomplete context. They operate with real credentials, real filesystem access, and real consequences.</p>
+<p>Left unsupervised, agents produce code that passes tests but silently violates architectural constraints, drifts from prior decisions, and accumulates structural debt that no test suite can detect. Left uncontained, a confused or compromised agent can cause damage far beyond its intended scope.</p>
+<p>The gap between human decisions and agent execution widens silently over time. Decisions made in week one are forgotten by week twelve. The reasoning behind past choices evaporates when the conversation ends.</p>
+<h2>What swain does</h2>
+<p>Swain captures the operator's decisions as artifacts in git: what was decided and why. When the AI makes decisions, swain makes those visible too, so you can review and course-correct.</p>
+<p>You bring judgment and vision. The AI brings throughput and execution.</p>
+<p>The result is a project that maintains <strong>intent</strong>, not just one that accumulates code. The AI doesn't drift because the reasoning is right there on disk — and swain actively protects it.</p>
+<h2>The alignment loop</h2>
+<p>Swain's architecture rests on a four-phase loop:</p>
+<p><strong>Intent</strong> — What has been decided. Specs, ADRs, architectural constraints, component boundaries, goals. Human-authored declarations of what should be true.</p>
+<p><strong>Execution</strong> — Where intent meets reality. Agents implementing specs, building features, running migrations. Swain provides the alignment context (what constraints apply, what decisions govern this work) and verifies outcomes.</p>
+<p><strong>Evidence</strong> — What can be observed. Git history, test results, dependency graphs, drift reports, agent session outputs. Evidence is derived from verifiable sources, not from declarations.</p>
+<p><strong>Reconciliation</strong> — The structured comparison of intent against evidence. Drift reports, retrospectives, ADR compliance checks. Reconciliation surfaces divergence so the operator can decide what to do about it.</p>
+<p>The loop is continuous. Most often, execution has drifted from intent and needs correction. But sometimes the drift reveals that intent was wrong — a boundary that agents repeatedly violate may be poorly drawn, a constraint that every implementation works around may be outdated.</p>
+<h2>Foundational principles</h2>
+<p><strong>Artifacts are the single source of truth.</strong> What was decided lives in artifacts — not in conversations, not in memory. If it's not in an artifact, it wasn't decided.</p>
+<p><strong>Git is the persistence layer.</strong> Swain does not maintain its own database. Everything is markdown files in a git repository. Version history, blame, and diff are the audit trail.</p>
+<p><strong>Agents are black boxes.</strong> Swain provides inputs (intent, context, constraints) and verifies outputs (evidence, compliance, completion). The agent runtime is interchangeable.</p>
+<p><strong>Intent and evidence are separate things.</strong> Source code tells you what exists; intent declares what should exist. These must not be collapsed.</p>
+<p><strong>Intent is malleable.</strong> Decisions are hypotheses, not commandments. When evidence repeatedly contradicts intent, that's a signal. Reconciliation doesn't just enforce intent — it challenges it.</p>
+<h2>What a session looks like</h2>
+<p>Two skills auto-run at the start of every session:</p>
 <ol>
-<li>Create a new file in <code>src/posts/</code></li>
-<li>Add frontmatter with <code>title</code>, <code>description</code>, <code>date</code>, and <code>tags: [post]</code></li>
-<li>Write your content in Markdown</li>
-<li>Run <code>npm run build</code> (or let pre-commit handle it)</li>
-<li>Commit and push</li>
+<li><strong>swain-doctor</strong> checks project health and repairs what it finds</li>
+<li><strong>swain-init</strong> restores your context, proposes a focus lane, and generates a session roadmap</li>
 </ol>
-<h2>Post Format</h2>
-<p>Posts support:</p>
+<p>Then you ask what's going on:</p>
+<pre><code>/swain-roadmap
+</code></pre>
+<p>This shows active epics with progress, decisions waiting on you, implementation-ready items, blocked work, tasks, and GitHub issues — all in one view with clickable links.</p>
+<p>From there, the core loop is:</p>
 <ul>
-<li><strong>Markdown formatting</strong></li>
-<li>Code blocks with syntax highlighting</li>
-<li>Blockquotes</li>
-<li>Images</li>
-<li>Links</li>
+<li><strong>Design</strong> (<code>/swain-design</code>) — create and evolve artifacts: Visions, Initiatives, Epics, Specs, Spikes, ADRs, Personas, Runbooks, Journeys, and Designs</li>
+<li><strong>Execute</strong> (<code>/swain-do</code>) — turn approved specs into tracked implementation plans with tasks and dependencies</li>
+<li><strong>Ship</strong> (<code>/swain-sync</code>, <code>/swain-release</code>) — fetch, rebase, commit with conventional messages, cut versioned releases</li>
 </ul>
-<p>Happy writing!</p>
+<p>Artifacts are markdown files in <code>docs/</code>. Phases are subdirectories. Transitions are commits. Everything is inspectable, diffable, and version-controlled.</p>
+<h2>Install</h2>
+<pre><code class="language-bash">npx skills add cristoslc/swain
+</code></pre>
+<p>The installer detects which agent platforms you have (Claude Code, Cursor, Codex, etc.) and installs skills only for those platforms. Built on the <a href="https://github.com/anthropics/skills">skills standard</a>.</p>
+<p>After installing, run <code>/swain-init</code> in your first session to set up governance rules and task tracking.</p>
+<h2>Who this is for</h2>
+<p><strong>The operator</strong> — a solo developer who makes decisions and delegates implementation to AI coding agents. Swain is the operator's decision-support system: it captures intent, surfaces what needs attention, and preserves the reasoning behind choices. The operator steers; swain keeps the record.</p>
+<p><strong>The agent</strong> — any AI coding agent that reads markdown. Swain provides alignment context (acceptance criteria, scope boundaries, constraints, dependency graphs) and verifies outcomes against that context. How the agent works internally is irrelevant. Any agent that reads structured text can participate.</p>
+<h2>What swain is not</h2>
+<ul>
+<li><strong>Not a team tool.</strong> Solo operator with AI agents. Team coordination is a different problem.</li>
+<li><strong>Not an agent runtime.</strong> Alignment and verification, not execution. Swain works with any agent that reads markdown.</li>
+<li><strong>Not a replacement for git.</strong> Git is the foundation. Swain is an opinionated layer on top of it.</li>
+<li><strong>Not prescriptive about agent choice.</strong> Swap runtimes freely. Swain doesn't care which agent you use.</li>
+</ul>
+<hr>
+<p><em>Named for the swain in boat<strong>swain</strong>, the officer who keeps the rigging tight.</em></p>
