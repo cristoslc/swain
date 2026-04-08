@@ -1,4 +1,5 @@
 ---
+layout: post.njk
 title: "Introducing Swain"
 description: "A decision-capture system for solo developers working with AI coding agents."
 date: 2026-04-07

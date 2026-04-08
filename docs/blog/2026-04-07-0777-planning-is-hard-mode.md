@@ -47,7 +47,7 @@ The 80-test suite didn't prevent the architectural violations — but it **made 
 
 **Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated ADR-038's subprocess model. Operator review caught it, not tests. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
 
-**This isn't model-specific.** Claude Code usage (ccusage): Opus 4.6 ($1,456), Sonnet 4.6 ($115), Haiku 4.5 ($0.40), Qwen3.5 (39M tokens), GLM-5. Opencode usage: Qwen3.5:397b, DeepSeek V3.1:671b, GLM-5, Minimax-M2 via ollama-cloud and OpenRouter. Opus built the POC. Sonnet built most of the test suite. Qwen runs the bridge. All went off the rails without tests. All converged with tests.
+**This isn't model-specific.** Claude Code usage (ccusage, swain project): Opus 4.6 (2,156 MTok), Sonnet 4.6 (278 MTok), Qwen3.5 (39.6 MTok), Haiku 4.5 (2.7 MTok), GLM-5 (0.2 MTok). Opencode usage: Qwen3.5:397b, DeepSeek V3.1:671b, GLM-5, Minimax-M2 via ollama-cloud and OpenRouter. Opus built the POC. Sonnet built most of the test suite. Qwen runs the bridge. All went off the rails without tests. All converged with tests.
 
 The BDD test suite spec documents the coverage: 84 tests across 8 domains (session, worktree, artifact, sync). The automated test gates spec makes it official: two-phase verification (integration tests → smoke tests) as a hard gate before every merge.
 
