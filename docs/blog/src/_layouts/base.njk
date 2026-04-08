@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ title }}{% if title != site.title %} | {{ site.title }}{% endif %}</title>
   <meta name="description" content="{{ description or site.description }}">
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="alternate" type="application/feed+xml" title="{{ site.title }}" href="/feed.xml">
+  <link rel="stylesheet" href="{{ '/css/style.css' | url }}">
+  <link rel="alternate" type="application/feed+xml" title="{{ site.title }}" href="{{ '/feed.xml' | url }}">
 </head>
 <body>
   <header class="site-header">
     <div class="wrapper">
-      <a href="/" class="site-title">{{ site.title }}</a>
+      <a href="{{ '/' | url }}" class="site-title">{{ site.title }}</a>
       <nav class="site-nav">
-        <a href="/about/">About</a>
+        <a href="{{ '/about/' | url }}">About</a>
       </nav>
     </div>
   </header>
@@ -26,7 +26,7 @@
 
   <footer class="site-footer">
     <div class="wrapper">
-      <p>&copy; {{ site.author }} {{ site.title }}</p>
+      <p>&copy; {{ site.author }} {{ site.title }} | <a href="https://github.com/cristoslc/swain">GitHub</a></p>
     </div>
   </footer>
 </body>
