@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Microblog</title>
+  <subtitle>A minimal microblog</subtitle>
+  <link href="https://yourusername.github.io/yourrepo/feed.xml" rel="self"/>
+  <link href="https://yourusername.github.io/yourrepo/"/>
+  <updated>2026-04-07T00:00:00.000Z</updated>
+  <id>https://yourusername.github.io/yourrepo/</id>
+  <author>
+    <name>Blog Author</name>
+  </author>
+  
+  <entry>
+    <title>Welcome to the blog</title>
+    <link href="https://yourusername.github.io/yourrepo/posts/first-post/"/>
+    <updated>2026-04-07T00:00:00.000Z</updated>
+    <id>https://yourusername.github.io/yourrepo/posts/first-post/</id>
+    <content type="html">&lt;p&gt;This is your first blog post. You can edit this file to introduce yourself and the blog.&lt;/p&gt;
+&lt;h2&gt;Getting Started&lt;/h2&gt;
+&lt;p&gt;To create a new post:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Create a new file in &lt;code&gt;src/posts/&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Add frontmatter with &lt;code&gt;title&lt;/code&gt;, &lt;code&gt;description&lt;/code&gt;, &lt;code&gt;date&lt;/code&gt;, and &lt;code&gt;tags: [post]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Write your content in Markdown&lt;/li&gt;
+&lt;li&gt;Run &lt;code&gt;npm run build&lt;/code&gt; (or let pre-commit handle it)&lt;/li&gt;
+&lt;li&gt;Commit and push&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Post Format&lt;/h2&gt;
+&lt;p&gt;Posts support:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Markdown formatting&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Code blocks with syntax highlighting&lt;/li&gt;
+&lt;li&gt;Blockquotes&lt;/li&gt;
+&lt;li&gt;Images&lt;/li&gt;
+&lt;li&gt;Links&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Happy writing!&lt;/p&gt;
+</content>
+  </entry>
+  
+</feed>
