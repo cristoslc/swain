@@ -1,120 +1,166 @@
 ---
 trove: opencode-crush-cli
-synthesized: 2026-04-07
-sources: 5
+synthesized: 2026-04-08
+sources: 8
 ---
 
-# opencode server/TUI modes and Crush CLI — Synthesis
+# OpenCode & Crush CLI Server Modes — Synthesis
 
-## Key finding: two separate projects share a confusing lineage
+## Key finding: two separate projects, both now support server mode
 
-"opencode" and "Crush" are easy to conflate but are distinct projects. The original `opencode-ai/opencode` was renamed Crush when transferred to the Charm team on July 29, 2025. The dominant `anomalyco/opencode` project (138k stars, SST team) is a separate project built by the creators of terminal.shop.
+"opencode" and "Crush" are distinct projects often confused due to naming history. Both now offer server mode capabilities, but with different maturity levels.
 
 | | opencode (anomalyco) | Crush (charmbracelet) |
 |---|---|---|
 | Repo | `github.com/anomalyco/opencode` | `github.com/charmbracelet/crush` |
 | Team | SST / Anomaly (terminal.shop) | Charm (Bubble Tea, Lipgloss) |
 | Language | TypeScript + Rust | Go |
-| Architecture | Client/server (HTTP) | Event-driven monolith |
-| Server mode | Yes (`opencode serve`) | No |
-| TUI attach | Yes (`opencode attach <url>`) | No |
-| Provenance | Independent project | Fork of original `opencode-ai/opencode` |
+| Server mode | Mature (`opencode serve`) | Experimental (`crush server`, `CRUSH_CLIENT_SERVER=1`) |
+| ACP support | Yes (`opencode acp`) | Planned (issue #2091) |
+| Stars | 138k | 22.7k |
 
 ---
 
-## Theme 1 — opencode's client/server architecture is its core differentiator
+## Theme 1 — Server mode: the defining architectural difference
 
-When you run `opencode`, it starts **two things**: a TUI client and an HTTP server. The TUI is just one client; the server is always present.
+### OpenCode: mature client/server architecture
 
-This has practical consequences:
+When you run `opencode`, it starts **two things**: a TUI client and an HTTP server. The TUI is just one client of many.
 
-- **`opencode serve`** starts the server without any TUI. Useful for CI, scripts, or remote control.
-- **`opencode web`** starts the server and opens a browser-based UI instead of the TUI.
-- **`opencode attach <url>`** starts a TUI that connects to a running server on another host. This is the remote-control model — run the server on a dev box, drive it from a phone or a different terminal.
-- **`opencode run --attach http://localhost:4096 "prompt"`** avoids MCP cold-boot costs by reusing an existing server.
+**Server commands:**
 
-The OpenAPI 3.1 spec at `/doc` is the single source of truth for all server capabilities.
+- `opencode serve` — headless HTTP server (port 4096 by default)
+- `opencode web` — server + browser UI
+- `opencode attach <url>` — TUI connects to remote server
+- `opencode acp` — ACP server for editor integration (stdin/stdout ndjson)
+
+**API surface:** OpenAPI 3.1 spec at `/doc`, full REST API including:
+- Sessions, messages, files, tools
+- `/tui/*` endpoints for programmatic TUI control
+- `/experimental/tool` for tool discovery
+- Server-sent events stream at `/event`
+
+### Crush: experimental server mode
+
+Crush has **two** server-related features:
+
+**1. `crush server` (v0.34.0+):**
+- Headless server mode (TCP or Unix socket)
+- `--host` flag supports both: `127.0.0.1:4096` or `unix:///tmp/crush-501.sock`
+- Default is Unix socket on macOS/Linux
+- Use `crush --host <url>` to connect TUI to running server
+
+**2. `CRUSH_CLIENT_SERVER=1` (v0.55.0, experimental):**
+- Enables client-server architecture within Crush itself
+- TUI becomes client of RPC server
+- Swagger docs generated and served
+- Not default yet — known bugs exist
+
+The DeepWiki source stating "No HTTP server" is **outdated** (pre-v0.34.0).
 
 ---
 
-## Theme 2 — opencode's config is split by concern
+## Theme 2 — ACP (Agent Client Protocol) support
 
-opencode deliberately separates server concerns from TUI concerns:
+### OpenCode: full ACP implementation
 
-- **`opencode.json`** — server/runtime behavior: providers, models, permissions, agents, MCP servers, formatters.
-- **`tui.json`** — TUI behavior: theme, keybinds, scroll speed, diff style, mouse capture.
+`opencode acp` starts an ACP-compatible subprocess:
 
-This split is intentional. The TUI is a client; it can have its own preferences independent of what the server does.
+- **Transport**: stdin/stdout ndjson (no network)
+- **Use case**: Editor integration (Zed, JetBrains, Neovim)
+- **Protocol**: JSON-RPC over ndjson streams
+- **Mapping**: ACP bridges to OpenCode's internal HTTP server
 
----
-
-## Theme 3 — opencode's `/tui` endpoint enables programmatic TUI control
-
-The server exposes a `/tui` family of endpoints used by IDE plugins:
-
-- `/tui/append-prompt` — inject text into the prompt box.
-- `/tui/submit-prompt` — trigger submission.
-- `/tui/execute-command` — run a slash command.
-- `/tui/control/next` + `/tui/control/response` — implement a request/response loop to handle interactive TUI prompts from an external driver.
-
-This is how the VS Code / IDE plugins work. They talk to the running opencode server rather than spawning a new process.
-
----
-
-## Theme 4 — Crush is a monolith with a polished TUI; no server exposure
-
-Crush uses a layered event-driven architecture with no HTTP surface:
-
+Editors configure OpenCode as an ACP agent:
+```json
+{ "agent_servers": { "OpenCode": { "command": "opencode", "args": ["acp"] } } }
 ```
-CLI entry → app.App orchestrator
-  ├── agent.Coordinator → agent.SessionAgent → fantasy (LLM abstraction)
-  ├── session.Service (SQLite)
-  ├── lsp.Manager
-  ├── MCP layer
-  └── ui.New (Bubble Tea v2) ← subscribes to app.events channel
-```
 
-All updates flow through an internal events channel. The TUI is not a client of an HTTP server — it's an event subscriber.
+ACP enables **any ACP-compatible editor** to drive OpenCode sessions without custom plugin code.
 
-Crush's `fantasy` abstraction layer provides a unified interface to multiple providers (Anthropic, OpenAI, Gemini, Bedrock, Copilot, Vercel, more). The `catwalk` registry is a community-maintained list of supported models; Crush fetches the latest on startup.
+### Crush: ACP client planned (not yet ACP server)
 
-Key UX differentiator: in-session model switching with context preserved. You can start on GPT-4, switch to Claude, then switch to a local model — without losing conversation history.
+From issue #2091, Crush is considering acting as an **ACP client** to drive other agents (like Claude Code). ACP server support for Crush is tracked but not yet implemented.
 
 ---
 
-## Theme 5 — Both tools read Claude Code artifacts by default
+## Theme 3 — Config surface comparison
 
-opencode reads `.claude/skills` and `CLAUDE.md` from the project by default (controlled by `OPENCODE_DISABLE_CLAUDE_CODE` and friends). This means swain skills are available in opencode sessions without any extra configuration.
+| Aspect | OpenCode | Crush |
+|--------|----------|-------|
+| Config file | `opencode.json` (server/runtime) + `tui.json` (TUI client) | `crush.json` (single file) |
+| Config split | Yes (server vs. TUI separation) | No (unified config) |
+| Claude Code compat | Reads `.claude/skills` and `CLAUDE.md` by default | Own skill system (`~/.config/crush/skills/`), no `.claude` by default |
+| Provider config | Environment vars + `opencode.json` | Environment vars + `crush.json` + Catwalk registry |
+| Model switching | In-session, context preserved | In-session, context preserved |
 
-Crush has its own config format (`crush.json`) and skill system (`~/.config/crush/skills/`), but it does not read `.claude` files by default.
+OpenCode's config split reflects its client/server architecture: server config (providers, agents, permissions) is separate from TUI client config (themes, keybinds, scroll settings).
+
+---
+
+## Theme 4 — Non-interactive modes
+
+Both tools support headless execution:
+
+| Command | Purpose |
+|---------|---------|
+| `opencode run "prompt"` | Non-interactive execution |
+| `opencode run --attach http://localhost:4096 "prompt"` | Reuse existing server (avoids MCP cold-boot) |
+| `crush run "prompt"` | Non-interactive execution |
+| `crush server` | Headless server for remote access or CI |
+
+Crush's `--yolo` flag auto-accepts all permissions (danger mode for CI).
+
+---
+
+## Theme 5 — HTTP API comparison
+
+### OpenCode HTTP API (mature, documented)
+
+Full REST API with 50+ endpoints:
+
+- `/global/*` — health, events
+- `/project/*` — project metadata
+- `/session/*` — session CRUD, messaging, TODO, diff, share, summarize
+- `/file/*` — file system operations, search
+- `/tui/*` — programmatic TUI control (append-prompt, submit-prompt, execute-command)
+- `/experimental/tool/*` — tool discovery with JSON schemas
+- `/doc` — OpenAPI 3.1 spec
+
+Authentication: `OPENCODE_SERVER_PASSWORD` for HTTP Basic auth.
+
+### Crush HTTP API (experimental)
+
+From v0.55.0, Crush generates Swagger docs and serves them. The RPC server is gated behind `CRUSH_CLIENT_SERVER=1` and not yet documented. The `crush server` command exposes an HTTP endpoint, but the API surface is not publicly documented (as of Apr 2026).
 
 ---
 
 ## Points of agreement
 
-- Both are Go-based CLI tools with a TUI as the primary interface.
-- Both support multi-provider AI (not tied to Anthropic).
-- Both support MCP servers for tool extensibility.
-- Both support LSP integration.
-- Both have a non-interactive run mode for scripting (`opencode run`, `crush run`).
-- Both store session history locally (opencode in its own format, Crush in SQLite).
+- Both are Go-based CLI tools with TUI built on Charm's Bubble Tea framework
+- Both support multi-provider AI (not tied to Anthropic)
+- Both support MCP servers for tool extensibility
+- Both support LSP integration
+- Both store session history locally (OpenCode in its own format, Crush in SQLite)
+- Both support in-session model switching with context preservation
 
 ---
 
-## Points of disagreement
+## Points of disagreement (corrected from prior version)
 
-- **Server mode:** opencode exposes a full HTTP API with sessions, messages, files, and TUI control. Crush has no server mode.
-- **Architecture:** opencode is explicitly client/server. Crush is a monolith with internal event bus.
-- **Remote control:** opencode supports `attach` for a TUI to connect to a remote server. Crush has no equivalent.
-- **Config surface:** opencode has a split config (server vs. TUI). Crush has a single `crush.json`.
-- **Scale:** opencode is 138k stars and 844 contributors as of Apr 2026. Crush is newer and smaller.
-- **Claude Code compat:** opencode reads `.claude` by default. Crush does not.
+- ~~Server mode~~: **Both now support server mode** — OpenCode mature, Crush experimental
+- **ACP**: OpenCode has full ACP support (`opencode acp`); Crush has ACP client planned but not yet implemented
+- **API maturity**: OpenCode's HTTP API is mature and documented; Crush's is experimental and not yet documented
+- **Architecture maturity**: OpenCode's client/server is production-ready; Crush's is opt-in experimental
+- **Scale**: OpenCode 138k stars vs Crush 22.7k stars (Apr 2026)
 
 ---
 
-## Gaps
+## Gaps addressed
 
-- No source covers opencode's ACP (`opencode acp`) mode in depth. The ACP server runs via stdin/stdout nd-JSON, which may be relevant for agent-to-agent integration.
-- Crush's `crush run` non-interactive mode lacks detailed documentation in collected sources.
-- Neither source covers permission models (what actions require confirmation, how to configure auto-approval).
-- The TNS review article (Aug 2025) was paywalled and not fully collected.
+Prior synthesis stated "Crush has no server mode" — this was incorrect. Crush has `crush server` since v0.34.0 and client-server architecture since v0.55.0 (opt-in). The DeepWiki source was outdated.
+
+Remaining gaps:
+- Crush HTTP API spec not publicly documented (only mentions "generated swagger docs")
+- No detailed docs on `crush server` API surface beyond `--host` flag
+- Permission model comparison not covered (both have them, but details differ)

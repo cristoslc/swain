@@ -28,6 +28,10 @@ history:
     date: 2026-04-07
     commit: "b250b60"
     sources: 5
+  - event: extended
+    date: 2026-04-08
+    commit: "--"
+    sources: 3
 
 sources:
   - source-id: opencode-server-docs
@@ -64,3 +68,25 @@ sources:
     fetched: 2026-04-07T01:57:51Z
     title: "charmbracelet/crush — DeepWiki Architecture Overview"
     hash: "4a7978c926a93b34870aa68451f7edcf054259f837411c0230316880eb4fcba0"
+    notes: "Outdated: states 'No HTTP server' but Crush now has `crush server` command. See crush-server-mode source for current architecture."
+
+  - source-id: crush-server-mode
+    type: web
+    url: "https://github.com/charmbracelet/crush"
+    fetched: 2026-04-08T00:00:00Z
+    title: "Crush Server — Headless HTTP API Mode"
+    hash: "08826b13b4d56b11f7a18425705658b931b62a306ce3d1fcb756aa55c4502546"
+
+  - source-id: crush-client-server-arch
+    type: web
+    url: "https://github.com/charmbracelet/crush/releases/tag/v0.55.0"
+    fetched: 2026-04-08T00:00:00Z
+    title: "Crush Client-Server Architecture (v0.55.0 Experimental)"
+    hash: "a0d325432e6c10c74585b8228b678681bb76de92cfadcc281fe811447ee6cc4e"
+
+  - source-id: opencode-acp-mode
+    type: web
+    url: "https://opencode.ai/docs/acp/"
+    fetched: 2026-04-08T00:00:00Z
+    title: "OpenCode ACP (Agent Client Protocol) Support"
+    hash: "b75408d274d6836ce600b2634fd22604f9cba497e10d4c7df3a3a1ca8f481faa"
