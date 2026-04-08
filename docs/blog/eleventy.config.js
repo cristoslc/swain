@@ -4,6 +4,16 @@ module.exports = function(eleventyConfig) {
     return arr.slice(0, limit);
   });
   
+  // URL filter for pathPrefix support
+  eleventyConfig.addFilter("url", function(path) {
+    const pathPrefix = (eleventyConfig.pathPrefix || "/").replace(/\/$/, "");
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+      return path;
+    }
+    const cleanPath = path.replace(/^\/+/, "");
+    return pathPrefix + "/" + cleanPath;
+  });
+  
   // Passthrough copy for CSS and assets
   eleventyConfig.addPassthroughCopy("src/css");
   

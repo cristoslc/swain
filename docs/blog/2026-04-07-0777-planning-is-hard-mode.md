@@ -13,17 +13,17 @@ I spent 730 commits over 14 days building this system. Sixteen skills. Ten artif
 
 And yet: agents repeatedly went off the rails despite the elaborate artifact hierarchy.
 
-The VISION-006 retro tells the story. In a single session that produced 80 integration tests and 34 commits, the operator made **two major architectural corrections mid-stream**:
+The [VISION-006 Capstone Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md) tells the story. In a single session that produced 80 integration tests and 34 commits, the operator made **two major architectural corrections mid-stream**:
 
-1. **In-process classes → subprocess plugins.** The first implementation violated ADR-038's subprocess model. It worked. It had tests. It was architecturally wrong. Only operator review caught it.
+1. **In-process classes → subprocess plugins.** The first implementation violated [ADR-038: Microkernel Plugin Architecture](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. It worked. It had tests. It was architecturally wrong. Only operator review caught it.
 
 2. **tmux terminal scraping → HTTP API.** The tmux adapter worked but was fragile — ANSI escape codes, output batching, FIFO race conditions. The operator asked why sessions weren't visible in `tmux ls`. Answer: `opencode run` is single-shot. The fix was `opencode serve` — a completely different architecture.
 
-The hierarchy was designed to *tell* agents what to build. But telling doesn't work. The retro is blunt:
+The hierarchy was designed to *tell* agents what to build. But telling doesn't work. The [retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) is blunt:
 
 > "The first half was spent debugging live... The operator said 'stop. reset. TDD from architectural plan.' After that, tests drove every change. Every pivot was validated before going live. **The live debugging wasted 60+ minutes; the TDD approach wasted zero.**"
 
-Tests proved behavior, not architecture. The artifact graph answered "what exists?" but not "what matters?" Another retro found **9 specs that were already implemented but stuck in Active** — the code existed, features worked, but the specs were never transitioned. Artifact debt accumulates silently.
+Tests proved behavior, not architecture. The artifact graph answered "what exists?" but not "what matters?" The [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md) found **9 specs that were already implemented but stuck in Active** — the code existed, features worked, but the specs were never transitioned. Artifact debt accumulates silently.
 
 The pattern repeated across retros:
 
@@ -31,7 +31,7 @@ The pattern repeated across retros:
 - **Stale state** — `.agents/bookmarks.txt` with a single stale entry from a worktree that no longer existed, never cleaned up because no skill owned the lifecycle
 - **Forward-linking is natural, back-propagation is not** — agents link new artifacts to dependencies but never update old artifacts when new evidence arrives
 
-The architecture-intent-evidence trove names the core problem: **architecture documents capture decisions so you don't have to re-derive them from code.** But they drift. Code changes. Decisions get forgotten. Reconciliation is the check: does what we wrote down still match what we built?
+The [Architecture Intent-Evidence Loop trove](https://github.com/cristoslc/swain/blob/trunk/docs/troves/architecture-intent-evidence-loop/synthesis.md) names the core problem: **architecture documents capture decisions so you don't have to re-derive them from code.** But they drift. Code changes. Decisions get forgotten. Reconciliation is the check: does what we wrote down still match what we built?
 
 But reconciliation was manual. Retro documents. Operator attention. The gap between intent (what was decided) and evidence (what exists) widened silently between sessions.
 
@@ -39,17 +39,17 @@ But reconciliation was manual. Retro documents. Operator attention. The gap betw
 
 ## The Discovery: Test-Driven Iteration Is the Only Path That Works
 
-VISION-006's turnaround came when the operator invoked TDD after the live debugging failure. The session retro is explicit:
+[VISION-006](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md)'s turnaround came when the operator invoked TDD after the live debugging failure. The [session retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) is explicit:
 
 > "TDD rescued the session. The first half was spent debugging live... After that, tests drove every change. Every pivot was validated before going live."
 
 The 80-test suite didn't prevent the architectural violations — but it **made convergence possible**. When the HTTP adapter replaced the tmux adapter, tests proved the behavior matched. When the subprocess plugin model replaced in-process classes, tests caught regressions immediately.
 
-**Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated ADR-038's subprocess model. Operator review caught it, not tests. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
+**Specific finding:** The first implementation (in-process classes) had tests and passed them all. It was still architecturally wrong — violated [ADR-038](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. Operator review caught it, not tests. This is why we need fitness functions — they're the architectural test layer that TDD doesn't provide.
 
 **This isn't model-specific.** This project has used: Opus 4.6 (frontier), Sonnet 4.6 (mid-tier), Qwen3.5:397b (mid-tier), Gemma 4:31b (budget). Opus built the POC. Sonnet built the test suite. Gemma 4 ran the bridge. All went off the rails without tests. All converged with tests.
 
-The BDD test suite spec documents the coverage: 84 tests across 8 domains (session, worktree, artifact, sync). The automated test gates spec makes it official: two-phase verification (integration tests → smoke tests) as a hard gate before every merge.
+The [BDD Test Suite Spec](https://github.com/cristoslc/swain/blob/trunk/docs/superpowers/specs/2026-04-04-bdd-test-suite-design.md) documents the coverage: 84 tests across 8 domains (session, worktree, artifact, sync). The [Automated Test Gates Spec](https://github.com/cristoslc/swain/blob/trunk/docs/superpowers/specs/2026-03-31-automated-test-gates-design.md) makes it official: two-phase verification (integration tests → smoke tests) as a hard gate before every merge.
 
 But these tests check **user-facing behavior** — that scripts work, that artifacts transition, that the roadmap renders. They don't test architectural constraints. They don't answer:
 
@@ -60,7 +60,7 @@ But these tests check **user-facing behavior** — that scripts work, that artif
 
 The fitness functions are missing.
 
-**This isn't a cost problem — it's a capability problem.** VISION-006's POC was built with Opus, the frontier model for agentic development. It still went off the rails twice in one session. The 80-test suite caught regressions but NOT the architectural violations — operator review did that. The test suite's real value: once the operator flagged the violation, tests ensured the fix didn't break anything.
+**This isn't a cost problem — it's a capability problem.** [VISION-006](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md)'s POC was built with Opus, the frontier model for agentic development. It still went off the rails twice in one session. The 80-test suite caught regressions but NOT the architectural violations — operator review did that. The test suite's real value: once the operator flagged the violation, tests ensured the fix didn't break anything.
 
 Behavioral specs (BDD) are one useful form — natural language that models can read and write. But the broader category is: tests for everything the artifact hierarchy was supposed to enforce and couldn't.
 
@@ -76,7 +76,7 @@ We need to codify *all* forms of testing, not just TDD. Unit tests cover functio
 
 ### 1. Fitness Functions from Day One
 
-The architecture-intent-evidence trove defines fitness functions as "objective measurement of some architectural characteristic." Paul and Wang extend this: **just as TDD writes tests before code, fitness function-driven development writes architectural tests before implementing features.**
+The [Architecture Intent-Evidence Loop trove](https://github.com/cristoslc/swain/blob/trunk/docs/troves/architecture-intent-evidence-loop/synthesis.md) defines fitness functions as "objective measurement of some architectural characteristic." Paul and Wang extend this: **just as TDD writes tests before code, fitness function-driven development writes architectural tests before implementing features.**
 
 What if swain's artifact hierarchy was replaced with a test suite that encodes architectural constraints?
 
@@ -106,11 +106,11 @@ What if the hierarchy was just **Spec + Test Suite**?
 
 The spec declares acceptance criteria. The test suite verifies them — unit, integration, behavioral, architectural, performance, security. Git history provides the audit trail. Retrospectives capture learnings.
 
-The overnight autonomous artifact sweep found 9 specs that were implemented but never transitioned. The hierarchy created ceremony overhead that accumulated debt. **Specific finding:** those 9 specs weren't read during implementation. They were written, then ignored. The test suite would have been run every commit — and failed, forcing a rewrite.
+The [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md) found 9 specs that were implemented but never transitioned. The hierarchy created ceremony overhead that accumulated debt. **Specific finding:** those 9 specs weren't read during implementation. They were written, then ignored. The test suite would have been run every commit — and failed, forcing a rewrite.
 
 ### 3. Architecture as Testable Constraints
 
-The intent-evidence trove identifies **boundary placement** as the most consequential architectural decision. Evans argues the number one failure mode of microservices adoption is getting the boundaries wrong. Fowler identifies polysemes — words that mean different things in different parts of the system — as invisible to tests but fatal to boundary integrity.
+The [Architecture Intent-Evidence Loop trove](https://github.com/cristoslc/swain/blob/trunk/docs/troves/architecture-intent-evidence-loop/synthesis.md) identifies **boundary placement** as the most consequential architectural decision. Evans argues the number one failure mode of microservices adoption is getting the boundaries wrong. Fowler identifies polysemes — words that mean different things in different parts of the system — as invisible to tests but fatal to boundary integrity.
 
 What if boundaries were encoded as tests?
 
@@ -156,7 +156,7 @@ Swain's current model assumes the operator makes decisions (artifacts) and agent
 
 What if the operator's mental bandwidth was the constraint, not the decision structure?
 
-The project retro notes: **"Agentic development has addictive qualities. The tight feedback loop of 'describe → see it built → describe the next thing' creates a compulsion similar to gaming addiction."**
+The [Project Retro v0.1–v0.13](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-21-project-retro-v0.1-to-v0.13.md) notes: **"Agentic development has addictive qualities. The tight feedback loop of 'describe → see it built → describe the next thing' creates a compulsion similar to gaming addiction."**
 
 What if the system enforced a **decision budget** — N decisions per session, after which the agent must stop and write up what it did? Not "you can keep making decisions" but "you've made 5 decisions, time to close and let the tests verify alignment."
 
@@ -207,11 +207,11 @@ Come tell me what I'm missing.
 
 ## References
 
-- [VISION-006 Capstone Retro](../docs/swain-retro/2026-04-07-vision-006-capstone.md)
-- [VISION-006 Full Session Retro](../docs/swain-retro/2026-04-07-vision-006-full-session-retro.md)
-- [Project Retro v0.1-v0.13](../docs/swain-retro/2026-03-21-project-retro-v0.1-to-v0.13.md)
-- [Overnight Autonomous Artifact Sweep](../docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md)
-- [Teardown/Rewrite/Release Retro](../docs/swain-retro/2026-04-01-teardown-rewrite-release.md)
-- [Architecture Intent-Evidence Loop Trove](../docs/troves/architecture-intent-evidence-loop/synthesis.md)
-- [BDD Test Suite Spec](../docs/superpowers/specs/2026-04-04-bdd-test-suite-design.md)
-- [Automated Test Gates Spec](../docs/superpowers/specs/2026-03-31-automated-test-gates-design.md)
+- [VISION-006 Capstone Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md)
+- [VISION-006 Full Session Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md)
+- [Project Retro v0.1–v0.13](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-21-project-retro-v0.1-to-v0.13.md)
+- [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md)
+- [Teardown/Rewrite/Release Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-01-teardown-rewrite-release.md)
+- [Architecture Intent-Evidence Loop Trove](https://github.com/cristoslc/swain/blob/trunk/docs/troves/architecture-intent-evidence-loop/synthesis.md)
+- [BDD Test Suite Spec](https://github.com/cristoslc/swain/blob/trunk/docs/superpowers/specs/2026-04-04-bdd-test-suite-design.md)
+- [Automated Test Gates Spec](https://github.com/cristoslc/swain/blob/trunk/docs/superpowers/specs/2026-03-31-automated-test-gates-design.md)
