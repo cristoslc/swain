@@ -372,6 +372,7 @@ async def _relay_events(
 
             # Create the session thread
             await _post(stream, topic, f"Session started{suffix}.")
+            typing.start(stream, topic)
 
             # Announce in control so the operator can find the thread
             await _post(
@@ -391,6 +392,7 @@ async def _relay_events(
 
             # Create the session thread with its opening post
             await _post(stream, topic, f"Session started ({runtime}){suffix}.")
+            typing.start(stream, topic)
 
             # Announce in control so the operator can find the thread
             await _post(
