@@ -112,6 +112,8 @@ body {
   font-weight: 500;
 }
 .site-nav a:hover { color: var(--link); }
+.nav-icon { display: flex; align-items: center; }
+.nav-icon:visited { color: var(--text-muted); }
 
 /* Theme toggle */
 .theme-toggle {
