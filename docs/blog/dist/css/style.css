@@ -291,38 +291,19 @@ body > footer {
   margin-bottom: var(--spacing-sm);
 }
 
-/* All links - explicit colors, no transitions to prevent flicker */
+/* Links */
 a {
-  color: #0055cc !important;
+  color: var(--color-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-a:hover {
-  color: #003d99 !important;
-}
-
-/* Visited links - light mode */
 a:visited {
-  color: #551a8b !important;
+  color: var(--color-accent-visited);
 }
 
-/* Visited links - dark mode */
-[data-theme="dark"] a {
-  color: #79c0ff;
-}
-
-[data-theme="dark"] a:hover {
-  color: #b3d7ff;
-}
-
-[data-theme="dark"] a:visited {
-  color: #9aa5b1 !important;
-}
-
-/* Post content specific overrides (inherit from above) */
-.post-content a {
-  /* Inherits from base 'a' selector */
+a:hover {
+  color: var(--color-accent-hover);
 }
 
 .post-content strong {
