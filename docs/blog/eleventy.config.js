@@ -16,6 +16,7 @@ module.exports = function(eleventyConfig) {
   
   // Passthrough copy for CSS and assets
   eleventyConfig.addPassthroughCopy("src/css");
+  eleventyConfig.addPassthroughCopy("src/img");
   
   // Watch CSS files
   eleventyConfig.addWatchTarget("src/css/");

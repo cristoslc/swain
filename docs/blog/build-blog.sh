@@ -15,8 +15,5 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Stage the built output
-git add docs/
-
 echo "Blog built successfully!"
 exit 0
