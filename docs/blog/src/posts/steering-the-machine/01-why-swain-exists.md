@@ -2,11 +2,15 @@
 layout: post.njk
 title: "Why Swain Exists"
 description: "AI agents ship code fast. Swain ensures they ship what actually matters."
-date: 2026-04-07
+date: 2026-03-08T12:00:00
+published: 2026-03-08T12:00:00
+series: "Steering the Machine"
+seriesOrder: 1
 tags:
   - post
   - introduction
   - swain
+  - steering-the-machine
 ---
 
 AI coding agents have a fundamental problem: they're fast, stateless, and uncritical. They'll implement whatever you ask — or whatever they infer from incomplete context — with real credentials and real consequences.

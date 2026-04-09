@@ -45,11 +45,30 @@ module.exports = function(eleventyConfig) {
     return html.replace(/href="\//g, `href="${baseUrl}/`);
   });
   
-  // Collection for blog posts
+  // Collection for blog posts — only include posts with a published date <= today
   eleventyConfig.addCollection("posts", function(collectionApi) {
-    return collectionApi.getFilteredByTag("post").reverse();
+    const now = new Date();
+    now.setHours(23, 59, 59, 999);
+    return collectionApi.getFilteredByTag("post")
+      .filter(item => {
+        const published = item.data.published;
+        if (!published || published === false) return false;
+        return new Date(published) <= now;
+      })
+      .sort((a, b) => {
+        // Sort by published date descending (newest first)
+        return new Date(b.data.published) - new Date(a.data.published);
+      });
   });
   
+  // Suppress rendering of posts where published is false
+  eleventyConfig.addGlobalData("eleventyComputed", {
+    permalink: function(data) {
+      if (data.published === false) return false;
+      return data.permalink;
+    }
+  });
+
   return {
     dir: {
       input: "src",

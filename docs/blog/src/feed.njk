@@ -17,7 +17,7 @@ eleventyExcludeFromCollections: true
   <entry>
     <title>{{ post.data.title }}</title>
     <link href="{{ site.url }}{{ post.url }}"/>
-    <updated>{{ post.date | dateToRfc3339 }}</updated>
+    <updated>{{ (post.data.published or post.date) | dateToRfc3339 }}</updated>
     <id>{{ site.url }}{{ post.url }}</id>
     <content type="html">{{ post.templateContent | htmlToAbsoluteUrls(site.url) }}</content>
   </entry>

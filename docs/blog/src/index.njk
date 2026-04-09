@@ -15,7 +15,7 @@ title: Home
       <a href="{{ post.url | url }}">
         <h3 class="post-title">{{ post.data.title }}</h3>
       </a>
-      <time class="post-date">{{ post.data.date | dateFormat }}</time>
+      <time class="post-date">{{ (post.data.published or post.data.date) | dateFormat }}</time>
       {% if post.data.description %}
       <p class="post-description">{{ post.data.description }}</p>
       {% endif %}

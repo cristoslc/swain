@@ -4,17 +4,77 @@
   <subtitle>A decision-capture system for solo developers working with AI coding agents</subtitle>
   <link href="https://cristoslc.github.io/swain/feed.xml" rel="self"/>
   <link href="https://cristoslc.github.io/swain/"/>
-  <updated>2026-04-07T00:00:00.000Z</updated>
+  <updated>2026-04-06T00:00:00.000Z</updated>
   <id>https://cristoslc.github.io/swain/</id>
   <author>
     <name>Swain</name>
   </author>
   
   <entry>
+    <title>Specs Steer Humans. Tests Constrain Agents.</title>
+    <link href="https://cristoslc.github.io/swain/posts/steering-the-machine/02-specs-steer-humans-tests-constrain-agents/"/>
+    <updated>2026-04-08T12:00:00.000Z</updated>
+    <id>https://cristoslc.github.io/swain/posts/steering-the-machine/02-specs-steer-humans-tests-constrain-agents/</id>
+    <content type="html">&lt;p&gt;I spent 730 commits and 14 days building &lt;a href=&quot;https://github.com/cristoslc/swain&quot;&gt;swain&lt;/a&gt;, a system for keeping AI agents aligned with what I&#39;d decided. The &lt;a href=&quot;../01-why-swain-exists/&quot;&gt;core loop&lt;/a&gt; is still right. The enforcement mechanism was wrong.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;---
+title: Swain&#39;s Core Loop
+---
+flowchart LR
+    intent[&amp;quot;Intent&amp;quot;] --&amp;gt; execution[&amp;quot;Execution&amp;quot;]
+    execution --&amp;gt; evidence[&amp;quot;Evidence&amp;quot;]
+    evidence --&amp;gt; reconciliation[&amp;quot;Reconciliation&amp;quot;]
+    reconciliation --&amp;gt; intent
+
+    intent ~~~ evidence
+    execution ~~~ reconciliation
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;You Can&#39;t Steer With Specs&lt;/h2&gt;
+&lt;p&gt;The hypothesis seemed sound: agents forget what you decided between sessions, so capture those decisions as artifacts. I built ten artifact types, a dependency graph, a roadmap renderer with Eisenhower quadrants and Gantt charts — all for the intent half of the loop. I automated reconciliation too: a retro skill that gathered session context, synthesized what happened, and classified learnings into new specs and ADRs.&lt;/p&gt;
+&lt;p&gt;Agents went off the rails anyway.&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&quot;https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md&quot;&gt;VISION-006 session retro&lt;/a&gt; is the clearest example. In one session, the architecture shifted three times:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Ports &amp;amp; adapters → plugins.&lt;/strong&gt; The initial design assumed adapters would be core contributions. A few iterations in, I realized this would block community extensions and pivoted to a plugin model.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;In-process → subprocess.&lt;/strong&gt; The agent implemented adapters as in-process Python classes. We had a documented architectural decision saying plugins must run as subprocesses. The agent&#39;s code worked. It passed tests. It was structurally wrong, and only my review caught it.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;tmux scraping → HTTP API.&lt;/strong&gt; The agent built a tmux adapter that worked but was fragile. I asked why sessions weren&#39;t showing up in &lt;code&gt;tmux ls&lt;/code&gt;. Turns out &lt;code&gt;opencode run&lt;/code&gt; is single-shot — we needed &lt;code&gt;opencode serve&lt;/code&gt;, a completely different architecture.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The hierarchy was supposed to &lt;em&gt;tell&lt;/em&gt; agents what to build. Telling didn&#39;t work. From the &lt;a href=&quot;https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md&quot;&gt;retro&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;quot;The first half was spent debugging live... The operator said &#39;stop. reset. TDD from architectural plan.&#39; After that, tests drove every change. Every pivot was validated before going live. &lt;strong&gt;The live debugging wasted 60+ minutes; the TDD approach wasted zero.&lt;/strong&gt;&amp;quot;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This wasn&#39;t a one-off. Across the project I kept finding the same failure modes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Code that was tested in isolation but never wired into the system — three separate incidents (&lt;a href=&quot;https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-28-release-skill-deletion-incident.md&quot;&gt;1&lt;/a&gt;, &lt;a href=&quot;https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-31-dead-code-in-release.md&quot;&gt;2&lt;/a&gt;, &lt;a href=&quot;https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-01-teardown-rewrite-release.md&quot;&gt;3&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;Stale state files that referenced worktrees I&#39;d already deleted.&lt;/li&gt;
+&lt;li&gt;Agents that linked new artifacts to their dependencies but never went back to update the things they depended on.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The &lt;a href=&quot;https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md&quot;&gt;overnight artifact sweep&lt;/a&gt; was the one that really got me: 9 specs, already fully implemented, still marked Active. The code existed. The features worked. Nobody — human or agent — had gone back to update the spec.&lt;/p&gt;
+&lt;p&gt;And the retro skill caught all of it. Every session, it would synthesize the drift, surface candidates for new specs and ADRs. I&#39;d tell swain to integrate them and move on. But the output of reconciliation was always more intent: new specs, updated ADRs, revised constraints. The next session&#39;s agent would read those artifacts, and drift again. The retro would catch that too, produce more specs, and the cycle would repeat. Automated, fast, and never catching up — because the whole system was a spec-production loop, and the steering mechanism was always one session behind the thing it was trying to steer.&lt;/p&gt;
+&lt;h2&gt;Tests Close the Loop&lt;/h2&gt;
+&lt;p&gt;VISION-006 turned around when I stopped debugging live and switched to TDD. The dynamic changed immediately. I wasn&#39;t fixing code anymore — I was writing tests that described what I wanted, and the agent was iterating until the tests passed. Each failing test was a specific, falsifiable constraint. Each passing test was evidence of alignment.&lt;/p&gt;
+&lt;p&gt;I fix the tests. The agent fixes the code. That division of labor is the whole insight.&lt;/p&gt;
+&lt;p&gt;This held across every model I used. Opus 4.6, Sonnet 4.6, Qwen3.5:397b, Gemma 4:31b — without tests they all drifted, with tests they all converged. The model didn&#39;t matter. Tests are doing something the model can&#39;t do on its own, regardless of capability tier.&lt;/p&gt;
+&lt;p&gt;But there&#39;s a catch. The in-process adapter implementation had tests and passed them all. It was still architecturally wrong — the tests checked behavior, not structure. I caught that violation myself. The tests covered what the code &lt;em&gt;did&lt;/em&gt;; whether it respected the boundaries I&#39;d designed was still on me.&lt;/p&gt;
+&lt;h2&gt;More Tests, Not More Specs&lt;/h2&gt;
+&lt;p&gt;TDD worked, but only at the behavioral layer. The 80-test suite caught regressions and kept agents converging on functional requirements. Architectural compliance was still me. I was the fitness function, reviewing whether agents respected subprocess boundaries and plugin isolation. When I caught a violation, I&#39;d write it into an ADR. Another spec.&lt;/p&gt;
+&lt;p&gt;Swain&#39;s first iteration asked: what if we had more kinds of &lt;em&gt;artifacts&lt;/em&gt; to steer agents? Ten types, a dependency graph, automated retros feeding back into the system. The answer was clear — more specs weren&#39;t enough.&lt;/p&gt;
+&lt;p&gt;The next iteration asks the opposite question: what if we had more kinds of &lt;em&gt;tests&lt;/em&gt;? Not just unit and integration tests for behavior, but fitness functions for architecture, boundary tests for isolation, protocol tests for communication contracts. Every constraint I wrote into an ADR and hoped agents would read — encode it as a test that runs during execution and fails on violation.&lt;/p&gt;
+&lt;p&gt;Swain v1 built a spec factory. Swain v2 needs a test factory.&lt;/p&gt;
+&lt;p&gt;Coming up in this series: how different kinds of tests map to different kinds of drift, what a minimum viable test suite looks like for a real project, and whether specs can be generated from evidence instead of written up front.&lt;/p&gt;
+&lt;p&gt;If you&#39;re building with agents and have your own hard-won lessons, I&#39;m at &lt;a href=&quot;https://github.com/cristoslc&quot;&gt;@cristoslc&lt;/a&gt;. The &lt;a href=&quot;https://github.com/cristoslc/swain&quot;&gt;swain codebase&lt;/a&gt; is public — retros in &lt;code&gt;docs/swain-retro/&lt;/code&gt;, tests in &lt;code&gt;spec/&lt;/code&gt;.&lt;/p&gt;
+</content>
+  </entry>
+  
+  <entry>
     <title>Why Swain Exists</title>
-    <link href="https://cristoslc.github.io/swain/posts/first-post/"/>
-    <updated>2026-04-07T00:00:00.000Z</updated>
-    <id>https://cristoslc.github.io/swain/posts/first-post/</id>
+    <link href="https://cristoslc.github.io/swain/posts/steering-the-machine/01-why-swain-exists/"/>
+    <updated>2026-03-08T12:00:00.000Z</updated>
+    <id>https://cristoslc.github.io/swain/posts/steering-the-machine/01-why-swain-exists/</id>
     <content type="html">&lt;p&gt;AI coding agents have a fundamental problem: they&#39;re fast, stateless, and uncritical. They&#39;ll implement whatever you ask — or whatever they infer from incomplete context — with real credentials and real consequences.&lt;/p&gt;
 &lt;p&gt;The result isn&#39;t immediate failure. It&#39;s slower: architectural drift that compounds silently. Decisions made in week one are forgotten by week twelve. Constraints get violated under speed pressure. The reasoning behind past choices evaporates when the conversation ends.&lt;/p&gt;
 &lt;h2&gt;The core insight&lt;/h2&gt;

@@ -5,41 +5,51 @@
 
 
 
+## The Thesis
+
+**Specs steer humans. Tests constrain agents.**
+
+Write the spec to clarify your own thinking. Capture the product design. Document the architecture. All of that still matters. But don't expect the spec to align the agent. Use tests for that.
+
+An agent with a spec and no tests will drift. An agent with tests and no spec will flail. An agent with both can iterate toward alignment.
+
+This is the lesson from 730 commits, 14 days, and sixteen skills building swain: the elaborate artifact hierarchy I built — Vision → Initiative → Epic → Spec, dependency graphs, roadmap renderers — couldn't keep agents on track. But tests could.
+
+
+
 ## You Can't Steer With Specs
 
-Swain was built on a hypothesis that seemed sound: if AI agents forget what you decided between sessions, capture those decisions in artifacts. Write them down in git. Make them durable. Build a hierarchy — Vision → Initiative → Epic → Spec — so agents can read what was decided before they act.
+Swain was built on a hypothesis that seemed sound: if AI agents forget what you decided between sessions, capture those decisions in artifacts. Write them down in git. Make them durable. Build a hierarchy so agents can read what was decided before they act.
 
-I spent 730 commits over 14 days building this system. Sixteen skills. Ten artifact types. A dependency graph that validates downstream work against upstream decisions. A roadmap renderer with Eisenhower quadrants and Gantt charts.
+I spent 730 commits over 14 days building this system. Ten artifact types. A dependency graph that validates downstream work against upstream decisions. A roadmap renderer with Eisenhower quadrants and Gantt charts.
 
-And yet: agents repeatedly went off the rails despite the elaborate artifact hierarchy.
+And yet: agents repeatedly went off the rails.
 
-The [VISION-006 Full Session Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) tells the story. In a single session that produced 80 integration tests and 34 commits, the architecture shifted three times:
+The [VISION-006 Full Session Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) tells the story. In a single session, the architecture shifted three times:
 
-1. **Hexagonal → plugin (operator design shift).** The initial design assumed adapters would be core contributions. Mid-implementation, the operator realized this would block community extensions. The architecture shifted to plugins before the agent wrote any code.
+1. **Hexagonal → plugin.** The initial design assumed adapters would be core contributions. Mid-implementation, the operator realized this would block community extensions. The architecture shifted to plugins before the agent wrote any code.
 
-2. **In-process → subprocess (operator correction).** The agent implemented adapters as in-process Python classes. This violated [ADR-038: Microkernel Plugin Architecture](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md)'s subprocess model. It worked. It had tests. It was architecturally wrong. Only operator review caught it.
+2. **In-process → subprocess.** The agent implemented adapters as in-process Python classes. This violated [ADR-038: Microkernel Plugin Architecture](https://github.com/cristoslc/swain/blob/trunk/docs/adr/Active/(ADR-038)-Microkernel-Plugin-Architecture/(ADR-038)-Microkernel-Plugin-Architecture.md). It worked. It had tests. It was architecturally wrong. Only operator review caught it.
 
-3. **tmux scraping → HTTP API (serendipitous pivot).** The agent built a tmux adapter that worked but was fragile — ANSI escape codes, output batching, FIFO race conditions. The operator asked why sessions weren't visible in `tmux ls`. Answer: `opencode run` is single-shot. The fix was `opencode serve` — a completely different architecture. The mismatch between expectation and implementation forced a better design.
+3. **tmux scraping → HTTP API.** The agent built a tmux adapter that worked but was fragile. The operator asked why sessions weren't visible in `tmux ls`. Answer: `opencode run` is single-shot. The fix was `opencode serve` — a completely different architecture.
 
 The hierarchy was designed to *tell* agents what to build. But telling doesn't work. The [retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md) is blunt:
 
 > "The first half was spent debugging live... The operator said 'stop. reset. TDD from architectural plan.' After that, tests drove every change. Every pivot was validated before going live. **The live debugging wasted 60+ minutes; the TDD approach wasted zero.**"
 
-Tests proved behavior, not architecture. The artifact graph answered "what exists?" but not "what matters?" The [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md) found **9 specs that were already implemented but stuck in Active** — the code existed, features worked, but the specs were never transitioned. Ceremony debt accumulated silently.
+The pattern repeated across the project:
 
-The pattern repeated across retros:
+- **"Tested but not wired"** — [release-skill-deletion incident](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-28-release-skill-deletion-incident.md), [dead-code-in-release retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-31-dead-code-in-release.md), [changelog misclassification](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-01-teardown-rewrite-release.md)
+- **Stale state** — `.agents/bookmarks.txt` with stale entries from deleted worktrees
+- **Forward-linking is natural, back-propagation is not** — agents link new artifacts to dependencies but never update old artifacts
 
-- **"Tested but not wired"** — [release-skill-deletion incident](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-28-release-skill-deletion-incident.md) (skill not invoked), [dead-code-in-release retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-31-dead-code-in-release.md) (script not wired), [changelog misclassification](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-01-teardown-rewrite-release.md) (development process not excluded)
-- **Stale state** — `.agents/bookmarks.txt` with a single stale entry from a worktree that no longer existed, never cleaned up because no skill owned the lifecycle
-- **Forward-linking is natural, back-propagation is not** — agents link new artifacts to dependencies but never update old artifacts when new evidence arrives
+The [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md) found **9 specs that were already implemented but stuck in Active** — the code existed, features worked, but the specs were never transitioned. Those 9 specs weren't read during implementation. They were written, then ignored.
 
-The [Architecture Intent-Evidence Loop trove](https://github.com/cristoslc/swain/blob/trunk/docs/troves/architecture-intent-evidence-loop/synthesis.md) names the core problem: **architecture documents capture decisions so you don't have to re-derive them from code.** But they drift. Code changes. Decisions get forgotten. Reconciliation is the check: does what we wrote down still match what we built?
+The [Architecture Intent-Evidence Loop trove](https://github.com/cristoslc/swain/blob/trunk/docs/troves/architecture-intent-evidence-loop/synthesis.md) names the core problem: **architecture documents capture decisions so you don't have to re-derive them from code.** But they drift. Code changes. Decisions get forgotten.
 
-But reconciliation was manual. Retro documents. Operator attention. The gap between intent (what was decided) and evidence (what exists) widened between sessions.
+Reconciliation is the check: does what we wrote down still match what we built?
 
-Here's the shift: **specs steer humans, tests constrain agents.**
-
-Swain's artifact hierarchy started as a way to capture ideas and directions so context would be available to the agent between sessions. That work still matters. Product design, architectural thinking, capturing why decisions were made — none of that goes away. Write the spec to clarify your own thinking. Capture the product design. Document the architecture. But don't expect the spec to align the agent. Use tests for that. Specs give the agent context; tests give it guardrails.
+But reconciliation was manual. Retro documents. Operator attention. The gap between intent and evidence widened between sessions.
 
 
 
@@ -197,6 +207,8 @@ This is speculative. I'm curious if this generalizes beyond swain:
 
 The counterpoint: specs still matter. They clarify your thinking. They capture product design. They document architecture. They steer humans. But they don't steer agents. Tests do that.
 
+
+
 ## What's Next
 
 This post argues that test-driven iteration beats spec-driven planning for agentic development. Three followups are in the queue:
@@ -206,6 +218,8 @@ This post argues that test-driven iteration beats spec-driven planning for agent
 2. **The Minimum Viable Test Suite** — What's the smallest test suite that keeps drift bounded on a big project? Unit tests are cheap. Fitness functions cost more. Where's the inflection point?
 
 3. **Evidence-First Spec Generation** — Can specs be auto-generated from code + tests, then corrected by the operator? Or do we need intent specified up front?
+
+
 
 ## Invitation
 
@@ -219,8 +233,8 @@ Come tell me what I'm missing.
 
 ## References
 
-- [VISION-006 Capstone Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md)
 - [VISION-006 Full Session Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md)
+- [VISION-006 Capstone Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-capstone.md)
 - [Project Retro v0.1–v0.13](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-21-project-retro-v0.1-to-v0.13.md)
 - [Overnight Autonomous Artifact Sweep](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md)
 - [Teardown/Rewrite/Release Retro](https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-01-teardown-rewrite-release.md)
