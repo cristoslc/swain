@@ -61,15 +61,13 @@ And the retro skill caught all of it. Every session, it would synthesize the dri
 
 
 
-## Tests Close the Loop
+## Tests Run During, Not After
 
-VISION-006 turned around when I stopped debugging live and switched to TDD. The dynamic changed immediately. I wasn't fixing code anymore — I was writing tests that described what I wanted, and the agent was iterating until the tests passed. Each failing test was a specific, falsifiable constraint. Each passing test was evidence of alignment.
+Halfway through that VISION-006 session, I stopped debugging live and told the agent to write tests first. The dynamic changed completely. The agent wrote the tests, then wrote code until the tests passed. I wasn't reviewing code anymore — I was reviewing tests. If a test described the wrong behavior, I'd say so and the agent would rewrite it. Everything else happened in the TDD loop without me.
 
-I fix the tests. The agent fixes the code. That division of labor is the whole insight.
+This held across every model I used. Opus 4.6, Sonnet 4.6, Qwen3.5:397b, Gemma 4:31b — without tests they all drifted, with tests they all converged. The model didn't matter.
 
-This held across every model I used. Opus 4.6, Sonnet 4.6, Qwen3.5:397b, Gemma 4:31b — without tests they all drifted, with tests they all converged. The model didn't matter. Tests are doing something the model can't do on its own, regardless of capability tier.
-
-But there's a catch. The in-process adapter implementation had tests and passed them all. It was still architecturally wrong — the tests checked behavior, not structure. I caught that violation myself. The tests covered what the code *did*; whether it respected the boundaries I'd designed was still on me.
+But TDD only got me partway there. The in-process adapter implementation had tests and passed them all. It was still architecturally wrong — the tests checked behavior, not structure. I caught that violation myself. TDD kept the code functionally correct; whether it respected the boundaries I'd designed was still on me.
 
 
 
