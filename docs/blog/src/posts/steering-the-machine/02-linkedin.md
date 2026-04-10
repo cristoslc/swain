@@ -18,4 +18,4 @@ But behavioral tests only closed half the loop. Architectural boundaries — the
 
 So: what if we had more kinds of tests? Fitness functions for architecture. Boundary tests for isolation. Protocol tests for contracts. Specs set the intent. Broad-spectrum tests verify compliance. Every constraint we'd write into a doc and hope gets followed — encode it as something that fails on violation.
 
-For more about my agentic coding journey: https://cristoslc.github.io/swain/posts/steering-the-machine/02-specs-steer-humans-tests-constrain-agents/
+For more about my agentic coding journey: https://steeringthemachine.com/posts/steering-the-machine/02-specs-steer-humans-tests-constrain-agents/
