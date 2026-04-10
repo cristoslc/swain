@@ -159,6 +159,7 @@
 | SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-285 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
 | SPEC-286 | bin/swain Missing Tmux Wrapping | 2026-04-05 | -- |
+| SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 | SPEC-288 | Reconcile Doctor Script and Skill | 2026-04-06 | _pending_ |
 | SPEC-289 | Readability checker scores markdown syntax as prose | 2026-04-06 | -- |
 | SPEC-291 | Non-Interactive Launcher Mode | 2026-04-06 | — |
@@ -168,8 +169,17 @@
 | SPEC-294 | Mermaid Rendering for Chat | 2026-04-07 | a194674c |
 | SPEC-295 | swain-bridge Daemon Mode | 2026-04-07 | — |
 | SPEC-296 | Worktree Session Isolation with Dedicated opencode serve Processes | 2026-04-07 | — |
+| SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-07 | — |
+| SPEC-298 | Control Thread Worktree and Session Spawning | 2026-04-07 | — |
+| SPEC-300 | Resolve Duplicate Artifact ID Collisions in SpecGraph | 2026-04-08 | — |
+| SPEC-301 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
+| SPEC-302 | Swain-Sync Preflight Script | 2026-04-04 | — |
+| SPEC-303 | Output Shaping for Chat | 2026-04-07 | a194674c |
 | SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
+| SPEC-290 | .swain-init not symlinked into pre-existing worktrees | 2026-04-06 | — |
+| SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-07 | — |
+| SPEC-298 | Control Thread Worktree and Session Spawning | 2026-04-07 | — |
 
 ## Complete
 

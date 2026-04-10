@@ -14,6 +14,7 @@
 | SPIKE-052 | Reporting Format Library Design | 2026-04-06 | c213c99 |
 | SPIKE-054 | Transitive Leverage Depth Decay | 2026-04-06 | Initialcreation |
 | SPIKE-060 | Cost Axis Composition Model | 2026-04-06 | Initialcreation |
+| SPIKE-063 | Reporting Format Library Design | 2026-04-06 | c213c99 |
 
 ## Active
 

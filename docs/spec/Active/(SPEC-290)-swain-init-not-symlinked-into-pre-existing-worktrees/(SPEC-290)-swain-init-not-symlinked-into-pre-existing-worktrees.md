@@ -1,5 +1,6 @@
 ---
 id: SPEC-290
+artifact: SPEC-290
 title: ".swain-init not symlinked into pre-existing worktrees"
 type: bug
 status: Active

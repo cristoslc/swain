@@ -1,5 +1,6 @@
 ---
 title: "OpenCode Server API"
+artifact: TROVE-001
 type: evidence
 created: 2026-04-06
 source: API exploration + docs

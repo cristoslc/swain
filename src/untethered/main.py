@@ -7,6 +7,7 @@ Usage:
     uv run python -m untethered.main --config bridge.json
     uv run python -m untethered.main --domain personal
 """
+
 from __future__ import annotations
 
 import argparse
@@ -20,8 +21,22 @@ from pathlib import Path
 from typing import Any
 
 from untethered.kernel import HostKernel
+from untethered.runtime_state import ProcessEntry, RuntimeStateManager
 
 log = logging.getLogger("untethered")
+
+
+def check_and_register_runtime(domain: str) -> RuntimeStateManager:
+    """Check for overlapping servers and register this one."""
+    manager = RuntimeStateManager(domain)
+
+    entry = ProcessEntry(
+        type="host_bridge",
+        pid=os.getpid(),
+    )
+
+    manager.register(entry)
+    return manager
 
 
 def load_config(path: str) -> dict[str, Any]:
@@ -32,6 +47,7 @@ def load_config(path: str) -> dict[str, Any]:
     except json.JSONDecodeError:
         try:
             import yaml
+
             return yaml.safe_load(content)
         except ImportError:
             log.error("Config is not valid JSON and PyYAML is not installed")
@@ -74,7 +90,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Untethered Operator — host kernel")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--config", help="Path to bridge config file (JSON or YAML)")
-    group.add_argument("--domain", help="Security domain name (loads ~/.config/swain/domains/<name>.json)")
+    group.add_argument(
+        "--domain",
+        help="Security domain name (loads ~/.config/swain/domains/<name>.json)",
+    )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
     args = parser.parse_args()
 
@@ -84,6 +103,14 @@ def main() -> None:
     )
 
     config = resolve_config(args)
+    domain = config.get("domain", args.domain or "personal")
+
+    # Check for overlapping servers and register this one
+    try:
+        runtime_manager = check_and_register_runtime(domain)
+    except RuntimeError as e:
+        log.error("%s", e)
+        sys.exit(1)
 
     loop = asyncio.new_event_loop()
 

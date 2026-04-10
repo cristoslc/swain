@@ -26,6 +26,7 @@
 | EPIC-065 | Framework Cost Model | 2026-04-06 | — |
 | EPIC-066 | ROI Scoring Engine | 2026-04-06 | — |
 | EPIC-067 | Backlog Appraisal Bootstrap | 2026-04-06 | — |
+| EPIC-075 | Appraisal Value Model | 2026-04-06 | — |
 
 ## Active
 

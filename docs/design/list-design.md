@@ -31,6 +31,7 @@
 | DESIGN-022 | Chat Interface Interaction | 2026-04-06 | -- |
 | DESIGN-023 | Deployment Topology | 2026-04-06 | -- |
 | DESIGN-024 | Orchestrator Event Schema | 2026-04-06 | -- |
+| DESIGN-025 | Unified Session Launcher | 2026-04-06 | — |
 
 ## Superseded
 

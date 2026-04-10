@@ -12,7 +12,6 @@ PORT=4097
 VERBOSE=""
 DAEMON=false
 ACTION="start"
-PID_FILE="/tmp/swain-bridge.pid"
 LOG_FILE="/tmp/swain-bridge.log"
 
 while [[ $# -gt 0 ]]; do
@@ -43,45 +42,38 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Runtime state is managed by untethered, not this script.
+# swain-bridge only handles process startup/shutdown.
+
 # Handle status action
 if [[ "$ACTION" == "status" ]]; then
-  if [[ -f "$PID_FILE" ]]; then
-    OPENCODE_PID=$(sed -n '1p' "$PID_FILE")
-    BRIDGE_PID=$(sed -n '2p' "$PID_FILE")
-    
-    echo "swain-bridge status:"
-    if kill -0 "$OPENCODE_PID" 2>/dev/null; then
-      echo "  opencode serve (PID $OPENCODE_PID): running"
-      curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' && echo "    health: healthy" || echo "    health: unhealthy"
-    else
-      echo "  opencode serve (PID $OPENCODE_PID): not running"
-    fi
-    if kill -0 "$BRIDGE_PID" 2>/dev/null; then
-      echo "  untethered-host (PID $BRIDGE_PID): running"
-    else
-      echo "  untethered-host (PID $BRIDGE_PID): not running"
-    fi
+  echo "swain-bridge status:"
+  
+  # Check opencode serve
+  if curl -s "http://127.0.0.1:$PORT/global/health" | grep -q '"healthy":true' 2>/dev/null; then
+    echo "  opencode serve (port $PORT): running"
   else
-    echo "swain-bridge: not running (no PID file)"
+    echo "  opencode serve (port $PORT): not running"
   fi
+  
+  echo ""
+  echo "For detailed bridge status, run:"
+  echo "  uv run python -m untethered.main --domain $DOMAIN --status"
   exit 0
 fi
 
 # Handle stop action
 if [[ "$ACTION" == "stop" ]]; then
-  if [[ ! -f "$PID_FILE" ]]; then
-    echo "swain-bridge: not running (no PID file)"
-    exit 0
+  echo "Stopping swain-bridge..."
+  
+  # Kill opencode serve if we started it
+  OPENCODE_PID=$(pgrep -f "opencode serve.*--port $PORT" | head -1 || true)
+  if [[ -n "$OPENCODE_PID" ]]; then
+    kill "$OPENCODE_PID" 2>/dev/null && echo "  opencode serve stopped."
   fi
   
-  echo "Stopping swain-bridge..."
-  OPENCODE_PID=$(sed -n '1p' "$PID_FILE")
-  BRIDGE_PID=$(sed -n '2p' "$PID_FILE")
-  
-  [[ -n "$BRIDGE_PID" ]] && kill "$BRIDGE_PID" 2>/dev/null && echo "  Bridge stopped."
-  [[ -n "$OPENCODE_PID" ]] && kill "$OPENCODE_PID" 2>/dev/null && echo "  opencode serve stopped."
-  
-  rm -f "$PID_FILE"
+  # Bridge is managed by untethered - no direct PID file
+  echo "  Note: Use 'pkill -f untethered-host' if bridge is still running"
   echo "Cleanup complete."
   exit 0
 fi
@@ -116,17 +108,13 @@ if [[ "$DAEMON" == "true" ]]; then
     OPENCODE_PID=$(pgrep -f "opencode serve.*--port $PORT" | head -1)
   fi
   
-  # Start bridge
+  # Start bridge - untethered manages its own PID tracking
   echo "Starting bridge (domain: $DOMAIN)..."
   cd "$REPO_ROOT"
   nohup uv run untethered-host --domain "$DOMAIN" $VERBOSE >> "$LOG_FILE" 2>&1 &
   BRIDGE_PID=$!
   
-  # Write PID file
-  echo "$OPENCODE_PID" > "$PID_FILE"
-  echo "$BRIDGE_PID" >> "$PID_FILE"
-  
-  echo "swain-bridge started (PID file: $PID_FILE)"
+  echo "swain-bridge started"
   echo "Logs: $LOG_FILE"
   echo ""
   echo "Operator can attach: opencode attach http://127.0.0.1:$PORT"
@@ -140,7 +128,6 @@ else
     echo "Shutting down..."
     [[ -n "$BRIDGE_PID" ]] && kill "$BRIDGE_PID" 2>/dev/null && echo "  Bridge stopped."
     [[ -n "$OPENCODE_PID" ]] && kill "$OPENCODE_PID" 2>/dev/null && echo "  opencode serve stopped."
-    rm -f "$PID_FILE" 2>/dev/null
     wait 2>/dev/null
   }
   trap cleanup EXIT INT TERM
