@@ -2,19 +2,19 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Swain</title>
   <subtitle>A decision-capture system for solo developers working with AI coding agents</subtitle>
-  <link href="https://cristoslc.github.io/swain/feed.xml" rel="self"/>
-  <link href="https://cristoslc.github.io/swain/"/>
+  <link href="https://steeringthemachine.com/swain/feed.xml" rel="self"/>
+  <link href="https://steeringthemachine.com/swain/"/>
   <updated>2026-04-06T00:00:00.000Z</updated>
-  <id>https://cristoslc.github.io/swain/</id>
+  <id>https://steeringthemachine.com/swain/</id>
   <author>
     <name>Swain</name>
   </author>
   
   <entry>
     <title>Specs Steer Humans. Tests Constrain Agents.</title>
-    <link href="https://cristoslc.github.io/swain/posts/steering-the-machine/02-specs-steer-humans-tests-constrain-agents/"/>
+    <link href="https://steeringthemachine.com/swain/posts/steering-the-machine/02-specs-steer-humans-tests-constrain-agents/"/>
     <updated>2026-04-08T12:00:00.000Z</updated>
-    <id>https://cristoslc.github.io/swain/posts/steering-the-machine/02-specs-steer-humans-tests-constrain-agents/</id>
+    <id>https://steeringthemachine.com/swain/posts/steering-the-machine/02-specs-steer-humans-tests-constrain-agents/</id>
     <content type="html">&lt;p&gt;I spent 730 commits and 14 days building &lt;a href=&quot;https://github.com/cristoslc/swain&quot;&gt;swain&lt;/a&gt;, a system for keeping AI agents aligned with what I&#39;d decided. The &lt;a href=&quot;../01-why-swain-exists/&quot;&gt;core loop&lt;/a&gt; is still right. The enforcement mechanism was wrong.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;---
 title: Swain&#39;s Core Loop
@@ -71,9 +71,9 @@ flowchart LR
   
   <entry>
     <title>Why Swain Exists</title>
-    <link href="https://cristoslc.github.io/swain/posts/steering-the-machine/01-why-swain-exists/"/>
+    <link href="https://steeringthemachine.com/swain/posts/steering-the-machine/01-why-swain-exists/"/>
     <updated>2026-03-08T12:00:00.000Z</updated>
-    <id>https://cristoslc.github.io/swain/posts/steering-the-machine/01-why-swain-exists/</id>
+    <id>https://steeringthemachine.com/swain/posts/steering-the-machine/01-why-swain-exists/</id>
     <content type="html">&lt;p&gt;AI coding agents have a fundamental problem: they&#39;re fast, stateless, and uncritical. They&#39;ll implement whatever you ask — or whatever they infer from incomplete context — with real credentials and real consequences.&lt;/p&gt;
 &lt;p&gt;The result isn&#39;t immediate failure. It&#39;s slower: architectural drift that compounds silently. Decisions made in week one are forgotten by week twelve. Constraints get violated under speed pressure. The reasoning behind past choices evaporates when the conversation ends.&lt;/p&gt;
 &lt;h2&gt;The core insight&lt;/h2&gt;

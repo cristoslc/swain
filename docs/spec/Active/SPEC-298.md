@@ -35,7 +35,7 @@ Control threads in Zulip streams/topics should be able to trigger the creation o
 
 ## External Behavior
 
-- **Input:** Control thread message: `/workon SPEC-123` or natural language "work on SPEC-123"
+- **Input:** Control thread message: `/swain workon SPEC-123` or natural language "work on SPEC-123"
 - **Preconditions:**
   - Host bridge running with chat adapter connected.
   - Project bridge running for the target project.
@@ -52,10 +52,10 @@ Control threads in Zulip streams/topics should be able to trigger the creation o
 
 ## Acceptance Criteria
 
-- **Given** the operator messages `/workon SPEC-123` in the control thread, **When** the project bridge processes the command, **Then** a worktree is created at a session-scoped path.
+- **Given** the operator messages `/swain workon SPEC-123` in the control thread, **When** the project bridge processes the command, **Then** a worktree is created at a session-scoped path.
 - **Given** the worktree creation succeeds, **When** the session spawns, **Then** opencode starts in the worktree directory with the artifact bound.
-- **Given** an existing session bound to SPEC-123, **When** `/workon SPEC-123` is received, **Then** the project bridge responds with a warning and offers to reconnect to the existing thread.
-- **Given** the `/workon` command specifies a non-existent artifact, **When** the project bridge resolves it, **Then** it responds with "Artifact not found" and lists suggestions.
+- **Given** an existing session bound to SPEC-123, **When** `/swain workon SPEC-123` is received, **Then** the project bridge responds with a warning and offers to reconnect to the existing thread.
+- **Given** the `/swain workon` command specifies a non-existent artifact, **When** the project bridge resolves it, **Then** it responds with "Artifact not found" and lists suggestions.
 - **Given** the session completes normally, **When** the operator confirms cleanup, **Then** the worktree is removed.
 
 ## Verification
