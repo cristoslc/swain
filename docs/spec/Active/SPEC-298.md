@@ -71,28 +71,28 @@ Control threads in Zulip streams/topics should be able to trigger the creation o
 ## Scope & Constraints
 
 **In scope:**
-- Control thread command parsing for `/workon <artifact-id>`.
+- Control thread command parsing for `/swain workon <artifact-id>`.
 - Integration with swain-do worktree dispatch (builds on SPEC-195).
 - Worktree lifecycle management (create, track, clean up).
 - Session spawning with artifact binding.
 - Thread creation for live feed.
 
 **Out of scope:**
-- Natural language parsing beyond simple `/workon` syntax (future enhancement).
+- Natural language parsing beyond simple `/swain workon` syntax (future enhancement).
 - Web pipe / tunnel for web output (v2).
 - Runtime adapters for runtimes other than opencode (Claude Code, etc. — separate SPEC).
 
 ## Implementation Approach
 
 1. **Define domain command** — `start_session_with_worktree(runtime, artifact, prompt?)` in Project Bridge published language.
-2. **Extend control thread handler** — parse `/workon` and dispatch to project bridge.
+2. **Extend control thread handler** — parse `/swain workon` and dispatch to project bridge.
 3. **Wire swain-do dispatch** — call SPEC-195 worktree dispatch logic from project bridge.
 4. **Spawn opencode session** — execute `opencode` in worktree directory, capture stdio.
 5. **Create session thread** — chat adapter creates thread, posts "Session started: SPEC-123 @ <worktree-path>".
 6. **Implement cleanup** — on session end, prompt for worktree removal. Default: remove.
 
 **Test-then-implement cycles:**
-- **Cycle 1:** `/workon` command parsing and artifact resolution.
+- **Cycle 1:** `/swain workon` command parsing and artifact resolution.
 - **Cycle 2:** Worktree creation via swain-do dispatch.
 - **Cycle 3:** Opencode session spawn and stdio capture.
 - **Cycle 4:** Session thread creation and live feed posting.
