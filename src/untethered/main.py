@@ -86,6 +86,67 @@ async def run(config: dict[str, Any]) -> None:
     await kernel.run(config)
 
 
+def _show_status(domain: str) -> None:
+    """Display runtime status for a domain."""
+    manager = RuntimeStateManager(domain)
+    state = manager.get_state()
+
+    if not state or not state.processes:
+        print(f"No active processes for domain '{domain}'.")
+        return
+
+    print(f"Runtime status for domain '{domain}':")
+    print(f"  Created: {state.created_at}")
+    print(f"  Processes: {len(state.processes)}")
+    print("")
+
+    # Group by type
+    by_type: dict[str, list[Any]] = {}
+    for p in state.processes:
+        by_type.setdefault(p.type, []).append(p)
+
+    for proc_type, procs in sorted(by_type.items()):
+        print(f"  {proc_type}:")
+        for p in procs:
+            details = []
+            if p.project:
+                details.append(f"project={p.project}")
+            if p.bridge:
+                details.append(f"bridge={p.bridge}")
+            if p.port:
+                details.append(f"port={p.port}")
+            if p.name:
+                details.append(f"name={p.name}")
+
+            detail_str = f" ({', '.join(details)})" if details else ""
+            print(f"    PID {p.pid}{detail_str} — started {p.started_at}")
+
+
+def _cleanup_stale(domain: str) -> None:
+    """Clean up stale runtime entries for a domain."""
+    manager = RuntimeStateManager(domain)
+
+    # Load and clean stale entries
+    state = manager._load_state()
+    if not state:
+        print(f"No runtime state found for domain '{domain}'.")
+        return
+
+    original_count = len(state.processes)
+    cleaned_state = manager._cleanup_stale_entries(state)
+    cleaned_count = original_count - len(cleaned_state.processes)
+
+    if cleaned_count > 0:
+        manager._save_state(cleaned_state)
+        print(f"Cleaned up {cleaned_count} stale entries for domain '{domain}'.")
+        if cleaned_state.processes:
+            print(f"  {len(cleaned_state.processes)} active processes remain.")
+    else:
+        print(f"No stale entries found for domain '{domain}'.")
+        if cleaned_state.processes:
+            print(f"  {len(cleaned_state.processes)} processes are active.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Untethered Operator — host kernel")
     group = parser.add_mutually_exclusive_group()
@@ -95,12 +156,34 @@ def main() -> None:
         help="Security domain name (loads ~/.config/swain/domains/<name>.json)",
     )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
+    parser.add_argument(
+        "--status",
+        action="store_true",
+        help="Show runtime status for the domain and exit",
+    )
+    parser.add_argument(
+        "--cleanup-stale",
+        action="store_true",
+        help="Clean up stale runtime entries for the domain and exit",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(asctime)s %(name)s %(levelname)s %(message)s",
     )
+
+    # Handle status command
+    if args.status:
+        domain = args.domain or "personal"
+        _show_status(domain)
+        return
+
+    # Handle cleanup-stale command
+    if args.cleanup_stale:
+        domain = args.domain or "personal"
+        _cleanup_stale(domain)
+        return
 
     config = resolve_config(args)
     domain = config.get("domain", args.domain or "personal")

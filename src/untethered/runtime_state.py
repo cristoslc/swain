@@ -100,11 +100,26 @@ class RuntimeStateManager:
     def _cleanup_stale_entries(self, state: RuntimeState) -> RuntimeState:
         """Remove entries for processes that are no longer alive."""
         alive_processes = []
+        stale_count = 0
         for entry in state.processes:
             if self._is_process_alive(entry.pid):
                 alive_processes.append(entry)
             else:
-                log.debug("Removing stale entry: PID %s (%s)", entry.pid, entry.type)
+                stale_count += 1
+                log.info(
+                    "Removing stale entry: PID %s (%s, started %s)",
+                    entry.pid,
+                    entry.type,
+                    entry.started_at,
+                )
+
+        if stale_count > 0:
+            log.info(
+                "Cleaned up %s stale entr%s for domain '%s'",
+                stale_count,
+                "y" if stale_count == 1 else "ies",
+                self.domain,
+            )
 
         return RuntimeState(
             domain=state.domain,
