@@ -1,0 +1,33 @@
+trove: gastown-agent-orchestration
+created: 2026-04-11
+refreshed: 2026-04-11
+tags:
+  - agent-orchestration
+  - vibecoding
+  - design-bottleneck
+  - multi-agent
+  - merge-queue
+  - code-distance
+  - speculative-design
+  - gas-town
+  - steve-yegge
+  - maggie-appleton
+
+freshness-ttl:
+  web: 30d
+
+history:
+  - event: created
+    date: 2026-04-11
+    commit: "--"
+    sources: 1
+
+sources:
+  - source-id: appleton-gastown-agent-patterns
+    type: web
+    url: "https://maggieappleton.com/gastown"
+    fetched: 2026-04-11T23:32:00Z
+    title: "Gas Town's Agent Patterns, Design Bottlenecks, and Vibecoding at Scale"
+    hash: "204b78278a4638a2af5fd62e57eee5c2330582d1adefff8ee15714e8ac0392ad"
+    snapshot-verified: true
+    notes: "Maggie Appleton's analysis of Steve Yegge's Gas Town agent orchestrator — framed as speculative design fiction."
