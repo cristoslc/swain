@@ -19,7 +19,7 @@ freshness-ttl:
 history:
   - event: created
     date: 2026-04-11
-    commit: "--"
+    commit: "ccdf967"
     sources: 1
 
 sources:
