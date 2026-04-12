@@ -1,0 +1,16 @@
+title = "Swain gitleaks config"
+
+# Extend the default gitleaks ruleset.
+[extend]
+useDefault = true
+
+# Allowlist: false positives in third-party public HTML fixtures captured
+# for extraction evaluation (SPIKE-069). These are public API keys embedded
+# in publicly-served HTML (Sodo Search widget keys on ghuntley.com, HN
+# comment-voting auth tokens). Not secrets — they are part of the public
+# response body of the origin server.
+[allowlist]
+description = "Public HTML fixtures captured for extractor evaluation"
+paths = [
+    '''docs/research/.*/evaluation/raw/.*\.html$''',
+]
