@@ -1,12 +1,12 @@
 ---
-title: "Evaluate trafilatura for main content extraction in swain-search"
+title: "Pick the best main-content extractor for swain-search"
 artifact: SPIKE-069
 track: container
 status: Active
 author: Cristos L-C
 created: 2026-04-11
 last-updated: 2026-04-11
-question: "Should swain-search use trafilatura for web content extraction? Would it produce cleaner output than the current approach?"
+question: "Which main-content extractor best fits swain-search? Compare trafilatura, readability-lxml, newspaper3k, and the current path head-to-head."
 gate: Pre-MVP
 risks-addressed:
   - "Boilerplate leaks into trove sources and degrades synthesis."
@@ -14,7 +14,7 @@ risks-addressed:
 evidence-pool: ""
 ---
 
-# Evaluate trafilatura for main content extraction in swain-search
+# Pick the best main-content extractor for swain-search
 
 ## Summary
 
@@ -22,7 +22,7 @@ evidence-pool: ""
 
 ## Question
 
-Should swain-search use trafilatura for web content extraction? Would it produce cleaner output than the current approach?
+Which main-content extractor best fits swain-search? Compare trafilatura, readability-lxml, newspaper3k, and the current path head-to-head.
 
 ### Context
 
@@ -31,20 +31,42 @@ swain-search fetches web pages through two tools:
 1. `convert_to_markdown` MCP tool (Dockerized, opaque internals).
 2. `WebFetch` built-in tool (fetches HTML, converts to markdown via a small model).
 
-Both return raw markdown with navigation, sidebars, footers, and cookie banners mixed in. The skill file tells the agent to "strip boilerplate" during normalization — but this is manual, uneven, and varies by model.
+Both return raw markdown with navigation, sidebars, footers, and cookie banners mixed in. The skill file tells the agent to "strip boilerplate" during normalization — but this is manual, uneven, and varies by model. This spike finds the best replacement via head-to-head comparison, not the first option that passes a bar.
 
-[Trafilatura](https://github.com/adbar/trafilatura) is a Python library built for web content extraction. It finds the main content area, strips boilerplate, and pulls metadata. It powers several academic web corpora projects and is widely used in NLP pipelines.
+## Candidates
+
+All candidates are evaluated against the same test corpus and scoring rubric. No candidate gets a default position.
+
+1. **[Trafilatura](https://github.com/adbar/trafilatura)** — Python library built for web content extraction. Finds main content, strips boilerplate, pulls metadata. Powers several academic web corpora projects.
+2. **[readability-lxml](https://github.com/buriy/python-readability)** — Python port of Arc90's Readability algorithm. Lighter than trafilatura; focused on article extraction.
+3. **[newspaper3k](https://github.com/codelucas/newspaper)** — Python library aimed at news articles. Includes metadata, author, and date extraction.
+4. **Current path (baseline)** — `convert_to_markdown` or `WebFetch` plus agent-driven boilerplate stripping.
+
+Add other candidates if they surface during research (e.g., `goose3`, `dragnet`, `boilerpy3`, `jusText`, Mozilla Readability via a Node shim).
+
+## Evaluation Rubric
+
+Score each candidate on the same test corpus:
+
+- **Test corpus:** 5 diverse pages (blog, docs, forum, news, digital garden). Same URLs for all candidates.
+- **Content quality:** Count boilerplate artifacts (nav, sidebar, footer, cookie banner remnants) in the output. Fewer is better.
+- **Metadata:** Title, author, and date extracted correctly — yes or no per field per page.
+- **Markdown fidelity:** Headings, code blocks, and tables preserved in output. Score per feature per page.
+- **Runtime:** Wall-clock seconds per page.
+- **Integration cost:** Lines of glue code needed to fit swain-search's normalization format. Lower is better.
+- **Install footprint:** Size and dependency count when run via `uv run --with <pkg>`.
 
 ## Go / No-Go Criteria
 
-1. **Content quality:** Test on 5 diverse pages (blog, docs, forum, news, digital garden). Trafilatura must have fewer boilerplate artifacts than `convert_to_markdown`.
-2. **Metadata:** Must pull title, author, and date from pages that have them.
-3. **Integration:** Must run via `uv run --with trafilatura` with no added dependency. Under 10 seconds per page.
-4. **Markdown output:** Must preserve headings, code blocks, and tables — natively or with a light post-process step.
+The winner is the candidate with the best combined score across the rubric. The spike completes when:
+
+1. All candidates have run against the full test corpus.
+2. Scores are recorded in a comparison table under Findings.
+3. One candidate is named the winner with reasoning, or — if no candidate clearly beats the baseline — the spike concludes "stay on the current path" with evidence.
 
 ## Pivot Recommendation
 
-If trafilatura fails the gate: try [readability-lxml](https://github.com/buriy/python-readability) or [newspaper3k](https://github.com/codelucas/newspaper) as lighter options. If all fail, improve the current agent-driven stripping with a prompt template and validation step.
+If no library beats the baseline: improve the agent-driven stripping path with a structured prompt template and validation step, rather than adding a new dependency.
 
 ## Findings
 
