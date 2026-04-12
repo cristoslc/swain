@@ -1,5 +1,5 @@
 ---
-title: "Adopt trafilatura for main content extraction in swain-search"
+title: "Adopt a main-content extractor for swain-search"
 artifact: SPEC-304
 track: implementable
 status: Proposed
@@ -20,7 +20,7 @@ source-issue: ""
 swain-do: required
 ---
 
-# Adopt trafilatura for main content extraction in swain-search
+# Adopt a main-content extractor for swain-search
 
 ## Problem Statement
 
@@ -34,18 +34,18 @@ Trove sources are cleaner and more consistent. The agent spends less time on boi
 
 **Inputs:** A web page URL passed to swain-search for collection.
 
-**Outputs:** Normalized markdown with main content extracted, boilerplate removed, and metadata (title, author, date) populated from the page.
+**Outputs:** Normalized markdown with main content extracted, boilerplate removed, and metadata (title, author, date) populated from the page when available.
 
-**Preconditions:** `uv` is available. The `trafilatura` package is installable via `uv run --with`.
+**Preconditions:** `uv` is available. The chosen extractor package is installable via `uv run --with`.
 
-**Constraints:** No persistent Python dependency added to the project. Trafilatura runs as a one-shot via `uv run`.
+**Constraints:** No persistent Python dependency added to the project. The extractor runs as a one-shot via `uv run`. The extractor is whichever candidate SPIKE-069 names as the winner.
 
 ## Acceptance Criteria
 
-1. **Given** a web page URL, **when** swain-search collects it, **then** trafilatura extracts main content before normalization.
+1. **Given** a web page URL, **when** swain-search collects it, **then** the SPIKE-069 winner extracts main content before normalization.
 2. **Given** a page with nav, sidebar, and footer, **when** extracted, **then** none of those appear in the normalized source.
-3. **Given** a page with title, author, and date, **when** extracted, **then** frontmatter fields are filled from trafilatura's metadata.
-4. **Given** a page where trafilatura fails or returns nothing, **when** tried, **then** swain-search falls back to `convert_to_markdown` / `WebFetch` and logs a warning.
+3. **Given** a page with title, author, and date, **when** extracted, **then** frontmatter fields are filled from the extractor's metadata.
+4. **Given** a page where the extractor fails or returns nothing, **when** tried, **then** swain-search falls back to `convert_to_markdown` / `WebFetch` and logs a warning.
 5. **Given** a typical web page, **when** the pipeline runs, **then** it finishes in under 10 seconds.
 
 ## Verification
@@ -56,17 +56,17 @@ Trove sources are cleaner and more consistent. The agent spends less time on boi
 ## Scope & Constraints
 
 - Only web page sources change. Forum, media, repo, CLI, and local types stay the same.
-- Trafilatura runs via `uv run --with trafilatura` — no `requirements.txt` or `pyproject.toml` change.
+- The extractor runs via `uv run --with <pkg>` — no `requirements.txt` or `pyproject.toml` change.
 - The extraction script goes in `skills/swain-search/scripts/` per skill convention.
-- Output quality depends on SPIKE-069 findings. A post-process step may be needed.
+- Library choice is fixed by SPIKE-069. If that spike concludes "stay on current path", this SPEC is closed as Abandoned.
 
 ## Implementation Approach
 
 Blocked on [SPIKE-069](../../../research/Active/(SPIKE-069)-Trafilatura-Content-Extraction/(SPIKE-069)-Trafilatura-Content-Extraction.md) findings. Rough shape:
 
-1. Create `skills/swain-search/scripts/extract-content.sh` that wraps `uv run --with trafilatura python3 -c "..."` to extract main content and metadata from a URL.
+1. Create `skills/swain-search/scripts/extract-content.sh` that wraps `uv run --with <winner> python3 -c "..."` to extract main content and metadata from a URL.
 2. Update SKILL.md's web page collection step to call the extraction script before normalization.
-3. Add fallback logic: if trafilatura returns empty/error, proceed with existing path.
+3. Add fallback logic: if the extractor returns empty/error, proceed with existing path.
 4. Update `normalization-formats.md` to document the new extraction step.
 
 ## Lifecycle
