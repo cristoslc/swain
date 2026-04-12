@@ -2,12 +2,12 @@
 title: "swain-test skill"
 artifact: SPEC-221
 track: implementable
-status: Active
 author: operator
 created: 2026-03-31
-last-updated: 2026-03-31
+last-updated: 2026-04-12
 priority-weight: high
 type: feature
+status: Complete
 parent-epic: EPIC-052
 parent-initiative: ""
 linked-artifacts:
@@ -94,3 +94,4 @@ After successful completion, the skill produces a structured evidence summary fo
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-03-31 | — | Initial creation |
+| Complete | 2026-04-12 | — | SKILL.md implemented; 34/34 BDD tests pass; smoke test confirms skill activates; readability 8.5 |
