@@ -134,7 +134,6 @@
 | SPEC-213 | Portable skill path resolution | 2026-03-31 | — |
 | SPEC-215 | Consumer integration test harness | 2026-03-31 | — |
 | SPEC-220 | swain-test.sh script | 2026-03-31 | — |
-| SPEC-221 | swain-test skill | 2026-03-31 | — |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | — |
 | SPEC-223 | swain-sync test gate integration | 2026-03-31 | — |
 | SPEC-224 | swain-release test gate integration | 2026-03-31 | — |
@@ -152,6 +151,7 @@
 | SPEC-254 | Audit grep -c || echo fallback pattern across swain scripts | 2026-04-03 | — |
 | SPEC-255 | Doctor Bundle-And-Offer Fixes | 2026-04-03 | 3435901 |
 | SPEC-256 | Worktree preamble must commit dirty tracked files before branching | 2026-04-03 | — |
+| SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 | SPEC-257 | swain-do Completion Chain | 2026-04-04 | 683a04e6 |
 | SPEC-258 | swain-teardown Completion Guardrail | 2026-04-04 | 683a04e6 |
 | SPEC-259 | Consumer Gitignore Coverage Gaps | 2026-04-04 | — |
@@ -162,6 +162,7 @@
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 | SPEC-288 | Reconcile Doctor Script and Skill | 2026-04-06 | _pending_ |
 | SPEC-289 | Readability checker scores markdown syntax as prose | 2026-04-06 | -- |
+| SPEC-290 | .swain-init not symlinked into pre-existing worktrees | 2026-04-06 | — |
 | SPEC-291 | Non-Interactive Launcher Mode | 2026-04-06 | — |
 | SPEC-292 | OpenCode Server Adapter | 2026-04-06 | — |
 | SPEC-293 | CLI Tool Research Pattern for swain-search | 2026-04-07 | - |
@@ -175,9 +176,8 @@
 | SPEC-301 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 | SPEC-302 | Swain-Sync Preflight Script | 2026-04-04 | — |
 | SPEC-303 | Output Shaping for Chat | 2026-04-07 | a194674c |
-| SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
+| SPEC-304 | Adopt trafilatura for main-content extraction in swain-search | 2026-04-11 | -- |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
-| SPEC-290 | .swain-init not symlinked into pre-existing worktrees | 2026-04-06 | — |
 | SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-07 | — |
 | SPEC-298 | Control Thread Worktree and Session Spawning | 2026-04-07 | — |
 
@@ -297,6 +297,7 @@
 | SPEC-217 | Worktree Link Resolution on Merge | 2026-03-31 | — |
 | SPEC-218 | Link Safety Worktree Completion Integration | 2026-03-31 | — |
 | SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | 2f49e1f |
+| SPEC-221 | swain-test skill | 2026-04-12 | — |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | ee81e05 |
 | SPEC-227 | Doctor Artifact Index Staleness Repair | 2026-04-01 | — |
 | SPEC-239 | Worktree-Bookmark Lifecycle Coupling | — | — |
