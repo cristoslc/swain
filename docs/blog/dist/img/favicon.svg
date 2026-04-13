@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .stroke { fill: none; stroke: #1a1a1a; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .fill { fill: #1a1a1a; stroke: none; }
+    @media (prefers-color-scheme: dark) {
+      .stroke { stroke: #f0f6fc; }
+      .fill { fill: #f0f6fc; }
+    }
+  </style>
+  <!-- Bowl (gun) -->
+  <circle class="stroke" cx="8" cy="10" r="5.5"/>
+  <!-- Buoy/wind guard on top of bowl -->
+  <ellipse class="stroke" cx="8" cy="4" rx="3" ry="1.5"/>
+  <line class="stroke" x1="8" y1="5.5" x2="8" y2="4.5"/>
+  <!-- Keel connecting bowl to barrel -->
+  <path class="stroke" d="M13 12 Q16 14 18 14"/>
+  <!-- Barrel (tube) -->
+  <line class="stroke" x1="18" y1="14" x2="30" y2="14"/>
+  <!-- Mouthpiece flare -->
+  <circle class="fill" cx="30" cy="14" r="1.2"/>
+  <!-- Chain loop hanging from mouthpiece -->
+  <path class="stroke" d="M29 15 Q29 24 20 26 Q11 28 8 22" stroke-dasharray="1.5 1.5"/>
+</svg>

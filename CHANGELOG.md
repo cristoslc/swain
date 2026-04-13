@@ -1,3 +1,53 @@
+## [v0.30.0-alpha] - 2026-04-07
+
+### Features
+
+#### Untethered Operator (VISION-006 POC) — Experimental
+
+**Highly experimental POC** — Zulip-based chat interface for steering agentic coding sessions. Operators control Claude Code and other runtimes through natural language in Zulip. Sessions run in isolated tmux panes for operator attachment and debugging.
+
+**What's included:**
+- Zulip control topic (`swain-control`) for natural language queries
+- `bin/swain-bridge` daemon managing host and project bridges
+- `bin/swain` launcher with NDJSON mode for non-interactive flows
+- `swain-helm` skill for bridge lifecycle management
+- Per-session Zulip threads with artifact-preferred naming
+- Full operator attachment via `opencode attach`
+
+**Status:** POC only. Not production-ready. Interface and behavior may change without notice.
+
+#### Worktree Session Isolation
+
+Each Zulip topic (worktree session) spawns its own dedicated `opencode serve` process with dynamic port assignment. Provides complete isolation between sessions and enables `opencode attach` to any worktree session.
+
+#### CLI Tool Research Pattern
+
+swain-search now captures CLI tool documentation automatically: manpages, `--help` output, and recursive subcommand discovery (up to 2 levels deep). Test trove `git-cli` demonstrates the pattern.
+
+### Planned
+
+- Session facilitation rebuild — rethinking how swain helps the operator maintain focus, make decisions, and recover context across sessions.
+- HTTP API for session management — OpenCodeServerAdapter replaces tmux for control sessions, enabling lightweight queries without full Claude sessions.
+
+### Research
+
+- Agent memory systems trove extended — PEARL 2026 Path of Thought paper added.
+- Agentic coding dual modes trove extended — 5 new sources on Amp Code, Cline CLI, Continue CLI, Roo Code CLI, and GitHub Copilot CLI.
+- Git CLI trove created — 3 sources (manpage, help output, subcommand help) demonstrating CLI research pattern.
+- Grainulation trove created — 9 sources on agent memory granularity patterns.
+- Chat server features trove extended — WhatsApp integration patterns, hosted platform comparisons.
+
+### Supporting Changes
+
+- ADR-038 microkernel architecture rebuild — plugin protocol for chat adapters, runtime adapters, and project bridges.
+- TextBatcher for Zulip — coalesces rapid text_output lines into single posts to reduce notification spam.
+- Typing indicator persistence — indicator stays active until session dies, not just on first output.
+- ANSI code stripping from tmux output — prevents garbled messages in Zulip.
+- Session topic registry — per-session Zulip threads with artifact-preferred naming conventions.
+- Mock LLM for control queries — enables full Zulip round trip verification without API costs.
+- Dependency graph rendering switched to flowchart TD for clearer layout.
+- Gitignore cleanup — consolidated `.agents/` and `.claude/` ignores, removed noise patterns.
+- Retro documentation — comprehensive retrospectives for VISION-006 sessions, capturing timeline, pivots, bugs, and patterns.
 # Changelog
 
 ## [0.29.2-alpha] - 2026-04-06

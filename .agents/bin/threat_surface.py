@@ -1,1 +1,0 @@
-../../skills/swain-security-check/scripts/threat_surface.py

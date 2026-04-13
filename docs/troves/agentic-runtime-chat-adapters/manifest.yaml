@@ -1,0 +1,140 @@
+trove: agentic-runtime-chat-adapters
+created: 2026-04-06
+refreshed: 2026-04-06T17:14:00Z
+tags:
+  - agentic-runtime
+  - chat-adapter
+  - web-ui
+  - claude-code
+  - openclaw
+  - acpx
+  - agent-client-protocol
+  - acp-python-sdk
+  - python-native
+  - telegram
+  - discord
+  - messaging-bridge
+  - build-vs-buy
+  - untethered-operator
+  - session-lifecycle
+  - multi-runtime
+
+freshness-ttl:
+  web: 14d
+
+related-troves:
+  - claude-code-remote-interaction
+
+history:
+  - event: created
+    date: 2026-04-06
+    commit: "1bb29db"
+    sources: 10
+  - event: extended
+    date: 2026-04-06
+    commit: "2565704"
+    sources-added: 4
+    sources-total: 14
+
+sources:
+  # === Web UIs (multi-runtime) ===
+  - source-id: cloudcli-claude-code-ui
+    type: web
+    url: "https://github.com/siteboon/claudecodeui"
+    fetched: 2026-04-06T00:00:00Z
+    title: "CloudCLI (aka Claude Code UI) — Desktop and Mobile UI for Claude Code, Cursor CLI, Codex, and Gemini CLI"
+    hash: "8758ed28b2f58444110de514e34df81edae99476a7f6b9addedc5cc896ce3f47"
+
+  - source-id: agent-os-mobile-web-ui
+    type: web
+    url: "https://github.com/saadnvd1/agent-os"
+    fetched: 2026-04-06T00:00:00Z
+    title: "AgentOS — Mobile-First Web UI for Managing AI Coding Sessions"
+    hash: "7b3fe3084843ee5b45fcfeea3ecff877b05d369a19414d665fe4d50a85bae17d"
+
+  - source-id: claudeck-browser-ui
+    type: web
+    url: "https://github.com/hamedafarag/claudeck"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Claudeck — Browser-Based UI for Claude Code"
+    hash: "413131e2163adc1087b1b8039b25207efaf212052656682a6ea7b9f4d694ce8c"
+
+  - source-id: aionui-multi-agent-desktop
+    type: web
+    url: "https://github.com/iOfficeAI/AionUi"
+    fetched: 2026-04-06T00:00:00Z
+    title: "AionUi — Free Open-Source Multi-AI Agent Desktop and OpenClaw Alternative"
+    hash: "37a9fb0f1bea34b22aec4d78e6f158a476506298ab6d2eb8eb69cf93e3f4d43a"
+
+  # === Messaging platform adapters ===
+  - source-id: openclaw-ai-assistant
+    type: web
+    url: "https://github.com/openclaw/openclaw"
+    fetched: 2026-04-06T00:00:00Z
+    title: "OpenClaw — Personal AI Assistant across 15+ Messaging Platforms"
+    hash: "b508c3febe98ace109758ec3e076c4cd61acdcd9f80eebc2d263c0fce2c84bbc"
+
+  - source-id: claude-code-telegram-bot
+    type: web
+    url: "https://github.com/RichardAtCT/claude-code-telegram"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Claude Code Telegram Bot — Remote Access to Claude Code via Telegram"
+    hash: "f994d28fd12b179a1650a6f194bc15da20d9eaa8688c6769c2c6e4c932ac43b4"
+
+  - source-id: secure-openclaw-composio
+    type: web
+    url: "https://github.com/ComposioHQ/secure-openclaw"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Secure OpenClaw — Claude-Powered AI Assistant on Messaging Platforms with Composio"
+    hash: "9c3fd38b26818cc31a7e4b707e683a229341b7f7120baa4de94b3f8e81d59c6e"
+
+  # === Protocol / adapter layers ===
+  - source-id: acpx-agent-client-protocol
+    type: web
+    url: "https://github.com/openclaw/acpx"
+    fetched: 2026-04-06T00:00:00Z
+    title: "ACPX — Headless CLI Client for Agent Client Protocol (ACP) Sessions"
+    hash: "0fefc3fefbd55aa0a542d904bf4d6dcdccb78a1529e04cb8041840f626cfcb12"
+
+  - source-id: acp-vercel-ai-sdk-provider
+    type: web
+    url: "https://ai-sdk.dev/providers/community-providers/acp"
+    fetched: 2026-04-06T00:00:00Z
+    title: "ACP Provider for Vercel AI SDK — Bridge ACP Agents to Web Applications"
+    hash: "143450e00d2450f865d9da0f57faa60bd87662694172962ba36a0fab83b2b849"
+
+  - source-id: casys-acpx-orchestration-guide
+    type: web
+    url: "https://casys.ai/blog/acpx-multi-agent-orchestration"
+    fetched: 2026-04-06T00:00:00Z
+    title: "ACPX Inside Claude Code: Practical Multi-Agent Orchestration"
+    hash: "e8169d4026cab11c89d2344d68eaa88a13fccd8de9fc37b5b665bfb37a8c3218"
+
+  # === ACP Python SDK and language support ===
+  - source-id: acp-python-sdk
+    type: web
+    url: "https://github.com/agentclientprotocol/python-sdk"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Agent Client Protocol Python SDK — Official Python SDK for ACP Clients and Agents"
+    hash: "1c42932729df6cac6147cc991aa8341533b8c29e68c2986800dfe370ba9bc235"
+
+  - source-id: claude-code-acp-pypi
+    type: web
+    url: "https://pypi.org/project/claude-code-acp/"
+    fetched: 2026-04-06T00:00:00Z
+    title: "claude-code-acp — Python ACP Server and Client for Claude Code"
+    hash: "5731212a556186875cdef5349d6d16dd2e8261038ca8df05db7aaee54b5be169"
+
+  - source-id: acp-protocol-org
+    type: web
+    url: "https://github.com/agentclientprotocol/agent-client-protocol"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Agent Client Protocol Specification — Official Protocol Repo and SDK Ecosystem"
+    hash: "3fe01420bcb7e9aa85135acf2ea8d0d519778b4763c90901b13d478011c3d4a5"
+
+  - source-id: acp-python-sdk-blog
+    type: web
+    url: "https://psiace.me/posts/acp-python-sdk-new-chapter/"
+    fetched: 2026-04-06T00:00:00Z
+    title: "Agent Client Protocol Python SDK — A New Chapter (Official Org Adoption)"
+    hash: "4177319220adbcf3409f5039b84c5d149f343946836421e9285b3473de15286b"

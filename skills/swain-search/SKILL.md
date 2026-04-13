@@ -251,6 +251,51 @@ URL pattern: `(x|twitter|fxtwitter|fixupx).com/.+/status/\d+`. Unrolled via the 
 4. Populate the `highlights` array with paths to the most important pages
 5. Preserve internal link structure where possible
 
+**CLI tools:**
+
+First, detect if the target is a CLI tool. Check these criteria:
+- The target exists in `PATH` (run `command -v <tool-name>`)
+- The name matches CLI patterns (lowercase, hyphens, no spaces)
+- The context indicates a command-line tool
+
+If the target is a CLI tool, run the capture sequence:
+
+1. **Manpage capture:**
+   - Run `man <tool-name>`
+   - If successful, save as `cli-manpage` type
+   - If no manpage, skip to help capture
+
+2. **Primary help capture:**
+   - Run `<tool-name> --help`
+   - If that fails, try `<tool-name> -h`
+   - Save as `cli-help` type
+
+3. **Subcommand discovery:**
+   - Look for these patterns in help output:
+     - "Commands:" or "Subcommands:" headings
+     - Indented command lists under "Usage:" sections
+     - Command patterns like `<tool> <command> [options]`
+   - Filter out non-commands:
+     - Keep single words or hyphenated strings
+     - Keep positional arguments from usage lines
+     - Skip anything starting with `-` (those are flags)
+
+4. **Recursive subcommand capture:**
+   - For each subcommand, run `<tool-name> <subcommand> --help`
+   - Save as `cli-subcommand-help` with `depth: 1`
+   - If subcommand has its own subcommands, go one level deeper
+   - Maximum depth: 2 levels
+
+5. **Failure handling:**
+   - No manpage? Use help capture only
+   - Both `--help` and `-h` fail? Note in manifest
+   - All captures fail? Mark as `failed: true` and continue
+
+Each capture becomes a separate source:
+- `sources/<tool>-manpage/<tool>-manpage.md` (type: `cli-manpage`)
+- `sources/<tool>-help/<tool>-help.md` (type: `cli-help`)
+- `sources/<tool>-<subcommand>-help/<tool>-<subcommand>-help.md` (type: `cli-subcommand-help`)
+
 Each normalized source gets a **slug-based source ID** and lives in a directory-per-source layout:
 - **Flat sources** (web, forum, media, document, local): `sources/<source-id>/<source-id>.md`
 - **Hierarchical sources** (repository, documentation-site): `sources/<source-id>/` with the original tree mirrored inside
@@ -413,6 +458,7 @@ Before collecting sources, check what's available. Look for tools matching these
 - **Page fetching**: tools with "fetch", "webpage", "browser" in the name (e.g., `fetch_content`, `webpage-to-markdown`, `browser_navigate`)
 - **Media transcription**: tools with "audio", "video", "youtube" in the name (e.g., `audio-to-markdown`, `youtube-to-markdown`)
 - **Document conversion**: tools with "pdf", "docx", "pptx", "xlsx" in the name (e.g., `pdf-to-markdown`, `docx-to-markdown`)
+- **CLI tool capture**: built-in bash capabilities (`man`, command execution) — always available on POSIX systems
 
 Report available capabilities at the start of collection so the user knows what will and won't work.
 

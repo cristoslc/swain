@@ -1,0 +1,162 @@
+{
+  "blog-ghuntley-ralph": {
+    "category": "blog",
+    "libs": {
+      "trafilatura": {
+        "chars": 28622,
+        "lines": 320,
+        "md_headings": 26,
+        "md_links": 2,
+        "code_fences": 3,
+        "has_frontmatter": true,
+        "boilerplate_hits": 0
+      },
+      "readability-lxml": {
+        "chars": 32351,
+        "lines": 415,
+        "md_headings": 18,
+        "md_links": 10,
+        "code_fences": 4,
+        "has_frontmatter": false,
+        "boilerplate_hits": 0
+      },
+      "newspaper3k": {
+        "chars": 28781,
+        "lines": 278,
+        "md_headings": 0,
+        "md_links": 0,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 0
+      }
+    }
+  },
+  "docs-mdn-websocket": {
+    "category": "docs",
+    "libs": {
+      "trafilatura": {
+        "chars": 3572,
+        "lines": 157,
+        "md_headings": 2,
+        "md_links": 11,
+        "code_fences": 1,
+        "has_frontmatter": true,
+        "boilerplate_hits": 0
+      },
+      "readability-lxml": {
+        "chars": 856,
+        "lines": 7,
+        "md_headings": 0,
+        "md_links": 6,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 0
+      },
+      "newspaper3k": {
+        "chars": 203,
+        "lines": 2,
+        "md_headings": 0,
+        "md_links": 0,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 0
+      }
+    }
+  },
+  "forum-hn-gastown": {
+    "category": "forum",
+    "libs": {
+      "trafilatura": {
+        "chars": 5843,
+        "lines": 41,
+        "md_headings": 0,
+        "md_links": 0,
+        "code_fences": 0,
+        "has_frontmatter": true,
+        "boilerplate_hits": 0
+      },
+      "readability-lxml": {
+        "chars": 1488,
+        "lines": 4,
+        "md_headings": 0,
+        "md_links": 0,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 0
+      },
+      "newspaper3k": {
+        "chars": 0,
+        "lines": 0,
+        "md_headings": 0,
+        "md_links": 0,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 0
+      }
+    }
+  },
+  "news-theverge-sample": {
+    "category": "news",
+    "libs": {
+      "trafilatura": {
+        "chars": 1281,
+        "lines": 10,
+        "md_headings": 0,
+        "md_links": 2,
+        "code_fences": 0,
+        "has_frontmatter": true,
+        "boilerplate_hits": 0
+      },
+      "readability-lxml": {
+        "chars": 555,
+        "lines": 0,
+        "md_headings": 0,
+        "md_links": 0,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 0
+      },
+      "newspaper3k": {
+        "chars": 432,
+        "lines": 2,
+        "md_headings": 0,
+        "md_links": 0,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 0
+      }
+    }
+  },
+  "garden-appleton-gastown": {
+    "category": "digital-garden",
+    "libs": {
+      "trafilatura": {
+        "chars": 32182,
+        "lines": 196,
+        "md_headings": 16,
+        "md_links": 35,
+        "code_fences": 0,
+        "has_frontmatter": true,
+        "boilerplate_hits": 1
+      },
+      "readability-lxml": {
+        "chars": 31561,
+        "lines": 241,
+        "md_headings": 14,
+        "md_links": 29,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 1
+      },
+      "newspaper3k": {
+        "chars": 31670,
+        "lines": 198,
+        "md_headings": 0,
+        "md_links": 0,
+        "code_fences": 0,
+        "has_frontmatter": false,
+        "boilerplate_hits": 2
+      }
+    }
+  }
+}

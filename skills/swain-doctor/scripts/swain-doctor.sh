@@ -481,7 +481,48 @@ check_worktrees() {
     done < <(git worktree list --porcelain 2>/dev/null; echo "")
   fi
 
-  local total_issues=$((orphaned + stale + lockfile_orphans + unclaimed + stale_locks))
+  # SPEC-290: Repair missing .swain-init symlinks in existing worktrees.
+  # Worktrees created before the symlink code existed (or via using-git-worktrees)
+  # lack .swain-init, causing swain-init-preflight to report "onboard" instead of "delegate".
+  #
+  # Source is always the MAIN repo root (first entry in git worktree list), not $REPO_ROOT,
+  # which may itself be a linked worktree. Repair covers all linked worktrees including
+  # the current one when running from inside a worktree.
+  local swain_init_repaired=0
+  local swain_init_missing=0
+  local main_root=""
+  main_root="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+  if [[ -n "$main_root" ]] && [[ -f "$main_root/.swain-init" ]]; then
+    local si_in_first=1
+    local si_path=""
+    while IFS= read -r line; do
+      if [[ "$line" == worktree\ * ]]; then
+        si_path="${line#worktree }"
+      elif [[ -z "$line" ]]; then
+        if [[ $si_in_first -eq 1 ]]; then
+          si_in_first=0
+          si_path=""
+          continue
+        fi
+        if [[ -n "$si_path" ]] && [[ -d "$si_path" ]]; then
+          if [[ ! -e "$si_path/.swain-init" ]]; then
+            ln -s "$main_root/.swain-init" "$si_path/.swain-init" 2>/dev/null \
+              && swain_init_repaired=$((swain_init_repaired + 1)) \
+              || swain_init_missing=$((swain_init_missing + 1))
+          fi
+        fi
+        si_path=""
+      fi
+    done < <(git worktree list --porcelain 2>/dev/null; echo "")
+    # Also repair the current worktree if it's a linked worktree (REPO_ROOT != main_root).
+    if [[ "$REPO_ROOT" != "$main_root" ]] && [[ ! -e "$REPO_ROOT/.swain-init" ]]; then
+      ln -s "$main_root/.swain-init" "$REPO_ROOT/.swain-init" 2>/dev/null \
+        && swain_init_repaired=$((swain_init_repaired + 1)) \
+        || swain_init_missing=$((swain_init_missing + 1))
+    fi
+  fi
+
+  local total_issues=$((orphaned + stale + lockfile_orphans + unclaimed + stale_locks + swain_init_missing))
   if [[ $total_issues -gt 0 ]]; then
     local details=""
     [[ $orphaned -gt 0 ]] && details="$orphaned orphaned"
@@ -489,9 +530,12 @@ check_worktrees() {
     [[ $lockfile_orphans -gt 0 ]] && details="${details:+$details, }$lockfile_orphans lockfile(s) without worktree"
     [[ $unclaimed -gt 0 ]] && details="${details:+$details, }$unclaimed unclaimed worktree(s)"
     [[ $stale_locks -gt 0 ]] && details="${details:+$details, }$stale_locks stale lockfile(s)"
+    [[ $swain_init_missing -gt 0 ]] && details="${details:+$details, }$swain_init_missing worktree(s) missing .swain-init (symlink failed)"
     add_check "worktrees" "warning" "$details"
   else
-    add_check "worktrees" "ok" "$((worktree_count - 1)) linked worktree(s), all active"
+    local ok_msg="$((worktree_count - 1)) linked worktree(s), all active"
+    [[ $swain_init_repaired -gt 0 ]] && ok_msg="$ok_msg (repaired .swain-init symlink in $swain_init_repaired worktree(s))"
+    add_check "worktrees" "ok" "$ok_msg"
   fi
 }
 

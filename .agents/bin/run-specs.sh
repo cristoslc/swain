@@ -1,1 +1,0 @@
-../../skills/swain-test/scripts/run-specs.sh
