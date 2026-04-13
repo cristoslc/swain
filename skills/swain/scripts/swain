@@ -670,13 +670,13 @@ phase3_launch_runtime() {
     prompt="/swain-session Session purpose: ${PURPOSE_ARGS[*]}"
   fi
 
-  # For Partial tier (crush): use SWAIN_PURPOSE env var instead of prompt (ADR-017)
-  if [[ "$runtime" == "crush" ]]; then
-    if [[ -n "$RESUME_PROMPT" ]]; then
-      export SWAIN_PURPOSE="resume — previous session"
-    elif [[ ${#PURPOSE_ARGS[@]} -gt 0 ]]; then
-      export SWAIN_PURPOSE="${PURPOSE_ARGS[*]}"
-    fi
+  # Always export SWAIN_PURPOSE so the greeting script can capture it
+  # deterministically (SPEC-297). Crush (Partial tier) depends on this
+  # exclusively per ADR-017; other runtimes also get the inline prompt.
+  if [[ -n "$RESUME_PROMPT" ]]; then
+    export SWAIN_PURPOSE="resume — previous session"
+  elif [[ ${#PURPOSE_ARGS[@]} -gt 0 ]]; then
+    export SWAIN_PURPOSE="${PURPOSE_ARGS[*]}"
   fi
 
   local cmd

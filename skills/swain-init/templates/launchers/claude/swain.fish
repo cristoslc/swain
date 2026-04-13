@@ -62,6 +62,7 @@ function swain
     end
     set -l _prompt
     if test (count $argv) -gt 0
+        set -gx SWAIN_PURPOSE "$argv"
         set _prompt "/swain-session Session purpose: $argv"
     else
         set _prompt (_swain_check_marker)

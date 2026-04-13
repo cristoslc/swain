@@ -15,7 +15,13 @@
 #   Branch, dirty state, bookmark, focus lane, warnings
 #
 # Output (JSON):
-#   { greeting: true, branch, dirty, bookmark, focus, warnings[] }
+#   { greeting: true, branch, dirty, bookmark, focus, purpose, warnings[] }
+#
+# Session purpose (SPEC-297):
+#   If $SWAIN_PURPOSE is set and the session has no existing bookmark,
+#   the purpose text is written to the bookmark deterministically and
+#   surfaced as the `purpose` JSON field. Agent skills consume this
+#   field; they no longer parse the initial prompt themselves.
 
 set +e
 
@@ -107,6 +113,17 @@ if [[ -f "$SESSION_FILE" ]] && command -v jq &>/dev/null; then
     && mv "${SESSION_FILE}.tmp" "$SESSION_FILE" 2>/dev/null
 fi
 
+# SPEC-297: Session purpose capture.
+# If SWAIN_PURPOSE is set and no bookmark exists yet, write it and re-read.
+PURPOSE="${SWAIN_PURPOSE:-}"
+if [[ -n "$PURPOSE" && -z "$BOOKMARK" ]]; then
+  BOOKMARK_SCRIPT="$SCRIPT_DIR/swain-bookmark.sh"
+  if [[ -f "$BOOKMARK_SCRIPT" ]]; then
+    SWAIN_REPO_ROOT="$REPO_ROOT" bash "$BOOKMARK_SCRIPT" "$PURPOSE" >/dev/null 2>&1
+    BOOKMARK="$PURPOSE"
+  fi
+fi
+
 # ─── Step 3: Output ───
 if [[ "$JSON_MODE" -eq 1 ]]; then
   WARNINGS_JSON="[]"
@@ -124,6 +141,7 @@ if [[ "$JSON_MODE" -eq 1 ]]; then
       --arg focus "$FOCUS" \
       --arg isolated "$ISOLATED" \
       --arg tab "$TAB" \
+      --arg purpose "$PURPOSE" \
       --argjson warnings "$WARNINGS_JSON" \
       '{
         greeting: true,
@@ -132,6 +150,7 @@ if [[ "$JSON_MODE" -eq 1 ]]; then
         isolated: ($isolated == "true"),
         bookmark: (if $bookmark == "" then null else $bookmark end),
         focus: (if $focus == "" then null else $focus end),
+        purpose: (if $purpose == "" then null else $purpose end),
         tab: (if $tab == "" then null else $tab end),
         warnings: $warnings
       }'
@@ -145,6 +164,10 @@ else
   [[ "$ISOLATED" == "true" ]] && isolation=" (worktree)"
 
   echo "Branch: $BRANCH${isolation} [$state]"
+
+  if [[ -n "$PURPOSE" ]]; then
+    echo "Purpose: $PURPOSE"
+  fi
 
   if [[ -n "$BOOKMARK" ]]; then
     echo "Bookmark: $BOOKMARK"
