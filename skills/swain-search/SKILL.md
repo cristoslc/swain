@@ -16,6 +16,18 @@ metadata:
 
 Collect, normalize, and cache source materials into reusable troves that swain-design artifacts can reference.
 
+## Script invocation convention
+
+Scripts live under this skill's `scripts/` directory. Use the `<SKILL_DIR>` placeholder to mean the folder holding this SKILL.md. Resolve it at run time. In an installed skill, that is `.claude/skills/swain-search/`. In the swain repo, it is `skills/swain-search/`.
+
+Run the bootstrap once per session before the media or X-thread flows:
+
+```bash
+bash "<SKILL_DIR>/scripts/bootstrap.sh"
+```
+
+The script checks that `uv` is on `PATH`. After the first run, a marker file at `~/.local/share/swain-search/.bootstrapped` short-circuits later runs. If it exits non-zero, stop and tell the operator what is missing.
+
 ## Mode detection
 
 | Signal | Mode |
@@ -84,12 +96,12 @@ Before a remote source can be treated as collected evidence, the run must produc
 
 Required flow for remote sources:
 1. Export/download the raw snapshot first:
-   - `bash skills/swain-search/scripts/export-snapshot.sh --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
+   - `bash "<SKILL_DIR>/scripts/export-snapshot.sh" --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
 2. Normalize the downloaded file using `writing-skills` or `skill-creator` (never summary-only browser notes).
 3. Log metadata:
-   - `bash skills/swain-search/scripts/log-snapshot-metadata.sh --source-url "<source-url>" --export-mode "<mode>" --raw-path "<raw-path>" --normalized-path "<normalized-path>" --normalization-skill "<writing-skills|skill-creator>"`
+   - `bash "<SKILL_DIR>/scripts/log-snapshot-metadata.sh" --source-url "<source-url>" --export-mode "<mode>" --raw-path "<raw-path>" --normalized-path "<normalized-path>" --normalization-skill "<writing-skills|skill-creator>"`
 4. Verify before publication:
-   - `bash skills/swain-search/scripts/verify-snapshot-evidence.sh --source-url "<source-url>"`
+   - `bash "<SKILL_DIR>/scripts/verify-snapshot-evidence.sh" --source-url "<source-url>"`
 
 If verification fails, mark the source unverified, do not publish it downstream, and report the warning to the operator.
 
@@ -130,7 +142,7 @@ For each source, use the appropriate capability. Read `references/normalization-
 
 **Google Docs / Drive-like documents:**
 1. Export raw content first (required):
-   - `bash skills/swain-search/scripts/export-snapshot.sh --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
+   - `bash "<SKILL_DIR>/scripts/export-snapshot.sh" --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
 2. Prefer API export modes (`google-doc-export`, `google-slides-export`, `google-drive-download`).
 3. If API export fails, use a browser helper fallback only when available.
 4. Normalize the exported file with `writing-skills` or `skill-creator`.
@@ -141,7 +153,7 @@ For each source, use the appropriate capability. Read `references/normalization-
 
 After fetching a web page, check if a paywall proxy is available for the URL's domain:
 
-1. Run `scripts/resolve-proxy.sh <url>`
+1. Run `bash "<SKILL_DIR>/scripts/resolve-proxy.sh" <url>`
    - **Exit 1**: no proxy configured — use the direct fetch content as-is
    - **Exit 0**: outputs `PROXY:<name>:<proxy-url>` and `SIGNAL:<text>` lines
 2. If exit 0, check the fetched content for each `SIGNAL` text (case-sensitive literal match)
@@ -155,10 +167,67 @@ After fetching a web page, check if a paywall proxy is available for the URL's d
 
 The registry lives at `references/paywall-proxies.yaml`. Add new domains or proxies there — no skill file changes needed.
 
-**Video/audio URLs:**
-1. Use a media transcription capability to get the transcript
-2. Normalize to markdown per the media format (timestamps, speaker labels, key points)
-3. If no transcription capability is available, tell the user and skip — or accept a pre-made transcript
+**Video/audio URLs (YouTube, Instagram, podcasts):**
+
+Follow the tiered chain below. Each tier writes `/tmp/swain_search_media_transcript.txt`. That file is then normalized per the media format in `references/normalization-formats.md`. The output goes to `sources/<source-id>/<source-id>.md`.
+
+1. **Fetch subs and metadata** via a single yt-dlp call:
+   ```bash
+   bash "<SKILL_DIR>/scripts/yt-dlp.sh" --write-auto-sub --sub-lang en --write-info-json --skip-download --sub-format vtt -o "/tmp/swain_search_media" "<URL>"
+   ```
+   For Instagram URLs, add `--cookies-from-browser <browser>` (chrome/safari/firefox/brave). For podcast or conference URLs not already on YouTube, resolve the title to a YouTube link first via a web-search capability.
+
+2. **VTT path (preferred)**. If `/tmp/swain_search_media.en.vtt` exists and is non-empty:
+   ```bash
+   test -s /tmp/swain_search_media.en.vtt && uv run "<SKILL_DIR>/scripts/parse_vtt.py"
+   ```
+   The script writes `[HH:MM:SS] line` segments. Set `transcript-source: vtt` in the source frontmatter.
+
+3. **Caption fallback**. If no VTT, read `/tmp/swain_search_media.info.json` and take the `description` field. Strip `#\w+` tags. Strip leading and trailing whitespace. If the remaining text is over 100 characters, write it to `/tmp/swain_search_media_transcript.txt` (one paragraph per line). Set `transcript-source: caption`. Omit timestamps.
+
+4. **Frame-extraction fallback (needs operator approval)**. If the caption is too short (100 chars or fewer), stop and ask:
+   > No subtitles or usable caption found. I can extract frames and read on-screen text to build a transcript. This needs `opencv-python-headless` (~30MB, via uv). Proceed?
+
+   On approval:
+   - Download the video: `bash "<SKILL_DIR>/scripts/yt-dlp.sh" -o "/tmp/swain_search_video.mp4" "<URL>"`. Add `--cookies-from-browser <browser>` for Instagram.
+   - Extract frames: `uv run --with opencv-python-headless python3 "<SKILL_DIR>/scripts/extract_frames.py" /tmp/swain_search_video.mp4`. Saves `/tmp/swain_search_frame_000.png` and up, via scene-change detection.
+   - **Probe vision**. Use the Read tool on `/tmp/swain_search_frame_000.png`. Try to read the visible text. If that works, go to step 5. If not, go to step 6.
+
+5. **Vision OCR (preferred)**. Use the Read tool on each remaining frame. Extract all visible text. Dedupe adjacent-frame repeats. Write the text to `/tmp/swain_search_media_transcript.txt`. Set `transcript-source: vision-ocr`. No timestamps.
+
+6. **Local OCR fallback**. If vision fails, ask:
+   > Vision not available. Falling back to local OCR via EasyOCR (~400MB first-run download). Proceed?
+
+   On approval:
+   ```bash
+   uv run --with "easyocr,opencv-python-headless" python3 "<SKILL_DIR>/scripts/ocr_frames.py"
+   ```
+   Set `transcript-source: local-ocr`. No timestamps.
+
+7. **Normalize and write the source**. Derive the source ID slug from the video title. Use lowercase, numbers, and hyphens only. Write `sources/<source-id>/<source-id>.md` per the media format. Add `transcript-source` to the frontmatter. Add `duration`, `speakers`, and YouTube deep-links only when step 2 ran.
+
+If no tier succeeds, record the source in the manifest with `failed: true` and `reason: <tier>`.
+
+**X/Twitter threads:**
+
+URL pattern: `(x|twitter|fxtwitter|fixupx).com/.+/status/\d+`. Unrolled via the public fxtwitter API. No auth needed.
+
+1. Fetch the thread:
+   ```bash
+   uv run "<SKILL_DIR>/scripts/fetch_x_thread.py" "<URL>"
+   ```
+   The script writes two files: `/tmp/swain_search_thread.json` holds the raw response, and `/tmp/swain_search_thread_transcript.txt` holds the stitched transcript with cited-post blockquotes. It also prints a metadata JSON object to stdout. Capture these fields: `author_name`, `author_handle`, `author_url`, `published_date`, `tweet_count`, `title_guess`, `source_url`, `post_urls`, `cited_posts`.
+
+2. **Unrollable thread**. If the script exits with "only 1 post returned" on a thread-opener, the upstream deployment lacks an account proxy. Record the entry with `failed: true` and `reason: x-thread-unrollable`. Move on.
+
+3. Derive the source ID as `<author_handle>-<first-few-title-words>`. Sanitize to lowercase, numbers, and hyphens only. Strip any `@`.
+
+4. Normalize per the x-thread format in `references/normalization-formats.md`:
+   - Frontmatter: add `author-handle`, `author-name`, `published-date`, and `tweet-count` to the common fields.
+   - Body: render every post verbatim as a numbered list. Hyperlink each number back to its tweet URL. Strip leading auto-mention chains. These are the `@handle` prefixes X adds to replies. Hyperlink inline `@mentions` as `[@handle](https://x.com/handle)`. Hyperlink hashtags as `[#tag](https://x.com/hashtag/tag)`.
+   - Cited posts: render each `cited_posts` entry as an indented blockquote under the citing post. Append up to 3 substantive self-replies as continuation. Skip bare-URL self-replies; they already appear in `external_links`. Link out if more than 3 self-replies exist.
+
+5. Save to `sources/<source-id>/<source-id>.md`.
 
 **Local files:**
 1. Use a document conversion capability (PDF, DOCX, etc.) or read directly if already markdown

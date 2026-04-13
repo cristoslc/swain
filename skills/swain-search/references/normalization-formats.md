@@ -25,7 +25,7 @@ All normalized source files share this frontmatter:
 ---
 source-id: "mdn-websocket-api"
 title: "Source Title"
-type: web | forum | document | media | local | repository | documentation-site
+type: web | forum | document | media | local | repository | documentation-site | x-thread
 url: "https://..."           # or path for local sources
 fetched: 2026-03-09T14:30:00Z
 hash: "a1b2c3..."
@@ -106,6 +106,50 @@ Key rules:
 - Omit deleted/removed posts (note their absence if the thread references them)
 - For nested threads (Reddit-style), flatten to chronological with reply-to attribution
 
+## X/Twitter threads
+
+X threads are a source type of their own. Each one has an author, a post count, and a post-by-post order. Cited tweets appear inline. The `fetch_x_thread.py` script unrolls the thread via `api.fxtwitter.com`. It also resolves cited posts and self-replies. The output keeps every post verbatim.
+
+```markdown
+---
+source-id: "schlickw-us-foreign-policy-anthropic-mythos"
+title: "US Foreign Policy and the Anthropic Mythos"
+type: x-thread
+url: "https://x.com/schlickw/status/1234567890"
+fetched: 2026-04-13T14:30:00Z
+hash: "k1l2m3..."
+author-handle: "schlickw"
+author-name: "Example Author"
+author-url: "https://x.com/schlickw"
+published-date: "2026-04-12T18:00:00Z"
+tweet-count: 14
+---
+
+# US Foreign Policy and the Anthropic Mythos
+
+## Full Thread
+
+1. [[1/14]](https://x.com/schlickw/status/1234567890) Opening post text, verbatim, with [@mentions](https://x.com/mention) and [#tags](https://x.com/hashtag/tag) hyperlinked inline.
+
+2. [[2/14]](https://x.com/schlickw/status/1234567891) Second post text with a citation to another thread:
+
+   > **[@other_author](https://x.com/other_author)** ([2026-04-10](https://x.com/other_author/status/9876543210)): Cited post text, verbatim.
+   >
+   > Continuation from the cited author's self-reply, appended as context.
+   > _Linked: [article-title](https://example.com/article) — one-sentence synopsis._
+
+3. [[3/14]](https://x.com/schlickw/status/1234567892) Third post text...
+```
+
+Key rules:
+- Strip leading auto-mention chains. These are the `@handle` prefixes X adds to reply posts. They are threading artifacts, not the author's words.
+- Hyperlink every `@mention` inline as `[@handle](https://x.com/handle)`. Hyperlink hashtags as `[#tag](https://x.com/hashtag/tag)`.
+- Render cited posts as indented blockquotes under the citing post. Use this format: `> **[@handle](url)** ([date-link](tweet_url)): <verbatim text>`.
+- Append up to 3 substantive self-replies from the cited author as blockquote continuation. Skip bare-URL self-replies. They already live in `external_links`. Link out if more than 3 exist.
+- Resolve external links inside cited posts when the `article`, `external_links`, or `photos` fields point to longer content. Add a one-sentence synopsis as a sub-blockquote.
+- No timestamps. X threads have no internal timeline.
+- If the response is a single post on a known thread-opener, record the entry as `failed: true` and `reason: x-thread-unrollable`. Do not write a source file.
+
 ## Documents (PDF, DOCX, PPTX, XLSX)
 
 Convert to markdown preserving structure. Use available document conversion capabilities.
@@ -152,6 +196,7 @@ hash: "j0k1l2..."
 duration: "42:15"
 speakers:
   - "Jamie Zawinski"
+transcript-source: vtt   # vtt | caption | vision-ocr | local-ocr
 ---
 
 # Real-time Web Patterns - StrangeLoop 2025
@@ -174,10 +219,11 @@ speakers:
 ```
 
 Key rules:
-- Timestamps in `[MM:SS]` or `[HH:MM:SS]` format
-- Speaker labels on every speaker change (or every few minutes for single-speaker)
-- Include a "Key Points" section auto-extracted from the content
-- For podcasts with multiple speakers, clearly attribute each segment
+- Timestamps in `[MM:SS]` or `[HH:MM:SS]` format — only when `transcript-source: vtt`.
+- Speaker labels on every speaker change (or every few minutes for single-speaker).
+- Include a "Key Points" section auto-extracted from the content.
+- For podcasts with multiple speakers, clearly attribute each segment.
+- The `transcript-source` field records which tier produced the text. Omit `duration` and `speakers` when caption, vision-ocr, or local-ocr was used (those tiers do not recover that metadata).
 
 ## Local files (already markdown)
 
