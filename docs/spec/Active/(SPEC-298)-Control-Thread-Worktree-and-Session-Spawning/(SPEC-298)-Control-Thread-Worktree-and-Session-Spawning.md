@@ -23,39 +23,41 @@ swain-do: required
 
 ## Problem Statement
 
-Control threads in Zulip streams/topics should be able to trigger the creation of a new worktree and spawn an opencode server session in that worktree. Today, swain-init sessions are terminal-bound. The operator wants to start implementation work from a phone by messaging the control thread.
+Control threads in Zulip streams/topics should be able to trigger worktree creation and opencode session spawning. The project bridge is a persistent daemon per project — it manages multiple worktrees and sessions, not one per worktree. The operator wants to start implementation work from a phone by messaging the control thread.
 
 ## Desired Outcomes
 
 - An operator sends a message to a control thread requesting work on an artifact.
-- The project bridge creates a worktree (via swain-do dispatch integration).
-- The project bridge spawns an opencode session bound to the artifact in the new worktree.
+- The project bridge (persistent per project) invokes swain-do to create a worktree.
+- The project bridge spawns an opencode session in the new worktree, bound to the artifact.
 - The session posts its live feed to a new thread in the project room.
-- The worktree is discoverable and cleanable after session completion.
+- The worktree is tracked by the project bridge and cleanable after session completion.
 
 ## External Behavior
 
-- **Input:** Control thread message: `/workon SPEC-123` or natural language "work on SPEC-123"
+- **Input:** Control thread message: `/swain-do SPEC-123`
 - **Preconditions:**
   - Host bridge running with chat adapter connected.
-  - Project bridge running for the target project.
+  - Project bridge running for the target project (persistent daemon).
   - Artifact (SPEC/EPIC/etc.) exists and is in an actionable phase.
 - **Postconditions:**
-  - New worktree created at `<repo>/../<repo>-<branch>-<session-id>`.
+  - New worktree created by swain-do at session-scoped path.
   - Opencode session spawned in worktree, bound to artifact.
   - New chat thread created with live feed posting.
-  - Control thread responds with confirmation + link to session thread.
+  - Control thread responds with confirmation + worktree path + link to session thread.
 - **Constraints:**
+  - Dispatch is implicit from context — `/swain-do SPEC-123` in a control thread means "start work on this artifact." No subcommand needed.
   - Worktrees are scoped to the session — cleanup on session end (or explicit keep).
   - Session inherits project bridge's runtime configuration.
   - Collision detection: warn if another session is already active for the same artifact.
+  - Project bridge manages multiple concurrent worktrees/sessions.
 
 ## Acceptance Criteria
 
-- **Given** the operator messages `/workon SPEC-123` in the control thread, **When** the project bridge processes the command, **Then** a worktree is created at a session-scoped path.
+- **Given** the operator messages `/swain-do SPEC-123` in the control thread, **When** the project bridge processes the command, **Then** swain-do is invoked and a worktree is created.
 - **Given** the worktree creation succeeds, **When** the session spawns, **Then** opencode starts in the worktree directory with the artifact bound.
-- **Given** an existing session bound to SPEC-123, **When** `/workon SPEC-123` is received, **Then** the project bridge responds with a warning and offers to reconnect to the existing thread.
-- **Given** the `/workon` command specifies a non-existent artifact, **When** the project bridge resolves it, **Then** it responds with "Artifact not found" and lists suggestions.
+- **Given** an existing session bound to SPEC-123, **When** `/swain-do SPEC-123` is received, **Then** the project bridge responds with a warning and offers to reconnect to the existing thread.
+- **Given** the `/swain-do` command specifies a non-existent artifact, **When** the project bridge resolves it, **Then** it responds with "Artifact not found" and lists suggestions.
 - **Given** the session completes normally, **When** the operator confirms cleanup, **Then** the worktree is removed.
 
 ## Verification
@@ -71,32 +73,34 @@ Control threads in Zulip streams/topics should be able to trigger the creation o
 ## Scope & Constraints
 
 **In scope:**
-- Control thread command parsing for `/workon <artifact-id>`.
-- Integration with swain-do worktree dispatch (builds on SPEC-195).
+- Control thread command parsing for `/swain-do <artifact-id>` (dispatch is implicit from context).
+- Project bridge invokes swain-do CLI as subprocess.
 - Worktree lifecycle management (create, track, clean up).
 - Session spawning with artifact binding.
 - Thread creation for live feed.
+- Project bridge manages multiple concurrent worktrees/sessions.
 
 **Out of scope:**
-- Natural language parsing beyond simple `/workon` syntax (future enhancement).
+- Natural language parsing (future enhancement).
 - Web pipe / tunnel for web output (v2).
 - Runtime adapters for runtimes other than opencode (Claude Code, etc. — separate SPEC).
+- swain-do implementation — SPEC-195 owns that.
 
 ## Implementation Approach
 
-1. **Define domain command** — `start_session_with_worktree(runtime, artifact, prompt?)` in Project Bridge published language.
-2. **Extend control thread handler** — parse `/workon` and dispatch to project bridge.
-3. **Wire swain-do dispatch** — call SPEC-195 worktree dispatch logic from project bridge.
-4. **Spawn opencode session** — execute `opencode` in worktree directory, capture stdio.
-5. **Create session thread** — chat adapter creates thread, posts "Session started: SPEC-123 @ <worktree-path>".
-6. **Implement cleanup** — on session end, prompt for worktree removal. Default: remove.
+1. **Extend control thread handler** — parse `/swain-do <artifact-id>` and forward to project bridge.
+2. **Project bridge invokes swain-do** — spawn `swain-do dispatch SPEC-123` as subprocess, capture output (worktree path).
+3. **Spawn opencode session** — execute `opencode` in worktree directory, capture stdio.
+4. **Create session thread** — chat adapter creates thread, posts "Session started: SPEC-123 @ <worktree-path>".
+5. **Implement cleanup** — on session end, prompt for worktree removal. Default: remove.
+6. **Session registry** — project bridge tracks active sessions per artifact for collision detection.
 
 **Test-then-implement cycles:**
-- **Cycle 1:** `/workon` command parsing and artifact resolution.
-- **Cycle 2:** Worktree creation via swain-do dispatch.
+- **Cycle 1:** `/swain-do` command parsing and artifact resolution.
+- **Cycle 2:** swain-do subprocess invocation and worktree path capture.
 - **Cycle 3:** Opencode session spawn and stdio capture.
 - **Cycle 4:** Session thread creation and live feed posting.
-- **Cycle 5:** Collision detection and error handling.
+- **Cycle 5:** Collision detection and session registry.
 - **Cycle 6:** Cleanup flow.
 
 ## Lifecycle
