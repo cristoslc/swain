@@ -1,0 +1,51 @@
+trove: garrytan-brutalism-tools
+created: 2026-04-12
+refreshed: 2026-04-12
+tags:
+  - garry-tan
+  - gbrain
+  - gstack
+  - thin-harness-fat-skills
+  - personal-ai
+  - claude-code-skills
+  - agent-architecture
+  - brutalist-tools
+  - open-source-ai
+  - y-combinator
+  - cognitive-armor
+  - skill-files
+  - agent-memory
+
+freshness-ttl:
+  web: 14d
+  repository: 30d
+
+referenced-by: []
+
+history:
+  - event: created
+    date: 2026-04-12
+    commit: "--"
+    sources: 3
+
+sources:
+  - source-id: "gbrain-readme"
+    type: web
+    url: "https://github.com/garrytan/gbrain"
+    fetched: 2026-04-12T03:50:00Z
+    title: "GBrain — Your AI Agent's Personal Knowledge Base"
+    hash: "c035464d47c146c14450d96e6f59ef4576eb8082295445074132982ec68f5875"
+
+  - source-id: "gstack-readme"
+    type: web
+    url: "https://github.com/garrytan/gstack"
+    fetched: 2026-04-12T03:50:00Z
+    title: "GStack — Garry Tan's Software Factory for Claude Code"
+    hash: "ea3bc7f1116e66b195bb0eb8b105b10dd63a6067b3d08a51a1df224dc325ded9"
+
+  - source-id: "garrytan-thin-harness-article"
+    type: web
+    url: "https://x.com/garrytan/status/2042925773300908103"
+    fetched: 2026-04-12T03:50:00Z
+    title: "Thin Harness, Fat Skills — Garry Tan on X"
+    hash: "093fe381d3a386d6d685dfa61e6c60e54a95c8d1a860e7c31be8a20611d02eeb"
