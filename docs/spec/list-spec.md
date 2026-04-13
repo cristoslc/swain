@@ -177,9 +177,7 @@
 | SPEC-302 | Swain-Sync Preflight Script | 2026-04-04 | — |
 | SPEC-303 | Output Shaping for Chat | 2026-04-07 | a194674c |
 | SPEC-304 | Adopt trafilatura for main-content extraction in swain-search | 2026-04-11 | -- |
-| SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
-| SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-07 | — |
-| SPEC-298 | Control Thread Worktree and Session Spawning | 2026-04-07 | — |
+| SPEC-305 | Gitignore agentic runtime folders in consumer projects | 2026-04-12 | — |
 
 ## Complete
 
