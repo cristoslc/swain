@@ -1,1 +1,0 @@
-../../skills/swain-sync/scripts/swain-trunk.sh

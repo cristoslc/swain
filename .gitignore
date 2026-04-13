@@ -13,12 +13,8 @@ __pycache__/
 
 # Runtime artifacts
 *.log
-.agents/specwatch.log
-.agents/specwatch-ignore
-.agents/status-cache.json
-.agents/session.json
-.agents/session-state.json
-.agents/search-snapshots/
+.agents/
+.claude/
 SESSION-ROADMAP.md
 
 # Skill eval workspaces
@@ -39,8 +35,7 @@ skills-lock.json
 *.db
 
 # Installed skills (consumer-side)
-.claude/skills
-.agents/skills
+# Ignored here because they are usually mirrored in skills/ for publishing
 
 # Ignore all skills, then un-ignore swain's own skills
 skills/*
@@ -55,13 +50,9 @@ skills/*
 .commandcode
 .continue
 .codex
-.cortex
 .crush
 .factory
 .goose
-.iflow
-.junie
-.kilocode
 .kiro
 .kode
 .mcpjam
@@ -80,3 +71,5 @@ skills/*
 .superpowers
 .sandboxes/
 .swain-init
+.env
+bridge.json

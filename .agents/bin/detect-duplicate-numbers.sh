@@ -1,1 +1,0 @@
-../../skills/swain-design/scripts/detect-duplicate-numbers.sh

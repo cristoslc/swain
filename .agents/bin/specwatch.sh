@@ -1,1 +1,0 @@
-../../skills/swain-design/scripts/specwatch.sh

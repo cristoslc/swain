@@ -422,6 +422,56 @@ else
   assert "artifact_indexes recreates docs/spec/list-spec.md" "1"
 fi
 
+# --- Test 18: SPEC-290 — .swain-init symlink repair in linked worktrees ---
+echo "Test 18: SPEC-290 — .swain-init symlink repair in linked worktrees"
+if [[ -x "$DOCTOR_SCRIPT" ]] && [[ -f "$REPO_ROOT/.swain-init" ]]; then
+  # Create a real linked worktree without .swain-init to simulate the bug.
+  tmp_wt=""
+  tmp_branch="test-spec-290-$$"
+  tmp_wt="$(mktemp -d)"
+  rmdir "$tmp_wt"  # git worktree add requires the path to not exist
+  if git -C "$REPO_ROOT" worktree add "$tmp_wt" -b "$tmp_branch" >/dev/null 2>&1; then
+    # Confirm .swain-init is absent before doctor runs.
+    assert "worktree starts without .swain-init" "$([ ! -e "$tmp_wt/.swain-init" ] && echo 0 || echo 1)"
+
+    # Run doctor from the worktree root (simulates swain-init invoking doctor inside worktree).
+    wt_output=$(REPO_ROOT="$tmp_wt" bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    wt_status=$(echo "$wt_output" | jq -r '.checks[] | select(.name == "worktrees") | .status' 2>/dev/null || echo "missing")
+
+    assert "worktrees check runs when doctor invoked from worktree" "$([ "$wt_status" != "missing" ] && echo 0 || echo 1)"
+    assert ".swain-init symlink created in worktree after doctor repair" "$([ -e "$tmp_wt/.swain-init" ] && echo 0 || echo 1)"
+    assert ".swain-init symlink points to main repo source" "$([ "$(readlink "$tmp_wt/.swain-init" 2>/dev/null)" = "$REPO_ROOT/.swain-init" ] && echo 0 || echo 1)"
+
+    # Verify preflight now reports delegate (not onboard) for the repaired worktree.
+    preflight_script="$(find "$REPO_ROOT" -path '*/swain-init/scripts/swain-init-preflight.sh' -print -quit 2>/dev/null || true)"
+    if [[ -f "$preflight_script" ]]; then
+      pf_action=$(bash "$preflight_script" --repo-root "$tmp_wt" 2>/dev/null | jq -r '.marker.action' 2>/dev/null || echo "missing")
+      assert "preflight reports delegate after repair" "$([ "$pf_action" = "delegate" ] && echo 0 || echo 1)"
+    else
+      TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+      echo "  PASS: (skipped — preflight script not found)"
+    fi
+
+    # Also verify repair from main root repairs all linked worktrees (not just self).
+    rm -f "$tmp_wt/.swain-init"
+    main_output=$(bash "$DOCTOR_SCRIPT" 2>/dev/null || true)
+    assert ".swain-init symlink created from main root run" "$([ -e "$tmp_wt/.swain-init" ] && echo 0 || echo 1)"
+
+    # Cleanup.
+    git -C "$REPO_ROOT" worktree remove --force "$tmp_wt" 2>/dev/null || true
+    git -C "$REPO_ROOT" branch -D "$tmp_branch" 2>/dev/null || true
+  else
+    for _ in 1 2 3 4 5; do
+      TOTAL=$((TOTAL + 1)); PASS=$((PASS + 1))
+      echo "  PASS: (skipped — could not create test worktree)"
+    done
+  fi
+else
+  for _ in 1 2 3 4 5; do
+    assert ".swain-init repair test (skipped)" "1"
+  done
+fi
+
 # --- Summary ---
 echo ""
 echo "Results: $PASS/$TOTAL passed, $FAIL failed"

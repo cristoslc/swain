@@ -5,7 +5,8 @@ track: container
 status: Active
 author: cristos
 created: 2026-03-20
-last-updated: 2026-03-20parent-vision: VISION-001
+last-updated: 2026-04-06
+parent-vision: VISION-006
 priority-weight: high
 success-criteria:
   - Operator can steer, monitor, and approve agent work from phone or messaging app without losing local environment context
@@ -57,18 +58,19 @@ Core principles:
 
 ## Tracks
 
-### Notification & Steering
-Channel integrations that let the operator receive swain notifications (build results, approval requests, task completions) and send commands back. Builds on Claude Code Channels.
+### Chat Bridge (v1)
+Microkernel architecture with host bridge (hub), project bridges (spokes), and operator-replaceable plugins for chat adapters and runtime adapters. Hosted chat platforms (Zulip Cloud) as default — zero ops for adopters. Hub-and-spoke topology with NDJSON over stdio for polyglot plugin system.
 
-### Remote Approval
-Forwarding decision points from unattended/swarming sessions so they don't stall. Requires understanding which sessions are blocked and routing prompts to the operator's active remote surface.
-
-### Status Projection
-Making the status dashboard, task state, and artifact progress visible outside the terminal. The swain-stage web UI (INITIATIVE-015) is the primary surface; channels and mobile are secondary.
+### Web Pipe (v2, deferred)
+Project-generated web content served via tunnel infrastructure from project hosts. Architecturally separate from the chat bridge.
 
 ## Child Epics
 
-_None yet — decomposition pending research spike on channel integration feasibility._
+- EPIC-070 (Host Bridge Kernel) — hub daemon, session discovery, bridge lifecycle, event routing.
+- EPIC-071 (Project Bridge Kernel) — session orchestrator, artifact binding, runtime plugin spawn.
+- EPIC-072 (Chat Plugin System) — plugin contract + reference Zulip plugin.
+- EPIC-073 (Runtime Plugin System) — plugin contract + reference Claude Code plugin.
+- EPIC-074 (Provisioning / swain-stage) — one-command setup.
 
 ## Small Work (Epic-less Specs)
 
@@ -76,13 +78,14 @@ _None yet._
 
 ## Key Dependencies
 
-- **INITIATIVE-015** (swain-stage Redesign) — the web UI is the primary remote interaction surface for rich status and artifact views
-- **INITIATIVE-005** (Operator Situational Awareness) — extends the "what needs my decision?" capability to remote contexts (INIT-005 currently scopes OUT external notifications; this initiative picks that up)
-- **Claude Code Channels** — research preview; channel protocol and allowlist may change
-- **Claude Code Remote Control** — server mode with `--spawn worktree` is directly relevant to multi-session remote access
+- ADR-037 (Chat Platform and Deployment Model) — Zulip Cloud as default.
+- ADR-038 (Microkernel Plugin Architecture) — subprocess + NDJSON plugin contract.
+- ADR-039 (Hub-and-Spoke Topology) — host bridge as hub.
+- INITIATIVE-015 (swain-stage Redesign) — the web UI is a v2 surface for the web pipe track.
 
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-03-20 | a90ded8 | Initial creation, informed by trove claude-code-remote-interaction@08ec2b5 |
+| Active | 2026-03-20 | a90ded8 | Initial creation, informed by trove claude-code-remote-interaction@08ec2b5. |
+| Active | 2026-04-06 | -- | Scope update: evolved to microkernel architecture, hosted platforms, hub-and-spoke topology. Re-parented under VISION-006. Decomposed into 5 epics. |

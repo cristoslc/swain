@@ -1,1 +1,0 @@
-../../skills/swain-init/scripts/swain-init-preflight.sh

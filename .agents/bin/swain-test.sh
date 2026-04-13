@@ -1,1 +1,0 @@
-../../skills/swain-test/scripts/swain-test.sh

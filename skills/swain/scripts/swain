@@ -39,6 +39,7 @@ FLAG_DRY_RUN=false
 FLAG_PHASE1_ONLY=false
 FLAG_PHASE2_ONLY=false
 FLAG_NON_INTERACTIVE=false
+FLAG_FORMAT=""  # "ndjson" for structured I/O (DESIGN-025 / SPEC-291)
 FLAG_RESUME=""
 FLAG_TRUNK=false
 PURPOSE_ARGS=()
@@ -69,6 +70,10 @@ while [[ $# -gt 0 ]]; do
       FLAG_NON_INTERACTIVE=true
       shift
       ;;
+    --format)
+      FLAG_FORMAT="$2"
+      shift 2
+      ;;
     --resume)
       FLAG_RESUME="$2"
       shift 2
@@ -95,6 +100,73 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+# --- NDJSON mode helpers (DESIGN-025 / SPEC-291) ---
+# When --format ndjson is set, all I/O is structured JSON on stdout/stdin.
+# The project bridge reads stdout and writes stdin.
+
+ndjson_mode() {
+  [[ "$FLAG_FORMAT" == "ndjson" ]]
+}
+
+ndjson_emit() {
+  # Emit a single NDJSON line to stdout.
+  # Usage: ndjson_emit '{"type":"info","text":"hello"}'
+  printf '%s\n' "$1"
+}
+
+ndjson_info() {
+  # Emit an info message.
+  local text="$1"
+  local escaped
+  escaped=$(printf '%s' "$text" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g; s/$//')
+  ndjson_emit "{\"type\":\"info\",\"text\":\"$escaped\"}"
+}
+
+ndjson_question() {
+  # Emit a question and read the answer from stdin.
+  # Usage: ndjson_question "Resume or fresh?" "r" "f"
+  # The question is written to fd 3 (real stdout) so $() doesn't capture it.
+  # Only the extracted answer goes to stdout (captured by $()).
+  local text="$1"
+  shift
+  local options_json="["
+  local first=true
+  for opt in "$@"; do
+    if [[ "$first" == "true" ]]; then
+      first=false
+    else
+      options_json+=","
+    fi
+    options_json+="\"$opt\""
+  done
+  options_json+="]"
+
+  local escaped
+  escaped=$(printf '%s' "$text" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g; s/$//')
+  # Write question to fd 3 (real stdout), not to $() capture.
+  printf '%s\n' "{\"type\":\"question\",\"text\":\"$escaped\",\"options\":$options_json}" >&3
+
+  # Read answer from stdin (NDJSON line).
+  local line=""
+  IFS= read -r line
+  # Extract "text" field from {"type":"answer","text":"..."}
+  printf '%s' "$line" | sed 's/.*"text"[[:space:]]*:[[:space:]]*"//;s/".*//'
+}
+
+ndjson_ready() {
+  # Emit the ready signal — setup is complete.
+  local purpose="$1"
+  local worktree="$2"
+  local runtime="$3"
+  local prompt="$4"
+
+  local purpose_escaped worktree_escaped
+  purpose_escaped=$(printf '%s' "$purpose" | sed 's/\\/\\\\/g; s/"/\\"/g')
+  worktree_escaped=$(printf '%s' "$worktree" | sed 's/\\/\\\\/g; s/"/\\"/g')
+
+  ndjson_emit "{\"type\":\"ready\",\"purpose\":\"$purpose_escaped\",\"worktree\":\"$worktree_escaped\",\"runtime\":\"$runtime\",\"prompt\":\"$prompt\"}"
+}
 
 resolve_abs_dir() {
   local base="$1"
@@ -314,6 +386,28 @@ prepare_session_workspace() {
     return
   fi
 
+  if ndjson_mode; then
+    ndjson_info "Active worktree session detected. Bookmark: $current_bookmark"
+    local choice
+    choice=$(ndjson_question "Resume this worktree or start a new one?" "resume" "new")
+    case "$choice" in
+      new|n|N)
+        local new_root=""
+        new_root="$(create_session_worktree "$COMMON_ROOT" "$(derive_worktree_context)")" || {
+          ndjson_emit '{"type":"error","text":"Failed to create worktree"}'
+          exit 1
+        }
+        LAUNCH_ROOT="$new_root"
+        ndjson_info "New worktree: $LAUNCH_ROOT"
+        ;;
+      *)
+        RESUME_PROMPT="/swain-session Session purpose: resume — $current_bookmark"
+        PURPOSE_ARGS=()
+        ;;
+    esac
+    return
+  fi
+
   if [[ "$FLAG_NON_INTERACTIVE" == "true" ]] || [[ "$FLAG_DRY_RUN" == "true" ]] || ! [[ -t 0 ]]; then
     RESUME_PROMPT="/swain-session Session purpose: resume — $current_bookmark"
     PURPOSE_ARGS=()
@@ -479,13 +573,39 @@ phase2_session_selection() {
 
   if [[ -f "$session_file" ]]; then
     bookmark=$(grep -o '"note"[[:space:]]*:[[:space:]]*"[^"]*"' "$session_file" 2>/dev/null \
-               | head -1 | sed 's/.*"note"[[:space:]]*:[[:space:]]*"//;s/"$//')
+               | head -1 | sed 's/.*"note"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
     focus_lane=$(grep -o '"focus_lane"[[:space:]]*:[[:space:]]*"[^"]*"' "$session_file" 2>/dev/null \
-                 | head -1 | sed 's/.*"focus_lane"[[:space:]]*:[[:space:]]*"//;s/"$//')
+                 | head -1 | sed 's/.*"focus_lane"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
   fi
 
   # Fast path: no crash indicators and no bookmark → skip Phase 2
   if [[ "$has_crash_indicators" != "true" ]] && [[ -z "$bookmark" ]]; then
+    return
+  fi
+
+  local context_msg="Previous session detected."
+  if [[ -n "$bookmark" ]]; then
+    context_msg="$context_msg Last activity: $bookmark."
+  fi
+  if [[ -n "$focus_lane" ]]; then
+    context_msg="$context_msg Focus: $focus_lane."
+  fi
+
+  if ndjson_mode; then
+    ndjson_info "$context_msg"
+    local choice
+    choice=$(ndjson_question "Resume previous session or start fresh?" "resume" "fresh")
+    case "$choice" in
+      resume|r|R)
+        RESUME_PROMPT="/swain-session"
+        if [[ -n "$bookmark" ]]; then
+          RESUME_PROMPT="/swain-session Session purpose: resume — $bookmark"
+        fi
+        ;;
+      *)
+        RESUME_PROMPT=""
+        ;;
+    esac
     return
   fi
 
@@ -778,6 +898,13 @@ phase3_launch_runtime() {
 # --- Main ---
 cd "$REPO_ROOT"
 
+# NDJSON mode implies non-interactive (DESIGN-025 / SPEC-291).
+# fd 3 = real stdout, used by ndjson_question so $() doesn't capture questions.
+if ndjson_mode; then
+  FLAG_NON_INTERACTIVE=true
+  exec 3>&1
+fi
+
 if [[ "$FLAG_PHASE1_ONLY" == "true" ]]; then
   phase1_crash_detection
   exit 0
@@ -790,8 +917,35 @@ if [[ "$FLAG_PHASE2_ONLY" == "true" ]]; then
 fi
 
 if [[ "$FLAG_FRESH" != "true" ]]; then
-  phase1_crash_detection
+  # Skip Phase 1 in NDJSON mode — crash cleanup needs tty confirmations.
+  if ! ndjson_mode; then
+    phase1_crash_detection
+  fi
   phase2_session_selection
+fi
+
+# NDJSON mode: prepare workspace and emit ready signal, don't launch runtime.
+# The project bridge spawns the runtime adapter after receiving "ready".
+if ndjson_mode; then
+  prepare_session_workspace
+
+  local_runtime=$(resolve_runtime)
+  if [[ -z "$local_runtime" ]]; then
+    ndjson_emit '{"type":"error","text":"No supported runtime found"}'
+    exit 1
+  fi
+
+  # Compose initial prompt (same logic as phase3_launch_runtime)
+  local_prompt="/swain-init"
+  if [[ -n "$RESUME_PROMPT" ]]; then
+    local_prompt="$RESUME_PROMPT"
+  elif [[ ${#PURPOSE_ARGS[@]} -gt 0 ]]; then
+    local_prompt="/swain-session Session purpose: ${PURPOSE_ARGS[*]}"
+  fi
+
+  local_purpose="${PURPOSE_ARGS[*]:-}"
+  ndjson_ready "$local_purpose" "$LAUNCH_ROOT" "$local_runtime" "$local_prompt"
+  exit 0
 fi
 
 phase3_launch_runtime

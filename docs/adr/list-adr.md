@@ -5,7 +5,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | ADR-007 | Event-Driven Orchestrator Replaces Prose Chaining Table | 2026-03-17 | — |
-| ADR-019 | Project-Root Script Convention | 2026-03-28 | — |
 | ADR-031 | Skill Naming Convention: Verbs Not Nouns | 2026-04-04 | — |
 
 ## Active
@@ -39,13 +38,21 @@
 | ADR-029 | RTK As Optional Git Compression Dependency | 2026-04-03 | 1e95f94 |
 | ADR-030 | Deprecate swain-session — Split Lifecycle into Init and Teardown | 2026-04-04 | — |
 | ADR-032 | Gherkin As Notation, Not Infrastructure | 2026-04-04 | _pending_ |
+| ADR-032 | Gherkin As Notation, Not Infrastructure | 2026-04-04 | _pending_ |
+| ADR-033 | Born-in-Worktree Session Isolation | 2026-04-05 | d2a8412a |
 | ADR-033 | Born-in-Worktree Session Isolation | 2026-04-05 | d2a8412a |
 | ADR-034 | Standardize Worktree Location to .worktrees/ | 2026-04-05 | — |
+| ADR-034 | Standardize Worktree Location to .worktrees/ | 2026-04-05 | — |
 | ADR-035 | Title-Based Artifact Identifiers | 2026-04-05 | — |
+| ADR-036 | Plugin-Namespaced Script Aggregation | 2026-04-06 | -- |
+| ADR-037 | Chat Platform and Deployment Model | 2026-04-06 | 0c008b41 |
+| ADR-038 | Microkernel Plugin Architecture | 2026-04-06 | -- |
+| ADR-039 | Hub-and-Spoke Topology | 2026-04-06 | -- |
 
 ## Superseded
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-20 | aa9ca7b |
+| ADR-019 | Project-Root Script Convention | 2026-04-06 | -- |
 

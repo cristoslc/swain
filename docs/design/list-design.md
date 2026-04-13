@@ -28,6 +28,11 @@
 | DESIGN-018 | Completion Pipeline State Tracking | 2026-04-04 | 683a04e6 |
 | DESIGN-019 | Operator BDD Workflow | 2026-04-04 | _pending_ |
 | DESIGN-020 | Agent BDD Contract | 2026-04-04 | _pending_ |
+| DESIGN-022 | Chat Interface Interaction | 2026-04-06 | -- |
+| DESIGN-023 | Deployment Topology | 2026-04-06 | -- |
+| DESIGN-024 | Orchestrator Event Schema | 2026-04-06 | -- |
+| DESIGN-025 | Unified Session Launcher | 2026-04-06 | — |
+| DESIGN-026 | Project Bridge Session Routing Architecture | 2026-04-07 | — |
 
 ## Superseded
 

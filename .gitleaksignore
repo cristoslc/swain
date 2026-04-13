@@ -1,0 +1,24 @@
+# Per-fingerprint gitleaks allowlist for false positives in third-party
+# public HTML fixtures captured for extractor evaluation.
+#
+# Format: <commit-sha>:<file-path>:<rule-id>:<line>
+#
+# Each entry below was manually verified to be publicly-served third-party
+# content, not a leaked credential. See SPIKE-069 for the evaluation context.
+
+# forum-hn-gastown.html line 1 — "news.css?BmqipBZgbl7xSccwYmjT" cache-buster
+# query string on a public stylesheet URL (Hacker News static CSS).
+a69b32dafa62aa41a5c4cdc8f3bc104bdeaa1e98:docs/research/Complete/(SPIKE-069)-Trafilatura-Content-Extraction/evaluation/raw/forum-hn-gastown.html:generic-api-key:1
+
+# blog-ghuntley-ralph.html lines 91, 155, 259 — Ghost Portal / Sodo Search
+# data-key "1d8547be704545694fd5aa19e8" embedded in public HTML for the
+# frontend JS to call Ghost's Content API. Designed to be public (like a
+# Stripe publishable key).
+a69b32dafa62aa41a5c4cdc8f3bc104bdeaa1e98:docs/research/Complete/(SPIKE-069)-Trafilatura-Content-Extraction/evaluation/raw/blog-ghuntley-ralph.html:generic-api-key:91
+a69b32dafa62aa41a5c4cdc8f3bc104bdeaa1e98:docs/research/Complete/(SPIKE-069)-Trafilatura-Content-Extraction/evaluation/raw/blog-ghuntley-ralph.html:generic-api-key:155
+a69b32dafa62aa41a5c4cdc8f3bc104bdeaa1e98:docs/research/Complete/(SPIKE-069)-Trafilatura-Content-Extraction/evaluation/raw/blog-ghuntley-ralph.html:generic-api-key:259
+
+# news-theverge-sample.html line 23 — rule fires on entropy in the
+# minified inline SVG + CSS blob on The Verge's public homepage markup.
+# Fetched unauthenticated from https://www.theverge.com/tech.
+a69b32dafa62aa41a5c4cdc8f3bc104bdeaa1e98:docs/research/Complete/(SPIKE-069)-Trafilatura-Content-Extraction/evaluation/raw/news-theverge-sample.html:sourcegraph-access-token:23
