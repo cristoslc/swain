@@ -2,10 +2,10 @@
 title: "Fix swain-init Session Purpose Text Drop"
 artifact: SPEC-297
 track: implementable
-status: Active
+status: Needs Manual Test
 author: "gemma4:31b-cloud"
 created: 2026-04-07
-last-updated: 2026-04-07
+last-updated: 2026-04-13
 priority-weight: high
 type: bug
 parent-vision: VISION-006
@@ -58,8 +58,12 @@ high
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| Bookmark updated | `swain-bookmark.sh` log/state | |
-| Greeting display | CLI output | |
+| Bookmark updated from `SWAIN_PURPOSE` | `tests/test_session_purpose.sh` T1: `SWAIN_PURPOSE writes session.json bookmark.note` | Pass (commit `f33ad99a`) |
+| Greeting JSON exposes `purpose` field | `tests/test_session_purpose.sh` T2 | Pass (commit `f33ad99a`) |
+| Existing bookmark not clobbered | `tests/test_session_purpose.sh` T3 | Pass |
+| Human-readable output shows `Purpose:` line | `tests/test_session_purpose.sh` T4 | Pass |
+| No mutation when `SWAIN_PURPOSE` unset | `tests/test_session_purpose.sh` T5 | Pass |
+| Launcher always exports `SWAIN_PURPOSE` | `skills/swain/scripts/swain` lines 673-681; 12 Tier-1 templates updated | Reviewed |
 
 ## Scope & Constraints
 
@@ -70,3 +74,4 @@ Focus on the `swain-init` skill logic and the `swain-session-greeting.sh` / `swa
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-07 | | Initial creation |
+| Needs Manual Test | 2026-04-13 | f33ad99a | Greeting captures `SWAIN_PURPOSE` deterministically; launcher always exports env var; agent reads `.purpose` from greeting JSON. 9/9 automated tests pass. Manual smoke: launch `swain "fix the login bug"` and confirm greeting shows `Purpose:` line and bookmark persists. |
