@@ -50,6 +50,7 @@ swain() {
   fi
   local _prompt
   if [ $# -gt 0 ]; then
+    export SWAIN_PURPOSE="$*"
     _prompt="/swain-session Session purpose: $*"
   else
     _prompt=$(_swain_check_marker)

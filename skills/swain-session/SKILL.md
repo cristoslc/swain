@@ -28,19 +28,18 @@ When invoked manually, the user can change preferences or bookmark context.
 
 ## Session purpose text
 
-When the operator launches with free text (e.g., `swain new bug about timestamps`), the launcher passes it as part of the initial prompt: `/swain-session Session purpose: new bug about timestamps`.
+When the operator launches with free text (e.g., `swain new bug about timestamps`), the launcher exports `SWAIN_PURPOSE` and — for runtimes that accept an initial prompt — also passes it inline as `/swain-session Session purpose: new bug about timestamps`.
 
 The launcher is responsible for choosing the checkout that will own that bookmark:
 - If the operator starts from the main checkout, the launcher opens a new worktree first and only then passes the session purpose.
 - If the operator starts inside a linked worktree that already has a bookmark, the launcher should steer them to resume/finish that worktree or open a different worktree before reusing the purpose text.
 
-When session purpose text is present in the invocation:
-1. Write it immediately as the session bookmark note (using swain-bookmark.sh) in the current checkout.
-2. Display it: `**Session purpose:** <text>`
+The greeting script (`swain-session-greeting.sh`) reads `$SWAIN_PURPOSE` and writes the bookmark deterministically (SPEC-297). The greeting JSON exposes the captured text as the `purpose` field.
 
-Detection: if the skill is invoked with text after `/swain-session` (e.g., `/swain-session Session purpose: ...`), extract everything after "Session purpose: " as the purpose text.
+When the greeting JSON's `purpose` field is non-null:
+- Display it to the operator: `**Session purpose:** <text>`.
 
-For runtimes that don't support initial prompts (e.g., crush), check the `SWAIN_PURPOSE` environment variable as a fallback.
+Do not re-parse the initial prompt or call `swain-bookmark.sh` yourself — the greeting already did both. The inline prompt text is for display context only; the env var is the source of truth.
 
 ## Preflight
 

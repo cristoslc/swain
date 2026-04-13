@@ -634,15 +634,14 @@ The focus lane is stored in `.agents/session.json` under the `focus_lane` key an
 
 ### Step 7.4 — Session purpose text
 
-When the operator launches with free text (e.g., `swain new bug about timestamps`), the launcher passes it as part of the initial prompt: `/swain-init Session purpose: new bug about timestamps`.
+When the operator launches with free text (e.g., `swain new bug about timestamps`), the launcher exports `SWAIN_PURPOSE` and — for runtimes that accept an initial prompt — also passes it inline as `/swain-init Session purpose: new bug about timestamps`.
 
-When session purpose text is present:
-1. Write it as the session bookmark note (using swain-bookmark.sh)
-2. Display it: `**Session purpose:** <text>`
+The greeting script (`swain-session-greeting.sh`) reads `$SWAIN_PURPOSE` and writes the bookmark deterministically (SPEC-297). The `purpose` field in the greeting JSON surfaces the captured text.
 
-Detection: if the skill is invoked with text containing "Session purpose: ", extract everything after that prefix.
+When the greeting JSON's `purpose` field is non-null:
+- Display it to the operator: `**Session purpose:** <text>`.
 
-For runtimes that don't support initial prompts, check the `SWAIN_PURPOSE` environment variable as a fallback.
+Do not re-parse the initial prompt or call `swain-bookmark.sh` yourself — the greeting already did both. The inline prompt text is for display context only; the env var is the source of truth.
 
 ### Worktree / branch changes
 
