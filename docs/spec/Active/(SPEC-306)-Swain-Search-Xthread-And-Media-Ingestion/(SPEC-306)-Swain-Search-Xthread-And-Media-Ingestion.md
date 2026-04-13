@@ -162,4 +162,4 @@ Then the dual-commit stamping, paywall proxy gate, snapshot evidence gate (where
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-13 | -- | Initial creation; user-approved scope (b-option: infrastructure patterns + X-thread + media paths; no submodule, no runtime chain). |
+| Active | 2026-04-13 | 2bf515cb | Initial creation; user-approved scope (b-option: infrastructure patterns + X-thread + media paths; no submodule, no runtime chain). |
