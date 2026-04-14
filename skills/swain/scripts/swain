@@ -87,7 +87,7 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Options:"
       echo "  --fresh         Skip crash recovery, start a clean session"
-      echo "  --runtime NAME  Force a specific runtime (claude, gemini, codex, copilot, crush)"
+      echo "  --runtime NAME  Force a specific runtime (claude, gemini, codex, copilot, crush, opencode)"
       echo "  --resume NAME   Resume an existing worktree by name"
       echo "  --trunk         Launch on trunk (no worktree isolation)"
       echo ""
@@ -691,7 +691,7 @@ resolve_runtime() {
   fi
 
   # 4. Auto-detect installed runtimes
-  local runtimes=(claude gemini codex copilot crush)
+  local runtimes=(claude gemini codex copilot crush opencode)
   local available=()
   for rt in "${runtimes[@]}"; do
     if command -v "$rt" &>/dev/null; then
@@ -751,6 +751,9 @@ build_launch_cmd() {
       ;;
     crush)
       echo "crush --yolo"
+      ;;
+    opencode)
+      echo "opencode --yolo"
       ;;
     *)
       echo ""
