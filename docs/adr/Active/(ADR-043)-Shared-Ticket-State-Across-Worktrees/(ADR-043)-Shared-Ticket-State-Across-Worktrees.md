@@ -93,4 +93,4 @@ Clean git-wise, but `git sparse-checkout` adds operational complexity (cone mode
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-13 | — | Initial creation |
-| Active | 2026-04-13 | — | Operator activated in session |
+| Active | 2026-04-13 | 96c36167 | Operator activated in session |
