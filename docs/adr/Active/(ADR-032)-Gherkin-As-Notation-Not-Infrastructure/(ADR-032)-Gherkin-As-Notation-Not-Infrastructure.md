@@ -18,7 +18,7 @@ evidence-pool: ""
 
 ## Context
 
-Swain uses BDD traceability to link spec acceptance criteria to agent-produced tests ([EPIC-062](../../epic/Active/(EPIC-062)-BDD-Traceability/(EPIC-062)-BDD-Traceability.md)). Standard BDD tools — Cucumber, Behave, SpecFlow — expect `.feature` files. A runner parses those files and maps steps to glue code. Swain works differently. Its artifacts are markdown files. Its test runners are agents and shell scripts, not step-definition registries.
+Swain uses BDD traceability to link spec acceptance criteria to agent-produced tests ([EPIC-062](../../../epic/Active/(EPIC-062)-BDD-Traceability/(EPIC-062)-BDD-Traceability.md)). Standard BDD tools — Cucumber, Behave, SpecFlow — expect `.feature` files. A runner parses those files and maps steps to glue code. Swain works differently. Its artifacts are markdown files. Its test runners are agents and shell scripts, not step-definition registries.
 
 We had to choose: does Gherkin enter swain as infrastructure (its own files, runners, and step registries) or as notation (a known format inside the markdown artifacts agents already read and write)?
 

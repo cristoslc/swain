@@ -76,7 +76,7 @@ The operator runs `swain` after a system crash and gets: crash detection, debris
 
 ## Script Location and Distribution (ADR-019)
 
-Per [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md), the script follows the operator-facing script convention:
+Per [ADR-019](../../../adr/Superseded/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md), the script follows the operator-facing script convention:
 
 **Canonical location:** `skills/swain/scripts/swain`
 

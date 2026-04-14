@@ -12,7 +12,7 @@ parent-epic: [EPIC-071](../../../epic/Active/(EPIC-071)-Project-Bridge-Kernel/(E
 parent-initiative: [INITIATIVE-018](../../../initiative/Active/(INITIATIVE-018)-Remote-Operator-Interaction/(INITIATIVE-018)-Remote-Operator-Interaction.md)
 linked-artifacts:
 depends-on-artifacts:
-  - [SPEC-293](../(SPEC-293)-Output-Shaping-For-Chat/(SPEC-293)-Output-Shaping-For-Chat.md)
+  - [SPEC-310](../(SPEC-310)-Output-Shaping-For-Chat/(SPEC-310)-Output-Shaping-For-Chat.md)
 addresses:
 evidence-pool:
 source-issue:
@@ -92,7 +92,7 @@ Operators see rendered Mermaid diagrams as images in the chat interface. The pro
 
 ## Implementation Approach
 
-1. **Detection:** Add a Mermaid detector to the output shaping pipeline (from SPEC-293) that identifies \`\`\`mermaid code blocks using regex.
+1. **Detection:** Add a Mermaid detector to the output shaping pipeline (from SPEC-310) that identifies \`\`\`mermaid code blocks using regex.
 
 2. **Renderer:** Create a `MermaidRenderer` class that:
    - Spawns `mmdc` as a subprocess with the Mermaid code as input.

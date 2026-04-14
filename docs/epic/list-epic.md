@@ -49,7 +49,6 @@
 | EPIC-053 | Deprecate and Replace Superpowers with Native Skills | 2026-04-01 | TBD |
 | EPIC-059 | Automated Completion Pipeline | 2026-04-04 | 683a04e6 |
 | EPIC-062 | BDD Traceability | 2026-04-04 | _pending_ |
-| EPIC-064 | Title-Based Artifact Migration | 2026-04-06 | — |
 | EPIC-068 | Doctor Script Reconciliation | 2026-04-06 | _pending_ |
 | EPIC-069 | Plugin-Namespaced Script Aggregation | 2026-04-06 | -- |
 | EPIC-070 | Host Bridge Kernel | 2026-04-06 | -- |
@@ -57,6 +56,7 @@
 | EPIC-072 | Chat Plugin System | 2026-04-06 | -- |
 | EPIC-073 | Runtime Plugin System | 2026-04-06 | -- |
 | EPIC-074 | Provisioning (swain-stage) | 2026-04-06 | -- |
+| EPIC-077 | Title-Based Artifact Migration | 2026-04-06 | — |
 
 ## Complete
 
@@ -92,4 +92,10 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-009 | Secrets Leakage Prevention | 2026-03-13 | 34f2d62 |
+
+## Abandoned
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| EPIC-076 | Worktree Bootstrap via Post-Checkout Hook | 2026-04-13 | — |
 

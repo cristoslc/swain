@@ -1,6 +1,6 @@
 ---
 id: s2sts-n82z
-status: open
+status: closed
 deps: [s2sts-qipr]
 links: []
 created: 2026-04-12T04:47:13Z

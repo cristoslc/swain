@@ -222,6 +222,12 @@ When an Epic has `artifact-refs` with `rel: [aligned]` pointing to a DESIGN:
 When a DESIGN's mutable sections are modified but `sourcecode-refs` blobs haven't changed:
 - Surface: "DESIGN-NNN evolved but tracked code hasn't caught up." Nudge the operator to reconcile.
 
+### Drift resolution (SPEC-307)
+
+On SPEC create, edit, or phase transition — if the SPEC has a parent (EPIC, Initiative, or Vision) — run drift resolution. Read both the SPEC and the parent. If the SPEC's scope, acceptance criteria, or constraints drift from the parent's goals or success criteria, apply a fix: either re-align the child (edit the SPEC) or update the parent.
+
+Fix direction uses **signals and content judgment**: count prior drift decisions against the parent (more means parent is likely stale), plus assess which direction produces the better outcome. Apply the fix, then present the result for operator review: accept, modify, or revert. All outcomes are recorded as drift decisions via `swain-session-state.sh record-decision`.
+
 ### README reconciliation nudge
 
 When transitioning a Vision, Design, Journey, or Persona to a new phase, emit a soft signal if the transition changes the project's public-facing claims:

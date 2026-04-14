@@ -125,4 +125,4 @@ The Agent Skills standard has no convention for cross-skill script aggregation. 
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-06 | -- | Supersedes [ADR-019](../../Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md). Motivated by flat namespace collision risk, industry misalignment, and consumer bug report. Research: trove `agent-script-directory-conventions` (14 sources). |
+| Active | 2026-04-06 | -- | Supersedes [ADR-019](../../Superseded/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md). Motivated by flat namespace collision risk, industry misalignment, and consumer bug report. Research: trove `agent-script-directory-conventions` (14 sources). |

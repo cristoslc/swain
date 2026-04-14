@@ -1,6 +1,6 @@
 ---
 id: s2sts-d5dr
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-04-12T04:47:03Z

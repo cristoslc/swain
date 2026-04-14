@@ -18,7 +18,7 @@ evidence-pool: ""
 
 ## Context
 
-`bin/swain`'s `choose_worktree_parent()` function uses a dual-path strategy: prefer `.worktrees/`, fall back to `.claude/worktrees/`. The fallback exists because early versions of swain ran inside Claude Code, which stored worktrees under `.claude/`. Now that `bin/swain` is the canonical launcher ([ADR-033](../Active/(ADR-033)-Born-in-Worktree-Session-Isolation.md)) and supports all runtimes ([EPIC-056](../../epic/Proposed/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity.md)), the `.claude/` coupling serves no purpose.
+`bin/swain`'s `choose_worktree_parent()` function uses a dual-path strategy: prefer `.worktrees/`, fall back to `.claude/worktrees/`. The fallback exists because early versions of swain ran inside Claude Code, which stored worktrees under `.claude/`. Now that `bin/swain` is the canonical launcher ([ADR-033](../(ADR-033)-Born-in-Worktree-Session-Isolation/(ADR-033)-Born-in-Worktree-Session-Isolation.md)) and supports all runtimes ([EPIC-056](../../../epic/Proposed/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity.md)), the `.claude/` coupling serves no purpose.
 
 The dual path causes concrete problems:
 

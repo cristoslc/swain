@@ -1,7 +1,7 @@
 ---
-id: SPEC-293
+id: SPEC-310
 title: "CLI Tool Research Pattern for swain-search"
-artifact: SPEC-293
+artifact: SPEC-310
 track: implementable
 status: Active
 author: operator

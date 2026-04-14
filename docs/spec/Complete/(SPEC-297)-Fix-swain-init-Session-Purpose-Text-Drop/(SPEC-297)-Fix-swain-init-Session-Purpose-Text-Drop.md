@@ -10,7 +10,7 @@ priority-weight: high
 type: bug
 parent-vision: VISION-006
 linked-artifacts:
-- [VISION-006](../../vision/Active/(VISION-006)-Untethered-Operator/(VISION-006)-Untethered-Operator.md)
+- [VISION-006](../../../vision/Active/(VISION-006)-Untethered-Operator/(VISION-006)-Untethered-Operator.md)
 swain-do: required
 ---
 

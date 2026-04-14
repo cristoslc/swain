@@ -151,10 +151,8 @@
 | SPEC-254 | Audit grep -c || echo fallback pattern across swain scripts | 2026-04-03 | — |
 | SPEC-255 | Doctor Bundle-And-Offer Fixes | 2026-04-03 | 3435901 |
 | SPEC-256 | Worktree preamble must commit dirty tracked files before branching | 2026-04-03 | — |
-| SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 | SPEC-257 | swain-do Completion Chain | 2026-04-04 | 683a04e6 |
 | SPEC-258 | swain-teardown Completion Guardrail | 2026-04-04 | 683a04e6 |
-| SPEC-259 | Consumer Gitignore Coverage Gaps | 2026-04-04 | — |
 | SPEC-259 | Swain-Sync Preflight Script | 2026-04-04 | — |
 | SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-285 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
@@ -165,20 +163,22 @@
 | SPEC-290 | .swain-init not symlinked into pre-existing worktrees | 2026-04-06 | — |
 | SPEC-291 | Non-Interactive Launcher Mode | 2026-04-06 | — |
 | SPEC-292 | OpenCode Server Adapter | 2026-04-06 | — |
-| SPEC-293 | CLI Tool Research Pattern for swain-search | 2026-04-07 | - |
 | SPEC-293 | Output Shaping for Chat | 2026-04-07 | a194674c |
 | SPEC-294 | Mermaid Rendering for Chat | 2026-04-07 | a194674c |
 | SPEC-295 | swain-bridge Daemon Mode | 2026-04-07 | — |
 | SPEC-296 | Worktree Session Isolation with Dedicated opencode serve Processes | 2026-04-07 | — |
-| SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-07 | — |
 | SPEC-298 | Control Thread Worktree and Session Spawning | 2026-04-07 | — |
 | SPEC-300 | Resolve Duplicate Artifact ID Collisions in SpecGraph | 2026-04-08 | — |
 | SPEC-301 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 | SPEC-302 | Swain-Sync Preflight Script | 2026-04-04 | — |
 | SPEC-303 | Output Shaping for Chat | 2026-04-07 | a194674c |
 | SPEC-304 | Adopt trafilatura for main-content extraction in swain-search | 2026-04-11 | -- |
-| SPEC-305 | Gitignore .swain/ in consumer projects and bootstrap worktrees via hook | 2026-04-13 | — |
-| SPEC-306 | swain-search: X-Thread Source Type and Media Transcript Ingestion | 2026-04-13 | -- |
+| SPEC-305 | Gitignore .swain/session/ in consumer projects | 2026-04-13 | — |
+| SPEC-306 | swain-search: X-Thread Source Type and Media Transcript Ingestion | 2026-04-13 | 2bf515cb |
+| SPEC-307 | Change traceability — auto-resolve upstream drift on edits | 2026-04-13 | — |
+| SPEC-308 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
+| SPEC-309 | Consumer Gitignore Coverage Gaps | 2026-04-04 | — |
+| SPEC-310 | CLI Tool Research Pattern for swain-search | 2026-04-07 | - |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 
 ## Complete
@@ -313,6 +313,7 @@
 | SPEC-282 | Alignment Audit | 2026-04-04 | — |
 | SPEC-283 | Artifact-Aware Worktree Naming | 2026-04-04 | — |
 | SPEC-284 | swain-sync Merge Logic | 2026-04-04 | — |
+| SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-13 | ad2b33c0 |
 
 ## Superseded
 

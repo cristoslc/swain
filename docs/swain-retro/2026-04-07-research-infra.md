@@ -8,7 +8,7 @@ last-updated: 2026-04-07
 scope: "Recent trove creation and infrastructure updates including Harvey Spectre research"
 period: "2026-03-30 — 2026-04-07"
 linked-artifacts:
-  - SPEC-293
+  - SPEC-310
 ---
 
 # Retro: Recent Research and Infrastructure Work

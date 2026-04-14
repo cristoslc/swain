@@ -1,6 +1,6 @@
 ---
 title: "Consumer Gitignore Coverage Gaps"
-artifact: SPEC-259
+artifact: SPEC-309
 track: implementable
 status: Active
 author: operator

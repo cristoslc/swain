@@ -60,7 +60,7 @@ Agents creating artifacts are guided by the appraisal model. A new Spec prompts 
 
 ## Child Epics
 
-- EPIC-064: Appraisal Value Model — PURPOSE.md axes, Vision appraisal-goals, serves-goals on children
+- EPIC-077: Appraisal Value Model — PURPOSE.md axes, Vision appraisal-goals, serves-goals on children
 - EPIC-065: Framework Cost Model — cost axes, cost-estimate field, composition formula
 - EPIC-066: ROI Scoring Engine — graph.py parsing, priority.py rewrite, transitive leverage, CLI output
 - EPIC-067: Backlog Appraisal Bootstrap — apply estimates to existing artifacts, migration tooling
@@ -74,8 +74,8 @@ Agents creating artifacts are guided by the appraisal model. A new Spec prompts 
 ## Key Dependencies
 
 - SPIKE-060 and SPIKE-054 should complete before EPIC-066 (scoring engine) begins — their answers shape the formula
-- EPIC-064 and EPIC-065 can proceed in parallel — value model and cost model are independent
-- EPIC-066 depends on both EPIC-064 and EPIC-065 — the scoring engine needs both models settled
+- EPIC-077 and EPIC-065 can proceed in parallel — value model and cost model are independent
+- EPIC-066 depends on both EPIC-077 and EPIC-065 — the scoring engine needs both models settled
 - EPIC-067 depends on EPIC-066 — can't bootstrap estimates until the schema and tooling exist
 
 ## Lifecycle

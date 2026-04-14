@@ -50,7 +50,7 @@ critical
 ## Expected vs. Actual Behavior
 
 **Expected:** The tool identifies the scope and renders a hierarchy tree.
-**Actual:** The tool crashes with a `ValueError` listing multiple colliding IDs (e.g., EPIC-064, SPEC-257, SPEC-259, SPEC-293, SPIKE-052, SPIKE-058, SPIKE-059, SPIKE-060, SPIKE-061, SPIKE-062).
+**Actual:** The tool crashes with a `ValueError` listing multiple colliding IDs (e.g., EPIC-077, SPEC-308, SPEC-309, SPEC-310, SPIKE-052, SPIKE-058, SPIKE-059, SPIKE-060, SPIKE-061, SPIKE-062).
 
 ## Verification
 

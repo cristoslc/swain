@@ -11,9 +11,9 @@ type: feature
 parent-epic: EPIC-071
 parent-vision: VISION-006
 linked-artifacts:
-  - [EPIC-071](../../epic/Active/(EPIC-071)-Project-Bridge-Kernel/(EPIC-071)-Project-Bridge-Kernel.md)
-  - [VISION-006](../../vision/Active/(VISION-006)-Untethered-Operator/(VISION-006)-Untethered-Operator.md)
-  - [JOURNEY-004](../../journey/Active/(JOURNEY-004)-Fire-And-Forget/(JOURNEY-004)-Fire-And-Forget.md)
+  - [EPIC-071](../../../epic/Active/(EPIC-071)-Project-Bridge-Kernel/(EPIC-071)-Project-Bridge-Kernel.md)
+  - [VISION-006](../../../vision/Active/(VISION-006)-Untethered-Operator/(VISION-006)-Untethered-Operator.md)
+  - [JOURNEY-004](../../../journey/Active/(JOURNEY-004)-Fire-And-Forget/(JOURNEY-004)-Fire-And-Forget.md)
 addresses:
   - "[SPEC-195](../(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch/(SPEC-195)-Defer-Worktree-Creation-to-Task-Dispatch.md)"
 swain-do: required

@@ -1,6 +1,6 @@
 ---
 title: "Pick the best main-content extractor for swain-search"
-artifact: SPIKE-069
+artifact: SPIKE-071
 track: container
 status: Complete
 author: Cristos L-C
@@ -20,7 +20,7 @@ evidence-pool: ""
 
 **Verdict: Go — adopt trafilatura.**
 
-Trafilatura wins the head-to-head on every category in the test corpus. It is the only candidate that preserves markdown structure (headings, links, code blocks), outputs YAML frontmatter with usable metadata, and handles all five page types without truncation or failure. The [SPEC-304](../../../spec/Proposed/(SPEC-304)-Adopt-Main-Content-Extractor-For-Swain-Search/(SPEC-304)-Adopt-Main-Content-Extractor-For-Swain-Search.md) implementation should wire trafilatura into swain-search's web-page collection step with a fallback to the current path on empty or error output.
+Trafilatura wins the head-to-head on every category in the test corpus. It is the only candidate that preserves markdown structure (headings, links, code blocks), outputs YAML frontmatter with usable metadata, and handles all five page types without truncation or failure. The [SPEC-304](../../../spec/Active/(SPEC-304)-Adopt-Trafilatura-For-Swain-Search/(SPEC-304)-Adopt-Trafilatura-For-Swain-Search.md) implementation should wire trafilatura into swain-search's web-page collection step with a fallback to the current path on empty or error output.
 
 ## Question
 

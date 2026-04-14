@@ -11,9 +11,9 @@ type: enhancement
 parent-epic: ""
 parent-initiative: ""
 linked-artifacts:
-  - SPIKE-069
+  - SPIKE-071
 depends-on-artifacts:
-  - SPIKE-069
+  - SPIKE-071
 addresses: []
 evidence-pool: ""
 source-issue: ""
@@ -24,7 +24,7 @@ swain-do: required
 
 ## Problem Statement
 
-swain-search relies on the agent to strip boilerplate from fetched web pages by hand. The results vary — navs, sidebars, footers, and cookie banners leak into trove sources based on model judgment and page layout. The Gastown trove needed hand-curation of ~52KB of raw fetch output to get a clean source. [SPIKE-069](../../../research/Complete/(SPIKE-069)-Trafilatura-Content-Extraction/(SPIKE-069)-Trafilatura-Content-Extraction.md) ran four candidates head-to-head and picked trafilatura as the winner.
+swain-search relies on the agent to strip boilerplate from fetched web pages by hand. The results vary — navs, sidebars, footers, and cookie banners leak into trove sources based on model judgment and page layout. The Gastown trove needed hand-curation of ~52KB of raw fetch output to get a clean source. [SPIKE-071](../../../research/Complete/(SPIKE-071)-Trafilatura-Content-Extraction/(SPIKE-071)-Trafilatura-Content-Extraction.md) ran four candidates head-to-head and picked trafilatura as the winner.
 
 ## Desired Outcomes
 
@@ -44,7 +44,7 @@ Trove sources are cleaner and more consistent. The agent spends less time on boi
 
 1. **Given** a web page URL, **when** swain-search collects it, **then** trafilatura extracts main content before normalization.
 2. **Given** a page with nav, sidebar, and footer, **when** extracted, **then** none of those appear in the normalized source.
-3. **Given** a page with title and date, **when** extracted, **then** frontmatter fields are filled from trafilatura's metadata. The author field is advisory — SPIKE-069 showed it can latch onto wrong data. The agent may override it later.
+3. **Given** a page with title and date, **when** extracted, **then** frontmatter fields are filled from trafilatura's metadata. The author field is advisory — SPIKE-071 showed it can latch onto wrong data. The agent may override it later.
 4. **Given** a page where trafilatura fails or returns nothing (e.g., a listing page), **when** tried, **then** swain-search falls back to `convert_to_markdown` / `WebFetch` and logs a warning.
 5. **Given** a typical web page, **when** the pipeline runs, **then** it finishes in under 10 seconds.
 
@@ -58,11 +58,11 @@ Trove sources are cleaner and more consistent. The agent spends less time on boi
 - Only web page sources change. Forum, media, repo, CLI, and local types stay the same.
 - Trafilatura runs via `uv run --with trafilatura` — no `requirements.txt` or `pyproject.toml` change.
 - The extraction script goes in `skills/swain-search/scripts/` per skill convention.
-- A post-process step may de-dupe repeated headings (SPIKE-069 saw "Table of Contents" duplicated on one page). Keep it small.
+- A post-process step may de-dupe repeated headings (SPIKE-071 saw "Table of Contents" duplicated on one page). Keep it small.
 
 ## Implementation Approach
 
-Per [SPIKE-069](../../../research/Complete/(SPIKE-069)-Trafilatura-Content-Extraction/(SPIKE-069)-Trafilatura-Content-Extraction.md):
+Per [SPIKE-071](../../../research/Complete/(SPIKE-071)-Trafilatura-Content-Extraction/(SPIKE-071)-Trafilatura-Content-Extraction.md):
 
 1. Build `skills/swain-search/scripts/extract-content.sh`. It wraps `uv run --with trafilatura python3` and pulls main content and metadata from a URL. Output shape: YAML frontmatter (title, url, hostname, description, sitename, date) then a markdown body.
 2. Update SKILL.md's web page collection step to call the script before normalization.
@@ -75,5 +75,5 @@ Per [SPIKE-069](../../../research/Complete/(SPIKE-069)-Trafilatura-Content-Extra
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Proposed | 2026-04-11 | -- | Initial creation. Blocked on SPIKE-069. |
-| Active | 2026-04-11 | -- | SPIKE-069 complete; trafilatura selected. SPEC unblocked and scoped. |
+| Proposed | 2026-04-11 | -- | Initial creation. Blocked on SPIKE-071. |
+| Active | 2026-04-11 | -- | SPIKE-071 complete; trafilatura selected. SPEC unblocked and scoped. |

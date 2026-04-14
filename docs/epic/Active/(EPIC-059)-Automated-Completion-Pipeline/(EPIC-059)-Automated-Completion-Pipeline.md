@@ -47,7 +47,7 @@ The user wraps up a SPEC and the rest runs on its own. Tests, smoke, and retro f
 
 ## Child Specs
 
-- [SPEC-257](../../../spec/Active/SPEC-257-consolidate-swain-init-preflight.md) — swain-do completion chain (BDD → smoke → retro)
+- [SPEC-257](../../../spec/Active/(SPEC-257)-Consolidate-swain-init-inline-bash-into-a-single-preflight-script/(SPEC-257)-Consolidate-swain-init-inline-bash-into-a-single-preflight-script.md) — swain-do completion chain (BDD → smoke → retro)
 - [SPEC-258](../../../spec/Active/(SPEC-258)-Swain-Teardown-Completion-Guardrail/(SPEC-258)-Swain-Teardown-Completion-Guardrail.md) — swain-teardown completion guardrail (verify & invoke)
 
 ## Key Dependencies

@@ -73,5 +73,5 @@
 | SPIKE-038 | PreToolUse Hook Adapter Feasibility | 2026-03-23 | 09d824a |
 | SPIKE-051 | Session Crash Recovery | 2026-03-28 | — |
 | SPIKE-059 | ROI Appraisal Model For Portfolio Economics | 2026-04-06 | Questionansweredpositively—modelvalidatedagainstlivebacklog.ProceedtoINITIATIVE-021. |
-| SPIKE-069 | Pick the best main-content extractor for swain-search | 2026-04-11 | -- |
+| SPIKE-071 | Pick the best main-content extractor for swain-search | 2026-04-11 | -- |
 

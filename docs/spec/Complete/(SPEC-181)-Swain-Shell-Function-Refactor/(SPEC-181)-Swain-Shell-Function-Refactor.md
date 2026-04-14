@@ -37,7 +37,7 @@ The operator's experience is unchanged — they type `swain` and get a session. 
 **Inputs:** CLI arguments from the operator (e.g., `--fresh`, `--runtime gemini`)
 
 **Behavior:**
-1. Look for the `swain` script at: `bin/swain` (per [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md), this is a symlink to the skill tree)
+1. Look for the `swain` script at: `bin/swain` (per [ADR-019](../../../adr/Superseded/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md), this is a symlink to the skill tree)
 2. If found: `exec` it, passing through all CLI arguments. Done.
 3. If not found: fall back to the current behavior (detect runtimes, invoke with `/swain-init`) — graceful degradation for projects without the script.
 

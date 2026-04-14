@@ -105,6 +105,12 @@ When claiming a task tagged with `spec:<ID>`, show the Vision ancestry breadcrum
 
 When specwatch detects mismatches (`TK_SYNC`, `TK_ORPHAN` in `.agents/specwatch.log`), read [references/reconciliation.md](references/reconciliation.md) for the mismatch types, resolution commands, and reconciliation workflow.
 
+## Drift resolution (SPEC-307)
+
+On ticket create, edit, or close — if the ticket has a `spec:` tag — run drift resolution against the tagged SPEC. Read both the ticket and the SPEC. If the ticket's scope drifts from the SPEC's acceptance criteria or problem statement, apply a fix: either re-align the child (edit the ticket) or update the parent (edit the SPEC).
+
+Fix direction uses **signals and content judgment**: count prior drift decisions against the parent (more means parent is likely stale), plus assess which direction produces the better outcome. Apply the fix, then present the result for operator review: accept, modify, or revert. All outcomes are recorded as drift decisions via `swain-session-state.sh record-decision`.
+
 ## Session bookmark
 
 After state-changing operations, update the bookmark: `bash "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/bin/swain-bookmark.sh" "<action> <task-description>"`

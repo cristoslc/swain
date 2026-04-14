@@ -9,7 +9,7 @@ scope: "ADR-030 implementation — split swain-session into swain-init (startup)
 period: "2026-04-04"
 linked-artifacts:
   - ADR-030
-  - SPEC-259
+  - SPEC-309
 ---
 
 # Retro: Deprecate swain-session (ADR-030)
@@ -67,19 +67,19 @@ The session skill should never have accumulated this many responsibilities. Star
 | SPEC-265: Structural cross-skill invariant tests | SPEC | Grep-based test suite validating routing, preamble, and reference consistency across all skills |
 | ADR-031: Skill naming convention — verbs not nouns | ADR | Name skills by their action (init, teardown, sync) not their domain noun (session, project) |
 
-## Session 2: Collision resolution and SPEC-259
+## Session 2: Collision resolution and SPEC-309
 
 **Period:** 2026-04-04 (continuation session)
 
 ### Summary
 
-Merged trunk into the worktree, resolved 13 artifact number collisions introduced by concurrent worktree work, and wrote SPEC-259 (swain-sync preflight script). The collision fix renumbered artifacts across SPECs, EPICs, and ADRs — including ADR-023→ADR-030 (the main deliverable of this worktree). BDD tests were updated to track the renumber and re-verified at 66/66 pass.
+Merged trunk into the worktree, resolved 13 artifact number collisions introduced by concurrent worktree work, and wrote SPEC-309 (swain-sync preflight script). The collision fix renumbered artifacts across SPECs, EPICs, and ADRs — including ADR-023→ADR-030 (the main deliverable of this worktree). BDD tests were updated to track the renumber and re-verified at 66/66 pass.
 
 ### Reflection
 
 #### What went well
 
-SPEC-259 was fast to scope. The operator identified the optimization (extract Steps 1–3.9 to a script), the preflight/subagent split was obvious, and the JSON output contract fell out naturally. The feedback memory about script placement (`skills/<name>/bin/`, not `.agents/bin/`) prevented a structural mistake before it happened.
+SPEC-309 was fast to scope. The operator identified the optimization (extract Steps 1–3.9 to a script), the preflight/subagent split was obvious, and the JSON output contract fell out naturally. The feedback memory about script placement (`skills/<name>/bin/`, not `.agents/bin/`) prevented a structural mistake before it happened.
 
 The collision tooling handled the bulk of renumbering automatically — 13 artifacts across 9 collision groups, with cross-reference rewrites touching 40+ files. Without `fix-collisions.sh` and `renumber-artifact.sh`, this would have been a multi-hour manual job.
 
@@ -105,6 +105,6 @@ A second round of `fix-collisions.sh` was needed because the first round only re
 
 | Item | Type | Summary |
 |------|------|---------|
-| SPEC-259: Swain-sync preflight script | SPEC | Extract Steps 1–3.9 into `skills/swain-sync/bin/swain-sync-preflight.sh` to reduce subagent token spend |
+| SPEC-309: Swain-sync preflight script | SPEC | Extract Steps 1–3.9 into `skills/swain-sync/bin/swain-sync-preflight.sh` to reduce subagent token spend |
 | renumber-artifact.sh should hard-fail on ambiguous source | SPEC candidate | Refuse to proceed when multiple directories match; require `--source-dir` |
 | fix-collisions.sh needs atomicity or rollback | SPEC candidate | Handle index.lock, ensure partial failures don't corrupt subsequent runs |

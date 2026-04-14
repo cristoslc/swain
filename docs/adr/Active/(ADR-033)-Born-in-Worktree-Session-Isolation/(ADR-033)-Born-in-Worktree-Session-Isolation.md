@@ -26,7 +26,7 @@ This split creates several problems:
 - **Overhead for skill authors** who must understand isolation mechanics.
 - **Two isolation models** that solve the same problem in different ways.
 
-[EPIC-056](../../epic/Proposed/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity.md) established `bin/swain` as the primary isolation mechanism and proved the pre-launch model works for external runtimes. This ADR extends that model to all runtimes, including Claude Code.
+[EPIC-056](../../../epic/Proposed/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity/(EPIC-056)-Session-Bookmark-Lifecycle-Integrity.md) established `bin/swain` as the primary isolation mechanism and proved the pre-launch model works for external runtimes. This ADR extends that model to all runtimes, including Claude Code.
 
 ## Decision
 
@@ -73,7 +73,7 @@ Skills check `SWAIN_WORKTREE_PATH` and refuse to write if unset, but never creat
 
 **Negative:**
 
-- **Cross-session coordination.** Concurrent sessions can create artifact ID collisions and index conflicts. `next-artifact-id.sh` already scans all branches ([SPEC-193](../../spec/Complete/(SPEC-193)-Artifact-ID-allocation-must-check-all-local-branches/(SPEC-193)-Artifact-ID-allocation-must-check-all-local-branches.md)), but index files (`list-*.md`) will diverge and need merge-time fixes.
+- **Cross-session coordination.** Concurrent sessions can create artifact ID collisions and index conflicts. `next-artifact-id.sh` already scans all branches ([SPEC-193](../../../spec/Complete/(SPEC-193)-Artifact-ID-allocation-must-check-all-local-branches/(SPEC-193)-Artifact-ID-allocation-must-check-all-local-branches.md)), but index files (`list-*.md`) will diverge and need merge-time fixes.
 - **No trunk escape hatch.** Every file mutation needs a worktree, even trivial ones. The `--quick` fast path helps but adds a launcher mode to maintain.
 - **Session startup cost.** Investigation sessions that need to write must restart. The `--read-only` flag makes this explicit, but it's still friction.
 - **Migration effort.** Skills with worktree guards need those guards removed. AGENTS.md needs updating. This is a one-time cost.
