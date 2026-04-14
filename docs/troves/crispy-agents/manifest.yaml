@@ -1,0 +1,82 @@
+trove: crispy-agents
+created: 2026-04-13
+refreshed: 2026-04-13
+tags:
+  - multi-agent
+  - crispy-framework
+  - instruction-budget
+  - vertical-slices
+  - tdd
+  - opencode
+  - agent-orchestration
+  - code-review
+  - model-diversity
+
+freshness-ttl:
+  repository: 30d
+
+related-troves:
+  - trove: gastown-agent-orchestration
+    overlap: multi-agent patterns, agent orchestration, design bottlenecks
+
+history:
+  - event: created
+    date: 2026-04-13
+    commit: "--"
+    sources: 7
+
+sources:
+  - source-id: crispy-agents-readme
+    type: repository
+    url: "https://github.com/tfolkman/crispy-agents"
+    fetched: 2026-04-13T17:00:00Z
+    title: "CRISPY Agents — Multi-agent coding system for OpenCode"
+    hash: "8262c313ea4eb9d730ac8d68208f4237423d3fedb3b6eeb7f3c4d850a0e786a2"
+    selective: true
+    highlights:
+      - "crispy-agents-architect/crispy-agents-architect.md"
+      - "crispy-agents-coder/crispy-agents-coder.md"
+      - "crispy-agents-reviewer/crispy-agents-reviewer.md"
+      - "crispy-agents-build-workflow/crispy-agents-build-workflow.md"
+
+  - source-id: crispy-agents-architect
+    type: repository
+    url: "https://github.com/tfolkman/crispy-agents/blob/master/agents/architect.md"
+    fetched: 2026-04-13T17:00:00Z
+    title: "CRISPY Architect Agent — Context, Research, Structure, Plan phases"
+    hash: "bdfc2bda49847094703088037affecb6ca19b341feca621ed8dc1df5d6539624"
+
+  - source-id: crispy-agents-coder
+    type: repository
+    url: "https://github.com/tfolkman/crispy-agents/blob/master/agents/coder.md"
+    fetched: 2026-04-13T17:00:00Z
+    title: "CRISPY Coder Agent — Vertical slices, TDD mandatory"
+    hash: "fb0c963101559bb4c7242d77d67c0cf009dc635646e8b2afe7ab4776234ab531"
+
+  - source-id: crispy-agents-reviewer
+    type: repository
+    url: "https://github.com/tfolkman/crispy-agents/blob/master/agents/reviewer.md"
+    fetched: 2026-04-13T17:00:00Z
+    title: "CRISPY Reviewer Agent — Validates against design doc, catches slop"
+    hash: "d6cc17ea90ddfc40063a7d80c62d8eccebdb6be6d6777153b6a9d34a902168c5"
+
+  - source-id: crispy-agents-scout
+    type: repository
+    url: "https://github.com/tfolkman/crispy-agents/blob/master/agents/scout.md"
+    fetched: 2026-04-13T17:00:00Z
+    title: "CRISPY Scout Agent — Pure research, no implementation intent"
+    hash: "a3be4f999253721071b1e9d048e6c5d54b106737fb42502967885b35d2e89740"
+
+  - source-id: crispy-agents-verifier
+    type: repository
+    url: "https://github.com/tfolkman/crispy-agents/blob/master/agents/verifier.md"
+    fetched: 2026-04-13T17:00:00Z
+    title: "CRISPY Verifier Agent — Generates and executes validation scripts"
+    hash: "8a4bf892f45202ff680f3a4e3cc6f6a3667a6a7e2d9d134f5ecf78afcb42da2f"
+
+  - source-id: crispy-agents-build-workflow
+    type: repository
+    url: "https://github.com/tfolkman/crispy-agents/blob/master/commands/build-workflow.md"
+    fetched: 2026-04-13T17:00:00Z
+    title: "CRISPY Build Workflow — Orchestrating all CRISPY phases"
+    hash: "c19d77aab889c2c6a4702ac1d9c09f6d6f62e7f2c157de616e3f05252a64049b"
