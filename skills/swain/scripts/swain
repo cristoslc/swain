@@ -87,7 +87,7 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Options:"
       echo "  --fresh         Skip crash recovery, start a clean session"
-      echo "  --runtime NAME  Force a specific runtime (claude, gemini, codex, copilot, crush, opencode)"
+      echo "  --runtime NAME  Force a specific runtime (claude, codex, copilot, opencode)"
       echo "  --resume NAME   Resume an existing worktree by name"
       echo "  --trunk         Launch on trunk (no worktree isolation)"
       echo ""
@@ -691,7 +691,7 @@ resolve_runtime() {
   fi
 
   # 4. Auto-detect installed runtimes
-  local runtimes=(claude gemini codex copilot crush opencode)
+  local runtimes=(claude codex copilot opencode)
   local available=()
   for rt in "${runtimes[@]}"; do
     if command -v "$rt" &>/dev/null; then
@@ -740,20 +740,15 @@ build_launch_cmd() {
     claude)
       echo "claude --dangerously-skip-permissions \"$prompt\""
       ;;
-    gemini)
-      echo "gemini -y -i \"$prompt\""
-      ;;
     codex)
       echo "codex --full-auto \"$prompt\""
       ;;
     copilot)
       echo "copilot --yolo -i \"$prompt\""
       ;;
-    crush)
-      echo "crush --yolo"
-      ;;
     opencode)
-      echo "opencode --yolo"
+      # cmd is resolved in phase3_launch_runtime before this point; fallback only.
+      echo "opencode"
       ;;
     *)
       echo ""
@@ -781,7 +776,7 @@ phase3_launch_runtime() {
   runtime=$(resolve_runtime)
 
   if [[ -z "$runtime" ]]; then
-    echo "error: no supported runtime found. Install one of: claude, gemini, codex, copilot, crush" >&2
+    echo "error: no supported runtime found. Install one of: claude, codex, copilot, opencode" >&2
     exit 1
   fi
 
@@ -802,8 +797,31 @@ phase3_launch_runtime() {
     export SWAIN_PURPOSE="${PURPOSE_ARGS[*]}"
   fi
 
+  # --- Opencode: resolve session ID before tmux branching ---
+  # Run the init prompt headlessly in the current process so we can read the
+  # session ID from the first JSON event without any race condition.
+  # The TUI resume command is then a simple `opencode --session <id>` string
+  # that works safely in tmux new-session or eval.
+  local opencode_session_id=""
+  if [[ "$runtime" == "opencode" ]]; then
+    opencode_session_id=$(
+      opencode run --format json "$prompt" 2>/dev/null \
+        | head -1 \
+        | python3 -c "import sys,json; print(json.load(sys.stdin).get('sessionID',''))" 2>/dev/null
+    ) || true
+  fi
+
   local cmd
   cmd=$(build_launch_cmd "$runtime" "$prompt")
+
+  # For opencode, override cmd with the TUI resume command now that we have the session ID.
+  if [[ "$runtime" == "opencode" ]]; then
+    if [[ -n "$opencode_session_id" ]]; then
+      cmd="opencode --session \"$opencode_session_id\""
+    else
+      cmd="opencode"
+    fi
+  fi
 
   # --- SPEC-276: Determine tmux action ---
   local tmux_action="none"
