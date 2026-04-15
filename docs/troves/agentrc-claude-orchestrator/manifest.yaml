@@ -29,6 +29,11 @@ history:
     date: 2026-04-13
     commit: "a6dddbd"
     sources: 3
+  - event: extended
+    date: 2026-04-13
+    commit: "598eb01"
+    sources: 1
+    notes: "Full repo clone added"
 
 sources:
   - source-id: agentrc-readme
@@ -54,3 +59,18 @@ sources:
     fetched: 2026-04-13
     title: "agentrc CLAUDE.md — Worker directives and subagent dispatch rules"
     content-hash: 1dcaa9c68bfd1bedb6f2c3318e462b6c20dad49e6fa83b1a1867b679879485ee
+
+  - source-id: agentrc-repo
+    type: repository
+    url: "https://github.com/ericsmithhh/agent.rc"
+    fetched: 2026-04-13
+    title: "agent.rc — Full repository clone"
+    repo-commit: "3886c99ba68cb8b62f9a5b21715789dea45fdce2"
+    content-hash: 6635c3a88b97be4956b662535c917aa0f3ad4041fd0ba13c4e1f3df2d0175b32
+    selective: false
+    highlights:
+      - "agentrc-repo/README.md"
+      - "agentrc-repo/skill/agentrc/SKILL.md"
+      - "agentrc-repo/CLAUDE.md"
+      - "agentrc-repo/src/main.rs"
+      - "agentrc-repo/Cargo.toml"
