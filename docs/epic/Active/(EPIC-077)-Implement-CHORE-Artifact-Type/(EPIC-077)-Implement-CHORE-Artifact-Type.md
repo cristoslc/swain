@@ -59,4 +59,4 @@ Low risk. All changes are additive — adding `CHORE` to lists and regex pattern
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-14 | — | Initial creation |
+4ce9b173 Initial creation |

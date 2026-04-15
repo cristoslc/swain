@@ -60,4 +60,4 @@ Verify that `next-artifact-id.sh CHORE` returns `1` and increments on repeated c
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-14 | — | Initial creation; readability grade 11.2 after 3 revision attempts (script filenames in tables inflate score) |
+4ce9b173 Initial creation; readability grade 11.2 after 3 revision attempts (script filenames in tables inflate score) |

@@ -73,4 +73,4 @@ The `specgraph` Python package and `specwatch.sh` (Python section) don't know ab
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-14 | — | Initial creation |
+4ce9b173 Initial creation |

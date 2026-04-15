@@ -75,4 +75,4 @@ Generate via `rebuild-index.sh chores`. Depends on SPEC-312 adding chores suppor
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-14 | — | Initial creation |
+4ce9b173 Initial creation |
