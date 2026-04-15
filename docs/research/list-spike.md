@@ -39,6 +39,7 @@
 | SPIKE-058 | Embedding Nearest-Neighbor Artifact Navigation | 2026-04-04 | 0032246a |
 | SPIKE-061 | Doctor Script Simplification | 2026-04-06 | _pending_ |
 | SPIKE-062 | Doctor Python Migration | 2026-04-06 | _pending_ |
+| SPIKE-069 | Agentrc Primitives Adoption For Swain | 2026-04-14 | — |
 
 ## Complete
 
@@ -74,4 +75,6 @@
 | SPIKE-051 | Session Crash Recovery | 2026-03-28 | — |
 | SPIKE-059 | ROI Appraisal Model For Portfolio Economics | 2026-04-06 | Questionansweredpositively—modelvalidatedagainstlivebacklog.ProceedtoINITIATIVE-021. |
 | SPIKE-071 | Pick the best main-content extractor for swain-search | 2026-04-11 | -- |
+| SPIKE-070 | Where are ADR alignment checks invoked in swain workflows? | 2026-04-13 | — |
+| SPIKE-071 | ADR-041 migration scope — what it takes to move all swain skills and scripts from .agents/ to .swain/ | 2026-04-13 | — |
 
