@@ -932,7 +932,7 @@ docs_dir = sys.argv[1]
 # (folder-based have a primary .md inside; file-based are the .md directly)
 TYPE_DIRS = {
     'vision', 'journey', 'epic', 'story', 'spec',
-    'research', 'adr', 'persona', 'runbook', 'design', 'train'
+    'research', 'adr', 'persona', 'runbook', 'design', 'train', 'chores'
 }
 
 def extract_frontmatter(filepath):

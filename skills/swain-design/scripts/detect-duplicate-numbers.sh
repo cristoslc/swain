@@ -34,11 +34,12 @@ type_to_dir() {
     DESIGN)     echo "design" ;;
     JOURNEY)    echo "journey" ;;
     TRAIN)      echo "train" ;;
+    CHORE)      echo "chores" ;;
     *) return 1 ;;
   esac
 }
 
-ALL_TYPES="SPEC EPIC INITIATIVE VISION SPIKE ADR PERSONA RUNBOOK DESIGN JOURNEY TRAIN"
+ALL_TYPES="SPEC EPIC INITIATIVE VISION SPIKE ADR PERSONA RUNBOOK DESIGN JOURNEY TRAIN CHORE"
 
 # --- Parse args: optional type filter ---
 if [ $# -gt 0 ]; then

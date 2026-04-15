@@ -40,6 +40,7 @@ Each artifact type has a definition file (lifecycle phases, conventions, folder 
 | Runbook (RUNBOOK-NNN) | Step-by-step operational procedure (agentic or manual) with a defined trigger. | [definition](references/runbook-definition.md) | [template](references/runbook-template.md.template) |
 | Design (DESIGN-NNN) | Standing design document covering interaction (UI/UX), data architecture, or system contracts. Domain selected via `domain: interaction \| data \| system` frontmatter field. | [definition](references/design-definition.md) | [template](references/design-template.md.template) |
 | Training Document (TRAIN-NNN) | Structured learning material (how-to, reference, quickstart) that teaches humans how to use a feature or workflow. Tracks alongside source artifacts via commit-pinned `linked-artifacts` for staleness detection. | [definition](references/train-definition.md) | [template](references/train-template.md.template) |
+| Chore (CHORE-NNN) | Lightweight cleanup work — small, bounded, and independently executable. Does not ship feature code. | [definition](references/chore-definition.md) | [template](references/chore-template.md.template) |
 
 ## Choosing the right artifact type
 
@@ -51,6 +52,7 @@ When the user's request doesn't name a specific type, infer it from their intent
 | Strategic direction, group related work | **Initiative** | "focus on", "security effort", "group these epics", "strategic", "track" |
 | Ship a feature or deliverable | **Epic** | "build X", "add Y feature", "implement Z" |
 | One implementation unit | **Spec** | "fix this", "add a flag", "refactor", "small change", "bug" |
+| Small cleanup | **Chore** | "cleanup", "organize", "move files", "relink", "small fix" |
 | Research question | **Spike** | "should we", "investigate", "compare options", "what's the best way" |
 | Record a decision | **ADR** | "decided to", "choosing between", "why did we" |
 | Create training or documentation | **Train** | "how-to guide", "tutorial", "reference doc", "onboarding", "walkthrough", "training material", "teach someone" |
@@ -118,7 +120,7 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
    - **User-requested → `Active`**: if the user explicitly asked for this artifact (e.g., "new SPIKE about X", "write a spec for Y"), create it directly in `Active`. The user has already decided they want this work — `Proposed` adds no value.
    - **Agent-suggested → `Proposed`**: if the agent creates the artifact on its own initiative (e.g., suggesting a SPIKE while the user asked for an EPIC, decomposing a Vision into child Epics), create it in `Proposed`. The user hasn't explicitly committed — `Proposed` signals "here's what I recommend, please confirm."
    - **Fully developed in-session → later phase**: an artifact may be created directly in a later phase if it was fully developed during the conversation (see [Phase skipping](#phase-skipping)).
-6.5. **Hyperlink bare artifact ID references in body text** — after writing the artifact body, scan all text below the closing `---` frontmatter fence for bare artifact ID references matching the pattern `(SPEC|EPIC|INITIATIVE|VISION|SPIKE|ADR|PERSONA|RUNBOOK|DESIGN|JOURNEY|TRAIN)-[0-9]+`. For each bare ID that is:
+   6.5. **Hyperlink bare artifact ID references in body text** — after writing the artifact body, scan all text below the closing `---` frontmatter fence for bare artifact ID references matching the pattern `(SPEC|EPIC|INITIATIVE|VISION|SPIKE|ADR|PERSONA|RUNBOOK|DESIGN|JOURNEY|TRAIN|CHORE)-[0-9]+`. For each bare ID that is:
    - **not** already inside a markdown link (`[...](...)`), and
    - **not** inside a code fence (`` ``` `` block) or inline code (`` ` ``backtick`` ` ``),
 

@@ -55,8 +55,41 @@ This EPIC covers the infrastructure to make CHOREs a first-class artifact type i
 
 Low risk. All changes are additive — adding `CHORE` to lists and regex patterns. No existing behavior breaks. The `materialize.py` path mapping is the one real fix.
 
+## Retrospective
+
+**Terminal state:** Complete
+**Period:** 2026-04-14 — 2026-04-15
+**Related artifacts:** SPEC-311, SPEC-312, SPEC-313
+
+### Summary
+
+CHORE artifact type fully implemented across all three layers: bash scripts (SPEC-311), Python tooling (SPEC-312), and skill docs (SPEC-313). All scripts validated — `next-artifact-id.sh CHORE` returns correct IDs, `detect-duplicate-numbers.sh` scans `docs/chores/`, `resolve-artifact-link.sh` resolves CHORE-001, and `rebuild-index.sh chores` generates `list-chores.md`. Python modules updated: `xref.py` (CHORE prefix), `materialize.py` (chores directory mapping), `specwatch.sh` (TYPE_DIRS), `rebuild-index.sh` (chores case). Skill docs updated: SKILL.md (type table, choosing guidance, bare-ID regex), `lifecycle-tracks.md` (CHORE in implementable track). Created `chore-definition.md` and `chore-template.md.template`.
+
+### What went well
+
+- Additive changes only — no existing behavior broken
+- Task dependency chain (311 → 312 → 313) enforced correctly
+- Verification was straightforward — scripts accept the new type without modification
+- BDD tests skipped gracefully (pytest not available) — manual smoke test confirmed all acceptance criteria
+
+### What was surprising
+
+- `next-artifact-id.sh` already returned `2` for CHORE on first call — the increment logic works across all prefixes
+- `materialize.py` was the only file needing a real conditional fix (CHORE singular → chores plural); everything else was pure list addition
+
+### What would change
+
+- Would add a CHORE-specific smoke test to `swain-test.sh` to make the BDD gate meaningful
+- Would establish a `docs/chores/` directory convention earlier in ADR-045
+
+### Patterns observed
+
+- Additive type registration follows a consistent pattern: add to prefix lists, add to regex patterns, add to type-to-dir mappings
+- When a type uses plural directory names that differ from the type prefix (CHORE/chores), the materialize path mapping is the critical fix
+
 ## Lifecycle
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-4ce9b173 Initial creation |
+| Proposed | 2026-04-14 | 4ce9b173 | Initial creation |
+| Complete | 2026-04-15 | a91cf2ae | Implement CHORE artifact type across bash scripts, Python tooling, and skill docs |

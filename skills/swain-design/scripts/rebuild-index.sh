@@ -15,6 +15,7 @@ rebuild_index() {
     local dir_name="$type"
     case "$type" in
         spike) dir_name="research" ;;
+        chores) dir_name="chores" ;;
     esac
     local docs_dir="$REPO_ROOT/docs/$dir_name"
     local index_file="$docs_dir/list-${type}.md"
@@ -41,6 +42,7 @@ rebuild_index() {
         vision)   title="Visions" ;;
         journey)  title="Journeys" ;;
         train)    title="Training Documents" ;;
+        chores)   title="Chores" ;;
         *)        title="$(echo "$type" | sed 's/./\u&/')" ;;
     esac
     printf "# %s\n\n" "$title" > "$tmpfile"

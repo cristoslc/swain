@@ -35,6 +35,7 @@ case "$PREFIX" in
   DESIGN)     subdir="design" ;;
   JOURNEY)    subdir="journey" ;;
   TRAIN)      subdir="train" ;;
+  CHORE)      subdir="chores" ;;
   *)          subdir="" ;;
 esac
 
