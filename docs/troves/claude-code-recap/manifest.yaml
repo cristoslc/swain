@@ -84,6 +84,6 @@ history:
     sources: 4
   - event: extended
     date: 2026-04-15
-    commit: "--"
+    commit: "d4461a536a6a5282440e44314bed0ab1db108983"
     sources: 2
     notes: "Added piebald-ai-system-prompts and claudefast-context-management. Resolved generation mechanism gap: /recap reads session memory, no new prompt in v2.1.108."
