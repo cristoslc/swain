@@ -16,7 +16,7 @@ risks-addressed:
 linked-artifacts:
   - EPIC-022
   - "github:cristoslc/swain#51"
-trove: ""
+trove: "claude-code-recap@d4461a536a6a5282440e44314bed0ab1db108983"
 ---
 
 # Postflight Summary Design
