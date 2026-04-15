@@ -1,0 +1,64 @@
+id: claude-code-recap
+created: 2026-04-14
+refreshed: 2026-04-14
+tags:
+  - claude-code
+  - recap
+  - away-summary
+  - session-context
+  - context-management
+  - session-memory
+  - compaction
+
+freshness-ttl-defaults:
+  web-page: 30d
+  changelog: 7d
+
+referenced-by: []
+
+sources:
+  - id: claude-code-releases-v2-1-108
+    title: "Claude Code v2.1.108 Release Notes"
+    url: "https://github.com/anthropics/claude-code/releases"
+    type: web-page
+    fetched: 2026-04-14
+    content-hash: 9ad82877b8a56de6e84afe40f90586622b8260a6b5e82fc06c50415a341789c1
+    highlights:
+      - sources/claude-code-releases-v2-1-108/claude-code-releases-v2-1-108.md
+    notes: "Primary source. v2.1.108 changelog entry announcing /recap. Also captures v2.1.69 preamble removal for context."
+
+  - id: claudefast-session-memory
+    title: "Claude Code Session Memory: How Your AI Remembers Across Sessions"
+    url: "https://claudefa.st/blog/guide/mechanics/session-memory"
+    type: web-page
+    fetched: 2026-04-14
+    content-hash: 4ee6079fdb7c6f65a54bb94023e2c061431f1842b584927a75a82095f774a7cb
+    highlights:
+      - sources/claudefast-session-memory/claudefast-session-memory.md
+    notes: "Key source for distinguishing /recap from Session Memory. Also covers /remember, instant compaction, and availability constraints."
+
+  - id: how-claude-code-works
+    title: "How Claude Code Works — Sessions and Context Window"
+    url: "https://code.claude.com/docs/en/how-claude-code-works"
+    type: web-page
+    fetched: 2026-04-14
+    content-hash: 5c327944a7ed881bd29bfed9995685f554e3af74011ccbe0d6b1cfa3bcd4b5d1
+    highlights:
+      - sources/how-claude-code-works/how-claude-code-works.md
+    notes: "Official docs on session lifecycle, context window, compaction, and memory layers. Canonical reference."
+
+  - id: changelog-context
+    title: "Claude Code Changelog — Recap-Adjacent Entries"
+    url: "https://code.claude.com/docs/en/changelog"
+    type: web-page
+    fetched: 2026-04-14
+    content-hash: 01f6921bf21b143471671c42252bb23ca2b7bfe305c319364e4abcb2981f7bde
+    highlights:
+      - sources/changelog-context/changelog-context.md
+    notes: "Timeline of session-continuity features from v2.0.64 through v2.1.108, showing the trajectory that led to /recap."
+
+history:
+  - event: created
+    date: 2026-04-14
+    commit: "--"
+    sources: 4
