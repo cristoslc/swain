@@ -27,8 +27,9 @@ SESSION-ROADMAP.md
 .agents/worktrees/
 .agents/.agents
 
-# .claude runtime (consumer-side, not part of swain source)
-.claude/
+# .claude runtime state (track skills symlink and settings, ignore local overrides and worktrees)
+.claude/settings.local.json
+.claude/worktrees/
 
 # Skill eval workspaces
 *-workspace/
