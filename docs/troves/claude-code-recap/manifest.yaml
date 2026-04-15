@@ -57,8 +57,33 @@ sources:
       - sources/changelog-context/changelog-context.md
     notes: "Timeline of session-continuity features from v2.0.64 through v2.1.108, showing the trajectory that led to /recap."
 
+  - id: piebald-ai-system-prompts
+    title: "Claude Code System Prompts — Extracted from Source (Piebald-AI)"
+    url: "https://github.com/Piebald-AI/claude-code-system-prompts"
+    type: web-page
+    fetched: 2026-04-15
+    content-hash: ""
+    highlights:
+      - sources/piebald-ai-system-prompts/piebald-ai-system-prompts.md
+    notes: "Key source for resolving the generation mechanism gap. Confirms no new recap-specific prompt in v2.1.108 — /recap reuses session memory infrastructure. Includes conversation-summarization, recent-message-summarization, and session-memory-template prompts."
+
+  - id: claudefast-context-management
+    title: "Claude Code Context Window: Optimize Your Token Usage (ClaudeFast)"
+    url: "https://claudefa.st/blog/guide/mechanics/context-management"
+    type: web-page
+    fetched: 2026-04-15
+    content-hash: ""
+    highlights:
+      - sources/claudefast-context-management/claudefast-context-management.md
+    notes: "Confirms compaction reads pre-written session memory rather than re-summarizing live. Supporting evidence that /recap uses the same read-from-session-memory architecture."
+
 history:
   - event: created
     date: 2026-04-14
     commit: "8d0422f1e44cc0a9393b7d74257b5a4ee85ddd84"
     sources: 4
+  - event: extended
+    date: 2026-04-15
+    commit: "--"
+    sources: 2
+    notes: "Added piebald-ai-system-prompts and claudefast-context-management. Resolved generation mechanism gap: /recap reads session memory, no new prompt in v2.1.108."
