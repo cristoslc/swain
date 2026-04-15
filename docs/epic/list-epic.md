@@ -56,7 +56,6 @@
 | EPIC-072 | Chat Plugin System | 2026-04-06 | -- |
 | EPIC-073 | Runtime Plugin System | 2026-04-06 | -- |
 | EPIC-074 | Provisioning (swain-stage) | 2026-04-06 | -- |
-| EPIC-077 | Title-Based Artifact Migration | 2026-04-06 | — |
 
 ## Complete
 

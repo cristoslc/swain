@@ -176,9 +176,7 @@
 | SPEC-305 | Gitignore .swain/session/ in consumer projects | 2026-04-13 | — |
 | SPEC-306 | swain-search: X-Thread Source Type and Media Transcript Ingestion | 2026-04-13 | 2bf515cb |
 | SPEC-307 | Change traceability — auto-resolve upstream drift on edits | 2026-04-13 | — |
-| SPEC-308 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
-| SPEC-309 | Consumer Gitignore Coverage Gaps | 2026-04-04 | — |
-| SPEC-310 | CLI Tool Research Pattern for swain-search | 2026-04-07 | - |
+| SPEC-310 | Artifact Cleanup And Restructuring | 2026-04-14 | — |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 
 ## Complete
