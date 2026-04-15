@@ -1,0 +1,1 @@
+../../skills/swain-security-check/scripts/security-scan.sh

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# git-compact — compressed git output via RTK, with transparent fallback.
+# Routes diff, log, status through rtk for context-window savings.
+# Falls back to raw git when rtk is not installed.
+# See: DESIGN-017, SPEC-253
+
+set -euo pipefail
+
+HAS_RTK=false
+command -v rtk >/dev/null 2>&1 && HAS_RTK=true
+
+if [ $# -eq 0 ]; then
+    exec git
+fi
+
+SUBCMD="$1"
+shift
+
+if [ "$HAS_RTK" = true ]; then
+    case "$SUBCMD" in
+        diff|log|status)
+            exec rtk git "$SUBCMD" "$@"
+            ;;
+        *)
+            exec git "$SUBCMD" "$@"
+            ;;
+    esac
+else
+    exec git "$SUBCMD" "$@"
+fi

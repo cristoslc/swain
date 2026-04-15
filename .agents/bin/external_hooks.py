@@ -1,0 +1,1 @@
+../../skills/swain-security-check/scripts/external_hooks.py

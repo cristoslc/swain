@@ -13,9 +13,22 @@ __pycache__/
 
 # Runtime artifacts
 *.log
-.agents/
-.claude/
 SESSION-ROADMAP.md
+
+# .agents runtime artifacts (track code, ignore state)
+.agents/*.log
+.agents/*.json
+.agents/.env
+.agents/cache/
+.agents/hook-state/
+.agents/search-snapshots/
+.agents/session.json
+.agents/specwatch-ignore
+.agents/worktrees/
+.agents/.agents
+
+# .claude runtime (consumer-side, not part of swain source)
+.claude/
 
 # Skill eval workspaces
 *-workspace/

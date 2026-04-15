@@ -1,0 +1,1 @@
+../../skills/swain-search/scripts/verify-snapshot-evidence.sh
