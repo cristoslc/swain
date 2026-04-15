@@ -1,6 +1,6 @@
 ---
 title: "Pick the best main-content extractor for swain-search"
-artifact: SPIKE-071
+artifact: SPIKE-072
 track: container
 status: Complete
 author: Cristos L-C

@@ -2,7 +2,7 @@
 title: "Fix Duplicate SPIKE IDs Blocking Artifact Graph"
 artifact: SPEC-308
 track: implementable
-status: Active
+status: Complete
 author: cristos
 created: 2026-04-14
 last-updated: 2026-04-14
@@ -102,12 +102,12 @@ any query can execute.
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
-| AC1 | `chart.sh scope SPIKE-069` exits 0 | — |
-| AC2 | `chart.sh unanchored` exits 0 | — |
-| AC3 | no artifact frontmatter in docs/spike/ | — |
-| AC4 | one SPIKE-071 file, folder name matches | — |
-| AC5 | six migrated IDs have one copy each | — |
-| AC6 | eight legacy-only IDs present in docs/research/ | — |
+| AC1 | `chart.sh scope SPIKE-069` exits 0 | PASS: scope SPIKE-072 returns ancestry chain |
+| AC2 | `chart.sh unanchored` exits 0 | PASS: no ValueError |
+| AC3 | no artifact frontmatter in docs/spike/ | PASS: directory removed |
+| AC4 | one SPIKE-071 file, folder name matches | PASS: (SPIKE-071)-ADR-041-Migration-Scope |
+| AC5 | six migrated IDs have one copy each | PASS: all six in docs/research/ only |
+| AC6 | eight legacy-only IDs present in docs/research/ | PASS: all eight migrated to correct phase dirs |
 
 ## Scope & Constraints
 
@@ -144,3 +144,4 @@ the move — only fix location and folder naming.
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-14 | — | Identified during SPIKE-069 creation; chart.sh scope blocked |
+| Complete | 2026-04-14 | — | Resolved: removed docs/spike/ duplicates, migrated 8 legacy SPIKEs, renamed trafilatura to SPIKE-072 |
