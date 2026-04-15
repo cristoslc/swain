@@ -83,4 +83,4 @@ This chore is gated on ADR-043 implementation. Do it as part of that work, not s
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-14 | — | Operator-requested cleanup spec |
+| Active | 2026-04-14 | 61decd0e | Operator-requested cleanup spec |
