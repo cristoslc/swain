@@ -182,6 +182,7 @@
 | SPEC-311 | Bash Script Support for CHORE Prefix | 2026-04-14 | — |
 | SPEC-312 | Python Tooling Support for CHORE Type | 2026-04-14 | — |
 | SPEC-313 | Skill Docs and Index for CHORE Type | 2026-04-14 | — |
+| SPEC-317 | Source Quality Ranking for swain-search | 2026-04-16 | — |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 
 ## Complete
