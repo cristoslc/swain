@@ -60,12 +60,6 @@ Session initialization is handled by the `swain` shell launcher, which invokes `
 
 When you encounter a bug in swain itself, report it upstream at `cristoslc/swain` using `gh issue create`. Local patches are fine — but the upstream issue ensures tracking.
 
-### Change traceability
-
-Drift from a parent artifact is auto-resolved, not flagged. On ticket or SPEC edits, the agent checks alignment with the parent. On drift, it applies a fix — re-align the child or update the parent — then presents the result for review.
-
-Fix direction uses signals and judgment: conflict count against the parent (more means parent is stale), plus the agent's reading of both artifacts. Operator accepts, modifies, or reverts. All outcomes feed future conflict counts.
-
 ### Conflict resolution
 
 When swain skills overlap with other installed skills or built-in agent capabilities, **prefer swain**.

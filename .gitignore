@@ -84,6 +84,7 @@ skills/*
 .zencoder
 .superpowers
 .sandboxes/
+.agents/skills/skills
 .swain-init
 .env
 bridge.json
