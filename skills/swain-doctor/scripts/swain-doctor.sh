@@ -540,6 +540,153 @@ check_worktrees() {
 }
 
 # ============================================================
+# Check 13a: Worktree context validation
+# ============================================================
+# Validates the CURRENT session's worktree (the one we're running
+# in), not all linked worktrees (that's check_worktrees).
+# Checks: ADR-034 location, symlink integrity, lockfile presence,
+# ADR-025 branch naming.
+# ============================================================
+check_worktree_context() {
+  # Detect whether we're in a linked worktree
+  local git_common git_dir
+  git_common="$(git rev-parse --git-common-dir 2>/dev/null || true)"
+  git_dir="$(git rev-parse --git-dir 2>/dev/null || true)"
+
+  # Resolve both to absolute paths for comparison
+  if [[ -n "$git_common" ]] && [[ "$git_common" != /* ]]; then
+    git_common="$(cd "$REPO_ROOT" && cd "$git_common" 2>/dev/null && pwd || echo "$git_common")"
+  fi
+  if [[ -n "$git_dir" ]] && [[ "$git_dir" != /* ]]; then
+    git_dir="$(cd "$REPO_ROOT" && cd "$git_dir" 2>/dev/null && pwd || echo "$git_dir")"
+  fi
+
+  if [[ -z "$git_common" ]] || [[ -z "$git_dir" ]] || [[ "$git_common" == "$git_dir" ]]; then
+    add_check "worktree_context" "ok" "not in a worktree"
+    return
+  fi
+
+  local warnings=0
+  local advisories=0
+  local detail_parts=()
+  local main_root
+  main_root="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+  local branch
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
+
+  # --- 1. Location sanity (ADR-034) ---
+  local expected_parent="$main_root/.worktrees"
+  if [[ -n "$expected_parent" ]] && [[ "$REPO_ROOT" != "$expected_parent"/* ]]; then
+    warnings=$((warnings + 1))
+    detail_parts+=("location outside .worktrees/ (ADR-034)")
+  fi
+
+  # --- 2. Symlink integrity ---
+  # Check skill directories and .swain-init marker
+  local broken_symlinks=()
+  local missing_symlinks=()
+  local checked_links=(".claude/skills" ".agents/skills" ".swain-init")
+  for link_target in "${checked_links[@]}"; do
+    local link_path="$REPO_ROOT/$link_target"
+    if [[ -L "$link_path" ]]; then
+      # Symlink exists — verify target is readable
+      if [[ ! -e "$link_path" ]]; then
+        broken_symlinks+=("$link_target")
+      fi
+    elif [[ -d "$main_root/$link_target" ]] || [[ -f "$main_root/$link_target" ]]; then
+      # Source exists on main tree but no symlink in worktree
+      missing_symlinks+=("$link_target")
+    fi
+  done
+
+  # Check runtime dot-folders (symlinked from main tree by bin/swain)
+  local agent_dirs=(
+    .adal .agent .augment .codebuddy .commandcode .continue .codex
+    .cortex .crush .factory .goose .iflow .junie .kilocode .kiro
+    .kode .mcpjam .mux .neovate .openhands .pi .pochi .qoder .qwen
+    .roo .trae .vibe .windsurf .zencoder .superpowers
+  )
+  for agent_dir in "${agent_dirs[@]}"; do
+    local link_path="$REPO_ROOT/$agent_dir"
+    if [[ -L "$link_path" ]]; then
+      if [[ ! -e "$link_path" ]]; then
+        broken_symlinks+=("$agent_dir")
+      fi
+    elif [[ -d "$main_root/$agent_dir" ]] && [[ ! -e "$link_path" ]]; then
+      missing_symlinks+=("$agent_dir")
+    fi
+  done
+
+  # Auto-repair broken and missing symlinks
+  local repaired=0
+  for link_target in "${broken_symlinks[@]}" "${missing_symlinks[@]}"; do
+    local link_path="$REPO_ROOT/$link_target"
+    local source_path="$main_root/$link_target"
+    if [[ -e "$source_path" ]] || [[ -L "$source_path" ]]; then
+      mkdir -p "$(dirname "$link_path")"
+      ln -sf "$source_path" "$link_path" 2>/dev/null && repaired=$((repaired + 1))
+    fi
+  done
+
+  if [[ ${#broken_symlinks[@]} -gt 0 ]]; then
+    warnings=$((warnings + 1))
+    detail_parts+=("${#broken_symlinks[@]} broken symlink(s)${repaired:+ (repaired $repaired)}")
+  fi
+  if [[ ${#missing_symlinks[@]} -gt 0 ]]; then
+    advisories=$((advisories + 1))
+    detail_parts+=("${#missing_symlinks[@]} missing symlink(s)${repaired:+ (repaired $repaired)}")
+  fi
+
+  # --- 3. Lockfile presence ---
+  local lockfile_dir="$main_root/.agents/worktrees"
+  local lockfile_path="$lockfile_dir/$branch.lock"
+  if [[ ! -f "$lockfile_path" ]]; then
+    advisories=$((advisories + 1))
+    detail_parts+=("no lockfile for branch $branch")
+  fi
+
+  # --- 4. Branch naming (ADR-025) ---
+  local name_ok=false
+  # Implementable: spec-NNN-slug, spike-NNN-slug
+  if echo "$branch" | grep -qiE '^(spec|spike)-[0-9]+'; then
+    name_ok=true
+  fi
+  # Container: slug-YYYYMMDD-epic-NNN-slug or slug-YYYYMMDD-initiative-NNN-slug
+  if echo "$branch" | grep -qiE '^[a-z].*-[0-9]{8}-(epic|initiative)-[0-9]+'; then
+    name_ok=true
+  fi
+  # Standing: adr-NNN-slug, vision-NNN-slug, etc.  Also covers epic-NNN-slug and initiative-NNN-slug.
+  if echo "$branch" | grep -qiE '^(adr|vision|journey|persona|runbook|design|train|epic|initiative)-[0-9]+'; then
+    name_ok=true
+  fi
+  # Session: session-YYYYMMDD-HHMMSS
+  if echo "$branch" | grep -qiE '^session-[0-9]{8}-[0-9]{6}'; then
+    name_ok=true
+  fi
+  # Also accept simple artifact IDs: spec-NNN, epic-NNN (no slug)
+  if [[ "$name_ok" == "false" ]]; then
+    advisories=$((advisories + 1))
+    detail_parts+=("branch name '$branch' does not match ADR-025 patterns")
+  fi
+
+  # --- Build result ---
+  local total_issues=$((warnings + advisories))
+  if [[ $total_issues -eq 0 ]]; then
+    local ok_msg="in worktree for $branch"
+    [[ $repaired -gt 0 ]] && ok_msg="$ok_msg (repaired $repaired symlink(s))"
+    add_check "worktree_context" "ok" "$ok_msg"
+  elif [[ $warnings -gt 0 ]]; then
+    local detail_str
+    detail_str=$(printf '%s, ' "${detail_parts[@]}" | sed 's/, $//')
+    add_check "worktree_context" "warning" "$detail_str"
+  else
+    local detail_str
+    detail_str=$(printf '%s, ' "${detail_parts[@]}" | sed 's/, $//')
+    add_check "worktree_context" "advisory" "$detail_str"
+  fi
+}
+
+# ============================================================
 # Check 13: Lifecycle directory migration
 # ============================================================
 check_lifecycle_dirs() {
@@ -1200,6 +1347,7 @@ check_readme
 check_artifact_indexes
 check_evidence_pools
 check_worktrees
+check_worktree_context
 check_lifecycle_dirs
 check_tk_health
 check_operator_bin_symlinks

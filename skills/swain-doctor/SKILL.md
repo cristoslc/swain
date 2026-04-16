@@ -124,6 +124,18 @@ bash "$REPO_ROOT/.agents/bin/migrate-to-troves.sh"            # migrate
 
 Stale worktrees (branch already merged into HEAD) can be pruned: `git worktree remove <path>`. Orphaned worktrees (directory missing) can be pruned: `git worktree prune`. Stale lockfiles and unclaimed worktrees are reported in the detail field. Read [references/worktree-detection.md](references/worktree-detection.md) for classification rules.
 
+## worktree_context
+
+Validates the current session's worktree, not all linked worktrees (that's `worktrees`). Four sub-checks:
+
+**Location outside .worktrees/** (warning): ADR-034 mandates `.worktrees/` as the canonical location. Worktrees created manually via `git worktree add <path>` outside this directory won't receive symlink setup from `bin/swain`. To fix, start a new session with `swain "<purpose>"` which creates worktrees in the correct location. Existing work outside `.worktrees/` can continue — this is a warning, not a blocker.
+
+**Broken or missing symlinks** (warning/advisory): The script auto-repairs symlinks for skill directories (`.claude/skills`, `.agents/skills`), the `.swain-init` marker, and runtime dot-folders (`.augment`, `.continue`, etc.) that exist on the main tree. If auto-repair fails (source directory missing on main tree), manually create the symlink pointing to the main tree's copy: `ln -s <main_root>/<dir> <worktree>/<dir>`.
+
+**No lockfile for branch** (advisory): `bin/swain` creates a lockfile at `.agents/worktrees/<branch>.lock` when it creates a worktree. A missing lockfile means the worktree was created outside the swain launcher or the lockfile was lost. Low risk — the worktree still functions — but teardown and cleanup tooling depend on lockfiles. To create a retroactive lockfile: `bash .agents/bin/swain-lockfile.sh claim <branch>`.
+
+**Branch name not matching ADR-025** (advisory): Swain worktrees follow naming conventions from ADR-025. Non-matching names may indicate a manually created worktree. No auto-fix — the advisory is informational. Patterns: `<id>-<slug>` (implementable), `<slug>-<date>-<id>-<slug>` (container), `session-<timestamp>` (no artifact).
+
 ## lifecycle_dirs
 
 Old phase directories from before ADR-003's three-track normalization. Read [references/lifecycle-migration.md](references/lifecycle-migration.md) for detection commands, remediation steps, and the migration script.
@@ -208,6 +220,7 @@ swain-doctor summary:
   Artifact indexes ... ok
   Evidence pools ..... ok
   Worktrees .......... ok
+  Worktree context ... ok
   Lifecycle dirs ..... ok
   tk health .......... ok
   Operator bin/ ...... ok
