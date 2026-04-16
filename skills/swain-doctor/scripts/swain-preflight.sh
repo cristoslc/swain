@@ -107,24 +107,13 @@ if [[ -d "$REPO_ROOT/docs/evidence-pools" ]]; then
   issues+=("docs/evidence-pools/ detected — trove migration needed")
 fi
 
-# 5b. Worktree context (ADR-034) — location sanity + essential symlink check
+# 5b. Worktree context (ADR-034) — location sanity gate
 _git_common="$(git rev-parse --git-common-dir 2>/dev/null || true)"
 _git_dir="$(git rev-parse --git-dir 2>/dev/null || true)"
 if [[ -n "$_git_common" ]] && [[ "$_git_common" != "$_git_dir" ]]; then
   _main_root="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
-  # Location check
   if [[ -n "$_main_root" ]] && [[ "$REPO_ROOT" != "$_main_root/.worktrees"/* ]]; then
-    issues+=("worktree outside .worktrees/ (ADR-034: canonical location is <repo>/.worktrees/)")
-  fi
-  # Essential symlink check (skills + .swain-init)
-  if [[ -n "$_main_root" ]]; then
-    for _link in .claude/skills .agents/skills .swain-init; do
-      if [[ -L "$REPO_ROOT/$_link" ]] && [[ ! -e "$REPO_ROOT/$_link" ]]; then
-        issues+=("broken symlink in worktree: $_link")
-      elif [[ ! -e "$REPO_ROOT/$_link" ]] && { [[ -d "$_main_root/$_link" ]] || [[ -f "$_main_root/$_link" ]]; }; then
-        echo "preflight: missing symlink in worktree: $_link (run swain-doctor to auto-repair)"
-      fi
-    done
+    issues+=("worktree outside .worktrees/ (ADR-034: swain-doctor can auto-move)")
   fi
 fi
 
