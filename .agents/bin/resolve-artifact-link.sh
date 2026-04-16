@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/resolve-artifact-link.sh
+../../.claude/skills/swain-design/scripts/resolve-artifact-link.sh

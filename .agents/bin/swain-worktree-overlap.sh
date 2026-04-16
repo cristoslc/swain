@@ -1,1 +1,1 @@
-../../skills/swain-do/scripts/swain-worktree-overlap.sh
+../../.claude/skills/swain-do/scripts/swain-worktree-overlap.sh

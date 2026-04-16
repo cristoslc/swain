@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/migrate-lifecycle-dirs.py
+../../.claude/skills/swain-design/scripts/migrate-lifecycle-dirs.py

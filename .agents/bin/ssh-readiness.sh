@@ -1,1 +1,1 @@
-../../skills/swain-doctor/scripts/ssh-readiness.sh
+../../.claude/skills/swain-doctor/scripts/ssh-readiness.sh

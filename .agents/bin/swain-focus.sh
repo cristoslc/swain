@@ -1,1 +1,1 @@
-../../skills/swain-session/scripts/swain-focus.sh
+../../.claude/skills/swain-session/scripts/swain-focus.sh

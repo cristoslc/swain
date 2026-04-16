@@ -1,1 +1,1 @@
-../../skills/swain-session/scripts/swain-tab-name.sh
+../../.claude/skills/swain-session/scripts/swain-tab-name.sh

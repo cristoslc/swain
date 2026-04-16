@@ -1,1 +1,1 @@
-../../skills/swain-session/scripts/swain-progress-log.sh
+../../.claude/skills/swain-session/scripts/swain-progress-log.sh

@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/detect-duplicate-numbers.sh
+../../.claude/skills/swain-design/scripts/detect-duplicate-numbers.sh

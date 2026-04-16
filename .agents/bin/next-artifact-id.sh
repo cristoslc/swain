@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/next-artifact-id.sh
+../../.claude/skills/swain-design/scripts/next-artifact-id.sh

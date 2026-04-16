@@ -1,1 +1,1 @@
-../../skills/swain-security-check/scripts/security-scan.sh
+../../.claude/skills/swain-security-check/scripts/security-scan.sh

@@ -1,1 +1,1 @@
-../../skills/swain-search/scripts/verify-snapshot-evidence.sh
+../../.claude/skills/swain-search/scripts/verify-snapshot-evidence.sh

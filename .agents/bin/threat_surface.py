@@ -1,1 +1,1 @@
-../../skills/swain-security-check/scripts/threat_surface.py
+../../.claude/skills/swain-security-check/scripts/threat_surface.py

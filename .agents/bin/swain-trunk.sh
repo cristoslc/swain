@@ -1,1 +1,1 @@
-../../skills/swain-sync/scripts/swain-trunk.sh
+../../.claude/skills/swain-sync/scripts/swain-trunk.sh

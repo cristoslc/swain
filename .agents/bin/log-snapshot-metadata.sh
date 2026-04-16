@@ -1,1 +1,1 @@
-../../skills/swain-search/scripts/log-snapshot-metadata.sh
+../../.claude/skills/swain-search/scripts/log-snapshot-metadata.sh

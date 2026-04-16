@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/train-check.sh
+../../.claude/skills/swain-design/scripts/train-check.sh

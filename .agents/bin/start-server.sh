@@ -1,1 +1,1 @@
-../../skills/brainstorming/scripts/start-server.sh
+../../.claude/skills/brainstorming/scripts/start-server.sh

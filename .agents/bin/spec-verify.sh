@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/spec-verify.sh
+../../.claude/skills/swain-design/scripts/spec-verify.sh

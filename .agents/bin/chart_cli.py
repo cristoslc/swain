@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/chart_cli.py
+../../.claude/skills/swain-design/scripts/chart_cli.py

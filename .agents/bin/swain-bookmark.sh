@@ -1,1 +1,1 @@
-../../skills/swain-session/scripts/swain-bookmark.sh
+../../.claude/skills/swain-session/scripts/swain-bookmark.sh

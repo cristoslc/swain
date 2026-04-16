@@ -1,1 +1,1 @@
-../../skills/swain-session/scripts/swain-session-bootstrap.sh
+../../.claude/skills/swain-session/scripts/swain-session-bootstrap.sh

@@ -1,1 +1,1 @@
-../../skills/swain-security-check/scripts/security_check.py
+../../.claude/skills/swain-security-check/scripts/security_check.py

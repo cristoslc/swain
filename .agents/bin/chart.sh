@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/chart.sh
+../../.claude/skills/swain-design/scripts/chart.sh

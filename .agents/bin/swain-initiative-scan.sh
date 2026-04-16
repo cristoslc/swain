@@ -1,1 +1,1 @@
-../../skills/swain-doctor/scripts/swain-initiative-scan.sh
+../../.claude/skills/swain-doctor/scripts/swain-initiative-scan.sh

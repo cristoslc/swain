@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/migrate-frontmatter-fields.py
+../../.claude/skills/swain-design/scripts/migrate-frontmatter-fields.py
