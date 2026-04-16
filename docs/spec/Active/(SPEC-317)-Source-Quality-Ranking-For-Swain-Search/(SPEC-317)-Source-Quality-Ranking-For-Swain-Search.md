@@ -139,4 +139,4 @@ TDD cycle 5 — Trovewatch and refresh:
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-16 | — | Initial creation — operator-requested feature |
+| Active | 2026-04-16 | be506b4 | Initial creation — operator-requested feature |
