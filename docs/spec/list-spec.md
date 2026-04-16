@@ -53,6 +53,9 @@
 | SPEC-273 | Commit-Hash Staleness Detection | 2026-04-05 | _pending_ |
 | SPEC-274 | Swain-Verify Command | 2026-04-05 | _pending_ |
 | SPEC-275 | BDD Retrofit Migration | 2026-04-05 | _pending_ |
+| SPEC-314 | Deterministic Worktree Path Function and Convention | 2026-04-14 | 88924d4d |
+| SPEC-315 | Update swain-do SKILL.md Worktree Isolation Preamble | 2026-04-14 | 88924d4d |
+| SPEC-316 | Investigate specwatch Scan Timeout | 2026-04-14 | e3fbc288 |
 
 ## Active
 
@@ -176,7 +179,9 @@
 | SPEC-305 | Gitignore .swain/session/ in consumer projects | 2026-04-13 | — |
 | SPEC-306 | swain-search: X-Thread Source Type and Media Transcript Ingestion | 2026-04-13 | 2bf515cb |
 | SPEC-307 | Change traceability — auto-resolve upstream drift on edits | 2026-04-13 | — |
-| SPEC-310 | Artifact Cleanup And Restructuring | 2026-04-14 | — |
+| SPEC-311 | Bash Script Support for CHORE Prefix | 2026-04-14 | — |
+| SPEC-312 | Python Tooling Support for CHORE Type | 2026-04-14 | — |
+| SPEC-313 | Skill Docs and Index for CHORE Type | 2026-04-14 | — |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 
 ## Complete
@@ -312,6 +317,7 @@
 | SPEC-283 | Artifact-Aware Worktree Naming | 2026-04-04 | — |
 | SPEC-284 | swain-sync Merge Logic | 2026-04-04 | — |
 | SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-13 | ad2b33c0 |
+| SPEC-308 | Fix Duplicate SPIKE IDs Blocking Artifact Graph | 2026-04-14 | — |
 
 ## Superseded
 

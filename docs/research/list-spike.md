@@ -15,6 +15,7 @@
 | SPIKE-054 | Transitive Leverage Depth Decay | 2026-04-06 | Initialcreation |
 | SPIKE-060 | Cost Axis Composition Model | 2026-04-06 | Initialcreation |
 | SPIKE-063 | Reporting Format Library Design | 2026-04-06 | c213c99 |
+| SPIKE-064 | Agent Runtime I/O Compatibility for Mobile Bridge | 2026-04-06 | -- |
 
 ## Active
 
@@ -39,6 +40,8 @@
 | SPIKE-058 | Embedding Nearest-Neighbor Artifact Navigation | 2026-04-04 | 0032246a |
 | SPIKE-061 | Doctor Script Simplification | 2026-04-06 | _pending_ |
 | SPIKE-062 | Doctor Python Migration | 2026-04-06 | _pending_ |
+| SPIKE-067 | Swain Runtime Adapter Architecture | 2026-04-06 | -- |
+| SPIKE-068 | Session Recovery After Host Restart | 2026-04-06 | -- |
 | SPIKE-069 | Agentrc Primitives Adoption For Swain | 2026-04-14 | — |
 
 ## Complete
@@ -73,8 +76,13 @@
 | SPIKE-032 | Docker Sandboxes OAuth Limitation Workaround | 2026-03-19 | — |
 | SPIKE-038 | PreToolUse Hook Adapter Feasibility | 2026-03-23 | 09d824a |
 | SPIKE-051 | Session Crash Recovery | 2026-03-28 | — |
+| SPIKE-053 | Claude Code EnterWorktree Migration Path | 2026-04-04 | — |
+| SPIKE-056 | Artifact Model Audit + Extraction + Naming Rules | — | — |
+| SPIKE-057 | swain-sync Lockfile Integration | 2026-04-04 | — |
 | SPIKE-059 | ROI Appraisal Model For Portfolio Economics | 2026-04-06 | Questionansweredpositively—modelvalidatedagainstlivebacklog.ProceedtoINITIATIVE-021. |
-| SPIKE-071 | Pick the best main-content extractor for swain-search | 2026-04-11 | -- |
+| SPIKE-065 | Agent Runtime I/O Compatibility for Mobile Bridge | 2026-04-06 | — |
+| SPIKE-066 | Ollama Launch Argument Passthrough | 2026-04-06 | -- |
 | SPIKE-070 | Where are ADR alignment checks invoked in swain workflows? | 2026-04-13 | — |
 | SPIKE-071 | ADR-041 migration scope — what it takes to move all swain skills and scripts from .agents/ to .swain/ | 2026-04-13 | — |
+| SPIKE-072 | Pick the best main-content extractor for swain-search | 2026-04-11 | -- |
 

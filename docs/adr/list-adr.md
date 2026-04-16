@@ -51,6 +51,7 @@
 | ADR-042 | Track runtime and peer-agent dirs instead of symlinking via hook | 2026-04-13 | — |
 | ADR-043 | Shared Ticket State Across Worktrees | 2026-04-13 | 96c36167 |
 | ADR-044 | Supported Agentic CLI Runtimes | 2026-04-13 | — |
+| ADR-045 | Chores As A Lightweight Artifact Type | 2026-04-14 | 538e563e |
 
 ## Superseded
 

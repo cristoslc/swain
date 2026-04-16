@@ -9,7 +9,7 @@
 | EPIC-019 | Rename swain-design to swain-strategize | 2026-03-19 | — |
 | EPIC-020 | Multi-Agent Workdir Safety | 2026-03-14 | — |
 | EPIC-021 | Product Design Orchestrator | 2026-03-14 | — |
-| EPIC-022 | Postflight Summaries | 2026-03-14 | — |
+| EPIC-022 | Context Recovery Summaries | 2026-04-15 | — |
 | EPIC-024 | GitHub Issue Polling with Deterministic Pre-Filtering | 2026-03-16 | — |
 | EPIC-025 | Event Bus | 2026-03-17 | — |
 | EPIC-026 | Query Layer | 2026-03-17 | — |
@@ -56,6 +56,8 @@
 | EPIC-072 | Chat Plugin System | 2026-04-06 | -- |
 | EPIC-073 | Runtime Plugin System | 2026-04-06 | -- |
 | EPIC-074 | Provisioning (swain-stage) | 2026-04-06 | -- |
+| EPIC-077 | Implement CHORE Artifact Type | 2026-04-14 | — |
+| EPIC-078 | Deterministic Worktree Placement | 2026-04-14 | 88924d4d |
 
 ## Complete
 
