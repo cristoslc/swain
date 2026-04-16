@@ -126,15 +126,15 @@ Stale worktrees (branch already merged into HEAD) can be pruned: `git worktree r
 
 ## worktree_context
 
-Validates the current session's worktree, not all linked worktrees (that's `worktrees`). Four sub-checks:
+Validates the current session's worktree, not all linked worktrees (that's `worktrees`). All four sub-checks **auto-fix** deterministically — warnings mean auto-fix failed, advisory means auto-fix succeeded.
 
-**Location outside .worktrees/** (warning): ADR-034 mandates `.worktrees/` as the canonical location. Worktrees created manually via `git worktree add <path>` outside this directory won't receive symlink setup from `bin/swain`. To fix, start a new session with `swain "<purpose>"` which creates worktrees in the correct location. Existing work outside `.worktrees/` can continue — this is a warning, not a blocker.
+**Location outside .worktrees/** (auto-move): ADR-034 mandates `.worktrees/` as the canonical location. The script auto-moves the worktree via `git worktree move <path> <main_root>/.worktrees/<branch>`. Failure (warning) means the target path already exists or `git worktree move` failed — resolve manually.
 
-**Broken or missing symlinks** (warning/advisory): The script auto-repairs symlinks for skill directories (`.claude/skills`, `.agents/skills`), the `.swain-init` marker, and runtime dot-folders (`.augment`, `.continue`, etc.) that exist on the main tree. If auto-repair fails (source directory missing on main tree), manually create the symlink pointing to the main tree's copy: `ln -s <main_root>/<dir> <worktree>/<dir>`.
+**Missing lockfile** (auto-create): The script auto-creates a lockfile at `.agents/worktrees/<branch>.lock` using `swain-lockfile.sh claim`, or falls back to writing the lockfile directly. On collision (existing lockfile for same branch), a PID-suffixed lockfile is created. Advisory = auto-created; warning = creation failed.
 
-**No lockfile for branch** (advisory): `bin/swain` creates a lockfile at `.agents/worktrees/<branch>.lock` when it creates a worktree. A missing lockfile means the worktree was created outside the swain launcher or the lockfile was lost. Low risk — the worktree still functions — but teardown and cleanup tooling depend on lockfiles. To create a retroactive lockfile: `bash .agents/bin/swain-lockfile.sh claim <branch>`.
+**Branch name violates ADR-025** (auto-rename): The script auto-renames the branch and moves the worktree folder to match ADR-025 naming. It uses `swain-worktree-name.sh` when a purpose is available, or falls back to `session-<timestamp>`. The lockfile is also renamed. Advisory = renamed; warning = rename failed.
 
-**Branch name not matching ADR-025** (advisory): Swain worktrees follow naming conventions from ADR-025. Non-matching names may indicate a manually created worktree. No auto-fix — the advisory is informational. Patterns: `<id>-<slug>` (implementable), `<slug>-<date>-<id>-<slug>` (container), `session-<timestamp>` (no artifact).
+**Folder name != branch name** (auto-move): The script auto-moves the worktree folder so `basename` matches the branch name via `git worktree move`. Advisory = moved; warning = move failed (target already exists).
 
 ## lifecycle_dirs
 
