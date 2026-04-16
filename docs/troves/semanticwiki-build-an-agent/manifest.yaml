@@ -1,0 +1,46 @@
+trove: semanticwiki-build-an-agent
+created: 2026-04-16
+refreshed: 2026-04-16
+tags:
+  - semanticwiki
+  - build-an-agent
+  - reasoning-software
+  - documentation-generation
+  - agent-scaffolding
+  - claude-agent-sdk
+  - architectural-documentation
+  - source-traceability
+  - rag-embeddings
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-04-16
+    commit: "--"
+    sources: 3
+
+sources:
+  - source-id: semanticwiki-npm
+    type: web
+    url: "https://www.npmjs.com/package/semanticwiki"
+    fetched: 2026-04-16T18:15:00Z
+    title: "SemanticWiki - npm package README"
+    hash: "d448e4f9f006754c599a3e028d428b7029d5f26d9f3d78af74007ae280ce1d8c"
+    notes: "npmjs.com blocked by Cloudflare; content sourced from npm registry API"
+
+  - source-id: semanticwiki-research
+    type: web
+    url: "https://reasoning.software/research/semanticwiki"
+    fetched: 2026-04-16T18:15:00Z
+    title: "SemanticWiki | Research | reasoning.software"
+    hash: "556b03abff252c249f418e043776a0977a8ad08e18b96a43f563e850684db131"
+    notes: "SPA site; content captured via browser snapshot"
+
+  - source-id: build-an-agent-workshop
+    type: web
+    url: "https://www.buildanagentworkshop.com/"
+    fetched: 2026-04-16T18:15:00Z
+    title: "Build-An-Agent Workshop"
+    hash: "9260dd7a387b9de87c1609a834a4a12e7ee70dea246ea84ae0a9d25f8ed9f939"
