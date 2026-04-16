@@ -170,6 +170,34 @@ When evidence confirms prior implementation, skip full task decomposition:
 
 All mutating work tracked by swain-do happens in a worktree — regardless of whether it touches source code, artifacts, skill files, or data. This prevents half-finished changes from polluting trunk and avoids collisions between parallel agents. Before any operation that will produce file changes (plan creation, task claim, code writing, artifact editing, skill file changes, spec transitions, execution handoff), run this detection:
 
+**Read-only operations skip this preamble entirely** — proceed in the current context. The explicit read-only allowlist:
+- `tk ready`, `tk show`, `tk status`, `tk list`
+- `ticket-query` (structured queries)
+- Plan inspection (reading plan files without modifying them)
+- Status checks and task queries
+
+### Step 0 — Commit any dirty files
+
+**This step ALWAYS runs**, regardless of whether you're in a worktree or on trunk. Uncommitted changes from earlier in the session (newly created artifacts, edited specs, etc.) must be on HEAD before proceeding — worktrees check out from HEAD, and even on trunk, dirty files risk being overwritten or lost.
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+UNTRACKED=$(git -C "$REPO_ROOT" ls-files --others --exclude-standard 2>/dev/null)
+MODIFIED=$(git -C "$REPO_ROOT" diff --name-only 2>/dev/null)
+if [ -n "$UNTRACKED" ] || [ -n "$MODIFIED" ]; then
+  [ -n "$UNTRACKED" ] && echo "$UNTRACKED" | xargs -d '\n' git -C "$REPO_ROOT" add --
+  [ -n "$MODIFIED" ] && echo "$MODIFIED" | xargs -d '\n' git -C "$REPO_ROOT" add --
+  git -C "$REPO_ROOT" commit -m "chore: stage dirty tree before worktree creation" || {
+    echo "ERROR: pre-commit step failed — aborting worktree creation"
+    exit 1
+  }
+fi
+```
+
+If the commit fails (e.g., pre-commit hook rejection), surface the error and stop. Do not proceed to worktree detection or any other step.
+
+### Step 1 — Detect worktree context
+
 ```bash
 # SPEC-250: Check env var first (set by bin/swain), then git plumbing
 if [ -n "${SWAIN_WORKTREE_PATH:-}" ]; then
@@ -181,56 +209,34 @@ else
 fi
 ```
 
-**Read-only operations skip this check entirely** — proceed in the current context. The explicit read-only allowlist:
-- `tk ready`, `tk show`, `tk status`, `tk list`
-- `ticket-query` (structured queries)
-- Plan inspection (reading plan files without modifying them)
-- Status checks and task queries
-
-**If `IN_WORKTREE=yes`:** already isolated. Proceed normally.
+**If `IN_WORKTREE=yes`:** already isolated. Proceed to step 5 (worktree bookmark).
 
 **If `IN_WORKTREE=no`** (main worktree) and the operation will produce file changes:
 
-1. **Commit any dirty files before the branch is cut.** A worktree checks out from HEAD — both untracked files and uncommitted modifications to tracked files are invisible inside it. This matters for artifacts created or edited moments earlier in the same session.
-   ```bash
-   REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-   UNTRACKED=$(git -C "$REPO_ROOT" ls-files --others --exclude-standard 2>/dev/null)
-   MODIFIED=$(git -C "$REPO_ROOT" diff --name-only 2>/dev/null)
-   if [ -n "$UNTRACKED" ] || [ -n "$MODIFIED" ]; then
-     [ -n "$UNTRACKED" ] && echo "$UNTRACKED" | xargs -d '\n' git -C "$REPO_ROOT" add --
-     [ -n "$MODIFIED" ] && echo "$MODIFIED" | xargs -d '\n' git -C "$REPO_ROOT" add --
-     git -C "$REPO_ROOT" commit -m "chore: stage dirty tree before worktree creation" || {
-       echo "ERROR: pre-commit step failed — aborting worktree creation"
-       exit 1
-     }
-   fi
-   ```
-   If the commit fails (e.g., pre-commit hook rejection), surface the error and stop.
+ 2. **Check for existing worktrees** matching the target spec/work:
+    ```bash
+    REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+    bash "$REPO_ROOT/.agents/bin/swain-worktree-overlap.sh" "<SPEC-ID>"
+    ```
+    If the JSON output has `"found": true`, offer to reuse: "Worktree for `<SPEC-ID>` already exists at `<path>`. Reuse it?" If yes, inform the operator to restart the session with `swain --resume <name>`. If no, inform the operator to start a new session with the purpose text.
 
-2. **Check for existing worktrees** matching the target spec/work:
-   ```bash
-   REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-   bash "$REPO_ROOT/.agents/bin/swain-worktree-overlap.sh" "<SPEC-ID>"
-   ```
-   If the JSON output has `"found": true`, offer to reuse: "Worktree for `<SPEC-ID>` already exists at `<path>`. Reuse it?" If yes, inform the operator to restart the session with `swain --resume <name>`. If no, inform the operator to start a new session with the purpose text.
+ 3. **Worktree creation is handled by bin/swain pre-launch** (SPEC-245, EPIC-056). Most runtimes (Gemini CLI, Codex, Copilot, Crush) cannot change their working directory mid-session — only Claude Code can via `EnterWorktree`, and that is a runtime-specific crutch, not a universal pattern. The correct universal approach is pre-launch isolation via `bin/swain`.
 
-3. **Worktree creation is handled by bin/swain pre-launch** (SPEC-245, EPIC-056). Most runtimes (Gemini CLI, Codex, Copilot, Crush) cannot change their working directory mid-session — only Claude Code can via `EnterWorktree`, and that is a runtime-specific crutch, not a universal pattern. The correct universal approach is pre-launch isolation via `bin/swain`.
+    If `SWAIN_WORKTREE_PATH` is set, the agent is already in a managed worktree. If `IN_WORKTREE=yes` via git plumbing, the agent is in a worktree (possibly entered manually). In both cases, proceed with work.
 
-   If `SWAIN_WORKTREE_PATH` is set, the agent is already in a managed worktree. If `IN_WORKTREE=yes` via git plumbing, the agent is in a worktree (possibly entered manually). In both cases, proceed with work.
+    If `IN_WORKTREE=no` and the operation requires isolation, inform the operator: "Not in a worktree. Start a new session with `swain \"<purpose>\"` to get worktree isolation."
 
-   If `IN_WORKTREE=no` and the operation requires isolation, inform the operator: "Not in a worktree. Start a new session with `swain \"<purpose>\"` to get worktree isolation."
+ 4. After entering (if worktree was just created by bin/swain), re-run tab naming to reflect the new branch:
+    ```bash
+    bash "$REPO_ROOT/.agents/bin/swain-tab-name.sh" --path "$(pwd)" --auto
+    ```
 
-4. After entering (if worktree was just created by bin/swain), re-run tab naming to reflect the new branch:
-   ```bash
-   bash "$REPO_ROOT/.agents/bin/swain-tab-name.sh" --path "$(pwd)" --auto
-   ```
-
-5. **Record the worktree bookmark** (SPEC-235). After entering a worktree, call swain-bookmark.sh to register it in session.json.
-   ```bash
-   WT_PATH="$(pwd)"
-   WT_BRANCH="$(git branch --show-current 2>/dev/null || echo 'unknown')"
-   bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree add "$WT_PATH" "$WT_BRANCH"
-   ```
+ 5. **Record the worktree bookmark** (SPEC-235). After entering a worktree, call swain-bookmark.sh to register it in session.json.
+    ```bash
+    WT_PATH="$(pwd)"
+    WT_BRANCH="$(git branch --show-current 2>/dev/null || echo 'unknown')"
+    bash "$REPO_ROOT/.agents/bin/swain-bookmark.sh" worktree add "$WT_PATH" "$WT_BRANCH"
+    ```
 
 **Operator override:** If the operator explicitly says "work on trunk" or "don't isolate," respect the override and proceed on trunk. Log a warning: "Proceeding on trunk at operator request — changes will land directly on the development branch."
 
