@@ -5,21 +5,25 @@
 
 ## Progress
 
-████████████ 3/3 complete (100%)
+█████████░░░ 3/4 complete (75%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-13 | 23:20 | `268c086` | lifecycle: transition EPIC-007 and EPIC-010 to Complete |
-| 2026-03-13 | 23:20 | `6ae63a1` | lifecycle: transition EPIC-007 and EPIC-010 to Complete |
-| 2026-03-13 | 12:11 | `9811d75` | docs: stamp lifecycle hashes for SPEC-025 Complete and EPIC-010 Active |
-
+| 2026-04-07 | 17:25 | `4a844d35` | feat(vision-006): merge Untethered Operator — swain-helm, daemon bridge, SPEC-295 |
+| 2026-04-07 | 17:25 | `98843068` | feat(untethered): swain-bridge daemon mode — SPEC-295 |
+| 2026-03-13 | 23:20 | `268c086c` | lifecycle: transition EPIC-007 and EPIC-010 to Complete |
 
 ## Children
 
+### Active
+
+- [SPEC-295](../../../spec/Active/(SPEC-295)-swain-bridge-daemon-mode/(SPEC-295)-swain-bridge-daemon-mode.md) — swain-bridge Daemon Mode, in progress
+
 ### Complete
 
-- [EPIC-010](../../../epic/Complete/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues.md) — Agent Dispatch Via GitHub Issues (2/2)
+- [EPIC-010](../../../epic/Complete/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues/(EPIC-010)-Agent-Dispatch-Via-GitHub-Issues.md) — Agent Dispatch Via GitHub Issues, 2/2
   - [SPEC-025](../../../spec/Complete/(SPEC-025)-Swain-Dispatch-Skill/(SPEC-025)-Swain-Dispatch-Skill.md) — swain-dispatch Skill (Complete, done)
   - [SPEC-029](../../../spec/Complete/(SPEC-029)-Swain-Dispatch-Prerequisites-And-Invocation-Docs/(SPEC-029)-Swain-Dispatch-Prerequisites-And-Invocation-Docs.md) — swain-dispatch Prerequisites and Invocation Docs (Complete, done)
+

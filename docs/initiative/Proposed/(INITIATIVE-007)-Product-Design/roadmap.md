@@ -11,9 +11,9 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-19 | 22:31 | `b7a8fac` | feat: add swain-box launcher UX, first-run auth, and design artifacts |
-| 2026-03-14 | 21:31 | `f089c52` | docs(EPIC-021, SPIKE-023): reframe as product design orchestrator with UX/journey awareness |
-| 2026-03-14 | 17:23 | `8f6f504` | docs(EPIC-021, SPIKE-023): add frontend design orchestrator epic and integration strategy spike |
+| 2026-03-19 | 22:31 | `b7a8fac1` | feat: add swain-box launcher UX, first-run auth, and design artifacts |
+| 2026-03-14 | 21:31 | `f089c528` | docs(EPIC-021, SPIKE-023): reframe as product design orchestrator with UX/journey awareness |
+| 2026-03-14 | 17:23 | `8f6f5041` | docs(EPIC-021, SPIKE-023): add frontend design orchestrator epic and integration strategy spike |
 
 ## Priority Subset
 
@@ -32,19 +32,20 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Product Design]((INITIATIVE-007)-Product-Design.md) | [Rename swain-design to swain-strategize](../../../epic/Proposed/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize.md) | 0/0 | 1 | **activate or drop** |
+| [Product Design](docs/initiative/Proposed/(INITIATIVE-007)-Product-Design/(INITIATIVE-007)-Product-Design.md) | [Rename swain-design to swain-strategize](docs/epic/Proposed/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize.md) | 0/0 | 1 | **activate or drop** |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Product Design]((INITIATIVE-007)-Product-Design.md) | [Product Design Orchestrator](../../../epic/Proposed/(EPIC-021)-Frontend-Design-Orchestrator/(EPIC-021)-Frontend-Design-Orchestrator.md) | 0/0 | 0 | **activate or drop** |
+| [Product Design](docs/initiative/Proposed/(INITIATIVE-007)-Product-Design/(INITIATIVE-007)-Product-Design.md) | [Product Design Orchestrator](docs/epic/Proposed/(EPIC-021)-Frontend-Design-Orchestrator/(EPIC-021)-Frontend-Design-Orchestrator.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
 
 ### Proposed
 
-- [EPIC-019](../../../epic/Proposed/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize.md) — Rename swain-design to swain-strategize (—)
-- [EPIC-021](../../../epic/Proposed/(EPIC-021)-Frontend-Design-Orchestrator/(EPIC-021)-Frontend-Design-Orchestrator.md) — Product Design Orchestrator (—)
+- [EPIC-019](../../../epic/Proposed/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize/(EPIC-019)-Rename-Swain-Design-To-Swain-Strategize.md) — Rename swain-design to swain-strategize, —
+- [EPIC-021](../../../epic/Proposed/(EPIC-021)-Frontend-Design-Orchestrator/(EPIC-021)-Frontend-Design-Orchestrator.md) — Product Design Orchestrator, —
+

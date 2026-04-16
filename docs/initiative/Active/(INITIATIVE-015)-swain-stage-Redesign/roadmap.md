@@ -11,9 +11,9 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-28 | 22:14 | `d74e0aa` | docs(SPEC-185): stamp lifecycle hash 9b55fb8 |
-| 2026-03-28 | 22:14 | `9b55fb8` | docs(SPEC-185): transition to Complete — orphaned stage-status hooks removed |
-| 2026-03-28 | 21:49 | `5044cfd` | fix(SPEC-177): remove stale stage-status-hook.sh |
+| 2026-04-05 | 01:33 | `411560fb` | chore: fix 12 artifact number collisions from concurrent worktree work |
+| 2026-04-04 | 00:55 | `979c3563` | retro(EPIC-056): session retrospective — implementation complete |
+| 2026-04-04 | 00:34 | `14e12f74` | research(EPIC-056): complete all research prerequisites |
 
 ## Priority Subset
 
@@ -22,8 +22,8 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [swain-stage Redesign]((INITIATIVE-015)-swain-stage-Redesign.md) | [User Documentation System](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | 0/1 | 0 | — |
-|  | [Remove Tmux-Based swain-stage](../../../spec/Active/(SPEC-177)-Remove-Tmux-Swain-Stage/(SPEC-177)-Remove-Tmux-Swain-Stage.md) | 0/0 | 0 | **needs decomposition** |
+| [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [User Documentation System](docs/epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) | 0/1 | 0 | — |
+|  | [Remove Tmux-Based swain-stage](docs/spec/Active/(SPEC-177)-Remove-Tmux-Swain-Stage/(SPEC-177)-Remove-Tmux-Swain-Stage.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -35,7 +35,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [swain-stage Redesign]((INITIATIVE-015)-swain-stage-Redesign.md) | [Documentation Viewer](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
+| [swain-stage Redesign](docs/initiative/Active/(INITIATIVE-015)-swain-stage-Redesign/(INITIATIVE-015)-swain-stage-Redesign.md) | [Documentation Viewer](docs/spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -47,15 +47,18 @@
 
 ### Active
 
-- [DESIGN-004](../../../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md) — swain-stage Interaction Design (done)
-- [EPIC-034](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) — User Documentation System (0/1)
+- [DESIGN-004](../../../design/Active/(DESIGN-004)-swain-stage-Interaction-Design/(DESIGN-004)-swain-stage-Interaction-Design.md) — swain-stage Interaction Design, done
+- [EPIC-034](../../../epic/Active/(EPIC-034)-User-Documentation-System/(EPIC-034)-User-Documentation-System.md) — User Documentation System, 0/1
   - [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (Active, in progress)
-- [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer (in progress)
-- [SPEC-177](../../../spec/Active/(SPEC-177)-Remove-Tmux-Swain-Stage/(SPEC-177)-Remove-Tmux-Swain-Stage.md) — Remove Tmux-Based swain-stage (in progress)
+- [SPEC-093](../../../spec/Active/(SPEC-093)-Documentation-Viewer/SPEC-093.md) — Documentation Viewer, in progress
+- [SPEC-177](../../../spec/Active/(SPEC-177)-Remove-Tmux-Swain-Stage/(SPEC-177)-Remove-Tmux-Swain-Stage.md) — Remove Tmux-Based swain-stage, in progress
+
 ### Complete
 
-- [SPEC-185](../../../spec/Complete/(SPEC-185)-Orphaned-Stage-Status-Hooks/(SPEC-185)-Orphaned-Stage-Status-Hooks.md) — Orphaned Stage-Status Hooks Fire on Every Event (done)
+- [SPEC-185](../../../spec/Complete/(SPEC-185)-Orphaned-Stage-Status-Hooks/(SPEC-185)-Orphaned-Stage-Status-Hooks.md) — Orphaned Stage-Status Hooks Fire on Every Event, done
+
 ### Abandoned
 
-- [SPEC-125](../../../spec/Abandoned/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md) — swain-stage hooks fire unconditionally even when stage is not active (done)
-- [SPEC-127](../../../spec/Abandoned/(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md) — stage-status-hook fails with ENOENT when CWD is removed (done)
+- [SPEC-125](../../../spec/Abandoned/(SPEC-125)-Stage-Hooks-Fire-Unconditionally/SPEC-125.md) — swain-stage hooks fire unconditionally even when stage is not active, done
+- [SPEC-127](../../../spec/Abandoned/(SPEC-127)-Stage-Hook-ENOENT-Dead-CWD/SPEC-127.md) — stage-status-hook fails with ENOENT when CWD is removed, done
+

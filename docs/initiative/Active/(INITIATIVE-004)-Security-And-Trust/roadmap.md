@@ -5,15 +5,15 @@
 
 ## Progress
 
-███░░░░░░░░░ 5/23 complete (22%)
+███░░░░░░░░░ 6/23 complete (26%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-31 | 23:12 | `635b9a6` | docs(epic): EPIC-052 Automated Test Gates — SPEC-285/221/223/224/225/226 + SPEC-215 re-parent |
-| 2026-03-17 | 14:59 | `bcb6879` | docs(epic): link RUNBOOK-001 to EPIC-017 and EPIC-023 |
-| 2026-03-17 | 14:56 | `58180f2` | docs(runbook): record RUNBOOK-001 first run — 25/25 PASS |
+| 2026-03-31 | 23:12 | `635b9a6b` | docs(epic): EPIC-052 Automated Test Gates — SPEC-220/221/223/224/225/226 + SPEC-215 re-parent |
+| 2026-03-17 | 14:59 | `bcb6879d` | docs(epic): link RUNBOOK-001 to EPIC-017 and EPIC-023 |
+| 2026-03-17 | 14:56 | `58180f28` | docs(runbook): record RUNBOOK-001 first run — 25/25 PASS |
 
 ## Priority Subset
 
@@ -22,7 +22,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Security & Trust]((INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 0/7 | 0 | — |
+| [Security & Trust](docs/initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](docs/epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 1/7 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
@@ -34,8 +34,8 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Security & Trust]((INITIATIVE-004)-Security-And-Trust.md) | [Security Vulnerability Scanning Skill](../../../epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) | 0/4 | 1 | — |
-|  | [Security Gates in swain-do Execution Flow](../../../epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) | 0/4 | 0 | — |
+| [Security & Trust](docs/initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Security Vulnerability Scanning Skill](docs/epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) | 0/4 | 1 | — |
+|  | [Security Gates in swain-do Execution Flow](docs/epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) | 0/4 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -47,30 +47,33 @@
 
 ### Active
 
-- [EPIC-017](../../../epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) — Security Vulnerability Scanning Skill (0/4)
+- [EPIC-017](../../../epic/Active/(EPIC-017)-Security-Vulnerability-Scanning-Skill/(EPIC-017)-Security-Vulnerability-Scanning-Skill.md) — Security Vulnerability Scanning Skill, 0/4
   - [SPEC-058](../../../spec/Proposed/(SPEC-058)-Context-File-Injection-Heuristic-Scanner/(SPEC-058)-Context-File-Injection-Heuristic-Scanner.md) — Context-File Injection Heuristic Scanner (Proposed, in progress)
   - [SPEC-059](../../../spec/Proposed/(SPEC-059)-Tooling-Availability-Strategy/(SPEC-059)-Tooling-Availability-Strategy.md) — Tooling Availability Strategy (Proposed, in progress)
   - [SPEC-060](../../../spec/Proposed/(SPEC-060)-Swain-Security-Check-Skill/(SPEC-060)-Swain-Security-Check-Skill.md) — swain-security-check Skill (Proposed, in progress)
   - [SPEC-061](../../../spec/Proposed/(SPEC-061)-Swain-Doctor-Security-Integration/(SPEC-061)-Swain-Doctor-Security-Integration.md) — swain-doctor Security Integration (Proposed, in progress)
-- [EPIC-023](../../../epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) — Security Gates in swain-do Execution Flow (0/4)
+- [EPIC-023](../../../epic/Active/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow/(EPIC-023)-Security-Gates-in-swain-do-Execution-Flow.md) — Security Gates in swain-do Execution Flow, 0/4
   - [SPEC-062](../../../spec/Proposed/(SPEC-062)-Threat-Surface-Detection-Heuristic/(SPEC-062)-Threat-Surface-Detection-Heuristic.md) — Threat Surface Detection Heuristic (Proposed, in progress)
   - [SPEC-063](../../../spec/Proposed/(SPEC-063)-Pre-Claim-Security-Briefing/(SPEC-063)-Pre-Claim-Security-Briefing.md) — Pre-Claim Security Briefing (Proposed, in progress)
   - [SPEC-064](../../../spec/Proposed/(SPEC-064)-Post-Implementation-Security-Gate/(SPEC-064)-Post-Implementation-Security-Gate.md) — Post-Implementation Security Gate (Proposed, in progress)
   - [SPEC-065](../../../spec/Proposed/(SPEC-065)-External-Security-Skill-Hook-Interface/(SPEC-065)-External-Security-Skill-Hook-Interface.md) — External Security Skill Hook Interface (Proposed, in progress)
-- [EPIC-052](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) — Automated Test Gates (0/7)
+- [EPIC-052](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) — Automated Test Gates, 1/7
   - [SPEC-215](../../../spec/Active/(SPEC-215)-Consumer-Integration-Test-Harness/(SPEC-215)-Consumer-Integration-Test-Harness.md) — Consumer integration test harness (Active, in progress)
-  - [SPEC-285](../../../spec/Active/(SPEC-285)-Raise-FK-Grade-Threshold-To-10/(SPEC-285)-Raise-FK-Grade-Threshold-To-10.md) — swain-test.sh script (Active, in progress)
-  - [SPEC-221](../../../spec/Complete/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill (Active, in progress)
+  - [SPEC-220](../../../spec/Active/(SPEC-220)-swain-test-sh-Script/(SPEC-220)-swain-test-sh-Script.md) — swain-test.sh script (Active, in progress)
   - [SPEC-223](../../../spec/Active/(SPEC-223)-swain-sync-Test-Gate-Integration/(SPEC-223)-swain-sync-Test-Gate-Integration.md) — swain-sync test gate integration (Active, in progress)
   - [SPEC-224](../../../spec/Active/(SPEC-224)-swain-release-Test-Gate-Integration/(SPEC-224)-swain-release-Test-Gate-Integration.md) — swain-release test gate integration (Active, in progress)
   - [SPEC-225](../../../spec/Active/(SPEC-225)-Flat-Artifact-Migration/(SPEC-225)-Flat-Artifact-Migration.md) — Flat artifact migration (Active, in progress)
   - [SPEC-226](../../../spec/Active/(SPEC-226)-Verification-Evidence-Recording/(SPEC-226)-Verification-Evidence-Recording.md) — Verification evidence recording (Active, in progress)
+  - [SPEC-221](../../../spec/Complete/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill (Complete, done)
+
 ### Complete
 
-- [EPIC-012](../../../epic/Complete/(EPIC-012)-End-To-End-Sync-Workflow/(EPIC-012)-End-To-End-Sync-Workflow.md) — End-to-End Sync Workflow (3/3)
+- [EPIC-012](../../../epic/Complete/(EPIC-012)-End-To-End-Sync-Workflow/(EPIC-012)-End-To-End-Sync-Workflow.md) — End-to-End Sync Workflow, 3/3
   - [SPEC-013](../../../spec/Complete/(SPEC-013)-Fetch-Pull-First-Sync/(SPEC-013)-Fetch-Pull-First-Sync.md) — Fetch/Pull-First Sync Behavior (Complete, done)
   - [SPEC-023](../../../spec/Complete/(SPEC-023)-Pre-Commit-Hook-Setup/(SPEC-023)-Pre-Commit-Hook-Setup.md) — Pre-Commit Hook Setup in swain-init (Complete, done)
   - [SPEC-024](../../../spec/Complete/(SPEC-024)-Pre-Commit-Verification-In-Sync/(SPEC-024)-Pre-Commit-Verification-In-Sync.md) — Pre-Commit Verification in swain-sync (Complete, done)
+
 ### Superseded
 
-- [EPIC-009](../../../epic/Superseded/(EPIC-009)-Secrets-Leakage-Prevention/(EPIC-009)-Secrets-Leakage-Prevention.md) — Secrets Leakage Prevention (—)
+- [EPIC-009](../../../epic/Superseded/(EPIC-009)-Secrets-Leakage-Prevention/(EPIC-009)-Secrets-Leakage-Prevention.md) — Secrets Leakage Prevention, —
+

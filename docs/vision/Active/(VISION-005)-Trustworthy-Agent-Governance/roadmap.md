@@ -5,15 +5,15 @@
 
 ## Progress
 
-█░░░░░░░░░░░ 1/13 complete (8%)
+██░░░░░░░░░░ 2/13 complete (15%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-31 | 23:12 | `635b9a6` | docs(epic): EPIC-052 Automated Test Gates — SPEC-285/221/223/224/225/226 + SPEC-215 re-parent |
-| 2026-03-23 | 09:19 | `09d824a` | docs: complete SPIKE-038 + write findings to INITIATIVE-020 |
-| 2026-03-22 | 23:18 | `60846ba` | docs: stamp lifecycle hashes for VISION-005 + INITIATIVE-020 + SPIKE-038..041 730b957 |
+| 2026-03-31 | 23:12 | `635b9a6b` | docs(epic): EPIC-052 Automated Test Gates — SPEC-220/221/223/224/225/226 + SPEC-215 re-parent |
+| 2026-03-23 | 09:19 | `09d824a2` | docs: complete SPIKE-038 + write findings to INITIATIVE-020 |
+| 2026-03-22 | 23:18 | `60846ba5` | docs: stamp lifecycle hashes for VISION-005 + INITIATIVE-020 + SPIKE-038..041 730b957 |
 
 ## Priority Subset
 
@@ -22,16 +22,16 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Security & Trust](../../../initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 0/7 | 0 | — |
+| [Security & Trust](docs/initiative/Active/(INITIATIVE-004)-Security-And-Trust/(INITIATIVE-004)-Security-And-Trust.md) | [Automated Test Gates](docs/epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) | 1/7 | 0 | — |
 
 ### Schedule
 *High priority, not yet started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Platform Enforcement Substrate](../../../initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) | [MCP Session-State Tracker Design](../../../research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) | 0/0 | 0 | **activate or drop** |
-|  | [Post-Hoc Process Audit Pipeline](../../../research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) | 0/0 | 0 | **activate or drop** |
-|  | [Cross-Platform Deny-Rule Portability](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) | 0/0 | 0 | **activate or drop** |
+| [Platform Enforcement Substrate](docs/initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) | [MCP Session-State Tracker Design](docs/research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) | 0/0 | 0 | **activate or drop** |
+|  | [Post-Hoc Process Audit Pipeline](docs/research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) | 0/0 | 0 | **activate or drop** |
+|  | [Cross-Platform Deny-Rule Portability](docs/research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -48,18 +48,20 @@
 
 ### Active
 
-- [EPIC-052](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) — Automated Test Gates (0/7)
+- [EPIC-052](../../../epic/Active/(EPIC-052)-Automated-Test-Gates/(EPIC-052)-Automated-Test-Gates.md) — Automated Test Gates, 1/7
   - [SPEC-215](../../../spec/Active/(SPEC-215)-Consumer-Integration-Test-Harness/(SPEC-215)-Consumer-Integration-Test-Harness.md) — Consumer integration test harness (Active, in progress)
-  - [SPEC-285](../../../spec/Active/(SPEC-285)-Raise-FK-Grade-Threshold-To-10/(SPEC-285)-Raise-FK-Grade-Threshold-To-10.md) — swain-test.sh script (Active, in progress)
-  - [SPEC-221](../../../spec/Complete/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill (Active, in progress)
+  - [SPEC-220](../../../spec/Active/(SPEC-220)-swain-test-sh-Script/(SPEC-220)-swain-test-sh-Script.md) — swain-test.sh script (Active, in progress)
   - [SPEC-223](../../../spec/Active/(SPEC-223)-swain-sync-Test-Gate-Integration/(SPEC-223)-swain-sync-Test-Gate-Integration.md) — swain-sync test gate integration (Active, in progress)
   - [SPEC-224](../../../spec/Active/(SPEC-224)-swain-release-Test-Gate-Integration/(SPEC-224)-swain-release-Test-Gate-Integration.md) — swain-release test gate integration (Active, in progress)
   - [SPEC-225](../../../spec/Active/(SPEC-225)-Flat-Artifact-Migration/(SPEC-225)-Flat-Artifact-Migration.md) — Flat artifact migration (Active, in progress)
   - [SPEC-226](../../../spec/Active/(SPEC-226)-Verification-Evidence-Recording/(SPEC-226)-Verification-Evidence-Recording.md) — Verification evidence recording (Active, in progress)
+  - [SPEC-221](../../../spec/Complete/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill (Complete, done)
+
 ### Proposed
 
-- [INITIATIVE-020](../../../initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) — Platform Enforcement Substrate (in progress)
+- [INITIATIVE-020](../../../initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) — Platform Enforcement Substrate, in progress
   - [SPIKE-039](../../../research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) — MCP Session-State Tracker Design (Proposed, in progress)
   - [SPIKE-040](../../../research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) — Post-Hoc Process Audit Pipeline (Proposed, in progress)
   - [SPIKE-041](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) — Cross-Platform Deny-Rule Portability (Proposed, in progress)
   - [SPIKE-038](../../../research/Complete/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility.md) — PreToolUse Hook Adapter Feasibility (Complete, done)
+

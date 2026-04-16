@@ -5,15 +5,15 @@
 
 ## Progress
 
-██████░░░░░░ 17/35 complete (49%)
+██████░░░░░░ 17/37 complete (46%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-31 | 13:43 | `dd49da1` | docs(retro): EPIC-050 retrospective — single-session skill-file epic |
-| 2026-03-31 | 13:39 | `7dc83ab` | chore(session): commit staged artifacts from prior session |
-| 2026-03-31 | 13:38 | `8e90563` | chore(session): update bookmark after EPIC-050 completion |
+| 2026-04-15 | 00:44 | `7df36c6a` | feat(EPIC-022): expand scope to own both skill-completion and session-resumption recap modes |
+| 2026-04-06 | 02:57 | `8e78c9a7` | Fix artifact ID collisions with trunk and lifecycle inconsistency |
+| 2026-04-06 | 02:31 | `03e8d4ed` | Add INITIATIVE-021 Portfolio Economics with child epics and spikes |
 
 ## Priority Subset
 
@@ -22,77 +22,85 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Project Identity Enforcement](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Trove Analysis Layer](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Eliminate swain-sync context disruption](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Read Before Reasoning](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Evidence Basis For All Actions](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Roadmap legend should display epic names alongside initiative names](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Artifact ID Collision Detection](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Spec-Level Priority Weight](../../../spec/Complete/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Brief Description Frontmatter Field](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) | 0/0 | 0 | **needs decomposition** |
+| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Reporting Format Library Design](docs/research/Proposed/(SPIKE-052)-Reporting-Format-Library-Design/(SPIKE-052)-Reporting-Format-Library-Design.md) | 0/0 | 3 | **activate or drop** |
+|  | [Project Identity Enforcement](docs/spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Trove Analysis Layer](docs/spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Eliminate swain-sync context disruption](docs/spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Read Before Reasoning](docs/spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Evidence Basis For All Actions](docs/spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Roadmap legend should display epic names alongside initiative names](docs/spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Artifact ID Collision Detection](docs/spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Spec-Level Priority Weight](docs/spec/Active/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Brief Description Frontmatter Field](docs/spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Reporting Format Library Design](docs/research/Proposed/(SPIKE-063)-Reporting-Format-Library-Design/(SPIKE-063)-Reporting-Format-Library-Design.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/6 | 0 | — |
+| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Design Staleness and Drift Detection](docs/epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) | 0/6 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Operator Situational Awareness]((INITIATIVE-005)-Operator-Situational-Awareness.md) | [Work Scope Progress Visualizations For Swain-Status](../../../epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) | 0/0 | 0 | **activate or drop** |
-|  | [Postflight Summaries](../../../epic/Proposed/(EPIC-022)-Postflight-Summaries/(EPIC-022)-Postflight-Summaries.md) | 0/0 | 0 | **activate or drop** |
+| [Operator Situational Awareness](docs/initiative/Active/(INITIATIVE-005)-Operator-Situational-Awareness/(INITIATIVE-005)-Operator-Situational-Awareness.md) | [Work Scope Progress Visualizations For Swain-Status](docs/epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) | 0/0 | 0 | **activate or drop** |
+|  | [Context Recovery Summaries](docs/epic/Proposed/(EPIC-022)-Context-Recovery-Summaries/(EPIC-022)-Postflight-Summaries.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
 
 ### Active
 
-- [EPIC-035](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) — Design Staleness and Drift Detection (0/6)
+- [EPIC-035](../../../epic/Active/(EPIC-035)-Design-Staleness-And-Drift-Detection/(EPIC-035)-Design-Staleness-And-Drift-Detection.md) — Design Staleness and Drift Detection, 0/6
   - [SPEC-094](../../../spec/Active/(SPEC-094)-Frontmatter-Schema-artifact-refs-sourcecode-refs/SPEC-094.md) — Frontmatter Schema — artifact-refs, sourcecode-refs, rel types (Active, in progress)
   - [SPEC-095](../../../spec/Active/(SPEC-095)-Design-Intent-Template-Section/SPEC-095.md) — Design Intent Template Section (Active, in progress)
   - [SPEC-096](../../../spec/Active/(SPEC-096)-design-check-Blob-SHA-Drift-Detection/SPEC-096.md) — design-check.sh — Blob SHA Drift Detection (Active, in progress)
   - [SPEC-097](../../../spec/Active/(SPEC-097)-Integration-Hooks-And-Decision-Protection/SPEC-097.md) — Integration Hooks and Decision Protection (Active, in progress)
   - [SPEC-145](../../../spec/Active/(SPEC-145)-Design-Creation-Prompts/(SPEC-145)-Design-Creation-Prompts.md) — Design Creation Prompts (Active, in progress)
   - [SPEC-146](../../../spec/Active/(SPEC-146)-Design-Coverage-Audit-Lens/(SPEC-146)-Design-Coverage-Audit-Lens.md) — Design Coverage Audit Lens (Active, in progress)
-- [SPEC-054](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) — Project Identity Enforcement (in progress)
-- [SPEC-055](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) — Trove Analysis Layer (in progress)
-- [SPEC-113](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) — Eliminate swain-sync context disruption (in progress)
-- [SPEC-116](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) — Read Before Reasoning (in progress)
-- [SPEC-117](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) — Evidence Basis For All Actions (in progress)
-- [SPEC-124](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) — Roadmap legend should display epic names alongside initiative names (in progress)
-- [SPEC-140](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) — Artifact ID Collision Detection (in progress)
-- [SPEC-141](../../../spec/Active/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight (in progress)
-- [SPEC-144](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) — Brief Description Frontmatter Field (in progress)
+- [SPEC-054](../../../spec/Active/(SPEC-054)-Project-Identity-Enforcement/(SPEC-054)-Project-Identity-Enforcement.md) — Project Identity Enforcement, in progress
+- [SPEC-055](../../../spec/Active/(SPEC-055)-Trove-Analysis-Layer/(SPEC-055)-Trove-Analysis-Layer.md) — Trove Analysis Layer, in progress
+- [SPEC-113](../../../spec/Active/(SPEC-113)-Sync-Latency-Reduction/SPEC-113.md) — Eliminate swain-sync context disruption, in progress
+- [SPEC-116](../../../spec/Active/(SPEC-116)-Read-Before-Reasoning/SPEC-116.md) — Read Before Reasoning, in progress
+- [SPEC-117](../../../spec/Active/(SPEC-117)-Evidence-Basis-For-All-Actions/SPEC-117.md) — Evidence Basis For All Actions, in progress
+- [SPEC-124](../../../spec/Active/(SPEC-124)-Roadmap-Legend-Shows-Epic-Names/SPEC-124.md) — Roadmap legend should display epic names alongside initiative names, in progress
+- [SPEC-140](../../../spec/Active/(SPEC-140)-Artifact-ID-Collision-Detection/SPEC-140.md) — Artifact ID Collision Detection, in progress
+- [SPEC-141](../../../spec/Active/(SPEC-141)-Spec-Level-Priority-Weight/(SPEC-141)-Spec-Level-Priority-Weight.md) — Spec-Level Priority Weight, in progress
+- [SPEC-144](../../../spec/Active/(SPEC-144)-Brief-Description-Frontmatter-Field/(SPEC-144)-Brief-Description-Frontmatter-Field.md) — Brief Description Frontmatter Field, in progress
+
 ### Proposed
 
-- [EPIC-018](../../../epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) — Work Scope Progress Visualizations For Swain-Status (—)
-- [EPIC-022](../../../epic/Proposed/(EPIC-022)-Postflight-Summaries/(EPIC-022)-Postflight-Summaries.md) — Postflight Summaries (—)
+- [EPIC-018](../../../epic/Proposed/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status/(EPIC-018)-Work-Scope-Progress-Visualizations-For-Swain-Status.md) — Work Scope Progress Visualizations For Swain-Status, —
+- [EPIC-022](../../../epic/Proposed/(EPIC-022)-Context-Recovery-Summaries/(EPIC-022)-Postflight-Summaries.md) — Context Recovery Summaries, —
+- [SPIKE-052](../../../research/Proposed/(SPIKE-052)-Reporting-Format-Library-Design/(SPIKE-052)-Reporting-Format-Library-Design.md) — Reporting Format Library Design, in progress
+- [SPIKE-063](../../../research/Proposed/(SPIKE-063)-Reporting-Format-Library-Design/(SPIKE-063)-Reporting-Format-Library-Design.md) — Reporting Format Library Design, in progress
+
 ### Complete
 
-- [EPIC-003](../../../epic/Complete/(EPIC-003)-README-Rewrite-for-New-User-Onboarding/(EPIC-003)-README-Rewrite-for-New-User-Onboarding.md) — README Rewrite for New User Onboarding (—)
-- [EPIC-011](../../../epic/Complete/(EPIC-011)-MOTD-Panel-Improvements/(EPIC-011)-MOTD-Panel-Improvements.md) — MOTD Panel Improvements (3/3)
+- [EPIC-003](../../../epic/Complete/(EPIC-003)-README-Rewrite-for-New-User-Onboarding/(EPIC-003)-README-Rewrite-for-New-User-Onboarding.md) — README Rewrite for New User Onboarding, —
+- [EPIC-011](../../../epic/Complete/(EPIC-011)-MOTD-Panel-Improvements/(EPIC-011)-MOTD-Panel-Improvements.md) — MOTD Panel Improvements, 3/3
   - [SPEC-040](../../../spec/Complete/(SPEC-040)-MOTD-Textual-TUI-Animation-Fixes/(SPEC-040)-MOTD-Textual-TUI-Animation-Fixes.md) — MOTD Textual TUI Animation Fixes (Complete, done)
   - [SPEC-041](../../../spec/Complete/(SPEC-041)-MOTD-Reactive-Agent-Status-Via-Hooks/(SPEC-041)-MOTD-Reactive-Agent-Status-Via-Hooks.md) — MOTD Reactive Agent Status via Claude Code Hooks (Complete, done)
   - [SPEC-042](../../../spec/Complete/(SPEC-042)-MOTD-Uncommitted-File-Display-And-Commit-Button/(SPEC-042)-MOTD-Uncommitted-File-Display-And-Commit-Button.md) — MOTD Uncommitted File Display and Interactive Commit Button (Complete, done)
-- [EPIC-050](../../../epic/Complete/(EPIC-050)-README-as-Ambient-Intent/(EPIC-050)-README-as-Ambient-Intent.md) — README as Ambient Intent (6/6)
+- [EPIC-050](../../../epic/Complete/(EPIC-050)-README-as-Ambient-Intent/(EPIC-050)-README-as-Ambient-Intent.md) — README as Ambient Intent, 6/6
   - [SPEC-207](../../../spec/Complete/(SPEC-207)-README-Seeding-in-swain-init/(SPEC-207)-README-Seeding-in-swain-init.md) — README Seeding in swain-init (Complete, done)
   - [SPEC-208](../../../spec/Complete/(SPEC-208)-README-Existence-Check-in-swain-doctor/(SPEC-208)-README-Existence-Check-in-swain-doctor.md) — README Existence Check in swain-doctor (Complete, done)
   - [SPEC-209](../../../spec/Complete/(SPEC-209)-Session-Start-README-Reconciliation/(SPEC-209)-Session-Start-README-Reconciliation.md) — Session-Start README Reconciliation (Complete, done)
   - [SPEC-210](../../../spec/Complete/(SPEC-210)-Retro-README-Drift-Check/(SPEC-210)-Retro-README-Drift-Check.md) — Retro README Drift Check (Complete, done)
   - [SPEC-211](../../../spec/Complete/(SPEC-211)-Release-README-Gate/(SPEC-211)-Release-README-Gate.md) — Release README Gate (Complete, done)
   - [SPEC-212](../../../spec/Complete/(SPEC-212)-Design-Transition-README-Nudge/(SPEC-212)-Design-Transition-README-Nudge.md) — Design Transition README Nudge (Complete, done)
-- [SPEC-052](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy (done)
-- [SPEC-107](../../../spec/Complete/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) — Sibling order ranking for epics and specs (done)
-- [SPEC-114](../../../spec/Complete/(SPEC-114)-Trunk-Release-Branch-Model/SPEC-114.md) — Trunk + Release Branch Model With Merge-and-Retry Landing (done)
-- [SPEC-115](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based (done)
-- [SPEC-143](../../../spec/Complete/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices.md) — Per-Vision and Per-Initiative Roadmap Slices (done)
+- [SPEC-052](../../../spec/Complete/(SPEC-052)-Vision-Rooted-Chart-Hierarchy/(SPEC-052)-Vision-Rooted-Chart-Hierarchy.md) — Vision-Rooted Chart Hierarchy, done
+- [SPEC-107](../../../spec/Complete/(SPEC-107)-Sibling-Order-Ranking/SPEC-107.md) — Sibling order ranking for epics and specs, done
+- [SPEC-114](../../../spec/Complete/(SPEC-114)-Trunk-Release-Branch-Model/SPEC-114.md) — Trunk + Release Branch Model With Merge-and-Retry Landing, done
+- [SPEC-115](../../../spec/Complete/(SPEC-115)-Roadmap-Initiative-Children-Level-Based-Filtering/SPEC-115.md) — Roadmap Initiative children use level-based filtering, not type-based, done
+- [SPEC-143](../../../spec/Complete/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices/(SPEC-143)-Per-Vision-Per-Initiative-Roadmap-Slices.md) — Per-Vision and Per-Initiative Roadmap Slices, done
+

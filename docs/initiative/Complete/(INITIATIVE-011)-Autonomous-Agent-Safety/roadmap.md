@@ -11,14 +11,14 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-19 | 20:43 | `81dcbc3` | feat(swain-box): rewrite as unified two-step sandbox launcher (SPEC-092) |
-| 2026-03-18 | 23:19 | `80a3be2` | feat: complete INITIATIVE-011 + INITIATIVE-012, credential scoping and multi-runtime support |
-
+| 2026-03-19 | 20:43 | `81dcbc37` | feat(swain-box): rewrite as unified two-step sandbox launcher (SPEC-092) |
+| 2026-03-18 | 23:19 | `80a3be2d` | feat: complete INITIATIVE-011 + INITIATIVE-012, credential scoping and multi-runtime support |
 
 ## Children
 
 ### Complete
 
-- [SPEC-071](../../../spec/Complete/(SPEC-071)-Credential-Scoped-Sandbox-Launcher/(SPEC-071)-Credential-Scoped-Sandbox-Launcher.md) — Credential-Scoped Sandbox Launcher (done)
-- [SPIKE-031](../../../research/Complete/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types.md) — Credential Scoping Analysis Across Sandbox Types (done)
-- [SPIKE-032](../../../research/Complete/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround.md) — Docker Sandboxes OAuth Limitation Workaround (done)
+- [SPEC-071](../../../spec/Complete/(SPEC-071)-Credential-Scoped-Sandbox-Launcher/(SPEC-071)-Credential-Scoped-Sandbox-Launcher.md) — Credential-Scoped Sandbox Launcher, done
+- [SPIKE-031](../../../research/Complete/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types.md) — Credential Scoping Analysis Across Sandbox Types, done
+- [SPIKE-032](../../../research/Complete/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround.md) — Docker Sandboxes OAuth Limitation Workaround, done
+

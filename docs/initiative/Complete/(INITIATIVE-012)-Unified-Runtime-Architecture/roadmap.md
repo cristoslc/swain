@@ -11,16 +11,16 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-18 | 23:19 | `80a3be2` | feat: complete INITIATIVE-011 + INITIATIVE-012, credential scoping and multi-runtime support |
-| 2026-03-18 | 22:29 | `4f505f8` | docs: add VISION-002 (Safe Autonomy) and reorganize sandbox initiatives |
-| 2026-03-18 | 12:38 | `0e5cbe2` | feat(swain-box): create EPIC-030 and SPECs 068-070 for multi-agent runtime support |
-
+| 2026-03-18 | 23:19 | `80a3be2d` | feat: complete INITIATIVE-011 + INITIATIVE-012, credential scoping and multi-runtime support |
+| 2026-03-18 | 22:29 | `4f505f84` | docs: add VISION-002 (Safe Autonomy) and reorganize sandbox initiatives |
+| 2026-03-18 | 12:38 | `0e5cbe2a` | feat(swain-box): create EPIC-030 and SPECs 068-070 for multi-agent runtime support |
 
 ## Children
 
 ### Complete
 
-- [EPIC-030](../../../epic/Complete/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support.md) — swain-box Multi-Agent Runtime Support (3/3)
+- [EPIC-030](../../../epic/Complete/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support.md) — swain-box Multi-Agent Runtime Support, 3/3
   - [SPEC-068](../../../spec/Complete/(SPEC-068)-swain-box-Agent-Runtime-Detection-And-Selection-Menu/(SPEC-068)-swain-box-Agent-Runtime-Detection-And-Selection-Menu.md) — swain-box: Agent Runtime Detection & Selection Menu (Complete, done)
   - [SPEC-069](../../../spec/Complete/(SPEC-069)-swain-box-GitHub-Copilot-Runtime-Support/(SPEC-069)-swain-box-GitHub-Copilot-Runtime-Support.md) — swain-box: GitHub Copilot Runtime Support (Complete, done)
   - [SPEC-070](../../../spec/Complete/(SPEC-070)-swain-box-OpenAI-Codex-Runtime-Support/(SPEC-070)-swain-box-OpenAI-Codex-Runtime-Support.md) — swain-box: OpenAI Codex Runtime Support (Complete, done)
+

@@ -5,15 +5,15 @@
 
 ## Progress
 
-███████░░░░░ 24/43 complete (56%)
+██████░░░░░░ 25/49 complete (51%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-04-02 | 19:26 | `d835957` | docs(*): approve EPIC-053 and related artifacts |
-| 2026-04-02 | 01:56 | `d0874da` | feat(design): split native agent interaction into per-context documents |
-| 2026-04-01 | 23:58 | `210c411` | feat: design native interaction surface flow |
+| 2026-04-14 | 22:59 | `7a7e9f91` | fix(artifacts): resolve duplicate SPIKE IDs blocking artifact graph (SPEC-308) |
+| 2026-04-14 | 22:51 | `4ce9b173` | research(SPIKE-069): add agentrc primitives adoption spike; fix SPEC-308 duplicate IDs; resolve synthesis gaps |
+| 2026-04-14 | 00:45 | `881edc37` | sync: renumber collisions, add ADR-041/042, transition ADR-017 to Superseded, add SPEC-305/307, rebuild indexes |
 
 ## Priority Subset
 
@@ -22,8 +22,9 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| — | [Deprecate and Replace Superpowers with Native Skills](../../../epic/Active/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills.md) | 0/4 | 0 | — |
-| [Unattended Agent Safety](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
+| — | [Deprecate and Replace Superpowers with Native Skills](docs/epic/Active/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills.md) | 0/4 | 0 | — |
+| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Doctor Script Reconciliation](docs/epic/Active/(EPIC-068)-Doctor-Script-Reconciliation/(EPIC-068)-Doctor-Script-Reconciliation.md) | 0/1 | 0 | — |
+| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](docs/epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -40,57 +41,66 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unattended Agent Safety](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
+| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](docs/epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
 
 
 ## Children
 
 ### Active
 
-- [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails (—)
-- [EPIC-053](../../../epic/Active/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills.md) — Deprecate and Replace Superpowers with Native Skills (0/4)
+- [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails, —
+- [EPIC-053](../../../epic/Active/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills.md) — Deprecate and Replace Superpowers with Native Skills, 0/4
   - [SPEC-228](../../../spec/Active/(SPEC-228)-Remove-Vendored-Superpowers/(SPEC-228)-Remove-Vendored-Superpowers.md) — Remove Vendored Superpowers Chaining (Active, in progress)
   - [SPEC-229](../../../spec/Active/(SPEC-229)-Native-Implementation-Planning/(SPEC-229)-Native-Implementation-Planning.md) — Native Implementation Planning in swain-do (Active, in progress)
   - [SPEC-230](../../../spec/Active/(SPEC-230)-Native-Socratic-Discovery/(SPEC-230)-Native-Socratic-Discovery.md) — Native Socratic Discovery in swain-design (Active, in progress)
   - [SPEC-231](../../../spec/Active/(SPEC-231)-Global-Debugging-Loop/(SPEC-231)-Global-Debugging-Loop.md) — Global Debugging Loop in AGENTS.md (Active, in progress)
-- [INITIATIVE-017](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) — Unattended Agent Safety (in progress)
+- [EPIC-068](../../../epic/Active/(EPIC-068)-Doctor-Script-Reconciliation/(EPIC-068)-Doctor-Script-Reconciliation.md) — Doctor Script Reconciliation, 0/1
+  - [SPEC-288](../../../spec/Active/(SPEC-288)-Reconcile-Doctor-Script-And-Skill/(SPEC-288)-Reconcile-Doctor-Script-And-Skill.md) — Reconcile Doctor Script and Skill (Active, in progress)
+  - [SPIKE-061](../../../research/Active/(SPIKE-061)-Doctor-Script-Simplification/(SPIKE-061)-Doctor-Script-Simplification.md) — Doctor Script Simplification (Active, in progress)
+  - [SPIKE-062](../../../research/Active/(SPIKE-062)-Doctor-Python-Migration/(SPIKE-062)-Doctor-Python-Migration.md) — Doctor Python Migration (Active, in progress)
+- [INITIATIVE-017](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) — Unattended Agent Safety, in progress
   - [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails (Active, —)
   - [EPIC-040](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) — Sandbox Capability Bridges (Proposed, 0/2)
-- [SPEC-081](../../../spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) — Worktree-Enforced Sandbox Isolation (in progress)
-- [SPEC-092](../../../spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) — swain-box: Unified Sandbox Launcher (in progress)
-- [SPIKE-034](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) — Sandbox Templates In Regular Docker Containers (in progress)
-- [SPIKE-035](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) — Container-Compatible Auth Flows Per Runtime (in progress)
+  - [EPIC-076](../../../epic/Abandoned/(EPIC-076)-Worktree-Bootstrap-Via-Post-Checkout-Hook/(EPIC-076)-Worktree-Bootstrap-Via-Post-Checkout-Hook.md) — Worktree Bootstrap via Post-Checkout Hook (Abandoned, —)
+- [SPEC-081](../../../spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) — Worktree-Enforced Sandbox Isolation, in progress
+- [SPEC-092](../../../spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) — swain-box: Unified Sandbox Launcher, in progress
+- [SPIKE-034](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) — Sandbox Templates In Regular Docker Containers, in progress
+- [SPIKE-035](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) — Container-Compatible Auth Flows Per Runtime, in progress
+- [SPIKE-069](../../../research/Active/(SPIKE-069)-Agentrc-Primitives-Adoption-For-Swain/(SPIKE-069)-Agentrc-Primitives-Adoption-For-Swain.md) — Agentrc Primitives Adoption For Swain, in progress
+
 ### Proposed
 
-- [EPIC-040](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) — Sandbox Capability Bridges (0/2)
+- [EPIC-040](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) — Sandbox Capability Bridges, 0/2
   - [SPEC-130](../../../spec/Proposed/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents.md) — Host tmux Bridge for Sandboxed Agents (Proposed, in progress)
   - [SPEC-131](../../../spec/Proposed/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (Proposed, in progress)
-- [SPEC-128](../../../spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) — Container-Compatible Runtime Auth Commands (in progress)
-- [SPEC-130](../../../spec/Proposed/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents.md) — Host tmux Bridge for Sandboxed Agents (in progress)
-- [SPEC-131](../../../spec/Proposed/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (in progress)
+- [SPEC-128](../../../spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) — Container-Compatible Runtime Auth Commands, in progress
+- [SPEC-130](../../../spec/Proposed/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents.md) — Host tmux Bridge for Sandboxed Agents, in progress
+- [SPEC-131](../../../spec/Proposed/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents.md) — Docker MCP Gateway Profile Access for Sandboxed Agents, in progress
+
 ### Complete
 
-- [EPIC-005](../../../epic/Complete/(EPIC-005)-Isolated-Claude-Code-Environment/(EPIC-005)-Containerized-Claude-Code-Environment.md) — Isolated Claude Code Environment (2/2)
+- [EPIC-005](../../../epic/Complete/(EPIC-005)-Isolated-Claude-Code-Environment/(EPIC-005)-Containerized-Claude-Code-Environment.md) — Isolated Claude Code Environment, 2/2
   - [SPEC-048](../../../spec/Complete/(SPEC-048)-claude-sandbox-Tier1-Native-Sandbox-Launcher/(SPEC-048)-claude-sandbox-Tier1-Native-Sandbox-Launcher.md) — claude-sandbox: Tier 1 Native Sandbox Launcher (Complete, done)
   - [SPEC-049](../../../spec/Superseded/(SPEC-049)-claude-sandbox-Tier2-Docker-Runner/(SPEC-049)-claude-sandbox-Tier2-Docker-Runner.md) — claude-sandbox: Tier 2 Docker Container Runner (Superseded, done)
-- [EPIC-030](../../../epic/Complete/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support.md) — swain-box Multi-Agent Runtime Support (3/3)
+- [EPIC-030](../../../epic/Complete/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support.md) — swain-box Multi-Agent Runtime Support, 3/3
   - [SPEC-068](../../../spec/Complete/(SPEC-068)-swain-box-Agent-Runtime-Detection-And-Selection-Menu/(SPEC-068)-swain-box-Agent-Runtime-Detection-And-Selection-Menu.md) — swain-box: Agent Runtime Detection & Selection Menu (Complete, done)
   - [SPEC-069](../../../spec/Complete/(SPEC-069)-swain-box-GitHub-Copilot-Runtime-Support/(SPEC-069)-swain-box-GitHub-Copilot-Runtime-Support.md) — swain-box: GitHub Copilot Runtime Support (Complete, done)
   - [SPEC-070](../../../spec/Complete/(SPEC-070)-swain-box-OpenAI-Codex-Runtime-Support/(SPEC-070)-swain-box-OpenAI-Codex-Runtime-Support.md) — swain-box: OpenAI Codex Runtime Support (Complete, done)
-- [EPIC-051](../../../epic/Complete/(EPIC-051)-Worktree-Path-Link-Safety-on-Merge/(EPIC-051)-Worktree-Path-Link-Safety-on-Merge.md) — Worktree Path Link Safety on Merge (3/3)
+- [EPIC-051](../../../epic/Complete/(EPIC-051)-Worktree-Path-Link-Safety-on-Merge/(EPIC-051)-Worktree-Path-Link-Safety-on-Merge.md) — Worktree Path Link Safety on Merge, 3/3
   - [SPEC-216](../../../spec/Complete/(SPEC-216)-Worktree-Relative-Link-Detection-Script/(SPEC-216)-Worktree-Relative-Link-Detection-Script.md) — Worktree-Relative Link Detection Script (Complete, done)
   - [SPEC-217](../../../spec/Complete/(SPEC-217)-Worktree-Link-Resolution-on-Merge/(SPEC-217)-Worktree-Link-Resolution-on-Merge.md) — Worktree Link Resolution on Merge (Complete, done)
   - [SPEC-218](../../../spec/Complete/(SPEC-218)-Link-Safety-Worktree-Completion-Integration/(SPEC-218)-Link-Safety-Worktree-Completion-Integration.md) — Link Safety Worktree Completion Integration (Complete, done)
-- [INITIATIVE-010](../../../initiative/Active/(INITIATIVE-010)-Isolation-Foundations/(INITIATIVE-010)-Isolation-Foundations.md) — Isolation Foundations (done)
+- [INITIATIVE-010](../../../initiative/Active/(INITIATIVE-010)-Isolation-Foundations/(INITIATIVE-010)-Isolation-Foundations.md) — Isolation Foundations, done
   - [EPIC-005](../../../epic/Complete/(EPIC-005)-Isolated-Claude-Code-Environment/(EPIC-005)-Containerized-Claude-Code-Environment.md) — Isolated Claude Code Environment (Complete, 2/2)
   - [SPEC-067](../../../spec/Complete/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md) — swain-box: Docker Sandboxes Launcher (Complete, done)
-- [INITIATIVE-011](../../../initiative/Complete/(INITIATIVE-011)-Autonomous-Agent-Safety/(INITIATIVE-011)-Autonomous-Agent-Safety.md) — Autonomous Agent Safety (done)
+- [INITIATIVE-011](../../../initiative/Complete/(INITIATIVE-011)-Autonomous-Agent-Safety/(INITIATIVE-011)-Autonomous-Agent-Safety.md) — Autonomous Agent Safety, done
   - [SPEC-071](../../../spec/Complete/(SPEC-071)-Credential-Scoped-Sandbox-Launcher/(SPEC-071)-Credential-Scoped-Sandbox-Launcher.md) — Credential-Scoped Sandbox Launcher (Complete, done)
   - [SPIKE-031](../../../research/Complete/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types.md) — Credential Scoping Analysis Across Sandbox Types (Complete, done)
   - [SPIKE-032](../../../research/Complete/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround.md) — Docker Sandboxes OAuth Limitation Workaround (Complete, done)
-- [INITIATIVE-012](../../../initiative/Complete/(INITIATIVE-012)-Unified-Runtime-Architecture/(INITIATIVE-012)-Unified-Runtime-Architecture.md) — Unified Runtime Architecture (done)
+- [INITIATIVE-012](../../../initiative/Complete/(INITIATIVE-012)-Unified-Runtime-Architecture/(INITIATIVE-012)-Unified-Runtime-Architecture.md) — Unified Runtime Architecture, done
   - [EPIC-030](../../../epic/Complete/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support/(EPIC-030)-swain-box-Multi-Agent-Runtime-Support.md) — swain-box Multi-Agent Runtime Support (Complete, 3/3)
-- [SPEC-067](../../../spec/Complete/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md) — swain-box: Docker Sandboxes Launcher (done)
-- [SPEC-071](../../../spec/Complete/(SPEC-071)-Credential-Scoped-Sandbox-Launcher/(SPEC-071)-Credential-Scoped-Sandbox-Launcher.md) — Credential-Scoped Sandbox Launcher (done)
-- [SPIKE-031](../../../research/Complete/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types.md) — Credential Scoping Analysis Across Sandbox Types (done)
-- [SPIKE-032](../../../research/Complete/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround.md) — Docker Sandboxes OAuth Limitation Workaround (done)
+- [SPEC-067](../../../spec/Complete/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md) — swain-box: Docker Sandboxes Launcher, done
+- [SPEC-071](../../../spec/Complete/(SPEC-071)-Credential-Scoped-Sandbox-Launcher/(SPEC-071)-Credential-Scoped-Sandbox-Launcher.md) — Credential-Scoped Sandbox Launcher, done
+- [SPIKE-031](../../../research/Complete/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types/(SPIKE-031)-Credential-Scoping-Analysis-Across-Sandbox-Types.md) — Credential Scoping Analysis Across Sandbox Types, done
+- [SPIKE-032](../../../research/Complete/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround/(SPIKE-032)-Docker-Sandboxes-OAuth-Limitation-Workaround.md) — Docker Sandboxes OAuth Limitation Workaround, done
+

@@ -11,9 +11,9 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-16 | 15:39 | `4e6cb22` | fix(SPIKE-025): rewrite TOTP analysis to center on replayability |
-| 2026-03-16 | 15:36 | `7e442ee` | research(SPIKE-025): integration sketch and spike completion |
-| 2026-03-16 | 15:34 | `7a90814` | research(SPIKE-025): synthesize auth mechanism recommendation |
+| 2026-03-16 | 15:39 | `4e6cb22a` | fix(SPIKE-025): rewrite TOTP analysis to center on replayability |
+| 2026-03-16 | 15:36 | `7e442eee` | research(SPIKE-025): integration sketch and spike completion |
+| 2026-03-16 | 15:34 | `7a90814d` | research(SPIKE-025): synthesize auth mechanism recommendation |
 
 ## Priority Subset
 
@@ -27,7 +27,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Automated Work Intake]((INITIATIVE-008)-Automated-Work-Intake.md) | [GitHub Issue Polling with Deterministic Pre-Filtering](../../../epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) | 0/0 | 0 | **activate or drop** |
+| [Automated Work Intake](docs/initiative/Active/(INITIATIVE-008)-Automated-Work-Intake/(INITIATIVE-008)-Automated-Work-Intake.md) | [GitHub Issue Polling with Deterministic Pre-Filtering](docs/epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -44,7 +44,9 @@
 
 ### Proposed
 
-- [EPIC-024](../../../epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) — GitHub Issue Polling with Deterministic Pre-Filtering (—)
+- [EPIC-024](../../../epic/Proposed/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering/(EPIC-024)-GitHub-Issue-Polling-With-Deterministic-Pre-Filtering.md) — GitHub Issue Polling with Deterministic Pre-Filtering, —
+
 ### Complete
 
-- [SPIKE-025](../../../research/Complete/(SPIKE-025)-Authentication-For-Public-Intake-Channels/(SPIKE-025)-Authentication-For-Public-Intake-Channels.md) — Authentication for Public Intake Channels (done)
+- [SPIKE-025](../../../research/Complete/(SPIKE-025)-Authentication-For-Public-Intake-Channels/(SPIKE-025)-Authentication-For-Public-Intake-Channels.md) — Authentication for Public Intake Channels, done
+
