@@ -1,63 +1,85 @@
 # Synthesis: SemanticWiki & Build-An-Agent Workshop vs. Swain
 
-## Overview
+## What these projects are
 
-SemanticWiki and Build-An-Agent Workshop are both projects by Dakota Kim (reasoning.software / MadWatch LLC). SemanticWiki is a CLI that makes architecture docs from codebases via RAG and agent reasoning. Build-An-Agent Workshop is a platform for building AI agent CLIs. Both use the Claude Agent SDK. This synthesis looks at where they overlap with, complement, and differ from Swain.
+SemanticWiki and Build-An-Agent Workshop both come from Dakota Kim (reasoning.software). SemanticWiki generates architecture docs from codebases using RAG and agent reasoning. Build-An-Agent Workshop scaffolds standalone agent CLIs from templates. Both occupy the same landscape as Swain: how humans and AI agents cooperate on software work.
 
-## Key Findings
+## Overlaps
 
-### 1. Documentation as a generated artifact
+### Traceability
 
-SemanticWiki treats architecture docs as generated artifacts with `file:line` traceability to source code. Its core thesis: architectural understanding should be queryable, testable, and linked to exact source locations. This echoes Swain's Intent -> Execution -> Evidence -> Reconciliation loop. Both systems reject stale prose. The scope differs. SemanticWiki targets code-level docs (modules, data flows, call graphs). Swain targets project-level decision docs (specs, epics, ADRs). A SemanticWiki wiki and a Swain artifact graph serve different readers. One is for developers entering a codebase. The other is for the operator steering a project.
+All three systems link claims to evidence. SemanticWiki links docs to `file:line` in source code. Swain links decisions to `artifact@commit` in git. Build-An-Agent Workshop links agent behavior to the five levers (memory, commands, skills, subagents, hooks) that shaped it.
 
-### 2. The five levers of control
+The deepest overlap is SemanticWiki vs. Swain. Both treat docs as verifiable. SemanticWiki says architectural understanding should be queryable and linked to exact source locations. Swain says decisions must live in artifacts, not in prose or memory. Both want a chain from claim to ground truth.
 
-Build-An-Agent Workshop names five control levers for Claude Code agents. They are Memory (CLAUDE.md), Slash Commands, Skills, Subagents, and Hooks. Swain uses the same substrate (AGENTS.md, skills/, .claude/commands/, hooks). The difference is governance. Swain wraps these levers in a governance layer. Artifacts on disk encode decisions. Skill routing enforces workflows. Phase transitions check alignment. Build-An-Agent Workshop gives you the levers as configurable blocks. It does not add a governance layer on top. Swain adds worktree isolation for implementation, phase gates for artifacts, readability thresholds, and the Intent -> Evidence loop as the organizing principle.
+The difference is what counts as ground truth. SemanticWiki anchors to source code. Swain anchors to decision records. Code changes constantly. `file:line` references rot. Decision records change less often, and when they do, the change is explicit.
 
-### 3. Agent scaffolding vs. agent governance
+Both detect the same problem: documentation diverged from reality. They repair it differently. SemanticWiki regenerates. Swain re-decides.
 
-Build-An-Agent Workshop is an agent generator. It makes standalone agent CLIs from templates. Swain is a governance framework. It constrains an existing agent through conventions, artifacts, and skill routing. The workshop outputs new agents. Swain shapes how one agent works on one project. These are complementary. A workshop agent could run inside a swain-governed project. Swain conventions could be packaged as a workshop template.
+### The five levers
 
-### 4. RAG and semantic retrieval
+Build-An-Agent Workshop names the same levers Swain uses: memory, commands, skills, subagents, hooks. Both build on Claude Code's affordances. The divergence is what each does with them.
 
-SemanticWiki embeds codebases with FAISS + BGE-small. It provides hybrid search (BM25 + vector, RRF fusion). Swain does not ship this. Swain troves are markdown on disk. They are found by grep and glob, not by similarity. SemanticWiki's retrieval could power richer trove search. It could help find artifacts without exact keywords. But keeping a FAISS index alongside markdown is non-trivial. Swain trades recall for simplicity and determinism.
+The workshop treats them as configurable blocks. You pick levers, configure them, and generate an agent. The operator has full control but no enforced discipline. Nothing stops you from generating an agent with unrestricted permissions.
 
-### 5. Source traceability: file:line vs. artifact@commit
+Swain wraps the same levers in governance. AGENTS.md is a constitution that skills must read. Skills route through a dispatch table matching intent to handler. Hooks enforce readability thresholds and security checks. Phase transitions are gates requiring evidence before advancing.
 
-Both systems link claims to evidence. The granularity differs. SemanticWiki traces docs to code lines (`src/auth/jwt.ts:23-67`). Swain traces decisions to artifact commits (`trove: websocket-vs-sse@abc1234`). A combined approach could link a spec's rationale through a trove to research sources, then to implementing code. That gives a full chain from decision to code.
+The workshop asks: how do I build an agent? Swain asks: how do I keep an agent aligned? The workshop gives tools. Swain gives discipline.
 
-### 6. Verification loops
+### Verification
 
-SemanticWiki has a verification loop. It checks source-link integrity, regenerates missing pages, and measures traceability precision. It treats doc quality as a reliability problem with metrics: traceability precision, architectural coverage, regeneration stability, and link drift resilience. Swain's verification is phase-based. A spec must be reviewed before it becomes active. The verification-before-completion skill runs tests before claiming done. SemanticWiki's metrics are runtime quality signals. Swain's are lifecycle gates. Both matter. Both fail silently without enforcement.
+SemanticWiki has the most concrete verification. It defines four metrics: traceability precision, architectural coverage, regeneration stability, and link drift resilience. It treats doc generation as a measurable reliability problem. Its loop checks every source link, regenerates missing pages, and scores output.
 
-### 7. Multi-SDK posture
+Swain's verification is procedural. It checks whether a spec passed review, not whether it is accurate. It checks whether tests pass, not whether they cover the right things. It lacks quantitative quality signals on artifacts.
 
-Build-An-Agent Workshop supports Anthropic, OpenAI, and HuggingFace SDKs. Swain depends on Claude Code's affordances (CLAUDE.md, .claude/skills, hooks via settings.json). This is a gap. Swain's governance model is portable in principle—it uses markdown artifacts and git conventions. But skill routing and hooks are Claude Code-specific. If the agent substrate changes, conventions survive. The integration layer needs porting.
+Build-An-Agent Workshop has the weakest verification. It delegates to the agent's permission system and trusts the operator. Its "not a silver bullet" disclaimer is honest but leaves a gap.
 
-## Points of Agreement
+## Complementary possibilities
 
-- Documentation and decisions should be verifiable and linked to their sources.
-- Agent behavior should be shaped by explicit control levers, not just prompts.
-- Verification should be automated and repeatable.
-- The operator must stay in the loop for high-risk or ambiguous decisions.
-- Local-first and offline-capable tooling is a worthwhile design goal.
+### SemanticWiki could give Swain measurable quality
 
-## Points of Disagreement
+Swain detects drift but doesn't measure artifact quality. SemanticWiki's metrics could apply to swain artifacts. A spec with `file:line` references could be checked the same way SemanticWiki checks its wiki. This would give Swain a quantitative quality signal, not just a procedural gate.
 
-- **Governance vs. tools**: Build-An-Agent Workshop offers control levers but leaves governance to the user. Swain imposes governance on top of the same levers.
-- **Generated vs. authored docs**: SemanticWiki generates docs from code. Swain expects docs to be authored as part of the decision process. These serve different phases of a project's lifecycle. They are not contradictory.
-- **Determinism vs. retrieval**: Swain prefers deterministic search (grep, tags, manifests). SemanticWiki invests in semantic retrieval (embeddings, hybrid search). The tradeoff is reproducibility vs. recall.
-- **Scope of traceability**: SemanticWiki traces to code lines. Swain traces to artifact commits. Each is narrow in the other's dimension.
+### The workshop could carry Swain's governance into generated agents
 
-## Gaps
+A swain governance template would produce agents that respect worktree isolation, readability thresholds, and the Intent -> Evidence loop by default. The workshop's multi-SDK posture could also help Swain identify which conventions are substrate-independent and which are Claude Code-specific.
 
-- Neither system provides a full chain from project decision through research sources to implementing code. A combined model (`artifact@commit -> trove@hash -> source:file:line`) would close this gap.
-- Build-An-Agent Workshop's multi-SDK support highlights Swain's single-substrate dependency. A portability assessment would clarify which Swain conventions transfer and which are Claude Code-specific.
-- SemanticWiki has evaluation metrics (traceability precision, regeneration stability) with no Swain equivalent. Swain measures process compliance (are artifacts in the right phase?), not output quality (are artifacts accurate?).
+### Swain could give SemanticWiki a decision layer
 
-## Complementary Integration Points
+SemanticWiki generates docs from code. But architecture is the consequence of decisions. Swain's decision artifacts (specs, ADRs, epics) could serve as the intent layer for SemanticWiki's wiki. A swain-aware SemanticWiki could link wiki pages to the ADRs and specs motivating the architecture, not just the code.
 
-1. **SemanticWiki as a swain skill**: A `swain-wiki` skill could call SemanticWiki's `generate` command to refresh architecture docs from code. It could then stamp the wiki into a trove for cross-referencing with specs and ADRs.
-2. **Build-An-Agent as a swain template**: A swain governance template for Build-An-Agent could output agents that respect worktree isolation, readability thresholds, and the Intent -> Evidence loop.
-3. **Trove search augmentation**: SemanticWiki's RAG pipeline could be offered as an optional search backend for troves. It would fall back to grep when not available.
-4. **Traceability chain stitching**: Swain's `trove: id@commit` references could include SemanticWiki-style `file:line` links. This would create a unified traceability chain.
+### Together they form a traceability chain
+
+The three systems cover different chain segments:
+
+- Swain: decision -> artifact -> commit
+- SemanticWiki: code -> wiki -> file:line
+- Build-An-Agent Workshop: template -> agent -> levers
+
+A unified model could link a spec's acceptance criteria (swain) through an architecture description (SemanticWiki) to the implementing code (SemanticWiki file:line). Neither system does this alone.
+
+## Fundamental differences
+
+### Generated vs. authored
+
+SemanticWiki generates docs. The human points it at a codebase and reviews output. Swain expects the operator to author artifacts as part of deciding. These serve different phases. You author a spec before code exists. You generate a wiki after code exists. The tension is real but not contradictory. Generated docs go stale differently than authored docs. SemanticWiki handles this by regenerating. Swain handles it by re-deciding.
+
+### Agent as tool vs. governed entity
+
+The workshop treats agents as products you build and ship. Swain treats the agent as an entity that must be governed. The workshop asks what an agent can do. Swain asks whether the agent is doing what was decided. These are complementary questions producing different priorities. The workshop optimizes for capability. Swain optimizes for alignment.
+
+### Deterministic vs. semantic retrieval
+
+Swain finds artifacts by grep, glob, and manifest tags. SemanticWiki finds information by embedding similarity and hybrid search. Swain is deterministic. The same tag always finds the same artifact. SemanticWiki is recall-oriented. A query about "authentication" surfaces the JWT provider even if the file is named `token-service.ts`.
+
+Swain chooses determinism because artifacts are ground truth. They must be findable by exact reference. SemanticWiki chooses recall because codebases are large and developers may not know the right name. Both choices are correct for their context. But trove search augmented by RAG could get recall without sacrificing determinism at the artifact level.
+
+### Multi-agent substrate
+
+The workshop generates agents for three SDKs (Anthropic, OpenAI, HuggingFace). Swain depends on Claude Code's specific affordances. This is a portability gap. Swain's governance model is substrate-independent in principle. It's markdown files in git. But skill routing, AGENTS.md parsing, and hook configuration are Claude Code-specific. To work across substrates, Swain needs to separate the essential from the incidental and port the essential parts.
+
+## Gaps neither system fills
+
+- **End-to-end traceability.** Swain traces decisions to commits. SemanticWiki traces docs to code lines. Nobody links a spec's acceptance criteria through architecture to the implementing function. You get decision -> commit or doc -> line. The middle is missing.
+- **Quantitative artifact quality.** Swain measures process compliance. SemanticWiki measures doc accuracy. Nobody measures whether a spec accurately describes what was built.
+- **Agent substrate portability.** Swain is Claude Code-specific. The workshop generates for three SDKs. Neither addresses how governance transfers across substrates.
