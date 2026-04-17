@@ -20,7 +20,7 @@ history:
     sources: 3
   - event: extended
     date: 2026-04-17
-    commit: "--"
+    commit: 3ff3754
     sources: 2
     notes: "removed build-an-agent-workshop source; rewrote synthesis focused on SemanticWiki vs Swain; renamed trove"
 
