@@ -18,7 +18,7 @@ success-criteria:
   - Artifact alignment checks flag ADR, EPIC, and SPEC drift
   - prism-review agents run as part of verification
   - Supersedes EPIC-052 and EPIC-062; surviving parts reparented
-  - Default loop limit (3 cycles) before escalation to operator
+  - Default loop limit (5 cycles, configurable) before escalation to operator
 depends-on-artifacts:
   - EPIC-052
   - EPIC-062
