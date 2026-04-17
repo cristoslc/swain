@@ -26,6 +26,7 @@
 | INITIATIVE-017 | Unattended Agent Safety | 2026-03-20 | -- |
 | INITIATIVE-018 | Remote Operator Interaction | 2026-04-06 | -- |
 | INITIATIVE-019 | Session-Scoped Decision Support | 2026-03-20 | — |
+| INITIATIVE-022 | Automated Verification Loop | 2026-04-17 | — |
 
 ## Complete
 
