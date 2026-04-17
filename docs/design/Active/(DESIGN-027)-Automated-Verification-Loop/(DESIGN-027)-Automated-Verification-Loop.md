@@ -90,7 +90,7 @@ The teardown report aggregates per-cycle retros. This is where the operator inte
 3. **Report before merge.** No trunk merge without a saved teardown report. Review is optional for small changes, required for large ones.
 4. **Retro accumulates.** Each cycle (pass or fail) triggers a retro. The teardown report weaves all retros into a single narrative about agent decisions and outcomes.
 5. **Sensitivity scales verification.** Small changes to sensitive modules (auth, encryption, core paths) may get full verification. Large low-risk changes may get standard. VISION and INITIATIVE context shapes the judgment.
-6. **Default loop limit.** The verification loop runs a maximum of 3 cycles before escalating to the operator at teardown.
+6. **Incremental loop limit with reset.** Each full verification run (test scripts pass, all review agents pass) increments a cycle counter. A successful run resets it to zero. After 3 consecutive failed cycles without a pass, the loop escalates to the operator at teardown. Partial progress (some tests pass, some fail) does not reset the counter but also does not increment it — only a clean failure (no progress) increments.
 
 ## Integration Patterns
 
@@ -145,7 +145,7 @@ The agent makes the judgment call using max model capability. It presents a reco
 
 - **Verification design fails to set scope.** Fall back to all agents at standard depth. Log it as a decision.
 - **Alignment agent finds a new ADR that conflicts.** Medium severity: update SPEC, loop back. The ADR was not there when work started.
-- **Loop exceeds max iterations.** Default limit: 3 cycles. After 3, stop and flag for operator review at teardown.
+- **Loop exceeds max iterations.** The cycle counter tracks consecutive failed runs without a pass. After 3, the loop stops and flags for operator review at teardown. A pass at any point resets the counter to zero.
 - **Operator makes manual changes mid-loop.** "Verify now" re-runs from scratch. Prior cycle results stay in the retro log.
 
 ## Design Decisions
