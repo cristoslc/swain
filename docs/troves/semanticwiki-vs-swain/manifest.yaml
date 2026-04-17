@@ -1,16 +1,14 @@
-trove: semanticwiki-build-an-agent
+trove: semanticwiki-vs-swain
 created: 2026-04-16
-refreshed: 2026-04-16
+refreshed: 2026-04-17
 tags:
   - semanticwiki
-  - build-an-agent
   - reasoning-software
   - documentation-generation
-  - agent-scaffolding
-  - claude-agent-sdk
   - architectural-documentation
   - source-traceability
   - rag-embeddings
+  - agent-governance
 
 freshness-ttl:
   web: 14d
@@ -18,8 +16,13 @@ freshness-ttl:
 history:
   - event: created
     date: 2026-04-16
-    commit: 26f2ed4
+    commit: acedbfad
     sources: 3
+  - event: extended
+    date: 2026-04-17
+    commit: "--"
+    sources: 2
+    notes: "removed build-an-agent-workshop source; rewrote synthesis focused on SemanticWiki vs Swain; renamed trove"
 
 sources:
   - source-id: semanticwiki-npm
@@ -37,10 +40,3 @@ sources:
     title: "SemanticWiki | Research | reasoning.software"
     hash: "556b03abff252c249f418e043776a0977a8ad08e18b96a43f563e850684db131"
     notes: "SPA site; content captured via browser snapshot"
-
-  - source-id: build-an-agent-workshop
-    type: web
-    url: "https://www.buildanagentworkshop.com/"
-    fetched: 2026-04-16T18:15:00Z
-    title: "Build-An-Agent Workshop"
-    hash: "9260dd7a387b9de87c1609a834a4a12e7ee70dea246ea84ae0a9d25f8ed9f939"
