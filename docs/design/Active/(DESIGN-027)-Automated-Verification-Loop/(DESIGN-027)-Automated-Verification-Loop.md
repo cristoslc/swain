@@ -90,7 +90,7 @@ The teardown report aggregates per-cycle retros. This is where the operator inte
 3. **Report before merge.** No trunk merge without a saved teardown report. Review is optional for small changes, required for large ones.
 4. **Retro accumulates.** Each cycle (pass or fail) triggers a retro. The teardown report weaves all retros into a single narrative about agent decisions and outcomes.
 5. **Sensitivity scales verification.** Small changes to sensitive modules (auth, encryption, core paths) may get full verification. Large low-risk changes may get standard. VISION and INITIATIVE context shapes the judgment.
-6. **Incremental loop limit with reset.** After all test results are collected for a cycle, the counter evaluates: if at least one test passed (even partially), the counter resets to zero; if zero tests passed, the counter increments by one. After 5 consecutive zero-pass cycles (default, configurable in `.agents/execution-tracking.vars.json`), the loop escalates to the operator at teardown. This avoids penalizing TDD red-green-refactor cycles where incremental progress is normal.
+6. **Incremental loop limit with reset.** After all test results are collected for a cycle, the counter evaluates: if all tests passed, the counter resets to zero; if one or more tests failed, the counter increments by one. After 5 consecutive cycles with failures (default, configurable in `.agents/execution-tracking.vars.json`), the loop escalates to the operator at teardown. This supports incremental TDD — a single partial pass doesn't reset the counter, but a full pass does.
 
 ## Integration Patterns
 
@@ -145,7 +145,7 @@ The agent makes the judgment call using max model capability. It presents a reco
 
 - **Verification design fails to set scope.** Fall back to all agents at standard depth. Log it as a decision.
 - **Alignment agent finds a new ADR that conflicts.** Medium severity: update SPEC, loop back. The ADR was not there when work started.
-- **Loop exceeds max iterations.** The counter increments when zero tests pass in a cycle; at least one pass resets it to zero. Default limit: 5 (configurable in `.agents/execution-tracking.vars.json`). After exceeding the limit, the loop stops and flags for operator review at teardown.
+- **Loop exceeds max iterations.** The counter increments when one or more tests fail in a cycle; all tests passing resets it to zero. Default limit: 5 (configurable in `.agents/execution-tracking.vars.json`). After exceeding the limit, the loop stops and flags for operator review at teardown.
 - **Operator makes manual changes mid-loop.** "Verify now" re-runs from scratch. Prior cycle results stay in the retro log.
 
 ## Design Decisions
