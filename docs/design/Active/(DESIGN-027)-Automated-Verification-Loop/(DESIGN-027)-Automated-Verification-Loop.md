@@ -90,6 +90,7 @@ The teardown report aggregates per-cycle retros. This is where the operator inte
 3. **Report before merge.** No trunk merge without a saved teardown report. Review is optional for small changes, required for large ones.
 4. **Retro accumulates.** Each cycle (pass or fail) triggers a retro. The teardown report weaves all retros into a single narrative about agent decisions and outcomes.
 5. **Sensitivity scales verification.** Small changes to sensitive modules (auth, encryption, core paths) may get full verification. Large low-risk changes may get standard. VISION and INITIATIVE context shapes the judgment.
+6. **Default loop limit.** The verification loop runs a maximum of 3 cycles before escalating to the operator at teardown.
 
 ## Integration Patterns
 
