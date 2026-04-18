@@ -50,6 +50,7 @@ Agents verify against the system as it is now, not as it was when the spec was w
 
 - Two-phase execution: Implementation (swain-design, swain-do), then Verification (prism method, then execution).
 - Verification design runs after implementation, using a fresh intent snapshot. This is the core insight: specs describe a prior state. Verification must run against the current state.
+- Verification design has two jobs: discover existing tests that cover what changed, and write new tests for gaps. Both use the current intent snapshot, not the plan-time snapshot. Examples: BDD tests derived from Gherkin scenarios in specs (which may have evolved since the plan was written), ADR alignment checks that validate architectural fitness against active ADRs, and SPEC acceptance criteria coverage checks against the current criteria.
 - Automated loop: failure triggers retro, then loops back to implementation.
 - Reconciliation spectrum: small gap (add ticket), medium (update SPEC or ADR), large (escalate).
 - Sensitivity scaling: small change to a sensitive module gets full verification; large low-risk change gets standard.
@@ -78,7 +79,7 @@ Both EPICs move to Superseded. Child SPECs not absorbed stay under their EPICs u
 
 ## Tracks
 
-**Track 1: Verification Design and Execution.** Prism as verification engine. Sensitivity, scaling, the loop, reconciliation.
+**Track 1: Verification Design and Execution.** Prism as verification engine. Discovery of existing tests and writing of new ones. Sensitivity, scaling, the loop, reconciliation.
 
 **Track 2: Teardown Report.** How the report captures history, decisions, and retros. Report mandatory; review optional for small changes.
 
@@ -108,4 +109,4 @@ Both EPICs move to Superseded. Child SPECs not absorbed stay under their EPICs u
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-17 | — | Initial creation. Readability grade 10.2 after 4 revision attempts. |
+| Active | 2026-04-17 | — | Initial creation. Readability grade 10.1 after 5 revision attempts. |

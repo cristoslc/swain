@@ -103,12 +103,29 @@ The verification design phase uses prism-review's parallel agent pattern:
 
 Sensitivity judgment decides which agents run and how deeply. Low-sensitivity changes might run logic and docs only. High-sensitivity changes run all agents plus alignment.
 
+### What verification design produces
+
+Verification design has two jobs: discover existing tests that cover what changed, and write new tests for gaps. Both use the current intent snapshot.
+
+**Discover existing tests:**
+- Find BDD tests derived from Gherkin scenarios in specs. These scenarios may have evolved since the plan was written — verification design reads the current version.
+- Find unit and integration tests that already cover the changed codepaths.
+- Assess whether existing tests still align with current SPEC acceptance criteria and active ADRs.
+
+**Write new tests for gaps:**
+- BDD tests from Gherkin scenarios that exist in the current spec but have no corresponding test code.
+- ADR alignment checks — tests that validate architectural fitness against active ADRs (e.g., "does this code follow ADR-019 script conventions?").
+- SPEC acceptance criteria coverage — tests that validate each AC in the current spec is met.
+- Integration tests for new codepaths not covered by existing tests.
+
+The split between discovery and writing is key. Not everything needs new tests. Some coverage already exists. Verification design identifies what is already there and what is missing.
+
 ### How swain-do triggers verification
 
 On plan completion, swain-do's completion pipeline (SPEC-257) changes. Instead of BDD, smoke, retro, then transition, the new flow is:
 
-1. Verification design (determine scope, select agents).
-2. Verification execution (run tests, review agents, alignment checks).
+1. Verification design — discover existing tests that cover what changed; write new tests for gaps (BDD from current Gherkin, ADR alignment, SPEC AC coverage, integration tests for new codepaths).
+2. Verification execution — run all discovered and newly written tests, review agents, alignment checks.
 3. Retro (capture cycle results).
 4. Loop back or pass through to teardown.
 
@@ -153,7 +170,7 @@ The agent makes the judgment call using max model capability. It presents a reco
 1. **Post-implementation verification** — specs capture a prior state of the system. ADRs get adopted, EPIC scope shifts, acceptance criteria change. Verification must run against the current state, not the plan-time state. This is why verification design happens after implementation.
 2. **Automated loop, operator at teardown** — the operator reviews at teardown, not mid-loop. This lets agents iterate without nagging.
 3. **Retro after every cycle** — pass or fail, each cycle makes a retro. The teardown narrative ties them together. Retro is the operator's window into agent decisions.
-4. **Gherkin as behavior design** — `@bdd` markers and Gherkin in specs survive from EPIC-062. They capture behavior intent. Test code is written during verification.
+4. **Gherkin as behavior design** — `@bdd` markers and Gherkin in specs survive from EPIC-062. They capture behavior intent. Verification design reads the current version of these scenarios (which may have evolved since the plan was written) and either discovers existing test code that covers them or writes new tests for the gaps.
 5. **Method reuse, not invocation** — the phase uses prism-review's agent pattern (parallel reviewers, structured JSON). It integrates with swain's artifact system rather than calling prism-review directly.
 
 ## Assets
@@ -162,4 +179,4 @@ The agent makes the judgment call using max model capability. It presents a reco
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-17 | — | Initial creation. Readability grade 10.6 after 4 revision attempts. |
+| Active | 2026-04-17 | — | Initial creation. Readability grade 10.4 after 5 revision attempts. |
