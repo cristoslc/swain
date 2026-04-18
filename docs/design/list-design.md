@@ -5,6 +5,10 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | DESIGN-021 | bin/swain Worktree Router | 2026-04-04 | — |
+| DESIGN-0028 | Quality Signal Pipeline | 2026-04-18 | — |
+| DESIGN-0029 | Lifecycle Pathways | 2026-04-18 | — |
+| DESIGN-0030 | Verification Model Reform | 2026-04-18 | — |
+| DESIGN-0031 | Build-Measure-Learn | 2026-04-18 | — |
 
 ## Active
 

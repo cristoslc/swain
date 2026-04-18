@@ -27,6 +27,10 @@
 | EPIC-066 | ROI Scoring Engine | 2026-04-06 | — |
 | EPIC-067 | Backlog Appraisal Bootstrap | 2026-04-06 | — |
 | EPIC-075 | Appraisal Value Model | 2026-04-06 | — |
+| EPIC-080 | Quality Signal Pipeline | 2026-04-18 | — |
+| EPIC-081 | Lifecycle Pathways | 2026-04-18 | — |
+| EPIC-082 | Verification Model Reform | 2026-04-18 | — |
+| EPIC-083 | Build-Measure-Learn Support | 2026-04-18 | — |
 
 ## Active
 
