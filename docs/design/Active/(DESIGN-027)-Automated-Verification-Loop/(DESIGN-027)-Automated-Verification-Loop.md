@@ -28,18 +28,18 @@ depends-on-artifacts:
 
 ## Design Intent
 
-**Context:** The current model needs the operator to step in, and it relies on tests planned before code exists. This design replaces it with an automated loop that runs after implementation.
+**Context:** Specs describe the system as it was when they were written. By the time implementation finishes, ADRs have been adopted, EPIC scope has shifted, and acceptance criteria may have changed. Verification that checks against the original plan's assumptions is checking a world that no longer exists. This design replaces it with an automated loop that runs after implementation, against the current intent snapshot.
 
 ### Goals
 
-- Agents iterate toward the best state, using intent close to the merge point.
+- Agents verify against the system as it is now, not as it was when the spec was written. Fresh artifact states — new ADRs, shifted scope, edited criteria — are the input to verification design.
 - The operator reviews results at teardown, not process during execution.
 - Every cycle (pass or fail) produces a retro about agent decisions.
 - Small changes auto-merge with a saved report. Sensitive changes surface for human judgment.
 
 ### Constraints
 
-- Verification design runs after implementation, using the current intent snapshot (artifact states now, not when the plan was written).
+- Verification design runs after implementation, using the current intent snapshot (artifact states now, not when the plan was written). This is the core constraint: the system evolves, and verification must evolve with it.
 - Failed verification loops back without needing the operator.
 - A teardown report must be saved before any trunk merge, no matter the size.
 - The loop triggers on plan completion, and manually when the operator says "verify now."
@@ -150,7 +150,7 @@ The agent makes the judgment call using max model capability. It presents a reco
 
 ## Design Decisions
 
-1. **Post-implementation verification** — scope is set after code exists, not before. Plans are hypotheses. Real needs emerge from the code.
+1. **Post-implementation verification** — specs capture a prior state of the system. ADRs get adopted, EPIC scope shifts, acceptance criteria change. Verification must run against the current state, not the plan-time state. This is why verification design happens after implementation.
 2. **Automated loop, operator at teardown** — the operator reviews at teardown, not mid-loop. This lets agents iterate without nagging.
 3. **Retro after every cycle** — pass or fail, each cycle makes a retro. The teardown narrative ties them together. Retro is the operator's window into agent decisions.
 4. **Gherkin as behavior design** — `@bdd` markers and Gherkin in specs survive from EPIC-062. They capture behavior intent. Test code is written during verification.
@@ -162,4 +162,4 @@ The agent makes the judgment call using max model capability. It presents a reco
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-17 | — | Initial creation. Readability grade 10.7 after 3 revision attempts. |
+| Active | 2026-04-17 | — | Initial creation. Readability grade 10.6 after 4 revision attempts. |
