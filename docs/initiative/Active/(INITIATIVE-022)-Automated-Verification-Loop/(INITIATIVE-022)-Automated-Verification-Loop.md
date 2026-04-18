@@ -30,13 +30,15 @@ evidence-pool: ""
 
 ## Strategic Focus
 
-Replace the current model — plan tests, implement, manually verify — with an automated loop. Verification design happens after implementation. It uses the real state of artifacts and code, not guesses made before work began. The operator steps in at teardown to review results. The loop runs without human input.
+Specs are written when the system is in one state. By the time implementation finishes, the system has moved on. ADRs were adopted. EPIC scope shifted. Other specs landed. Verification that runs against the original plan's assumptions is checking a world that no longer exists.
+
+This initiative closes that gap. Verification design runs after implementation, against the current intent snapshot — not the snapshot from when the spec was written. The operator reviews results at teardown, not process during execution. The loop runs without human input, iterating until the work aligns with reality as it stands now.
 
 This is urgent. It changes how swain builds things.
 
 ## Desired Outcomes
 
-Agents iterate toward the best state, using intent close to the merge point. The operator reviews results, not process. Small changes auto-merge with a saved report. Large or sensitive changes surface at teardown. Each cycle — pass or fail — produces a retro. These pile up into a teardown narrative that shows agent decisions.
+Agents verify against the system as it is now, not as it was when the spec was written. Verification design reads fresh artifact states — new ADRs, shifted EPIC scope, edited acceptance criteria — and checks whether the implementation still aligns. The operator reviews results at teardown, not process during execution. Small changes auto-merge with a saved report. Each cycle produces a retro. These pile up into a teardown narrative that shows the agent's decision trail.
 
 ## Progress
 
@@ -47,7 +49,7 @@ Agents iterate toward the best state, using intent close to the merge point. The
 **In scope:**
 
 - Two-phase execution: Implementation (swain-design, swain-do), then Verification (prism method, then execution).
-- Verification design runs after implementation, using a fresh intent snapshot.
+- Verification design runs after implementation, using a fresh intent snapshot. This is the core insight: specs describe a prior state. Verification must run against the current state.
 - Automated loop: failure triggers retro, then loops back to implementation.
 - Reconciliation spectrum: small gap (add ticket), medium (update SPEC or ADR), large (escalate).
 - Sensitivity scaling: small change to a sensitive module gets full verification; large low-risk change gets standard.
@@ -106,4 +108,4 @@ Both EPICs move to Superseded. Child SPECs not absorbed stay under their EPICs u
 
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
-| Active | 2026-04-17 | — | Initial creation from design conversation. Readability grade 10.5 after 3 revision attempts. |
+| Active | 2026-04-17 | — | Initial creation. Readability grade 10.2 after 4 revision attempts. |
