@@ -1,3 +1,70 @@
+## [v0.31.0-alpha] - 2026-04-18
+
+### Features
+
+#### swain-test Skill
+
+New gate skill for swain-sync and swain-release — runs integration tests and emits smoke instructions before shipping. SPEC-221 Complete.
+
+#### Session Purpose Capture
+
+swain-init now writes the session purpose deterministically in the greeting. SPEC-297 Complete.
+
+#### Untethered Runtime Commands
+
+Auto-spawn opencode serve when a bridge starts. Typing indicator persists until session death. Tool call and result events emitted to Zulip. SPEC-299 Complete.
+
+#### OpenCode as Full-Tier Runtime
+
+OpenCode promoted to Full-tier runtime alongside Claude Code. Gemini and Crush dropped from the runtime registry.
+
+#### swain-doctor Auto-Fix Worktree Context
+
+Doctor now auto-fixes stale worktree context (ADR-034, ADR-025, ADR-042) instead of just warning. Symlink checks dropped from the preflight worktree gate.
+
+#### Builder and Shipper Personas
+
+Research-backed operator personas (Builder, Shipper) and four design concerns surfaced from persona evaluation. These guide future UX decisions around cognitive load and workflow switching.
+
+#### Steering the Machine Blog
+
+Companion blog launched at steeringthemachine.com with dark/light mode, WCAG AAA-compliant colors, published-date filtering, and GitHub Actions deployment. Initial posts on swain philosophy and TDD for agentic workflows.
+
+### In Progress
+
+- CHORE artifact type — ADR-045 and bash script support are in trunk, but Python tooling (SPEC-312) and skill docs/index (SPEC-313) are still Active.
+- swain-search x-thread and media ingestion — SPEC-306 Active. X-thread ingestion and media transcript pipeline are committed; the spec needs verification.
+- Project bridge session routing — DESIGN-026 Active, SPEC-298 Active. Architecture and control-thread spec are written; implementation is pending.
+- Automated verification loop — INITIATIVE-022 Active, DESIGN-027 Active. Loop limit design committed; spec still needs implementation.
+- trafilatura for swain-search — SPEC-304 Active, SPIKE-069 complete (trafilatura wins). Adoption pending.
+
+### Planned
+
+- Deterministic worktree placement — path function and swain-do preamble update (EPIC-078, SPEC-314/315 Proposed).
+- Source quality ranking for swain-search — prioritize sources by relevance and recency (SPEC-317 Active).
+
+### Research
+
+- AgentRC claude-orchestrator trove — 3 sources plus full repo clone.
+- Claude Code recap trove — 4 sources, extended with 2 more.
+- Crispy agents trove — 7 sources on agent orchestration patterns.
+- Docs blog static generators trove — 6 sources on Eleventy, Hugo, and peers.
+- GarryTan brutalism tools trove — 3 sources on design philosophy.
+- Gastown agent orchestration trove — 1 source on local agent coordination.
+- OpenCode Crush CLI trove — 3 sources on server modes, extended with 3 more.
+- SemanticWiki build-an-agent trove — 3 sources, rewritten as SemanticWiki vs Swain comparison.
+- SPIKE-069 on agentrc primitives — trafilatura wins head-to-head for content extraction.
+
+### Supporting Changes
+
+- ADR-043: shared ticket state across worktrees.
+- Dirty file detection before worktree creation in swain-do.
+- Duplicate SPIKE ID resolution in artifact graph.
+- Fingerprint-based gitleaks allowlist replaces path-based.
+- Materialize bin/ symlinks from skills into scripts.
+- GitHub Actions workflow for blog deployment.
+- CNAME and custom domain setup for steeringthemachine.com.
+
 ## [v0.30.0-alpha] - 2026-04-07
 
 ### Features
