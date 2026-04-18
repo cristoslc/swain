@@ -96,3 +96,4 @@ The experimental question: can another agent successfully excise piece X from sw
 - **Watch register.** This is a platform / security / architecture argument. Audience is bigger than the solo-agent-builder audience of the first series. Jargon budget should be lower; examples from actual supply-chain incidents should be higher.
 - **Working title "Excisable Software" is fine for now** — workshop later.
 - **Series must have an even number of posts (minimum two).** No single-post series. Posts don't need to drop simultaneously. Current arc is 6, which satisfies this.
+- **Standalone cross-ref:** [Don't Type Context. Collect It.](../dont-type-context-collect-it/index.md) is a standalone post about swain-search and research troves. It demonstrates the excisability property in practice — both the skill and its outputs are liftable without the framework. Post 4 ("Excisability as a Design Property") can reference it as a worked example.

@@ -364,10 +364,17 @@ git commit -m "docs(<trove-id>): stamp history hash ${TROVE_HASH:0:7}"
 
 If no referencing artifact exists yet (standalone research), Commit B still stamps the history entry — report the hash so it can be referenced later.
 
-**Push** — after Commit B, push to `origin/trunk` so the trove is immediately available to other agents and sessions:
+**Push** — after Commit B, ALWAYS push to `origin/trunk` so the trove is immediately available to other agents and sessions. This is mandatory, not optional:
 
 ```bash
 git push origin trunk
+```
+
+**Derive synthesis URL** — construct a stable permalink to the synthesis file for the final report:
+
+```bash
+REMOTE_URL=$(git remote get-url origin | sed 's/\.git$//' | sed 's/git@github.com:/https:\/\/github.com\//')
+SYNTHESIS_URL="${REMOTE_URL}/blob/${TROVE_HASH}/docs/troves/<trove-id>/synthesis.md"
 ```
 
 ### Step 6 — Report
@@ -378,9 +385,11 @@ Tell the user what was created:
 >
 > - `docs/troves/<trove-id>/manifest.yaml` — provenance and metadata
 > - `docs/troves/<trove-id>/sources/` — N normalized source files
-> - `docs/troves/<trove-id>/synthesis.md` — thematic distillation
+> - `docs/troves/<trove-id>/synthesis.md` — thematic distillation: <SYNTHESIS_URL>
 >
 > Reference from artifacts with: `trove: <trove-id>@<TROVE_HASH:0:7>`
+
+Always include the synthesis file URL in the report. For multiple troves created in a single run, list each synthesis URL.
 
 ## Extend mode
 
@@ -397,8 +406,9 @@ Add new sources to an existing trove.
    - **Commit A**: `git commit -m "research(<trove-id>): extend with N new sources"`
    - Capture `TROVE_HASH=$(git rev-parse HEAD)`
    - **Commit B**: back-fill hash in history entry, update referencing artifact frontmatter (if artifact exists)
-   - **Push**: `git push origin trunk`
-9. Report what was added, including the new commit hash
+   - **Push** (mandatory): `git push origin trunk`
+   - Derive `SYNTHESIS_URL` (same method as Create step 5)
+9. Report what was added, including the new commit hash and the synthesis file URL
 
 ## Refresh mode
 
@@ -419,8 +429,9 @@ Re-fetch stale sources and update changed content.
    - **Commit A**: `git commit -m "research(<trove-id>): refresh N sources (M changed)"`
    - Capture `TROVE_HASH=$(git rev-parse HEAD)`
    - **Commit B**: back-fill hash in history entry, update referencing artifact(s) frontmatter — check `referenced-by` in manifest for all dependents
-   - **Push**: `git push origin trunk`
-8. Report: "Refreshed N sources. M had changed content, K were unchanged. New hash: `<TROVE_HASH:0:7>`."
+   - **Push** (mandatory): `git push origin trunk`
+   - Derive `SYNTHESIS_URL` (same method as Create step 5)
+8. Report: "Refreshed N sources. M had changed content, K were unchanged. New hash: `<TROVE_HASH:0:7>`. Synthesis: <SYNTHESIS_URL>"
 
 For sources with `freshness-ttl: never`, skip them during refresh.
 
