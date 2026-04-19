@@ -1,7 +1,9 @@
-"""Project bridge kernel — session orchestrator for one project.
+"""Project bridge microkernel — route between chat and runtime subprocess plugins.
 
-Manages session lifecycle, emits events to the host bridge, and receives
-commands from it. Does not talk to the chat adapter directly.
+Per ADR-046, the ProjectBridge is a self-contained microkernel that spawns
+BOTH the chat adapter and runtime adapters as subprocess plugins via
+PluginProcess. It sits in the middle: chat commands flow in, runtime
+commands flow out; runtime events flow in, chat events flow out.
 """
 
 from __future__ import annotations
@@ -10,33 +12,20 @@ import asyncio
 import enum
 import json
 import logging
-import os
-import os
 import uuid
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import dataclass
 from typing import Any, Callable
 
 from swain_helm.protocol import Event, Command
-from swain_helm.adapters.claude_code import ClaudeCodeAdapter
-from swain_helm.adapters.opencode import OpenCodeAdapter
-from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
-from swain_helm.adapters.tmux_pane import TmuxPaneAdapter
+from swain_helm.plugin_process import PluginProcess
 
 log = logging.getLogger(__name__)
-
-# Type alias for any runtime adapter
-RuntimeAdapter = (
-    ClaudeCodeAdapter | OpenCodeAdapter | OpenCodeServerAdapter | TmuxPaneAdapter
-)
 
 
 class SessionState(enum.Enum):
     SPAWNING = "spawning"
-    INTERVIEWING = "interviewing"
     ACTIVE = "active"
     WAITING_APPROVAL = "waiting_approval"
-    IDLE = "idle"
     DEAD = "dead"
 
 
@@ -46,105 +35,24 @@ class Session:
     runtime: str
     state: SessionState = SessionState.SPAWNING
     artifact: str | None = None
-    origin: str | None = None  # "control" if spawned from control topic
+    origin: str | None = None
     pending_approval_call_id: str | None = None
 
 
-class LauncherProcess:
-    """Manages a bin/swain --non-interactive --format ndjson subprocess.
-
-    Reads NDJSON from its stdout (questions, info, ready, error).
-    Writes NDJSON to its stdin (answers from the operator).
-    """
-
-    def __init__(
-        self,
-        session_id: str,
-        project_dir: str | None,
-        on_output: Callable[[str, dict[str, Any]], None] | None = None,
-    ):
-        self.session_id = session_id
-        self.project_dir = project_dir
-        self.on_output = on_output
-        self._process: asyncio.subprocess.Process | None = None
-        self._reader_task: asyncio.Task | None = None
-
-    async def start(self, purpose_args: list[str] | None = None) -> None:
-        repo_root = self._find_repo_root()
-        launcher = os.path.join(repo_root, "bin", "swain")
-        if not os.path.exists(launcher):
-            log.error("bin/swain not found at %s", launcher)
-            if self.on_output:
-                self.on_output("error", {"text": "bin/swain not found"})
-            return
-
-        cmd = [launcher, "--_non_interactive", "--format", "ndjson"]
-        if purpose_args:
-            cmd.extend(purpose_args)
-
-        self._process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=self.project_dir or repo_root,
-        )
-        self._reader_task = asyncio.create_task(self._read_stdout())
-
-    async def send_answer(self, text: str) -> None:
-        if not self._process or not self._process.stdin:
-            log.warning("Cannot send answer — launcher not running")
-            return
-        msg = json.dumps({"type": "answer", "text": text})
-        self._process.stdin.write((msg + "\n").encode())
-        await self._process.stdin.drain()
-
-    async def stop(self) -> None:
-        if self._reader_task:
-            self._reader_task.cancel()
-            try:
-                await self._reader_task
-            except asyncio.CancelledError:
-                pass
-        if self._process:
-            self._process.terminate()
-            try:
-                await asyncio.wait_for(self._process.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
-                self._process.kill()
-
-    async def _read_stdout(self) -> None:
-        if not self._process or not self._process.stdout:
-            return
-        while True:
-            line = await self._process.stdout.readline()
-            if not line:
-                break
-            try:
-                data = json.loads(line.decode())
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                log.warning("Malformed line from launcher: %s", line[:200])
-                continue
-            msg_type = data.get("type", "")
-            if self.on_output:
-                self.on_output(msg_type, data)
-
-    def _find_repo_root(self) -> str:
-        if self.project_dir:
-            p = Path(self.project_dir)
-            while p != p.parent:
-                if (p / ".git").exists() or (p / "bin" / "swain").exists():
-                    return str(p)
-                p = p.parent
-            return self.project_dir
-        return os.getcwd()
+def _runtime_cmd(runtime: str) -> list[str]:
+    if runtime == "opencode":
+        return ["swain-helm-opencode"]
+    if runtime == "claude":
+        return ["swain-helm-claude"]
+    return ["swain-helm-tmux"]
 
 
 class ProjectBridge:
-    """Session orchestrator for a single project.
+    """Session orchestrator for one project — microkernel plugin router.
 
-    Manages sessions, spawns runtime adapter plugins, and communicates
-    with the host bridge via the on_event callback.
+    Spawns a chat adapter subprocess and per-session runtime adapter
+    subprocesses. Routes Commands from chat to runtime, and Events
+    from runtime to chat. No in-process adapter imports.
     """
 
     def __init__(
@@ -152,17 +60,66 @@ class ProjectBridge:
         project: str,
         *,
         project_dir: str | None = None,
+        config: dict[str, Any] | None = None,
         on_event: Callable[[Event], None] | None = None,
     ):
         self.project = project
         self.project_dir = project_dir
+        self.config = config or {}
         self.on_event = on_event
         self.sessions: dict[str, Session] = {}
-        self._adapters: dict[str, RuntimeAdapter] = {}
-        self._launchers: dict[str, LauncherProcess] = {}
+        self._chat_plugin: PluginProcess | None = None
+        self._runtime_plugins: dict[str, PluginProcess] = {}
+
+    async def start(self) -> None:
+        chat_cfg = self.config.get("chat", {})
+        stream = self.config.get("stream", self.project)
+        self._chat_plugin = PluginProcess(
+            name=f"chat:{self.project}",
+            cmd=["swain-helm-zulip-chat"],
+            plugin_type="chat",
+            config={
+                "server_url": chat_cfg.get("server_url", ""),
+                "bot_email": chat_cfg.get("bot_email", ""),
+                "bot_api_key": chat_cfg.get("bot_api_key", ""),
+                "stream_name": stream,
+                "control_topic": chat_cfg.get("control_topic", "control"),
+                "operator_email": chat_cfg.get("operator_email"),
+                "bridge": self.project,
+            },
+            on_message=self._on_chat_message,
+        )
+        await self._chat_plugin.start()
+
+    async def stop(self) -> None:
+        tasks: list[Any] = []
+        if self._chat_plugin:
+            tasks.append(self._chat_plugin.stop())
+        for plugin in self._runtime_plugins.values():
+            tasks.append(plugin.stop())
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+        self._runtime_plugins.clear()
+
+    # --- Routing ---
+
+    def _on_chat_message(self, msg: Event | Command) -> None:
+        if not isinstance(msg, Command):
+            log.warning("Chat plugin sent an Event — unexpected: %s", msg.type)
+            return
+        self.handle_command(msg)
+
+    def _on_runtime_message(self, session_id: str, msg: Event | Command) -> None:
+        if not isinstance(msg, Event):
+            log.warning("Runtime plugin sent a Command — unexpected: %s", msg.type)
+            return
+        self.handle_runtime_event(msg)
+        if self._chat_plugin:
+            asyncio.get_running_loop().create_task(self._chat_plugin.write(msg))
+
+    # --- Public interface ---
 
     def handle_command(self, cmd: Command) -> None:
-        """Handle a command routed from the host bridge."""
         handler = getattr(self, f"_cmd_{cmd.type}", None)
         if handler:
             handler(cmd)
@@ -170,9 +127,7 @@ class ProjectBridge:
             log.warning("Unknown command type: %s", cmd.type)
 
     def handle_runtime_event(self, event: Event) -> None:
-        """Handle an event from a runtime adapter plugin."""
         session = self.sessions.get(event.session_id or "")
-
         if event.type == "session_spawned" and session:
             session.state = SessionState.ACTIVE
         elif event.type == "session_died" and session:
@@ -184,12 +139,8 @@ class ProjectBridge:
             if session.state == SessionState.WAITING_APPROVAL:
                 session.state = SessionState.ACTIVE
                 session.pending_approval_call_id = None
-
-        # Tag origin so the chat adapter routes control-origin events
-        # back to the control topic instead of creating a thread.
         if session and session.origin:
             event.payload["origin"] = session.origin
-
         if self.on_event:
             self.on_event(event)
 
@@ -199,222 +150,45 @@ class ProjectBridge:
     def active_sessions(self) -> list[Session]:
         return [s for s in self.sessions.values() if s.state == SessionState.ACTIVE]
 
-    # --- Internal helpers ---
-
-    def _schedule(self, coro: Any) -> None:
-        """Schedule a coroutine on the running event loop.
-
-        In production this is always called from within an async context
-        (main._poll_zulip_events). In unit tests with no running loop, the
-        coroutine is closed and logged at debug level — session state is
-        still updated synchronously, which is what unit tests verify.
-        """
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(coro)
-        except RuntimeError:
-            log.debug("No running event loop — async operation skipped (test context?)")
-            coro.close()
-
-    # --- Launcher output handler ---
-
-    def _on_launcher_output(
-        self, session_id: str, msg_type: str, data: dict[str, Any]
-    ) -> None:
-        """Handle NDJSON output from the launcher subprocess."""
-        session = self.sessions.get(session_id)
-        if not session:
-            return
-
-        if msg_type == "info":
-            # Relay info messages as text_output to the control topic.
-            if self.on_event:
-                event = Event.text_output(
-                    bridge=self.project,
-                    session_id=session_id,
-                    content=data.get("text", ""),
-                )
-                event.payload["origin"] = "control"
-                self.on_event(event)
-
-        elif msg_type == "question":
-            # Relay questions as text_output to the control topic.
-            text = data.get("text", "")
-            options = data.get("options", [])
-            if options:
-                text += " (" + "/".join(options) + ")"
-            if self.on_event:
-                event = Event.text_output(
-                    bridge=self.project,
-                    session_id=session_id,
-                    content=text,
-                )
-                event.payload["origin"] = "control"
-                self.on_event(event)
-
-        elif msg_type == "ready":
-            # Launcher setup complete. Promote the session.
-            purpose = data.get("purpose", "")
-            worktree = data.get("worktree", self.project_dir)
-            runtime = data.get("runtime", "claude")
-            prompt = data.get("prompt", "")
-
-            session.artifact = purpose or None
-            session.origin = None  # No longer control-origin after promotion
-            session.state = SessionState.SPAWNING
-
-            # Clean up launcher.
-            launcher = self._launchers.pop(session_id, None)
-            if launcher:
-                self._schedule(launcher.stop())
-
-            # Extract worktree basename for Zulip topic naming.
-            worktree_basename = os.path.basename(worktree) if worktree else None
-
-            # Emit session_promoted so the chat adapter creates the thread.
-            if self.on_event:
-                self.on_event(
-                    Event.session_promoted(
-                        bridge=self.project,
-                        session_id=session_id,
-                        artifact=purpose or session_id,
-                        topic=worktree_basename or purpose,
-                    )
-                )
-
-            # Spawn the runtime adapter based on runtime type.
-            if runtime == "opencode":
-                # Use OpenCodeServerAdapter for dedicated server per worktree.
-                adapter = OpenCodeServerAdapter(
-                    bridge=self.project,
-                    session_id=session_id,
-                    on_event=self.handle_runtime_event,
-                )
-                self._adapters[session_id] = adapter
-                self._schedule(self._spawn_opencode_server(adapter, worktree, prompt))
-            else:
-                # Use TmuxPaneAdapter for other runtimes (claude, gemini, etc.).
-                runtime_cmd = self._build_runtime_cmd(runtime, prompt)
-                session_name = f"swain-{purpose or session_id}"
-
-                adapter = TmuxPaneAdapter(
-                    bridge=self.project,
-                    session_id=session_id,
-                    project_dir=worktree or self.project_dir,
-                    on_event=self.handle_runtime_event,
-                )
-                self._adapters[session_id] = adapter
-                self._schedule(
-                    adapter.start(
-                        runtime_cmd=runtime_cmd,
-                        session_name=session_name,
-                    )
-                )
-
-        elif msg_type == "error":
-            log.error("Launcher error for %s: %s", session_id, data.get("text", ""))
-            if self.on_event:
-                event = Event.text_output(
-                    bridge=self.project,
-                    session_id=session_id,
-                    content=f"Launcher error: {data.get('text', '')}",
-                )
-                event.payload["origin"] = "control"
-                self.on_event(event)
-            session.state = SessionState.DEAD
-
-    async def _spawn_opencode_server(
-        self,
-        adapter: OpenCodeServerAdapter,
-        worktree: str | None,
-        prompt: str,
-    ) -> None:
-        """Spawn opencode serve in the worktree and send initial prompt."""
-        worktree_path = worktree or self.project_dir
-        if not worktree_path:
-            log.error(
-                "No worktree or project_dir available for session %s",
-                adapter.session_id,
-            )
-            return
-
-        spawned = await adapter.spawn_server(worktree_path)
-        if not spawned:
-            log.error(
-                "Failed to spawn opencode server for session %s", adapter.session_id
-            )
-            if self.on_event:
-                self.on_event(
-                    Event.text_output(
-                        bridge=self.project,
-                        session_id=adapter.session_id,
-                        content="Error: failed to start opencode server",
-                    )
-                )
-            return
-
-        # Send initial prompt if provided
-        if prompt:
-            await adapter.send_command(
-                Command.send_prompt(
-                    bridge=self.project,
-                    session_id=adapter.session_id,
-                    text=prompt,
-                )
-            )
-
     # --- Command handlers ---
 
     def _cmd_start_session(self, cmd: Command) -> None:
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
         runtime = cmd.payload.get("runtime", "claude")
         artifact = cmd.payload.get("artifact")
-        prompt = cmd.payload.get("prompt") or artifact
+        worktree_path = cmd.payload.get("worktree_path") or self.project_dir
+        opencode_config = self.config.get("opencode", {})
+
         session = Session(session_id=session_id, runtime=runtime, artifact=artifact)
         self.sessions[session_id] = session
 
-        # Build the runtime command for tmux
-        runtime_cmd = self._build_runtime_cmd(runtime, prompt)
-        session_name = f"swain-{artifact or session_id}"
-
-        adapter = TmuxPaneAdapter(
-            bridge=self.project,
-            session_id=session_id,
-            project_dir=self.project_dir,
-            on_event=self.handle_runtime_event,
+        plugin = PluginProcess(
+            name=f"runtime:{session_id}",
+            cmd=_runtime_cmd(runtime),
+            plugin_type="runtime",
+            config={
+                "bridge": self.project,
+                "session_id": session_id,
+                "project_dir": worktree_path or "",
+                "base_url": opencode_config.get("base_url", "http://127.0.0.1:4096"),
+            },
+            on_message=lambda msg, sid=session_id: self._on_runtime_message(sid, msg),
         )
-        self._adapters[session_id] = adapter
-        self._schedule(
-            adapter.start(
-                runtime_cmd=runtime_cmd,
-                session_name=session_name,
-            )
-        )
+        self._runtime_plugins[session_id] = plugin
 
-    @staticmethod
-    def _build_runtime_cmd(runtime: str, prompt: str | None) -> list[str]:
-        """Build the shell command for a runtime."""
-        if runtime == "opencode":
-            cmd = ["opencode", "run"]
-            if prompt:
-                cmd.append(prompt)
-            return cmd
-        # Default: claude
-        cmd = ["claude", "--dangerously-skip-permissions"]
-        if prompt:
-            cmd.extend(["--prompt", prompt])
-        return cmd
+        loop = asyncio.get_running_loop()
+        loop.create_task(plugin.start())
 
     def _cmd_send_prompt(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")
         if not session:
             log.warning("send_prompt for unknown session: %s", cmd.session_id)
             return
-        adapter = self._adapters.get(session.session_id)
-        if adapter:
-            self._schedule(adapter.send_command(cmd))
+        plugin = self._runtime_plugins.get(session.session_id)
+        if plugin:
+            asyncio.get_running_loop().create_task(plugin.write(cmd))
         else:
-            log.warning("No adapter for session: %s", session.session_id)
+            log.warning("No runtime plugin for session: %s", session.session_id)
 
     def _cmd_approve(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")
@@ -424,9 +198,9 @@ class ProjectBridge:
         if session.state == SessionState.WAITING_APPROVAL:
             session.state = SessionState.ACTIVE
             session.pending_approval_call_id = None
-        adapter = self._adapters.get(session.session_id)
-        if adapter:
-            self._schedule(adapter.send_command(cmd))
+        plugin = self._runtime_plugins.get(session.session_id)
+        if plugin:
+            asyncio.get_running_loop().create_task(plugin.write(cmd))
 
     def _cmd_cancel(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")
@@ -434,177 +208,26 @@ class ProjectBridge:
             log.warning("cancel for unknown session: %s", cmd.session_id)
             return
         session.state = SessionState.DEAD
-        # Clean up launcher if still interviewing.
-        launcher = self._launchers.pop(session.session_id, None)
-        if launcher:
-            self._schedule(launcher.stop())
-        adapter = self._adapters.pop(session.session_id, None)
-        if adapter:
-            self._schedule(adapter.stop())
+        plugin = self._runtime_plugins.pop(session.session_id, None)
+        if plugin:
+            asyncio.get_running_loop().create_task(plugin.stop())
 
     def _cmd_control_message(self, cmd: Command) -> None:
-        """Handle natural language from the control topic.
-
-        If there's an active launcher interview, relay as an answer.
-        If there's an existing control session, send follow-up text to it.
-        Otherwise, spawn a persistent control session in tmux.
-        """
         text = cmd.payload.get("text", "")
-
-        # Relay to active interview if one exists.
-        for sid, session in self.sessions.items():
-            if (
-                session.origin == "control"
-                and session.state == SessionState.INTERVIEWING
-            ):
-                launcher = self._launchers.get(sid)
-                if launcher:
-                    self._schedule(launcher.send_answer(text))
-                    return
-
-        # Reuse existing control session if alive.
         for sid, session in self.sessions.items():
             if session.origin == "control" and session.state in (
                 SessionState.SPAWNING,
                 SessionState.ACTIVE,
             ):
-                adapter = self._adapters.get(sid)
-                if adapter:
+                plugin = self._runtime_plugins.get(sid)
+                if plugin:
                     follow_up = Command.send_prompt(
                         bridge=self.project,
                         session_id=sid,
                         text=text,
                     )
-                    self._schedule(adapter.send_command(follow_up))
+                    asyncio.get_running_loop().create_task(plugin.write(follow_up))
                     return
-
-        # No active session — spawn a persistent control session.
-        session_id = f"sess-{uuid.uuid4().hex[:8]}"
-        session = Session(session_id=session_id, runtime="opencode", origin="control")
-        self.sessions[session_id] = session
-
-        self._schedule(self._run_control_session(session_id, text))
-
-    async def _run_control_session(self, session_id: str, text: str) -> None:
-        """Run a lightweight control-topic session.
-
-        Uses UNTETHERED_MOCK_LLM=1 env var to return canned responses
-        for testing the return path without a real LLM.
-        """
-        if os.environ.get("UNTETHERED_MOCK_LLM") == "1":
-            self.handle_runtime_event(
-                Event.text_output(
-                    bridge=self.project,
-                    session_id=session_id,
-                    content=f"[mock] Received your message: {text}",
-                )
-            )
-            self.handle_runtime_event(
-                Event.session_died(
-                    bridge=self.project,
-                    session_id=session_id,
-                    reason="mock complete",
-                )
-            )
-            return
-
-        adapter = OpenCodeServerAdapter(
-            bridge=self.project,
-            session_id=session_id,
-            on_event=self.handle_runtime_event,
-        )
-        self._adapters[session_id] = adapter
-
-        # Emit session_starting before any blocking operations
-        self.handle_runtime_event(
-            Event.session_starting(
-                bridge=self.project,
-                session_id=session_id,
-                runtime="opencode",
-            )
-        )
-
-        # Wait for the server to be healthy, then send the first message.
-        healthy = await adapter.wait_for_health(timeout=10.0)
-        if not healthy:
-            log.warning("opencode serve not healthy, attempting to spawn...")
-            # Try to spawn the server
-            project_dir = self.project_dir or os.getcwd()
-            spawned = await adapter.spawn_server(project_dir)
-            if not spawned:
-                log.error("Failed to spawn opencode server for session %s", session_id)
-                self.handle_runtime_event(
-                    Event.text_output(
-                        bridge=self.project,
-                        session_id=session_id,
-                        content="Error: Failed to start opencode server",
-                    )
-                )
-                return
-            # Re-check health after spawn
-            healthy = await adapter.wait_for_health(timeout=60.0)
-            if not healthy:
-                log.error("Spawned opencode server failed health check")
-                self.handle_runtime_event(
-                    Event.text_output(
-                        bridge=self.project,
-                        session_id=session_id,
-                        content="Error: opencode serve started but not responding",
-                    )
-                )
-                return
-
-        log.info("Operator can attach: opencode attach %s", adapter.base_url)
-        cmd = Command.send_prompt(bridge=self.project, session_id=session_id, text=text)
-        await adapter.send_command(cmd)
-
-    def _cmd_launch_session(self, cmd: Command) -> None:
-        """Handle /work or /session — full launcher interview flow.
-
-        Spawns bin/swain --non-interactive --format ndjson. The launcher
-        runs the session interview (crash recovery, worktree selection,
-        purpose). Output posts to control topic. On ready, promotes the
-        session to a dedicated thread and spawns the runtime adapter.
-
-        Follow-up control_messages while INTERVIEWING are relayed as
-        answers to the launcher's stdin.
-        """
-        text = cmd.payload.get("text", "")
-
-        # Check if there's an active interviewing session to relay to.
-        for sid, session in self.sessions.items():
-            if (
-                session.origin == "control"
-                and session.state == SessionState.INTERVIEWING
-            ):
-                launcher = self._launchers.get(sid)
-                if launcher:
-                    self._schedule(launcher.send_answer(text))
-                    return
-
-        # Start a new launcher interview.
-        session_id = f"sess-{uuid.uuid4().hex[:8]}"
-        session = Session(
-            session_id=session_id,
-            runtime="claude",
-            origin="control",
-            state=SessionState.INTERVIEWING,
-        )
-        self.sessions[session_id] = session
-
-        launcher = LauncherProcess(
-            session_id=session_id,
-            project_dir=self.project_dir,
-            on_output=lambda msg_type, data: self._on_launcher_output(
-                session_id,
-                msg_type,
-                data,
-            ),
-        )
-        self._launchers[session_id] = launcher
-
-        purpose_args = text.split() if text else []
-        self._schedule(launcher.start(purpose_args=purpose_args))
 
     def _cmd_bind_artifact(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")

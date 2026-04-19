@@ -168,6 +168,9 @@ class TestPluginProcessPlumbing:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.skip(
+    reason="project_bridge plugin removed per ADR-046; ProjectBridge is now instantiated by watchdog"
+)
 class TestProjectBridgeSubprocess:
     """Spawn the actual project bridge plugin and verify NDJSON flow."""
 
