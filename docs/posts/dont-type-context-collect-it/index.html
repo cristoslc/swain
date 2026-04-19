@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Don&#39;t Type Context. Collect It. | Swain</title>
+  <meta name="description" content="The bottleneck in agent workflows isn&#39;t the agent — it&#39;s you, typing context. Research troves turn background briefings into reusable, inspectable, versioned artifacts.">
+  <script>
+    // Set theme BEFORE CSS loads to prevent FOUC
+    (function() {
+      var savedTheme = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="alternate" type="application/feed+xml" title="Swain" href="/feed.xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrapper">
+      <a href="/" class="site-title">Swain</a>
+      <nav class="site-nav">
+        <a href="/about/">About</a>
+        <a href="https://github.com/cristoslc/swain" class="nav-icon" aria-label="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="18" height="18">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+        </a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content" aria-label="Content">
+    <div class="wrapper">
+      
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">Don&#39;t Type Context. Collect It.</h1>
+    <time class="post-date" datetime="Thu Apr 16 2026 08:00:00 GMT-0400 (Eastern Daylight Time)">Apr 16, 2026</time>
+  </header>
+  
+  <div class="post-content">
+    <p>There's a lot I've not gotten right in <a href="https://github.com/cristoslc/swain">swain</a>. But one piece has been super useful: <a href="https://github.com/cristoslc/swain/blob/release/skills/swain-search/SKILL.md">swain-search</a>, a skill for collecting research on a topic in a standardized format and piping it into design workflows.</p>
+<p>The shift it enables is small but compounds: instead of typing background context into every session, I say &quot;research X&quot; and get back a <em>trove</em> — collected sources, normalized to markdown, synthesized into key findings — that any artifact can reference. I can inspect what went in. I don't have to re-enter it.</p>
+<h2>The context problem</h2>
+<p>Agent sessions start from scratch. Every session, you either supply context or the agent works without it. The default move is to paste it in — the relevant docs, the prior decisions, the background on a technical choice. This works once. Then the next session starts and you paste it again.</p>
+<p>The loss is bigger than repetition. Pasted context is:</p>
+<ul>
+<li><strong>Ephemeral.</strong> It lives in one conversation. The next agent — or the same agent, next session — doesn't see it.</li>
+<li><strong>Unverified.</strong> You typed it from memory. Maybe you got it right. Maybe not.</li>
+<li><strong>Uninspectable.</strong> The agent saw your summary, not the sources. If the conclusion was wrong, you can't trace why.</li>
+<li><strong>Untethered.</strong> There's no pointer back to what you read or decided. Just your paraphrase.</li>
+</ul>
+<p>This is the bottleneck. Not the agent's capability — your ability to get context into it accurately and repeatedly.</p>
+<h2>What troves do</h2>
+<p>A trove is three things:</p>
+<ol>
+<li><strong><code>sources/</code></strong> — the raw material, normalized to markdown. Web pages stripped of boilerplate. Video transcripts with timestamps. X threads unrolled and cited. Repo trees mirrored selectively. Each source gets a slug, frontmatter with provenance, and a content hash.</li>
+<li><strong><code>manifest.yaml</code></strong> — one entry per source. URL, fetch date, content hash, freshness TTL. Provenance and discoverability.</li>
+<li><strong><code>synthesis.md</code></strong> — a thematic distillation. Not source-by-source summaries; findings grouped by theme, with explicit points of agreement, disagreement, and gaps.</li>
+</ol>
+<p>The <a href="https://github.com/cristoslc/swain/blob/release/skills/swain-search/SKILL.md">swain-search skill</a> handles collection: web search, page fetch, video transcription, X thread unrolling, local files, repo mirroring. Normalization strips the format-specific noise (navigation, ads, cookie banners) and leaves the content in a consistent markdown structure. The skill also checks whether an existing trove already covers the topic — extending is preferred over creating parallel troves.</p>
+<h2>Why it works</h2>
+<p>Three properties that pasted context doesn't have:</p>
+<p><strong>Inspectable inputs.</strong> The synthesis tells you what the sources collectively say. The sources tell you what each one said. You can disagree with the synthesis, check the source, and correct it. With pasted context, you're trusting your own summary with no audit trail.</p>
+<p><strong>Reusable across sessions.</strong> Artifacts reference troves with <code>trove: &lt;id&gt;@&lt;commit-hash&gt;</code>. The hash pins the trove to a specific version. If the trove gets extended or refreshed later, the artifact still points at the version it was written against. Next session, a different agent reads the same trove. No re-entry.</p>
+<p><strong>Git-versioned provenance.</strong> Troves live in <code>docs/troves/</code> and are committed like any other artifact. The manifest records when each source was fetched, what its hash was, whether a paywall proxy was needed. If a source goes stale, the refresh mode re-fetches and updates. The history is in git.</p>
+<h2>An example output</h2>
+<p>The <a href="https://github.com/cristoslc/swain/blob/release/docs/troves/multi-agent-collision-vectors/synthesis.md">multi-agent-collision-vectors</a> trove collected 16 sources on how parallel AI agents collide — git worktree safety, merge queue patterns, TOCTOU mitigation, framework coordination models. The synthesis surfaces what the sources agree on, where they conflict, and what they don't cover at all.</p>
+<p>That trove fed a spike that informed swain's three-layer merge strategy. The spike is done. The trove persists. If I revisit the coordination model in six months, I don't re-research from scratch — I refresh the trove and read what changed.</p>
+<p>That's the compounding effect. Research becomes a durable asset, not session overhead.</p>
+<h2>Excisable by design</h2>
+<p>Swain-search works inside swain. But both the skill and its outputs are designed to be liftable without the rest of the framework.</p>
+<p>The skill is a single markdown file and a handful of scripts. No swain-specific runtime. No artifact graph dependency. It reads sources, normalizes them, writes markdown to disk, commits to git. Any agent that can run shell commands and read markdown can use it.</p>
+<p>The outputs are standard markdown files in a directory tree. No database. No proprietary format. Another agent — or a human — can read <code>synthesis.md</code> and the <code>sources/</code> directory without knowing swain exists. This is the <a href="../../posts/excisable-software/series-outline/">excisability</a> property: a concept, tests, and evidence with no framework entanglement.</p>
+<p>The excision works in both directions. You can use the skill without swain. You can use the trove outputs without the skill. Neither direction requires the other.</p>
+<h2>Takeaway</h2>
+<p>Research is usually treated as session overhead: something you do before the work starts, then discard. Troves make it a first-class artifact — collected, normalized, synthesized, versioned, and referenceable.</p>
+<p>The practical shift: instead of &quot;let me explain the background&quot; at the start of every session, you say &quot;research X&quot; once. The trove becomes context that any agent can read, any artifact can reference, and you can inspect when the conclusions don't match reality.</p>
+<p>This doesn't require swain. It requires treating research as an asset worth versioning, not conversation overhead worth discarding.</p>
+<p>I'm at <a href="https://github.com/cristoslc">@cristoslc</a>. The <a href="https://github.com/cristoslc/swain/blob/release/skills/swain-search/SKILL.md">swain-search skill</a> and the <a href="https://github.com/cristoslc/swain/blob/release/docs/troves/multi-agent-collision-vectors/synthesis.md">multi-agent-collision-vectors trove</a> are both public.</p>
+
+  </div>
+</article>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrapper">
+      <p>&copy; Swain Swain | <a href="https://github.com/cristoslc/swain">GitHub</a></p>
+    </div>
+  </footer>
+
+  <script type="module">
+    // Mermaid: convert ```mermaid code blocks into rendered diagrams
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default' });
+    document.querySelectorAll('pre code.language-mermaid').forEach(function(block) {
+      const pre = block.parentElement;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = block.textContent;
+      pre.replaceWith(div);
+    });
+    await mermaid.run();
+  </script>
+
+  <script>
+    // Theme toggle with localStorage persistence
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      const html = document.documentElement;
+      
+      // Check for saved theme preference or default to light mode
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        html.setAttribute('data-theme', 'dark');
+      }
+      
+      toggle.addEventListener('click', function() {
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+          html.removeAttribute('data-theme');
+          localStorage.setItem('theme', 'light');
+        } else {
+          html.setAttribute('data-theme', 'dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Specs Steer Humans. Tests Constrain Agents. | Swain</title>
+  <meta name="description" content="730 commits taught me that artifact hierarchies can&#39;t keep AI agents aligned. Tests can.">
+  <script>
+    // Set theme BEFORE CSS loads to prevent FOUC
+    (function() {
+      var savedTheme = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="alternate" type="application/feed+xml" title="Swain" href="/feed.xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrapper">
+      <a href="/" class="site-title">Swain</a>
+      <nav class="site-nav">
+        <a href="/about/">About</a>
+        <a href="https://github.com/cristoslc/swain" class="nav-icon" aria-label="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="18" height="18">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+        </a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content" aria-label="Content">
+    <div class="wrapper">
+      
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">Specs Steer Humans. Tests Constrain Agents.</h1>
+    <time class="post-date" datetime="Wed Apr 08 2026 08:00:00 GMT-0400 (Eastern Daylight Time)">Apr 8, 2026</time>
+  </header>
+  
+  <div class="post-content">
+    <p>I spent 730 commits and 14 days building <a href="https://github.com/cristoslc/swain">swain</a>, a system for keeping AI agents aligned with what I'd decided. The <a href="../01-why-swain-exists/">core loop</a> is still right. The enforcement mechanism was wrong.</p>
+<pre><code class="language-mermaid">---
+title: Swain's Core Loop
+---
+flowchart LR
+    intent[&quot;Intent&quot;] --&gt; execution[&quot;Execution&quot;]
+    execution --&gt; evidence[&quot;Evidence&quot;]
+    evidence --&gt; reconciliation[&quot;Reconciliation&quot;]
+    reconciliation --&gt; intent
+
+    intent ~~~ evidence
+    execution ~~~ reconciliation
+</code></pre>
+<h2>You Can't Steer With Specs</h2>
+<p>The hypothesis seemed sound: agents forget what you decided between sessions, so capture those decisions as artifacts. I built ten artifact types, a dependency graph, a roadmap renderer with Eisenhower quadrants and Gantt charts — all for the intent half of the loop. I automated reconciliation too: a retro skill that gathered session context, synthesized what happened, and classified learnings into new specs and ADRs.</p>
+<p>Agents went off the rails anyway.</p>
+<p>The <a href="https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md">VISION-006 session retro</a> is the clearest example. In one session, the architecture shifted three times:</p>
+<ol>
+<li>
+<p><strong>Ports &amp; adapters → plugins.</strong> The initial design assumed adapters would be core contributions. A few iterations in, I realized this would block community extensions and pivoted to a plugin model.</p>
+</li>
+<li>
+<p><strong>In-process → subprocess.</strong> The agent implemented adapters as in-process Python classes. We had a documented architectural decision saying plugins must run as subprocesses. The agent's code worked. It passed tests. It was structurally wrong, and only my review caught it.</p>
+</li>
+<li>
+<p><strong>tmux scraping → HTTP API.</strong> The agent built a tmux adapter that worked but was fragile. I asked why sessions weren't showing up in <code>tmux ls</code>. Turns out <code>opencode run</code> is single-shot — we needed <code>opencode serve</code>, a completely different architecture.</p>
+</li>
+</ol>
+<p>The hierarchy was supposed to <em>tell</em> agents what to build. Telling didn't work. From the <a href="https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-07-vision-006-full-session-retro.md">retro</a>:</p>
+<blockquote>
+<p>&quot;The first half was spent debugging live... The operator said 'stop. reset. TDD from architectural plan.' After that, tests drove every change. Every pivot was validated before going live. <strong>The live debugging wasted 60+ minutes; the TDD approach wasted zero.</strong>&quot;</p>
+</blockquote>
+<p>This wasn't a one-off. Across the project I kept finding the same failure modes:</p>
+<ul>
+<li>Code that was tested in isolation but never wired into the system — three separate incidents (<a href="https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-28-release-skill-deletion-incident.md">1</a>, <a href="https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-31-dead-code-in-release.md">2</a>, <a href="https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-04-01-teardown-rewrite-release.md">3</a>).</li>
+<li>Stale state files that referenced worktrees I'd already deleted.</li>
+<li>Agents that linked new artifacts to their dependencies but never went back to update the things they depended on.</li>
+</ul>
+<p>The <a href="https://github.com/cristoslc/swain/blob/trunk/docs/swain-retro/2026-03-22-overnight-autonomous-artifact-sweep.md">overnight artifact sweep</a> was the one that really got me: 9 specs, already fully implemented, still marked Active. The code existed. The features worked. Nobody — human or agent — had gone back to update the spec.</p>
+<p>And the retro skill caught all of it. Every session, it would synthesize the drift, surface candidates for new specs and ADRs. I'd tell swain to integrate them and move on. But the output of reconciliation was always more intent: new specs, updated ADRs, revised constraints. The next session's agent would read those artifacts, and drift again. The retro would catch that too, produce more specs, and the cycle would repeat. Automated, fast, and never catching up — because the whole system was a spec-production loop, and the steering mechanism was always one session behind the thing it was trying to steer.</p>
+<h2>Tests Run During, Not After</h2>
+<p>Halfway through that VISION-006 session, I stopped debugging live and told the agent to write tests first. The dynamic changed completely. The agent wrote the tests, then wrote code until the tests passed. I wasn't reviewing code anymore — I was reviewing tests. If a test described the wrong behavior, I'd say so and the agent would rewrite it. Everything else happened in the TDD loop without me.</p>
+<p>This held across every model I used. Opus 4.6, Sonnet 4.6, Qwen3.5:397b, Gemma 4:31b — without tests they all drifted, with tests they all converged. The model didn't matter.</p>
+<p>But TDD only got me partway there. The in-process adapter implementation had tests and passed them all. It was still architecturally wrong — the tests checked behavior, not structure. I caught that violation myself. TDD kept the code functionally correct; whether it respected the boundaries I'd designed was still on me.</p>
+<h2>More Tests, Not More Specs</h2>
+<p>TDD worked, but only at the behavioral layer. The 80-test suite caught regressions and kept agents converging on functional requirements. Architectural compliance was still me. I was the fitness function, reviewing whether agents respected subprocess boundaries and plugin isolation. When I caught a violation, I'd write it into an ADR. Another spec.</p>
+<p>Swain's first iteration asked: what if we had more kinds of <em>artifacts</em> to steer agents? Ten types, a dependency graph, automated retros feeding back into the system. The answer was clear — more specs weren't enough.</p>
+<p>The next iteration asks the opposite question: what if we had more kinds of <em>tests</em>? Not just unit and integration tests for behavior, but fitness functions for architecture, boundary tests for isolation, protocol tests for communication contracts. Every constraint I wrote into an ADR and hoped agents would read — encode it as a test that runs during execution and fails on violation.</p>
+<p>Swain v1 built a spec factory. Swain v2 needs a test factory.</p>
+<p>Coming up in this series: how different kinds of tests map to different kinds of drift, what a minimum viable test suite looks like for a real project, and whether specs can be generated from evidence instead of written up front.</p>
+<p>If you're building with agents and have your own hard-won lessons, I'm at <a href="https://github.com/cristoslc">@cristoslc</a>. The <a href="https://github.com/cristoslc/swain">swain codebase</a> is public — retros in <code>docs/swain-retro/</code>, tests in <code>spec/</code>.</p>
+
+  </div>
+</article>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrapper">
+      <p>&copy; Swain Swain | <a href="https://github.com/cristoslc/swain">GitHub</a></p>
+    </div>
+  </footer>
+
+  <script type="module">
+    // Mermaid: convert ```mermaid code blocks into rendered diagrams
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default' });
+    document.querySelectorAll('pre code.language-mermaid').forEach(function(block) {
+      const pre = block.parentElement;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = block.textContent;
+      pre.replaceWith(div);
+    });
+    await mermaid.run();
+  </script>
+
+  <script>
+    // Theme toggle with localStorage persistence
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      const html = document.documentElement;
+      
+      // Check for saved theme preference or default to light mode
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        html.setAttribute('data-theme', 'dark');
+      }
+      
+      toggle.addEventListener('click', function() {
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+          html.removeAttribute('data-theme');
+          localStorage.setItem('theme', 'light');
+        } else {
+          html.setAttribute('data-theme', 'dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
