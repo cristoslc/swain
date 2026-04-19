@@ -7,6 +7,7 @@ operator can attach locally at any time.
 This is the "untethered" model: the runtime is independent of the bridge
 process. If the bridge crashes, the runtime keeps running.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -14,10 +15,17 @@ import logging
 import os
 import re
 import subprocess
+import sys
 import tempfile
 from typing import Any, Callable
 
-from swain_helm.protocol import Event, Command
+from swain_helm.protocol import (
+    Event,
+    Command,
+    ConfigMessage,
+    encode_message,
+    decode_message,
+)
 
 log = logging.getLogger(__name__)
 
@@ -72,30 +80,44 @@ class TmuxPaneAdapter:
 
         # Create tmux session with the runtime command
         import shlex
+
         shell_cmd = " ".join(shlex.quote(c) for c in cmd)
         cwd = self.project_dir or os.getcwd()
 
         result = subprocess.run(
             [
-                "tmux", "new-session",
+                "tmux",
+                "new-session",
                 "-d",  # detached
-                "-s", self._session_name,
-                "-c", cwd,
+                "-s",
+                self._session_name,
+                "-c",
+                cwd,
                 shell_cmd,
             ],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         if result.returncode != 0:
-            log.error("Failed to create tmux session %s: %s",
-                      self._session_name, result.stderr)
+            log.error(
+                "Failed to create tmux session %s: %s",
+                self._session_name,
+                result.stderr,
+            )
             return
 
         log.info("Tmux session created: %s (cmd: %s)", self._session_name, shell_cmd)
 
         # Set up pipe-pane to append output to the log file.
         subprocess.run(
-            ["tmux", "pipe-pane", "-t", self._session_name, "-O",
-             f"cat >> {self._fifo_path}"],
+            [
+                "tmux",
+                "pipe-pane",
+                "-t",
+                self._session_name,
+                "-O",
+                f"cat >> {self._fifo_path}",
+            ],
             capture_output=True,
         )
 
@@ -107,10 +129,13 @@ class TmuxPaneAdapter:
 
         # Emit session_spawned
         if self.on_event:
-            self.on_event(Event.session_spawned(
-                bridge=self.bridge, session_id=self.session_id,
-                runtime="opencode",
-            ))
+            self.on_event(
+                Event.session_spawned(
+                    bridge=self.bridge,
+                    session_id=self.session_id,
+                    runtime="opencode",
+                )
+            )
 
     async def _tail_output(self) -> None:
         """Tail the pipe-pane output file and emit text_output events."""
@@ -119,7 +144,9 @@ class TmuxPaneAdapter:
 
         # Use tail -f to stream new lines as they're appended by pipe-pane.
         proc = await asyncio.create_subprocess_exec(
-            "tail", "-f", self._fifo_path,
+            "tail",
+            "-f",
+            self._fifo_path,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -133,11 +160,13 @@ class TmuxPaneAdapter:
                 raw = line.decode("utf-8", errors="replace").rstrip("\r\n")
                 text = strip_ansi(raw)
                 if text and self.on_event:
-                    self.on_event(Event.text_output(
-                        bridge=self.bridge,
-                        session_id=self.session_id,
-                        content=text,
-                    ))
+                    self.on_event(
+                        Event.text_output(
+                            bridge=self.bridge,
+                            session_id=self.session_id,
+                            content=text,
+                        )
+                    )
         except asyncio.CancelledError:
             pass
         finally:
@@ -154,11 +183,13 @@ class TmuxPaneAdapter:
             if not self._pane_alive():
                 log.info("Tmux pane %s exited", self._session_name)
                 if self.on_event:
-                    self.on_event(Event.session_died(
-                        bridge=self.bridge,
-                        session_id=self.session_id,
-                        reason="pane exited",
-                    ))
+                    self.on_event(
+                        Event.session_died(
+                            bridge=self.bridge,
+                            session_id=self.session_id,
+                            reason="pane exited",
+                        )
+                    )
                 break
 
     def _pane_alive(self) -> bool:
@@ -236,3 +267,67 @@ class TmuxPaneAdapter:
                 os.rmdir(os.path.dirname(self._fifo_path))
             except OSError:
                 pass
+
+
+# ---------------------------------------------------------------------------
+# Subprocess entry point (ADR-038)
+# ---------------------------------------------------------------------------
+
+
+async def _amain() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s %(message)s",
+        stream=sys.stderr,
+    )
+    loop = asyncio.get_running_loop()
+
+    config_line = await loop.run_in_executor(None, sys.stdin.readline)
+    config_msg = decode_message(config_line)
+    if not isinstance(config_msg, ConfigMessage):
+        log.error("Expected ConfigMessage on stdin line 0, got: %r", config_line[:100])
+        sys.exit(1)
+
+    cfg = config_msg.config
+    bridge = cfg.get("bridge", "swain")
+    session_id = cfg.get("session_id", "sess-tmux")
+    project_dir = cfg.get("project_dir")
+    session_name = cfg.get("session_name")
+    runtime_cmd = cfg.get("runtime_cmd")
+
+    def emit(event: Event) -> None:
+        sys.stdout.write(encode_message(event))
+        sys.stdout.flush()
+
+    adapter = TmuxPaneAdapter(
+        bridge=bridge,
+        session_id=session_id,
+        project_dir=project_dir,
+        on_event=emit,
+    )
+
+    await adapter.start(
+        runtime_cmd=runtime_cmd,
+        session_name=session_name,
+    )
+
+    while True:
+        line = await loop.run_in_executor(None, sys.stdin.readline)
+        if not line:
+            log.info("stdin closed")
+            break
+        msg = decode_message(line)
+        if isinstance(msg, Command):
+            await adapter.send_command(msg)
+        elif msg is not None:
+            log.warning("Unexpected message type: %s", type(msg).__name__)
+
+    await adapter.stop()
+
+
+def main() -> None:
+    asyncio.run(_amain())
+
+
+if __name__ == "__main__":
+    main()

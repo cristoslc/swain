@@ -1,8 +1,11 @@
 """Zulip chat adapter plugin.
 
 Maps protocol events to Zulip messages and Zulip messages to protocol
-commands. Uses Zulip streams as project rooms and topics as session threads.
+commands. Per ADR-046, each project bridge has its own chat adapter
+subprocess subscribed to a single stream. Topics within the stream map
+to worktrees: "trunk" for trunk, branch name for worktrees.
 """
+
 from __future__ import annotations
 
 import json
@@ -24,12 +27,12 @@ def format_event_for_zulip(
     """Convert a protocol Event into a Zulip message dict (topic + content).
 
     Returns {"topic": ..., "content": ...} ready for the Zulip send_message API.
+    Topic naming per ADR-046:
+    - Trunk session → topic "trunk"
+    - Worktree session → topic = branch name
+    - No host-scope routing (host commands handled by project bridge directly)
     """
     topic = event.session_id or control_topic
-
-    # Host-scope events go to the control topic
-    if event.bridge == "__host__":
-        topic = control_topic
 
     content = _render_event_content(event, operator_email=operator_email)
     return {"topic": topic, "content": content}
@@ -128,32 +131,42 @@ def parse_zulip_message(
 ) -> Command | None:
     """Convert a Zulip message into a protocol Command.
 
-    Slash commands (/approve, /deny, /cancel, /work, /kill) are parsed.
-    Plain text in a session topic becomes a send_prompt.
+    Per ADR-046 topic routing:
+    - Control topic → control_message for the project bridge
+    - Topic "trunk" → send_prompt with session_id="trunk"
+    - Topic matching worktree branch → send_prompt with session_id=topic
+    - Slash commands are parsed as before
+
+    No host-scope command handling — host commands are handled by the
+    project bridge directly.
     """
     content = msg.get("content", "").strip()
     topic = msg.get("subject", "")
 
-    # Slash commands
     if content.startswith("/"):
-        return _parse_slash_command(content, topic=topic, bridge=bridge,
-                                    control_topic=control_topic)
+        return _parse_slash_command(
+            content, topic=topic, bridge=bridge, control_topic=control_topic
+        )
 
-    # Plain text in control topic → control_message for bridge triage
     if topic == control_topic:
         return Command.control_message(bridge=bridge, text=content)
 
-    # Plain text in a session topic → send_prompt to that session
     if topic:
         return Command.send_prompt(
-            bridge=bridge, session_id=topic, text=content,
+            bridge=bridge,
+            session_id=topic,
+            text=content,
         )
 
     return None
 
 
 def _parse_slash_command(
-    content: str, *, topic: str, bridge: str, control_topic: str,
+    content: str,
+    *,
+    topic: str,
+    bridge: str,
+    control_topic: str,
 ) -> Command | None:
     """Parse a slash command from a Zulip message."""
     parts = content.split(maxsplit=2)
@@ -162,14 +175,18 @@ def _parse_slash_command(
 
     if cmd_name == "/approve" and args:
         return Command.approve(
-            bridge=bridge, session_id=topic,
-            call_id=args[0], approved=True,
+            bridge=bridge,
+            session_id=topic,
+            call_id=args[0],
+            approved=True,
         )
 
     if cmd_name == "/deny" and args:
         return Command.approve(
-            bridge=bridge, session_id=topic,
-            call_id=args[0], approved=False,
+            bridge=bridge,
+            session_id=topic,
+            call_id=args[0],
+            approved=False,
         )
 
     if cmd_name == "/cancel":
@@ -190,8 +207,8 @@ def _parse_slash_command(
 class ZulipChatAdapter:
     """Zulip chat adapter — posts events as messages, reads operator messages.
 
-    Uses the zulip Python SDK. One instance per security domain, shared
-    across all project bridges via the host bridge.
+    Per ADR-046, one instance per project bridge, subscribed to a single
+    Zulip stream. Topics map to worktree sessions.
     """
 
     def __init__(
@@ -217,17 +234,19 @@ class ZulipChatAdapter:
             control_topic=self.control_topic,
         )
         if self.client:
-            self.client.send_message({
-                "type": "stream",
-                "to": stream or self.stream_name,
-                "topic": msg["topic"],
-                "content": msg["content"],
-            })
+            self.client.send_message(
+                {
+                    "type": "stream",
+                    "to": stream or self.stream_name,
+                    "topic": msg["topic"],
+                    "content": msg["content"],
+                }
+            )
 
     def start_listening(self, *, bridge: str) -> None:
         """No-op stub — polling is owned by main._poll_zulip_events.
 
-        The host bridge's async event loop handles Zulip event queue
+        The project bridge's async event loop handles Zulip event queue
         registration and long-polling via run_in_executor. This method
         exists to satisfy the plugin interface contract.
         """

@@ -68,7 +68,7 @@ def _make_poll_client(messages: list[dict]) -> MagicMock:
     client = MagicMock()
     client.email = "bot@zulip.com"
 
-    def call_on_each_message(callback):
+    def call_on_each_message(callback, **kwargs):
         for msg in messages:
             callback(msg)
         raise asyncio.CancelledError()
@@ -77,7 +77,9 @@ def _make_poll_client(messages: list[dict]) -> MagicMock:
     return client
 
 
-_STREAM_MAP = {"swain": "swain"}
+_STREAM_MAP = "swain"
+_STREAM_NAME = "swain"
+_BRIDGE = "swain"
 
 
 # ---------------------------------------------------------------------------
@@ -199,7 +201,7 @@ class TestControlOriginRelayEvents:
             # Run _relay_events — it will read one event then exit on empty line
             await _relay_events(
                 client,
-                {"swain": "swain"},
+                _STREAM_NAME,
                 "op@example.com",
                 "control",
                 registry,
@@ -230,7 +232,7 @@ class TestControlOriginRelayEvents:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
                 client,
-                {"swain": "swain"},
+                "swain",
                 None,
                 "control",
                 registry,
@@ -255,7 +257,7 @@ class TestControlOriginRelayEvents:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
                 client,
-                {"swain": "swain"},
+                "swain",
                 None,
                 "control",
                 registry,
@@ -291,7 +293,7 @@ class TestSessionPromotedRelay:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
                 client,
-                {"swain": "swain"},
+                "swain",
                 "op@example.com",
                 "control",
                 registry,
@@ -334,7 +336,7 @@ class TestSessionPromotedRelay:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
                 client,
-                {"swain": "swain"},
+                "swain",
                 None,
                 "control",
                 registry,
@@ -523,7 +525,7 @@ class TestZulipPollControlRouting:
 
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(
-                client, _STREAM_MAP, "control", received.append, registry, loop
+                client, _STREAM_MAP, "control", received.append, registry, loop, "swain"
             )
 
         assert len(received) == 1
@@ -538,7 +540,7 @@ class TestZulipPollControlRouting:
 
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(
-                client, _STREAM_MAP, "control", received.append, registry, loop
+                client, _STREAM_MAP, "control", received.append, registry, loop, "swain"
             )
 
         assert len(received) == 1
@@ -555,7 +557,7 @@ class TestZulipPollControlRouting:
 
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(
-                client, _STREAM_MAP, "control", received.append, registry, loop
+                client, _STREAM_MAP, "control", received.append, registry, loop, "swain"
             )
 
         assert len(received) == 1
@@ -640,7 +642,7 @@ class TestZulipCloudMessageFormat:
 
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(
-                client, _STREAM_MAP, "control", received.append, registry, loop
+                client, _STREAM_MAP, "control", received.append, registry, loop, "swain"
             )
 
         assert len(received) == 1
@@ -716,7 +718,7 @@ class TestFullRoundTripMockLlm:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
                 client,
-                {"swain": "swain"},
+                "swain",
                 None,
                 "control",
                 registry,
