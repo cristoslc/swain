@@ -1,0 +1,344 @@
+#!/usr/bin/env bash
+# swain-helm — CLI for the untethered operator bridge (SPEC-319)
+#
+# Manages the watchdog daemon, project bridges, and provisioning.
+#
+# Usage:
+#   swain-helm host up [--foreground]
+#   swain-helm host down [--project NAME]
+#   swain-helm host status
+#   swain-helm host provision
+#   swain-helm project add <path>
+#   swain-helm project remove --project NAME
+#   swain-helm project list
+
+set -euo pipefail
+
+CONFIG_DIR="${HOME}/.config/swain-helm"
+PROJECTS_DIR="${CONFIG_DIR}/projects"
+RUN_DIR="${CONFIG_DIR}/run"
+BRIDGES_DIR="${RUN_DIR}/bridges"
+WATCHDOG_PID_FILE="${RUN_DIR}/watchdog.pid"
+LOG_FILE="/tmp/swain-helm.log"
+OPENCODE_PORT=4096
+
+ensure_dirs() {
+  mkdir -p "$PROJECTS_DIR" "$BRIDGES_DIR"
+}
+
+usage() {
+  cat <<EOF
+swain-helm — manage the untethered operator bridge
+
+Usage:
+  swain-helm host up [--foreground]       Start watchdog (daemon or foreground)
+  swain-helm host down [--project NAME]   Stop watchdog and all bridges, or one bridge
+  swain-helm host status                 Show watchdog PID, bridge PIDs, opencode health
+  swain-helm host provision              Run Zulip provisioning, write helm.config.json
+
+  swain-helm project add <path>          Add a project (reject if no .git/)
+  swain-helm project remove --project NAME   Remove project config
+  swain-helm project list                 List all registered projects with status
+
+Options:
+  --foreground   Run watchdog in foreground instead of daemon
+  --project NAME Target a specific project by name
+  --help, -h     Show this help message
+EOF
+  exit 0
+}
+
+is_pid_running() {
+  local pid="$1"
+  [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null
+}
+
+read_pid_file() {
+  local pid_file="$1"
+  if [[ -f "$pid_file" ]]; then
+    cat "$pid_file"
+  fi
+}
+
+cmd_host_up() {
+  local foreground=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --foreground) foreground=true; shift ;;
+      *) echo "Unknown option: $1" >&2; exit 1 ;;
+    esac
+  done
+
+  ensure_dirs
+
+  local existing_pid
+  existing_pid=$(read_pid_file "$WATCHDOG_PID_FILE")
+  if is_pid_running "$existing_pid"; then
+    echo "Watchdog already running (PID $existing_pid)."
+    exit 0
+  fi
+
+  REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+  if [[ "$foreground" == "true" ]]; then
+    echo "Starting watchdog in foreground..."
+    cd "$REPO_ROOT"
+    uv run python -m swain_helm.watchdog
+  else
+    echo "Starting watchdog daemon..."
+    cd "$REPO_ROOT"
+    nohup uv run python -m swain_helm.watchdog --daemon >> "$LOG_FILE" 2>&1 &
+    local pid=$!
+    echo "$pid" > "$WATCHDOG_PID_FILE"
+    echo "Watchdog started (PID $pid)."
+    echo "Logs: $LOG_FILE"
+  fi
+}
+
+cmd_host_down() {
+  local project_name=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --project) project_name="$2"; shift 2 ;;
+      *) echo "Unknown option: $1" >&2; exit 1 ;;
+    esac
+  done
+
+  ensure_dirs
+
+  if [[ -n "$project_name" ]]; then
+    local bridge_pid_file="${BRIDGES_DIR}/${project_name}.pid"
+    local bridge_pid
+    bridge_pid=$(read_pid_file "$bridge_pid_file")
+    if is_pid_running "$bridge_pid"; then
+      kill "$bridge_pid" 2>/dev/null
+      echo "Bridge '$project_name' stopped (PID $bridge_pid)."
+    else
+      echo "Bridge '$project_name' is not running."
+    fi
+    rm -f "$bridge_pid_file"
+    exit 0
+  fi
+
+  local watchdog_pid
+  watchdog_pid=$(read_pid_file "$WATCHDOG_PID_FILE")
+  if is_pid_running "$watchdog_pid"; then
+    kill "$watchdog_pid" 2>/dev/null
+    echo "Waiting for watchdog (PID $watchdog_pid) to exit..."
+    for i in $(seq 1 30); do
+      if ! is_pid_running "$watchdog_pid"; then
+        break
+      fi
+      sleep 0.5
+    done
+    if is_pid_running "$watchdog_pid"; then
+      kill -9 "$watchdog_pid" 2>/dev/null || true
+      echo "Watchdog killed (SIGKILL)."
+    else
+      echo "Watchdog stopped."
+    fi
+  else
+    echo "Watchdog is not running."
+  fi
+
+  rm -f "$WATCHDOG_PID_FILE"
+
+  for pid_file in "$BRIDGES_DIR"/*.pid; do
+    [[ -f "$pid_file" ]] || continue
+    local bpid
+    bpid=$(cat "$pid_file")
+    if is_pid_running "$bpid"; then
+      kill "$bpid" 2>/dev/null || true
+      echo "Bridge (PID $bpid) stopped."
+    fi
+    rm -f "$pid_file"
+  done
+
+  echo "All bridges stopped."
+}
+
+cmd_host_status() {
+  ensure_dirs
+
+  echo "swain-helm status:"
+  echo ""
+
+  local watchdog_pid
+  watchdog_pid=$(read_pid_file "$WATCHDOG_PID_FILE")
+  if is_pid_running "$watchdog_pid"; then
+    echo "  watchdog: running (PID $watchdog_pid)"
+  else
+    echo "  watchdog: not running"
+  fi
+
+  echo ""
+  echo "  bridges:"
+  local found_bridge=false
+  for pid_file in "$BRIDGES_DIR"/*.pid; do
+    [[ -f "$pid_file" ]] || continue
+    found_bridge=true
+    local bname
+    bname=$(basename "$pid_file" .pid)
+    local bpid
+    bpid=$(cat "$pid_file")
+    if is_pid_running "$bpid"; then
+      echo "    $bname: running (PID $bpid)"
+    else
+      echo "    $bname: not running (stale PID $bpid)"
+    fi
+  done
+  if [[ "$found_bridge" == "false" ]]; then
+    echo "    (none)"
+  fi
+
+  echo ""
+  if curl -s "http://127.0.0.1:${OPENCODE_PORT}/global/health" 2>/dev/null | grep -q '"healthy":true'; then
+    echo "  opencode serve: healthy (port $OPENCODE_PORT)"
+  else
+    echo "  opencode serve: not reachable (port $OPENCODE_PORT)"
+  fi
+}
+
+cmd_host_provision() {
+  REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+  echo "Running Zulip provisioning..."
+  cd "$REPO_ROOT"
+  uv run python -m swain_helm.provision
+  echo "Provisioning complete. Config written to ${CONFIG_DIR}/helm.config.json"
+}
+
+cmd_project_add() {
+  local target_path="$1"
+
+  ensure_dirs
+
+  local abs_path
+  if [[ "$target_path" == "." ]]; then
+    abs_path="$(pwd)"
+  else
+    abs_path="$(cd "$target_path" 2>/dev/null && pwd)"
+    if [[ -z "$abs_path" ]]; then
+      echo "Error: path '$target_path' does not exist." >&2
+      exit 1
+    fi
+  fi
+
+  if [[ ! -d "${abs_path}/.git" ]]; then
+    echo "Error: '${abs_path}' is not a git repository (no .git/ directory)." >&2
+    exit 1
+  fi
+
+  local project_name
+  project_name=$(basename "$abs_path")
+
+  local config_file="${PROJECTS_DIR}/${project_name}.json"
+  if [[ -f "$config_file" ]]; then
+    echo "Project '$project_name' already registered."
+    exit 0
+  fi
+
+  cat > "$config_file" <<EOF
+{
+  "name": "${project_name}",
+  "path": "${abs_path}",
+  "stream": "${project_name}",
+  "runtime": "opencode",
+  "auto_start": true,
+  "worktree_poll_interval_s": 15
+}
+EOF
+
+  echo "Project '$project_name' added."
+  echo "  path: $abs_path"
+  echo "  config: $config_file"
+}
+
+cmd_project_remove() {
+  local project_name=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --project) project_name="$2"; shift 2 ;;
+      *) echo "Unknown option: $1" >&2; exit 1 ;;
+    esac
+  done
+
+  if [[ -z "$project_name" ]]; then
+    echo "Error: --project NAME is required." >&2
+    exit 1
+  fi
+
+  ensure_dirs
+
+  local config_file="${PROJECTS_DIR}/${project_name}.json"
+  if [[ ! -f "$config_file" ]]; then
+    echo "Project '$project_name' not found."
+    exit 1
+  fi
+
+  rm -f "$config_file"
+  echo "Project '$project_name' removed."
+}
+
+cmd_project_list() {
+  ensure_dirs
+
+  echo "Registered projects:"
+  echo ""
+  local found=false
+  for config_file in "$PROJECTS_DIR"/*.json; do
+    [[ -f "$config_file" ]] || continue
+    found=true
+    local pname
+    pname=$(basename "$config_file" .json)
+    local bridge_pid_file="${BRIDGES_DIR}/${pname}.pid"
+    local status="stopped"
+    local bpid
+    bpid=$(read_pid_file "$bridge_pid_file")
+    if is_pid_running "$bpid"; then
+      status="running (PID $bpid)"
+    fi
+    echo "  $pname  [$status]"
+  done
+  if [[ "$found" == "false" ]]; then
+    echo "  (none)"
+  fi
+}
+
+cmd_host() {
+  local subcmd="${1:-}"
+  shift || true
+
+  case "$subcmd" in
+    up)       cmd_host_up "$@" ;;
+    down)     cmd_host_down "$@" ;;
+    status)   cmd_host_status ;;
+    provision) cmd_host_provision ;;
+    *)        echo "Unknown host subcommand: $subcmd" >&2; exit 1 ;;
+  esac
+}
+
+cmd_project() {
+  local subcmd="${1:-}"
+  shift || true
+
+  case "$subcmd" in
+    add)    cmd_project_add "$@" ;;
+    remove) cmd_project_remove "$@" ;;
+    list)   cmd_project_list ;;
+    *)      echo "Unknown project subcommand: $subcmd" >&2; exit 1 ;;
+  esac
+}
+
+if [[ $# -eq 0 ]]; then
+  usage
+fi
+
+case "${1:-}" in
+  host)    shift; cmd_host "$@" ;;
+  project) shift; cmd_project "$@" ;;
+  --help|-h) usage ;;
+  *)       echo "Unknown command: $1" >&2; echo "Run 'swain-helm --help' for usage." >&2; exit 1 ;;
+esac
