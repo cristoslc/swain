@@ -106,13 +106,29 @@ class TestScan:
         result = scanner.scan()
         assert len(result) == 0
 
-    def test_git_failure_returns_empty(self):
+    def test_git_failure_returns_empty_on_first_call(self):
         def fail(d):
             raise RuntimeError("git not found")
 
         scanner = WorktreeScanner("/tmp/bad", run_git=fail)
         result = scanner.scan()
         assert len(result) == 0
+
+    def test_git_failure_returns_last_known_after_successful_scan(self):
+        call_count = 0
+
+        def git(d):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return SAMPLE_PORCELAIN
+            raise RuntimeError("git not found")
+
+        scanner = WorktreeScanner("/tmp/swain", run_git=git)
+        first = scanner.scan()
+        assert len(first) == 3
+        second = scanner.scan()
+        assert len(second) == 3
 
 
 class TestDiff:

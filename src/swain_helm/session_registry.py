@@ -25,7 +25,13 @@ class SessionRegistry:
 
     def __init__(self, project_dir: str):
         self.project_dir = project_dir
-        self._path = Path(project_dir) / ".swain" / "swain-helm" / REGISTRY_FILENAME
+        resolved = Path(project_dir).resolve()
+        registry_path = resolved / ".swain" / "swain-helm" / REGISTRY_FILENAME
+        if not str(registry_path).startswith(str(resolved)):
+            raise ValueError(
+                f"Registry path {registry_path} escapes project root {resolved}"
+            )
+        self._path = registry_path
         self._data: dict[str, dict[str, Any]] = {}
 
     @property
@@ -51,6 +57,7 @@ class SessionRegistry:
         tmp = self._path.with_suffix(".tmp")
         try:
             tmp.write_text(json.dumps(self._data, indent=2, sort_keys=True) + "\n")
+            tmp.chmod(0o600)
             tmp.replace(self._path)
         except OSError as exc:
             log.error("Failed to write session registry: %s", exc)

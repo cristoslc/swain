@@ -19,7 +19,6 @@ PROJECTS_DIR="${CONFIG_DIR}/projects"
 RUN_DIR="${CONFIG_DIR}/run"
 BRIDGES_DIR="${RUN_DIR}/bridges"
 WATCHDOG_PID_FILE="${RUN_DIR}/watchdog.pid"
-LOG_FILE="/tmp/swain-helm.log"
 OPENCODE_PORT=4096
 
 ensure_dirs() {
@@ -88,11 +87,11 @@ cmd_host_up() {
   else
     echo "Starting watchdog daemon..."
     cd "$REPO_ROOT"
-    nohup uv run python -m swain_helm.watchdog --daemon >> "$LOG_FILE" 2>&1 &
+    nohup uv run python -m swain_helm.watchdog --daemon >> "${RUN_DIR}/watchdog.log" 2>&1 &
     local pid=$!
     echo "$pid" > "$WATCHDOG_PID_FILE"
     echo "Watchdog started (PID $pid)."
-    echo "Logs: $LOG_FILE"
+    echo "Logs: ${RUN_DIR}/watchdog.log"
   fi
 }
 
@@ -239,16 +238,20 @@ cmd_project_add() {
     exit 0
   fi
 
-  cat > "$config_file" <<EOF
-{
-  "name": "${project_name}",
-  "path": "${abs_path}",
-  "stream": "${project_name}",
-  "runtime": "opencode",
-  "auto_start": true,
-  "worktree_poll_interval_s": 15
+  python3 -c "
+import json, sys
+data = {
+    'name': sys.argv[1],
+    'path': sys.argv[2],
+    'stream': sys.argv[1],
+    'runtime': 'opencode',
+    'auto_start': True,
+    'worktree_poll_interval_s': 15,
 }
-EOF
+with open(sys.argv[3], 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+" "$project_name" "$abs_path" "$config_file"
 
   echo "Project '$project_name' added."
   echo "  path: $abs_path"

@@ -36,7 +36,7 @@ class PluginProcess:
         *,
         plugin_type: str,
         config: dict[str, Any],
-        on_message: Callable[[Event | Command], None] | None = None,
+        on_message: Callable[[Event | Command | ConfigMessage], None] | None = None,
     ) -> None:
         self.name = name
         self.cmd = cmd
@@ -56,6 +56,7 @@ class PluginProcess:
         return self._proc is not None and self._proc.returncode is None
 
     async def start(self) -> None:
+        """Spawn the plugin subprocess, send config, and start stdout/stderr readers."""
         self._proc = await asyncio.create_subprocess_exec(
             *self.cmd,
             stdin=asyncio.subprocess.PIPE,
@@ -74,15 +75,26 @@ class PluginProcess:
         )
         log.info("Plugin started: %s (pid %s)", self.name, self._proc.pid)
 
-    async def write(self, msg: Event | Command) -> None:
+    async def write(self, msg: Event | Command | ConfigMessage) -> None:
+        """Send a message to the plugin's stdin. Catches BrokenPipeError."""
         if not self._proc or not self._proc.stdin:
             log.warning("Cannot write to %s — process not running", self.name)
             return
-        assert self._proc.stdin is not None
-        self._proc.stdin.write(encode_message(msg).encode())
-        await self._proc.stdin.drain()
+        try:
+            assert self._proc.stdin is not None
+            self._proc.stdin.write(encode_message(msg).encode())
+            await self._proc.stdin.drain()
+        except BrokenPipeError:
+            log.warning(
+                "Broken pipe writing to %s — process may have exited", self.name
+            )
+        except ConnectionResetError:
+            log.warning(
+                "Connection reset writing to %s — process may have exited", self.name
+            )
 
     async def stop(self, timeout: float = 5.0) -> None:
+        """Cancel readers, terminate the subprocess, and wait for exit."""
         for task in (self._reader_task, self._stderr_task):
             if task:
                 task.cancel()
@@ -103,6 +115,11 @@ class PluginProcess:
             log.info("Plugin stopped: %s", self.name)
 
     async def _read_stdout(self) -> None:
+        """Read NDJSON lines from plugin stdout and dispatch to on_message callback.
+
+        Exceptions in the callback are caught and logged to prevent them from
+        killing the reader task.
+        """
         if not self._proc or not self._proc.stdout:
             return
         while True:
@@ -112,9 +129,13 @@ class PluginProcess:
                 break
             msg = decode_message(line.decode())
             if msg is not None and self.on_message:
-                self.on_message(msg)
+                try:
+                    self.on_message(msg)
+                except Exception:
+                    log.exception("on_message callback error in %s", self.name)
 
     async def _log_stderr(self) -> None:
+        """Read stderr lines from the plugin and log them at DEBUG level."""
         if not self._proc or not self._proc.stderr:
             return
         while True:

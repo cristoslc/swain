@@ -21,14 +21,6 @@ class WorktreeInfo:
     path: str
     branch: str
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, WorktreeInfo):
-            return NotImplemented
-        return self.path == other.path and self.branch == other.branch
-
-    def __hash__(self) -> int:
-        return hash((self.path, self.branch))
-
 
 @dataclass
 class WorktreeDiff:
@@ -59,11 +51,15 @@ class WorktreeScanner:
         """Run `git worktree list --porcelain` and parse the output.
 
         Returns a set of WorktreeInfo tuples. Trunk worktrees get branch "trunk".
+        On scan failure, returns the last-known set so that diff() does not
+        produce false removals.
         """
         try:
             result = self._run_git(self.project_dir)
         except Exception:
             log.exception("git worktree list failed for %s", self.project_dir)
+            if self._last_known is not None:
+                return set(self._last_known)
             return set()
 
         worktrees: set[WorktreeInfo] = set()
@@ -85,6 +81,7 @@ class WorktreeScanner:
                 worktrees.add(WorktreeInfo(path=wt_path, branch=branch))
             else:
                 i += 1
+        self._last_known = worktrees
         return worktrees
 
     def diff(self) -> WorktreeDiff:
@@ -92,14 +89,13 @@ class WorktreeScanner:
 
         On the first call, all discovered worktrees appear as 'added'.
         """
+        previous = self._last_known
         current = self.scan()
-        if self._last_known is None:
-            self._last_known = current
+        if previous is None:
             return WorktreeDiff(added=list(current))
 
-        added = current - self._last_known
-        removed = self._last_known - current
-        self._last_known = current
+        added = current - previous
+        removed = previous - current
         return WorktreeDiff(added=list(added), removed=list(removed))
 
     async def start_polling(

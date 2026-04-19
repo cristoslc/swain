@@ -481,6 +481,7 @@ class ConfigMessage:
 
 
 def encode_message(msg: Event | Command | ConfigMessage) -> str:
+    """Serialize a protocol message to a single NDJSON line (with trailing newline)."""
     if isinstance(msg, ConfigMessage):
         data = {
             "type": msg.type,
@@ -499,6 +500,10 @@ def encode_message(msg: Event | Command | ConfigMessage) -> str:
 
 
 def decode_message(line: str) -> Event | Command | ConfigMessage | None:
+    """Parse a single NDJSON line into an Event, Command, or ConfigMessage.
+
+    Returns None for malformed input or lines with no recognized type.
+    """
     line = line.strip()
     try:
         data = json.loads(line)

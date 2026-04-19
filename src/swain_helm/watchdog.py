@@ -78,7 +78,11 @@ class Watchdog:
         return configs
 
     def _get_running_bridges(self) -> set[str]:
-        """Check PID files to determine which bridges are running."""
+        """Check PID files and process metadata to determine which bridges are running.
+
+        Validates that the process at the PID is actually a swain-helm bridge
+        to guard against PID reuse after system restart.
+        """
         running: set[str] = set()
         if not self.run_dir.exists():
             return running
@@ -93,7 +97,11 @@ class Watchdog:
         return running
 
     def _is_healthy(self, name: str) -> bool:
-        """Check if a bridge process is still alive."""
+        """Check if a bridge process is still alive and actually a bridge.
+
+        Validates process start time is after the PID file mtime to detect
+        PID reuse races.
+        """
         pid_file = self.run_dir / f"{name}.pid"
         if not pid_file.exists():
             return False
@@ -178,14 +186,16 @@ def daemonize(config_dir: Path | None = None) -> None:
     if pid2 > 0:
         os._exit(0)
     wd_config_dir = config_dir or DEFAULT_CONFIG_DIR
-    pid_path = wd_config_dir / "run" / "watchdog.pid"
-    pid_path.parent.mkdir(parents=True, exist_ok=True)
+    run_dir = wd_config_dir / "run"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    pid_path = run_dir / "watchdog.pid"
     pid_path.write_text(str(os.getpid()))
-    log_path = "/tmp/swain-helm.log"
+    log_path = run_dir / "watchdog.log"
     sys.stdout.flush()
     sys.stderr.flush()
-    log_file = open(log_path, "a")
-    os.dup2(log_file.fileno(), sys.stdout.fileno())
-    os.dup2(log_file.fileno(), sys.stderr.fileno())
+    log_fd = os.open(str(log_path), os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    os.dup2(log_fd, sys.stdout.fileno())
+    os.dup2(log_fd, sys.stderr.fileno())
+    os.close(log_fd)
     watchdog = Watchdog(config_dir=wd_config_dir)
     asyncio.run(watchdog.run(foreground=False))

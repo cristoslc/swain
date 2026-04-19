@@ -158,3 +158,16 @@ class TestEntries:
         registry.read()
         registry.update_entry("trunk", opencode_session_id="s1")
         assert "trunk" in registry.entries
+
+
+class TestPathTraversal:
+    def test_accepts_normal_path(self, tmp_path):
+        reg = SessionRegistry(str(tmp_path))
+        assert reg.path.is_relative_to(tmp_path.resolve())
+
+    def test_registry_under_project_root(self, tmp_path):
+        reg = SessionRegistry(str(tmp_path))
+        expected = (
+            tmp_path.resolve() / ".swain" / "swain-helm" / "session-registry.json"
+        )
+        assert reg.path == expected

@@ -12,13 +12,14 @@ import asyncio
 import enum
 import json
 import logging
+import time
 import uuid
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from swain_helm.protocol import Event, Command
+from swain_helm.protocol import Event, Command, ConfigMessage
 from swain_helm.plugin_process import PluginProcess
-from swain_helm.worktree_scanner import WorktreeScanner, WorktreeDiff
+from swain_helm.worktree_scanner import WorktreeScanner, WorktreeDiff, WorktreeInfo
 from swain_helm.session_registry import SessionRegistry
 
 log = logging.getLogger(__name__)
@@ -41,12 +42,15 @@ class Session:
     pending_approval_call_id: str | None = None
 
 
+_RUNTIME_COMMANDS = {
+    "opencode": "swain-helm-opencode",
+    "claude": "swain-helm-claude",
+    "tmux": "swain-helm-tmux",
+}
+
+
 def _runtime_cmd(runtime: str) -> list[str]:
-    if runtime == "opencode":
-        return ["swain-helm-opencode"]
-    if runtime == "claude":
-        return ["swain-helm-claude"]
-    return ["swain-helm-tmux"]
+    return [_RUNTIME_COMMANDS.get(runtime, "swain-helm-tmux")]
 
 
 class ProjectBridge:
@@ -116,6 +120,20 @@ class ProjectBridge:
         if self._scanner:
             self._scanner.stop_background()
 
+    def _on_plugin_start_failed(self, task: asyncio.Task, session_id: str) -> None:
+        """Handle plugin start failures by logging and marking session as dead."""
+        try:
+            task.result()
+        except Exception:
+            log.exception("Plugin start failed for session %s", session_id)
+            session = self.sessions.get(session_id)
+            if session:
+                session.state = SessionState.DEAD
+            plugin = self._runtime_plugins.pop(session_id, None)
+            if plugin:
+                if self._registry and session and session.origin:
+                    self._registry.update_entry(session.origin, state="dead")
+
     # --- Worktree-driven session management ---
 
     def _on_worktree_diff(self, diff: WorktreeDiff) -> None:
@@ -141,8 +159,6 @@ class ProjectBridge:
                 )
 
     def _ensure_session_for_worktree(self, wt: Any) -> None:
-        from swain_helm.worktree_scanner import WorktreeInfo
-
         if not isinstance(wt, WorktreeInfo):
             return
         if wt.branch in self._branch_to_session:
@@ -168,23 +184,22 @@ class ProjectBridge:
         )
         self._runtime_plugins[session_id] = plugin
         loop = asyncio.get_running_loop()
-        loop.create_task(plugin.start())
+        task = loop.create_task(plugin.start())
+        task.add_done_callback(
+            lambda t, sid=session_id: self._on_plugin_start_failed(t, sid)
+        )
         if self._registry and wt.branch:
-            import time as _t
-
             self._registry.update_entry(
                 wt.branch,
                 opencode_session_id=session_id,
                 state="spawning",
                 topic=wt.branch,
                 worktree_path=worktree_path or "",
-                started_at=_t.time(),
+                started_at=time.time(),
                 artifact=None,
             )
 
     def _remove_session_for_worktree(self, wt: Any) -> None:
-        from swain_helm.worktree_scanner import WorktreeInfo
-
         if not isinstance(wt, WorktreeInfo):
             return
         session_id = self._branch_to_session.pop(wt.branch, None)
@@ -199,13 +214,24 @@ class ProjectBridge:
 
     # --- Routing ---
 
-    def _on_chat_message(self, msg: Event | Command) -> None:
+    def _on_chat_message(self, msg: Event | Command | ConfigMessage) -> None:
+        if isinstance(msg, ConfigMessage):
+            log.debug("Chat plugin sent ConfigMessage — ignoring")
+            return
         if not isinstance(msg, Command):
             log.warning("Chat plugin sent an Event — unexpected: %s", msg.type)
             return
         self.handle_command(msg)
 
-    def _on_runtime_message(self, session_id: str, msg: Event | Command) -> None:
+    def _on_runtime_message(
+        self, session_id: str, msg: Event | Command | ConfigMessage
+    ) -> None:
+        if isinstance(msg, ConfigMessage):
+            log.debug(
+                "Runtime plugin sent ConfigMessage — ignoring for session %s",
+                session_id,
+            )
+            return
         if not isinstance(msg, Event):
             log.warning("Runtime plugin sent a Command — unexpected: %s", msg.type)
             return
@@ -226,24 +252,39 @@ class ProjectBridge:
         session = self.sessions.get(event.session_id or "")
         if event.type == "session_spawned" and session:
             session.state = SessionState.ACTIVE
+            self._persist_session_state(session)
         elif event.type == "session_died" and session:
             session.state = SessionState.DEAD
+            self._persist_session_state(session)
         elif event.type == "approval_needed" and session:
             session.state = SessionState.WAITING_APPROVAL
             session.pending_approval_call_id = event.payload.get("call_id")
+            self._persist_session_state(session)
         elif event.type == "tool_result" and session:
             if session.state == SessionState.WAITING_APPROVAL:
                 session.state = SessionState.ACTIVE
                 session.pending_approval_call_id = None
+                self._persist_session_state(session)
         if session and session.origin:
             event.payload["origin"] = session.origin
         if self.on_event:
             self.on_event(event)
 
+    def _persist_session_state(self, session: Session) -> None:
+        """Persist session state changes to the registry."""
+        if self._registry and session.origin:
+            self._registry.update_entry(
+                session.origin,
+                opencode_session_id=session.session_id,
+                state=session.state.value,
+            )
+
     def get_session(self, session_id: str) -> Session | None:
+        """Look up a session by ID."""
         return self.sessions.get(session_id)
 
     def active_sessions(self) -> list[Session]:
+        """Return all sessions currently in ACTIVE state."""
         return [s for s in self.sessions.values() if s.state == SessionState.ACTIVE]
 
     # --- Command handlers ---
@@ -273,7 +314,10 @@ class ProjectBridge:
         self._runtime_plugins[session_id] = plugin
 
         loop = asyncio.get_running_loop()
-        loop.create_task(plugin.start())
+        task = loop.create_task(plugin.start())
+        task.add_done_callback(
+            lambda t, sid=session_id: self._on_plugin_start_failed(t, sid)
+        )
 
     def _cmd_send_prompt(self, cmd: Command) -> None:
         session = self.sessions.get(cmd.session_id or "")

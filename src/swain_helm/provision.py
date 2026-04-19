@@ -93,7 +93,7 @@ def provision(
         "chat": {
             "server_url": zulip_site,
             "bot_email": zulip_email,
-            "bot_api_key": zulip_api_key,
+            "bot_api_key": f"op://Private/{zulip_email}/api_key",
             "operator_email": operator_email,
             "control_topic": "control",
         },
