@@ -18,6 +18,8 @@ from typing import Any, Callable
 
 from swain_helm.protocol import Event, Command
 from swain_helm.plugin_process import PluginProcess
+from swain_helm.worktree_scanner import WorktreeScanner, WorktreeDiff
+from swain_helm.session_registry import SessionRegistry
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +64,8 @@ class ProjectBridge:
         project_dir: str | None = None,
         config: dict[str, Any] | None = None,
         on_event: Callable[[Event], None] | None = None,
+        scanner: WorktreeScanner | None = None,
+        registry: SessionRegistry | None = None,
     ):
         self.project = project
         self.project_dir = project_dir
@@ -70,8 +74,17 @@ class ProjectBridge:
         self.sessions: dict[str, Session] = {}
         self._chat_plugin: PluginProcess | None = None
         self._runtime_plugins: dict[str, PluginProcess] = {}
+        self._scanner = scanner
+        self._registry = registry
+        self._branch_to_session: dict[str, str] = {}
 
     async def start(self) -> None:
+        if self._registry:
+            self._registry.read()
+        if self._scanner:
+            poll_s = self.config.get("worktree_poll_interval_s", 15.0)
+            self._scanner.poll_interval_s = poll_s
+            self._scanner.start_background(self._on_worktree_diff)
         chat_cfg = self.config.get("chat", {})
         stream = self.config.get("stream", self.project)
         self._chat_plugin = PluginProcess(
@@ -100,6 +113,89 @@ class ProjectBridge:
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
         self._runtime_plugins.clear()
+        if self._scanner:
+            self._scanner.stop_background()
+
+    # --- Worktree-driven session management ---
+
+    def _on_worktree_diff(self, diff: WorktreeDiff) -> None:
+        for wt in diff.added:
+            self._ensure_session_for_worktree(wt)
+            if self.on_event and wt.branch:
+                self.on_event(
+                    Event.worktree_added(
+                        bridge=self.project,
+                        worktree_path=wt.path,
+                        branch_name=wt.branch,
+                    )
+                )
+        for wt in diff.removed:
+            self._remove_session_for_worktree(wt)
+            if self.on_event and wt.branch:
+                self.on_event(
+                    Event.worktree_removed(
+                        bridge=self.project,
+                        worktree_path=wt.path,
+                        branch_name=wt.branch,
+                    )
+                )
+
+    def _ensure_session_for_worktree(self, wt: Any) -> None:
+        from swain_helm.worktree_scanner import WorktreeInfo
+
+        if not isinstance(wt, WorktreeInfo):
+            return
+        if wt.branch in self._branch_to_session:
+            return
+        runtime = self.config.get("default_runtime", "opencode")
+        worktree_path = wt.path
+        opencode_config = self.config.get("opencode", {})
+        session_id = f"sess-{uuid.uuid4().hex[:8]}"
+        session = Session(session_id=session_id, runtime=runtime, origin=wt.branch)
+        self.sessions[session_id] = session
+        self._branch_to_session[wt.branch] = session_id
+        plugin = PluginProcess(
+            name=f"runtime:{session_id}",
+            cmd=_runtime_cmd(runtime),
+            plugin_type="runtime",
+            config={
+                "bridge": self.project,
+                "session_id": session_id,
+                "project_dir": worktree_path or "",
+                "base_url": opencode_config.get("base_url", "http://127.0.0.1:4096"),
+            },
+            on_message=lambda msg, sid=session_id: self._on_runtime_message(sid, msg),
+        )
+        self._runtime_plugins[session_id] = plugin
+        loop = asyncio.get_running_loop()
+        loop.create_task(plugin.start())
+        if self._registry and wt.branch:
+            import time as _t
+
+            self._registry.update_entry(
+                wt.branch,
+                opencode_session_id=session_id,
+                state="spawning",
+                topic=wt.branch,
+                worktree_path=worktree_path or "",
+                started_at=_t.time(),
+                artifact=None,
+            )
+
+    def _remove_session_for_worktree(self, wt: Any) -> None:
+        from swain_helm.worktree_scanner import WorktreeInfo
+
+        if not isinstance(wt, WorktreeInfo):
+            return
+        session_id = self._branch_to_session.pop(wt.branch, None)
+        if not session_id or session_id not in self.sessions:
+            return
+        self.sessions[session_id].state = SessionState.DEAD
+        plugin = self._runtime_plugins.pop(session_id, None)
+        if plugin:
+            asyncio.get_running_loop().create_task(plugin.stop())
+        if self._registry and wt.branch:
+            self._registry.update_entry(wt.branch, state="dead")
 
     # --- Routing ---
 
