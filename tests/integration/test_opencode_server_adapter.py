@@ -29,7 +29,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from untethered.protocol import Event, Command
+from swain_helm.protocol import Event, Command
 
 
 # ---------------------------------------------------------------------------
@@ -131,7 +131,7 @@ class TestServerLifecycle:
     """OpenCodeServerAdapter manages the opencode serve process."""
 
     async def test_adapter_connects_to_server(self, mock_server):
-        from untethered.adapters.opencode_server import OpenCodeServerAdapter
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
 
         url, port = mock_server
         events: list[Event] = []
@@ -146,7 +146,7 @@ class TestServerLifecycle:
         assert healthy
 
     async def test_adapter_creates_session_on_first_message(self, mock_server):
-        from untethered.adapters.opencode_server import OpenCodeServerAdapter
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
 
         url, port = mock_server
         events: list[Event] = []
@@ -173,7 +173,7 @@ class TestMessageSending:
     """Messages are sent via HTTP and responses emitted as events."""
 
     async def test_send_prompt_returns_text_output(self, mock_server):
-        from untethered.adapters.opencode_server import OpenCodeServerAdapter
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
 
         url, port = mock_server
         events: list[Event] = []
@@ -193,7 +193,7 @@ class TestMessageSending:
         assert "Mock response to: what specs?" in text_events[0].payload["content"]
 
     async def test_send_prompt_emits_session_spawned_first(self, mock_server):
-        from untethered.adapters.opencode_server import OpenCodeServerAdapter
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
 
         url, port = mock_server
         events: list[Event] = []
@@ -219,7 +219,7 @@ class TestSessionPersistence:
     """Same session reused across multiple messages."""
 
     async def test_second_message_reuses_session(self, mock_server):
-        from untethered.adapters.opencode_server import OpenCodeServerAdapter
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
 
         url, port = mock_server
         events: list[Event] = []
@@ -242,7 +242,7 @@ class TestSessionPersistence:
         assert first_session == second_session
 
     async def test_multiple_messages_all_get_responses(self, mock_server):
-        from untethered.adapters.opencode_server import OpenCodeServerAdapter
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
 
         url, port = mock_server
         events: list[Event] = []

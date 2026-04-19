@@ -13,12 +13,19 @@ import logging
 import os
 import socket
 import subprocess
+import sys
 from typing import Any, Callable
 from urllib.request import urlopen, Request
 from urllib.error import URLError
 
 
-from untethered.protocol import Event, Command
+from swain_helm.protocol import (
+    Event,
+    Command,
+    ConfigMessage,
+    decode_message,
+    encode_message,
+)
 
 log = logging.getLogger(__name__)
 
@@ -272,3 +279,71 @@ class OpenCodeServerAdapter:
         except (URLError, json.JSONDecodeError, OSError) as exc:
             log.debug("POST %s failed: %s", path, exc)
             return None
+
+
+# ---------------------------------------------------------------------------
+# Subprocess entry point (ADR-038)
+# ---------------------------------------------------------------------------
+
+
+async def _amain() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s %(message)s",
+        stream=sys.stderr,
+    )
+    loop = asyncio.get_running_loop()
+
+    config_line = await loop.run_in_executor(None, sys.stdin.readline)
+    config_msg = decode_message(config_line)
+    if not isinstance(config_msg, ConfigMessage):
+        log.error("Expected ConfigMessage on stdin line 0, got: %r", config_line[:100])
+        sys.exit(1)
+
+    cfg = config_msg.config
+    bridge = cfg.get("bridge", "swain")
+    session_id = cfg.get("session_id", "sess-opencode")
+    base_url = cfg.get("base_url", "http://127.0.0.1:4097")
+    worktree_path = cfg.get("worktree_path") or cfg.get("project_dir") or os.getcwd()
+
+    def emit(event: Event) -> None:
+        sys.stdout.write(encode_message(event))
+        sys.stdout.flush()
+
+    adapter = OpenCodeServerAdapter(
+        bridge=bridge,
+        session_id=session_id,
+        base_url=base_url,
+        on_event=emit,
+    )
+
+    spawned = cfg.get("spawn_server", False)
+    if spawned:
+        if not await adapter.spawn_server(worktree_path):
+            log.error("Failed to start opencode server")
+            return
+    else:
+        if not await adapter.wait_for_health(timeout=cfg.get("health_timeout", 30.0)):
+            log.error("OpenCode server not healthy at %s", base_url)
+            return
+
+    while True:
+        line = await loop.run_in_executor(None, sys.stdin.readline)
+        if not line:
+            log.info("stdin closed")
+            break
+        msg = decode_message(line)
+        if isinstance(msg, Command):
+            await adapter.send_command(msg)
+        elif msg is not None:
+            log.warning("Unexpected message type: %s", type(msg).__name__)
+
+    await adapter.stop()
+
+
+def main() -> None:
+    asyncio.run(_amain())
+
+
+if __name__ == "__main__":
+    main()

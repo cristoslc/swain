@@ -1,22 +1,20 @@
 """Zulip chat adapter plugin — subprocess entry point.
 
-Spawned by the host kernel (ADR-038). Communicates via NDJSON over stdio:
-  stdin line 0 : ConfigMessage from kernel (Zulip credentials + routing maps)
+Spawned per project bridge (ADR-046). Communicates via NDJSON over stdio:
+  stdin line 0 : ConfigMessage from kernel (Zulip credentials + stream name)
   stdin lines 1+: Events from kernel to post to Zulip
   stdout lines  : Commands to kernel from operator Zulip messages
   stderr        : logs (never mixed into stdout protocol stream)
 
-Thread ownership
-----------------
-Each session gets its own Zulip topic (thread). The SessionTopicRegistry
-owns the assignment:
-  - Prefer the artifact name as topic if the topic is not already occupied
-    by another active session.
-  - Fall back to session_id if the artifact topic is occupied or absent.
-  - On session_spawned: create the topic (first post), announce in control.
-  - On session_died: post closure to session topic + control, release slot.
-  - On operator messages: resolve topic → session_id so the kernel routes
-    to the right project bridge session.
+Per ADR-046, each project bridge gets its own Zulip chat adapter subprocess
+that subscribes to ONLY its project's stream via narrow filter. Topics within
+the stream map to worktrees: "trunk" for trunk, branch name for worktrees.
+
+Topic routing
+-------------
+  - Topic "trunk" → session_id "trunk" (the trunk workspace)
+  - Topic matching branch name → session_id = branch name (worktree)
+  - Control topic → control_message for the project bridge
 """
 
 from __future__ import annotations
@@ -28,16 +26,16 @@ from typing import Any, Callable
 
 import zulip
 
-from untethered.protocol import (
+from swain_helm.protocol import (
     Event,
     Command,
     ConfigMessage,
     decode_message,
     encode_message,
 )
-from untethered.adapters.zulip_chat import format_event_for_zulip, parse_zulip_message
+from swain_helm.adapters.zulip_chat import format_event_for_zulip, parse_zulip_message
 
-log = logging.getLogger("untethered.plugins.zulip_chat")
+log = logging.getLogger("swain_helm.plugins.zulip_chat")
 
 
 # ---------------------------------------------------------------------------
@@ -110,22 +108,25 @@ def _emit(cmd: Command) -> None:
 
 async def _poll_zulip(
     client: zulip.Client,
-    stream_to_project: dict[str, str],
+    stream_name: str,
     control_topic: str,
     emit: Callable[[Command], None],
     registry: SessionTopicRegistry,
     loop: asyncio.AbstractEventLoop,
+    bridge: str,
 ) -> None:
-    """Poll Zulip for operator messages using the SDK's call_on_each_message.
+    """Poll Zulip for operator messages with a narrow stream filter.
+
+    Per ADR-046: the adapter subscribes to only its project's stream via
+    a narrow filter. This means we never receive messages from other
+    project streams. Topics within the stream map to worktree sessions.
 
     Runs the blocking SDK poll in a thread. The SDK handles registration,
     heartbeats, re-registration on BAD_EVENT_QUEUE_ID, and error backoff.
-
-    Messages are filtered so only streams matching configured projects are processed.
-    This prevents worktree bridges from processing messages intended for trunk.
     """
 
     seen_ids: set[int] = set()
+    narrow = [["stream", stream_name]]
 
     def _on_message(message: dict) -> None:
         """Called by the SDK for each incoming message (in a worker thread)."""
@@ -134,31 +135,20 @@ async def _poll_zulip(
             return
         if msg_id is not None:
             seen_ids.add(msg_id)
-            # Keep the set bounded
             if len(seen_ids) > 1000:
                 seen_ids.clear()
 
         if message.get("sender_email") == client.email:
             return
 
-        stream_name = message.get("display_recipient", "")
-
-        # Filter: only process messages from streams matching configured projects.
-        # This prevents worktree bridges from processing trunk messages (and vice versa).
-        if stream_name not in stream_to_project:
-            log.debug("Ignoring message from unconfigured stream: %s", stream_name)
-            return
-
-        bridge = stream_to_project[stream_name]
         cmd = parse_zulip_message(
             message,
-            bridge=bridge or "",
+            bridge=bridge,
             control_topic=control_topic,
         )
         if not cmd:
             return
 
-        # Resolve Zulip topic → session_id.
         if cmd.session_id and cmd.session_id != control_topic:
             resolved = registry.session_for_topic(cmd.session_id)
             if resolved:
@@ -167,10 +157,15 @@ async def _poll_zulip(
         log.info("Zulip message → %s (bridge=%s)", cmd.type, cmd.bridge)
         emit(cmd)
 
-    log.info("Starting Zulip message poll...")
+    log.info(
+        "Starting Zulip message poll (stream=%s, narrow=%s)...", stream_name, narrow
+    )
     await loop.run_in_executor(
         None,
-        lambda: client.call_on_each_message(_on_message),
+        lambda: client.call_on_each_message(
+            _on_message,
+            narrow=narrow,
+        ),
     )
 
 
@@ -299,7 +294,7 @@ class TextBatcher:
 
 async def _relay_events(
     client: zulip.Client,
-    project_to_stream: dict[str, str],
+    stream_name: str,
     operator_email: str | None,
     control_topic: str,
     registry: SessionTopicRegistry,
@@ -334,7 +329,7 @@ async def _relay_events(
         if not isinstance(msg, Event):
             continue
 
-        stream = project_to_stream.get(msg.bridge or "", msg.bridge or "")
+        stream = stream_name
         session_id = msg.session_id or ""
         origin = msg.payload.get("origin")
 
@@ -464,22 +459,27 @@ async def _amain() -> None:
         site=cfg["server_url"],
     )
 
+    stream_name = cfg.get("stream_name", "")
+    control_topic = cfg.get("control_topic", "control")
+    bridge = cfg.get("bridge", "")
+
     registry = SessionTopicRegistry()
 
     await asyncio.gather(
         _poll_zulip(
             client,
-            cfg.get("stream_to_project", {}),
-            cfg.get("control_topic", "control"),
+            stream_name,
+            control_topic,
             _emit,
             registry,
             loop,
+            bridge,
         ),
         _relay_events(
             client,
-            cfg.get("project_to_stream", {}),
+            stream_name,
             cfg.get("operator_email"),
-            cfg.get("control_topic", "control"),
+            control_topic,
             registry,
             loop,
         ),

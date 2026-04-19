@@ -2,7 +2,7 @@
 import json
 import time
 
-from untethered.protocol import (
+from swain_helm.protocol import (
     Event,
     Command,
     ConfigMessage,

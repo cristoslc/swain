@@ -2,8 +2,8 @@
 import json
 import asyncio
 
-from untethered.protocol import Event, Command
-from untethered.adapters.claude_code import (
+from swain_helm.protocol import Event, Command
+from swain_helm.adapters.claude_code import (
     parse_claude_stream_event,
     format_command_for_claude,
     ClaudeCodeAdapter,

@@ -17,6 +17,7 @@ Scenarios covered:
     - All components import and instantiate without error
     - The event loop runs a minimal polling cycle without crashing
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -24,17 +25,21 @@ from unittest.mock import AsyncMock, MagicMock, patch, call
 
 import pytest
 
-from untethered.protocol import Event, Command
-from untethered.bridges.project import ProjectBridge
-from untethered.adapters.zulip_chat import ZulipChatAdapter
-from untethered.plugins.zulip_chat import _poll_zulip, SessionTopicRegistry
+from swain_helm.protocol import Event, Command
+from swain_helm.bridges.project import ProjectBridge, SessionState
+from swain_helm.adapters.zulip_chat import ZulipChatAdapter
+from swain_helm.plugins.zulip_chat import _poll_zulip, SessionTopicRegistry
+from swain_helm.plugin_process import PluginProcess
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_zulip_msg(content: str, stream: str = "swain", topic: str = "sess-abc") -> dict:
+
+def _make_zulip_msg(
+    content: str, stream: str = "swain", topic: str = "sess-abc"
+) -> dict:
     return {
         "type": "stream",
         "sender_email": "operator@example.com",
@@ -49,7 +54,7 @@ def _make_poll_client(messages: list[dict]) -> MagicMock:
     client = MagicMock()
     client.email = "bot@zulip.com"
 
-    def call_on_each_message(callback):
+    def call_on_each_message(callback, **kwargs):
         for msg in messages:
             callback(msg)
         raise asyncio.CancelledError()
@@ -58,12 +63,13 @@ def _make_poll_client(messages: list[dict]) -> MagicMock:
     return client
 
 
-_STREAM_MAP = {"swain": "swain"}
+_STREAM_MAP = "swain"
 
 
 # ---------------------------------------------------------------------------
 # Scenario: Zulip message routes to the correct project bridge
 # ---------------------------------------------------------------------------
+
 
 class TestZulipMessageRouting:
     """_poll_zulip emits the correct Command for each Zulip message type."""
@@ -73,7 +79,15 @@ class TestZulipMessageRouting:
         client = _make_poll_client([_make_zulip_msg("fix the tests")])
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
+            await _poll_zulip(
+                client,
+                _STREAM_MAP,
+                "control",
+                received.append,
+                SessionTopicRegistry(),
+                loop,
+                "swain",
+            )
 
         assert len(received) == 1
         assert received[0].type == "send_prompt"
@@ -82,12 +96,22 @@ class TestZulipMessageRouting:
 
     async def test_approve_slash_command(self):
         received: list[Command] = []
-        client = _make_poll_client([
-            _make_zulip_msg("/approve call-123", topic="sess-abc"),
-        ])
+        client = _make_poll_client(
+            [
+                _make_zulip_msg("/approve call-123", topic="sess-abc"),
+            ]
+        )
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
+            await _poll_zulip(
+                client,
+                _STREAM_MAP,
+                "control",
+                received.append,
+                SessionTopicRegistry(),
+                loop,
+                "swain",
+            )
 
         assert len(received) == 1
         assert received[0].type == "approve"
@@ -101,7 +125,15 @@ class TestZulipMessageRouting:
         client = _make_poll_client([bot_msg])
         loop = asyncio.get_running_loop()
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, SessionTopicRegistry(), loop)
+            await _poll_zulip(
+                client,
+                _STREAM_MAP,
+                "control",
+                received.append,
+                SessionTopicRegistry(),
+                loop,
+                "swain",
+            )
 
         assert len(received) == 0
 
@@ -109,6 +141,7 @@ class TestZulipMessageRouting:
 # ---------------------------------------------------------------------------
 # Scenario: Blocking SDK call runs in executor
 # ---------------------------------------------------------------------------
+
 
 class TestZulipBlockingCallsAreOffloaded:
     """call_on_each_message runs in a thread executor, not on the event loop."""
@@ -125,16 +158,25 @@ class TestZulipBlockingCallsAreOffloaded:
         client = MagicMock()
         client.email = "bot@zulip.com"
 
-        def call_on_each_message(callback):
+        def call_on_each_message(callback, **kwargs):
             loop.call_soon_threadsafe(barrier.set)
             executor_ran.set()
             import time
+
             time.sleep(0.02)
 
         client.call_on_each_message.side_effect = call_on_each_message
 
         poll_task = asyncio.create_task(
-            _poll_zulip(client, {}, "control", lambda _cmd: None, SessionTopicRegistry(), loop)
+            _poll_zulip(
+                client,
+                "swain",
+                "control",
+                lambda _cmd: None,
+                SessionTopicRegistry(),
+                loop,
+                "swain",
+            )
         )
 
         await asyncio.wait_for(barrier.wait(), timeout=2.0)
@@ -149,112 +191,70 @@ class TestZulipBlockingCallsAreOffloaded:
 # Scenario: Claude Code adapter wiring
 # ---------------------------------------------------------------------------
 
+
 class TestAdapterWiring:
-    """ProjectBridge spawns and controls ClaudeCodeAdapter instances."""
+    """ProjectBridge spawns runtime adapters as PluginProcess subprocesses."""
 
-    async def test_start_session_spawns_adapter(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
-            mock_instance = AsyncMock()
-            MockAdapter.return_value = mock_instance
-
+    async def test_start_session_creates_runtime_plugin(self):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
             bridge = ProjectBridge(project="swain", project_dir="/tmp/swain")
-            cmd = Command.start_session(bridge="swain", runtime="claude", prompt="hello")
+            cmd = Command.start_session(
+                bridge="swain", runtime="claude", prompt="hello"
+            )
             bridge.handle_command(cmd)
-
-            # Drain the scheduled task
             await asyncio.sleep(0)
 
-            MockAdapter.assert_called_once()
-            init_kwargs = MockAdapter.call_args.kwargs
-            assert init_kwargs["bridge"] == "swain"
-            assert init_kwargs["project_dir"] == "/tmp/swain"
-            mock_instance.start.assert_awaited_once()
-            start_kwargs = mock_instance.start.call_args.kwargs
-            assert "runtime_cmd" in start_kwargs
-            assert "session_name" in start_kwargs
+            assert len(bridge._runtime_plugins) == 1
+            plugin = list(bridge._runtime_plugins.values())[0]
+            assert plugin.name.startswith("runtime:")
 
-    async def test_send_prompt_forwards_to_adapter(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
-            mock_instance = AsyncMock()
-            MockAdapter.return_value = mock_instance
-
-            bridge = ProjectBridge(project="swain")
-            bridge.handle_command(
-                Command.start_session(bridge="swain", runtime="claude")
-            )
-            await asyncio.sleep(0)
-
-            sess_id = list(bridge.sessions.keys())[0]
-            bridge.handle_command(
-                Command.send_prompt(bridge="swain", session_id=sess_id, text="keep going")
-            )
-            await asyncio.sleep(0)
-
-            assert mock_instance.send_command.await_count == 1
-            sent_cmd = mock_instance.send_command.await_args[0][0]
-            assert sent_cmd.type == "send_prompt"
-            assert sent_cmd.payload["text"] == "keep going"
-
-    async def test_approve_forwards_to_adapter(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
-            mock_instance = AsyncMock()
-            MockAdapter.return_value = mock_instance
-
-            bridge = ProjectBridge(project="swain")
-            bridge.handle_command(
-                Command.start_session(bridge="swain", runtime="claude")
-            )
-            await asyncio.sleep(0)
-
-            sess_id = list(bridge.sessions.keys())[0]
-            # Put session in WAITING_APPROVAL state
-            bridge.handle_runtime_event(
-                Event.session_spawned(bridge="swain", session_id=sess_id, runtime="claude")
-            )
-            bridge.handle_runtime_event(
-                Event.approval_needed(
-                    bridge="swain", session_id=sess_id,
-                    tool_name="Bash", description="rm -rf /tmp/foo", call_id="c1",
+    async def test_send_prompt_forwards_to_runtime_plugin(self):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            with patch.object(
+                PluginProcess, "write", new_callable=AsyncMock
+            ) as mock_write:
+                bridge = ProjectBridge(project="swain")
+                bridge.handle_command(
+                    Command.start_session(bridge="swain", runtime="claude")
                 )
-            )
+                await asyncio.sleep(0)
 
-            bridge.handle_command(
-                Command.approve(bridge="swain", session_id=sess_id, call_id="c1", approved=True)
-            )
-            await asyncio.sleep(0)
+                sess_id = list(bridge.sessions.keys())[0]
+                bridge.handle_command(
+                    Command.send_prompt(
+                        bridge="swain", session_id=sess_id, text="keep going"
+                    )
+                )
+                await asyncio.sleep(0)
 
-            assert mock_instance.send_command.await_count == 1
-            sent_cmd = mock_instance.send_command.await_args[0][0]
-            assert sent_cmd.type == "approve"
-            assert sent_cmd.payload["approved"] is True
+                assert mock_write.await_count >= 1
 
-    async def test_cancel_stops_adapter(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
-            mock_instance = AsyncMock()
-            MockAdapter.return_value = mock_instance
+    async def test_cancel_stops_runtime_plugin(self):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            with patch.object(PluginProcess, "stop", new_callable=AsyncMock):
+                bridge = ProjectBridge(project="swain")
+                bridge.handle_command(
+                    Command.start_session(bridge="swain", runtime="claude")
+                )
+                await asyncio.sleep(0)
 
-            bridge = ProjectBridge(project="swain")
-            bridge.handle_command(
-                Command.start_session(bridge="swain", runtime="claude")
-            )
-            await asyncio.sleep(0)
+                sess_id = list(bridge.sessions.keys())[0]
+                bridge.handle_command(
+                    Command.cancel(bridge="swain", session_id=sess_id)
+                )
+                await asyncio.sleep(0)
 
-            sess_id = list(bridge.sessions.keys())[0]
-            bridge.handle_command(
-                Command.cancel(bridge="swain", session_id=sess_id)
-            )
-            await asyncio.sleep(0)
-
-            mock_instance.stop.assert_awaited_once()
-            # Adapter removed from registry after cancel
-            assert sess_id not in bridge._adapters
+                assert bridge.sessions[sess_id].state == SessionState.DEAD
 
     async def test_send_prompt_to_unknown_session_logs_warning(self, caplog):
         import logging
+
         bridge = ProjectBridge(project="swain")
-        with caplog.at_level(logging.WARNING, logger="untethered.bridges.project"):
+        with caplog.at_level(logging.WARNING, logger="swain_helm.bridges.project"):
             bridge.handle_command(
-                Command.send_prompt(bridge="swain", session_id="nonexistent", text="hello")
+                Command.send_prompt(
+                    bridge="swain", session_id="nonexistent", text="hello"
+                )
             )
         assert "unknown session" in caplog.text.lower()
 
@@ -263,24 +263,26 @@ class TestAdapterWiring:
 # Smoke test — all components start without error
 # ---------------------------------------------------------------------------
 
+
 class TestSmoke:
     """Minimal wiring test — nothing crashes on import or instantiation."""
 
     def test_kernel_imports(self):
-        from untethered.kernel import HostKernel, PluginProcess
-        from untethered.plugins.zulip_chat import _poll_zulip, _relay_events
-        from untethered.plugins.project_bridge import _amain
+        from swain_helm.plugin_process import PluginProcess
+        from swain_helm.bridges.project import ProjectBridge
+        from swain_helm.plugins.zulip_chat import _poll_zulip, _relay_events
 
     def test_kernel_instantiates(self):
-        from untethered.kernel import HostKernel
-        kernel = HostKernel()
-        assert kernel._chat_plugin is None
-        assert kernel._project_plugins == {}
+        from swain_helm.plugin_process import PluginProcess
+
+        p = PluginProcess(name="test", cmd=["echo"], plugin_type="test", config={})
+        assert p.name == "test"
 
     def test_project_bridge_library_still_works(self):
         """ProjectBridge is still usable as a library (used by project_bridge plugin)."""
-        from untethered.bridges.project import ProjectBridge
-        from untethered.protocol import Event
+        from swain_helm.bridges.project import ProjectBridge
+        from swain_helm.protocol import Event
+
         delivered = []
         bridge = ProjectBridge(project="swain", on_event=delivered.append)
         event = Event.text_output(bridge="swain", session_id="s1", content="hello")
@@ -289,7 +291,8 @@ class TestSmoke:
 
     def test_protocol_encode_decode_roundtrip(self):
         """ConfigMessage roundtrips correctly (used by kernel → plugin handshake)."""
-        from untethered.protocol import ConfigMessage, encode_message, decode_message
+        from swain_helm.protocol import ConfigMessage, encode_message, decode_message
+
         cfg = ConfigMessage(plugin_type="chat", config={"bot_email": "x@y.com"})
         line = encode_message(cfg)
         restored = decode_message(line)

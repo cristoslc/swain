@@ -20,6 +20,7 @@ Scenarios covered:
     - _poll_zulip + _emit in a subprocess writes commands to stdout
     - Kernel reads them via PluginProcess._read_stdout
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -28,16 +29,20 @@ import sys
 
 import pytest
 
-from untethered.protocol import (
-    Event, Command, ConfigMessage,
-    encode_message, decode_message,
+from swain_helm.protocol import (
+    Event,
+    Command,
+    ConfigMessage,
+    encode_message,
+    decode_message,
 )
-from untethered.kernel import PluginProcess
+from swain_helm.plugin_process import PluginProcess
 
 
 # ---------------------------------------------------------------------------
 # Scenario: PluginProcess starts, receives config, reads/writes NDJSON
 # ---------------------------------------------------------------------------
+
 
 class TestPluginProcessPlumbing:
     """PluginProcess correctly wires stdin/stdout/stderr pipes."""
@@ -93,7 +98,7 @@ class TestPluginProcessPlumbing:
         script = (
             "import sys, json\n"
             "config = sys.stdin.readline()\n"  # line 0: config
-            "line = sys.stdin.readline()\n"     # line 1: command from kernel
+            "line = sys.stdin.readline()\n"  # line 1: command from kernel
             "if line:\n"
             "    data = json.loads(line)\n"
             "    # Echo the command type back as an event\n"
@@ -162,6 +167,10 @@ class TestPluginProcessPlumbing:
 # Scenario: Real project bridge subprocess
 # ---------------------------------------------------------------------------
 
+
+@pytest.mark.skip(
+    reason="project_bridge plugin removed per ADR-046; ProjectBridge is now instantiated by watchdog"
+)
 class TestProjectBridgeSubprocess:
     """Spawn the actual project bridge plugin and verify NDJSON flow."""
 
@@ -171,7 +180,7 @@ class TestProjectBridgeSubprocess:
 
         plugin = PluginProcess(
             name="project:test",
-            cmd=[sys.executable, "-m", "untethered.plugins.project_bridge"],
+            cmd=[sys.executable, "-m", "swain_helm.plugins.project_bridge"],
             plugin_type="project",
             config={"project": "test-project", "project_dir": "/tmp"},
             on_message=received.append,
@@ -198,7 +207,7 @@ class TestProjectBridgeSubprocess:
 
         plugin = PluginProcess(
             name="project:test",
-            cmd=[sys.executable, "-m", "untethered.plugins.project_bridge"],
+            cmd=[sys.executable, "-m", "swain_helm.plugins.project_bridge"],
             plugin_type="project",
             config={"project": "test-project", "project_dir": "/tmp"},
             on_message=received.append,
@@ -224,6 +233,7 @@ class TestProjectBridgeSubprocess:
 # Scenario: Chat plugin poll → _emit → stdout pipe
 # ---------------------------------------------------------------------------
 
+
 class TestChatPluginPollEmit:
     """Verify _poll_zulip + _emit writes commands through a real stdout pipe.
 
@@ -240,11 +250,11 @@ class TestChatPluginPollEmit:
         # - Creates a mock Zulip client with one message event
         # - Runs _poll_zulip with _emit writing to real stdout
         # - The parent reads the Command from the pipe
-        script = '''
+        script = """
 import asyncio, sys
 from unittest.mock import MagicMock
 
-from untethered.plugins.zulip_chat import _poll_zulip, _emit, SessionTopicRegistry
+from swain_helm.plugins.zulip_chat import _poll_zulip, _emit, SessionTopicRegistry
 
 def make_client():
     client = MagicMock()
@@ -256,7 +266,7 @@ def make_client():
         "subject": "control",
         "content": "what specs are ready?",
     }
-    def call_on_each_message(callback):
+    def call_on_each_message(callback, **kwargs):
         callback(msg)
         sys.exit(0)
     client.call_on_each_message.side_effect = call_on_each_message
@@ -268,13 +278,13 @@ async def main():
     registry = SessionTopicRegistry()
     try:
         await _poll_zulip(
-            client, {"swain": "swain"}, "control", _emit, registry, loop,
+            client, "swain", "control", _emit, registry, loop, "swain",
         )
     except SystemExit:
         pass
 
 asyncio.run(main())
-'''
+"""
 
         plugin = PluginProcess(
             name="test-chat-poll",
@@ -297,7 +307,9 @@ asyncio.run(main())
 
         # The poll should have parsed the operator message and emitted
         # a control_message command via _emit (stdout)
-        assert len(received) >= 1, f"Expected command on stdout, got {len(received)} messages"
+        assert len(received) >= 1, (
+            f"Expected command on stdout, got {len(received)} messages"
+        )
         cmd = received[0]
         assert cmd.type == "control_message"
         assert cmd.payload["text"] == "what specs are ready?"
