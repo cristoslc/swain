@@ -6,6 +6,10 @@ import subprocess
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_OPENCODE_PORT = 4096
+DEFAULT_WORKTREE_POLL_INTERVAL_S = 15.0
+DEFAULT_OPENCODE_BASE_URL = f"http://127.0.0.1:{DEFAULT_OPENCODE_PORT}"
+
 HELM_REQUIRED_KEYS = {"scan_paths", "chat", "opencode"}
 PROJECT_REQUIRED_KEYS = {
     "name",

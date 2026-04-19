@@ -287,58 +287,35 @@ class OpenCodeServerAdapter:
 
 
 async def _amain() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(name)s %(levelname)s %(message)s",
-        stream=sys.stderr,
-    )
-    loop = asyncio.get_running_loop()
+    from swain_helm.adapters import run_adapter
 
-    config_line = await loop.run_in_executor(None, sys.stdin.readline)
-    config_msg = decode_message(config_line)
-    if not isinstance(config_msg, ConfigMessage):
-        log.error("Expected ConfigMessage on stdin line 0, got: %r", config_line[:100])
-        sys.exit(1)
+    def factory(config_msg: ConfigMessage, emit: Callable[[Event], None]) -> Any:
+        cfg = config_msg.config
+        return OpenCodeServerAdapter(
+            bridge=cfg.get("bridge", "swain"),
+            session_id=cfg.get("session_id", "sess-opencode"),
+            base_url=cfg.get("base_url", "http://127.0.0.1:4097"),
+            on_event=emit,
+        )
 
-    cfg = config_msg.config
-    bridge = cfg.get("bridge", "swain")
-    session_id = cfg.get("session_id", "sess-opencode")
-    base_url = cfg.get("base_url", "http://127.0.0.1:4097")
-    worktree_path = cfg.get("worktree_path") or cfg.get("project_dir") or os.getcwd()
+    async def setup(adapter: Any, config_msg: ConfigMessage) -> None:
+        cfg = config_msg.config
+        worktree_path = (
+            cfg.get("worktree_path") or cfg.get("project_dir") or os.getcwd()
+        )
+        spawned = cfg.get("spawn_server", False)
+        if spawned:
+            if not await adapter.spawn_server(worktree_path):
+                log.error("Failed to start opencode server")
+                sys.exit(1)
+        else:
+            if not await adapter.wait_for_health(
+                timeout=cfg.get("health_timeout", 30.0)
+            ):
+                log.error("OpenCode server not healthy at %s", adapter.base_url)
+                sys.exit(1)
 
-    def emit(event: Event) -> None:
-        sys.stdout.write(encode_message(event))
-        sys.stdout.flush()
-
-    adapter = OpenCodeServerAdapter(
-        bridge=bridge,
-        session_id=session_id,
-        base_url=base_url,
-        on_event=emit,
-    )
-
-    spawned = cfg.get("spawn_server", False)
-    if spawned:
-        if not await adapter.spawn_server(worktree_path):
-            log.error("Failed to start opencode server")
-            return
-    else:
-        if not await adapter.wait_for_health(timeout=cfg.get("health_timeout", 30.0)):
-            log.error("OpenCode server not healthy at %s", base_url)
-            return
-
-    while True:
-        line = await loop.run_in_executor(None, sys.stdin.readline)
-        if not line:
-            log.info("stdin closed")
-            break
-        msg = decode_message(line)
-        if isinstance(msg, Command):
-            await adapter.send_command(msg)
-        elif msg is not None:
-            log.warning("Unexpected message type: %s", type(msg).__name__)
-
-    await adapter.stop()
+    await run_adapter(factory, setup=setup)
 
 
 def main() -> None:

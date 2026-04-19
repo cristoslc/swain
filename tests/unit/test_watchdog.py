@@ -28,9 +28,9 @@ def _write_project_config(
     (projects_dir / f"{name}.json").write_text(json.dumps(cfg))
 
 
-def _write_pid_file(run_dir: Path, name: str, pid: int) -> None:
+def _write_pid_file(run_dir: Path, name: str, pid: int, start_ts: float = 0.0) -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
-    (run_dir / f"{name}.pid").write_text(str(pid))
+    (run_dir / f"{name}.pid").write_text(f"{pid}\n{start_ts}\n")
 
 
 class TestAC1ReadsProjectConfigs:
@@ -79,11 +79,12 @@ class TestAC2StartsAutoStartBridges:
         mock_proc = MagicMock()
         mock_proc.pid = 42
         with patch("swain_helm.watchdog.subprocess.Popen", return_value=mock_proc):
-            await watchdog._reconcile()
+            with patch("swain_helm.watchdog._process_start_time", return_value=None):
+                await watchdog._reconcile()
         assert "myproj" in watchdog._running
         pid_file = config_dir / "run" / "bridges" / "myproj.pid"
         assert pid_file.exists()
-        assert pid_file.read_text() == "42"
+        assert pid_file.read_text().strip().startswith("42")
 
     @pytest.mark.asyncio
     async def test_does_not_restart_running_bridge(
@@ -92,9 +93,10 @@ class TestAC2StartsAutoStartBridges:
         _write_project_config(config_dir / "projects", "myproj")
         _write_pid_file(config_dir / "run" / "bridges", "myproj", 99)
         with patch("swain_helm.watchdog.os.kill") as mock_kill:
-            with patch("swain_helm.watchdog.subprocess.Popen") as mock_popen:
-                await watchdog._reconcile()
-                mock_popen.assert_not_called()
+            with patch("swain_helm.watchdog._process_start_time", return_value=0.0):
+                with patch("swain_helm.watchdog.subprocess.Popen") as mock_popen:
+                    await watchdog._reconcile()
+                    mock_popen.assert_not_called()
 
 
 class TestAC3HealthCheckRestart:
@@ -112,9 +114,12 @@ class TestAC3HealthCheckRestart:
             "swain_helm.watchdog.os.kill", side_effect=ProcessLookupError
         ) as mock_kill:
             with patch("swain_helm.watchdog.subprocess.Popen", return_value=mock_proc):
-                await watchdog._reconcile()
+                with patch(
+                    "swain_helm.watchdog._process_start_time", return_value=None
+                ):
+                    await watchdog._reconcile()
         pid_file = config_dir / "run" / "bridges" / "myproj.pid"
-        assert pid_file.read_text() == "100"
+        assert pid_file.read_text().strip().startswith("100")
 
 
 class TestAC4ConfigRemovedStopsBridge:
@@ -129,7 +134,8 @@ class TestAC4ConfigRemovedStopsBridge:
         watchdog._running["orphan"] = mock_proc
         _write_pid_file(config_dir / "run" / "bridges", "orphan", 50)
         with patch("swain_helm.watchdog.os.kill"):
-            await watchdog._reconcile()
+            with patch("swain_helm.watchdog._process_start_time", return_value=0.0):
+                await watchdog._reconcile()
         assert "orphan" not in watchdog._running
         mock_proc.terminate.assert_called_once()
         assert not (config_dir / "run" / "bridges" / "orphan.pid").exists()
@@ -146,10 +152,11 @@ class TestAC5PidFilesAtCorrectPath:
         mock_proc = MagicMock()
         mock_proc.pid = 1234
         with patch("swain_helm.watchdog.subprocess.Popen", return_value=mock_proc):
-            await watchdog._start_bridge("alpha", {"auto_start": True})
+            with patch("swain_helm.watchdog._process_start_time", return_value=None):
+                await watchdog._start_bridge("alpha", {"auto_start": True})
         expected = config_dir / "run" / "bridges" / "alpha.pid"
         assert expected.exists()
-        assert expected.read_text() == "1234"
+        assert expected.read_text().strip().startswith("1234")
 
     @pytest.mark.asyncio
     async def test_pid_file_removed_on_stop(
@@ -169,10 +176,11 @@ class TestAC6DaemonModeWritesWatchdogPid:
         self, watchdog: Watchdog, config_dir: Path
     ) -> None:
         with patch("swain_helm.watchdog.os.getpid", return_value=9999):
-            watchdog._write_watchdog_pid()
+            with patch("swain_helm.watchdog._process_start_time", return_value=1000.0):
+                watchdog._write_watchdog_pid()
         pid_path = config_dir / "run" / "watchdog.pid"
         assert pid_path.exists()
-        assert pid_path.read_text() == "9999"
+        assert pid_path.read_text().strip().startswith("9999")
 
 
 class TestAC7GracefulShutdown:
@@ -189,7 +197,7 @@ class TestAC7GracefulShutdown:
         _write_pid_file(config_dir / "run" / "bridges", "beta", 20)
         watchdog_pid = config_dir / "run" / "watchdog.pid"
         watchdog_pid.parent.mkdir(parents=True, exist_ok=True)
-        watchdog_pid.write_text(str(1))
+        watchdog_pid.write_text("1\n0.0\n")
         await watchdog._shutdown()
         proc_a.terminate.assert_called_once()
         proc_b.terminate.assert_called_once()

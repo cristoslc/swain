@@ -21,6 +21,10 @@ from swain_helm.protocol import Event, Command, ConfigMessage
 from swain_helm.plugin_process import PluginProcess
 from swain_helm.worktree_scanner import WorktreeScanner, WorktreeDiff, WorktreeInfo
 from swain_helm.session_registry import SessionRegistry
+from swain_helm.config import (
+    DEFAULT_OPENCODE_BASE_URL,
+    DEFAULT_WORKTREE_POLL_INTERVAL_S,
+)
 
 log = logging.getLogger(__name__)
 
@@ -86,7 +90,9 @@ class ProjectBridge:
         if self._registry:
             self._registry.read()
         if self._scanner:
-            poll_s = self.config.get("worktree_poll_interval_s", 15.0)
+            poll_s = self.config.get(
+                "worktree_poll_interval_s", DEFAULT_WORKTREE_POLL_INTERVAL_S
+            )
             self._scanner.poll_interval_s = poll_s
             self._scanner.start_background(self._on_worktree_diff)
         chat_cfg = self.config.get("chat", {})
@@ -178,7 +184,7 @@ class ProjectBridge:
                 "bridge": self.project,
                 "session_id": session_id,
                 "project_dir": worktree_path or "",
-                "base_url": opencode_config.get("base_url", "http://127.0.0.1:4096"),
+                "base_url": opencode_config.get("base_url", DEFAULT_OPENCODE_BASE_URL),
             },
             on_message=lambda msg, sid=session_id: self._on_runtime_message(sid, msg),
         )
@@ -289,6 +295,13 @@ class ProjectBridge:
 
     # --- Command handlers ---
 
+    def _lookup_session(self, cmd: Command) -> Session | None:
+        """Look up a session from a command. Logs and returns None if not found."""
+        session = self.sessions.get(cmd.session_id or "")
+        if not session:
+            log.warning("%s for unknown session: %s", cmd.type, cmd.session_id)
+        return session
+
     def _cmd_start_session(self, cmd: Command) -> None:
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
         runtime = cmd.payload.get("runtime", "claude")
@@ -307,7 +320,7 @@ class ProjectBridge:
                 "bridge": self.project,
                 "session_id": session_id,
                 "project_dir": worktree_path or "",
-                "base_url": opencode_config.get("base_url", "http://127.0.0.1:4096"),
+                "base_url": opencode_config.get("base_url", DEFAULT_OPENCODE_BASE_URL),
             },
             on_message=lambda msg, sid=session_id: self._on_runtime_message(sid, msg),
         )
@@ -320,9 +333,8 @@ class ProjectBridge:
         )
 
     def _cmd_send_prompt(self, cmd: Command) -> None:
-        session = self.sessions.get(cmd.session_id or "")
+        session = self._lookup_session(cmd)
         if not session:
-            log.warning("send_prompt for unknown session: %s", cmd.session_id)
             return
         plugin = self._runtime_plugins.get(session.session_id)
         if plugin:
@@ -331,9 +343,8 @@ class ProjectBridge:
             log.warning("No runtime plugin for session: %s", session.session_id)
 
     def _cmd_approve(self, cmd: Command) -> None:
-        session = self.sessions.get(cmd.session_id or "")
+        session = self._lookup_session(cmd)
         if not session:
-            log.warning("approve for unknown session: %s", cmd.session_id)
             return
         if session.state == SessionState.WAITING_APPROVAL:
             session.state = SessionState.ACTIVE
@@ -343,9 +354,8 @@ class ProjectBridge:
             asyncio.get_running_loop().create_task(plugin.write(cmd))
 
     def _cmd_cancel(self, cmd: Command) -> None:
-        session = self.sessions.get(cmd.session_id or "")
+        session = self._lookup_session(cmd)
         if not session:
-            log.warning("cancel for unknown session: %s", cmd.session_id)
             return
         session.state = SessionState.DEAD
         plugin = self._runtime_plugins.pop(session.session_id, None)
@@ -370,8 +380,7 @@ class ProjectBridge:
                     return
 
     def _cmd_bind_artifact(self, cmd: Command) -> None:
-        session = self.sessions.get(cmd.session_id or "")
+        session = self._lookup_session(cmd)
         if not session:
-            log.warning("bind_artifact for unknown session: %s", cmd.session_id)
             return
         session.artifact = cmd.payload.get("artifact_id")

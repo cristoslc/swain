@@ -6,6 +6,7 @@ instance state to a JSON file for cross-restart tracking.
 """
 
 import asyncio
+import base64
 import json
 import logging
 import subprocess
@@ -15,9 +16,11 @@ from typing import Any
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 
+from swain_helm.config import DEFAULT_OPENCODE_PORT
+
 log = logging.getLogger("swain_helm.opencode_discovery")
 
-DEFAULT_PORT = 4096
+DEFAULT_PORT = DEFAULT_OPENCODE_PORT
 OPENCODE_CONFIG_PATH = Path.home() / ".config" / "opencode" / "opencode.json"
 _LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
@@ -174,8 +177,6 @@ class DiscoveryScanner:
             return False
         try:
             url = f"http://127.0.0.1:{port}/global/health"
-            import base64
-
             cred_str = f"{creds['username']}:{creds['password']}"
             headers = {
                 "Authorization": f"Basic {base64.b64encode(cred_str.encode()).decode()}"

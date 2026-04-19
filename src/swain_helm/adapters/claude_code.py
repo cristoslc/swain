@@ -244,55 +244,23 @@ class ClaudeCodeAdapter:
 
 
 async def _amain() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(name)s %(levelname)s %(message)s",
-        stream=sys.stderr,
-    )
-    loop = asyncio.get_running_loop()
+    from swain_helm.adapters import run_adapter
 
-    config_line = await loop.run_in_executor(None, sys.stdin.readline)
-    config_msg = decode_message(config_line)
-    if not isinstance(config_msg, ConfigMessage):
-        log.error("Expected ConfigMessage on stdin line 0, got: %r", config_line[:100])
-        sys.exit(1)
+    def factory(config_msg: ConfigMessage, emit: Callable[[Event], None]) -> Any:
+        cfg = config_msg.config
+        return ClaudeCodeAdapter(
+            bridge=cfg.get("bridge", "swain"),
+            session_id=cfg.get("session_id", "sess-claude"),
+            allowed_tools=cfg.get("allowed_tools"),
+            project_dir=cfg.get("project_dir"),
+            on_event=emit,
+        )
 
-    cfg = config_msg.config
-    bridge = cfg.get("bridge", "swain")
-    session_id = cfg.get("session_id", "sess-claude")
-    project_dir = cfg.get("project_dir")
-    allowed_tools = cfg.get("allowed_tools")
-    prompt = cfg.get("prompt")
+    async def setup(adapter: Any, config_msg: ConfigMessage) -> None:
+        cfg = config_msg.config
+        await adapter.start(prompt=cfg.get("prompt"))
 
-    def emit(event: Event) -> None:
-        sys.stdout.write(encode_message(event))
-        sys.stdout.flush()
-
-    adapter = ClaudeCodeAdapter(
-        bridge=bridge,
-        session_id=session_id,
-        allowed_tools=allowed_tools,
-        project_dir=project_dir,
-        on_event=emit,
-    )
-
-    await adapter.start(prompt=prompt)
-
-    while True:
-        line = await loop.run_in_executor(None, sys.stdin.readline)
-        if not line:
-            log.info("stdin closed")
-            break
-        msg = decode_message(line)
-        if isinstance(msg, Command):
-            formatted = format_command_for_claude(msg)
-            if formatted and adapter._process and adapter._process.stdin:
-                adapter._process.stdin.write((formatted + "\n").encode())
-                await adapter._process.stdin.drain()
-        elif msg is not None:
-            log.warning("Unexpected message type: %s", type(msg).__name__)
-
-    await adapter.stop()
+    await run_adapter(factory, setup=setup)
 
 
 def main() -> None:

@@ -13,6 +13,8 @@ import subprocess
 from dataclasses import dataclass, field
 from typing import Any
 
+from swain_helm.config import DEFAULT_WORKTREE_POLL_INTERVAL_S
+
 log = logging.getLogger(__name__)
 
 
@@ -38,7 +40,7 @@ class WorktreeScanner:
         self,
         project_dir: str,
         *,
-        poll_interval_s: float = 15.0,
+        poll_interval_s: float = DEFAULT_WORKTREE_POLL_INTERVAL_S,
         run_git: Any = None,
     ):
         self.project_dir = project_dir

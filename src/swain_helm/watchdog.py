@@ -7,6 +7,7 @@ import os
 import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 log = logging.getLogger("swain_helm.watchdog")
@@ -88,22 +89,54 @@ class Watchdog:
             return running
         for pid_file in self.run_dir.glob("*.pid"):
             name = pid_file.stem
+            entry = _read_pid_file(pid_file)
+            if entry is None:
+                pid_file.unlink(missing_ok=True)
+                continue
+            pid, _recorded_ts = entry
             try:
-                pid = int(pid_file.read_text().strip())
                 os.kill(pid, 0)
+                actual_ts = _process_start_time(pid)
+                if (
+                    actual_ts is not None
+                    and _recorded_ts > 0
+                    and abs(actual_ts - _recorded_ts) > 1.0
+                ):
+                    log.warning(
+                        "PID %s reused (expected start=%.1f, actual=%.1f), removing stale entry for %s",
+                        pid,
+                        _recorded_ts,
+                        actual_ts,
+                        name,
+                    )
+                    pid_file.unlink(missing_ok=True)
+                    continue
                 running.add(name)
             except (ProcessLookupError, ValueError, OSError):
                 pid_file.unlink(missing_ok=True)
         return running
 
     def _is_healthy(self, name: str) -> bool:
-        """Check if a bridge process is still alive and actually a bridge.
-
-        Validates process start time is after the PID file mtime to detect
-        PID reuse races.
-        """
+        """Check if a bridge process is still alive and verify PID reuse protection."""
         pid_file = self.run_dir / f"{name}.pid"
         if not pid_file.exists():
+            return False
+        entry = _read_pid_file(pid_file)
+        if entry is None:
+            return False
+        pid, _recorded_ts = entry
+        try:
+            os.kill(pid, 0)
+            actual_ts = _process_start_time(pid)
+            if (
+                actual_ts is not None
+                and _recorded_ts > 0
+                and abs(actual_ts - _recorded_ts) > 1.0
+            ):
+                log.warning("PID %s reused for bridge %s, marking unhealthy", pid, name)
+                return False
+            return True
+        except (ProcessLookupError, ValueError, OSError):
             return False
         try:
             pid = int(pid_file.read_text().strip())
@@ -124,7 +157,8 @@ class Watchdog:
                 stderr=subprocess.PIPE,
             )
             pid_file = self.run_dir / f"{name}.pid"
-            pid_file.write_text(str(proc.pid))
+            start_time = _process_start_time(proc.pid)
+            pid_file.write_text(f"{proc.pid}\n{start_time or 0.0}\n")
             self._running[name] = proc
             log.info("Bridge %s started (pid %s)", name, proc.pid)
         except Exception as e:
@@ -152,10 +186,12 @@ class Watchdog:
             self.watchdog_pid_path.unlink()
 
     def _write_watchdog_pid(self) -> None:
-        """Write the watchdog PID file."""
+        """Write the watchdog PID file with creation timestamp."""
         self.config_dir.mkdir(parents=True, exist_ok=True)
         (self.config_dir / "run").mkdir(parents=True, exist_ok=True)
-        self.watchdog_pid_path.write_text(str(os.getpid()))
+        pid = os.getpid()
+        start_ts = _process_start_time(pid) or time.time()
+        self.watchdog_pid_path.write_text(f"{pid}\n{start_ts}\n")
 
     def _request_shutdown(self) -> None:
         """Signal handler: request graceful shutdown."""
@@ -199,3 +235,66 @@ def daemonize(config_dir: Path | None = None) -> None:
     os.close(log_fd)
     watchdog = Watchdog(config_dir=wd_config_dir)
     asyncio.run(watchdog.run(foreground=False))
+
+
+def _process_start_time(pid: int) -> float | None:
+    """Get the start time of a process as seconds since epoch.
+
+    Uses /proc on Linux, falls back to `ps` on macOS/other Unix.
+    Returns None if the PID doesn't exist or the time can't be determined.
+    """
+    try:
+        if sys.platform == "linux":
+            clk_tck = os.sysconf("SC_CLK_TCK")
+            with open(f"/proc/{pid}/stat") as f:
+                stat = f.read()
+            fields = stat.split(")")
+            starttime = float(fields[-1].split()[19]) / clk_tck
+            btime = _boot_time()
+            if btime:
+                return btime + starttime
+            return starttime
+        else:
+            result = subprocess.run(
+                ["ps", "-p", str(pid), "-o", "lstart="],
+                capture_output=True,
+                text=True,
+                timeout=2,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                import datetime
+
+                dt = datetime.datetime.strptime(
+                    result.stdout.strip(), "%a %b %d %H:%M:%S %Y"
+                )
+                return dt.timestamp()
+        return None
+    except (OSError, ValueError, IndexError, subprocess.TimeoutExpired):
+        return None
+
+
+def _boot_time() -> float | None:
+    """Get system boot time as seconds since epoch, or None if unavailable."""
+    try:
+        if sys.platform == "linux":
+            with open("/proc/stat") as f:
+                for line in f:
+                    if line.startswith("btime"):
+                        return float(line.split()[1])
+    except (OSError, ValueError):
+        pass
+    return None
+
+
+def _read_pid_file(pid_file: Path) -> tuple[int, float] | None:
+    """Read a PID file that may contain 'pid\\nstart_time' or just 'pid'.
+
+    Returns (pid, recorded_start_time) or None on error.
+    """
+    try:
+        parts = pid_file.read_text().strip().split("\n")
+        pid = int(parts[0])
+        recorded_start = float(parts[1]) if len(parts) > 1 else 0.0
+        return pid, recorded_start
+    except (ValueError, OSError):
+        return None

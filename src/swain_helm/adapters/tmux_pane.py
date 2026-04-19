@@ -275,54 +275,25 @@ class TmuxPaneAdapter:
 
 
 async def _amain() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(name)s %(levelname)s %(message)s",
-        stream=sys.stderr,
-    )
-    loop = asyncio.get_running_loop()
+    from swain_helm.adapters import run_adapter
 
-    config_line = await loop.run_in_executor(None, sys.stdin.readline)
-    config_msg = decode_message(config_line)
-    if not isinstance(config_msg, ConfigMessage):
-        log.error("Expected ConfigMessage on stdin line 0, got: %r", config_line[:100])
-        sys.exit(1)
+    def factory(config_msg: ConfigMessage, emit: Callable[[Event], None]) -> Any:
+        cfg = config_msg.config
+        return TmuxPaneAdapter(
+            bridge=cfg.get("bridge", "swain"),
+            session_id=cfg.get("session_id", "sess-tmux"),
+            project_dir=cfg.get("project_dir"),
+            on_event=emit,
+        )
 
-    cfg = config_msg.config
-    bridge = cfg.get("bridge", "swain")
-    session_id = cfg.get("session_id", "sess-tmux")
-    project_dir = cfg.get("project_dir")
-    session_name = cfg.get("session_name")
-    runtime_cmd = cfg.get("runtime_cmd")
+    async def setup(adapter: Any, config_msg: ConfigMessage) -> None:
+        cfg = config_msg.config
+        await adapter.start(
+            runtime_cmd=cfg.get("runtime_cmd"),
+            session_name=cfg.get("session_name"),
+        )
 
-    def emit(event: Event) -> None:
-        sys.stdout.write(encode_message(event))
-        sys.stdout.flush()
-
-    adapter = TmuxPaneAdapter(
-        bridge=bridge,
-        session_id=session_id,
-        project_dir=project_dir,
-        on_event=emit,
-    )
-
-    await adapter.start(
-        runtime_cmd=runtime_cmd,
-        session_name=session_name,
-    )
-
-    while True:
-        line = await loop.run_in_executor(None, sys.stdin.readline)
-        if not line:
-            log.info("stdin closed")
-            break
-        msg = decode_message(line)
-        if isinstance(msg, Command):
-            await adapter.send_command(msg)
-        elif msg is not None:
-            log.warning("Unexpected message type: %s", type(msg).__name__)
-
-    await adapter.stop()
+    await run_adapter(factory, setup=setup)
 
 
 def main() -> None:
