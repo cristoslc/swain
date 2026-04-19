@@ -2,10 +2,11 @@
 title: "Agent Runtime I/O Compatibility for Mobile Bridge"
 artifact: SPIKE-064
 track: container
-status: Proposed
+status: Abandoned
+superseded-by: SPIKE-065
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 question: "For each target agent runtime, what I/O mode (structured API, headless JSON, or terminal-only) is available, and can a chat bridge consume it to provide a mobile-native experience?"
 gate: Pre-Epic
 parent-initiative: INITIATIVE-018
@@ -129,3 +130,6 @@ Fill in this table:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-06 | -- | Created from INITIATIVE-018 discussion; operator-requested |
+| Abandoned | 2026-04-18 | — | Blank template; superseded by SPIKE-065 (Complete) |
+
+Abandoned: blank template. Superseded by SPIKE-065 (Complete) which contains the actual research findings.

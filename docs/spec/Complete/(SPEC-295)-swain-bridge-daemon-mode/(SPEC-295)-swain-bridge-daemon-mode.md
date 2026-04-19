@@ -2,15 +2,15 @@
 title: "swain-bridge Daemon Mode"
 artifact: SPEC-295
 type: enhancement
-status: Active
-phase: Implementation
-parent-initiative: INITIATIVE-006
+status: Complete
+phase: Complete
+parent-initiative: INITIATIVE-018
 linked-artifacts:
   - RUNBOOK-003
   - DESIGN-025
 author: cristos
 created: 2026-04-07
-last-updated: 2026-04-07
+last-updated: 2026-04-18
 depends-on-artifacts: []
 source-issue: ""
 ---
@@ -79,3 +79,5 @@ Current `swain-bridge` blocks the terminal (waits on child processes at line 84)
 - `--stop` cleanly terminates both processes ✅
 - Foreground mode preserved (blocking `wait`) ✅
 - Terminal free for swain work while daemon runs ✅
+
+Implementation complete. In the swain-helm architecture, daemon mode is the watchdog's responsibility (EPIC-084), not bin/swain-bridge.

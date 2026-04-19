@@ -2,10 +2,11 @@
 title: "Hub-and-Spoke Topology"
 artifact: ADR-039
 track: standing
-status: Active
+status: Superseded
+superseded-by: ADR-046
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 linked-artifacts:
   - VISION-006
   - INITIATIVE-018
@@ -62,3 +63,4 @@ The host bridge is scoped to a security domain, not a physical host. One machine
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Decided during VISION-006 brainstorming. |
+| Superseded | 2026-04-18 | -- | Superseded by ADR-046 (project-level microkernel). |

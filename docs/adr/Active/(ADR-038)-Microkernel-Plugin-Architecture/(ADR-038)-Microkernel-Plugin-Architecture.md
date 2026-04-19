@@ -5,7 +5,7 @@ track: standing
 status: Active
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 linked-artifacts:
   - VISION-006
   - INITIATIVE-018
@@ -21,10 +21,9 @@ VISION-006 needs chat adapters (Zulip, Slack, Telegram, etc.) and runtime adapte
 
 ## Decision
 
-The system uses a microkernel architecture with two plugin boundaries:
+The system uses a microkernel architecture with one plugin boundary:
 
-1. **Host bridge** is the microkernel for **chat adapter plugins.** It spawns one shared chat adapter per security domain and routes all events through it.
-2. **Project bridge** is the microkernel for **runtime adapter plugins.** It spawns one per runtime session.
+1. **Project bridge** is the microkernel for both **chat adapter plugins** and **runtime adapter plugins.** It spawns one shared chat adapter per security domain and one runtime adapter per session.
 
 Plugins are subprocess executables that speak NDJSON over stdio. The kernel spawns the plugin as a child process, passes config on the first stdin line, then streams events and commands as newline-delimited JSON. This is language-agnostic — plugins can be written in Python, Go, Rust, Node, or shell.
 
@@ -47,7 +46,7 @@ Plugin distribution is package-manager-agnostic: `brew install`, `cargo install`
 - Operators can write plugins in any language — lower barrier to community contributions.
 - We ship reference plugins (Zulip chat, Claude Code runtime) but the architecture invites extension.
 - What protocol a plugin uses internally (ACP, native CLI streaming, regex parsing) is the plugin's concern, not the kernel's. This decouples the kernel from runtime protocol evolution.
-- Plugin subprocess management adds complexity to the host bridge (process lifecycle, crash recovery, stdio buffer management).
+- Plugin subprocess management adds complexity to the project bridge (process lifecycle, crash recovery, stdio buffer management). Watchdog (ADR-047) assists with bridge-level lifecycle.
 - SHA-256 pinning means plugin updates require config changes — intentional friction for security.
 
 ## Lifecycle
@@ -55,3 +54,4 @@ Plugin distribution is package-manager-agnostic: `brew install`, `cargo install`
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Decided during VISION-006 brainstorming. Informed by agentic-runtime-chat-adapters trove. |
+| Active | 2026-04-18 | -- | Updated: project bridge now microkernel for both plugin boundaries (ADR-046). |

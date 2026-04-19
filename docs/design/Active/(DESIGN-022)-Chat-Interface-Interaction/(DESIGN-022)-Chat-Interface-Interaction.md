@@ -6,7 +6,7 @@ domain: interaction
 status: Active
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 superseded-by: ""
 linked-artifacts:
   - VISION-006
@@ -120,6 +120,10 @@ flowchart TD
 - **`@` mentions only for input.** Bot noise is high. The operator's attention is directed only when the kernel emits `approval_needed` or similar. Everything else is background.
 - **Control thread as management surface.** Separates lifecycle commands from session conversations. The operator doesn't type `/kill` in the middle of a session feed — they go to the control thread.
 
+## Topic Model Update (ADR-046)
+
+Topic model updated: topics are worktree branch names, not artifact-based. Trunk is always `trunk`. Worktree sessions get topics named after their branch. Control thread is per-project, not per-host.
+
 ## Assets
 
 _None yet. Wireframes and mockups to be added during implementation._
@@ -129,3 +133,4 @@ _None yet. Wireframes and mockups to be added during implementation._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Created from VISION-006 decomposition. Design Intent captured during brainstorming. |
+| Updated | 2026-04-18 | -- | Topic model updated: worktree branch names, per-project control thread (ADR-046). |

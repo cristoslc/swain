@@ -45,13 +45,14 @@
 | ADR-035 | Title-Based Artifact Identifiers | 2026-04-05 | — |
 | ADR-036 | Plugin-Namespaced Script Aggregation | 2026-04-06 | -- |
 | ADR-037 | Chat Platform and Deployment Model | 2026-04-06 | 0c008b41 |
-| ADR-038 | Microkernel Plugin Architecture | 2026-04-06 | -- |
-| ADR-039 | Hub-and-Spoke Topology | 2026-04-06 | -- |
+| ADR-038 | Microkernel Plugin Architecture | 2026-04-18 | -- |
 | ADR-041 | Swain runtime state in .swain/; leave .agents/ to the emerging spec | 2026-04-13 | — |
 | ADR-042 | Track runtime and peer-agent dirs instead of symlinking via hook | 2026-04-13 | — |
 | ADR-043 | Shared Ticket State Across Worktrees | 2026-04-13 | 96c36167 |
 | ADR-044 | Supported Agentic CLI Runtimes | 2026-04-13 | — |
 | ADR-045 | Chores As A Lightweight Artifact Type | 2026-04-14 | 538e563e |
+| ADR-046 | Project-Level Microkernel Topology | 2026-04-18 | -- |
+| ADR-047 | swain-helm Watchdog Architecture | 2026-04-18 | -- |
 
 ## Superseded
 
@@ -60,5 +61,6 @@
 | ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-20 | aa9ca7b |
 | ADR-017 | Supported Agentic CLI Runtimes | 2026-04-13 | — |
 | ADR-019 | Project-Root Script Convention | 2026-04-06 | -- |
+| ADR-039 | Hub-and-Spoke Topology | 2026-04-18 | -- |
 | ADR-040 | Worktree bootstrap via tracked post-checkout hook | 2026-04-13 | — |
 

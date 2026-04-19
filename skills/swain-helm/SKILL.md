@@ -1,12 +1,12 @@
 ---
 name: swain-helm
-description: "Start, stop, and monitor the untethered operator bridge (VISION-006). Routes Zulip messages to opencode serve so the operator can steer sessions from any device. Triggers on: 'helm', 'bridge', 'untethered', 'start bridge', 'stop bridge', 'helm status', 'helm logs', 'is the bridge running'."
+description: "Start, stop, and monitor the swain-helm bridge system (VISION-006). The watchdog manages project bridges that route Zulip messages to opencode serve, enabling session control from any device. Triggers on: 'helm', 'bridge', 'untethered', 'start bridge', 'stop bridge', 'helm status', 'helm logs', 'is the bridge running'."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read
 metadata:
   short-description: Untethered operator bridge management
-  version: 1.0.0
+  version: 2.0.0
   author: cristos
   source: swain
 ---
@@ -14,103 +14,129 @@ metadata:
 
 # swain-helm
 
-Manages the untethered operator bridge: starts opencode serve and the Zulip→opencode host bridge, monitors health, and tears it down cleanly.
+Manages the swain-helm bridge system: starts the watchdog daemon, registers projects, monitors health, and tears down cleanly. The watchdog is a persistent process that reconciles desired state — ensuring project bridges and opencode serve are running.
 
-## Locate the launcher
+## Locate the CLI
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-BRIDGE="$REPO_ROOT/bin/swain-bridge"
+HELM="$REPO_ROOT/bin/swain-helm"
 ```
 
-If not found at that path, glob for `**/bin/swain-bridge`.
+If not found at that path, glob for `**/bin/swain-helm`.
 
 ## Runtime files
 
 | File | Purpose |
 |------|---------|
-| `/tmp/swain-bridge.pid` | Two-line PID file: line 1 = opencode serve PID, line 2 = untethered-host PID. |
-| `/tmp/swain-bridge.log` | Combined stdout/stderr from both processes in daemon mode. |
-| `/tmp/opencode-serve.log` | opencode serve log in foreground mode (separate from bridge log). |
+| `~/.config/swain-helm/run/watchdog.pid` | Watchdog process PID. |
+| `~/.config/swain-helm/run/bridges/<name>.pid` | Per-project bridge PID. |
+| `~/.config/swain-helm/run/opencode-instances.json` | Discovered/tracked opencode serve instances. |
+| `~/.config/swain-helm/helm.config.json` | Global config (chat credentials, opencode auth). |
+| `~/.config/swain-helm/projects/<name>.json` | Per-project desired state. |
 
 ## Commands
 
-### start (default / "start bridge" / "helm up")
+### host up ("start bridge" / "helm up" / default)
 
-Start the bridge in daemon mode so it survives terminal close:
-
-```bash
-bash "$BRIDGE" --daemon
-```
-
-Output confirms PIDs, log path, and the Zulip stream to use. If the bridge is already running, `--status` will show it — do not start a second instance.
-
-### stop ("stop bridge" / "helm down" / "shut down bridge")
+Start the watchdog daemon. Resolves 1Password credentials at startup (requires biometric unlock):
 
 ```bash
-bash "$BRIDGE" --stop
+swain-helm host up
 ```
 
-Kills both the opencode serve process and the host bridge. Removes the PID file.
-
-### status ("helm status" / "is the bridge running" / "bridge health")
+Foreground mode for debugging:
 
 ```bash
-bash "$BRIDGE" --status
+swain-helm host up --foreground
 ```
 
-Reports whether opencode serve and the host bridge are running, including the HTTP health check result.
+The watchdog discovers project configs, starts bridges, and finds or starts opencode serve. If 1Password is locked, the command fails with a clear error.
+
+### host down ("stop bridge" / "helm down" / "shut down bridge")
+
+```bash
+swain-helm host down
+```
+
+Stops the watchdog and all project bridges. Use `--project <name>` to stop only one bridge:
+
+```bash
+swain-helm host down --project swain
+```
+
+### host status ("helm status" / "is the bridge running" / "bridge health")
+
+```bash
+swain-helm host status
+```
+
+Reports: watchdog PID, each bridge PID and health, opencode serve port/health/auth status.
+
+### host provision ("provision bridge" / "setup bridge")
+
+One-time setup: registers Zulip bot, creates stream, writes `helm.config.json`:
+
+```bash
+swain-helm host provision
+```
+
+### project add ("add project" / "register project")
+
+Register a project for the watchdog to manage:
+
+```bash
+swain-helm project add ./             # current directory (rejects if no .git/)
+swain-helm project add ~/code/swain    # absolute path
+```
+
+Writes `~/.config/swain-helm/projects/<name>.json`. The watchdog picks it up on the next reconciliation cycle (every 30s).
+
+### project remove ("remove project")
+
+```bash
+swain-helm project remove --project swain
+```
+
+Removes the project config. The watchdog stops the bridge on the next cycle.
+
+### project list ("list projects")
+
+```bash
+swain-helm project list
+```
+
+Shows all registered projects with their running status.
 
 ### logs ("helm logs" / "show bridge logs" / "what is the bridge doing")
 
-Tail the live log:
+Tail the watchdog log:
 
 ```bash
-tail -50 /tmp/swain-bridge.log
+tail -50 /tmp/swain-helm.log
 ```
 
-For continuous streaming, tell the operator to run `tail -f /tmp/swain-bridge.log` in their terminal — this skill does not block on streaming output.
+For continuous streaming, tell the operator to run `tail -f /tmp/swain-helm.log` in their terminal.
 
 ### restart ("restart bridge" / "helm restart")
 
 Stop then start:
 
 ```bash
-bash "$BRIDGE" --stop && bash "$BRIDGE" --daemon
+swain-helm host down && swain-helm host up
 ```
-
-### foreground ("helm foreground" / "bridge in foreground" / "interactive bridge")
-
-The default mode when no flags are given — backward compatible. Start attached to the terminal; Ctrl-C stops both processes cleanly:
-
-```bash
-bash "$BRIDGE"
-```
-
-Logs go to `/tmp/opencode-serve.log` (opencode) and stdout (bridge). Use this for debugging or first-run verification.
-
-## Options
-
-Pass through any supported flags from the operator:
-
-| Flag | Default | Purpose |
-|------|---------|---------|
-| `--domain NAME` | `personal` | Security domain for the kernel. |
-| `--port N` | `4097` | opencode serve port. |
-| `--verbose` | off | Enable debug logging in the host bridge. |
-
-Example: `helm start --domain work --port 4098`
 
 ## After starting
 
 Show the operator:
-1. Bridge status (from `--status` output).
+1. Bridge status (from `host status` output).
 2. How to attach: `opencode attach http://127.0.0.1:<PORT>`.
 3. Zulip stream to use for sending prompts.
-4. Log path for monitoring: `/tmp/swain-bridge.log`.
+4. Log path for monitoring: `/tmp/swain-helm.log`.
 
 ## Error handling
 
-- If `bin/swain-bridge` is not found, tell the operator the untethered package may not be installed and point to RUNBOOK-003.
-- If opencode serve fails the health check after start, show the last 20 lines of `/tmp/opencode-serve.log`.
+- If `bin/swain-helm` is not found, tell the operator the untethered package may not be installed and point to RUNBOOK-004.
+- If 1Password is locked at startup, report clearly: "Unlock 1Password and retry."
+- If opencode serve fails the health check, show the last 20 lines of `/tmp/opencode-serve.log`.
 - Never fail silently — always report what was attempted and what failed.

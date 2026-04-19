@@ -6,7 +6,7 @@ domain: interaction
 status: Active
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 superseded-by: ""
 linked-artifacts:
   - VISION-006
@@ -229,8 +229,19 @@ Remaining Phase B work:
 4. **`opencode serve` HTTP API for MVP**, not tmux terminal scraping. Clean programmatic access, SSE streaming, server-managed session persistence. Operator attaches via `opencode attach`.
 5. **tmux fallback** for runtimes without server mode (Claude Code). `TmuxPaneAdapter` remains available.
 
+## Architecture Note (ADR-046)
+
+In the swain-helm architecture, the `bin/swain --non-interactive` interview flow is replaced by direct opencode session management per worktree. The launcher process is no longer used. Worktree sessions are created by the ProjectBridge's worktree scanner on discovery. Control topic commands (natural language, `/work`) route to the trunk worktree session.
+
 ## Open Questions
 
 1. ~~Which outbound relay strategy?~~ **Answered:** SSE from `opencode serve` for opencode; `pipe-pane` + `tail -f` for tmux fallback.
 2. How does `approve` work? OpenCode's HTTP API may have a permission endpoint. SPIKE needed.
 3. ~~How frequently should `capture-pane` poll?~~ **Answered:** No polling needed for either strategy.
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| Active | 2026-04-06 | -- | Created from VISION-006 decomposition. |
+| Updated | 2026-04-18 | -- | swain-helm replaces launcher with direct session management via worktree scanner (ADR-046). |

@@ -6,7 +6,7 @@ status: Active
 product-type: personal
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 priority-weight: high
 linked-artifacts:
   - VISION-003
@@ -68,7 +68,7 @@ The default path uses a hosted chat platform (e.g., Zulip Cloud) — zero server
 
 ## Two Modalities
 
-**v1: Chat bridge.** Chat threads that spawn, reconnect to, and steer headless agent sessions. Room per project, thread per session, optional artifact binding. This is the highest-return unlock — it works for swain itself and every swain-governed project.
+**v1: Chat bridge.** Chat threads that spawn, reconnect to, and steer headless agent sessions. Room per project, thread per session, optional artifact binding. This is the highest-return unlock — it works for swain itself and every swain-governed project. Architecture updated: ADR-039 (hub-and-spoke) superseded by ADR-046 (project-level microkernel). Host bridge removed. Each ProjectBridge is now a self-contained microkernel. Watchdog manages process lifecycle. See ADR-046 and ADR-047 for current decisions.
 
 **v2: Web pipe.** Web content that projects produce (sites, dashboards, interactive UIs) served from project hosts via tunnel infrastructure. Links posted in chat threads. Architecturally separate from the chat bridge — this is where tunnels become necessary, since the content lives on machines behind NAT.
 
@@ -92,3 +92,4 @@ The default path uses a hosted chat platform (e.g., Zulip Cloud) — zero server
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | db33601d | Created from brainstorming. Informed by SPIKE-059, INITIATIVE-018, trove claude-code-remote-interaction, commodore-infra. |
+| Active | 2026-04-18 | -- | Architecture refactor: hub-and-spoke replaced by project-level microkernel (ADR-046, ADR-047). |

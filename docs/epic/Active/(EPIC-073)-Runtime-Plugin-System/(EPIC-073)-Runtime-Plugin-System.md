@@ -5,18 +5,18 @@ track: container
 status: Active
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 parent-vision: VISION-006
 parent-initiative: INITIATIVE-018
 priority-weight: high
 success-criteria:
   - Runtime adapter plugin contract is defined and documented (NDJSON protocol, event/command types).
-  - Reference Claude Code plugin wraps `claude --output-format stream-json` and `--input-format stream-json`.
+  - Reference Claude Code adapter as subprocess plugin. Reference OpenCode adapter as subprocess plugin sharing a global opencode serve (EPIC-085). Reference Tmux adapter as subprocess plugin. Cancel support (POST /session/{id}/abort). Approval support (POST /session/{id}/permissions/{pid}).
   - Plugin handles session start, text output, tool calls, approval forwarding, and session end.
   - At least one additional runtime plugin (OpenCode or ACP-generic) demonstrates the contract works for multiple runtimes.
 depends-on-artifacts:
   - ADR-038
-  - EPIC-071
+  - EPIC-085
 addresses: []
 evidence-pool: "agentic-runtime-chat-adapters"
 ---
@@ -25,11 +25,11 @@ evidence-pool: "agentic-runtime-chat-adapters"
 
 ## Goal / Objective
 
-Define the runtime adapter plugin contract and ship reference plugins for Claude Code and at least one other runtime. The contract is the stable interface; plugins translate between runtime-specific I/O and the kernel's published language.
+Define the runtime adapter plugin contract and ship reference plugins as subprocess executables speaking NDJSON over stdio. Runtime adapters are now true plugins (not in-process classes) per ADR-038.
 
 ## Desired Outcomes
 
-The operator can configure which runtime to use per session. The project bridge spawns the correct runtime adapter plugin, which wraps the headless CLI in tmux. Events (tool calls, text, approvals) flow through the plugin to the project bridge. Commands (prompts, approvals) flow back.
+Each session spawns a runtime adapter subprocess. The adapter translates between the runtime's native protocol and NDJSON over stdio. OpenCode, Claude Code, and Tmux adapters are reference implementations. Adapters can be written in any language.
 
 ## Scope Boundaries
 
@@ -47,7 +47,7 @@ The operator can configure which runtime to use per session. The project bridge 
 
 ## Child Specs
 
-_To be created during implementation planning._
+- SPEC-322: Project Bridge Microkernel Refactor (adapter subprocess integration)
 
 ## Key Dependencies
 
@@ -61,3 +61,4 @@ _To be created during implementation planning._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Created from VISION-006 decomposition. |
+| Active | 2026-04-18 | -- | Updated for swain-helm architecture. Added EPIC-085 dependency. |

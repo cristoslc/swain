@@ -5,7 +5,7 @@ track: implementable
 status: Active
 author: "gemma4:31b-cloud"
 created: 2026-04-07
-last-updated: 2026-04-07
+last-updated: 2026-04-18
 priority-weight: high
 type: feature
 parent-epic: EPIC-071
@@ -24,6 +24,8 @@ swain-do: required
 ## Problem Statement
 
 Control threads in Zulip streams/topics should be able to trigger worktree creation and opencode session spawning. The project bridge is a persistent daemon per project — it manages multiple worktrees and sessions, not one per worktree. The operator wants to start implementation work from a phone by messaging the control thread.
+
+NOTE (2026-04-18): Worktrees are now auto-discovered via continuous polling (SPEC-323). The `/swain-do` command still creates worktrees but the bridge detects them automatically rather than requiring manual session spawning. `/work` is superseded by the worktree scanner — any worktree with a session gets a topic automatically.
 
 ## Desired Outcomes
 
@@ -108,3 +110,4 @@ Control threads in Zulip streams/topics should be able to trigger worktree creat
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-07 | | Created from VISION-006 decomposition. Linked to EPIC-071, JOURNEY-004. |
+| Active | 2026-04-18 | -- | Auto-discovery via worktree scanner (SPEC-323) replaces manual session spawning (ADR-046). |

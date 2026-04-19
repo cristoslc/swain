@@ -6,7 +6,7 @@ domain: data
 status: Active
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 superseded-by: ""
 linked-artifacts:
   - VISION-006
@@ -149,6 +149,10 @@ flowchart LR
 | `plugin_type` | string | `"chat"` or `"runtime"`. |
 | `config` | object | Plugin-specific config (credentials, settings). |
 
+## Schema Evolution (ADR-046)
+
+ADR-046 adds `worktree_added` and `worktree_removed` event types for continuous worktree discovery. Host-scope events and commands (`host_status`, `unmanaged_session_found`/`gone`, `bridge_started`/`stopped`, `clone_project`, `init_project`, `start_bridge`, `stop_bridge`, `adopt_session`) are retained but move from the hub to the project bridge scope.
+
 ## Evolution Rules
 
 - New event/command types can be added without breaking existing plugins. Plugins must ignore unknown types (log a warning, don't crash).
@@ -186,3 +190,4 @@ _None yet. JSON Schema files to be generated during implementation._
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Created from VISION-006 decomposition. Schema sketched in architecture-overview. |
 | Updated | 2026-04-06 | c59add66 | Added `session_promoted`, `launch_session`, `control_message`. Tmux adapter wired. |
+| Updated | 2026-04-18 | -- | ADR-046 adds worktree_added and worktree_removed event types. Host-scope events/commands move from hub to project bridge scope. |

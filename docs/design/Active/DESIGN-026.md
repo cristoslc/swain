@@ -6,7 +6,7 @@ status: Active
 domain: system
 author: "gemma4:31b-cloud"
 created: 2026-04-07
-last-updated: 2026-04-12
+last-updated: 2026-04-18
 priority-weight: high
 linked-artifacts:
   - "[SPEC-298](../../spec/Active/(SPEC-298)-Control-Thread-Worktree-and-Session-Spawning/(SPEC-298)-Control-Thread-Worktree-and-Session-Spawning.md)"
@@ -65,7 +65,7 @@ This design documents the **gaps** that SPEC-298 fills — not a replacement or 
 
 The existing `sessions` dict is in-memory only. On bridge restart, all session state is lost.
 
-**Gap fix:** Persist to `<project>/.agents/session-registry.json` on every state change.
+**Gap fix:** Persist to `<project>/.swain/swain-helm/session-registry.json` on every state change.
 
 ```python
 # Existing in-memory structure (bridges/project.py)
@@ -74,7 +74,7 @@ The existing `sessions` dict is in-memory only. On bridge restart, all session s
 # Addition: disk persistence
 class SessionRegistry:
     sessions: dict[SessionId, SessionState]
-    registry_path: Path  # <project>/.agents/session-registry.json
+    registry_path: Path  # <project>/.swain/swain-helm/session-registry.json
 
     def on_state_change(self):
         self.registry_path.write_text(json.dumps(self.sessions, indent=2))
@@ -134,6 +134,8 @@ Opencode (worktree B) ──stdio──→ ProjectBridge ──NDJSON──→ H
 The project bridge emits events with `session_id`. The host bridge adds `bridge_id` (project identity). The chat adapter uses `bridge_id` → room mapping and `session_id` → topic mapping to route correctly.
 
 **Project bridge never talks to chat adapter.** The host bridge is the single routing hub.
+
+**ADR-046 update:** Session registry path updated to `<project-root>/.swain/swain-helm/session-registry.json`. Routing simplified: no hub hop (ADR-046). ProjectBridge routes directly between its chat adapter and runtime adapter subprocesses. `/swain-do` dispatch still valid.
 
 ## C4 Container Diagram
 
@@ -272,7 +274,7 @@ stateDiagram-v2
 
 ## Deployment Notes
 
-- **Session registry location:** `<project>/.agents/session-registry.json`
+- **Session registry location:** `<project>/.swain/swain-helm/session-registry.json`
 - **Worktree location:** determined by swain-do dispatch (SPEC-195)
 - **Chat adapter:** shared per domain, spawned by host bridge, not per project bridge
 - **Zulip topic lifecycle:** Topics persist after session ends (Zulip behavior). Bridge does not delete topics.
@@ -284,3 +286,4 @@ stateDiagram-v2
 |-------|------|--------|-------|
 | Active | 2026-04-07 | | Created for SPEC-298 session routing |
 | Active | 2026-04-12 | | Rewritten: correct hub-and-spoke, reflect existing codebase, /swain-do SPEC-123 syntax |
+| Active | 2026-04-18 | -- | ADR-046: registry path updated, routing simplified (no hub hop), session registry moved to .swain/swain-helm/. |

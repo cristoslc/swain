@@ -15,7 +15,6 @@
 | SPIKE-054 | Transitive Leverage Depth Decay | 2026-04-06 | Initialcreation |
 | SPIKE-060 | Cost Axis Composition Model | 2026-04-06 | Initialcreation |
 | SPIKE-063 | Reporting Format Library Design | 2026-04-06 | c213c99 |
-| SPIKE-064 | Agent Runtime I/O Compatibility for Mobile Bridge | 2026-04-06 | -- |
 
 ## Active
 
@@ -85,4 +84,10 @@
 | SPIKE-070 | Where are ADR alignment checks invoked in swain workflows? | 2026-04-13 | — |
 | SPIKE-071 | ADR-041 migration scope — what it takes to move all swain skills and scripts from .agents/ to .swain/ | 2026-04-13 | — |
 | SPIKE-072 | Pick the best main-content extractor for swain-search | 2026-04-11 | -- |
+
+## Abandoned
+
+| Artifact | Title | Last Updated | Commit |
+|----------|-------|-------------|--------|
+| SPIKE-064 | Agent Runtime I/O Compatibility for Mobile Bridge | 2026-04-18 | — |
 

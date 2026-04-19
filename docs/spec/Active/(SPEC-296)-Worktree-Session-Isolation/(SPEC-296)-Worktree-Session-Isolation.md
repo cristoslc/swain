@@ -4,7 +4,7 @@ artifact: SPEC-296
 status: Active
 author: cristos
 created: 2026-04-07
-last-updated: 2026-04-07
+last-updated: 2026-04-18
 parent-epic: EPIC-071
 linked-artifacts:
   - DESIGN-025
@@ -26,6 +26,8 @@ sourcecode-refs:
 Each Zulip topic (worktree session) spawns its own dedicated `opencode serve` process. The topic name matches the worktree basename. This provides complete isolation between sessions and allows the operator to attach to any session via `opencode attach`.
 
 ## Motivation
+
+NOTE (2026-04-18): In the swain-helm architecture, each worktree shares a single opencode serve instance (not a dedicated one per session). Sessions use `POST /session` on the shared server. Topic naming comes from the branch name, not the worktree basename. One session per worktree is enforced by the session registry. See SPEC-322 and SPEC-323 for updated implementation.
 
 Currently, all control-topic sessions share a single `opencode serve` process on port 4097. This creates several problems:
 
@@ -153,3 +155,10 @@ if msg.type == "session_promoted":
 3. Verify `opencode attach` URL is printed and works
 4. Verify two concurrent sessions have different ports
 5. Verify worktree bridge doesn't process trunk messages
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| Active | 2026-04-07 | | Created from VISION-006 decomposition. |
+| Active | 2026-04-18 | -- | Architecture note: shared opencode serve per worktree, branch-name topics (ADR-046). See SPEC-322, SPEC-323. |

@@ -2,12 +2,13 @@
 title: "Untethered Operator Bridge"
 artifact: RUNBOOK-003
 track: standing
-status: Active
+status: Superseded
+superseded-by: RUNBOOK-004
 mode: manual
 trigger: on-demand
 author: cristos
 created: 2026-04-07
-last-updated: 2026-04-07
+last-updated: 2026-04-18
 validates:
   - SPEC-291
   - SPEC-292
@@ -216,3 +217,7 @@ In the Zulip `control` topic:
 1. Stop the bridge: `Ctrl-C` in the bridge terminal, or `kill $(pgrep -f untethered-host)`.
 2. Stop the opencode server: `Ctrl-C` in the server terminal, or `curl -X POST http://127.0.0.1:4097/global/dispose`.
 3. Sessions persist on disk. Restarting the server recovers prior sessions.
+
+---
+
+**Superseded by RUNBOOK-004 (swain-helm Operations) on 2026-04-18.** This runbook documents the pre-refactor bridge (`bin/swain-bridge`, host kernel, `~/.config/swain/domains/`). The current architecture uses `swain-helm` CLI with a watchdog process manager.

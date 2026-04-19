@@ -3,11 +3,11 @@ title: "Deployment Topology"
 artifact: DESIGN-023
 track: standing
 domain: system
-status: Active
+status: Superseded
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
-superseded-by: ""
+last-updated: 2026-04-18
+superseded-by: DESIGN-032
 linked-artifacts:
   - VISION-006
   - INITIATIVE-018
@@ -129,3 +129,4 @@ _Deployment diagrams in VISION-006 architecture-overview.md._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Created from VISION-006 decomposition. |
+| Superseded | 2026-04-18 | -- | Superseded by DESIGN-032 (swain-helm Deployment Topology). |

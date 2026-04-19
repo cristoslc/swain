@@ -2,10 +2,11 @@
 title: "Host Bridge Kernel"
 artifact: EPIC-070
 track: container
-status: Active
+status: Superseded
+superseded-by: EPIC-084
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 parent-vision: VISION-006
 parent-initiative: INITIATIVE-018
 priority-weight: high
@@ -63,3 +64,4 @@ _To be created during implementation planning._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Created from VISION-006 decomposition. |
+| Superseded | 2026-04-18 | -- | Superseded by EPIC-084 (swain-helm Watchdog). Host bridge removed from architecture. |

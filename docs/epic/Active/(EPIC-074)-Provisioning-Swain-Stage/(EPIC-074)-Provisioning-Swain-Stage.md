@@ -5,17 +5,17 @@ track: container
 status: Active
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 parent-vision: VISION-006
 parent-initiative: INITIATIVE-018
 priority-weight: medium
 success-criteria:
-  - `/swain-stage` on a hosted platform registers a bot, creates a project room, generates bridge config, and starts the host bridge + project bridge.
+  - `swain-helm host provision` writes ~/.config/swain-helm/helm.config.json with op:// credential references. First-run <5 minutes.
   - `/swain-stage` on self-hosted provisions a VPS, deploys the chat server, and connects bridges.
   - Adding a second project to an existing chat service creates a room and project bridge without re-provisioning.
   - Isolated mode provisions a separate chat service instance for security-sensitive projects.
 depends-on-artifacts:
-  - EPIC-070
+  - EPIC-084
   - EPIC-072
   - ADR-037
 addresses: []
@@ -26,7 +26,7 @@ evidence-pool: ""
 
 ## Goal / Objective
 
-One-command setup for the entire Untethered Operator stack. The operator types `/swain-stage` and everything works — bot registration, room creation, bridge config, daemon start.
+One-command setup for the swain-helm stack. `swain-helm host provision` registers the Zulip bot, creates streams, and writes helm.config.json.
 
 ## Desired Outcomes
 
@@ -42,7 +42,7 @@ The first-run experience is under 5 minutes. Subsequent projects on the same cha
 - Config file generation with security defaults (chmod 600, absolute paths).
 
 **Out of scope:**
-- The bridge daemons themselves (EPIC-070, EPIC-071).
+- The bridge daemons (EPIC-071, EPIC-084).
 - The chat and runtime plugins (EPIC-072, EPIC-073).
 - v2 tunnel/ingress provisioning for the web pipe.
 
@@ -52,7 +52,7 @@ _To be created during implementation planning._
 
 ## Key Dependencies
 
-- EPIC-070 (Host Bridge Kernel) — provisioning starts the daemon.
+- EPIC-084 (Watchdog) — provisioning starts the daemon.
 - EPIC-072 (Chat Plugin System) — provisioning registers the bot.
 - ADR-037 (Chat Platform) — determines which provisioning path is default.
 
@@ -61,3 +61,4 @@ _To be created during implementation planning._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Created from VISION-006 decomposition. |
+| Active | 2026-04-18 | -- | Updated for swain-helm architecture. Replaced EPIC-070 with EPIC-084. |

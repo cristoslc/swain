@@ -168,13 +168,11 @@
 | SPEC-292 | OpenCode Server Adapter | 2026-04-06 | — |
 | SPEC-293 | Output Shaping for Chat | 2026-04-07 | a194674c |
 | SPEC-294 | Mermaid Rendering for Chat | 2026-04-07 | a194674c |
-| SPEC-295 | swain-bridge Daemon Mode | 2026-04-07 | — |
-| SPEC-296 | Worktree Session Isolation with Dedicated opencode serve Processes | 2026-04-07 | — |
-| SPEC-298 | Control Thread Worktree and Session Spawning | 2026-04-07 | — |
+| SPEC-296 | Worktree Session Isolation with Dedicated opencode serve Processes | 2026-04-18 | -- |
+| SPEC-298 | Control Thread Worktree and Session Spawning | 2026-04-18 | -- |
 | SPEC-300 | Resolve Duplicate Artifact ID Collisions in SpecGraph | 2026-04-08 | — |
 | SPEC-301 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
 | SPEC-302 | Swain-Sync Preflight Script | 2026-04-04 | — |
-| SPEC-303 | Output Shaping for Chat | 2026-04-07 | a194674c |
 | SPEC-304 | Adopt trafilatura for main-content extraction in swain-search | 2026-04-11 | -- |
 | SPEC-305 | Gitignore .swain/session/ in consumer projects | 2026-04-13 | — |
 | SPEC-306 | swain-search: X-Thread Source Type and Media Transcript Ingestion | 2026-04-13 | 2bf515cb |
@@ -182,7 +180,15 @@
 | SPEC-311 | Bash Script Support for CHORE Prefix | 2026-04-14 | — |
 | SPEC-312 | Python Tooling Support for CHORE Type | 2026-04-14 | — |
 | SPEC-313 | Skill Docs and Index for CHORE Type | 2026-04-14 | — |
-| SPEC-317 | Source Quality Ranking for swain-search | 2026-04-16 | — |
+| SPEC-317 | Source Quality Ranking for swain-search | 2026-04-16 | be506b4 |
+| SPEC-318 | swain-helm Watchdog Core | 2026-04-18 | -- |
+| SPEC-319 | swain-helm CLI | 2026-04-18 | -- |
+| SPEC-320 | Config and Credential Resolution | 2026-04-18 | -- |
+| SPEC-321 | OpenCode Serve Discovery and Auth | 2026-04-18 | -- |
+| SPEC-322 | Project Bridge Microkernel Refactor | 2026-04-18 | -- |
+| SPEC-323 | Continuous Worktree Discovery | 2026-04-18 | -- |
+| SPEC-324 | Session Registry Persistence | 2026-04-18 | -- |
+| SPEC-325 | Chat Adapter Stream Filtering | 2026-04-18 | -- |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 
 ## Complete
@@ -317,6 +323,7 @@
 | SPEC-282 | Alignment Audit | 2026-04-04 | — |
 | SPEC-283 | Artifact-Aware Worktree Naming | 2026-04-04 | — |
 | SPEC-284 | swain-sync Merge Logic | 2026-04-04 | — |
+| SPEC-295 | swain-bridge Daemon Mode | 2026-04-18 | — |
 | SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-13 | ad2b33c0 |
 | SPEC-308 | Fix Duplicate SPIKE IDs Blocking Artifact Graph | 2026-04-14 | — |
 
@@ -330,6 +337,7 @@
 | SPEC-106 | Blocking flowchart initiative subgraphs | 2026-03-20 | — |
 | SPEC-132 | specgraph: deterministic roadmap output based on priorities | 2026-03-20 | — |
 | SPEC-133 | swain-status roadmap integration | 2026-03-20 | — |
+| SPEC-303 | Output Shaping for Chat | 2026-04-18 | — |
 
 ## Abandoned
 

@@ -24,7 +24,7 @@
 | INITIATIVE-015 | swain-stage Redesign | 2026-03-19 | — |
 | INITIATIVE-016 | Agent Implementation Reliability | 2026-04-14 | — |
 | INITIATIVE-017 | Unattended Agent Safety | 2026-03-20 | -- |
-| INITIATIVE-018 | Remote Operator Interaction | 2026-04-06 | -- |
+| INITIATIVE-018 | Remote Operator Interaction | 2026-04-18 | -- |
 | INITIATIVE-019 | Session-Scoped Decision Support | 2026-03-20 | — |
 | INITIATIVE-022 | Automated Verification Loop | 2026-04-17 | — |
 

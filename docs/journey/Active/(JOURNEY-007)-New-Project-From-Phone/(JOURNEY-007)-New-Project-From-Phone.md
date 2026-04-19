@@ -5,7 +5,7 @@ track: standing
 status: Active
 author: cristos
 created: 2026-04-06
-last-updated: 2026-04-06
+last-updated: 2026-04-18
 parent-vision: VISION-006
 linked-artifacts:
   - DESIGN-022
@@ -58,6 +58,8 @@ journey
 
 > **PP-03:** Swain initialization may require interactive decisions (which skills to install, etc.) that don't map well to a chat interface.
 
+Architecture note (2026-04-18): The `/clone` command is now handled by the project bridge directly. The CLI equivalent is `swain-helm project add <path>`.
+
 ### Pain Points Summary
 
 | ID | Pain Point | Score | Stage | Root Cause | Opportunity |
@@ -77,3 +79,4 @@ journey
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-06 | -- | Created from VISION-006 decomposition. |
+| Active | 2026-04-18 | -- | /clone moved from host bridge to project bridge (ADR-046). CLI: swain-helm project add. |

@@ -2,10 +2,11 @@
 title: "Output Shaping for Chat"
 artifact: SPEC-303
 track: implementable
-status: Active
+status: Superseded
+superseded-by: SPEC-293
 author: cristos
 created: 2026-04-07
-last-updated: 2026-04-07
+last-updated: 2026-04-18
 priority-weight: medium
 type: enhancement
 parent-epic: [EPIC-071](../../../epic/Active/(EPIC-071)-Project-Bridge-Kernel/(EPIC-071)-Project-Bridge-Kernel.md)
@@ -109,3 +110,4 @@ Operators receive agent responses that are concise, well-formatted, and appropri
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-07 | a194674c | Initial creation |
+| Superseded | 2026-04-18 | — | Duplicate of SPEC-293; superseded |
