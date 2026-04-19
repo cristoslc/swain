@@ -1,18 +1,20 @@
-"""Provisioning script for Untethered Operator MVP.
+"""Provisioning script for swain-helm.
 
-Registers a Zulip bot, creates a stream for the project, generates a
-bridge config file, and prints instructions for starting the bridge.
+Registers a Zulip bot, creates a stream for the project, generates
+a bridge config file with op:// credential references, and prints
+instructions for starting the watchdog daemon.
 
 Usage:
-    uv run python -m swain_helm.provision \
+    swain-helm host provision \
         --zulip-site https://myorg.zulipchat.com \
         --zulip-email swain-bot@myorg.zulipchat.com \
         --zulip-api-key YOUR_KEY \
         --operator-email you@example.com \
         --project swain \
         --project-path /home/user/swain \
-        --output bridge.json
+        --output ~/.config/swain-helm/helm.config.json
 """
+
 from __future__ import annotations
 
 import argparse
@@ -60,7 +62,7 @@ def provision(
 
     # Create or subscribe to the project stream
     sub_result = client.add_subscriptions(
-        streams=[{"name": stream, "description": f"Untethered Operator — {project_name}"}],
+        streams=[{"name": stream, "description": f"swain-helm — {project_name}"}],
     )
     if sub_result.get("result") != "success":
         log.error("Failed to create stream %r: %s", stream, sub_result.get("msg"))
@@ -68,20 +70,22 @@ def provision(
     log.info("Stream ready: %s", stream)
 
     # Post a welcome message to the control topic
-    client.send_message({
-        "type": "stream",
-        "to": stream,
-        "topic": "control",
-        "content": (
-            f"Untethered Operator bridge provisioned for **{project_name}**.\n\n"
-            f"Commands:\n"
-            f"- `/work [ARTIFACT]` — start a new session.\n"
-            f"- `/kill SESSION_ID` — stop a session.\n"
-            f"- `/cancel` — cancel the current session (in a session topic).\n"
-            f"- `/approve CALL_ID` — approve a tool call.\n"
-            f"- `/deny CALL_ID` — deny a tool call."
-        ),
-    })
+    client.send_message(
+        {
+            "type": "stream",
+            "to": stream,
+            "topic": "control",
+            "content": (
+                f"swain-helm bridge provisioned for **{project_name}**.\n\n"
+                f"Commands:\n"
+                f"- `/work [ARTIFACT]` — start a new session.\n"
+                f"- `/kill SESSION_ID` — stop a session.\n"
+                f"- `/cancel` — cancel the current session (in a session topic).\n"
+                f"- `/approve CALL_ID` — approve a tool call.\n"
+                f"- `/deny CALL_ID` — deny a tool call."
+            ),
+        }
+    )
 
     # Write config
     config = {
@@ -109,24 +113,34 @@ def provision(
     log.info("Config written to %s (permissions: 600)", output)
 
     print(f"\nProvisioning complete. Start the bridge with:")
-    print(f"  uv run python -m swain_helm.main --config {output_path}")
+    print(f"  swain-helm host up")
 
     return config
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Provision Untethered Operator bridge")
+    parser = argparse.ArgumentParser(description="Provision swain-helm bridge")
     parser.add_argument("--zulip-site", required=True, help="Zulip server URL")
     parser.add_argument("--zulip-email", required=True, help="Bot email address")
     parser.add_argument("--zulip-api-key", required=True, help="Bot API key")
-    parser.add_argument("--operator-email", required=True, help="Your email for @mentions")
+    parser.add_argument(
+        "--operator-email", required=True, help="Your email for @mentions"
+    )
     parser.add_argument("--project", required=True, help="Project name")
-    parser.add_argument("--project-path", required=True, help="Path to project directory")
-    parser.add_argument("--output", default="bridge.json", help="Output config file path")
-    parser.add_argument("--stream", default=None, help="Zulip stream name (defaults to project name)")
+    parser.add_argument(
+        "--project-path", required=True, help="Path to project directory"
+    )
+    parser.add_argument(
+        "--output", default="bridge.json", help="Output config file path"
+    )
+    parser.add_argument(
+        "--stream", default=None, help="Zulip stream name (defaults to project name)"
+    )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+    )
 
     provision(
         zulip_site=args.zulip_site,
