@@ -2,7 +2,7 @@
 title: "Verification Model Reform"
 artifact: EPIC-082
 track: container
-status: Proposed
+status: Abandoned
 author: cristos
 created: 2026-04-18
 last-updated: 2026-04-18
@@ -68,3 +68,4 @@ _To be decomposed when the epic transitions to Active._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-18 | — | Created from Builder/Shipper persona evaluation |
+| Abandoned | 2026-04-18 | — | Redundant with INITIATIVE-022: incremental verification and confidence scoring contradict I22's operator-out-until-teardown model; mandatory code review is a teardown step, not a separate gate |

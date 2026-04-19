@@ -3,7 +3,7 @@ title: "Build-Measure-Learn Support"
 artifact: DESIGN-0031
 track: standing
 domain: system
-status: Proposed
+status: Abandoned
 author: cristos
 created: 2026-04-18
 last-updated: 2026-04-18
@@ -139,3 +139,4 @@ _Index of supporting files to be added during implementation._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-18 | — | Created from Builder/Shipper persona evaluation |
+| Abandoned | 2026-04-18 | — | Decomposed: retroactive SPEC creation to own EPIC, CI hooks into I22 teardown, EXPERIMENT to spike |

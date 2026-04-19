@@ -2,7 +2,7 @@
 title: "Build-Measure-Learn Support"
 artifact: EPIC-083
 track: container
-status: Proposed
+status: Abandoned
 author: cristos
 created: 2026-04-18
 last-updated: 2026-04-18
@@ -69,3 +69,4 @@ _To be decomposed when the epic transitions to Active._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-18 | — | Created from Builder/Shipper persona evaluation |
+| Abandoned | 2026-04-18 | — | Decomposed: retroactive artifact creation spun to own EPIC, CI hooks folded into INITIATIVE-022 teardown, EXPERIMENT type isolated for spike investigation |

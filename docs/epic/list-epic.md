@@ -29,8 +29,7 @@
 | EPIC-075 | Appraisal Value Model | 2026-04-06 | — |
 | EPIC-080 | Quality Signal Pipeline | 2026-04-18 | — |
 | EPIC-081 | Lifecycle Pathways | 2026-04-18 | — |
-| EPIC-082 | Verification Model Reform | 2026-04-18 | — |
-| EPIC-083 | Build-Measure-Learn Support | 2026-04-18 | — |
+| EPIC-086 | Retroactive Artifact Creation | 2026-04-18 | — |
 
 ## Active
 
@@ -55,13 +54,14 @@
 | EPIC-062 | BDD Traceability | 2026-04-04 | _pending_ |
 | EPIC-068 | Doctor Script Reconciliation | 2026-04-06 | _pending_ |
 | EPIC-069 | Plugin-Namespaced Script Aggregation | 2026-04-06 | -- |
-| EPIC-070 | Host Bridge Kernel | 2026-04-06 | -- |
-| EPIC-071 | Project Bridge Kernel | 2026-04-06 | -- |
-| EPIC-072 | Chat Plugin System | 2026-04-06 | -- |
-| EPIC-073 | Runtime Plugin System | 2026-04-06 | -- |
-| EPIC-074 | Provisioning (swain-stage) | 2026-04-06 | -- |
+| EPIC-071 | Project Bridge Kernel | 2026-04-18 | -- |
+| EPIC-072 | Chat Plugin System | 2026-04-18 | -- |
+| EPIC-073 | Runtime Plugin System | 2026-04-18 | -- |
+| EPIC-074 | Provisioning (swain-stage) | 2026-04-18 | -- |
 | EPIC-077 | Implement CHORE Artifact Type | 2026-04-14 | — |
 | EPIC-078 | Deterministic Worktree Placement | 2026-04-14 | 88924d4d |
+| EPIC-084 | swain-helm Watchdog | 2026-04-18 | -- |
+| EPIC-085 | OpenCode Serve Integration | 2026-04-18 | -- |
 
 ## Complete
 
@@ -97,10 +97,13 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-009 | Secrets Leakage Prevention | 2026-03-13 | 34f2d62 |
+| EPIC-070 | Host Bridge Kernel | 2026-04-18 | -- |
 
 ## Abandoned
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | EPIC-076 | Worktree Bootstrap via Post-Checkout Hook | 2026-04-13 | — |
+| EPIC-082 | Verification Model Reform | 2026-04-18 | — |
+| EPIC-083 | Build-Measure-Learn Support | 2026-04-18 | — |
 

@@ -3,7 +3,7 @@ title: "Verification Model Reform"
 artifact: DESIGN-0030
 track: standing
 domain: system
-status: Proposed
+status: Abandoned
 author: cristos
 created: 2026-04-18
 last-updated: 2026-04-18
@@ -125,3 +125,4 @@ _Index of supporting files to be added during implementation._
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Proposed | 2026-04-18 | — | Created from Builder/Shipper persona evaluation |
+| Abandoned | 2026-04-18 | — | Redundant with INITIATIVE-022 automated verification loop |

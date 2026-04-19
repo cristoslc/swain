@@ -141,6 +141,14 @@ The teardown report replaces the current retro-first-then-sync flow. The report 
 
 For small changes, the report is saved and the merge goes ahead. For sensitive changes, the operator reviews first.
 
+### Post-approval hooks
+
+After operator approval (or auto-merge for small changes), configurable hooks may fire. These are pluggable callbacks — not platform integrations. Typical uses: trigger a CI pipeline, deploy to a preview environment, or notify a monitoring system.
+
+**Configuration:** `.swain/hooks.yaml` with named hook entries for post-merge and post-tag events (shared with swain-release). Hooks are best-effort: failure in a hook is logged but does not block the merge. Timeout is configurable per hook (default: 60 seconds).
+
+**Why hooks belong here:** CI and deployment triggers naturally follow operator approval of the teardown report. They are the final step in the verification-to-production pipeline, not a separate system. Hooks that run before operator approval would contradict the "report before merge" guarantee.
+
 ### Reconciliation spectrum
 
 | Severity | Signal | Action | Example |
