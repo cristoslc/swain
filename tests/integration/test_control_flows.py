@@ -21,6 +21,7 @@ Scenarios covered:
     - Zulip operator message → chat plugin → kernel → project bridge
     - Project bridge event → kernel → chat plugin → Zulip post
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -29,17 +30,30 @@ from unittest.mock import AsyncMock, MagicMock, patch, call
 
 import pytest
 
-from swain_helm.protocol import Event, Command, ConfigMessage, encode_message, decode_message
+from swain_helm.protocol import (
+    Event,
+    Command,
+    ConfigMessage,
+    encode_message,
+    decode_message,
+)
 from swain_helm.bridges.project import ProjectBridge, SessionState, LauncherProcess
 from swain_helm.adapters.zulip_chat import parse_zulip_message, format_event_for_zulip
-from swain_helm.plugins.zulip_chat import _poll_zulip, _relay_events, SessionTopicRegistry
+from swain_helm.plugins.zulip_chat import (
+    _poll_zulip,
+    _relay_events,
+    SessionTopicRegistry,
+)
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_zulip_msg(content: str, stream: str = "swain", topic: str = "control") -> dict:
+
+def _make_zulip_msg(
+    content: str, stream: str = "swain", topic: str = "control"
+) -> dict:
     return {
         "type": "stream",
         "sender_email": "operator@example.com",
@@ -69,6 +83,7 @@ _STREAM_MAP = {"swain": "swain"}
 # ---------------------------------------------------------------------------
 # Scenario: Plain text in control → control_message
 # ---------------------------------------------------------------------------
+
 
 class TestControlMessageParsing:
     """Plain text in the control topic produces a control_message command."""
@@ -104,6 +119,7 @@ class TestControlMessageParsing:
 # ---------------------------------------------------------------------------
 # Scenario: control_message spawns lightweight session
 # ---------------------------------------------------------------------------
+
 
 class TestControlMessageBridge:
     """ProjectBridge handles control_message by spawning a lightweight session."""
@@ -147,13 +163,15 @@ class TestControlMessageBridge:
         event = Event.text_output(bridge="swain", session_id=sid, content="All good")
         bridge.handle_runtime_event(event)
 
-        assert len(delivered) == 1
-        assert delivered[0].payload["origin"] == "control"
+        text_events = [e for e in delivered if e.type == "text_output"]
+        assert len(text_events) == 1
+        assert text_events[0].payload["origin"] == "control"
 
 
 # ---------------------------------------------------------------------------
 # Scenario: Control-origin events post to control topic (no thread)
 # ---------------------------------------------------------------------------
+
 
 class TestControlOriginRelayEvents:
     """_relay_events routes control-origin events to the control topic."""
@@ -166,7 +184,9 @@ class TestControlOriginRelayEvents:
         loop = asyncio.get_running_loop()
         posted: list[dict] = []
 
-        event = Event.text_output(bridge="swain", session_id="sess-abc", content="3 specs ready")
+        event = Event.text_output(
+            bridge="swain", session_id="sess-abc", content="3 specs ready"
+        )
         event.payload["origin"] = "control"
         event_line = encode_message(event)
 
@@ -178,8 +198,12 @@ class TestControlOriginRelayEvents:
 
             # Run _relay_events — it will read one event then exit on empty line
             await _relay_events(
-                client, {"swain": "swain"}, "op@example.com", "control",
-                registry, loop,
+                client,
+                {"swain": "swain"},
+                "op@example.com",
+                "control",
+                registry,
+                loop,
             )
 
         # Should have posted to control topic, not created a thread
@@ -194,7 +218,9 @@ class TestControlOriginRelayEvents:
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
 
-        event = Event.session_spawned(bridge="swain", session_id="sess-abc", runtime="claude")
+        event = Event.session_spawned(
+            bridge="swain", session_id="sess-abc", runtime="claude"
+        )
         event.payload["origin"] = "control"
         event_line = encode_message(event)
 
@@ -203,7 +229,12 @@ class TestControlOriginRelayEvents:
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, None, "control", registry, loop,
+                client,
+                {"swain": "swain"},
+                None,
+                "control",
+                registry,
+                loop,
             )
 
         assert client.send_message.call_count == 0
@@ -223,7 +254,12 @@ class TestControlOriginRelayEvents:
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, None, "control", registry, loop,
+                client,
+                {"swain": "swain"},
+                None,
+                "control",
+                registry,
+                loop,
             )
 
         assert client.send_message.call_count == 0
@@ -232,6 +268,7 @@ class TestControlOriginRelayEvents:
 # ---------------------------------------------------------------------------
 # Scenario: session_promoted creates a dedicated thread
 # ---------------------------------------------------------------------------
+
 
 class TestSessionPromotedRelay:
     """session_promoted event creates a Zulip thread and announces in control."""
@@ -242,7 +279,8 @@ class TestSessionPromotedRelay:
         loop = asyncio.get_running_loop()
 
         event = Event.session_promoted(
-            bridge="swain", session_id="sess-abc",
+            bridge="swain",
+            session_id="sess-abc",
             artifact="SPEC-142",
         )
         event_line = encode_message(event)
@@ -252,8 +290,12 @@ class TestSessionPromotedRelay:
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, "op@example.com", "control",
-                registry, loop,
+                client,
+                {"swain": "swain"},
+                "op@example.com",
+                "control",
+                registry,
+                loop,
             )
 
         # Two posts: one in the new thread, one announcement in control
@@ -277,17 +319,26 @@ class TestSessionPromotedRelay:
         loop = asyncio.get_running_loop()
 
         promoted = Event.session_promoted(
-            bridge="swain", session_id="sess-abc", artifact="SPEC-142",
+            bridge="swain",
+            session_id="sess-abc",
+            artifact="SPEC-142",
         )
         text_out = Event.text_output(
-            bridge="swain", session_id="sess-abc", content="Working on it...",
+            bridge="swain",
+            session_id="sess-abc",
+            content="Working on it...",
         )
         lines = iter([encode_message(promoted), encode_message(text_out), ""])
 
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, None, "control", registry, loop,
+                client,
+                {"swain": "swain"},
+                None,
+                "control",
+                registry,
+                loop,
             )
 
         # 2 from promotion + 1 text output = 3
@@ -300,6 +351,7 @@ class TestSessionPromotedRelay:
 # ---------------------------------------------------------------------------
 # Scenario: /work triggers launcher, follow-up relays as answer
 # ---------------------------------------------------------------------------
+
 
 class TestLaunchSessionBridge:
     """ProjectBridge handles launch_session by spawning the launcher."""
@@ -355,24 +407,30 @@ class TestLaunchSessionBridge:
                 MockAdapter.return_value = adapter_instance
 
                 bridge = ProjectBridge(
-                    project="swain", project_dir="/tmp/swain",
+                    project="swain",
+                    project_dir="/tmp/swain",
                     on_event=delivered.append,
                 )
 
                 # Start the interview
-                bridge.handle_command(Command.launch_session(bridge="swain", text="fix login"))
+                bridge.handle_command(
+                    Command.launch_session(bridge="swain", text="fix login")
+                )
                 await asyncio.sleep(0)
 
                 sid = list(bridge.sessions.keys())[0]
 
                 # Simulate launcher emitting ready
                 on_output = MockLauncher.call_args.kwargs["on_output"]
-                on_output("ready", {
-                    "purpose": "fix login",
-                    "worktree": "/tmp/swain/worktrees/fix-login",
-                    "runtime": "claude",
-                    "prompt": "/swain-session Session purpose: fix login",
-                })
+                on_output(
+                    "ready",
+                    {
+                        "purpose": "fix login",
+                        "worktree": "/tmp/swain/worktrees/fix-login",
+                        "runtime": "claude",
+                        "prompt": "/swain-session Session purpose: fix login",
+                    },
+                )
                 await asyncio.sleep(0)
 
                 # Session promoted event should be emitted
@@ -387,7 +445,10 @@ class TestLaunchSessionBridge:
 
                 # Runtime adapter should be spawned in the launcher's worktree
                 MockAdapter.assert_called_once()
-                assert MockAdapter.call_args.kwargs["project_dir"] == "/tmp/swain/worktrees/fix-login"
+                assert (
+                    MockAdapter.call_args.kwargs["project_dir"]
+                    == "/tmp/swain/worktrees/fix-login"
+                )
                 adapter_instance.start.assert_awaited_once()
 
     async def test_launcher_info_relays_to_control(self):
@@ -399,7 +460,8 @@ class TestLaunchSessionBridge:
             MockLauncher.return_value = mock_instance
 
             bridge = ProjectBridge(
-                project="swain", project_dir="/tmp/swain",
+                project="swain",
+                project_dir="/tmp/swain",
                 on_event=delivered.append,
             )
 
@@ -423,7 +485,8 @@ class TestLaunchSessionBridge:
             MockLauncher.return_value = mock_instance
 
             bridge = ProjectBridge(
-                project="swain", project_dir="/tmp/swain",
+                project="swain",
+                project_dir="/tmp/swain",
                 on_event=delivered.append,
             )
 
@@ -431,10 +494,13 @@ class TestLaunchSessionBridge:
             await asyncio.sleep(0)
 
             on_output = MockLauncher.call_args.kwargs["on_output"]
-            on_output("question", {
-                "text": "Resume or fresh?",
-                "options": ["resume", "fresh"],
-            })
+            on_output(
+                "question",
+                {
+                    "text": "Resume or fresh?",
+                    "options": ["resume", "fresh"],
+                },
+            )
 
             assert len(delivered) == 1
             assert "Resume or fresh?" in delivered[0].payload["content"]
@@ -444,6 +510,7 @@ class TestLaunchSessionBridge:
 # ---------------------------------------------------------------------------
 # Scenario: Full Zulip poll → command routing
 # ---------------------------------------------------------------------------
+
 
 class TestZulipPollControlRouting:
     """_poll_zulip correctly routes control-topic messages as control_message."""
@@ -455,7 +522,9 @@ class TestZulipPollControlRouting:
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+            await _poll_zulip(
+                client, _STREAM_MAP, "control", received.append, registry, loop
+            )
 
         assert len(received) == 1
         assert received[0].type == "control_message"
@@ -468,7 +537,9 @@ class TestZulipPollControlRouting:
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+            await _poll_zulip(
+                client, _STREAM_MAP, "control", received.append, registry, loop
+            )
 
         assert len(received) == 1
         assert received[0].type == "launch_session"
@@ -483,7 +554,9 @@ class TestZulipPollControlRouting:
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+            await _poll_zulip(
+                client, _STREAM_MAP, "control", received.append, registry, loop
+            )
 
         assert len(received) == 1
         assert received[0].type == "send_prompt"
@@ -493,6 +566,7 @@ class TestZulipPollControlRouting:
 # ---------------------------------------------------------------------------
 # Scenario: Protocol roundtrip for new types
 # ---------------------------------------------------------------------------
+
 
 class TestProtocolNewTypes:
     """New protocol types encode/decode correctly."""
@@ -515,8 +589,10 @@ class TestProtocolNewTypes:
 
     def test_session_promoted_roundtrip(self):
         event = Event.session_promoted(
-            bridge="swain", session_id="sess-abc",
-            artifact="SPEC-142", topic="SPEC-142",
+            bridge="swain",
+            session_id="sess-abc",
+            artifact="SPEC-142",
+            topic="SPEC-142",
         )
         line = encode_message(event)
         restored = decode_message(line)
@@ -528,6 +604,7 @@ class TestProtocolNewTypes:
 # ---------------------------------------------------------------------------
 # Scenario: Zulip Cloud message format (real-world format)
 # ---------------------------------------------------------------------------
+
 
 class TestZulipCloudMessageFormat:
     """Messages from Zulip Cloud use specific sender_email and HTML content."""
@@ -562,7 +639,9 @@ class TestZulipCloudMessageFormat:
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+            await _poll_zulip(
+                client, _STREAM_MAP, "control", received.append, registry, loop
+            )
 
         assert len(received) == 1
         assert received[0].type == "control_message"
@@ -572,17 +651,20 @@ class TestZulipCloudMessageFormat:
 # Scenario: Full round trip — mock LLM
 # ---------------------------------------------------------------------------
 
+
 class TestFullRoundTripMockLlm:
     """End-to-end: control_message → mock response → event back to control."""
 
     async def test_mock_llm_returns_response_to_control(self):
         """With UNTETHERED_MOCK_LLM=1, control_message gets a canned response."""
         import os
+
         delivered: list[Event] = []
 
         with patch.dict(os.environ, {"UNTETHERED_MOCK_LLM": "1"}):
             bridge = ProjectBridge(
-                project="swain", project_dir="/tmp/swain",
+                project="swain",
+                project_dir="/tmp/swain",
                 on_event=delivered.append,
             )
             bridge.handle_command(
@@ -594,7 +676,10 @@ class TestFullRoundTripMockLlm:
         text_events = [e for e in delivered if e.type == "text_output"]
         died_events = [e for e in delivered if e.type == "session_died"]
         assert len(text_events) == 1
-        assert "[mock] Received your message: what specs are ready?" in text_events[0].payload["content"]
+        assert (
+            "[mock] Received your message: what specs are ready?"
+            in text_events[0].payload["content"]
+        )
         assert text_events[0].payload.get("origin") == "control"
         assert len(died_events) == 1
 
@@ -606,26 +691,36 @@ class TestFullRoundTripMockLlm:
 
         # Simulate the events the mock LLM would produce
         text_event = Event.text_output(
-            bridge="swain", session_id="sess-mock",
+            bridge="swain",
+            session_id="sess-mock",
             content="[mock] Here are your specs",
         )
         text_event.payload["origin"] = "control"
 
         died_event = Event.session_died(
-            bridge="swain", session_id="sess-mock", reason="mock complete",
+            bridge="swain",
+            session_id="sess-mock",
+            reason="mock complete",
         )
         died_event.payload["origin"] = "control"
 
-        lines = iter([
-            encode_message(text_event),
-            encode_message(died_event),
-            "",
-        ])
+        lines = iter(
+            [
+                encode_message(text_event),
+                encode_message(died_event),
+                "",
+            ]
+        )
 
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, None, "control", registry, loop,
+                client,
+                {"swain": "swain"},
+                None,
+                "control",
+                registry,
+                loop,
             )
 
         # Text output should post to control topic
@@ -639,12 +734,14 @@ class TestFullRoundTripMockLlm:
 # Scenario: bin/swain NDJSON mode (subprocess test)
 # ---------------------------------------------------------------------------
 
+
 class TestLauncherNdjsonMode:
     """bin/swain --format ndjson produces structured NDJSON output."""
 
     async def test_launcher_emits_ready_with_fresh_flag(self):
         """--fresh skips interview, goes straight to ready."""
         import subprocess
+
         result = subprocess.run(
             ["bash", "bin/swain", "--format", "ndjson", "--fresh", "--trunk"],
             input="",

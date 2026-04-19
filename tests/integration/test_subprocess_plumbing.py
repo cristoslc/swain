@@ -32,7 +32,7 @@ from swain_helm.protocol import (
     Event, Command, ConfigMessage,
     encode_message, decode_message,
 )
-from swain_helm.kernel import PluginProcess
+from swain_helm.plugin_process import PluginProcess
 
 
 # ---------------------------------------------------------------------------

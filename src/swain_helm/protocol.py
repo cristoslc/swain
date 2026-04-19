@@ -16,12 +16,16 @@ from typing import Any
 _PROJECT_EVENT_TYPES = {
     "session_spawned",
     "session_promoted",
+    "session_starting",
+    "session_exported",
     "text_output",
     "tool_call",
     "tool_result",
     "approval_needed",
     "session_died",
     "web_output_available",
+    "worktree_added",
+    "worktree_removed",
 }
 
 # Event types — host scope
@@ -200,6 +204,42 @@ class Event:
             session_id=session_id,
             timestamp=_now_ms(),
             payload={"path_or_port": path_or_port, "label": label},
+        )
+
+    @classmethod
+    def session_exported(
+        cls, *, bridge: str, session_id: str, export_path: str
+    ) -> Event:
+        return cls(
+            type="session_exported",
+            bridge=bridge,
+            session_id=session_id,
+            timestamp=_now_ms(),
+            payload={"export_path": export_path},
+        )
+
+    @classmethod
+    def worktree_added(
+        cls, *, bridge: str, worktree_path: str, branch_name: str
+    ) -> Event:
+        return cls(
+            type="worktree_added",
+            bridge=bridge,
+            session_id=None,
+            timestamp=_now_ms(),
+            payload={"worktree_path": worktree_path, "branch_name": branch_name},
+        )
+
+    @classmethod
+    def worktree_removed(
+        cls, *, bridge: str, worktree_path: str, branch_name: str
+    ) -> Event:
+        return cls(
+            type="worktree_removed",
+            bridge=bridge,
+            session_id=None,
+            timestamp=_now_ms(),
+            payload={"worktree_path": worktree_path, "branch_name": branch_name},
         )
 
     # --- Host-scope factory methods ---
