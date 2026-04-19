@@ -1,0 +1,88 @@
+trove: oh-my-openagent-vs-swain
+created: 2026-04-19
+refreshed: 2026-04-19
+tags:
+  - oh-my-openagent
+  - oh-my-opencode
+  - omo
+  - multi-agent-orchestration
+  - agent-harness
+  - opencode-plugin
+  - category-system
+  - intent-gate
+  - hashline-edit
+  - ralph-loop
+  - agent-model-matching
+
+freshness-ttl:
+  web: 14d
+  repository: 30d
+
+related-troves:
+  - trove: agentic-control-loops
+    overlap: Ralph Loop pattern, autonomous iteration, completion tokens
+  - trove: crispy-agents
+    overlap: multi-agent orchestration for OpenCode, agent roles
+  - trove: opencode-crush-cli
+    overlap: OpenCode platform, TUI/server modes
+
+history:
+  - event: created
+    date: 2026-04-19
+    commit: "--"
+    sources: 6
+
+sources:
+  - source-id: omo-readme
+    type: repository
+    url: "https://github.com/code-yeongyu/oh-my-openagent"
+    fetched: 2026-04-19T12:00:00Z
+    title: "Oh My OpenAgent — README"
+    hash: "89781cea176c4a930c85559a3bcd105021103720f83c71b7c14793bfebbe41bb"
+    highlights:
+      - omo-readme.md
+    selective: true
+    notes: "Primary project README covering features, agent roster, philosophy, and installation"
+
+  - source-id: omo-manifesto
+    type: web
+    url: "https://github.com/code-yeongyu/oh-my-openagent/blob/dev/docs/manifesto.md"
+    fetched: 2026-04-19T12:00:00Z
+    title: "Oh My OpenAgent — Manifesto"
+    hash: "0cbc4a57ca993d150467d18654f544dc050591c8eaa674ad6fbb4cf21803d274"
+    notes: "Core philosophy: human intervention as failure signal, indistinguishable code, token cost acceptance"
+
+  - source-id: omo-agents-md
+    type: repository
+    url: "https://github.com/code-yeongyu/oh-my-openagent/blob/dev/AGENTS.md"
+    fetched: 2026-04-19T12:00:00Z
+    title: "Oh My OpenAgent — AGENTS.md (Architecture Reference)"
+    hash: "2164ea00327aa961c072d328220bc1e81be150bbfd4cc742aed48f8c0ad04e73"
+    highlights:
+      - omo-agents-md.md
+    selective: true
+    notes: "Machine-readable architecture reference: 11 agents, 52 hooks, 26 tools, init flow, conventions"
+
+  - source-id: omo-features
+    type: web
+    url: "https://github.com/code-yeongyu/oh-my-openagent/blob/dev/docs/reference/features.md"
+    fetched: 2026-04-19T12:00:00Z
+    title: "Oh My OpenAgent — Features Reference"
+    hash: "51f5d9ecff21080f834a179b26df8854adf853c10701ba9c69a224e728f08016"
+    notes: "Complete feature documentation: agents, categories, skills, commands, hooks, Hashline edit system"
+
+  - source-id: omo-model-matching
+    type: web
+    url: "https://github.com/code-yeongyu/oh-my-openagent/blob/dev/docs/guide/agent-model-matching.md"
+    fetched: 2026-04-19T12:00:00Z
+    title: "Oh My OpenAgent — Agent-Model Matching Guide"
+    hash: "a5fd191eeef723220daa6e9c694cf34104949ef15a973934b8e811a115c5c891"
+    notes: "Detailed model mapping rationale: why Claude follows mechanics-driven prompts and GPT needs principle-driven prompts"
+
+  - source-id: omo-deepwiki-overview
+    type: web
+    url: "https://deepwiki.com/code-yeongyu/oh-my-openagent"
+    fetched: 2026-04-19T12:00:00Z
+    title: "Oh My OpenAgent — DeepWiki Architecture Overview"
+    hash: "6938eb8c1db640935de0a2f4e9c62c05e53241e21bf4344c34a6d8051a6ebc62"
+    notes: "Third-party architecture overview from DeepWiki covering initialization, config, MCP tiers, and hook execution"
