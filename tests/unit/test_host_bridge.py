@@ -1,6 +1,6 @@
 """RED tests for the host bridge kernel — the hub daemon."""
-from untethered.protocol import Event, Command
-from untethered.bridges.host import HostBridge
+from swain_helm.protocol import Event, Command
+from swain_helm.bridges.host import HostBridge
 
 
 class TestHostBridgeRouting:

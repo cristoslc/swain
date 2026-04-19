@@ -2,8 +2,8 @@
 import asyncio
 from unittest.mock import AsyncMock, MagicMock
 
-from untethered.protocol import Event, Command
-from untethered.bridges.project import ProjectBridge, SessionState
+from swain_helm.protocol import Event, Command
+from swain_helm.bridges.project import ProjectBridge, SessionState
 
 
 class TestSessionLifecycle:

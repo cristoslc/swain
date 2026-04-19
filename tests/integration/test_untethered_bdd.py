@@ -24,10 +24,10 @@ from unittest.mock import AsyncMock, MagicMock, patch, call
 
 import pytest
 
-from untethered.protocol import Event, Command
-from untethered.bridges.project import ProjectBridge
-from untethered.adapters.zulip_chat import ZulipChatAdapter
-from untethered.plugins.zulip_chat import _poll_zulip, SessionTopicRegistry
+from swain_helm.protocol import Event, Command
+from swain_helm.bridges.project import ProjectBridge
+from swain_helm.adapters.zulip_chat import ZulipChatAdapter
+from swain_helm.plugins.zulip_chat import _poll_zulip, SessionTopicRegistry
 
 
 # ---------------------------------------------------------------------------
@@ -153,7 +153,7 @@ class TestAdapterWiring:
     """ProjectBridge spawns and controls ClaudeCodeAdapter instances."""
 
     async def test_start_session_spawns_adapter(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
+        with patch("swain_helm.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -174,7 +174,7 @@ class TestAdapterWiring:
             assert "session_name" in start_kwargs
 
     async def test_send_prompt_forwards_to_adapter(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
+        with patch("swain_helm.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -196,7 +196,7 @@ class TestAdapterWiring:
             assert sent_cmd.payload["text"] == "keep going"
 
     async def test_approve_forwards_to_adapter(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
+        with patch("swain_helm.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -229,7 +229,7 @@ class TestAdapterWiring:
             assert sent_cmd.payload["approved"] is True
 
     async def test_cancel_stops_adapter(self):
-        with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
+        with patch("swain_helm.bridges.project.TmuxPaneAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             MockAdapter.return_value = mock_instance
 
@@ -252,7 +252,7 @@ class TestAdapterWiring:
     async def test_send_prompt_to_unknown_session_logs_warning(self, caplog):
         import logging
         bridge = ProjectBridge(project="swain")
-        with caplog.at_level(logging.WARNING, logger="untethered.bridges.project"):
+        with caplog.at_level(logging.WARNING, logger="swain_helm.bridges.project"):
             bridge.handle_command(
                 Command.send_prompt(bridge="swain", session_id="nonexistent", text="hello")
             )
@@ -267,20 +267,20 @@ class TestSmoke:
     """Minimal wiring test — nothing crashes on import or instantiation."""
 
     def test_kernel_imports(self):
-        from untethered.kernel import HostKernel, PluginProcess
-        from untethered.plugins.zulip_chat import _poll_zulip, _relay_events
-        from untethered.plugins.project_bridge import _amain
+        from swain_helm.kernel import HostKernel, PluginProcess
+        from swain_helm.plugins.zulip_chat import _poll_zulip, _relay_events
+        from swain_helm.plugins.project_bridge import _amain
 
     def test_kernel_instantiates(self):
-        from untethered.kernel import HostKernel
+        from swain_helm.kernel import HostKernel
         kernel = HostKernel()
         assert kernel._chat_plugin is None
         assert kernel._project_plugins == {}
 
     def test_project_bridge_library_still_works(self):
         """ProjectBridge is still usable as a library (used by project_bridge plugin)."""
-        from untethered.bridges.project import ProjectBridge
-        from untethered.protocol import Event
+        from swain_helm.bridges.project import ProjectBridge
+        from swain_helm.protocol import Event
         delivered = []
         bridge = ProjectBridge(project="swain", on_event=delivered.append)
         event = Event.text_output(bridge="swain", session_id="s1", content="hello")
@@ -289,7 +289,7 @@ class TestSmoke:
 
     def test_protocol_encode_decode_roundtrip(self):
         """ConfigMessage roundtrips correctly (used by kernel → plugin handshake)."""
-        from untethered.protocol import ConfigMessage, encode_message, decode_message
+        from swain_helm.protocol import ConfigMessage, encode_message, decode_message
         cfg = ConfigMessage(plugin_type="chat", config={"bot_email": "x@y.com"})
         line = encode_message(cfg)
         restored = decode_message(line)

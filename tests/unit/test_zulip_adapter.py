@@ -2,8 +2,8 @@
 import json
 from unittest.mock import MagicMock, patch
 
-from untethered.protocol import Event, Command
-from untethered.adapters.zulip_chat import (
+from swain_helm.protocol import Event, Command
+from swain_helm.adapters.zulip_chat import (
     format_event_for_zulip,
     parse_zulip_message,
     ZulipChatAdapter,

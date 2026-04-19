@@ -4,7 +4,7 @@ Registers a Zulip bot, creates a stream for the project, generates a
 bridge config file, and prints instructions for starting the bridge.
 
 Usage:
-    uv run python -m untethered.provision \
+    uv run python -m swain_helm.provision \
         --zulip-site https://myorg.zulipchat.com \
         --zulip-email swain-bot@myorg.zulipchat.com \
         --zulip-api-key YOUR_KEY \
@@ -21,7 +21,7 @@ import logging
 import sys
 from pathlib import Path
 
-log = logging.getLogger("untethered.provision")
+log = logging.getLogger("swain_helm.provision")
 
 
 def provision(
@@ -109,7 +109,7 @@ def provision(
     log.info("Config written to %s (permissions: 600)", output)
 
     print(f"\nProvisioning complete. Start the bridge with:")
-    print(f"  uv run python -m untethered.main --config {output_path}")
+    print(f"  uv run python -m swain_helm.main --config {output_path}")
 
     return config
 

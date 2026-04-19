@@ -29,10 +29,10 @@ from unittest.mock import AsyncMock, MagicMock, patch, call
 
 import pytest
 
-from untethered.protocol import Event, Command, ConfigMessage, encode_message, decode_message
-from untethered.bridges.project import ProjectBridge, SessionState, LauncherProcess
-from untethered.adapters.zulip_chat import parse_zulip_message, format_event_for_zulip
-from untethered.plugins.zulip_chat import _poll_zulip, _relay_events, SessionTopicRegistry
+from swain_helm.protocol import Event, Command, ConfigMessage, encode_message, decode_message
+from swain_helm.bridges.project import ProjectBridge, SessionState, LauncherProcess
+from swain_helm.adapters.zulip_chat import parse_zulip_message, format_event_for_zulip
+from swain_helm.plugins.zulip_chat import _poll_zulip, _relay_events, SessionTopicRegistry
 
 
 # ---------------------------------------------------------------------------
@@ -109,7 +109,7 @@ class TestControlMessageBridge:
     """ProjectBridge handles control_message by spawning a lightweight session."""
 
     async def test_control_message_spawns_session_with_origin_control(self):
-        with patch("untethered.bridges.project.OpenCodeServerAdapter") as MockAdapter:
+        with patch("swain_helm.bridges.project.OpenCodeServerAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             mock_instance.wait_for_health = AsyncMock(return_value=True)
             MockAdapter.return_value = mock_instance
@@ -134,7 +134,7 @@ class TestControlMessageBridge:
         delivered: list[Event] = []
         bridge = ProjectBridge(project="swain", on_event=delivered.append)
 
-        with patch("untethered.bridges.project.OpenCodeServerAdapter") as MockAdapter:
+        with patch("swain_helm.bridges.project.OpenCodeServerAdapter") as MockAdapter:
             mock_instance = AsyncMock()
             mock_instance.wait_for_health = AsyncMock(return_value=True)
             MockAdapter.return_value = mock_instance
@@ -305,7 +305,7 @@ class TestLaunchSessionBridge:
     """ProjectBridge handles launch_session by spawning the launcher."""
 
     async def test_launch_session_creates_interviewing_session(self):
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
+        with patch("swain_helm.bridges.project.LauncherProcess") as MockLauncher:
             mock_instance = AsyncMock()
             MockLauncher.return_value = mock_instance
 
@@ -324,7 +324,7 @@ class TestLaunchSessionBridge:
 
     async def test_followup_control_message_relays_to_launcher(self):
         """Second control_message while interviewing relays as answer."""
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
+        with patch("swain_helm.bridges.project.LauncherProcess") as MockLauncher:
             mock_instance = AsyncMock()
             MockLauncher.return_value = mock_instance
 
@@ -346,11 +346,11 @@ class TestLaunchSessionBridge:
         """When launcher emits ready, session is promoted and runtime spawned."""
         delivered: list[Event] = []
 
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
+        with patch("swain_helm.bridges.project.LauncherProcess") as MockLauncher:
             mock_instance = AsyncMock()
             MockLauncher.return_value = mock_instance
 
-            with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
+            with patch("swain_helm.bridges.project.TmuxPaneAdapter") as MockAdapter:
                 adapter_instance = AsyncMock()
                 MockAdapter.return_value = adapter_instance
 
@@ -394,7 +394,7 @@ class TestLaunchSessionBridge:
         """Launcher info messages become text_output events with origin=control."""
         delivered: list[Event] = []
 
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
+        with patch("swain_helm.bridges.project.LauncherProcess") as MockLauncher:
             mock_instance = AsyncMock()
             MockLauncher.return_value = mock_instance
 
@@ -418,7 +418,7 @@ class TestLaunchSessionBridge:
         """Launcher question messages show options in the text."""
         delivered: list[Event] = []
 
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
+        with patch("swain_helm.bridges.project.LauncherProcess") as MockLauncher:
             mock_instance = AsyncMock()
             MockLauncher.return_value = mock_instance
 

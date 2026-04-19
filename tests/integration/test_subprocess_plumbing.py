@@ -28,11 +28,11 @@ import sys
 
 import pytest
 
-from untethered.protocol import (
+from swain_helm.protocol import (
     Event, Command, ConfigMessage,
     encode_message, decode_message,
 )
-from untethered.kernel import PluginProcess
+from swain_helm.kernel import PluginProcess
 
 
 # ---------------------------------------------------------------------------
@@ -171,7 +171,7 @@ class TestProjectBridgeSubprocess:
 
         plugin = PluginProcess(
             name="project:test",
-            cmd=[sys.executable, "-m", "untethered.plugins.project_bridge"],
+            cmd=[sys.executable, "-m", "swain_helm.plugins.project_bridge"],
             plugin_type="project",
             config={"project": "test-project", "project_dir": "/tmp"},
             on_message=received.append,
@@ -198,7 +198,7 @@ class TestProjectBridgeSubprocess:
 
         plugin = PluginProcess(
             name="project:test",
-            cmd=[sys.executable, "-m", "untethered.plugins.project_bridge"],
+            cmd=[sys.executable, "-m", "swain_helm.plugins.project_bridge"],
             plugin_type="project",
             config={"project": "test-project", "project_dir": "/tmp"},
             on_message=received.append,
@@ -244,7 +244,7 @@ class TestChatPluginPollEmit:
 import asyncio, sys
 from unittest.mock import MagicMock
 
-from untethered.plugins.zulip_chat import _poll_zulip, _emit, SessionTopicRegistry
+from swain_helm.plugins.zulip_chat import _poll_zulip, _emit, SessionTopicRegistry
 
 def make_client():
     client = MagicMock()

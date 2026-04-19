@@ -17,13 +17,13 @@ import logging
 import sys
 from typing import Any, Callable
 
-from untethered.protocol import (
+from swain_helm.protocol import (
     Event, Command, ConfigMessage,
     encode_message, decode_message,
     _HOST_COMMAND_TYPES,
 )
 
-log = logging.getLogger("untethered.kernel")
+log = logging.getLogger("swain_helm.kernel")
 
 
 class PluginProcess:
@@ -172,7 +172,7 @@ class HostKernel:
             "stream": proj.get("stream", name),
             "runtime": proj.get("runtime", "claude"),
         }
-        cmd = [sys.executable, "-m", "untethered.plugins.project_bridge"]
+        cmd = [sys.executable, "-m", "swain_helm.plugins.project_bridge"]
         plugin = PluginProcess(
             name=f"project:{name}",
             cmd=cmd,
@@ -196,7 +196,7 @@ class HostKernel:
             "stream_to_project": self._stream_to_project,
             "project_to_stream": self._project_to_stream,
         }
-        cmd = [sys.executable, "-m", "untethered.plugins.zulip_chat"]
+        cmd = [sys.executable, "-m", "swain_helm.plugins.zulip_chat"]
         plugin = PluginProcess(
             name="chat:zulip",
             cmd=cmd,

@@ -12,7 +12,7 @@ import logging
 import subprocess
 from typing import Any, Callable
 
-from untethered.protocol import Event, Command, encode_message
+from swain_helm.protocol import Event, Command, encode_message
 
 log = logging.getLogger(__name__)
 

@@ -17,7 +17,7 @@ import subprocess
 import tempfile
 from typing import Any, Callable
 
-from untethered.protocol import Event, Command
+from swain_helm.protocol import Event, Command
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class TmuxPaneAdapter:
         cmd = runtime_cmd or ["opencode"]
 
         # Create output file for pipe-pane
-        fifo_dir = tempfile.mkdtemp(prefix="untethered-")
+        fifo_dir = tempfile.mkdtemp(prefix="swain_helm-")
         self._fifo_path = os.path.join(fifo_dir, "output.log")
         # Touch the file so tail -f can start immediately
         open(self._fifo_path, "w").close()

@@ -18,7 +18,7 @@ from urllib.request import urlopen, Request
 from urllib.error import URLError
 
 
-from untethered.protocol import Event, Command
+from swain_helm.protocol import Event, Command
 
 log = logging.getLogger(__name__)
 

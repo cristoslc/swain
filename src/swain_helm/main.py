@@ -4,8 +4,8 @@ Loads bridge config, spawns plugin subprocesses (chat adapter + project
 bridges), and routes NDJSON between them per ADR-038 and ADR-039.
 
 Usage:
-    uv run python -m untethered.main --config bridge.json
-    uv run python -m untethered.main --domain personal
+    uv run python -m swain_helm.main --config bridge.json
+    uv run python -m swain_helm.main --domain personal
 """
 
 from __future__ import annotations
@@ -20,10 +20,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from untethered.kernel import HostKernel
-from untethered.runtime_state import ProcessEntry, RuntimeStateManager
+from swain_helm.kernel import HostKernel
+from swain_helm.runtime_state import ProcessEntry, RuntimeStateManager
 
-log = logging.getLogger("untethered")
+log = logging.getLogger("swain_helm")
 
 
 def check_and_register_runtime(domain: str) -> RuntimeStateManager:

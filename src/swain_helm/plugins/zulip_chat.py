@@ -28,16 +28,16 @@ from typing import Any, Callable
 
 import zulip
 
-from untethered.protocol import (
+from swain_helm.protocol import (
     Event,
     Command,
     ConfigMessage,
     decode_message,
     encode_message,
 )
-from untethered.adapters.zulip_chat import format_event_for_zulip, parse_zulip_message
+from swain_helm.adapters.zulip_chat import format_event_for_zulip, parse_zulip_message
 
-log = logging.getLogger("untethered.plugins.zulip_chat")
+log = logging.getLogger("swain_helm.plugins.zulip_chat")
 
 
 # ---------------------------------------------------------------------------

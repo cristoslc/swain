@@ -171,7 +171,7 @@ class RuntimeStateManager:
             conflict_info = ", ".join(f"{c.type} (PID {c.pid})" for c in conflicts)
             raise RuntimeError(
                 f"Overlap detected for domain '{self.domain}': {conflict_info}. "
-                f"Use 'pkill -f untethered' to clean up or choose a different domain."
+                f"Use 'pkill -f swain_helm' to clean up or choose a different domain."
             )
 
         # Load or create state

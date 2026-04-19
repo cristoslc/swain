@@ -17,11 +17,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
-from untethered.protocol import Event, Command
-from untethered.adapters.claude_code import ClaudeCodeAdapter
-from untethered.adapters.opencode import OpenCodeAdapter
-from untethered.adapters.opencode_server import OpenCodeServerAdapter
-from untethered.adapters.tmux_pane import TmuxPaneAdapter
+from swain_helm.protocol import Event, Command
+from swain_helm.adapters.claude_code import ClaudeCodeAdapter
+from swain_helm.adapters.opencode import OpenCodeAdapter
+from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
+from swain_helm.adapters.tmux_pane import TmuxPaneAdapter
 
 log = logging.getLogger(__name__)
 

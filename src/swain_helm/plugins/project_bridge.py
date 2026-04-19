@@ -16,13 +16,13 @@ import asyncio
 import logging
 import sys
 
-from untethered.protocol import (
+from swain_helm.protocol import (
     Command, ConfigMessage,
     decode_message, encode_message,
 )
-from untethered.bridges.project import ProjectBridge
+from swain_helm.bridges.project import ProjectBridge
 
-log = logging.getLogger("untethered.plugins.project_bridge")
+log = logging.getLogger("swain_helm.plugins.project_bridge")
 
 
 async def _amain() -> None:
