@@ -1,8 +1,9 @@
 """Provisioning script for swain-helm.
 
 Registers a Zulip bot, creates a stream for the project, generates
-a bridge config file with op:// credential references, and prints
-instructions for starting the watchdog daemon.
+a bridge config file with op:// credential references, writes a
+per-project config for the watchdog, and prints instructions for
+starting the watchdog daemon.
 
 Usage:
     swain-helm host provision \
@@ -11,8 +12,7 @@ Usage:
         --zulip-api-key YOUR_KEY \
         --operator-email you@example.com \
         --project swain \
-        --project-path /home/user/swain \
-        --output ~/.config/swain-helm/helm.config.json
+        --project-path /home/user/swain
 """
 
 from __future__ import annotations
@@ -22,6 +22,8 @@ import json
 import logging
 import sys
 from pathlib import Path
+
+DEFAULT_CONFIG_DIR = Path.home() / ".config" / "swain-helm"
 
 log = logging.getLogger("swain_helm.provision")
 
@@ -34,18 +36,20 @@ def provision(
     operator_email: str,
     project_name: str,
     project_path: str,
-    output_path: str,
+    config_dir: Path | None = None,
     stream_name: str | None = None,
 ) -> dict:
     """Provision a bridge config for a single project.
 
     1. Verify Zulip credentials work.
     2. Create (or verify) a stream for the project.
-    3. Write bridge config JSON.
+    3. Write helm.config.json with chat credentials (op:// references).
+    4. Write per-project config for the watchdog.
     """
     import zulip
 
     stream = stream_name or project_name
+    cfg_dir = config_dir or DEFAULT_CONFIG_DIR
 
     client = zulip.Client(
         email=zulip_email,
@@ -53,14 +57,12 @@ def provision(
         site=zulip_site,
     )
 
-    # Verify credentials
     result = client.get_profile()
     if result.get("result") != "success":
         log.error("Zulip auth failed: %s", result.get("msg", "unknown error"))
         sys.exit(1)
     log.info("Zulip auth OK — bot: %s", result.get("full_name", zulip_email))
 
-    # Create or subscribe to the project stream
     sub_result = client.add_subscriptions(
         streams=[{"name": stream, "description": f"swain-helm — {project_name}"}],
     )
@@ -69,7 +71,6 @@ def provision(
         sys.exit(1)
     log.info("Stream ready: %s", stream)
 
-    # Post a welcome message to the control topic
     client.send_message(
         {
             "type": "stream",
@@ -87,8 +88,7 @@ def provision(
         }
     )
 
-    # Write config
-    config = {
+    helm_config = {
         "domain": "personal",
         "chat": {
             "server_url": zulip_site,
@@ -97,25 +97,40 @@ def provision(
             "operator_email": operator_email,
             "control_topic": "control",
         },
-        "projects": [
-            {
-                "name": project_name,
-                "path": project_path,
-                "stream": stream,
-                "runtime": "claude",
-            },
-        ],
+        "opencode": {
+            "default_port": 4096,
+        },
+        "scan_paths": [project_path],
     }
 
-    output = Path(output_path)
-    output.write_text(json.dumps(config, indent=2) + "\n")
-    output.chmod(0o600)
-    log.info("Config written to %s (permissions: 600)", output)
+    projects_dir = cfg_dir / "projects"
+    projects_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"\nProvisioning complete. Start the bridge with:")
+    project_config = {
+        "name": project_name,
+        "path": project_path,
+        "stream": stream,
+        "runtime": "claude",
+        "auto_start": True,
+        "worktree_poll_interval_s": 15,
+    }
+
+    helm_config["projects"] = [project_config]
+
+    helm_path = cfg_dir / "helm.config.json"
+    helm_path.write_text(json.dumps(helm_config, indent=2) + "\n")
+    helm_path.chmod(0o600)
+    log.info("Helm config written to %s (permissions: 600)", helm_path)
+
+    project_path_file = projects_dir / f"{project_name}.json"
+    project_path_file.write_text(json.dumps(project_config, indent=2) + "\n")
+    project_path_file.chmod(0o600)
+    log.info("Project config written to %s (permissions: 600)", project_path_file)
+
+    print(f"\nProvisioning complete. Start the watchdog with:")
     print(f"  swain-helm host up")
 
-    return config
+    return helm_config
 
 
 def main() -> None:
@@ -131,7 +146,9 @@ def main() -> None:
         "--project-path", required=True, help="Path to project directory"
     )
     parser.add_argument(
-        "--output", default="bridge.json", help="Output config file path"
+        "--config-dir",
+        default=None,
+        help="Config directory (default: ~/.config/swain-helm)",
     )
     parser.add_argument(
         "--stream", default=None, help="Zulip stream name (defaults to project name)"
@@ -142,6 +159,8 @@ def main() -> None:
         level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
     )
 
+    config_dir = Path(args.config_dir) if args.config_dir else None
+
     provision(
         zulip_site=args.zulip_site,
         zulip_email=args.zulip_email,
@@ -149,7 +168,7 @@ def main() -> None:
         operator_email=args.operator_email,
         project_name=args.project,
         project_path=args.project_path,
-        output_path=args.output,
+        config_dir=config_dir,
         stream_name=args.stream,
     )
 

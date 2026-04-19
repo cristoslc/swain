@@ -258,21 +258,27 @@ class TestStartIfNeeded:
             with patch(
                 "swain_helm.opencode_discovery.subprocess.Popen", return_value=mock_proc
             ):
-                # Health check returns True on retry
                 call_count = {"n": 0}
 
-                def health_flip(port):
+                async def health_flip(port):
                     call_count["n"] += 1
                     return False if call_count["n"] <= 1 else True
 
-                with patch.object(scanner, "health_check", side_effect=health_flip):
-                    with patch.object(scanner, "auth_test", return_value=False):
+                with patch.object(
+                    scanner, "health_check_async", side_effect=health_flip
+                ):
+                    with patch.object(scanner, "auth_test_async", return_value=False):
                         with patch(
                             "swain_helm.opencode_discovery.OPENCODE_CONFIG_PATH",
                             Path("/nonexistent"),
                         ):
-                            # Override scan to return empty
-                            with patch.object(scanner, "scan", return_value=[]):
+
+                            async def empty_scan():
+                                return []
+
+                            with patch.object(
+                                scanner, "scan_async", side_effect=empty_scan
+                            ):
                                 result = await scanner.start_if_needed()
 
         assert result is not None
@@ -284,7 +290,10 @@ class TestStartIfNeeded:
         existing = OpenCodeInstance(port=5000, auth_valid=True)
         scanner = _make_scanner({"default_port": 5000}, tmp_path / "run")
 
-        with patch.object(scanner, "scan", return_value=[existing]):
+        async def scan_with_existing():
+            return [existing]
+
+        with patch.object(scanner, "scan_async", side_effect=scan_with_existing):
             result = await scanner.start_if_needed()
 
         assert result is existing
