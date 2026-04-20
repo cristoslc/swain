@@ -79,37 +79,39 @@ All sources agree on these facts:
 
 ## Implications for swain-helm
 
-### Option A: One swain-helm session per workspace
+### ADR-047 already decided: one session per worktree
 
-Each opencode workspace (worktree) gets its own swain-helm bridge session. When a Zulip message arrives, the bridge routes it to the matching workspace by setting the `x-opencode-directory` header.
+ADR-047 (swain-helm Watchdog Architecture) already specifies the worktree lifecycle model:
 
-**Pros**: Clean isolation, matches opencode's own model, each workspace has its own branch and session context.
+- Each project bridge polls `git worktree list --porcelain` every 15s.
+- New worktrees get a Zulip topic named after their branch.
+- Removed worktrees result in session termination and cleanup.
+- A project bridge holds exactly one opencode session per worktree.
+- Trunk always has a session (topic: `trunk`).
+- The watchdog does not manage worktrees — that is a per-project-bridge concern.
 
-**Cons**: Requires the bridge to know about workspaces, needs workspace discovery via `/project`, needs to handle workspace creation/deletion lifecycle, may need UI for workspace selection from Zulip.
+This means the architecture already accounts for worktree lifecycle. The question is not *whether* to support it, but *how* to implement the bridge side given what opencode's server actually exposes.
 
-### Option B: One swain-helm session per project, workspace as a parameter
+### How opencode's model maps to ADR-047
 
-The bridge manages one session per project. When a message arrives, the operator includes a workspace hint (e.g., a Zulip topic prefix) that the bridge maps to a worktree directory.
+The opencode research confirms and clarifies several implementation details for the existing design.
 
-**Pros**: Simpler bridge, fewer connections, one Zulip stream per project.
+**Worktree discovery:** The bridge's planned 15s `git worktree list --porcelain` poll is correct. OpenCode does not expose stable API endpoints for workspace enumeration. The `GET /project/current` endpoint returns `Project.sandboxes`, but this only lists worktrees that opencode itself created (under `~/.local/share/opencode/worktree/`). Worktrees created by `git worktree add` directly (which is what swain-do creates) may not appear in `sandboxes`. Polling `git worktree list` from the project root is therefore more reliable than querying opencode's API for worktree discovery.
 
-**Cons**: No session isolation, workspace context must be manually tracked, risk of routing messages to wrong workspace.
+**Session routing:** When the bridge sends a message to an opencode session for a specific worktree, it must set the `x-opencode-directory` header to the worktree's directory path. This is how opencode's own web/desktop clients route requests. Sessions belong to a project, but the directory header scopes them to a worktree. The bridge does not need opencode's workspace CRUD API to route messages — it just needs the header.
 
-### Option C: Use opencode's worktree infrastructure directly
+**Session creation per worktree:** The bridge creates one session per worktree by calling `POST /session` with the `x-opencode-directory` header set to the worktree path. OpenCode resolves this to the correct project and routes the session to that directory. This works whether the worktree was created by opencode's desktop UI or by `git worktree add`.
 
-swain-helm itself creates and manages worktrees using opencode's `Worktree.create` (via the experimental API or by calling `git worktree add` directly). Each swain-helm "project bridge" owns one or more worktrees and creates opencode sessions within them.
+**Worktree creation is not the bridge's job:** ADR-047 correctly places worktree creation outside the bridge. The bridge discovers worktrees after they exist. This avoids the need to call opencode's experimental `/experimental/*` worktree endpoints. The bridge treats worktrees as a discovered fact, not a managed resource.
 
-**Pros**: Full control over workspace lifecycle, matches swain's own worktree discipline.
+**Removed worktree cleanup:** When `git worktree list` shows a worktree is gone, the bridge should clean up its session. The opencode session for that worktree becomes orphaned (the workspace no longer exists on disk). The v1.4.8 changelog shows opencode now has "improved workspace session handling when a workspace no longer exists" — the bridge should simply delete its session reference and let opencode handle the orphan internally.
 
-**Cons**: Duplicates worktree management that opencode already does, may conflict with worktrees created by the desktop/web UI, harder to coordinate.
+### Gaps the research reveals
 
-### Recommended approach
+1. **No stable programmatic worktree enumeration from opencode.** The bridge must use `git worktree list` rather than any opencode API. This is fine — `git worktree list --porcelain` is stable and always accurate.
 
-**Option A with a pragmatic fallback**: Start with one bridge session per project (Option B) since opencode's workspace API is still experimental. Layer in workspace-specific routing later using the `x-opencode-directory` header pattern. The bridge should:
+2. **`Project.sandboxes` may not include swain-managed worktrees.** If swain creates worktrees outside of opencode's `~/.local/share/opencode/worktree/` directory, they won't appear in `sandboxes`. The bridge should not rely on `GET /project/current` for worktree discovery.
 
-1. Discover the current project and its worktrees via `GET /project/current`.
-2. Allow the operator to specify a worktree directory via Zulip topic or command.
-3. Route messages with the `x-opencode-directory` header to target the correct workspace.
-4. Defer workspace creation to the operator (who creates them via desktop/web/CLI), not the bridge.
+3. **Auth context propagation across worktrees is now supported.** Since v1.4.7, workspaces receive auth context, so the bridge does not need to re-authenticate per worktree session. A single auth at project level suffices.
 
-This approach avoids depending on unstable workspace APIs while still supporting multi-workspace routing when the operator sets it up.
+4. **Plugin workspace adaptors are a future integration point.** Since v1.4.4, opencode plugins can register custom workspace adaptors. swain-helm could eventually register as a workspace adaptor so that creating a worktree from the desktop/web UI triggers bridge setup. This is a v2+ consideration.
