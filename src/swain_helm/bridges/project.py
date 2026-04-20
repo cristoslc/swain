@@ -156,7 +156,6 @@ class ProjectBridge:
 
     def _on_worktree_diff(self, diff: WorktreeDiff) -> None:
         for wt in diff.added:
-            self._ensure_session_for_worktree(wt)
             if self.on_event and wt.branch:
                 self.on_event(
                     Event.worktree_added(
@@ -164,6 +163,12 @@ class ProjectBridge:
                         worktree_path=wt.path,
                         branch_name=wt.branch,
                     )
+                )
+            if self._registry and wt.branch:
+                self._registry.update_entry(
+                    wt.branch,
+                    worktree_path=wt.path or "",
+                    state="available",
                 )
         for wt in diff.removed:
             self._remove_session_for_worktree(wt)

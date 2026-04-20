@@ -135,11 +135,16 @@ class PluginProcess:
                     log.exception("on_message callback error in %s", self.name)
 
     async def _log_stderr(self) -> None:
-        """Read stderr lines from the plugin and log them at DEBUG level."""
+        """Read stderr lines from the plugin and log them.
+
+        Plugin subprocesses use stderr for their own logging. The bridge
+        re-emits these at INFO level so they appear in the bridge log file
+        alongside bridge-level messages.
+        """
         if not self._proc or not self._proc.stderr:
             return
         while True:
             line = await self._proc.stderr.readline()
             if not line:
                 break
-            log.debug("[%s] %s", self.name, line.decode().rstrip())
+            log.info("[%s] %s", self.name, line.decode().rstrip())
