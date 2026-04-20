@@ -1,0 +1,75 @@
+trove: opencode-workspace-model
+created: 2026-04-20
+refreshed: 2026-04-20
+tags:
+  - opencode
+  - workspace
+  - worktree
+  - git-worktree
+  - session
+  - project
+  - sandbox
+  - client-server
+  - swain-helm
+  - bridge
+  - TUI
+  - web-ui
+  - desktop
+  - API
+  - SDK
+
+freshness-ttl:
+  web: 14d
+
+related-troves:
+  - opencode-crush-cli
+  - agent-session-persistence
+
+history:
+  - event: created
+    date: 2026-04-20
+    commit: "--"
+    sources: 6
+
+sources:
+  - source-id: opencode-workspace-hierarchy
+    type: web
+    url: "https://deepwiki.com/anomalyco/opencode/9.3-workspace-hierarchy"
+    fetched: 2026-04-20T12:00:00Z
+    title: "OpenCode Workspace Hierarchy — Projects, Workspaces, and Sessions"
+    hash: "fd241795faacf83404566d7cc412cc8c0d2f41dad19792bbc6cfeee4234abcc8"
+
+  - source-id: opencode-project-worktree-internals
+    type: web
+    url: "https://deepwiki.com/sst/opencode/2.7-project-and-worktree-management"
+    fetched: 2026-04-20T12:00:00Z
+    title: "OpenCode Project and Worktree Management Internals"
+    hash: "a341d24d01fd1fb24984cfe991de7921b15d0ab855f55aa85d30580d2cc15e2f"
+
+  - source-id: opencode-workspace-issues
+    type: web
+    url: "https://github.com/anomalyco/opencode/issues?q=workspace+worktree"
+    fetched: 2026-04-20T12:00:00Z
+    title: "OpenCode Workspace Feature Requests and Bug Reports"
+    hash: "19336a6f0956ee99faee3866778cb7608776216772f71a4535fac214af422279"
+
+  - source-id: opencode-server-api
+    type: web
+    url: "https://opencode.ai/docs/server/"
+    fetched: 2026-04-20T12:00:00Z
+    title: "OpenCode Server API — Workspace-Relevant Endpoints"
+    hash: "414f0747b9374ee1b036f9dbabc8e04a04ec5898dc5db43756a17d1b7dbe3c50"
+
+  - source-id: opencode-sdk-api
+    type: web
+    url: "https://opencode.ai/docs/sdk/"
+    fetched: 2026-04-20T12:00:00Z
+    title: "OpenCode JS SDK — Workspace-Relevant API Surface"
+    hash: "82ab9a9d262c0d3e7d34c9c8c7aa74d532e27efa14e6793bd03fa6aef72c1a67"
+
+  - source-id: opencode-changelog-workspace
+    type: web
+    url: "https://opencode.ai/changelog"
+    fetched: 2026-04-20T12:00:00Z
+    title: "OpenCode Changelog — Workspace and Worktree Highlights"
+    hash: "77e8300ac65eacaf25b7916479ce6c842977369351c2fd393d51efb64c2d02ed"
