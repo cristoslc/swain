@@ -17,14 +17,32 @@ def config_dir(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def watchdog(config_dir: Path) -> Watchdog:
+    _write_helm_config(config_dir)
     return Watchdog(config_dir=config_dir)
+
+
+def _write_helm_config(config_dir: Path) -> None:
+    config_dir.mkdir(parents=True, exist_ok=True)
+    helm_cfg = {
+        "scan_paths": ["/tmp"],
+        "chat": {"server_url": "https://example.zulipchat.com"},
+        "opencode": {"default_port": 4096},
+    }
+    (config_dir / "helm.config.json").write_text(json.dumps(helm_cfg))
 
 
 def _write_project_config(
     projects_dir: Path, name: str, auto_start: bool = True
 ) -> None:
     projects_dir.mkdir(parents=True, exist_ok=True)
-    cfg = {"auto_start": auto_start, "runtime": "claude"}
+    cfg = {
+        "name": name,
+        "path": f"/tmp/{name}",
+        "stream": name,
+        "runtime": "claude",
+        "auto_start": auto_start,
+        "worktree_poll_interval_s": 15,
+    }
     (projects_dir / f"{name}.json").write_text(json.dumps(cfg))
 
 
@@ -63,7 +81,14 @@ class TestAC1ReadsProjectConfigs:
     ) -> None:
         projects_dir = config_dir / "projects"
         projects_dir.mkdir(parents=True, exist_ok=True)
-        (projects_dir / "nodefault.json").write_text(json.dumps({"runtime": "claude"}))
+        cfg = {
+            "name": "nodefault",
+            "path": "/tmp/nodefault",
+            "stream": "nodefault",
+            "runtime": "claude",
+            "worktree_poll_interval_s": 15,
+        }
+        (projects_dir / "nodefault.json").write_text(json.dumps(cfg))
         configs = watchdog._read_project_configs()
         assert "nodefault" in configs
 

@@ -21,13 +21,18 @@ def bridge():
 
 class TestRuntimeCmd:
     def test_opencode(self):
-        assert _runtime_cmd("opencode") == ["swain-helm-opencode"]
+        cmd = _runtime_cmd("opencode")
+        assert cmd[0] != "swain-helm-opencode"
+        assert cmd[-1] == "swain_helm.adapters.opencode_server"
 
     def test_claude(self):
-        assert _runtime_cmd("claude") == ["swain-helm-claude"]
+        cmd = _runtime_cmd("claude")
+        assert cmd[0] != "swain-helm-claude"
+        assert cmd[-1] == "swain_helm.adapters.claude_code"
 
     def test_default_is_tmux(self):
-        assert _runtime_cmd("gemini") == ["swain-helm-tmux"]
+        cmd = _runtime_cmd("gemini")
+        assert cmd[-1] == "swain_helm.adapters.tmux_pane"
 
 
 class TestStartStop:
@@ -75,7 +80,7 @@ class TestSessionLifecycle:
             await asyncio.sleep(0)
         sess_id = list(bridge.sessions.keys())[0]
         plugin = bridge._runtime_plugins[sess_id]
-        assert plugin.cmd == ["swain-helm-opencode"]
+        assert plugin.cmd[-1] == "swain_helm.adapters.opencode_server"
         assert plugin.config["bridge"] == "swain"
         assert plugin.config["session_id"] == sess_id
 

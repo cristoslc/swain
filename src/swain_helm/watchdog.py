@@ -1,4 +1,9 @@
-"""Process manager that reconciles desired state against running bridges."""
+"""Process manager that reconciles desired state against running bridges.
+
+Resolves 1Password op:// references exactly once at startup, then passes
+fully-resolved config to bridge subprocesses via NDJSON ConfigMessage on
+stdin. Bridges never invoke `op` themselves.
+"""
 
 import asyncio
 import json
@@ -9,6 +14,8 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+from swain_helm.config import load_helm_config, load_project_config
 
 log = logging.getLogger("swain_helm.watchdog")
 
@@ -25,7 +32,21 @@ class Watchdog:
         self.run_dir = self.config_dir / "run" / "bridges"
         self.watchdog_pid_path = self.config_dir / "run" / "watchdog.pid"
         self._running: dict[str, subprocess.Popen] = {}
+        self._bridge_configs: dict[str, dict] = {}
+        self._helm_config: dict | None = None
         self._shutdown_event = asyncio.Event()
+
+    def load_helm_config(self) -> dict:
+        """Resolve 1Password refs once at startup and cache the result."""
+        if self._helm_config is None:
+            config_path = self.config_dir / "helm.config.json"
+            if config_path.exists():
+                self._helm_config = load_helm_config(str(config_path))
+                log.info("Loaded and resolved helm config from %s", config_path)
+            else:
+                self._helm_config = {}
+                log.warning("No helm.config.json found at %s", config_path)
+        return self._helm_config
 
     async def run(self, *, foreground: bool = True) -> None:
         """Main loop: reconcile every 30s until shutdown."""
@@ -64,18 +85,27 @@ class Watchdog:
                 await self._stop_bridge(name)
 
     def _read_project_configs(self) -> dict[str, dict]:
-        """Read all project configs from projects/ directory."""
+        """Read and resolve all project configs from projects/ directory.
+
+        Merges the resolved helm config (chat credentials, opencode settings)
+        into each project config so bridges receive fully-resolved config via
+        stdin — no op:// references ever leave this process.
+        """
         configs: dict[str, dict] = {}
         if not self.projects_dir.exists():
             return configs
+        helm = self.load_helm_config()
         for path in self.projects_dir.glob("*.json"):
             try:
-                with open(path) as f:
-                    cfg = json.load(f)
-                if cfg.get("auto_start", True):
-                    configs[path.stem] = cfg
-            except (json.JSONDecodeError, OSError) as e:
-                log.error("Failed to read config %s: %s", path, e)
+                project_cfg = load_project_config(str(path))
+                if not project_cfg.get("auto_start", True):
+                    continue
+                resolved = {**project_cfg}
+                resolved["chat"] = helm.get("chat", {})
+                resolved["opencode"] = helm.get("opencode", {})
+                configs[path.stem] = resolved
+            except Exception as e:
+                log.error("Failed to read/resolve config %s: %s", path, e)
         return configs
 
     def _get_running_bridges(self) -> set[str]:
@@ -138,30 +168,40 @@ class Watchdog:
             return True
         except (ProcessLookupError, ValueError, OSError):
             return False
-        try:
-            pid = int(pid_file.read_text().strip())
-            os.kill(pid, 0)
-            return True
-        except (ProcessLookupError, ValueError, OSError):
-            return False
 
     async def _start_bridge(self, name: str, config: dict) -> None:
-        """Start a project bridge subprocess."""
+        """Start a project bridge subprocess, passing resolved config on stdin."""
         cmd = [sys.executable, "-m", "swain_helm.bridges.project", "--project", name]
         log.info("Starting bridge: %s", name)
         self.run_dir.mkdir(parents=True, exist_ok=True)
+
+        from swain_helm.protocol import encode_message, ConfigMessage
+
+        cfg_msg = ConfigMessage(plugin_type="bridge", config=config)
+        cfg_bytes = encode_message(cfg_msg).encode() + b"\n"
+
+        log_path = self.run_dir / f"{name}.log"
+        log_fd = os.open(str(log_path), os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+
         try:
             proc = subprocess.Popen(
                 cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                stdout=log_fd,
+                stderr=log_fd,
             )
+            os.close(log_fd)
+            assert proc.stdin is not None
+            proc.stdin.write(cfg_bytes)
+            proc.stdin.flush()
+            proc.stdin.close()
             pid_file = self.run_dir / f"{name}.pid"
             start_time = _process_start_time(proc.pid)
             pid_file.write_text(f"{proc.pid}\n{start_time or 0.0}\n")
             self._running[name] = proc
             log.info("Bridge %s started (pid %s)", name, proc.pid)
         except Exception as e:
+            os.close(log_fd)
             log.error("Failed to start bridge %s: %s", name, e)
 
     async def _stop_bridge(self, name: str) -> None:
@@ -202,14 +242,15 @@ class Watchdog:
         """Stop a specific bridge (called from CLI)."""
         pid_file = self.run_dir / f"{name}.pid"
         if pid_file.exists():
-            try:
-                pid = int(pid_file.read_text().strip())
-                os.kill(pid, signal.SIGTERM)
-                pid_file.unlink()
-                log.info("Bridge %s stopped by CLI", name)
-            except (ProcessLookupError, ValueError, OSError) as e:
-                log.warning("Failed to stop bridge %s: %s", name, e)
-                pid_file.unlink(missing_ok=True)
+            entry = _read_pid_file(pid_file)
+            if entry:
+                pid, _ = entry
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                    log.info("Bridge %s stopped by CLI", name)
+                except (ProcessLookupError, ValueError, OSError) as e:
+                    log.warning("Failed to stop bridge %s: %s", name, e)
+            pid_file.unlink(missing_ok=True)
 
 
 def daemonize(config_dir: Path | None = None) -> None:
@@ -298,3 +339,31 @@ def _read_pid_file(pid_file: Path) -> tuple[int, float] | None:
         return pid, recorded_start
     except (ValueError, OSError):
         return None
+
+
+def main() -> None:
+    """CLI entry point: `python -m swain_helm.watchdog [--daemon]`."""
+    import argparse as _argparse
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s %(message)s",
+    )
+
+    parser = _argparse.ArgumentParser(description="swain-helm watchdog")
+    parser.add_argument("--daemon", action="store_true", help="Run as daemon")
+    parser.add_argument("--config-dir", default=None, help="Config directory")
+    args = parser.parse_args()
+
+    config_dir = Path(args.config_dir) if args.config_dir else None
+
+    if args.daemon:
+        daemonize(config_dir)
+    else:
+        watchdog = Watchdog(config_dir=config_dir)
+        watchdog.load_helm_config()
+        asyncio.run(watchdog.run(foreground=True))
+
+
+if __name__ == "__main__":
+    main()

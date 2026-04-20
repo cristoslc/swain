@@ -55,7 +55,7 @@ is_pid_running() {
 read_pid_file() {
   local pid_file="$1"
   if [[ -f "$pid_file" ]]; then
-    cat "$pid_file"
+    head -1 "$pid_file"
   fi
 }
 

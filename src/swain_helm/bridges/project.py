@@ -12,6 +12,7 @@ import asyncio
 import enum
 import json
 import logging
+import sys
 import time
 import uuid
 from dataclasses import dataclass
@@ -47,14 +48,17 @@ class Session:
 
 
 _RUNTIME_COMMANDS = {
-    "opencode": "swain-helm-opencode",
-    "claude": "swain-helm-claude",
-    "tmux": "swain-helm-tmux",
+    "opencode": "swain_helm.adapters.opencode_server",
+    "claude": "swain_helm.adapters.claude_code",
+    "tmux": "swain_helm.adapters.tmux_pane",
 }
+
+_CHAT_COMMAND_MODULE = "swain_helm.plugins.zulip_chat"
 
 
 def _runtime_cmd(runtime: str) -> list[str]:
-    return [_RUNTIME_COMMANDS.get(runtime, "swain-helm-tmux")]
+    module = _RUNTIME_COMMANDS.get(runtime, "swain_helm.adapters.tmux_pane")
+    return [sys.executable, "-m", module]
 
 
 class ProjectBridge:
@@ -99,7 +103,7 @@ class ProjectBridge:
         stream = self.config.get("stream", self.project)
         self._chat_plugin = PluginProcess(
             name=f"chat:{self.project}",
-            cmd=["swain-helm-zulip-chat"],
+            cmd=[sys.executable, "-m", _CHAT_COMMAND_MODULE],
             plugin_type="chat",
             config={
                 "server_url": chat_cfg.get("server_url", ""),
@@ -113,6 +117,14 @@ class ProjectBridge:
             on_message=self._on_chat_message,
         )
         await self._chat_plugin.start()
+
+    async def run(self) -> None:
+        """Start the bridge and keep running until the chat plugin exits."""
+        await self.start()
+        if self._chat_plugin and self._chat_plugin._reader_task:
+            await self._chat_plugin._reader_task
+        log.info("Bridge %s chat plugin exited, shutting down", self.project)
+        await self.stop()
 
     async def stop(self) -> None:
         tasks: list[Any] = []
@@ -384,3 +396,65 @@ class ProjectBridge:
         if not session:
             return
         session.artifact = cmd.payload.get("artifact_id")
+
+
+def main() -> None:
+    """CLI entry point for bridge subprocess.
+
+    Reads a ConfigMessage from stdin (sent by the watchdog with fully-resolved
+    credentials — no op:// references ever reach this process), creates a
+    ProjectBridge, and runs its event loop.
+    """
+    import argparse
+    import asyncio
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s %(message)s",
+    )
+
+    parser = argparse.ArgumentParser(description="swain-helm project bridge")
+    parser.add_argument("--project", required=True, help="Project name")
+    args = parser.parse_args()
+
+    log.info("Bridge main() starting for project: %s", args.project)
+
+    config_line = sys.stdin.readline()
+    if not config_line:
+        log.error("No config received on stdin — bridge must be spawned by watchdog")
+        sys.exit(1)
+
+    log.info("Bridge received config (%d bytes)", len(config_line))
+
+    from swain_helm.protocol import decode_message, ConfigMessage as CMsg
+
+    config_msg = decode_message(config_line)
+    if not isinstance(config_msg, CMsg):
+        log.error("Expected ConfigMessage on stdin, got: %r", config_line[:100])
+        sys.exit(1)
+
+    cfg = getattr(config_msg, "config", {})
+    project_dir = cfg.get("path", "")
+    log.info(
+        "Bridge config: project_dir=%s, chat_keys=%s",
+        project_dir,
+        list(cfg.get("chat", {}).keys()),
+    )
+    registry = SessionRegistry(project_dir) if project_dir else None
+    scanner = WorktreeScanner(project_dir) if project_dir else None
+
+    bridge = ProjectBridge(
+        project=args.project,
+        project_dir=project_dir,
+        config=cfg,
+        scanner=scanner,
+        registry=registry,
+    )
+
+    log.info("Bridge starting event loop...")
+    asyncio.run(bridge.run())
+    log.info("Bridge event loop exited")
+
+
+if __name__ == "__main__":
+    main()

@@ -16,7 +16,6 @@ PROJECT_REQUIRED_KEYS = {
     "path",
     "stream",
     "runtime",
-    "auto_start",
     "worktree_poll_interval_s",
 }
 
