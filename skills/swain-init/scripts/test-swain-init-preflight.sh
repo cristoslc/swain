@@ -98,8 +98,8 @@ test_initialized_same_version() {
   local dir
   dir=$(setup_temp)
 
-  # Create .swain-init marker
-  cat > "$dir/.swain-init" << 'MARKER'
+  mkdir -p "$dir/.swain"
+  cat > "$dir/.swain/init.json" << 'MARKER'
 {
   "history": [
     {
@@ -139,7 +139,8 @@ test_initialized_older_version() {
   local dir
   dir=$(setup_temp)
 
-  cat > "$dir/.swain-init" << 'MARKER'
+  mkdir -p "$dir/.swain"
+  cat > "$dir/.swain/init.json" << 'MARKER'
 {
   "history": [
     {

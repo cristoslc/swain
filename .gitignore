@@ -86,5 +86,6 @@ skills/*
 .sandboxes/
 .agents/skills/skills
 .swain-init
+.swain/
 .env
 bridge.json

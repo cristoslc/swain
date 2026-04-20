@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test-launcher-marker-check.sh — SPEC-196: Test the .swain-init marker check
+# test-launcher-marker-check.sh — SPEC-196: Test the .swain/init.json marker check
 #
 # Tests the _swain_check_marker() function that shell launchers use to
 # decide whether to send /swain-init or /swain-session as the initial prompt.
@@ -49,15 +49,16 @@ source "$TEMPLATE_DIR/swain.bash"
 echo "=== SPEC-196: Launcher marker check tests ==="
 
 # ─── Test 1: No marker → /swain-init ───
-echo "Test 1: No .swain-init marker"
+echo "Test 1: No .swain/init.json marker"
 cd "$TMPDIR_TEST"
-rm -f .swain-init
+rm -rf .swain
 result=$(_swain_check_marker 2>/dev/null)
 assert_eq "no marker returns /swain-init" "/swain-init" "$result"
 
 # ─── Test 2: Current marker (same major) → /swain-session ───
-echo "Test 2: Current .swain-init marker (same major version)"
-cat > "$TMPDIR_TEST/.swain-init" << 'JSON'
+echo "Test 2: Current .swain/init.json marker (same major version)"
+mkdir -p "$TMPDIR_TEST/.swain"
+cat > "$TMPDIR_TEST/.swain/init.json" << 'JSON'
 {
   "history": [
     {
@@ -73,7 +74,8 @@ assert_eq "current marker returns /swain-session" "/swain-session" "$result"
 
 # ─── Test 3: Same major, different minor → /swain-session ───
 echo "Test 3: Same major, different minor version"
-cat > "$TMPDIR_TEST/.swain-init" << 'JSON'
+mkdir -p "$TMPDIR_TEST/.swain"
+cat > "$TMPDIR_TEST/.swain/init.json" << 'JSON'
 {
   "history": [
     {
@@ -88,8 +90,9 @@ result=$(_swain_check_marker 2>/dev/null)
 assert_eq "same major different minor returns /swain-session" "/swain-session" "$result"
 
 # ─── Test 4: Outdated marker (older major) → /swain-init ───
-echo "Test 4: Outdated .swain-init marker (older major version)"
-cat > "$TMPDIR_TEST/.swain-init" << 'JSON'
+echo "Test 4: Outdated .swain/init.json marker (older major version)"
+mkdir -p "$TMPDIR_TEST/.swain"
+cat > "$TMPDIR_TEST/.swain/init.json" << 'JSON'
 {
   "history": [
     {
@@ -104,14 +107,16 @@ result=$(_swain_check_marker 2>/dev/null)
 assert_eq "outdated major returns /swain-init" "/swain-init" "$result"
 
 # ─── Test 5: Malformed marker (not JSON) → /swain-init ───
-echo "Test 5: Malformed .swain-init marker"
-echo "not json" > "$TMPDIR_TEST/.swain-init"
+echo "Test 5: Malformed .swain/init.json marker"
+mkdir -p "$TMPDIR_TEST/.swain"
+echo "not json" > "$TMPDIR_TEST/.swain/init.json"
 result=$(_swain_check_marker 2>/dev/null)
 assert_eq "malformed marker returns /swain-init" "/swain-init" "$result"
 
 # ─── Test 6: Marker with upgrade history → /swain-session ───
 echo "Test 6: Marker with upgrade history (latest entry is current)"
-cat > "$TMPDIR_TEST/.swain-init" << 'JSON'
+mkdir -p "$TMPDIR_TEST/.swain"
+cat > "$TMPDIR_TEST/.swain/init.json" << 'JSON'
 {
   "history": [
     {
@@ -132,7 +137,8 @@ assert_eq "upgrade history with current major returns /swain-session" "/swain-se
 
 # ─── Test 7: Performance — marker check completes in <100ms ───
 echo "Test 7: Performance (<100ms)"
-cat > "$TMPDIR_TEST/.swain-init" << 'JSON'
+mkdir -p "$TMPDIR_TEST/.swain"
+cat > "$TMPDIR_TEST/.swain/init.json" << 'JSON'
 {
   "history": [
     {
