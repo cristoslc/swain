@@ -1,0 +1,192 @@
+id: testing-practices-beyond-unit
+created: 2026-04-20
+refreshed: 2026-04-20
+tags:
+  - testing
+  - bdd
+  - tdd
+  - verification
+  - quality-assurance
+  - chaos-engineering
+  - property-based-testing
+  - contract-testing
+  - synthetic-monitoring
+  - fitness-functions
+  - resilience
+  - compliance
+  - observability
+  - swain
+freshness-ttl-defaults:
+  web-article: 180
+  book: 730
+  foundational-bliki: 730
+  methodology-definition: 730
+  research-paper: 730
+  conference-talk: 730
+referenced-by: []
+sources:
+  - source-id: bdd-tdd-atdd-foundation
+    type: methodology-definition
+    title: "BDD, TDD, and ATDD: Foundations and Distinctions"
+    author: "Dan North, Kent Beck, Martin Fowler, Liz Keogh"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "multiple"
+    content-hash: ceda96ea3bc6d09a096e200a81a31da0a52e228c7401e6c2c5942edcc252d424
+  - source-id: specification-by-example
+    type: methodology-definition
+    title: "Specification by Example"
+    author: "Gojko Adzic"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://specificationbyexample.com"
+    content-hash: e6bec3e585118503ef019809e6688e76937c998f39f53f00349df9f884f165c7
+  - source-id: example-mapping
+    type: methodology-definition
+    title: "Example Mapping"
+    author: "Matt Wynne"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://cucumber.io/blog/example-mapping"
+    content-hash: 2d19df06efa63e87b8ffc233a13ade9ef3c62de3f503d4f206d803429f3cd16e
+  - source-id: contract-testing
+    type: foundational-bliki
+    title: "Consumer-Driven Contract Testing"
+    author: "Ian Robinson, Martin Fowler, Pact Foundation"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://martinfowler.com/articles/consumerDrivenContracts.html"
+    content-hash: 4496301e1e142829bf691f09f74bf61c6375cc4c5e9e25a926c6022c4f7d9787
+  - source-id: integration-testing
+    type: foundational-bliki
+    title: "Integration Testing: Narrow, Broad, and In Between"
+    author: "Martin Fowler, Ham Vocke"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://martinfowler.com/bliki/IntegrationTest.html"
+    content-hash: 32f6d87b5b7318f41ee01d39621dca2d0f246411709cad386f3bc4910a9b2d0c
+  - source-id: smoke-testing
+    type: methodology-definition
+    title: "Smoke Testing and Build Verification Tests"
+    author: "Jez Humble, Dave Farley, Martin Fowler"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "multiple"
+    content-hash: 55b83b3a5761d12abda007ffe07971b652c5a765ff6261758642db33c4e3e0a9
+  - source-id: synthetic-monitoring
+    type: foundational-bliki
+    title: "Synthetic Monitoring / Synthetic Transactions"
+    author: "Flavia Fale, Serge Gebhardt, Sam Newman"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://martinfowler.com/bliki/SyntheticMonitoring.html"
+    content-hash: 68aeb7068058ac34f80eefa6cd67eb2701914c6f5955456503c1512bb2532196
+  - source-id: chaos-engineering
+    type: methodology-definition
+    title: "Chaos Engineering"
+    author: "Nora Jones, Casey Rosenthal, Netflix"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://principlesofchaos.org"
+    content-hash: f772536d0ffae3a0edc2eed3ef9334c37b01201af7ac548d8b5f8b3d71a856c9
+  - source-id: canary-deployment
+    type: foundational-bliki
+    title: "Canary Release and Progressive Deployment"
+    author: "Danilo Sato, Jez Humble, IMVU"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://martinfowler.com/bliki/CanaryRelease.html"
+    content-hash: bf4ac743d6c0319e071d089e68da7ab76827611457e4dcd41ddbae6e9aaf1e0a
+  - source-id: property-based-testing
+    type: research-paper
+    title: "Property-Based Testing: QuickCheck, Hypothesis, and Beyond"
+    author: "Koen Claessen, John Hughes, David MacIver"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://hypothesis.readthedocs.io"
+    content-hash: 64eb37bbf191ede0a80b5b2f12c078df19adf854355ffa1a865f0456db32001d
+  - source-id: mutation-testing
+    type: research-paper
+    title: "Mutation Testing: Evaluating Test Suite Quality"
+    author: "DeMillo, Lipton, Sayward, Ammann, Offutt"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://stryker-mutator.io"
+    content-hash: 7291e410cfcacab39afdc71b469899013209595132c8ee83e7ebba194ba31988
+  - source-id: exploratory-testing
+    type: methodology-definition
+    title: "Exploratory Testing"
+    author: "Elisabeth Hendrickson, Martin Fowler, James Bach"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://martinfowler.com/bliki/ExploratoryTesting.html"
+    content-hash: c9e721ed132b2258e0f02b7219ac699f153184dbee048ab32ac44a2b244ba12c
+  - source-id: resilience-testing
+    type: book
+    title: "Resilience Testing Patterns: Circuit Breakers, Bulkheads, Timeouts"
+    author: "Michael Nygard, Martin Fowler, Sam Newman"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "multiple"
+    content-hash: 8a2d45b5a531c602e46b92a3bc908dc4837639669c3c7afbc8fd40eb7880ca52
+  - source-id: architecture-fitness-functions
+    type: book
+    title: "Architecture Fitness Functions"
+    author: "Neal Ford, Rebecca Parsons, Patrick Kua"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://evolutionaryarchitecture.com"
+    content-hash: f9232f7a671a15a6330bf027abb2faa36f9788ea12345666d290aeed8c29a8ba
+  - source-id: testing-in-production
+    type: foundational-bliki
+    title: "Testing in Production"
+    author: "Rouan Wilsenach, Charity Majors, Pete Hodgson"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://martinfowler.com/articles/qa-in-production.html"
+    content-hash: 24b57a23fd5741036cccc1f795fb8f7abf5292bfd85a52224046e70c79f9ba77
+  - source-id: dogfooding
+    type: methodology-definition
+    title: "Dogfooding as a Testing Practice"
+    author: "IMVU, Microsoft, Kent Beck"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "multiple"
+    content-hash: 7c9891b39ee65a54171ff855aca57d00ab6851daf29339f0236b0d37a9f2ebeb
+  - source-id: observability-driven-testing
+    type: book
+    title: "Observability-Driven Testing"
+    author: "Charity Majors, Liz Fong-Jones, Rouan Wilsenach"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://honeycomb.io/blog"
+    content-hash: 014455e7ce6ec55fcd65754fb1074f07ca1741904821f88871b21233edd0e3f6
+  - source-id: compliance-testing
+    type: methodology-definition
+    title: "Compliance Testing and ADR-as-Executable-Spec"
+    author: "Michael Nygard, ThoughtWorks, Open Policy Agent"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://openpolicyagent.org"
+    content-hash: 1cf6a12579cab6696b50d2c42f9c8b0729bac6f556ca80ec46d667baea9f5f9d
+  - source-id: testing-quadrants-shapes-shift-left
+    type: foundational-bliki
+    title: "Testing Quadrants, Shapes, Trophy, and Shift-Left"
+    author: "Martin Fowler, Brian Marick, Lisa Crispin, Kent C. Dodds"
+    fetched: 2026-04-20
+    freshness-ttl: 730
+    url: "https://martinfowler.com/articles/2021-test-shapes.html"
+    content-hash: 7c596272a0a8d9f88932a302559a96042adbd682264a8e783f184539f5132555
+  - source-id: swain-verification-landscape
+    type: web-article
+    title: "Swain Verification Landscape: Current State, Plans, and Gaps"
+    author: "Swain project artifacts"
+    fetched: 2026-04-20
+    freshness-ttl: 90
+    url: "local"
+    content-hash: 2db49581e9f55e49d619a03d41d802a208124db578de70a837246bb29b6e2b1f
+history:
+  - event: created
+    date: 2026-04-20
+    commit: "--"
+    sources: 20
