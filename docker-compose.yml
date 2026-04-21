@@ -1,0 +1,65 @@
+version: "3.8"
+
+# swain-helm production Docker Compose
+# --------------------------------------
+# Run the watchdog with project bridges in Docker.
+#
+# Quick start:
+#   PROJECT_PATH=/path/to/project docker compose up -d
+#
+# With 1Password credentials (recommended):
+#   op run --env-file=.env -- docker compose up -d
+#
+# Required environment:
+#   PROJECT_PATH - Path to project on host
+#   PROJECT_NAME - Name of project (for stream)
+#   ZULIP_BOT_EMAIL - Bot email
+#   ZULIP_BOT_API_KEY - Bot API key
+#   ZULIP_OPERATOR_EMAIL - Operator email for mentions
+
+services:
+  watchdog:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: swain-helm-watchdog
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:ro
+      - swain-config:/root/.config/swain-helm
+      - swain-run:/root/.config/swain-helm/run
+    environment:
+      - SWAIN_HELM_TEST_MODE=0
+      - ZULIP_BOT_EMAIL=${ZULIP_BOT_EMAIL:?ZULIP_BOT_EMAIL required}
+      - ZULIP_BOT_API_KEY=${ZULIP_BOT_API_KEY:?ZULIP_BOT_API_KEY required}
+      - ZULIP_SITE=${ZULIP_SITE:-https://cristoslc.zulipchat.com}
+      - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL:?ZULIP_OPERATOR_EMAIL required}
+      - PROJECT_NAME=${PROJECT_NAME:?PROJECT_NAME required}
+    working_dir: ${PROJECT_PATH}
+    entrypoint: ["python", "-m", "swain_helm.watchdog"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "test", "-f", "/root/.config/swain-helm/run/watchdog.pid"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: opencode server for this project
+  opencode-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: swain-helm-opencode
+    ports:
+      - "4098:4098"
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}
+      - opencode-data:/root/.opencode
+    working_dir: ${PROJECT_PATH}
+    command: ["opencode", "serve", "--port", "4098", "--host", "0.0.0.0"]
+    restart: unless-stopped
+
+volumes:
+  swain-config:
+  swain-run:
+  opencode-data:

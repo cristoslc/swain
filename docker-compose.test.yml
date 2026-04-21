@@ -1,0 +1,117 @@
+version: "3.8"
+
+# swain-helm test Docker Compose
+# ---------------------------------
+# Run tests inside Docker with host-path mirroring so git worktrees resolve.
+#
+# Quick start (from repo root):
+#   PROJECT_PATH=$(pwd) docker compose -f docker-compose.test.yml up test
+#
+# With 1Password credentials:
+#   op run -- docker compose -f docker-compose.test.yml up test-e2e
+#
+# Required environment:
+#   PROJECT_PATH - Absolute path to project on host (mounts at same path
+#                   inside container so .git worktree refs resolve)
+
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:cached
+      - opencode-data:/root/.opencode
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+      - ZULIP_BOT_EMAIL=${ZULIP_BOT_EMAIL:-}
+      - ZULIP_BOT_API_KEY=${ZULIP_BOT_API_KEY:-}
+      - ZULIP_SITE=${ZULIP_SITE:-https://cristoslc.zulipchat.com}
+      - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL:-}
+    working_dir: ${PROJECT_PATH}
+    command: python -m pytest tests/ -v --tb=short ${PYTEST_ARGS:-}
+
+  test-unit:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:cached
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+    working_dir: ${PROJECT_PATH}
+    command: python -m pytest tests/unit/ -v --tb=short
+
+  test-integration:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:cached
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+    working_dir: ${PROJECT_PATH}
+    command: python -m pytest tests/integration/ -v --tb=short --ignore=tests/integration/test_swain_helm_cli.sh --ignore=tests/integration/test_bridge_launcher.py
+
+  test-uat:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:cached
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+      - ZULIP_BOT_EMAIL=${ZULIP_BOT_EMAIL:-}
+      - ZULIP_BOT_API_KEY=${ZULIP_BOT_API_KEY:-}
+      - ZULIP_SITE=${ZULIP_SITE:-https://cristoslc.zulipchat.com}
+      - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL:-}
+    working_dir: ${PROJECT_PATH}
+    command: python -m pytest tests/uat/ -v --tb=short
+
+  test-acceptance:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:cached
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+    working_dir: ${PROJECT_PATH}
+    command: python -m pytest tests/acceptance/ -v --tb=short
+
+  test-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:cached
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+      - ZULIP_BOT_EMAIL=${ZULIP_BOT_EMAIL:-}
+      - ZULIP_BOT_API_KEY=${ZULIP_BOT_API_KEY:-}
+      - ZULIP_SITE=${ZULIP_SITE:-https://cristoslc.zulipchat.com}
+      - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL:-}
+    working_dir: ${PROJECT_PATH}
+    command: python -m pytest tests/e2e/ -v --tb=short
+
+  opencode-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:cached
+      - opencode-data:/root/.opencode
+    ports:
+      - "4098:4098"
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+    working_dir: ${PROJECT_PATH}
+    command: >
+      sh -c "echo 'opencode server ready on port 4098' &&
+             echo 'Run: opencode serve --port 4098' &&
+             tail -f /dev/null"
+    stdin_open: true
+    tty: true
+
+volumes:
+  opencode-data:
