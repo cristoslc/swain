@@ -49,7 +49,9 @@ def _render_event_content(event: Event, *, operator_email: str | None = None) ->
     if t == "thinking_output":
         content = p.get("content", "")
         lines = content.split("\n")
-        rendered = "\n".join(f"> *{line}*" if line.strip() else ">" for line in lines)
+        rendered = "\n".join(
+            f"> **[thinking]** *{line}*" if line.strip() else ">" for line in lines
+        )
         return rendered
 
     if t == "tool_call":
