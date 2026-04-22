@@ -661,6 +661,207 @@ class TestSSEEventHandling:
 
         assert len(events) == 0
 
+    async def test_user_message_echo_suppressed_in_text_delta(self, mock_server):
+        """User message text deltas should not be emitted as text_output."""
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
+
+        url, port = mock_server
+        events: list[Event] = []
+        adapter = OpenCodeServerAdapter(
+            bridge="swain",
+            session_id="sess-test",
+            base_url=url,
+            on_event=events.append,
+        )
+        adapter._oc_session_id = "ses_test_123"
+
+        # First, the server sends a message.updated with role="user"
+        adapter._on_sse_event(
+            {
+                "type": "message.updated",
+                "data": {
+                    "properties": {
+                        "info": {
+                            "id": "msg_user_1",
+                            "role": "user",
+                            "content": "hello from operator",
+                        }
+                    }
+                },
+            }
+        )
+
+        # Then we get text deltas for the user message — these should be suppressed
+        adapter._on_sse_event(
+            {
+                "type": "message.part.delta",
+                "data": {
+                    "properties": {
+                        "sessionID": "ses_test_123",
+                        "messageID": "msg_user_1",
+                        "partID": "prt_user_1",
+                        "delta": "hello from operator",
+                    }
+                },
+            }
+        )
+
+        # Now the assistant responds — these should come through
+        adapter._on_sse_event(
+            {
+                "type": "message.updated",
+                "data": {
+                    "properties": {
+                        "info": {
+                            "id": "msg_asst_1",
+                            "role": "assistant",
+                        }
+                    }
+                },
+            }
+        )
+        adapter._on_sse_event(
+            {
+                "type": "message.part.delta",
+                "data": {
+                    "properties": {
+                        "sessionID": "ses_test_123",
+                        "messageID": "msg_asst_1",
+                        "partID": "prt_asst_1",
+                        "delta": "Hello! How can I help?",
+                    }
+                },
+            }
+        )
+
+        text_events = [e for e in events if e.type == "text_output"]
+        # Only the assistant's text should be emitted
+        assert len(text_events) == 1
+        assert text_events[0].payload["content"] == "Hello! How can I help?"
+
+    async def test_user_message_echo_suppressed_in_part_updated(self, mock_server):
+        """User message part.updated events should not be emitted as text_output."""
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
+
+        url, port = mock_server
+        events: list[Event] = []
+        adapter = OpenCodeServerAdapter(
+            bridge="swain",
+            session_id="sess-test",
+            base_url=url,
+            on_event=events.append,
+        )
+        adapter._oc_session_id = "ses_test_123"
+
+        # Track the user message
+        adapter._on_sse_event(
+            {
+                "type": "message.updated",
+                "data": {
+                    "properties": {
+                        "info": {
+                            "id": "msg_user_1",
+                            "role": "user",
+                        }
+                    }
+                },
+            }
+        )
+
+        # User message part with text should be suppressed
+        adapter._on_sse_event(
+            {
+                "type": "message.part.updated",
+                "data": {
+                    "properties": {
+                        "sessionID": "ses_test_123",
+                        "part": {
+                            "id": "prt_user_1",
+                            "messageID": "msg_user_1",
+                            "type": "text",
+                            "text": "hello from operator",
+                        },
+                    }
+                },
+            }
+        )
+
+        # Assistant message part should pass through
+        adapter._on_sse_event(
+            {
+                "type": "message.updated",
+                "data": {
+                    "properties": {
+                        "info": {
+                            "id": "msg_asst_1",
+                            "role": "assistant",
+                        }
+                    }
+                },
+            }
+        )
+        adapter._on_sse_event(
+            {
+                "type": "message.part.updated",
+                "data": {
+                    "properties": {
+                        "sessionID": "ses_test_123",
+                        "part": {
+                            "id": "prt_asst_1",
+                            "messageID": "msg_asst_1",
+                            "type": "text",
+                            "text": "I can help with that!",
+                        },
+                    }
+                },
+            }
+        )
+
+        text_events = [e for e in events if e.type == "text_output"]
+        assert len(text_events) == 1
+        assert text_events[0].payload["content"] == "I can help with that!"
+
+    async def test_user_message_ids_cleared_on_turn_end(self, mock_server):
+        """User message IDs should be cleared when a turn ends."""
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
+
+        url, port = mock_server
+        events: list[Event] = []
+        adapter = OpenCodeServerAdapter(
+            bridge="swain",
+            session_id="sess-test",
+            base_url=url,
+            on_event=events.append,
+        )
+        adapter._oc_session_id = "ses_test_123"
+
+        # Track user message
+        adapter._on_sse_event(
+            {
+                "type": "message.updated",
+                "data": {
+                    "properties": {
+                        "info": {
+                            "id": "msg_user_1",
+                            "role": "user",
+                        }
+                    }
+                },
+            }
+        )
+        assert "msg_user_1" in adapter._user_message_ids
+
+        # Turn ends
+        adapter._on_sse_event(
+            {
+                "type": "session.idle",
+                "data": {"sessionID": "ses_test_123"},
+            }
+        )
+
+        # User message IDs should be cleared
+        assert len(adapter._user_message_ids) == 0
+
 
 class TestCancelEmitsTurnEnded:
     """Cancel command sends abort and emits turn_ended."""
@@ -724,3 +925,106 @@ class TestCancelEmitsTurnEnded:
 
         assert len(adapter._text_buffer) == 0
         assert len(adapter._flushed_up_to) == 0
+
+    async def test_cancel_suppresses_stale_sse_events(self, mock_server):
+        """After cancel, stale SSE events injected directly are suppressed."""
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
+
+        url, port = mock_server
+        events: list[Event] = []
+        adapter = OpenCodeServerAdapter(
+            bridge="swain",
+            session_id="sess-test",
+            base_url=url,
+            on_event=events.append,
+        )
+        await adapter.wait_for_health(timeout=2.0)
+
+        adapter._suppress_events = True
+        adapter._suppress_idle = True
+
+        adapter._on_sse_event(
+            {
+                "type": "message.part.delta",
+                "data": {
+                    "properties": {
+                        "sessionID": "ses_mock_0",
+                        "partID": "prt_stale",
+                        "delta": "stale delta after cancel",
+                    }
+                },
+            }
+        )
+
+        text_events = [e for e in events if e.type == "text_output"]
+        assert len(text_events) == 0
+
+        adapter._on_sse_event(
+            {
+                "type": "session.idle",
+                "data": {"properties": {"sessionID": "ses_mock_0"}},
+            }
+        )
+
+        turn_ended_events = [e for e in events if e.type == "turn_ended"]
+        assert len(turn_ended_events) == 0
+        assert adapter._suppress_events is False
+
+    async def test_send_message_clears_suppress_events_flag(self, mock_server):
+        """After cancel, sending a new prompt clears _suppress_events."""
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
+
+        url, port = mock_server
+        adapter = OpenCodeServerAdapter(
+            bridge="swain",
+            session_id="sess-test",
+            base_url=url,
+            on_event=lambda e: None,
+        )
+        await adapter.wait_for_health(timeout=2.0)
+
+        cmd = Command.send_prompt(bridge="swain", session_id="sess-test", text="hi")
+        await adapter.send_command(cmd)
+
+        cancel_cmd = Command.cancel(bridge="swain", session_id="sess-test")
+        await adapter.send_command(cancel_cmd)
+        assert adapter._suppress_events is True or adapter._suppress_events is False
+
+        adapter._suppress_events = True
+        adapter._suppress_idle = True
+
+        new_cmd = Command.send_prompt(
+            bridge="swain", session_id="sess-test", text="new msg"
+        )
+        await adapter.send_command(new_cmd)
+        assert adapter._suppress_events is False
+
+    async def test_suppressed_idle_clears_flags(self, mock_server):
+        from swain_helm.adapters.opencode_server import OpenCodeServerAdapter
+
+        url, port = mock_server
+        events: list[Event] = []
+        adapter = OpenCodeServerAdapter(
+            bridge="swain",
+            session_id="sess-test",
+            base_url=url,
+            on_event=events.append,
+        )
+        await adapter.wait_for_health(timeout=2.0)
+
+        cmd = Command.send_prompt(bridge="swain", session_id="sess-test", text="hi")
+        await adapter.send_command(cmd)
+        sess_id = adapter._oc_session_id
+
+        cancel_cmd = Command.cancel(bridge="swain", session_id="sess-test")
+        await adapter.send_command(cancel_cmd)
+
+        adapter._on_sse_event(
+            {
+                "type": "session.idle",
+                "data": {"properties": {"sessionID": sess_id}},
+            }
+        )
+
+        assert adapter._suppress_events is False
+        assert adapter._suppress_idle is False

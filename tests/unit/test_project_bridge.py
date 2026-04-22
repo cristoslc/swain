@@ -366,7 +366,6 @@ class TestBusyInterrupt:
         bridge.sessions[sess_id].state = SessionState.BUSY
         assert len(bridge.active_sessions()) == 1
 
-    @pytest.mark.asyncio
     async def test_approve_transitions_to_busy(self, bridge):
         with patch.object(PluginProcess, "start", new_callable=AsyncMock):
             bridge.handle_command(
@@ -383,3 +382,26 @@ class TestBusyInterrupt:
         with patch.object(plugin, "write", new_callable=AsyncMock):
             bridge.handle_command(cmd)
         assert bridge.sessions[sess_id].state == SessionState.BUSY
+
+    @pytest.mark.asyncio
+    async def test_queued_prompt_routed_through_handle_command(self, bridge):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
+        sess_id = list(bridge.sessions.keys())[0]
+        bridge.sessions[sess_id].state = SessionState.BUSY
+        bridge.sessions[sess_id].pending_prompt = "queued msg"
+        plugin = bridge._runtime_plugins[sess_id]
+        with patch.object(plugin, "write", new_callable=AsyncMock) as mock_write:
+            bridge.handle_runtime_event(
+                Event.turn_ended(bridge="swain", session_id=sess_id)
+            )
+            await asyncio.sleep(0)
+        assert bridge.sessions[sess_id].state == SessionState.BUSY
+        sent_cmd = mock_write.call_args[0][0]
+        assert sent_cmd.type == "send_prompt"
+        assert sent_cmd.bridge == "swain"
+        assert sent_cmd.session_id == sess_id
+        assert sent_cmd.payload["text"] == "queued msg"

@@ -355,12 +355,26 @@ class OpenCodeServerAdapter:
     def _on_sse_event(self, event: dict) -> None:
         """Handle an SSE event from the opencode server.
 
-        Stale events from a previous turn (before an abort) are silently
-        dropped by checking the current turn generation.
+        Stale events from a previous turn (after an abort) are silently
+        dropped via _suppress_events. The flag is cleared when a new
+        prompt is sent via _send_message.
         """
         event_type = event.get("type", "")
         data = event.get("data", {})
         props = data.get("properties", data)
+
+        if self._suppress_events and event_type not in (
+            "server.connected",
+            "session.created",
+        ):
+            log.debug("Suppressing stale SSE event after abort: %s", event_type)
+            if event_type == "session.idle":
+                self._suppress_events = False
+                self._suppress_idle = False
+                self._cancel_turn_timer()
+                self._text_buffer.clear()
+                self._flushed_up_to.clear()
+            return
 
         if event_type == "message.part.delta":
             self._handle_text_delta(props)
