@@ -46,6 +46,9 @@ def _render_event_content(event: Event, *, operator_email: str | None = None) ->
     if t == "text_output":
         return p.get("content", "")
 
+    if t == "thinking_output":
+        return f"> *thinking…*\n> {p.get('content', '')}"
+
     if t == "tool_call":
         tool = p.get("tool_name", "?")
         inp = p.get("input", {})

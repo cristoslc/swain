@@ -37,9 +37,11 @@ done
 
 # The project bind mount was hidden by the parent tmpfs. Recreate
 # it by bind-mounting from the read-only /project_source that Docker
-# set up before the entrypoint ran.
+# set up before the entrypoint ran, then remount as read-write so
+# git worktree and other operations can write to the project tree.
 mkdir -p "$PROJECT_PATH"
 mount --bind /project_source "$PROJECT_PATH" 2>/dev/null || true
+mount -o remount,rw "$PROJECT_PATH" 2>/dev/null || true
 
 # Verify the project is accessible.
 if [ ! -f "$PROJECT_PATH/.git/HEAD" ] && [ ! -d "$PROJECT_PATH/.git" ]; then

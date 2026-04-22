@@ -19,6 +19,7 @@ _PROJECT_EVENT_TYPES = {
     "session_starting",
     "session_exported",
     "text_output",
+    "thinking_output",
     "tool_call",
     "tool_result",
     "approval_needed",
@@ -81,6 +82,16 @@ class Event:
     def text_output(cls, *, bridge: str, session_id: str, content: str) -> Event:
         return cls(
             type="text_output",
+            bridge=bridge,
+            session_id=session_id,
+            timestamp=_now_ms(),
+            payload={"content": content},
+        )
+
+    @classmethod
+    def thinking_output(cls, *, bridge: str, session_id: str, content: str) -> Event:
+        return cls(
+            type="thinking_output",
             bridge=bridge,
             session_id=session_id,
             timestamp=_now_ms(),

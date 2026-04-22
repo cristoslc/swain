@@ -148,7 +148,8 @@ class TestDiff:
         call_count = 0
         outputs = [
             SAMPLE_PORCELAIN,
-            SAMPLE_PORCELAIN + "\nworktree /tmp/new\nbranch refs/heads/new\n\n",
+            SAMPLE_PORCELAIN
+            + "\nworktree /tmp/swain/.worktrees/new\nbranch refs/heads/new\n\n",
         ]
 
         def git(d):

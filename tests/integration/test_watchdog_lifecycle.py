@@ -32,7 +32,7 @@ def _make_config_dir(tmp_path: Path) -> Path:
         "chat": {
             "server_url": "https://cristoslc.zulipchat.com",
             "bot_email": "swain-bot@cristoslc.zulipchat.com",
-            "bot_api_key": "I7CP9MwzFHvZyDH7rcE6G8EZC0PBPwfJ",
+            "bot_api_key": "TEST_BOT_API_KEY_PLACEHOLDER",
             "operator_email": "cristos@cristoslc.com",
             "control_topic": "trunk",
         },

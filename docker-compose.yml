@@ -36,11 +36,11 @@ services:
       - /root/.config/opencode
     ports:
       - "4098:4098"
-    # Only the project-path volume is writable on the host. The root
-    # filesystem is read-only (read_only: true), so rogue git worktree
-    # add commands that try to write outside PROJECT_PATH will fail with
-    # EROFS. The entrypoint shadows parent directories with tmpfs so
-    # sibling directories are not even readable.
+    # The project-path volume is writable on the host. The root filesystem
+    # is read-only (read_only: true), so writes outside tmpfs/volume mount
+    # points fail with EROFS. The entrypoint shadows parent directories with
+    # tmpfs so sibling directories are not even readable, then remounts the
+    # project as read-write so git worktree operations work.
     volumes:
       # Read-only source used by entrypoint to recreate the project mount
       # after shadowing parents with tmpfs.

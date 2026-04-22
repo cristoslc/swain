@@ -154,8 +154,12 @@ class OpenCodeServerAdapter:
         self._sse_task: asyncio.Task | None = None
         self._text_buffer: dict[str, list[str]] = {}
         self._flushed_up_to: dict[str, int] = {}
+        self._part_types: dict[str, str] = {}
         self._turn_timeout: float = 300.0
         self._turn_timer_task: asyncio.Task | None = None
+        self._turn_generation: int = 0
+        self._suppress_idle: bool = False
+        self._suppress_events: bool = False
 
     async def wait_for_health(self, timeout: float = 30.0) -> bool:
         """Poll /global/health until the server is ready."""
@@ -194,6 +198,9 @@ class OpenCodeServerAdapter:
 
     async def _send_message(self, text: str) -> None:
         """Create session if needed, send message via prompt_async, SSE handles response."""
+        self._suppress_events = False
+        self._text_buffer.clear()
+        self._flushed_up_to.clear()
         loop = asyncio.get_running_loop()
 
         if not self._oc_session_id:
@@ -294,6 +301,16 @@ class OpenCodeServerAdapter:
                             content=part["text"],
                         ),
                     )
+            elif part_type == "thinking":
+                thinking_text = part.get("thinking", "") or part.get("text", "")
+                if thinking_text and self.on_event:
+                    self.on_event(
+                        Event.thinking_output(
+                            bridge=self.bridge,
+                            session_id=self.session_id,
+                            content=thinking_text,
+                        ),
+                    )
             elif part_type == "tool_call":
                 if self.on_event:
                     self.on_event(
@@ -335,7 +352,11 @@ class OpenCodeServerAdapter:
     # --- SSE event handlers ---
 
     def _on_sse_event(self, event: dict) -> None:
-        """Handle an SSE event from the opencode server."""
+        """Handle an SSE event from the opencode server.
+
+        Stale events from a previous turn (before an abort) are silently
+        dropped by checking the current turn generation.
+        """
         event_type = event.get("type", "")
         data = event.get("data", {})
         props = data.get("properties", data)
@@ -346,8 +367,6 @@ class OpenCodeServerAdapter:
             self._handle_part_updated(props)
         elif event_type == "session.idle":
             self._handle_session_idle(props)
-        elif event_type == "session.status":
-            self._handle_session_status(props)
         elif event_type == "session.created":
             log.info("SSE: session created: %s", props.get("sessionID"))
         elif event_type == "message.updated":
@@ -358,13 +377,11 @@ class OpenCodeServerAdapter:
             log.error("SSE: session error: %s", props)
         elif event_type == "server.connected":
             log.info("SSE: connected to opencode server")
-        elif event_type == "server.heartbeat":
-            pass
         else:
             log.debug("SSE: unhandled event type: %s", event_type)
 
     def _handle_text_delta(self, props: dict) -> None:
-        """Accumulate text deltas and emit text_output events."""
+        """Accumulate text deltas and emit text_output or thinking_output events."""
         session_id = props.get("sessionID", "")
         if self._oc_session_id and session_id != self._oc_session_id:
             return
@@ -373,6 +390,10 @@ class OpenCodeServerAdapter:
         delta = props.get("delta", "")
         if not delta:
             return
+
+        field = props.get("field", "text")
+        if part_id not in self._part_types:
+            self._part_types[part_id] = field
 
         if part_id not in self._text_buffer:
             self._text_buffer[part_id] = []
@@ -384,8 +405,10 @@ class OpenCodeServerAdapter:
         self._flushed_up_to[part_id] = len(full_text)
 
         if new_text and self.on_event:
+            is_thinking = self._part_types.get(part_id) == "thinking"
+            event_factory = Event.thinking_output if is_thinking else Event.text_output
             self.on_event(
-                Event.text_output(
+                event_factory(
                     bridge=self.bridge,
                     session_id=self.session_id,
                     content=new_text,
@@ -414,6 +437,20 @@ class OpenCodeServerAdapter:
                         content=new_text,
                     )
                 )
+        elif part_type == "thinking":
+            thinking_text = part.get("thinking", "") or part.get("text", "")
+            if thinking_text:
+                flushed = self._flushed_up_to.get(part.get("id", ""), 0)
+                new_text = thinking_text[flushed:]
+                self._flushed_up_to[part.get("id", "")] = len(thinking_text)
+                if new_text and self.on_event:
+                    self.on_event(
+                        Event.thinking_output(
+                            bridge=self.bridge,
+                            session_id=self.session_id,
+                            content=new_text,
+                        )
+                    )
         elif part_type in ("tool_call", "tool") and part.get("name"):
             if self.on_event:
                 self.on_event(
@@ -443,17 +480,30 @@ class OpenCodeServerAdapter:
         if part_id in self._text_buffer:
             del self._text_buffer[part_id]
             self._flushed_up_to.pop(part_id, None)
+            self._part_types.pop(part_id, None)
 
     def _handle_session_idle(self, props: dict) -> None:
-        """Handle session.idle — emit turn_ended."""
+        """Handle session.idle — emit turn_ended unless suppressed after cancel."""
         session_id = props.get("sessionID", "")
         if self._oc_session_id and session_id != self._oc_session_id:
+            return
+
+        if self._suppress_idle:
+            log.info(
+                "Suppressing stale session.idle after abort for session %s", session_id
+            )
+            self._suppress_idle = False
+            self._cancel_turn_timer()
+            self._text_buffer.clear()
+            self._flushed_up_to.clear()
+            self._part_types.clear()
             return
 
         log.info("Session %s is idle — turn complete", session_id)
         self._cancel_turn_timer()
         self._text_buffer.clear()
         self._flushed_up_to.clear()
+        self._part_types.clear()
 
         if self.on_event:
             self.on_event(
@@ -554,6 +604,12 @@ class OpenCodeServerAdapter:
         """
         if not self._oc_session_id:
             return
+        self._turn_generation += 1
+        log.info(
+            "Aborting session %s (generation %d)",
+            self._oc_session_id,
+            self._turn_generation,
+        )
         loop = asyncio.get_running_loop()
         status = await loop.run_in_executor(
             None,

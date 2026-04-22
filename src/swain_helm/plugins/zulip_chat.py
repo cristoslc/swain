@@ -371,6 +371,15 @@ async def _relay_events(
                 # Turn finished — flush buffered text and stop typing
                 await batcher.flush_all()
                 typing.stop(stream, control_topic)
+            elif msg.type == "thinking_output":
+                # Thinking blocks post immediately with formatting
+                zulip_msg = format_event_for_zulip(
+                    msg,
+                    operator_email=operator_email,
+                    control_topic=control_topic,
+                )
+                typing.start(stream, control_topic)
+                await _post(stream, control_topic, zulip_msg["content"])
             elif msg.type == "text_output":
                 # Batch text lines before posting to control
                 content = msg.payload.get("content", "")
