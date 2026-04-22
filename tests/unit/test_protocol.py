@@ -1,4 +1,5 @@
 """RED tests for the NDJSON plugin protocol — the published language from DESIGN-024."""
+
 import json
 import time
 
@@ -24,6 +25,17 @@ class TestEventCreation:
         assert event.session_id == "sess-001"
         assert event.payload["content"] == "Hello from the runtime"
         assert isinstance(event.timestamp, int)
+
+    def test_thinking_output_event(self):
+        event = Event.thinking_output(
+            bridge="swain",
+            session_id="sess-001",
+            content="Hmm, let me think about this...",
+        )
+        assert event.type == "thinking_output"
+        assert event.bridge == "swain"
+        assert event.session_id == "sess-001"
+        assert event.payload["content"] == "Hmm, let me think about this..."
 
     def test_tool_call_event(self):
         event = Event.tool_call(
@@ -133,25 +145,29 @@ class TestSerialization:
         assert parsed["payload"]["content"] == "hello"
 
     def test_decode_ndjson_to_event(self):
-        raw = json.dumps({
-            "type": "text_output",
-            "bridge": "swain",
-            "session_id": "sess-001",
-            "timestamp": int(time.time() * 1000),
-            "payload": {"content": "hello"},
-        })
+        raw = json.dumps(
+            {
+                "type": "text_output",
+                "bridge": "swain",
+                "session_id": "sess-001",
+                "timestamp": int(time.time() * 1000),
+                "payload": {"content": "hello"},
+            }
+        )
         msg = decode_message(raw)
         assert isinstance(msg, Event)
         assert msg.type == "text_output"
 
     def test_decode_ndjson_to_command(self):
-        raw = json.dumps({
-            "type": "send_prompt",
-            "bridge": "swain",
-            "session_id": "sess-001",
-            "timestamp": int(time.time() * 1000),
-            "payload": {"text": "hello"},
-        })
+        raw = json.dumps(
+            {
+                "type": "send_prompt",
+                "bridge": "swain",
+                "session_id": "sess-001",
+                "timestamp": int(time.time() * 1000),
+                "payload": {"text": "hello"},
+            }
+        )
         msg = decode_message(raw)
         assert isinstance(msg, Command)
         assert msg.type == "send_prompt"
@@ -181,13 +197,15 @@ class TestSerialization:
         assert decoded.payload == event.payload
 
     def test_parse_ndjson_line_ignores_unknown_type(self):
-        raw = json.dumps({
-            "type": "future_event_type",
-            "bridge": "swain",
-            "session_id": None,
-            "timestamp": int(time.time() * 1000),
-            "payload": {"some": "data"},
-        })
+        raw = json.dumps(
+            {
+                "type": "future_event_type",
+                "bridge": "swain",
+                "session_id": None,
+                "timestamp": int(time.time() * 1000),
+                "payload": {"some": "data"},
+            }
+        )
         msg = parse_ndjson_line(raw)
         assert msg is not None
         assert msg.type == "future_event_type"

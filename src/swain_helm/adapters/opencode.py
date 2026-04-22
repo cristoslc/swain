@@ -3,6 +3,7 @@
 Wraps `opencode run --format json` and translates between OpenCode's native
 event format and the kernel's published NDJSON protocol.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -29,9 +30,15 @@ def parse_opencode_event(
         if content:
             return Event.text_output(bridge=bridge, session_id=sid, content=content)
 
+    elif event_type == "thinking":
+        content = raw.get("content", "") or raw.get("thinking", "")
+        if content:
+            return Event.thinking_output(bridge=bridge, session_id=sid, content=content)
+
     elif event_type == "tool_call":
         return Event.tool_call(
-            bridge=bridge, session_id=sid,
+            bridge=bridge,
+            session_id=sid,
             tool_name=raw.get("name", ""),
             input=raw.get("input", {}),
             call_id=raw.get("id", ""),
@@ -39,7 +46,8 @@ def parse_opencode_event(
 
     elif event_type == "tool_result":
         return Event.tool_result(
-            bridge=bridge, session_id=sid,
+            bridge=bridge,
+            session_id=sid,
             call_id=raw.get("id", ""),
             output=raw.get("output", ""),
             success=raw.get("success", True),
@@ -47,12 +55,15 @@ def parse_opencode_event(
 
     elif event_type == "error":
         error = raw.get("error", {})
-        msg = error.get("message", str(error)) if isinstance(error, dict) else str(error)
+        msg = (
+            error.get("message", str(error)) if isinstance(error, dict) else str(error)
+        )
         return Event.text_output(bridge=bridge, session_id=sid, content=f"Error: {msg}")
 
     elif event_type == "finish":
         return Event.session_died(
-            bridge=bridge, session_id=sid,
+            bridge=bridge,
+            session_id=sid,
             reason=raw.get("reason", "completed"),
         )
 
@@ -95,10 +106,13 @@ class OpenCodeAdapter:
 
         # Emit session_spawned
         if self.on_event:
-            self.on_event(Event.session_spawned(
-                bridge=self.bridge, session_id=self.session_id,
-                runtime="opencode",
-            ))
+            self.on_event(
+                Event.session_spawned(
+                    bridge=self.bridge,
+                    session_id=self.session_id,
+                    runtime="opencode",
+                )
+            )
 
         self._reader_task = asyncio.create_task(self._read_stdout())
 
@@ -116,7 +130,9 @@ class OpenCodeAdapter:
                 continue
 
             result = parse_opencode_event(
-                raw, bridge=self.bridge, session_id=self.session_id,
+                raw,
+                bridge=self.bridge,
+                session_id=self.session_id,
             )
             if result and self.on_event:
                 if isinstance(result, list):
@@ -127,10 +143,13 @@ class OpenCodeAdapter:
 
         # Process exited — emit session_died if we haven't already
         if self.on_event:
-            self.on_event(Event.session_died(
-                bridge=self.bridge, session_id=self.session_id,
-                reason="process exited",
-            ))
+            self.on_event(
+                Event.session_died(
+                    bridge=self.bridge,
+                    session_id=self.session_id,
+                    reason="process exited",
+                )
+            )
 
     async def send_command(self, cmd: Command) -> None:
         """opencode run is single-shot — no stdin commands supported."""

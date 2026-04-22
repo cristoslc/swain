@@ -1,4 +1,5 @@
 """RED tests for the Claude Code runtime adapter plugin."""
+
 import json
 import asyncio
 
@@ -43,12 +44,14 @@ class TestParseClaudeStreamEvent:
             "type": "assistant",
             "message": {
                 "role": "assistant",
-                "content": [{
-                    "type": "tool_use",
-                    "id": "call_123",
-                    "name": "Bash",
-                    "input": {"command": "ls"},
-                }],
+                "content": [
+                    {
+                        "type": "tool_use",
+                        "id": "call_123",
+                        "name": "Bash",
+                        "input": {"command": "ls"},
+                    }
+                ],
             },
         }
         events = parse_claude_stream_event(raw, bridge="swain", session_id="abc")
@@ -59,6 +62,57 @@ class TestParseClaudeStreamEvent:
             assert tool_events[0].payload["call_id"] == "call_123"
         else:
             assert events.type == "tool_call"
+
+    def test_thinking_content(self):
+        raw = {
+            "type": "assistant",
+            "message": {
+                "role": "assistant",
+                "content": [
+                    {"type": "thinking", "thinking": "I should check the file first."}
+                ],
+            },
+        }
+        events = parse_claude_stream_event(raw, bridge="swain", session_id="abc")
+        if isinstance(events, list):
+            think_events = [e for e in events if e.type == "thinking_output"]
+            assert len(think_events) == 1
+            assert (
+                think_events[0].payload["content"] == "I should check the file first."
+            )
+        else:
+            assert events.type == "thinking_output"
+            assert events.payload["content"] == "I should check the file first."
+
+    def test_thinking_content_empty_skipped(self):
+        raw = {
+            "type": "assistant",
+            "message": {
+                "role": "assistant",
+                "content": [{"type": "thinking", "thinking": ""}],
+            },
+        }
+        result = parse_claude_stream_event(raw, bridge="swain", session_id="abc")
+        assert result is None or result == []
+
+    def test_mixed_content_blocks(self):
+        raw = {
+            "type": "assistant",
+            "message": {
+                "role": "assistant",
+                "content": [
+                    {"type": "thinking", "thinking": "Analyzing the code..."},
+                    {"type": "text", "text": "Here's what I found:"},
+                ],
+            },
+        }
+        events = parse_claude_stream_event(raw, bridge="swain", session_id="abc")
+        assert isinstance(events, list)
+        assert len(events) == 2
+        assert events[0].type == "thinking_output"
+        assert events[0].payload["content"] == "Analyzing the code..."
+        assert events[1].type == "text_output"
+        assert events[1].payload["content"] == "Here's what I found:"
 
     def test_tool_result(self):
         raw = {
@@ -75,8 +129,12 @@ class TestParseClaudeStreamEvent:
         assert event.payload["success"] is True
 
     def test_system_finish(self):
-        raw = {"type": "system", "subtype": "result", "session_id": "abc123",
-               "result": "success"}
+        raw = {
+            "type": "system",
+            "subtype": "result",
+            "session_id": "abc123",
+            "result": "success",
+        }
         event = parse_claude_stream_event(raw, bridge="swain", session_id="abc123")
         assert event.type == "session_died"
         assert "success" in event.payload["reason"]
@@ -93,8 +151,9 @@ class TestFormatCommandForClaude:
         assert "hello" in json.dumps(parsed)
 
     def test_approve_allowed(self):
-        cmd = Command.approve(bridge="swain", session_id="abc",
-                              call_id="call_123", approved=True)
+        cmd = Command.approve(
+            bridge="swain", session_id="abc", call_id="call_123", approved=True
+        )
         formatted = format_command_for_claude(cmd)
         parsed = json.loads(formatted)
         # Claude expects permission responses in a specific format

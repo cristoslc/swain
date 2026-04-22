@@ -31,6 +31,38 @@ class TestFormatEventForZulip:
         assert "Hello world" in msg["content"]
         assert msg["topic"] == "s1"
 
+    def test_thinking_output_italicized_and_bracketed(self):
+        event = Event.thinking_output(
+            bridge="swain",
+            session_id="s1",
+            content="Hmm, let me think about this...",
+        )
+        msg = format_event_for_zulip(event)
+        assert "> *" in msg["content"]
+        assert "Hmm, let me think about this..." in msg["content"]
+        assert msg["topic"] == "s1"
+
+    def test_thinking_output_multiline(self):
+        event = Event.thinking_output(
+            bridge="swain",
+            session_id="s1",
+            content="First thought\nSecond thought",
+        )
+        msg = format_event_for_zulip(event)
+        assert "> *First thought*" in msg["content"]
+        assert "> *Second thought*" in msg["content"]
+
+    def test_thinking_output_with_blank_lines(self):
+        event = Event.thinking_output(
+            bridge="swain",
+            session_id="s1",
+            content="Thought one\n\nThought two",
+        )
+        msg = format_event_for_zulip(event)
+        assert ">" in msg["content"]
+        lines = msg["content"].split("\n")
+        assert any(line.strip() == ">" for line in lines)
+
     def test_tool_call(self):
         event = Event.tool_call(
             bridge="swain",

@@ -371,7 +371,14 @@ class OpenCodeServerAdapter:
         elif event_type == "session.created":
             log.info("SSE: session created: %s", props.get("sessionID"))
         elif event_type == "message.updated":
-            log.debug("SSE: message updated: %s", props.get("info", {}).get("id"))
+            info = props.get("info", {})
+            msg_id = info.get("id", "")
+            msg_role = info.get("role", "")
+            if msg_role == "user" and msg_id:
+                self._user_message_ids.add(msg_id)
+                log.debug("SSE: tracked user message: %s", msg_id)
+            else:
+                log.debug("SSE: message updated: %s (role=%s)", msg_id, msg_role)
         elif event_type == "permission.asked":
             self._handle_permission_asked(props)
         elif event_type == "session.error":
@@ -381,10 +388,32 @@ class OpenCodeServerAdapter:
         else:
             log.debug("SSE: unhandled event type: %s", event_type)
 
+    def _is_user_message(self, props: dict) -> bool:
+        """Check if an SSE event belongs to a user message (should be suppressed).
+
+        Checks both the top-level messageID (present in message.part.delta events)
+        and the nested part.messageID (present in message.part.updated events).
+        """
+        message_id = props.get("messageID", "")
+        if not message_id:
+            part = props.get("part", {})
+            if isinstance(part, dict):
+                message_id = part.get("messageID", "")
+        if message_id and message_id in self._user_message_ids:
+            return True
+        return False
+
     def _handle_text_delta(self, props: dict) -> None:
-        """Accumulate text deltas and emit text_output or thinking_output events."""
+        """Accumulate text deltas and emit text_output or thinking_output events.
+
+        Suppresses text from user messages to avoid echoing the operator's
+        own input back to the chat.
+        """
         session_id = props.get("sessionID", "")
         if self._oc_session_id and session_id != self._oc_session_id:
+            return
+
+        if self._is_user_message(props):
             return
 
         part_id = props.get("partID", "")
@@ -417,9 +446,16 @@ class OpenCodeServerAdapter:
             )
 
     def _handle_part_updated(self, props: dict) -> None:
-        """Handle full part updates (text, tool calls, tool results)."""
+        """Handle full part updates (text, tool calls, tool results).
+
+        Suppresses parts from user messages to avoid echoing the operator's
+        own input back to the chat.
+        """
         session_id = props.get("sessionID", "")
         if self._oc_session_id and session_id != self._oc_session_id:
+            return
+
+        if self._is_user_message(props):
             return
 
         part = props.get("part", props)
@@ -498,6 +534,7 @@ class OpenCodeServerAdapter:
             self._text_buffer.clear()
             self._flushed_up_to.clear()
             self._part_types.clear()
+            self._user_message_ids.clear()
             return
 
         log.info("Session %s is idle — turn complete", session_id)
@@ -505,6 +542,7 @@ class OpenCodeServerAdapter:
         self._text_buffer.clear()
         self._flushed_up_to.clear()
         self._part_types.clear()
+        self._user_message_ids.clear()
 
         if self.on_event:
             self.on_event(
@@ -532,6 +570,7 @@ class OpenCodeServerAdapter:
             self._text_buffer.clear()
             self._flushed_up_to.clear()
             self._part_types.clear()
+            self._user_message_ids.clear()
 
             if self.on_event:
                 self.on_event(
@@ -565,6 +604,7 @@ class OpenCodeServerAdapter:
             self._text_buffer.clear()
             self._flushed_up_to.clear()
             self._part_types.clear()
+            self._user_message_ids.clear()
             if self.on_event:
                 self.on_event(
                     Event.turn_ended(
@@ -625,6 +665,7 @@ class OpenCodeServerAdapter:
         self._text_buffer.clear()
         self._flushed_up_to.clear()
         self._part_types.clear()
+        self._user_message_ids.clear()
         if self.on_event:
             self.on_event(
                 Event.turn_ended(
