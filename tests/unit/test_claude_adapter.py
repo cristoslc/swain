@@ -93,7 +93,14 @@ class TestParseClaudeStreamEvent:
             },
         }
         result = parse_claude_stream_event(raw, bridge="swain", session_id="abc")
-        assert result is None or result == []
+        assert result is not None
+        if isinstance(result, list):
+            assert len(result) == 1
+            assert result[0].type == "thinking_output"
+            assert result[0].payload["content"] == ""
+        else:
+            assert result.type == "thinking_output"
+            assert result.payload["content"] == ""
 
     def test_mixed_content_blocks(self):
         raw = {

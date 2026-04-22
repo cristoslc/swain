@@ -76,14 +76,15 @@ def parse_claude_stream_event(
                 )
             elif block_type == "thinking":
                 thinking_text = block.get("thinking", "")
-                if thinking_text:
-                    events.append(
-                        Event.thinking_output(
-                            bridge=bridge,
-                            session_id=sid,
-                            content=thinking_text,
-                        )
+                # Always emit thinking_output events, even for empty thinking
+                # This allows clients to know thinking occurred (via signature)
+                events.append(
+                    Event.thinking_output(
+                        bridge=bridge,
+                        session_id=sid,
+                        content=thinking_text,
                     )
+                )
             elif block_type == "tool_use":
                 events.append(
                     Event.tool_call(
