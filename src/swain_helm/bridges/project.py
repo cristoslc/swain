@@ -22,10 +22,7 @@ from swain_helm.protocol import Event, Command, ConfigMessage
 from swain_helm.plugin_process import PluginProcess
 from swain_helm.worktree_scanner import WorktreeScanner, WorktreeDiff, WorktreeInfo
 from swain_helm.session_registry import SessionRegistry
-from swain_helm.config import (
-    DEFAULT_OPENCODE_BASE_URL,
-    DEFAULT_WORKTREE_POLL_INTERVAL_S,
-)
+from swain_helm.config import DEFAULT_WORKTREE_POLL_INTERVAL_S
 
 log = logging.getLogger(__name__)
 
@@ -33,6 +30,7 @@ log = logging.getLogger(__name__)
 class SessionState(enum.Enum):
     SPAWNING = "spawning"
     ACTIVE = "active"
+    BUSY = "busy"
     WAITING_APPROVAL = "waiting_approval"
     DEAD = "dead"
 
@@ -45,6 +43,7 @@ class Session:
     artifact: str | None = None
     origin: str | None = None
     pending_approval_call_id: str | None = None
+    pending_prompt: str | None = None
 
 
 _RUNTIME_COMMANDS = {
@@ -110,7 +109,7 @@ class ProjectBridge:
                 "bot_email": chat_cfg.get("bot_email", ""),
                 "bot_api_key": chat_cfg.get("bot_api_key", ""),
                 "stream_name": stream,
-                "control_topic": chat_cfg.get("control_topic", "control"),
+                "control_topic": chat_cfg.get("control_topic", "trunk"),
                 "operator_email": chat_cfg.get("operator_email"),
                 "bridge": self.project,
             },
@@ -186,7 +185,9 @@ class ProjectBridge:
             return
         if wt.branch in self._branch_to_session:
             return
-        runtime = self.config.get("default_runtime", "opencode")
+        runtime = self.config.get(
+            "default_runtime", self.config.get("runtime", "opencode")
+        )
         worktree_path = wt.path
         opencode_config = self.config.get("opencode", {})
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
@@ -201,7 +202,7 @@ class ProjectBridge:
                 "bridge": self.project,
                 "session_id": session_id,
                 "project_dir": worktree_path or "",
-                "base_url": opencode_config.get("base_url", DEFAULT_OPENCODE_BASE_URL),
+                "base_url": opencode_config.get("base_url", "http://127.0.0.1:4098"),
             },
             on_message=lambda msg, sid=session_id: self._on_runtime_message(sid, msg),
         )
@@ -226,12 +227,11 @@ class ProjectBridge:
         if not isinstance(wt, WorktreeInfo):
             return
         session_id = self._branch_to_session.pop(wt.branch, None)
-        if not session_id or session_id not in self.sessions:
-            return
-        self.sessions[session_id].state = SessionState.DEAD
-        plugin = self._runtime_plugins.pop(session_id, None)
-        if plugin:
-            asyncio.get_running_loop().create_task(plugin.stop())
+        if session_id and session_id in self.sessions:
+            self.sessions[session_id].state = SessionState.DEAD
+            plugin = self._runtime_plugins.pop(session_id, None)
+            if plugin:
+                asyncio.get_running_loop().create_task(plugin.stop())
         if self._registry and wt.branch:
             self._registry.update_entry(wt.branch, state="dead")
 
@@ -279,15 +279,31 @@ class ProjectBridge:
         elif event.type == "session_died" and session:
             session.state = SessionState.DEAD
             self._persist_session_state(session)
+            self._clear_pending_prompt(session)
         elif event.type == "approval_needed" and session:
             session.state = SessionState.WAITING_APPROVAL
             session.pending_approval_call_id = event.payload.get("call_id")
             self._persist_session_state(session)
         elif event.type == "tool_result" and session:
             if session.state == SessionState.WAITING_APPROVAL:
-                session.state = SessionState.ACTIVE
+                session.state = SessionState.BUSY
                 session.pending_approval_call_id = None
                 self._persist_session_state(session)
+        elif event.type == "turn_ended" and session:
+            was_busy = session.state == SessionState.BUSY
+            session.state = SessionState.ACTIVE
+            self._persist_session_state(session)
+            if was_busy and session.pending_prompt is not None:
+                text = session.pending_prompt
+                session.pending_prompt = None
+                cmd = Command.send_prompt(
+                    bridge=session.session_id,
+                    session_id=session.session_id,
+                    text=text,
+                )
+                plugin = self._runtime_plugins.get(session.session_id)
+                if plugin:
+                    asyncio.get_running_loop().create_task(plugin.write(cmd))
         if session and session.origin:
             event.payload["origin"] = session.origin
         if self.on_event:
@@ -302,13 +318,37 @@ class ProjectBridge:
                 state=session.state.value,
             )
 
+    def _abort_current_turn(self, session: Session) -> None:
+        """Send an abort command to the runtime to cancel the current turn.
+
+        The session transitions to ACTIVE when turn_ended arrives from
+        the runtime, at which point any queued prompt is sent automatically.
+        """
+        plugin = self._runtime_plugins.get(session.session_id)
+        if not plugin:
+            log.warning(
+                "Cannot abort — no runtime plugin for session %s",
+                session.session_id,
+            )
+            return
+        abort_cmd = Command.cancel(bridge=self.project, session_id=session.session_id)
+        asyncio.get_running_loop().create_task(plugin.write(abort_cmd))
+
+    def _clear_pending_prompt(self, session: Session) -> None:
+        """Clear any pending prompt for a dead session."""
+        session.pending_prompt = None
+
     def get_session(self, session_id: str) -> Session | None:
         """Look up a session by ID."""
         return self.sessions.get(session_id)
 
     def active_sessions(self) -> list[Session]:
-        """Return all sessions currently in ACTIVE state."""
-        return [s for s in self.sessions.values() if s.state == SessionState.ACTIVE]
+        """Return all sessions currently active or busy (in a turn)."""
+        return [
+            s
+            for s in self.sessions.values()
+            if s.state in (SessionState.ACTIVE, SessionState.BUSY)
+        ]
 
     # --- Command handlers ---
 
@@ -321,7 +361,10 @@ class ProjectBridge:
 
     def _cmd_start_session(self, cmd: Command) -> None:
         session_id = f"sess-{uuid.uuid4().hex[:8]}"
-        runtime = cmd.payload.get("runtime", "claude")
+        runtime = cmd.payload.get(
+            "runtime",
+            self.config.get("default_runtime", self.config.get("runtime", "opencode")),
+        )
         artifact = cmd.payload.get("artifact")
         worktree_path = cmd.payload.get("worktree_path") or self.project_dir
         opencode_config = self.config.get("opencode", {})
@@ -337,7 +380,7 @@ class ProjectBridge:
                 "bridge": self.project,
                 "session_id": session_id,
                 "project_dir": worktree_path or "",
-                "base_url": opencode_config.get("base_url", DEFAULT_OPENCODE_BASE_URL),
+                "base_url": opencode_config.get("base_url", "http://127.0.0.1:4098"),
             },
             on_message=lambda msg, sid=session_id: self._on_runtime_message(sid, msg),
         )
@@ -350,11 +393,49 @@ class ProjectBridge:
         )
 
     def _cmd_send_prompt(self, cmd: Command) -> None:
-        session = self._lookup_session(cmd)
-        if not session:
+        session_id = cmd.session_id or ""
+        session = self.sessions.get(session_id)
+
+        if not session and session_id == "trunk":
+            self._ensure_trunk_session(cmd)
+            session = self.sessions.get(cmd.session_id or "")
+            if not session:
+                return
+        elif not session:
+            log.warning("%s for unknown session: %s", cmd.type, session_id)
             return
+
+        if session.state == SessionState.BUSY:
+            log.info(
+                "Session %s is busy — aborting current turn and queuing new prompt",
+                session.session_id,
+            )
+            session.pending_prompt = cmd.payload.get("text")
+            if self._chat_plugin:
+                asyncio.get_running_loop().create_task(
+                    self._chat_plugin.write(
+                        Event.text_output(
+                            bridge=self.project,
+                            session_id=session.session_id,
+                            content="*Turn interrupted — new prompt queued.*",
+                        )
+                    )
+                )
+            self._abort_current_turn(session)
+            return
+
+        if session.state == SessionState.WAITING_APPROVAL:
+            log.info(
+                "Session %s is waiting for approval — queuing prompt behind approval",
+                session.session_id,
+            )
+            session.pending_prompt = cmd.payload.get("text")
+            return
+
         plugin = self._runtime_plugins.get(session.session_id)
         if plugin:
+            session.state = SessionState.BUSY
+            self._persist_session_state(session)
             asyncio.get_running_loop().create_task(plugin.write(cmd))
         else:
             log.warning("No runtime plugin for session: %s", session.session_id)
@@ -364,8 +445,9 @@ class ProjectBridge:
         if not session:
             return
         if session.state == SessionState.WAITING_APPROVAL:
-            session.state = SessionState.ACTIVE
+            session.state = SessionState.BUSY
             session.pending_approval_call_id = None
+            self._persist_session_state(session)
         plugin = self._runtime_plugins.get(session.session_id)
         if plugin:
             asyncio.get_running_loop().create_task(plugin.write(cmd))
@@ -374,27 +456,62 @@ class ProjectBridge:
         session = self._lookup_session(cmd)
         if not session:
             return
+        self._clear_pending_prompt(session)
         session.state = SessionState.DEAD
         plugin = self._runtime_plugins.pop(session.session_id, None)
         if plugin:
             asyncio.get_running_loop().create_task(plugin.stop())
 
-    def _cmd_control_message(self, cmd: Command) -> None:
-        text = cmd.payload.get("text", "")
+    def _ensure_trunk_session(self, cmd: Command) -> None:
         for sid, session in self.sessions.items():
-            if session.origin == "control" and session.state in (
+            if session.origin == "trunk" and session.state in (
                 SessionState.SPAWNING,
                 SessionState.ACTIVE,
+                SessionState.BUSY,
             ):
-                plugin = self._runtime_plugins.get(sid)
-                if plugin:
-                    follow_up = Command.send_prompt(
+                cmd.session_id = sid
+                return
+
+        runtime = self.config.get(
+            "default_runtime", self.config.get("runtime", "opencode")
+        )
+        opencode_config = self.config.get("opencode", {})
+        worktree_path = self.project_dir or ""
+        session_id = f"sess-{uuid.uuid4().hex[:8]}"
+        session = Session(session_id=session_id, runtime=runtime, origin="trunk")
+        self.sessions[session_id] = session
+        plugin = PluginProcess(
+            name=f"runtime:{session_id}",
+            cmd=_runtime_cmd(runtime),
+            plugin_type="runtime",
+            config={
+                "bridge": self.project,
+                "session_id": session_id,
+                "project_dir": worktree_path,
+                "base_url": opencode_config.get("base_url", "http://127.0.0.1:4098"),
+                "origin": "trunk",
+            },
+            on_message=lambda msg, sid=session_id: self._on_runtime_message(sid, msg),
+        )
+        self._runtime_plugins[session_id] = plugin
+        loop = asyncio.get_running_loop()
+        task = loop.create_task(plugin.start())
+        task.add_done_callback(
+            lambda t, sid=session_id: self._on_plugin_start_failed(t, sid)
+        )
+        cmd.session_id = session_id
+        if self._chat_plugin:
+            asyncio.get_running_loop().create_task(
+                self._chat_plugin.write(
+                    Event.session_starting(
                         bridge=self.project,
-                        session_id=sid,
-                        text=text,
+                        session_id=session_id,
+                        runtime=runtime,
+                        origin="trunk",
                     )
-                    asyncio.get_running_loop().create_task(plugin.write(follow_up))
-                    return
+                )
+            )
+        log.info("Auto-started trunk session %s", session_id)
 
     def _cmd_bind_artifact(self, cmd: Command) -> None:
         session = self._lookup_session(cmd)

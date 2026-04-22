@@ -221,6 +221,13 @@ class ClaudeCodeAdapter:
         if formatted:
             self._process.stdin.write((formatted + "\n").encode())
             await self._process.stdin.drain()
+        if cmd.type == "cancel" and self.on_event:
+            self.on_event(
+                Event.turn_ended(
+                    bridge=self.bridge,
+                    session_id=self.session_id,
+                )
+            )
 
     async def stop(self) -> None:
         """Stop the Claude Code process."""

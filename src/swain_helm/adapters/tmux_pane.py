@@ -220,6 +220,13 @@ class TmuxPaneAdapter:
                 ["tmux", "send-keys", "-t", self._session_name, "C-c"],
                 capture_output=True,
             )
+            if self.on_event:
+                self.on_event(
+                    Event.turn_ended(
+                        bridge=self.bridge,
+                        session_id=self.session_id,
+                    )
+                )
 
         elif cmd.type == "approve":
             # SPIKE: approval mechanism varies by runtime

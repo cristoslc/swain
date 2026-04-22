@@ -161,7 +161,7 @@ class TestChatCommandRouting:
             bridge.handle_command(cmd)
             await asyncio.sleep(0)
             mock_write.assert_awaited_once_with(cmd)
-        assert bridge.sessions[sess_id].state == SessionState.ACTIVE
+        assert bridge.sessions[sess_id].state == SessionState.BUSY
 
     @pytest.mark.asyncio
     async def test_send_prompt_unknown_session_logged(self, bridge):
@@ -243,20 +243,143 @@ class TestSessionRegistry:
         assert active[0].session_id == sess_ids[0]
 
 
-class TestControlMessage:
+class TestTrunkSession:
     @pytest.mark.asyncio
-    async def test_control_message_forwards_to_existing_control_session(self, bridge):
+    async def test_send_prompt_forwards_to_existing_trunk_session(self, bridge):
         with patch.object(PluginProcess, "start", new_callable=AsyncMock):
             bridge.handle_command(
                 Command.start_session(bridge="swain", runtime="opencode")
             )
             await asyncio.sleep(0)
         sess_id = list(bridge.sessions.keys())[0]
-        bridge.sessions[sess_id].origin = "control"
+        bridge.sessions[sess_id].origin = "trunk"
         bridge.sessions[sess_id].state = SessionState.ACTIVE
         plugin = bridge._runtime_plugins[sess_id]
-        cmd = Command.control_message(bridge="swain", text="hello from control")
+        cmd = Command.send_prompt(
+            bridge="swain", session_id=sess_id, text="hello from trunk"
+        )
         with patch.object(plugin, "write", new_callable=AsyncMock) as mock_write:
             bridge.handle_command(cmd)
             await asyncio.sleep(0)
             mock_write.assert_awaited_once()
+
+
+class TestBusyInterrupt:
+    @pytest.mark.asyncio
+    async def test_send_prompt_while_busy_queues_prompt_and_aborts(self, bridge):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
+        sess_id = list(bridge.sessions.keys())[0]
+        bridge.sessions[sess_id].state = SessionState.BUSY
+        plugin = bridge._runtime_plugins[sess_id]
+        cmd = Command.send_prompt(bridge="swain", session_id=sess_id, text="new msg")
+        with patch.object(plugin, "write", new_callable=AsyncMock) as mock_write:
+            bridge.handle_command(cmd)
+            await asyncio.sleep(0)
+        assert bridge.sessions[sess_id].pending_prompt == "new msg"
+        assert mock_write.call_count == 1
+        written_cmd = mock_write.call_args[0][0]
+        assert written_cmd.type == "cancel"
+
+    @pytest.mark.asyncio
+    async def test_turn_ended_after_abort_sends_queued_prompt(self, bridge):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
+        sess_id = list(bridge.sessions.keys())[0]
+        bridge.sessions[sess_id].state = SessionState.BUSY
+        bridge.sessions[sess_id].pending_prompt = "queued msg"
+        plugin = bridge._runtime_plugins[sess_id]
+        with patch.object(plugin, "write", new_callable=AsyncMock) as mock_write:
+            bridge.handle_runtime_event(
+                Event.turn_ended(bridge="swain", session_id=sess_id)
+            )
+            await asyncio.sleep(0)
+        assert bridge.sessions[sess_id].state == SessionState.ACTIVE
+        assert bridge.sessions[sess_id].pending_prompt is None
+        assert mock_write.call_count == 1
+        sent_cmd = mock_write.call_args[0][0]
+        assert sent_cmd.type == "send_prompt"
+        assert sent_cmd.payload["text"] == "queued msg"
+
+    @pytest.mark.asyncio
+    async def test_send_prompt_while_waiting_approval_queues_prompt(self, bridge):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
+        sess_id = list(bridge.sessions.keys())[0]
+        bridge.sessions[sess_id].state = SessionState.WAITING_APPROVAL
+        cmd = Command.send_prompt(bridge="swain", session_id=sess_id, text="next")
+        plugin = bridge._runtime_plugins[sess_id]
+        with patch.object(plugin, "write", new_callable=AsyncMock) as mock_write:
+            bridge.handle_command(cmd)
+            await asyncio.sleep(0)
+        assert bridge.sessions[sess_id].pending_prompt == "next"
+        mock_write.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_cancel_clears_pending_prompt(self, bridge):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
+        sess_id = list(bridge.sessions.keys())[0]
+        bridge.sessions[sess_id].state = SessionState.BUSY
+        bridge.sessions[sess_id].pending_prompt = "queued"
+        with patch.object(PluginProcess, "stop", new_callable=AsyncMock):
+            bridge.handle_command(Command.cancel(bridge="swain", session_id=sess_id))
+            await asyncio.sleep(0)
+        assert bridge.sessions[sess_id].pending_prompt is None
+        assert bridge.sessions[sess_id].state == SessionState.DEAD
+
+    @pytest.mark.asyncio
+    async def test_session_died_clears_pending_prompt(self, bridge):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
+        sess_id = list(bridge.sessions.keys())[0]
+        bridge.sessions[sess_id].state = SessionState.BUSY
+        bridge.sessions[sess_id].pending_prompt = "queued"
+        bridge.handle_runtime_event(
+            Event.session_died(bridge="swain", session_id=sess_id, reason="error")
+        )
+        assert bridge.sessions[sess_id].pending_prompt is None
+
+    @pytest.mark.asyncio
+    async def test_busy_session_included_in_active_sessions(self, bridge):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
+        sess_id = list(bridge.sessions.keys())[0]
+        bridge.sessions[sess_id].state = SessionState.BUSY
+        assert len(bridge.active_sessions()) == 1
+
+    @pytest.mark.asyncio
+    async def test_approve_transitions_to_busy(self, bridge):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
+        sess_id = list(bridge.sessions.keys())[0]
+        bridge.sessions[sess_id].state = SessionState.WAITING_APPROVAL
+        bridge.sessions[sess_id].pending_approval_call_id = "call-1"
+        cmd = Command.approve(
+            bridge="swain", session_id=sess_id, call_id="call-1", approved=True
+        )
+        plugin = bridge._runtime_plugins[sess_id]
+        with patch.object(plugin, "write", new_callable=AsyncMock):
+            bridge.handle_command(cmd)
+        assert bridge.sessions[sess_id].state == SessionState.BUSY
