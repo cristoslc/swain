@@ -15,7 +15,7 @@ version: "3.8"
 #   PROJECT_NAME - Name of project (for stream)
 #   ZULIP_BOT_EMAIL - Bot email
 #   ZULIP_BOT_API_KEY - Bot API key
-#   ZULIP_OPERATOR_EMAIL - Operator email for mentions
+#   ZULIP_OPERATOR_EMAIL - Operator email for for mentions
 
 services:
   watchdog:
@@ -23,10 +23,32 @@ services:
       context: .
       dockerfile: Dockerfile.test
     container_name: swain-helm-watchdog
+    read_only: true
+    # SYS_ADMIN needed for entrypoint.sh to mount tmpfs over parent
+    # directories, hiding sibling directories from the container.
+    cap_add:
+      - SYS_ADMIN
+    tmpfs:
+      - /tmp
+      - /run
+      - /root/.local
+      - /root/.cache
+      - /root/.config/opencode
+    ports:
+      - "4098:4098"
+    # Only the project-path volume is writable on the host. The root
+    # filesystem is read-only (read_only: true), so rogue git worktree
+    # add commands that try to write outside PROJECT_PATH will fail with
+    # EROFS. The entrypoint shadows parent directories with tmpfs so
+    # sibling directories are not even readable.
     volumes:
-      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}:ro
-      - swain-config:/root/.config/swain-helm
-      - swain-run:/root/.config/swain-helm/run
+      # Read-only source used by entrypoint to recreate the project mount
+      # after shadowing parents with tmpfs.
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:/project_source:ro
+      # Writable project mount at the real host path (needed for git).
+      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}
+      - swain-test-config:/root/.config/swain-helm
+      - opencode-data:/root/.opencode
     environment:
       - SWAIN_HELM_TEST_MODE=0
       - ZULIP_BOT_EMAIL=${ZULIP_BOT_EMAIL:?ZULIP_BOT_EMAIL required}
@@ -34,8 +56,9 @@ services:
       - ZULIP_SITE=${ZULIP_SITE:-https://cristoslc.zulipchat.com}
       - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL:?ZULIP_OPERATOR_EMAIL required}
       - PROJECT_NAME=${PROJECT_NAME:?PROJECT_NAME required}
+      - PROJECT_PATH=${PROJECT_PATH:?PROJECT_PATH must be set}
     working_dir: ${PROJECT_PATH}
-    entrypoint: ["python", "-m", "swain_helm.watchdog"]
+    entrypoint: ["/entrypoint.sh", "python", "-m", "swain_helm.watchdog"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "test", "-f", "/root/.config/swain-helm/run/watchdog.pid"]
@@ -44,22 +67,7 @@ services:
       retries: 3
       start_period: 10s
 
-  # Optional: opencode server for this project
-  opencode-server:
-    build:
-      context: .
-      dockerfile: Dockerfile.test
-    container_name: swain-helm-opencode
-    ports:
-      - "4098:4098"
-    volumes:
-      - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}
-      - opencode-data:/root/.opencode
-    working_dir: ${PROJECT_PATH}
-    command: ["opencode", "serve", "--port", "4098", "--host", "0.0.0.0"]
-    restart: unless-stopped
-
 volumes:
-  swain-config:
-  swain-run:
+  swain-test-config:
+    external: true
   opencode-data:

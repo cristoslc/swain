@@ -151,7 +151,7 @@ class TestProvisionWritesConfigs:
                     config_dir=config_dir,
                 )
 
-    def test_welcome_message_posted_to_control_topic(self, config_dir: Path) -> None:
+    def test_welcome_message_posted_to_trunk_topic(self, config_dir: Path) -> None:
         mock = _mock_zulip()
         with _patch_zulip_client(mock):
             provision(
@@ -167,5 +167,5 @@ class TestProvisionWritesConfigs:
         mock.send_message.assert_called_once()
         msg = mock.send_message.call_args[0][0]
         assert msg["type"] == "stream"
-        assert msg["topic"] == "control"
+        assert msg["topic"] == "trunk"
         assert "myproj" in msg["content"]

@@ -2,7 +2,7 @@
 
 Scenarios covered:
 
-  Zulip polling (via call_on_each_message):
+  Zulip polling (via call_on_each_event):
     - Zulip message routes to the correct project bridge
     - Bot's own messages are skipped
     - Blocking SDK call runs in a thread executor
@@ -37,9 +37,7 @@ from swain_helm.plugin_process import PluginProcess
 # ---------------------------------------------------------------------------
 
 
-def _make_zulip_msg(
-    content: str, stream: str = "swain", topic: str = "sess-abc"
-) -> dict:
+def _make_zulip_msg(content: str, stream: str = "swain", topic: str = "trunk") -> dict:
     return {
         "type": "stream",
         "sender_email": "operator@example.com",
@@ -50,16 +48,16 @@ def _make_zulip_msg(
 
 
 def _make_poll_client(messages: list[dict]) -> MagicMock:
-    """Build a mock Zulip client that delivers messages via call_on_each_message."""
+    """Build a mock Zulip client that delivers messages via call_on_each_event."""
     client = MagicMock()
     client.email = "bot@zulip.com"
 
-    def call_on_each_message(callback, **kwargs):
+    def call_on_each_event(callback, event_types=None, narrow=None, **kwargs):
         for msg in messages:
-            callback(msg)
+            callback({"type": "message", "message": msg})
         raise asyncio.CancelledError()
 
-    client.call_on_each_message.side_effect = call_on_each_message
+    client.call_on_each_event.side_effect = call_on_each_event
     return client
 
 
@@ -82,7 +80,7 @@ class TestZulipMessageRouting:
             await _poll_zulip(
                 client,
                 _STREAM_MAP,
-                "control",
+                "trunk",
                 received.append,
                 SessionTopicRegistry(),
                 loop,
@@ -106,7 +104,7 @@ class TestZulipMessageRouting:
             await _poll_zulip(
                 client,
                 _STREAM_MAP,
-                "control",
+                "trunk",
                 received.append,
                 SessionTopicRegistry(),
                 loop,
@@ -128,7 +126,7 @@ class TestZulipMessageRouting:
             await _poll_zulip(
                 client,
                 _STREAM_MAP,
-                "control",
+                "trunk",
                 received.append,
                 SessionTopicRegistry(),
                 loop,
@@ -144,11 +142,11 @@ class TestZulipMessageRouting:
 
 
 class TestZulipBlockingCallsAreOffloaded:
-    """call_on_each_message runs in a thread executor, not on the event loop."""
+    """call_on_each_event runs in a thread executor, not on the event loop."""
 
     async def test_sdk_runs_in_executor(self):
         """Verify run_in_executor is used: the event loop stays responsive
-        while call_on_each_message blocks in a worker thread."""
+        while call_on_each_event blocks in a worker thread."""
         import threading
 
         loop = asyncio.get_running_loop()
@@ -158,20 +156,20 @@ class TestZulipBlockingCallsAreOffloaded:
         client = MagicMock()
         client.email = "bot@zulip.com"
 
-        def call_on_each_message(callback, **kwargs):
+        def call_on_each_event(callback, event_types=None, narrow=None, **kwargs):
             loop.call_soon_threadsafe(barrier.set)
             executor_ran.set()
             import time
 
             time.sleep(0.02)
 
-        client.call_on_each_message.side_effect = call_on_each_message
+        client.call_on_each_event.side_effect = call_on_each_event
 
         poll_task = asyncio.create_task(
             _poll_zulip(
                 client,
                 "swain",
-                "control",
+                "trunk",
                 lambda _cmd: None,
                 SessionTopicRegistry(),
                 loop,

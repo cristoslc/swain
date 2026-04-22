@@ -14,7 +14,7 @@ Topic routing
 -------------
   - Topic "trunk" → session_id "trunk" (the trunk workspace)
   - Topic matching branch name → session_id = branch name (worktree)
-  - Control topic → control_message for the project bridge
+  - Control topic (trunk) → send_prompt to the trunk session
 """
 
 from __future__ import annotations
@@ -114,6 +114,7 @@ async def _poll_zulip(
     registry: SessionTopicRegistry,
     loop: asyncio.AbstractEventLoop,
     bridge: str,
+    typing: TypingIndicator,
 ) -> None:
     """Poll Zulip for operator messages with a narrow stream filter.
 
@@ -141,6 +142,9 @@ async def _poll_zulip(
         if message.get("sender_email") == client.email:
             return
 
+        topic = message.get("subject", control_topic)
+        loop.call_soon_threadsafe(typing.start, stream_name, topic)
+
         cmd = parse_zulip_message(
             message,
             bridge=bridge,
@@ -157,14 +161,19 @@ async def _poll_zulip(
         log.info("Zulip message → %s (bridge=%s)", cmd.type, cmd.bridge)
         emit(cmd)
 
+    def _on_event(event: dict) -> None:
+        if event.get("type") == "message":
+            _on_message(event["message"])
+
     log.info(
         "Starting Zulip message poll (stream=%s, narrow=%s)...", stream_name, narrow
     )
     await loop.run_in_executor(
         None,
-        lambda: client.call_on_each_message(
-            _on_message,
-            narrow=narrow,
+        lambda: client.call_on_each_event(
+            _on_event,
+            ["message"],
+            narrow,
         ),
     )
 
@@ -179,12 +188,17 @@ class TypingIndicator:
 
     Pulses 'start' every 10s. Stops when output arrives or session dies.
     Uses the Zulip set-typing-status API for stream/topic typing.
+    Safety: auto-stops after max_duration (default 300s) to prevent
+    typing-forever if turn_ended is never emitted.
     """
+
+    MAX_DURATION = 300.0
 
     def __init__(self, client: Any, loop: asyncio.AbstractEventLoop) -> None:
         self._client = client
         self._loop = loop
         self._active: dict[tuple[str, str], asyncio.Task] = {}
+        self._safety_timers: dict[tuple[str, str], asyncio.TimerHandle] = {}
 
     def start(self, stream: str, topic: str) -> None:
         """Begin typing indicator for a stream/topic."""
@@ -192,6 +206,11 @@ class TypingIndicator:
         if key in self._active:
             return
         self._active[key] = self._loop.create_task(self._pulse(stream, topic))
+        safety = self._loop.call_later(
+            self.MAX_DURATION,
+            lambda: self.stop(stream, topic),
+        )
+        self._safety_timers[key] = safety
 
     def stop(self, stream: str, topic: str) -> None:
         """Stop typing indicator for a stream/topic."""
@@ -199,6 +218,9 @@ class TypingIndicator:
         task = self._active.pop(key, None)
         if task:
             task.cancel()
+        safety = self._safety_timers.pop(key, None)
+        if safety:
+            safety.cancel()
         self._send_typing(stream, topic, "stop")
 
     def stop_all(self) -> None:
@@ -299,6 +321,7 @@ async def _relay_events(
     control_topic: str,
     registry: SessionTopicRegistry,
     loop: asyncio.AbstractEventLoop,
+    typing: TypingIndicator,
 ) -> None:
     """Read Events from stdin (kernel), post them to the correct Zulip thread."""
 
@@ -316,8 +339,7 @@ async def _relay_events(
         )
 
     mention = f"@**{operator_email}** " if operator_email else ""
-    batcher = TextBatcher(_post, delay=2.0, on_flush=lambda s, t: typing.stop(s, t))
-    typing = TypingIndicator(client, loop)
+    batcher = TextBatcher(_post, delay=2.0)
 
     while True:
         line = await loop.run_in_executor(None, sys.stdin.readline)
@@ -334,7 +356,7 @@ async def _relay_events(
         origin = msg.payload.get("origin")
 
         # --- Control-origin sessions: all output goes to control topic ---
-        if origin == "control":
+        if origin == "trunk":
             if msg.type == "session_starting":
                 # Start typing indicator immediately when spawn begins
                 typing.start(stream, control_topic)
@@ -342,13 +364,19 @@ async def _relay_events(
                 # Session confirmed spawned — already typing
                 pass
             elif msg.type == "session_died":
-                # Stop typing and clean up silently
+                # Stop typing and clean up
+                typing.stop(stream, control_topic)
+                await batcher.flush_all()
+            elif msg.type == "turn_ended":
+                # Turn finished — flush buffered text and stop typing
+                await batcher.flush_all()
                 typing.stop(stream, control_topic)
             elif msg.type == "text_output":
                 # Batch text lines before posting to control
                 content = msg.payload.get("content", "")
                 if content.strip():
                     batcher.add(stream, control_topic, content)
+                    typing.start(stream, control_topic)
             else:
                 # Non-text events post immediately
                 zulip_msg = format_event_for_zulip(
@@ -409,6 +437,13 @@ async def _relay_events(
                 control_topic,
                 f"Session **{topic}** ended: {reason}.",
             )
+            typing.stop(stream, topic)
+
+        elif msg.type == "turn_ended":
+            topic = registry.topic_for(session_id)
+            if topic:
+                await batcher.flush_all()
+                typing.stop(stream, topic)
 
         else:
             # All other events: post to the session's registered topic.
@@ -460,10 +495,11 @@ async def _amain() -> None:
     )
 
     stream_name = cfg.get("stream_name", "")
-    control_topic = cfg.get("control_topic", "control")
+    control_topic = cfg.get("control_topic", "trunk")
     bridge = cfg.get("bridge", "")
 
     registry = SessionTopicRegistry()
+    typing = TypingIndicator(client, loop)
 
     await asyncio.gather(
         _poll_zulip(
@@ -474,6 +510,7 @@ async def _amain() -> None:
             registry,
             loop,
             bridge,
+            typing,
         ),
         _relay_events(
             client,
@@ -482,6 +519,7 @@ async def _amain() -> None:
             control_topic,
             registry,
             loop,
+            typing,
         ),
     )
 

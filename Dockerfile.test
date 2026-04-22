@@ -1,0 +1,42 @@
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    ca-certificates \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir uv
+
+# Install opencode CLI pinned to version 1.14.19 with hash verification
+# npm integrity: sha512-67h56qYcJivd2U9VK8LJvyMBCc3ZE3HcJ/qL4YtaidSnjEumy4SxO+HHlDISsLase7TUQ0w1nULOAibdZxGzbQ==
+ARG OPENCODE_VERSION=1.14.19
+# Hex-encoded sha512 hash for sha512sum verification
+ARG OPENCODE_SHA512=ebb879eaa61c262bddd94f552bc2c9bf230109cdd91371dc27fa8be18b5a89d4a78c4ba6cb84b13be1c7943212b0b6ac7bb4d4434c359d42ce0226dd6711b36d
+
+# Download tarball to temp location for hash verification
+RUN curl -fsSL -o /tmp/opencode-ai-${OPENCODE_VERSION}.tgz \
+    https://registry.npmjs.org/opencode-ai/-/opencode-ai-${OPENCODE_VERSION}.tgz && \
+    echo "${OPENCODE_SHA512}  /tmp/opencode-ai-${OPENCODE_VERSION}.tgz" | sha512sum -c - && \
+    npm install -g /tmp/opencode-ai-${OPENCODE_VERSION}.tgz && \
+    rm /tmp/opencode-ai-${OPENCODE_VERSION}.tgz
+
+WORKDIR /app
+
+COPY pyproject.toml .
+RUN uv pip install --system -e ".[dev]" 2>/dev/null || true
+
+COPY . .
+
+RUN uv pip install --system -e ".[dev]"
+
+COPY scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENV PYTHONUNBUFFERED=1
+ENV SWAIN_HELM_TEST_MODE=1
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["uv", "run", "python", "-m", "pytest", "tests/", "-v", "--tb=short"]

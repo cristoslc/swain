@@ -1,7 +1,17 @@
-"""Config loading and 1Password credential resolution for swain-helm."""
+"""Config loading and 1Password credential resolution for swain-helm.
+
+Resolution order for op:// references:
+  1. Try ``op read`` (works on host with 1Password CLI)
+  2. Fall back to environment variable: ``SWAIN_HELM_<dotted_path>``
+     e.g. ``chat.bot_api_key`` → ``SWAIN_HELM_CHAT_BOT_API_KEY``
+This two-step approach lets the same config work on the developer machine
+(with ``op`` available) and inside Docker containers (where ``op`` is absent
+but the host injects secrets via environment variables).
+"""
 
 import json
 import logging
+import os
 import subprocess
 
 logger = logging.getLogger(__name__)
@@ -33,39 +43,69 @@ class ResolutionError(Exception):
 
 def resolve_op_references(config: dict) -> dict:
     """Walk config tree, resolve all op:// references, return resolved config."""
-    return _walk(config)
+    return _walk(config, path="")
 
 
-def _walk(value):
+def _walk(value, path=""):
     if isinstance(value, dict):
-        return {k: _walk(v) for k, v in value.items()}
+        return {
+            k: _walk(v, path=f"{path}.{k}" if path else k) for k, v in value.items()
+        }
     if isinstance(value, list):
-        return [_walk(item) for item in value]
+        return [_walk(item, path=path) for item in value]
     if isinstance(value, str) and value.startswith("op://"):
-        return _resolve_one(value)
+        return _resolve_one(value, config_path=path)
     return value
 
 
-def _resolve_one(reference: str) -> str:
-    """Call ``op read`` for the reference. Cache and return the result."""
+def _env_key(config_path: str) -> str:
+    """Convert a dotted config path to an environment variable name.
+
+    ``chat.bot_api_key`` → ``SWAIN_HELM_CHAT_BOT_API_KEY``
+    """
+    return "SWAIN_HELM_" + config_path.upper().replace(".", "_")
+
+
+def _resolve_one(reference: str, config_path: str = "") -> str:
+    """Resolve an op:// reference.
+
+    Tries ``op read`` first (works on host). Falls back to an environment
+    variable derived from the config path (works inside Docker).
+    """
     if reference in _resolved_cache:
         return _resolved_cache[reference]
 
-    result = subprocess.run(
-        ["op", "read", reference],
-        capture_output=True,
-        text=True,
-    )
-
-    if result.returncode != 0:
+    # Try 1Password CLI
+    try:
+        result = subprocess.run(
+            ["op", "read", reference],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if result.returncode == 0:
+            resolved = result.stdout.rstrip("\n")
+            _resolved_cache[reference] = resolved
+            logger.info("Resolved 1Password item: %s (success)", reference)
+            return resolved
         detail = result.stderr.strip() or f"exit code {result.returncode}"
-        logger.error("Failed to resolve 1Password item: %s", reference)
-        raise ResolutionError(reference, detail)
+        logger.warning("op read failed for %s: %s", reference, detail)
+    except FileNotFoundError:
+        logger.info("op CLI not found, trying env var fallback")
+    except subprocess.TimeoutExpired:
+        logger.warning("op read timed out for %s", reference)
 
-    resolved = result.stdout.rstrip("\n")
-    _resolved_cache[reference] = resolved
-    logger.info("Resolved 1Password item: %s (success)", reference)
-    return resolved
+    # Fall back to environment variable
+    if config_path:
+        env_var = _env_key(config_path)
+        env_val = os.environ.get(env_var)
+        if env_val:
+            _resolved_cache[reference] = env_val
+            logger.info("Resolved op://%s via env %s", config_path, env_var)
+            return env_val
+
+    logger.error("Cannot resolve op:// reference: %s", reference)
+    raise ResolutionError(reference, "op CLI unavailable and no env var fallback")
 
 
 def load_helm_config(path: str) -> dict:

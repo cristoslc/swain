@@ -14,7 +14,7 @@ Scenarios covered:
 
   Project bridge subprocess:
     - Starts, reads config, stays alive
-    - Receives a control_message Command without crashing
+    - Receives a send_prompt Command without crashing
 
   Chat plugin poll → emit → stdout:
     - _poll_zulip + _emit in a subprocess writes commands to stdout
@@ -62,9 +62,9 @@ class TestPluginProcessPlumbing:
             "cfg = json.loads(line)\n"
             "# Echo back a command to prove we got the config\n"
             "cmd = json.dumps({"
-            "'type': 'control_message', "
+            "'type': 'send_prompt', "
             "'bridge': cfg.get('config', {}).get('project', 'test'), "
-            "'session_id': None, "
+            "'session_id': 'trunk', "
             "'timestamp': 0, "
             "'payload': {'text': 'got config'}"
             "}) + '\\n'\n"
@@ -85,7 +85,7 @@ class TestPluginProcessPlumbing:
         await asyncio.sleep(0.5)
 
         assert len(received) == 1
-        assert received[0].type == "control_message"
+        assert received[0].type == "send_prompt"
         assert received[0].payload["text"] == "got config"
 
         await plugin.stop()
@@ -123,14 +123,14 @@ class TestPluginProcessPlumbing:
         await plugin.start()
 
         # Send a command to the plugin
-        cmd = Command.control_message(bridge="swain", text="hello")
+        cmd = Command.send_prompt(bridge="swain", session_id="trunk", text="hello")
         await plugin.write(cmd)
 
         await asyncio.sleep(0.5)
 
         assert len(received_on_stdout) == 1
         assert received_on_stdout[0].type == "text_output"
-        assert "received: control_message" in received_on_stdout[0].payload["content"]
+        assert "received: send_prompt" in received_on_stdout[0].payload["content"]
 
         await plugin.stop()
 
@@ -196,8 +196,8 @@ class TestProjectBridgeSubprocess:
 
         await plugin.stop()
 
-    async def test_project_bridge_routes_control_message(self):
-        """Send a control_message to the project bridge and verify it processes it.
+    async def test_project_bridge_routes_send_prompt(self):
+        """Send a send_prompt command to the project bridge and verify it processes it.
 
         The bridge will try to spawn a ClaudeCodeAdapter which will fail
         (claude not available in test), but the command should be received
@@ -215,8 +215,10 @@ class TestProjectBridgeSubprocess:
         await plugin.start()
         await asyncio.sleep(0.3)
 
-        # Send a control_message command
-        cmd = Command.control_message(bridge="test-project", text="what's up?")
+        # Send a send_prompt command
+        cmd = Command.send_prompt(
+            bridge="test-project", session_id="trunk", text="what's up?"
+        )
         await plugin.write(cmd)
 
         # Wait for processing
@@ -263,13 +265,13 @@ def make_client():
         "type": "stream",
         "sender_email": "user123@example.com",
         "display_recipient": "swain",
-        "subject": "control",
+        "subject": "trunk",
         "content": "what specs are ready?",
     }
-    def call_on_each_message(callback, **kwargs):
-        callback(msg)
+    def call_on_each_event(callback, event_types=None, narrow=None, **kwargs):
+        callback({"type": "message", "message": msg})
         sys.exit(0)
-    client.call_on_each_message.side_effect = call_on_each_message
+    client.call_on_each_event.side_effect = call_on_each_event
     return client
 
 async def main():
@@ -278,7 +280,7 @@ async def main():
     registry = SessionTopicRegistry()
     try:
         await _poll_zulip(
-            client, "swain", "control", _emit, registry, loop, "swain",
+            client, "swain", "trunk", _emit, registry, loop, "swain",
         )
     except SystemExit:
         pass
@@ -306,12 +308,13 @@ asyncio.run(main())
         await asyncio.sleep(1.0)
 
         # The poll should have parsed the operator message and emitted
-        # a control_message command via _emit (stdout)
+        # a send_prompt command via _emit (stdout)
         assert len(received) >= 1, (
             f"Expected command on stdout, got {len(received)} messages"
         )
         cmd = received[0]
-        assert cmd.type == "control_message"
+        assert cmd.type == "send_prompt"
+        assert cmd.session_id == "trunk"
         assert cmd.payload["text"] == "what specs are ready?"
 
         await plugin.stop()

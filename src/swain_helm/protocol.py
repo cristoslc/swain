@@ -23,6 +23,7 @@ _PROJECT_EVENT_TYPES = {
     "tool_result",
     "approval_needed",
     "session_died",
+    "turn_ended",
     "web_output_available",
     "worktree_added",
     "worktree_removed",
@@ -140,12 +141,20 @@ class Event:
 
     @classmethod
     def session_starting(
-        cls, *, bridge: str, session_id: str, runtime: str, artifact: str | None = None
+        cls,
+        *,
+        bridge: str,
+        session_id: str,
+        runtime: str,
+        artifact: str | None = None,
+        origin: str | None = None,
     ) -> Event:
         """Emitted when session spawn begins (before server health check)."""
         payload: dict[str, Any] = {"runtime": runtime}
         if artifact:
             payload["artifact"] = artifact
+        if origin:
+            payload["origin"] = origin
         return cls(
             type="session_starting",
             bridge=bridge,
@@ -156,11 +165,19 @@ class Event:
 
     @classmethod
     def session_spawned(
-        cls, *, bridge: str, session_id: str, runtime: str, artifact: str | None = None
+        cls,
+        *,
+        bridge: str,
+        session_id: str,
+        runtime: str,
+        artifact: str | None = None,
+        origin: str | None = None,
     ) -> Event:
         payload: dict[str, Any] = {"runtime": runtime}
         if artifact:
             payload["artifact"] = artifact
+        if origin:
+            payload["origin"] = origin
         return cls(
             type="session_spawned",
             bridge=bridge,
@@ -192,6 +209,21 @@ class Event:
             session_id=session_id,
             timestamp=_now_ms(),
             payload={"reason": reason},
+        )
+
+    @classmethod
+    def turn_ended(
+        cls, *, bridge: str, session_id: str, origin: str | None = None
+    ) -> Event:
+        payload: dict[str, Any] = {}
+        if origin:
+            payload["origin"] = origin
+        return cls(
+            type="turn_ended",
+            bridge=bridge,
+            session_id=session_id,
+            timestamp=_now_ms(),
+            payload=payload,
         )
 
     @classmethod

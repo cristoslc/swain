@@ -64,7 +64,10 @@ class WorktreeScanner:
                 return set(self._last_known)
             return set()
 
+        import os
+
         worktrees: set[WorktreeInfo] = set()
+        worktrees_dir = os.path.join(self.project_dir, ".worktrees")
         lines = result.strip().split("\n")
         i = 0
         while i < len(lines):
@@ -80,7 +83,10 @@ class WorktreeScanner:
                     i += 1
                 if branch is None:
                     branch = "trunk"
-                worktrees.add(WorktreeInfo(path=wt_path, branch=branch))
+                if wt_path == self.project_dir or wt_path.startswith(
+                    worktrees_dir + os.sep
+                ):
+                    worktrees.add(WorktreeInfo(path=wt_path, branch=branch))
             else:
                 i += 1
         self._last_known = worktrees

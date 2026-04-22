@@ -46,6 +46,8 @@ class PluginProcess:
         self._proc: asyncio.subprocess.Process | None = None
         self._reader_task: asyncio.Task | None = None
         self._stderr_task: asyncio.Task | None = None
+        self._pending: list[Event | Command | ConfigMessage] = []
+        self._started: asyncio.Event = asyncio.Event()
 
     @property
     def pid(self) -> int | None:
@@ -74,9 +76,27 @@ class PluginProcess:
             self._log_stderr(), name=f"{self.name}.stderr"
         )
         log.info("Plugin started: %s (pid %s)", self.name, self._proc.pid)
+        self._started.set()
+        if self._pending:
+            for msg in self._pending:
+                try:
+                    assert self._proc.stdin is not None
+                    self._proc.stdin.write(encode_message(msg).encode())
+                except Exception:
+                    log.warning("Failed to flush pending message to %s", self.name)
+                    break
+            try:
+                await self._proc.stdin.drain()
+            except (BrokenPipeError, ConnectionResetError):
+                log.warning("Pipe error flushing pending to %s", self.name)
+            self._pending.clear()
 
     async def write(self, msg: Event | Command | ConfigMessage) -> None:
-        """Send a message to the plugin's stdin. Catches BrokenPipeError."""
+        """Send a message to the plugin's stdin. Queues if not yet started."""
+        if not self._started.is_set():
+            self._pending.append(msg)
+            log.debug("Queued message for %s (not started yet)", self.name)
+            return
         if not self._proc or not self._proc.stdin:
             log.warning("Cannot write to %s — process not running", self.name)
             return

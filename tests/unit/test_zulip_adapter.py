@@ -3,7 +3,7 @@
 Covers:
   - Narrow stream filter in _poll_zulip
   - Worktree topic routing (trunk → "trunk", branch → branch name)
-  - Control topic → control_message
+  - Trunk topic → send_prompt
   - No host-scope topic handling
   - format_event_for_zulip without __host__ routing
 """
@@ -67,8 +67,8 @@ class TestFormatEventForZulip:
         msg = format_event_for_zulip(event)
         assert "ended" in msg["content"].lower() or "died" in msg["content"].lower()
 
-    def test_host_event_topic_uses_session_id_not_control(self):
-        """Per ADR-046: no __host__ routing to control topic.
+    def test_host_event_topic_uses_session_id_not_trunk(self):
+        """Per ADR-046: no __host__ routing to trunk topic.
 
         Host-scope events use session_id (or None defaults to control_topic),
         but the format function no longer forces __host__ bridge to control.
@@ -77,8 +77,8 @@ class TestFormatEventForZulip:
             tmux_target="swain-spec-142",
             project_path="/home/user/swain",
         )
-        msg = format_event_for_zulip(event, control_topic="control")
-        assert msg["topic"] == "control"
+        msg = format_event_for_zulip(event, control_topic="trunk")
+        assert msg["topic"] == "trunk"
 
     def test_trunk_session_uses_trunk_as_topic(self):
         """Topic "trunk" for trunk workspace sessions."""
@@ -146,27 +146,16 @@ class TestParseZulipMessage:
         assert cmd.type == "cancel"
         assert cmd.session_id == "sess-abc123"
 
-    def test_work_command_in_control_topic(self):
+    def test_cancel_command_in_trunk_topic(self):
         zulip_msg = {
-            "content": "/work SPEC-142",
-            "subject": "control",
+            "content": "/cancel",
+            "subject": "trunk",
             "sender_email": "user@example.com",
             "stream_id": 42,
         }
-        cmd = parse_zulip_message(zulip_msg, bridge="swain", control_topic="control")
-        assert cmd.type == "launch_session"
-        assert cmd.payload["text"] == "SPEC-142"
-
-    def test_kill_command_in_control_topic(self):
-        zulip_msg = {
-            "content": "/kill sess-abc123",
-            "subject": "control",
-            "sender_email": "user@example.com",
-            "stream_id": 42,
-        }
-        cmd = parse_zulip_message(zulip_msg, bridge="swain", control_topic="control")
+        cmd = parse_zulip_message(zulip_msg, bridge="swain", control_topic="trunk")
         assert cmd.type == "cancel"
-        assert cmd.session_id == "sess-abc123"
+        assert cmd.session_id == "trunk"
 
 
 class TestParseZulipMessageWorktreeRouting:
@@ -196,15 +185,16 @@ class TestParseZulipMessageWorktreeRouting:
         assert cmd.session_id == "feature/add-auth"
         assert cmd.payload["text"] == "Continue work"
 
-    def test_control_topic_routes_to_control_message(self):
-        """Control topic → control_message for the project bridge."""
+    def test_trunk_topic_routes_to_trunk_session(self):
+        """Trunk topic → send_prompt with session_id="trunk"."""
         zulip_msg = {
             "content": "start a new session",
-            "subject": "control",
+            "subject": "trunk",
             "sender_email": "user@example.com",
         }
-        cmd = parse_zulip_message(zulip_msg, bridge="swain", control_topic="control")
-        assert cmd.type == "control_message"
+        cmd = parse_zulip_message(zulip_msg, bridge="swain", control_topic="trunk")
+        assert cmd.type == "send_prompt"
+        assert cmd.session_id == "trunk"
         assert cmd.payload["text"] == "start a new session"
 
     def test_no_host_scope_command_handling(self):
@@ -235,7 +225,7 @@ class TestParseZulipMessageWorktreeRouting:
 
 
 class TestFormatEventNoHostScopeRouting:
-    """ADR-046: format_event_for_zulip no longer routes __host__ to control."""
+    """ADR-046: format_event_for_zulip no longer routes __host__ to trunk."""
 
     def test_non_host_event_uses_session_id_as_topic(self):
         event = Event.text_output(
@@ -246,8 +236,8 @@ class TestFormatEventNoHostScopeRouting:
         msg = format_event_for_zulip(event)
         assert msg["topic"] == "feature/add-auth"
 
-    def test_host_bridge_event_still_defaults_to_control(self):
-        """Host events (bridge=__host__) with no session_id default to control
+    def test_host_bridge_event_still_defaults_to_trunk(self):
+        """Host events (bridge=__host__) with no session_id default to trunk
         because session_id is None, which falls through to control_topic."""
         event = Event(
             type="host_status",
@@ -256,11 +246,11 @@ class TestFormatEventNoHostScopeRouting:
             timestamp=0,
             payload={"bridges_running": 2, "disk": "50%", "load": "1.2"},
         )
-        msg = format_event_for_zulip(event, control_topic="control")
-        assert msg["topic"] == "control"
+        msg = format_event_for_zulip(event, control_topic="trunk")
+        assert msg["topic"] == "trunk"
 
     def test_host_bridge_event_with_session_uses_session(self):
-        """If a __host__ event has a session_id, it uses that, not control."""
+        """If a __host__ event has a session_id, it uses that, not trunk."""
         event = Event(
             type="text_output",
             bridge="__host__",
@@ -268,7 +258,7 @@ class TestFormatEventNoHostScopeRouting:
             timestamp=0,
             payload={"content": "output"},
         )
-        msg = format_event_for_zulip(event, control_topic="control")
+        msg = format_event_for_zulip(event, control_topic="trunk")
         assert msg["topic"] == "trunk"
 
 

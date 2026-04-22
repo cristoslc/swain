@@ -60,55 +60,52 @@ class TestADR046NoHubRouting:
 
 
 class TestADR046OneSessionPerWorktree:
-    """ADR-046: 'One session per worktree.'"""
+    """ADR-046: 'One session per worktree.' — sessions are NOT auto-spawned;
+    worktree discovery only emits events and updates the registry. Sessions
+    are only created on explicit /work operator command."""
 
     @pytest.mark.asyncio
-    async def test_branch_to_session_mapping(self):
-        """Each branch maps to exactly one session."""
-        scanner = WorktreeScanner("/tmp/test", run_git=lambda d: "")
-        bridge = ProjectBridge(project="test", project_dir="/tmp/test", scanner=scanner)
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            from swain_helm.worktree_scanner import WorktreeDiff
+    async def test_worktree_diff_emits_events_no_auto_spawn(self):
+        """Worktree diff emits events but does NOT auto-spawn sessions."""
+        events: list[Event] = []
+        bridge = ProjectBridge(
+            project="test", project_dir="/tmp/test", on_event=events.append
+        )
+        from swain_helm.worktree_scanner import WorktreeDiff
 
-            bridge._on_worktree_diff(
-                WorktreeDiff(
-                    added=[
-                        WorktreeInfo(path="/tmp/trunk", branch="trunk"),
-                        WorktreeInfo(path="/tmp/feat", branch="feat/x"),
-                    ]
-                )
+        bridge._on_worktree_diff(
+            WorktreeDiff(
+                added=[
+                    WorktreeInfo(path="/tmp/trunk", branch="trunk"),
+                    WorktreeInfo(path="/tmp/feat", branch="feat/x"),
+                ]
             )
-            await __import__("asyncio").sleep(0)
+        )
+        await __import__("asyncio").sleep(0)
 
-        assert "trunk" in bridge._branch_to_session
-        assert "feat/x" in bridge._branch_to_session
-        assert bridge._branch_to_session["trunk"] != bridge._branch_to_session["feat/x"]
+        assert len(bridge.sessions) == 0, (
+            "No sessions auto-spawned from worktree discovery"
+        )
+        wt_events = [e for e in events if e.type == "worktree_added"]
+        assert len(wt_events) == 2
 
     @pytest.mark.asyncio
-    async def test_duplicate_branch_no_double_session(self):
-        """Adding the same branch twice does not create a second session."""
-        bridge = ProjectBridge(project="test", project_dir="/tmp/test")
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            from swain_helm.worktree_scanner import WorktreeDiff
+    async def test_duplicate_diff_no_duplicate_events(self):
+        """Duplicate worktree diff emits events but still no sessions."""
+        events: list[Event] = []
+        bridge = ProjectBridge(
+            project="test", project_dir="/tmp/test", on_event=events.append
+        )
+        from swain_helm.worktree_scanner import WorktreeDiff
 
-            bridge._on_worktree_diff(
-                WorktreeDiff(
-                    added=[
-                        WorktreeInfo(path="/tmp/trunk", branch="trunk"),
-                    ]
-                )
-            )
-            await __import__("asyncio").sleep(0)
-            bridge._on_worktree_diff(
-                WorktreeDiff(
-                    added=[
-                        WorktreeInfo(path="/tmp/trunk", branch="trunk"),
-                    ]
-                )
-            )
-            await __import__("asyncio").sleep(0)
+        bridge._on_worktree_diff(
+            WorktreeDiff(added=[WorktreeInfo(path="/tmp/trunk", branch="trunk")])
+        )
+        bridge._on_worktree_diff(
+            WorktreeDiff(added=[WorktreeInfo(path="/tmp/trunk", branch="trunk")])
+        )
 
-        assert len(bridge.sessions) == 1
+        assert len(bridge.sessions) == 0
 
 
 class TestADR046ContinuousWorktreeDiscovery:

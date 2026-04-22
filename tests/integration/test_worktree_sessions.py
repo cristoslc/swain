@@ -39,123 +39,89 @@ branch refs/heads/feat/foo
 
 
 class TestWorktreeDrivenSessionCreation:
-    """Scanner detects new worktrees → ProjectBridge auto-creates sessions."""
+    """Scanner detects new worktrees → events emitted, registry updated, no auto-spawn.
+
+    Sessions are only created on explicit /work operator command.
+    """
 
     @pytest.mark.asyncio
-    async def test_trunk_session_created_on_first_poll(self):
+    async def test_trunk_worktree_emits_event(self):
         events: list[Event] = []
         scanner = WorktreeScanner("/tmp/swain", run_git=lambda d: TRUNK_PORCELAIN)
-        registry = SessionRegistry("/tmp/swain")
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            bridge = ProjectBridge(
-                project="swain",
-                project_dir="/tmp/swain",
-                on_event=events.append,
-                scanner=scanner,
-                registry=registry,
-            )
-            diff = WorktreeDiff(added=[WorktreeInfo(path="/tmp/swain", branch="trunk")])
-            bridge._on_worktree_diff(diff)
-            await asyncio.sleep(0)
+        registry = SessionRegistry(str(Path("/tmp/swain")))
+        bridge = ProjectBridge(
+            project="swain",
+            project_dir="/tmp/swain",
+            on_event=events.append,
+            scanner=scanner,
+            registry=registry,
+        )
+        diff = WorktreeDiff(added=[WorktreeInfo(path="/tmp/swain", branch="trunk")])
+        bridge._on_worktree_diff(diff)
 
-        assert "trunk" in bridge._branch_to_session
-        assert len(bridge.sessions) == 1
-        sess = list(bridge.sessions.values())[0]
-        assert sess.origin == "trunk"
+        assert len(bridge.sessions) == 0, "No sessions auto-spawned"
+        wt_events = [e for e in events if e.type == "worktree_added"]
+        assert len(wt_events) == 1
+        assert wt_events[0].payload["branch_name"] == "trunk"
 
     @pytest.mark.asyncio
-    async def test_feature_branch_session_created(self):
-        scanner = WorktreeScanner("/tmp/swain", run_git=lambda d: WITH_FEATURE)
-        registry = SessionRegistry("/tmp/swain")
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            bridge = ProjectBridge(
-                project="swain",
-                project_dir="/tmp/swain",
-                scanner=scanner,
-                registry=registry,
-            )
-            diff = WorktreeDiff(
-                added=[
-                    WorktreeInfo(path="/tmp/swain", branch="trunk"),
-                    WorktreeInfo(
-                        path="/tmp/swain/.worktrees/feat/foo", branch="feat/foo"
-                    ),
-                ]
-            )
-            bridge._on_worktree_diff(diff)
-            await asyncio.sleep(0)
+    async def test_feature_branch_emits_event(self):
+        events: list[Event] = []
+        bridge = ProjectBridge(
+            project="swain",
+            project_dir="/tmp/swain",
+            on_event=events.append,
+        )
+        diff = WorktreeDiff(
+            added=[
+                WorktreeInfo(path="/tmp/swain", branch="trunk"),
+                WorktreeInfo(path="/tmp/swain/.worktrees/feat/foo", branch="feat/foo"),
+            ]
+        )
+        bridge._on_worktree_diff(diff)
 
-        assert "trunk" in bridge._branch_to_session
-        assert "feat/foo" in bridge._branch_to_session
-        assert len(bridge.sessions) == 2
+        wt_events = [e for e in events if e.type == "worktree_added"]
+        assert len(wt_events) == 2
+        assert len(bridge.sessions) == 0
 
     @pytest.mark.asyncio
-    async def test_duplicate_worktree_no_double_session(self):
-        scanner = WorktreeScanner("/tmp/swain", run_git=lambda d: TRUNK_PORCELAIN)
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            bridge = ProjectBridge(
-                project="swain",
-                project_dir="/tmp/swain",
-                scanner=scanner,
-            )
-            diff1 = WorktreeDiff(
-                added=[WorktreeInfo(path="/tmp/swain", branch="trunk")]
-            )
-            bridge._on_worktree_diff(diff1)
-            await asyncio.sleep(0)
-            diff2 = WorktreeDiff(
-                added=[WorktreeInfo(path="/tmp/swain", branch="trunk")]
-            )
-            bridge._on_worktree_diff(diff2)
-            await asyncio.sleep(0)
+    async def test_duplicate_worktree_emits_events_both_times(self):
+        events: list[Event] = []
+        bridge = ProjectBridge(
+            project="swain",
+            project_dir="/tmp/swain",
+            on_event=events.append,
+        )
+        diff1 = WorktreeDiff(added=[WorktreeInfo(path="/tmp/swain", branch="trunk")])
+        bridge._on_worktree_diff(diff1)
+        diff2 = WorktreeDiff(added=[WorktreeInfo(path="/tmp/swain", branch="trunk")])
+        bridge._on_worktree_diff(diff2)
 
-        assert len(bridge.sessions) == 1
+        wt_events = [e for e in events if e.type == "worktree_added"]
+        assert len(wt_events) == 2
 
 
 class TestWorktreeDrivenSessionRemoval:
-    """Scanner detects removed worktrees → ProjectBridge cleans up sessions."""
+    """Scanner detects removed worktrees → events emitted, registry updated."""
 
     @pytest.mark.asyncio
-    async def test_removed_worktree_aborts_session(self):
-        scanner = WorktreeScanner("/tmp/swain", run_git=lambda d: WITH_FEATURE)
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            with patch.object(PluginProcess, "stop", new_callable=AsyncMock):
-                bridge = ProjectBridge(
-                    project="swain",
-                    project_dir="/tmp/swain",
-                    scanner=scanner,
-                )
-                bridge._on_worktree_diff(
-                    WorktreeDiff(
-                        added=[
-                            WorktreeInfo(path="/tmp/swain", branch="trunk"),
-                            WorktreeInfo(
-                                path="/tmp/swain/.worktrees/feat/foo", branch="feat/foo"
-                            ),
-                        ]
-                    )
-                )
-                await asyncio.sleep(0)
-                assert len(bridge.sessions) == 2
+    async def test_removed_worktree_emits_event(self):
+        events: list[Event] = []
+        bridge = ProjectBridge(
+            project="swain",
+            project_dir="/tmp/swain",
+            on_event=events.append,
+        )
+        bridge._on_worktree_diff(
+            WorktreeDiff(added=[WorktreeInfo(path="/tmp/swain", branch="trunk")])
+        )
+        events.clear()
+        bridge._on_worktree_diff(
+            WorktreeDiff(removed=[WorktreeInfo(path="/tmp/swain", branch="trunk")])
+        )
 
-                bridge._on_worktree_diff(
-                    WorktreeDiff(
-                        removed=[
-                            WorktreeInfo(
-                                path="/tmp/swain/.worktrees/feat/foo", branch="feat/foo"
-                            ),
-                        ]
-                    )
-                )
-                await asyncio.sleep(0)
-
-        assert "feat/foo" not in bridge._branch_to_session
-        sess_id = None
-        for sid, s in bridge.sessions.items():
-            if s.origin == "feat/foo":
-                sess_id = sid
-        assert sess_id is not None
-        assert bridge.sessions[sess_id].state == SessionState.DEAD
+        wt_events = [e for e in events if e.type == "worktree_removed"]
+        assert len(wt_events) == 1
 
 
 class TestWorktreeEvents:
@@ -222,70 +188,41 @@ class TestWorktreeEvents:
 
 
 class TestRegistryIntegration:
-    """Session state is persisted to the registry when scanner creates/removes sessions."""
+    """Session state is persisted to the registry when worktree diffs are processed."""
 
     @pytest.mark.asyncio
-    async def test_session_creation_writes_to_registry(self, tmp_path):
-        scanner = WorktreeScanner(str(tmp_path), run_git=lambda d: TRUNK_PORCELAIN)
+    async def test_worktree_diff_writes_to_registry(self, tmp_path):
         registry = SessionRegistry(str(tmp_path))
         registry.read()
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            bridge = ProjectBridge(
-                project="swain",
-                project_dir=str(tmp_path),
-                scanner=scanner,
-                registry=registry,
-            )
-            bridge._on_worktree_diff(
-                WorktreeDiff(
-                    added=[
-                        WorktreeInfo(path=str(tmp_path), branch="trunk"),
-                    ]
-                )
-            )
-            await asyncio.sleep(0)
+        bridge = ProjectBridge(
+            project="swain",
+            project_dir=str(tmp_path),
+            registry=registry,
+        )
+        bridge._on_worktree_diff(
+            WorktreeDiff(added=[WorktreeInfo(path=str(tmp_path), branch="trunk")])
+        )
 
         entry = registry.get_entry("trunk")
         assert entry is not None
-        assert entry["state"] == "spawning"
-        assert entry["topic"] == "trunk"
-        assert "opencode_session_id" in entry
+        assert entry["state"] == "available"
+        assert entry.get("worktree_path") == str(tmp_path)
 
     @pytest.mark.asyncio
-    async def test_session_removal_marks_dead_in_registry(self, tmp_path):
-        scanner = WorktreeScanner(str(tmp_path), run_git=lambda d: WITH_FEATURE)
+    async def test_worktree_removal_marks_dead_in_registry(self, tmp_path):
         registry = SessionRegistry(str(tmp_path))
         registry.read()
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            with patch.object(PluginProcess, "stop", new_callable=AsyncMock):
-                bridge = ProjectBridge(
-                    project="swain",
-                    project_dir=str(tmp_path),
-                    scanner=scanner,
-                    registry=registry,
-                )
-                bridge._on_worktree_diff(
-                    WorktreeDiff(
-                        added=[
-                            WorktreeInfo(path=str(tmp_path), branch="trunk"),
-                            WorktreeInfo(
-                                path=str(tmp_path) + "/.worktrees/feat", branch="feat/x"
-                            ),
-                        ]
-                    )
-                )
-                await asyncio.sleep(0)
-
-                bridge._on_worktree_diff(
-                    WorktreeDiff(
-                        removed=[
-                            WorktreeInfo(
-                                path=str(tmp_path) + "/.worktrees/feat", branch="feat/x"
-                            ),
-                        ]
-                    )
-                )
-                await asyncio.sleep(0)
+        bridge = ProjectBridge(
+            project="swain",
+            project_dir=str(tmp_path),
+            registry=registry,
+        )
+        bridge._on_worktree_diff(
+            WorktreeDiff(added=[WorktreeInfo(path=str(tmp_path), branch="feat/x")])
+        )
+        bridge._on_worktree_diff(
+            WorktreeDiff(removed=[WorktreeInfo(path=str(tmp_path), branch="feat/x")])
+        )
 
         entry = registry.get_entry("feat/x")
         assert entry is not None
@@ -293,37 +230,29 @@ class TestRegistryIntegration:
 
     @pytest.mark.asyncio
     async def test_registry_survives_bridge_restart(self, tmp_path):
-        """Registry data persists after bridge is torn down and re-read."""
-        scanner1 = WorktreeScanner(str(tmp_path), run_git=lambda d: TRUNK_PORCELAIN)
         registry1 = SessionRegistry(str(tmp_path))
         registry1.read()
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            bridge1 = ProjectBridge(
-                project="swain",
-                project_dir=str(tmp_path),
-                scanner=scanner1,
-                registry=registry1,
-            )
-            bridge1._on_worktree_diff(
-                WorktreeDiff(
-                    added=[
-                        WorktreeInfo(path=str(tmp_path), branch="trunk"),
-                    ]
-                )
-            )
-            await asyncio.sleep(0)
+        bridge1 = ProjectBridge(
+            project="swain",
+            project_dir=str(tmp_path),
+            registry=registry1,
+        )
+        bridge1._on_worktree_diff(
+            WorktreeDiff(added=[WorktreeInfo(path=str(tmp_path), branch="trunk")])
+        )
 
         registry2 = SessionRegistry(str(tmp_path))
         data = registry2.read()
         assert "trunk" in data
-        assert data["trunk"]["state"] == "spawning"
+        assert data["trunk"]["state"] == "available"
 
 
 class TestScannerDiffIntegration:
     """The scanner's diff() method correctly feeds _on_worktree_diff."""
 
     @pytest.mark.asyncio
-    async def test_scan_diff_creates_and_removes_sessions(self):
+    async def test_scan_diff_emits_added_and_removed_events(self):
+        events: list[Event] = []
         call_count = 0
         outputs = [WITH_FEATURE, TRUNK_PORCELAIN]
 
@@ -334,20 +263,19 @@ class TestScannerDiffIntegration:
             return out
 
         scanner = WorktreeScanner("/tmp/swain", run_git=git)
-        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
-            with patch.object(PluginProcess, "stop", new_callable=AsyncMock):
-                bridge = ProjectBridge(
-                    project="swain",
-                    project_dir="/tmp/swain",
-                    scanner=scanner,
-                )
-                diff1 = scanner.diff()
-                bridge._on_worktree_diff(diff1)
-                await asyncio.sleep(0)
-                assert len(bridge.sessions) == 2
+        bridge = ProjectBridge(
+            project="swain",
+            project_dir="/tmp/swain",
+            on_event=events.append,
+            scanner=scanner,
+        )
+        diff1 = scanner.diff()
+        bridge._on_worktree_diff(diff1)
+        added_events = [e for e in events if e.type == "worktree_added"]
+        assert len(added_events) == 2
 
-                diff2 = scanner.diff()
-                bridge._on_worktree_diff(diff2)
-                await asyncio.sleep(0)
-
-        assert "feat/foo" not in bridge._branch_to_session
+        events.clear()
+        diff2 = scanner.diff()
+        bridge._on_worktree_diff(diff2)
+        removed_events = [e for e in events if e.type == "worktree_removed"]
+        assert len(removed_events) == 1

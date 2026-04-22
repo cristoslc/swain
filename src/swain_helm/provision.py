@@ -75,7 +75,7 @@ def provision(
         {
             "type": "stream",
             "to": stream,
-            "topic": "control",
+            "topic": "trunk",
             "content": (
                 f"swain-helm bridge provisioned for **{project_name}**.\n\n"
                 f"Commands:\n"
@@ -95,7 +95,7 @@ def provision(
             "bot_email": zulip_email,
             "bot_api_key": f"op://Private/{zulip_email}/api_key",
             "operator_email": operator_email,
-            "control_topic": "control",
+            "control_topic": "trunk",
         },
         "opencode": {
             "default_port": 4096,

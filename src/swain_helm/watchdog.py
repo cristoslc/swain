@@ -24,7 +24,14 @@ RECONCILIATION_INTERVAL = 30
 
 
 class Watchdog:
-    """Process manager that reconciles desired state against running bridges."""
+    """Process manager that reconciles desired state against running bridges.
+
+    Owns a single opencode serve process shared by all bridges.
+    Bridges create sessions on this server via HTTP; they never
+    spawn their own.
+    """
+
+    DEFAULT_OPENCODE_PORT = 4098
 
     def __init__(self, config_dir: Path | None = None) -> None:
         self.config_dir = config_dir or DEFAULT_CONFIG_DIR
@@ -33,6 +40,8 @@ class Watchdog:
         self.watchdog_pid_path = self.config_dir / "run" / "watchdog.pid"
         self._running: dict[str, subprocess.Popen] = {}
         self._bridge_configs: dict[str, dict] = {}
+        self._opencode_proc: subprocess.Popen | None = None
+        self._opencode_port: int = self.DEFAULT_OPENCODE_PORT
         self._helm_config: dict | None = None
         self._shutdown_event = asyncio.Event()
 
@@ -48,14 +57,109 @@ class Watchdog:
                 log.warning("No helm.config.json found at %s", config_path)
         return self._helm_config
 
+    @property
+    def opencode_base_url(self) -> str:
+        return f"http://127.0.0.1:{self._opencode_port}"
+
+    def _start_opencode_server(self) -> bool:
+        """Start a single opencode serve process owned by the watchdog.
+
+        Uses the first project's directory as cwd so sessions land there.
+        """
+        helm = self.load_helm_config()
+        oc_cfg = helm.get("opencode", {})
+        self._opencode_port = oc_cfg.get("default_port", self.DEFAULT_OPENCODE_PORT)
+
+        if self._opencode_proc and self._opencode_proc.poll() is None:
+            log.info("OpenCode server already running on port %s", self._opencode_port)
+            return True
+
+        project_dir = self._first_project_dir()
+        log_path = self.run_dir / "opencode-serve.log"
+        self.run_dir.mkdir(parents=True, exist_ok=True)
+
+        cmd = [
+            "opencode",
+            "serve",
+            "--port",
+            str(self._opencode_port),
+            "--hostname",
+            "0.0.0.0",
+            "--print-logs",
+        ]
+        log.info("Starting opencode server on port %s", self._opencode_port)
+
+        try:
+            log_fd = os.open(
+                str(log_path), os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600
+            )
+            self._opencode_proc = subprocess.Popen(
+                cmd,
+                stdin=subprocess.DEVNULL,
+                stdout=log_fd,
+                stderr=log_fd,
+                cwd=project_dir,
+            )
+            os.close(log_fd)
+        except FileNotFoundError:
+            log.error("opencode binary not found — server not started")
+            self._opencode_proc = None
+            return False
+
+        # Wait for health check
+        import json as _json
+        from urllib.request import urlopen, Request
+        from urllib.error import URLError
+
+        for _ in range(60):
+            try:
+                req = Request(f"{self.opencode_base_url}/global/health")
+                with urlopen(req, timeout=2) as resp:
+                    data = _json.loads(resp.read())
+                    if data.get("healthy"):
+                        log.info(
+                            "OpenCode server healthy on port %s", self._opencode_port
+                        )
+                        return True
+            except (URLError, OSError, _json.JSONDecodeError):
+                pass
+            time.sleep(1)
+
+        log.error("OpenCode server failed health check on port %s", self._opencode_port)
+        return False
+
+    def _stop_opencode_server(self) -> None:
+        if self._opencode_proc and self._opencode_proc.poll() is None:
+            self._opencode_proc.terminate()
+            try:
+                self._opencode_proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self._opencode_proc.kill()
+            log.info("OpenCode server stopped")
+
+    def _first_project_dir(self) -> str | None:
+        """Return the path from the first project config, or None."""
+        if not self.projects_dir.exists():
+            return None
+        for path in self.projects_dir.glob("*.json"):
+            try:
+                cfg = load_project_config(str(path))
+                p = cfg.get("path")
+                if p and os.path.isdir(p):
+                    return p
+            except Exception:
+                continue
+        return None
+
     async def run(self, *, foreground: bool = True) -> None:
-        """Main loop: reconcile every 30s until shutdown."""
+        """Main loop: start opencode server, then reconcile bridges."""
         self.run_dir.mkdir(parents=True, exist_ok=True)
         if foreground:
             self._write_watchdog_pid()
             loop = asyncio.get_running_loop()
             loop.add_signal_handler(signal.SIGINT, self._request_shutdown)
             loop.add_signal_handler(signal.SIGTERM, self._request_shutdown)
+        self._start_opencode_server()
         try:
             while not self._shutdown_event.is_set():
                 await self._reconcile()
@@ -102,7 +206,10 @@ class Watchdog:
                     continue
                 resolved = {**project_cfg}
                 resolved["chat"] = helm.get("chat", {})
-                resolved["opencode"] = helm.get("opencode", {})
+                resolved["opencode"] = {
+                    **helm.get("opencode", {}),
+                    "base_url": self.opencode_base_url,
+                }
                 configs[path.stem] = resolved
             except Exception as e:
                 log.error("Failed to read/resolve config %s: %s", path, e)
@@ -218,10 +325,11 @@ class Watchdog:
         pid_file.unlink(missing_ok=True)
 
     async def _shutdown(self) -> None:
-        """Gracefully shut down all bridges."""
+        """Gracefully shut down all bridges and the opencode server."""
         log.info("Watchdog shutting down...")
         for name in list(self._running):
             await self._stop_bridge(name)
+        self._stop_opencode_server()
         if self.watchdog_pid_path.exists():
             self.watchdog_pid_path.unlink()
 

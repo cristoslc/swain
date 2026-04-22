@@ -346,6 +346,8 @@ class OpenCodeServerAdapter:
             self._handle_part_updated(props)
         elif event_type == "session.idle":
             self._handle_session_idle(props)
+        elif event_type == "session.status":
+            self._handle_session_status(props)
         elif event_type == "session.created":
             log.info("SSE: session created: %s", props.get("sessionID"))
         elif event_type == "message.updated":
@@ -356,6 +358,8 @@ class OpenCodeServerAdapter:
             log.error("SSE: session error: %s", props)
         elif event_type == "server.connected":
             log.info("SSE: connected to opencode server")
+        elif event_type == "server.heartbeat":
+            pass
         else:
             log.debug("SSE: unhandled event type: %s", event_type)
 
@@ -389,7 +393,7 @@ class OpenCodeServerAdapter:
             )
 
     def _handle_part_updated(self, props: dict) -> None:
-        """Handle full part updates (tool calls, tool results)."""
+        """Handle full part updates (text, tool calls, tool results)."""
         session_id = props.get("sessionID", "")
         if self._oc_session_id and session_id != self._oc_session_id:
             return
@@ -397,7 +401,20 @@ class OpenCodeServerAdapter:
         part = props.get("part", props)
         part_type = part.get("type", "")
 
-        if part_type in ("tool_call", "tool") and part.get("name"):
+        if part_type == "text" and part.get("text"):
+            flushed = self._flushed_up_to.get(part.get("id", ""), 0)
+            full_text = part["text"]
+            new_text = full_text[flushed:]
+            self._flushed_up_to[part.get("id", "")] = len(full_text)
+            if new_text and self.on_event:
+                self.on_event(
+                    Event.text_output(
+                        bridge=self.bridge,
+                        session_id=self.session_id,
+                        content=new_text,
+                    )
+                )
+        elif part_type in ("tool_call", "tool") and part.get("name"):
             if self.on_event:
                 self.on_event(
                     Event.tool_call(
@@ -408,7 +425,7 @@ class OpenCodeServerAdapter:
                         call_id=part.get("id", ""),
                     )
                 )
-        elif part_type in ("tool_result",) or (
+        elif part_type == "tool_result" or (
             part_type == "tool" and part.get("output") is not None
         ):
             if self.on_event:
@@ -446,6 +463,32 @@ class OpenCodeServerAdapter:
                     origin=self.origin,
                 )
             )
+
+    def _handle_session_status(self, props: dict) -> None:
+        """Handle session.status — emit turn_ended when status is 'idle'."""
+        session_id = props.get("sessionID", "")
+        if self._oc_session_id and session_id != self._oc_session_id:
+            return
+
+        status = props.get("status", {})
+        status_type = (
+            status.get("type", "") if isinstance(status, dict) else str(status)
+        )
+
+        if status_type == "idle":
+            log.info("Session %s status=idle — turn complete", session_id)
+            self._cancel_turn_timer()
+            self._text_buffer.clear()
+            self._flushed_up_to.clear()
+
+            if self.on_event:
+                self.on_event(
+                    Event.turn_ended(
+                        bridge=self.bridge,
+                        session_id=self.session_id,
+                        origin=self.origin,
+                    )
+                )
 
     def _start_turn_timer(self) -> None:
         """Start a safety timer that emits turn_ended if SSE doesn't deliver it."""

@@ -22,7 +22,7 @@ def format_event_for_zulip(
     event: Event,
     *,
     operator_email: str | None = None,
-    control_topic: str = "control",
+    control_topic: str = "trunk",
 ) -> dict[str, str]:
     """Convert a protocol Event into a Zulip message dict (topic + content).
 
@@ -127,18 +127,14 @@ def parse_zulip_message(
     msg: dict[str, Any],
     *,
     bridge: str,
-    control_topic: str = "control",
+    control_topic: str = "trunk",
 ) -> Command | None:
     """Convert a Zulip message into a protocol Command.
 
-    Per ADR-046 topic routing:
-    - Control topic → control_message for the project bridge
-    - Topic "trunk" → send_prompt with session_id="trunk"
-    - Topic matching worktree branch → send_prompt with session_id=topic
-    - Slash commands are parsed as before
-
-    No host-scope command handling — host commands are handled by the
-    project bridge directly.
+    Topic routing:
+    - Control topic is the trunk session — plain text flows straight through.
+    - Other topics map to session IDs (worktree branches).
+    - /cancel and /approve remain as explicit commands.
     """
     content = msg.get("content", "").strip()
     topic = msg.get("subject", "")
@@ -149,7 +145,7 @@ def parse_zulip_message(
         )
 
     if topic == control_topic:
-        return Command.control_message(bridge=bridge, text=content)
+        return Command.send_prompt(bridge=bridge, session_id="trunk", text=content)
 
     if topic:
         return Command.send_prompt(
@@ -190,15 +186,8 @@ def _parse_slash_command(
         )
 
     if cmd_name == "/cancel":
-        session_id = topic if topic != control_topic else ""
+        session_id = topic if topic != control_topic else "trunk"
         return Command.cancel(bridge=bridge, session_id=session_id)
-
-    if cmd_name in ("/work", "/session") and topic == control_topic:
-        text = " ".join(args) if args else None
-        return Command.launch_session(bridge=bridge, text=text)
-
-    if cmd_name == "/kill" and topic == control_topic and args:
-        return Command.cancel(bridge=bridge, session_id=args[0])
 
     log.warning("Unknown slash command: %s", content)
     return None
@@ -217,7 +206,7 @@ class ZulipChatAdapter:
         zulip_client: Any = None,
         operator_email: str | None = None,
         stream_name: str | None = None,
-        control_topic: str = "control",
+        control_topic: str = "trunk",
         on_command: Callable[[Command], None] | None = None,
     ):
         self.client = zulip_client

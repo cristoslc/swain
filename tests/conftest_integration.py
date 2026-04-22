@@ -277,7 +277,7 @@ def _make_config_dir(tmp_path: Path, *, port: int = 4098) -> Path:
             "bot_email": "swain-bot@cristoslc.zulipchat.com",
             "bot_api_key": os.environ.get("ZULIP_BOT_API_KEY", "test-key"),
             "operator_email": "cristos@cristoslc.com",
-            "control_topic": "control",
+            "control_topic": "trunk",
         },
         "opencode": {"default_port": port},
     }
