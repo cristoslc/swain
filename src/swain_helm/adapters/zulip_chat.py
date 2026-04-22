@@ -82,7 +82,11 @@ def _render_event_content(event: Event, *, operator_email: str | None = None) ->
         runtime = p.get("runtime", "?")
         artifact = p.get("artifact", "")
         suffix = f" on {artifact}" if artifact else ""
-        return f"Session started ({runtime}){suffix}."
+        attach = p.get("attach_url", "")
+        attach_line = (
+            f"\nFor local access: `opencode attach {attach}`" if attach else ""
+        )
+        return f"Session starting ({runtime}){suffix}. More messages incoming…{attach_line}"
 
     if t == "session_promoted":
         artifact = p.get("artifact", "")

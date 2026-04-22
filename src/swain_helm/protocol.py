@@ -183,12 +183,15 @@ class Event:
         runtime: str,
         artifact: str | None = None,
         origin: str | None = None,
+        attach_url: str | None = None,
     ) -> Event:
         payload: dict[str, Any] = {"runtime": runtime}
         if artifact:
             payload["artifact"] = artifact
         if origin:
             payload["origin"] = origin
+        if attach_url:
+            payload["attach_url"] = attach_url
         return cls(
             type="session_spawned",
             bridge=bridge,

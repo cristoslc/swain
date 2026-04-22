@@ -227,16 +227,7 @@ class OpenCodeServerAdapter:
                         session_id=self.session_id,
                         runtime="opencode",
                         origin=self.origin,
-                    )
-                )
-                self.on_event(
-                    Event.text_output(
-                        bridge=self.bridge,
-                        session_id=self.session_id,
-                        content=(
-                            f"Session connecting to {self.base_url}… "
-                            f"For local access: `opencode attach {self.base_url}`"
-                        ),
+                        attach_url=self.base_url,
                     )
                 )
 
@@ -376,12 +367,29 @@ class OpenCodeServerAdapter:
                 self._flushed_up_to.clear()
             return
 
+        if event_type in (
+            "message.part.delta",
+            "message.part.updated",
+            "session.idle",
+            "session.status",
+        ):
+            log.info(
+                "SSE: %s part=%s field=%s delta=%d chars sid=%s",
+                event_type,
+                props.get("partID", props.get("part", {}).get("id", "")),
+                props.get("field", props.get("part", {}).get("type", "")),
+                len(props.get("delta", "")),
+                props.get("sessionID", ""),
+            )
+
         if event_type == "message.part.delta":
             self._handle_text_delta(props)
         elif event_type == "message.part.updated":
             self._handle_part_updated(props)
         elif event_type == "session.idle":
             self._handle_session_idle(props)
+        elif event_type == "session.status":
+            self._handle_session_status(props)
         elif event_type == "session.created":
             log.info("SSE: session created: %s", props.get("sessionID"))
         elif event_type == "message.updated":
