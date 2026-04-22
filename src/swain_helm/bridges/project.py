@@ -297,13 +297,11 @@ class ProjectBridge:
                 text = session.pending_prompt
                 session.pending_prompt = None
                 cmd = Command.send_prompt(
-                    bridge=session.session_id,
+                    bridge=self.project,
                     session_id=session.session_id,
                     text=text,
                 )
-                plugin = self._runtime_plugins.get(session.session_id)
-                if plugin:
-                    asyncio.get_running_loop().create_task(plugin.write(cmd))
+                self.handle_command(cmd)
         if session and session.origin:
             event.payload["origin"] = session.origin
         if self.on_event:

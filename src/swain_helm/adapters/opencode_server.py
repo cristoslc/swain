@@ -155,6 +155,7 @@ class OpenCodeServerAdapter:
         self._text_buffer: dict[str, list[str]] = {}
         self._flushed_up_to: dict[str, int] = {}
         self._part_types: dict[str, str] = {}
+        self._user_message_ids: set[str] = set()
         self._turn_timeout: float = 300.0
         self._turn_timer_task: asyncio.Task | None = None
         self._turn_generation: int = 0
@@ -530,6 +531,7 @@ class OpenCodeServerAdapter:
             self._cancel_turn_timer()
             self._text_buffer.clear()
             self._flushed_up_to.clear()
+            self._part_types.clear()
 
             if self.on_event:
                 self.on_event(
@@ -562,6 +564,7 @@ class OpenCodeServerAdapter:
             )
             self._text_buffer.clear()
             self._flushed_up_to.clear()
+            self._part_types.clear()
             if self.on_event:
                 self.on_event(
                     Event.turn_ended(
@@ -621,6 +624,7 @@ class OpenCodeServerAdapter:
         self._cancel_turn_timer()
         self._text_buffer.clear()
         self._flushed_up_to.clear()
+        self._part_types.clear()
         if self.on_event:
             self.on_event(
                 Event.turn_ended(

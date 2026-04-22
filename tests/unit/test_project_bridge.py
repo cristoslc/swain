@@ -300,7 +300,7 @@ class TestBusyInterrupt:
                 Event.turn_ended(bridge="swain", session_id=sess_id)
             )
             await asyncio.sleep(0)
-        assert bridge.sessions[sess_id].state == SessionState.ACTIVE
+        assert bridge.sessions[sess_id].state == SessionState.BUSY
         assert bridge.sessions[sess_id].pending_prompt is None
         assert mock_write.call_count == 1
         sent_cmd = mock_write.call_args[0][0]
