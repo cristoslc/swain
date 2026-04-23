@@ -47,6 +47,7 @@ class WorktreeScanner:
         self.poll_interval_s = poll_interval_s
         self._run_git = run_git or self._default_run_git
         self._last_known: set[WorktreeInfo] | None = None
+        self._scan_warned = False
         self._task: asyncio.Task | None = None
 
     def scan(self) -> set[WorktreeInfo]:
@@ -58,8 +59,12 @@ class WorktreeScanner:
         """
         try:
             result = self._run_git(self.project_dir)
-        except Exception:
-            log.exception("git worktree list failed for %s", self.project_dir)
+        except Exception as exc:
+            if not self._scan_warned:
+                log.warning(
+                    "git worktree list failed for %s: %s", self.project_dir, exc
+                )
+                self._scan_warned = True
             if self._last_known is not None:
                 return set(self._last_known)
             return set()
