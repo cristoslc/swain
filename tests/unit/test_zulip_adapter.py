@@ -38,7 +38,7 @@ class TestFormatEventForZulip:
             content="Hmm, let me think about this...",
         )
         msg = format_event_for_zulip(event)
-        assert "> *" in msg["content"]
+        assert "**[thinking]**" in msg["content"]
         assert "Hmm, let me think about this..." in msg["content"]
         assert msg["topic"] == "s1"
 
@@ -49,8 +49,8 @@ class TestFormatEventForZulip:
             content="First thought\nSecond thought",
         )
         msg = format_event_for_zulip(event)
-        assert "> *First thought*" in msg["content"]
-        assert "> *Second thought*" in msg["content"]
+        assert "**[thinking]** *First thought*" in msg["content"]
+        assert "**[thinking]** *Second thought*" in msg["content"]
 
     def test_thinking_output_with_blank_lines(self):
         event = Event.thinking_output(

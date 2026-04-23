@@ -159,6 +159,7 @@ class OpenCodeServerAdapter:
         self._turn_timeout: float = 300.0
         self._turn_timer_task: asyncio.Task | None = None
         self._turn_generation: int = 0
+        self._turn_ended_generation: int = -1
         self._suppress_idle: bool = False
         self._suppress_events: bool = False
 
@@ -202,6 +203,7 @@ class OpenCodeServerAdapter:
         self._suppress_events = False
         self._text_buffer.clear()
         self._flushed_up_to.clear()
+        self._turn_ended_generation = -1
         loop = asyncio.get_running_loop()
 
         if not self._oc_session_id:
@@ -457,7 +459,7 @@ class OpenCodeServerAdapter:
         self._flushed_up_to[part_id] = len(full_text)
 
         if new_text and self.on_event:
-            is_thinking = self._part_types.get(part_id) == "thinking"
+            is_thinking = self._part_types.get(part_id) in ("thinking", "reasoning")
             event_factory = Event.thinking_output if is_thinking else Event.text_output
             self.on_event(
                 event_factory(
@@ -489,14 +491,19 @@ class OpenCodeServerAdapter:
             new_text = full_text[flushed:]
             self._flushed_up_to[part.get("id", "")] = len(full_text)
             if new_text and self.on_event:
+                pid = part.get("id", "")
+                is_thinking = self._part_types.get(pid) in ("thinking", "reasoning")
+                event_factory = (
+                    Event.thinking_output if is_thinking else Event.text_output
+                )
                 self.on_event(
-                    Event.text_output(
+                    event_factory(
                         bridge=self.bridge,
                         session_id=self.session_id,
                         content=new_text,
                     )
                 )
-        elif part_type == "thinking":
+        elif part_type in ("thinking", "reasoning"):
             thinking_text = part.get("thinking", "") or part.get("text", "")
             if thinking_text:
                 flushed = self._flushed_up_to.get(part.get("id", ""), 0)
@@ -559,7 +566,16 @@ class OpenCodeServerAdapter:
             self._user_message_ids.clear()
             return
 
+        if self._turn_ended_generation >= self._turn_generation:
+            log.debug(
+                "Skipping duplicate session.idle for generation %d",
+                self._turn_generation,
+            )
+            self._cancel_turn_timer()
+            return
+
         log.info("Session %s is idle — turn complete", session_id)
+        self._turn_ended_generation = self._turn_generation
         self._cancel_turn_timer()
         self._text_buffer.clear()
         self._flushed_up_to.clear()
@@ -587,7 +603,16 @@ class OpenCodeServerAdapter:
         )
 
         if status_type == "idle":
+            if self._turn_ended_generation >= self._turn_generation:
+                log.debug(
+                    "Skipping duplicate session.status idle for generation %d",
+                    self._turn_generation,
+                )
+                self._cancel_turn_timer()
+                return
+
             log.info("Session %s status=idle — turn complete", session_id)
+            self._turn_ended_generation = self._turn_generation
             self._cancel_turn_timer()
             self._text_buffer.clear()
             self._flushed_up_to.clear()
