@@ -490,6 +490,26 @@ async def _relay_events(
             )
             await _post(stream, control_topic, zulip_msg["content"])
 
+        elif msg.type == "worktree_added":
+            branch = msg.payload.get("branch_name", "unknown")
+            topic = branch if branch != "trunk" else control_topic
+            zulip_msg = format_event_for_zulip(
+                msg,
+                operator_email=operator_email,
+                control_topic=control_topic,
+            )
+            await _post(stream, topic, zulip_msg["content"])
+
+        elif msg.type == "worktree_removed":
+            branch = msg.payload.get("branch_name", "unknown")
+            topic = branch if branch != "trunk" else control_topic
+            zulip_msg = format_event_for_zulip(
+                msg,
+                operator_email=operator_email,
+                control_topic=control_topic,
+            )
+            await _post(stream, topic, zulip_msg["content"])
+
         else:
             # All other events: post to the session's registered topic.
             topic = registry.topic_for(session_id)

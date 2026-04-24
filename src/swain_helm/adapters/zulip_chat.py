@@ -146,6 +146,19 @@ def _render_event_content(event: Event, *, operator_email: str | None = None) ->
             f"Reply in **trunk** to send a prompt."
         )
 
+    if t == "worktree_added":
+        branch = p.get("branch_name", "?")
+        worktree_path = p.get("worktree_path", "?")
+        return (
+            f"Worktree online: `{branch}`.\n"
+            f"Path: `{worktree_path}`\n\n"
+            f"Use `/work [ARTIFACT]` in this topic to start a session."
+        )
+
+    if t == "worktree_removed":
+        branch = p.get("branch_name", "?")
+        return f"Worktree offline: `{branch}`."
+
     return f"[{t}] {json.dumps(p)}"
 
 

@@ -423,21 +423,22 @@ class TestStreamBindingInvariant:
     These tests encode the physical-disk-as-truth rule at the code level.
     """
 
-    def test_stream_name_matches_physical_directory_basename(self):
-        """A project config's stream must match the basename of its path.
+    def test_stream_is_project_not_worktree_for_worktrees(self):
+        """For worktrees: stream = project name (parent of .worktrees).
 
-        If path=/Users/me/myproject, stream must be "myproject".
-        This is the single most important cross-chatter prevention invariant.
+        This ensures all worktrees share the project's stream, each with its own topic.
         """
-        import os
-
-        physical_name = "epic-initiative-018-swain-helm-implementation"
-        project_path = (
-            f"/Users/cristos/Documents/code/swain/.worktrees/epic/{physical_name}"
-        )
-
-        resolved_name = os.path.basename(project_path)
-        assert resolved_name == physical_name
+        parts = (
+            "/Users/cristos/Documents/code/swain"
+            "/.worktrees"
+            "/epic"
+            "/epic-initiative-018-swain-helm-implementation"
+        ).split("/")
+        worktree_idx = parts.index(".worktrees")
+        project_name = parts[worktree_idx - 1]
+        worktree_name = parts[-1]
+        assert project_name == "swain"
+        assert worktree_name == "epic-initiative-018-swain-helm-implementation"
 
     def test_trunk_topic_from_main_master_branch(self):
         """Branch refs/heads/main or refs/heads/master maps to topic 'trunk'."""

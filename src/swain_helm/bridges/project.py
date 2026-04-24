@@ -92,12 +92,6 @@ class ProjectBridge:
     async def start(self) -> None:
         if self._registry:
             self._registry.read()
-        if self._scanner:
-            poll_s = self.config.get(
-                "worktree_poll_interval_s", DEFAULT_WORKTREE_POLL_INTERVAL_S
-            )
-            self._scanner.poll_interval_s = poll_s
-            self._scanner.start_background(self._on_worktree_diff)
         chat_cfg = self.config.get("chat", {})
         stream = self.config.get("stream", self.project)
         self._chat_plugin = PluginProcess(
@@ -126,6 +120,8 @@ class ProjectBridge:
                     worktree_path=self.project_dir or "",
                 )
             )
+        if self._scanner:
+            self._scanner.start_background(self._on_worktree_diff)
 
     async def run(self) -> None:
         """Start the bridge and keep running until the chat plugin exits."""
