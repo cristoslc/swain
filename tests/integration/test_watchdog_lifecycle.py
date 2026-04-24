@@ -28,7 +28,7 @@ def _make_config_dir(tmp_path: Path) -> Path:
     (cfg / "projects").mkdir()
     (cfg / "run" / "bridges").mkdir(parents=True)
     helm = {
-        "scan_paths": ["/tmp"],
+        "scan_paths": ["__test_scan__"],
         "chat": {
             "server_url": "https://cristoslc.zulipchat.com",
             "bot_email": "swain-bot@cristoslc.zulipchat.com",
@@ -53,6 +53,13 @@ def _write_project(cfg_dir: Path, name: str, auto_start: bool = True) -> Path:
                 "runtime": "claude",
                 "auto_start": auto_start,
                 "worktree_poll_interval_s": 15,
+                "chat": {
+                    "server_url": "https://cristoslc.zulipchat.com",
+                    "bot_email": "swain-bot@cristoslc.zulipchat.com",
+                    "bot_api_key": "TEST_BOT_API_KEY_PLACEHOLDER",
+                    "operator_email": "cristos@cristoslc.com",
+                    "control_topic": "trunk",
+                },
             }
         )
     )
@@ -72,6 +79,7 @@ class _WatchdogProcess:
                 "swain_helm.watchdog",
                 "--config-dir",
                 str(self.config_dir),
+                "--test",
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

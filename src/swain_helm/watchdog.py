@@ -461,9 +461,34 @@ def main() -> None:
     parser = _argparse.ArgumentParser(description="swain-helm watchdog")
     parser.add_argument("--daemon", action="store_true", help="Run as daemon")
     parser.add_argument("--config-dir", default=None, help="Config directory")
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Skip opencode server health check (for testing only)",
+    )
     args = parser.parse_args()
 
     config_dir = Path(args.config_dir) if args.config_dir else None
+
+    if args.test:
+
+        def _fake_urlopen(req, timeout=None):
+            class FakeResp:
+                def read(self):
+                    return b'{"healthy": true}'
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *a):
+                    pass
+
+            return FakeResp()
+
+        import urllib.request, urllib.error
+
+        urllib.request.urlopen = _fake_urlopen
+        urllib.error.URLError = urllib.error.URLError
 
     if args.daemon:
         daemonize(config_dir)
