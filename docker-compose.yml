@@ -46,8 +46,10 @@ services:
       # after shadowing parents with tmpfs.
       - ${PROJECT_PATH:?PROJECT_PATH must be set}:/project_source:ro
       # Writable project mount at the real host path (needed for git).
+      # For worktrees: this must be the parent repo (swain/), not the worktree
+      # subdirectory, so git worktree list can read swain/.git/worktrees.
       - ${PROJECT_PATH:?PROJECT_PATH must be set}:${PROJECT_PATH}
-      - swain-test-config:/root/.config/swain-helm
+      - swain-config:/root/.config/swain-helm
       - opencode-data:/root/.opencode
     environment:
       - SWAIN_HELM_TEST_MODE=0
@@ -55,6 +57,7 @@ services:
       - ZULIP_BOT_API_KEY=${ZULIP_BOT_API_KEY:?ZULIP_BOT_API_KEY required}
       - SWAIN_HELM_CHAT_BOT_API_KEY=${ZULIP_BOT_API_KEY:?ZULIP_BOT_API_KEY required}
       - ZULIP_SITE=${ZULIP_SITE:-https://cristoslc.zulipchat.com}
+      - SWAIN_HELM_CHAT_SERVER_URL=${ZULIP_SITE:-https://cristoslc.zulipchat.com}
       - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL:?ZULIP_OPERATOR_EMAIL required}
       - PROJECT_NAME=${PROJECT_NAME:?PROJECT_NAME required}
       - PROJECT_PATH=${PROJECT_PATH:?PROJECT_PATH must be set}
@@ -69,6 +72,6 @@ services:
       start_period: 10s
 
 volumes:
-  swain-test-config:
+  swain-config:
     external: true
   opencode-data:
