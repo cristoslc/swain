@@ -488,7 +488,6 @@ async def _relay_events(
                 operator_email=operator_email,
                 control_topic=control_topic,
             )
-            typing.stop(stream, control_topic)
             await _post(stream, control_topic, zulip_msg["content"])
 
         else:

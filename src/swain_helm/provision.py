@@ -53,8 +53,15 @@ def provision(
     import zulip
 
     project_path_obj = Path(project_path).resolve()
-    physical_name = project_path_obj.name
-    physical_stream = stream_name or physical_name
+    physical_worktree_name = project_path_obj.name
+
+    if ".worktrees" in project_path_obj.parts:
+        worktree_idx = project_path_obj.parts.index(".worktrees")
+        physical_project_name = project_path_obj.parts[worktree_idx - 1]
+    else:
+        physical_project_name = project_path_obj.name
+
+    stream = stream_name or physical_project_name
 
     cfg_dir = config_dir or DEFAULT_CONFIG_DIR
 
@@ -72,23 +79,21 @@ def provision(
 
     sub_result = client.add_subscriptions(
         streams=[
-            {"name": physical_stream, "description": f"swain-helm — {physical_name}"}
+            {"Name": stream, "description": f"swain-helm — {physical_project_name}"}
         ],
     )
     if sub_result.get("result") != "success":
-        log.error(
-            "Failed to create stream %r: %s", physical_stream, sub_result.get("msg")
-        )
+        log.error("Failed to create stream %r: %s", stream, sub_result.get("msg"))
         sys.exit(1)
-    log.info("Stream ready: %s", physical_stream)
+    log.info("Stream ready: %s", stream)
 
     client.send_message(
         {
             "type": "stream",
-            "to": physical_stream,
+            "to": stream,
             "topic": "trunk",
             "content": (
-                f"swain-helm bridge provisioned for **{physical_name}**.\n\n"
+                f"swain-helm bridge provisioned for **/{physical_worktree_name}/**.\n\n"
                 f"Commands:\n"
                 f"- `/work [ARTIFACT]` — start a new session.\n"
                 f"- `/kill SESSION_ID` — stop a session.\n"
@@ -118,9 +123,9 @@ def provision(
     projects_dir.mkdir(parents=True, exist_ok=True)
 
     project_config = {
-        "name": physical_name,
+        "name": physical_worktree_name,
         "path": str(project_path_obj),
-        "stream": physical_stream,
+        "stream": stream,
         "runtime": "claude",
         "auto_start": True,
         "worktree_poll_interval_s": 15,
@@ -133,7 +138,7 @@ def provision(
     helm_path.chmod(0o600)
     log.info("Helm config written to %s (permissions: 600)", helm_path)
 
-    project_path_file = projects_dir / f"{physical_name}.json"
+    project_path_file = projects_dir / f"{physical_worktree_name}.json"
     project_path_file.write_text(json.dumps(project_config, indent=2) + "\n")
     project_path_file.chmod(0o600)
     log.info("Project config written to %s (permissions: 600)", project_path_file)
@@ -165,9 +170,9 @@ def main() -> None:
         "--stream",
         default=None,
         help=(
-            "Override the Zulip stream name. Defaults to the physical directory "
-            "basename. Rarely needed — only use when the physical name must be "
-            "aliased to a different stream."
+            "Override the Zulip stream name. Defaults to the parent directory "
+            "(the actual project name). Worktrees share the same stream but "
+            "use different topics."
         ),
     )
     args = parser.parse_args()

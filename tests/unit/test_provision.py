@@ -100,7 +100,39 @@ class TestProvisionWritesConfigs:
             helm["chat"]["bot_api_key"] == "op://Private/bot@test.zulipchat.com/api_key"
         )
 
-    def test_stream_defaults_to_physical_path_basename(self, config_dir: Path) -> None:
+    def test_stream_defaults_to_project_name_not_worktree_name(
+        self, config_dir: Path
+    ) -> None:
+        """For worktrees, stream = the project (parent of .worktrees), not worktree name.
+
+        This ensures all worktrees for the same project share one Zulip stream,
+        differentiated by topic.
+        """
+        with _patch_zulip_client(_mock_zulip()):
+            provision(
+                zulip_site="https://test.zulipchat.com",
+                zulip_email="bot@test.zulipchat.com",
+                zulip_api_key="test-key",
+                operator_email="op@test.zulipchat.com",
+                project_name="swain",
+                project_path="/home/user/swain/.worktrees/epic/epic-initiative-018-swain-helm-implementation",
+                config_dir=config_dir,
+            )
+
+        project = json.loads(
+            (
+                config_dir
+                / "projects"
+                / "epic-initiative-018-swain-helm-implementation.json"
+            ).read_text()
+        )
+        assert project["stream"] == "swain"
+        assert project["name"] == "epic-initiative-018-swain-helm-implementation"
+
+    def test_non_worktree_project_uses_basename_as_stream(
+        self, config_dir: Path
+    ) -> None:
+        """Non-worktree projects use their directory name as the stream."""
         with _patch_zulip_client(_mock_zulip()):
             provision(
                 zulip_site="https://test.zulipchat.com",
@@ -115,14 +147,9 @@ class TestProvisionWritesConfigs:
         project = json.loads((config_dir / "projects" / "myproj.json").read_text())
         assert project["stream"] == "myproj"
         assert project["name"] == "myproj"
-        assert project["path"].endswith("myproj")
 
-    def test_stream_override_rarely_needed(self, config_dir: Path) -> None:
-        """--stream is an escape hatch for aliases, not the common case.
-
-        When provided, it overrides the physical disk basename for the Zulip
-        stream while preserving the physical path as the project name.
-        """
+    def test_stream_override_escape_hatch(self, config_dir: Path) -> None:
+        """--stream overrides the derived stream name."""
         with _patch_zulip_client(_mock_zulip()):
             provision(
                 zulip_site="https://test.zulipchat.com",
@@ -139,24 +166,24 @@ class TestProvisionWritesConfigs:
         assert project["stream"] == "custom-stream"
         assert project["name"] == "myproj"
 
-    def test_resolves_to_physical_path_basename(self, config_dir: Path) -> None:
-        """Stream name comes from the physical disk path, not project_name arg."""
+    def test_worktree_project_name_is_worktree_not_project(
+        self, config_dir: Path
+    ) -> None:
+        """The project name in config is the worktree dir, not the repo name."""
         with _patch_zulip_client(_mock_zulip()):
             provision(
                 zulip_site="https://test.zulipchat.com",
                 zulip_email="bot@test.zulipchat.com",
                 zulip_api_key="test-key",
                 operator_email="op@test.zulipchat.com",
-                project_name="ignored-name",
-                project_path="/home/user/real-project-dir",
+                project_name="swain",
+                project_path="/home/user/swain/.worktrees/feature/add-auth",
                 config_dir=config_dir,
             )
 
-        project = json.loads(
-            (config_dir / "projects" / "real-project-dir.json").read_text()
-        )
-        assert project["name"] == "real-project-dir"
-        assert project["stream"] == "real-project-dir"
+        project = json.loads((config_dir / "projects" / "add-auth.json").read_text())
+        assert project["name"] == "add-auth"
+        assert project["stream"] == "swain"
 
     def test_zulip_auth_failure_exits(self, config_dir: Path) -> None:
         mock = _mock_zulip()

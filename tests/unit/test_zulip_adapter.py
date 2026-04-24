@@ -129,15 +129,19 @@ class TestFormatEventForZulip:
         assert "ended" in msg["content"].lower() or "died" in msg["content"].lower()
 
     def test_bridge_online_posted_to_control_topic(self):
-        """bridge_online posts to control topic (trunk) with orientation info."""
+        """bridge_online posts to control topic (trunk) with orientation info.
+
+        For worktrees, stream=project name and topic=trunk (control).
+        """
         event = Event.bridge_online(
             project="epic-initiative-018-swain-helm-implementation",
-            stream="epic-initiative-018-swain-helm-implementation",
+            stream="swain",
             worktree_path="/Users/cristos/Documents/code/swain/.worktrees/epic/epic-initiative-018-swain-helm-implementation",
         )
         msg = format_event_for_zulip(event, control_topic="trunk")
         assert msg["topic"] == "trunk"
         assert "epic-initiative-018-swain-helm-implementation" in msg["content"]
+        assert "swain" in msg["content"]
         assert "Stream:" in msg["content"]
         assert "Worktree:" in msg["content"]
         assert "trunk" in msg["content"]
@@ -536,10 +540,11 @@ class TestStreamBindingInvariant:
         assert _branch_to_topic("refs/heads/main") == "trunk"
 
     def test_provision_stream_derived_from_path_not_project_name_arg(self):
-        """provision() must use physical path basename, not project_name argument.
+        """provision() must use physical path to derive stream.
 
-        When project_path=/home/user/myproj and project_name=anything,
-        the config must contain stream=myproj (from basename).
+        For non-worktree paths: stream = basename.
+        For worktree paths: stream = parent of .worktrees (the project).
+        project_name argument is ignored in favor of physical path.
         """
         import json
         from pathlib import Path
@@ -574,3 +579,47 @@ class TestStreamBindingInvariant:
         assert project["stream"] == "myproj"
         assert project["name"] == "myproj"
         assert project["stream"] != "completely-different-name"
+
+    def test_worktree_stream_is_project_not_worktree_name(self):
+        """For worktree paths, stream = project name (parent of .worktrees).
+
+        All worktrees share the same stream (the project), differentiated by topic.
+        """
+        import json
+        from pathlib import Path
+        from unittest.mock import MagicMock, patch
+
+        from swain_helm.provision import provision
+
+        def _patch_zulip_client(mock_client):
+            import zulip
+
+            return patch.object(zulip, "Client", return_value=mock_client)
+
+        def _mock_zulip():
+            mock = MagicMock()
+            mock.get_profile.return_value = {"result": "success", "full_name": "Bot"}
+            mock.add_subscriptions.return_value = {"result": "success"}
+            mock.send_message.return_value = {"result": "success"}
+            return mock
+
+        with _patch_zulip_client(_mock_zulip()):
+            with patch(
+                "pathlib.Path.resolve",
+                return_value=Path(
+                    "/Users/cristos/Documents/code/swain/.worktrees/epic/epic-initiative-018-swain-helm-implementation"
+                ),
+            ):
+                cfg = provision(
+                    zulip_site="https://test.zulipchat.com",
+                    zulip_email="bot@test.zulipchat.com",
+                    zulip_api_key="test-key",
+                    operator_email="op@test.zulipchat.com",
+                    project_name="swain",
+                    project_path="/Users/cristos/Documents/code/swain/.worktrees/epic/epic-initiative-018-swain-helm-implementation",
+                )
+
+        project = cfg["projects"][0]
+        assert project["stream"] == "swain"
+        assert project["name"] == "epic-initiative-018-swain-helm-implementation"
+        assert project["stream"] != project["name"]
