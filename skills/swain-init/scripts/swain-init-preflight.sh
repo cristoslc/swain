@@ -9,7 +9,7 @@
 #
 # JSON schema (all keys present, some may be null on error):
 #
-#   marker.exists          bool    — .swain-init file found
+#   marker.exists          bool    — .swain/init.json file found
 #   marker.last_version    string  — version from last history entry (null if no marker)
 #   marker.current_version string  — version from installed swain-init SKILL.md
 #   marker.action          string  — "delegate" | "upgrade" | "onboard"
@@ -81,13 +81,13 @@ check_marker() {
   MARKER_CURRENT_VERSION=""
   MARKER_ACTION="onboard"
 
-  if [ -f ".swain-init" ]; then
+  if [ -f ".swain/init.json" ]; then
     MARKER_EXISTS=true
     # Extract last version — try jq first, fall back to python3, then grep
     MARKER_LAST_VERSION=$(python3 -c "
 import json, sys
 try:
-    d = json.load(open('.swain-init'))
+    d = json.load(open('.swain/init.json'))
     print(d['history'][-1]['version'])
 except Exception:
     sys.exit(1)

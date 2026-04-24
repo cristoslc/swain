@@ -290,9 +290,10 @@ create_session_worktree() {
     fi
   done
 
-  # 2. .swain-init marker — prevents re-onboarding in worktrees
-  if [[ -f "$base_root/.swain-init" ]] && [[ ! -e "$path/.swain-init" ]]; then
-    ln -s "$base_root/.swain-init" "$path/.swain-init"
+  # 2. .swain/init.json marker — prevents re-onboarding in worktrees
+  if [[ -f "$base_root/.swain/init.json" ]] && [[ ! -e "$path/.swain/init.json" ]]; then
+    mkdir -p "$path/.swain" 2>/dev/null || true
+    ln -s "$base_root/.swain/init.json" "$path/.swain/init.json"
   fi
 
   # 3. Runtime-specific dot-folders (gitignored agent config/skills dirs).

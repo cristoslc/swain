@@ -1,6 +1,6 @@
 ---
 name: swain-init
-description: "Project onboarding and session entry point for swain. On first run, performs full onboarding: migrates CLAUDE.md to AGENTS.md, verifies vendored tk, configures pre-commit security hooks, and offers swain governance rules — then writes a .swain-init marker. On subsequent runs, detects the marker and runs the per-session fast path (greeting, focus lane, session state). Use as a single entry point — it routes automatically. Triggers also on: 'session', 'session info', 'focus on', 'tab name'."
+  description: "Project onboarding and session entry point for swain. On first run, performs full onboarding: migrates CLAUDE.md to AGENTS.md, verifies vendored tk, configures pre-commit security hooks, and offers swain governance rules — then writes a .swain/init.json marker. On subsequent runs, detects the marker and runs the per-session fast path (greeting, focus lane, session state). Use as a single entry point — it routes automatically. Triggers also on: 'session', 'session info', 'focus on', 'tab name'."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion, Skill
@@ -495,11 +495,11 @@ Invoke the **swain-doctor** skill. This validates `.tickets/` health, checks sta
 
 Invoke the **swain-help** skill in onboarding mode to give the user a guided orientation of what they just installed.
 
-### Step 6.4 — Write `.swain-init` marker
+### Step 6.4 — Write `.swain/init.json` marker
 
-After all onboarding phases complete, write the `.swain-init` marker file. Read `marker.current_version` from the preflight JSON for the skill version and `marker.release_version` for the release version.
+After all onboarding phases complete, write the `.swain/init.json` marker file. Read `marker.current_version` from the preflight JSON for the skill version and `marker.release_version` for the release version.
 
-If `.swain-init` already exists (partial re-init), read it and append to the history array. Otherwise create a new file:
+If `.swain/init.json` already exists (partial re-init), read it and append to the history array. Otherwise create a new file:
 
 ```json
 {
@@ -516,7 +516,7 @@ If `.swain-init` already exists (partial re-init), read it and append to the his
 
 For upgrades (future use by swain-update), append an entry with `"action": "upgrade"` instead.
 
-Write the file and ensure `.swain-init` is in `.gitignore` (it's project-local state, not shared).
+Write the file and ensure `.swain/` is in `.gitignore` (it's project-local state, not shared).
 
 ### Step 6.5 — Summary
 
@@ -534,7 +534,7 @@ Report what was done:
 > - Swain governance in AGENTS.md: [done/skipped/already present]
 > - README: [seeded/already present/skipped]
 > - Artifact proposals from README: [N proposed, M accepted/skipped/not applicable]
-> - Init marker: written (.swain-init)
+> - Init marker: written (.swain/init.json)
 
 ### Step 6.6 — Start session
 
@@ -656,4 +656,4 @@ bash "$REPO_ROOT/.agents/bin/swain-session-bootstrap.sh" --path "$NEW_WORKDIR" -
 
 If the user runs `/swain-init` on a project that's already set up, Phase 0 reads the preflight JSON's `marker.action` field and skips to Phase 7 (Session Start) — no onboarding phases run, no interactive prompts appear. This lets users build muscle memory around `/swain-init` as a single entry point.
 
-To force re-onboarding, delete `.swain-init` and re-run.
+To force re-onboarding, delete `.swain/init.json` and re-run.
