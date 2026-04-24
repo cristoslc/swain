@@ -353,7 +353,9 @@ class Event:
         )
 
     @classmethod
-    def bridge_online(cls, *, project: str, stream: str, worktree_path: str) -> Event:
+    def bridge_online(
+        cls, *, project: str, stream: str, worktree_path: str, branch_name: str
+    ) -> Event:
         return cls(
             type="bridge_online",
             bridge=project,
@@ -363,6 +365,7 @@ class Event:
                 "project": project,
                 "stream": stream,
                 "worktree_path": worktree_path,
+                "branch_name": branch_name,
             },
         )
 

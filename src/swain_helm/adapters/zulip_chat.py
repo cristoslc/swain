@@ -32,6 +32,30 @@ def format_event_for_zulip(
     - Worktree session → topic = branch name
     - No host-scope routing (host commands handled by project bridge directly)
     """
+    t = event.type
+    p = event.payload
+
+    # Topic overrides for events without a session_id.
+    # bridge_online: topic = branch_name from payload (which is "trunk" for the main repo branch).
+    # worktree_added: topic = branch_name from payload (always, never control_topic).
+    if t == "bridge_online":
+        branch_name = p.get("branch_name", "") or p.get("worktree_path", "")
+        # branch_name "trunk" maps to control_topic; otherwise use branch_name as topic
+        topic = control_topic if branch_name == "trunk" else branch_name
+        return {
+            "topic": topic,
+            "content": _render_event_content(event, operator_email=operator_email),
+        }
+
+    if t == "worktree_added":
+        branch_name = p.get("branch_name", "")
+        # branch_name "trunk" maps to control_topic; otherwise use branch_name as topic
+        topic = control_topic if branch_name == "trunk" else branch_name
+        return {
+            "topic": topic,
+            "content": _render_event_content(event, operator_email=operator_email),
+        }
+
     topic = event.session_id or control_topic
 
     content = _render_event_content(event, operator_email=operator_email)

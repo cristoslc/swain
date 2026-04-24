@@ -60,6 +60,28 @@ def _runtime_cmd(runtime: str) -> list[str]:
     return [sys.executable, "-m", module]
 
 
+def _current_branch(project_dir: str) -> str:
+    """Get the current branch of a git repo (or worktree) synchronously."""
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=project_dir,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            branch = result.stdout.strip()
+            if branch in ("main", "master"):
+                return "trunk"
+            return branch
+    except Exception:
+        pass
+    return "trunk"
+
+
 class ProjectBridge:
     """Session orchestrator for one project — microkernel plugin router.
 
@@ -118,6 +140,9 @@ class ProjectBridge:
                     project=self.project,
                     stream=stream,
                     worktree_path=self.project_dir or "",
+                    branch_name=_current_branch(self.project_dir)
+                    if self.project_dir
+                    else "trunk",
                 )
             )
         if self._scanner:

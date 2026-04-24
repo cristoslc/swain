@@ -149,6 +149,7 @@ class TestSerialization:
             project="myproject",
             stream="myproject",
             worktree_path="/home/user/myproject",
+            branch_name="trunk",
         )
         line = encode_message(event)
         decoded = decode_message(line)
@@ -157,6 +158,7 @@ class TestSerialization:
         assert decoded.bridge == "myproject"
         assert decoded.payload["project"] == "myproject"
         assert decoded.payload["stream"] == "myproject"
+        assert decoded.payload["branch_name"] == "trunk"
         assert decoded.payload["worktree_path"] == "/home/user/myproject"
 
     def test_decode_ndjson_to_event(self):
@@ -234,12 +236,14 @@ class TestSerialization:
             project="myproject",
             stream="myproject",
             worktree_path="/home/user/myproject",
+            branch_name="trunk",
         )
         assert event.type == "bridge_online"
         assert event.bridge == "myproject"
         assert event.payload["project"] == "myproject"
         assert event.payload["stream"] == "myproject"
         assert event.payload["worktree_path"] == "/home/user/myproject"
+        assert event.payload["branch_name"] == "trunk"
         line = encode_message(event)
         decoded = decode_message(line)
         assert decoded.type == event.type

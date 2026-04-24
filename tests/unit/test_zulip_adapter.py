@@ -129,17 +129,20 @@ class TestFormatEventForZulip:
         assert "ended" in msg["content"].lower() or "died" in msg["content"].lower()
 
     def test_bridge_online_posted_to_control_topic(self):
-        """bridge_online posts to control topic (trunk) with orientation info.
+        """bridge_online posts to branch topic (not always control topic).
 
-        For worktrees, stream=project name and topic=trunk (control).
+        For trunk worktree, topic=trunk. For non-trunk worktrees, topic=branch name.
         """
         event = Event.bridge_online(
             project="epic-initiative-018-swain-helm-implementation",
             stream="swain",
             worktree_path="/Users/cristos/Documents/code/swain/.worktrees/epic/epic-initiative-018-swain-helm-implementation",
+            branch_name="epic/initiative-018-swain-helm-implementation",
         )
         msg = format_event_for_zulip(event, control_topic="trunk")
-        assert msg["topic"] == "trunk"
+        # Non-trunk worktree: must NOT go to trunk topic
+        assert msg["topic"] != "trunk"
+        assert msg["topic"] == "epic/initiative-018-swain-helm-implementation"
         assert "epic-initiative-018-swain-helm-implementation" in msg["content"]
         assert "swain" in msg["content"]
         assert "Stream:" in msg["content"]
@@ -624,3 +627,113 @@ class TestStreamBindingInvariant:
         assert project["stream"] == "swain"
         assert project["name"] == "epic-initiative-018-swain-helm-implementation"
         assert project["stream"] != project["name"]
+
+
+class TestBridgeOnlineRouting:
+    """INVARIANT: bridge_online must route to the correct topic.
+
+    The bridge_online event carries worktree_path which reveals whether this
+    is the trunk worktree or a non-trunk worktree:
+      - trunk worktree (worktree_path == project_dir of the main repo) → topic = trunk
+      - non-trunk worktree → topic = branch name
+    """
+
+    def test_bridge_online_for_trunk_worktree_posts_to_trunk_topic(self):
+        """When worktree_path is the main repo, bridge_online goes to trunk topic."""
+        from swain_helm.protocol import Event
+
+        trunk_path = "/Users/cristos/Documents/code/swain"
+        event = Event.bridge_online(
+            project="swain",
+            stream="swain",
+            worktree_path=trunk_path,
+            branch_name="trunk",
+        )
+        msg = format_event_for_zulip(event, operator_email=None, control_topic="trunk")
+        assert msg["topic"] == "trunk", (
+            f"bridge_online for trunk must go to 'trunk' topic, got '{msg['topic']}'"
+        )
+
+    def test_bridge_online_for_non_trunk_worktree_posts_to_branch_topic(self):
+        """When worktree_path is NOT the main repo, bridge_online goes to branch topic."""
+        from swain_helm.protocol import Event
+
+        worktree_path = "/Users/cristos/Documents/code/swain/.worktrees/epic/epic-initiative-018-swain-helm-implementation"
+        event = Event.bridge_online(
+            project="epic-initiative-018-swain-helm-implementation",
+            stream="swain",
+            worktree_path=worktree_path,
+            branch_name="epic/initiative-018-swain-helm-implementation",
+        )
+        msg = format_event_for_zulip(event, operator_email=None, control_topic="trunk")
+        assert msg["topic"] != "trunk", (
+            f"bridge_online for non-trunk worktree must NOT go to 'trunk' topic, "
+            f"got '{msg['topic']}'"
+        )
+        assert msg["topic"] == "epic/initiative-018-swain-helm-implementation"
+
+    def test_relay_bridge_online_for_trunk_uses_trunk_topic(self):
+        """_relay_events must route bridge_online to trunk for trunk worktrees."""
+        from swain_helm.protocol import Event
+
+        trunk_path = "/Users/cristos/Documents/code/swain"
+        event = Event.bridge_online(
+            project="swain",
+            stream="swain",
+            worktree_path=trunk_path,
+            branch_name="trunk",
+        )
+        msg = format_event_for_zulip(event, operator_email=None, control_topic="trunk")
+        assert msg["topic"] == "trunk"
+
+    def test_relay_bridge_online_for_non_trunk_uses_branch_topic(self):
+        """_relay_events must route bridge_online to branch topic for non-trunk worktrees."""
+        from swain_helm.protocol import Event
+
+        worktree_path = "/Users/cristos/Documents/code/swain/.worktrees/epic/epic-initiative-018-swain-helm-implementation"
+        event = Event.bridge_online(
+            project="epic-initiative-018-swain-helm-implementation",
+            stream="swain",
+            worktree_path=worktree_path,
+            branch_name="epic/initiative-018-swain-helm-implementation",
+        )
+        msg = format_event_for_zulip(event, operator_email=None, control_topic="trunk")
+        assert msg["topic"] != "trunk"
+        assert msg["topic"] == "epic/initiative-018-swain-helm-implementation"
+        assert msg["topic"] != "trunk"
+        assert msg["topic"] == "epic/initiative-018-swain-helm-implementation"
+
+
+class TestWorktreeAddedRouting:
+    """INVARIANT: worktree_added must route to branch topic, not control_topic.
+
+    The worktree_added event carries branch_name. The topic must be:
+      - branch_name (never control_topic) for non-trunk worktrees
+      - trunk for the trunk worktree only
+    """
+
+    def test_worktree_added_for_non_trunk_branch_uses_branch_topic(self):
+        """worktree_added for a non-trunk branch must use the branch as topic."""
+        from swain_helm.protocol import Event
+
+        event = Event.worktree_added(
+            bridge="swain",
+            worktree_path="/path/to/worktree",
+            branch_name="epic/initiative-018-swain-helm-implementation",
+        )
+        msg = format_event_for_zulip(event, operator_email=None, control_topic="trunk")
+        # Must go to the branch topic, NOT trunk
+        assert msg["topic"] == "epic/initiative-018-swain-helm-implementation"
+        assert msg["topic"] != "trunk"
+
+    def test_worktree_added_for_trunk_branch_uses_trunk_topic(self):
+        """worktree_added for trunk (branch_name='trunk') must use trunk topic."""
+        from swain_helm.protocol import Event
+
+        event = Event.worktree_added(
+            bridge="swain",
+            worktree_path="/Users/cristos/Documents/code/swain",
+            branch_name="trunk",
+        )
+        msg = format_event_for_zulip(event, operator_email=None, control_topic="trunk")
+        assert msg["topic"] == "trunk"
