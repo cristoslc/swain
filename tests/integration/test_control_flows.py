@@ -34,6 +34,7 @@ from swain_helm.plugins.zulip_chat import (
     _poll_zulip,
     _relay_events,
     SessionTopicRegistry,
+    TypingIndicator,
 )
 
 
@@ -183,6 +184,7 @@ class TestTrunkOriginRelayEvents:
                 "trunk",
                 registry,
                 loop,
+                TypingIndicator(client, loop),
             )
 
         # Should have posted to trunk topic, not created a thread
@@ -214,6 +216,7 @@ class TestTrunkOriginRelayEvents:
                 "trunk",
                 registry,
                 loop,
+                TypingIndicator(client, loop),
             )
 
         assert client.send_message.call_count == 0
@@ -239,6 +242,7 @@ class TestTrunkOriginRelayEvents:
                 "trunk",
                 registry,
                 loop,
+                TypingIndicator(client, loop),
             )
 
         assert client.send_message.call_count == 0
@@ -275,6 +279,7 @@ class TestSessionPromotedRelay:
                 "trunk",
                 registry,
                 loop,
+                TypingIndicator(client, loop),
             )
 
         # Two posts: one in the new thread, one announcement in trunk
@@ -318,6 +323,7 @@ class TestSessionPromotedRelay:
                 "trunk",
                 registry,
                 loop,
+                TypingIndicator(client, loop),
             )
 
         # 2 from promotion + 1 text output = 3
@@ -343,7 +349,16 @@ class TestZulipPollTrunkRouting:
 
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(
-                client, _STREAM_MAP, "trunk", received.append, registry, loop, "swain"
+                client,
+                _STREAM_MAP,
+                "trunk",
+                received.append,
+                registry,
+                loop,
+                "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
             )
 
         assert len(received) == 1
@@ -361,7 +376,16 @@ class TestZulipPollTrunkRouting:
 
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(
-                client, _STREAM_MAP, "trunk", received.append, registry, loop, "swain"
+                client,
+                _STREAM_MAP,
+                "trunk",
+                received.append,
+                registry,
+                loop,
+                "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
             )
 
         assert len(received) == 1
@@ -439,7 +463,16 @@ class TestZulipCloudMessageFormat:
 
         with pytest.raises(asyncio.CancelledError):
             await _poll_zulip(
-                client, _STREAM_MAP, "trunk", received.append, registry, loop, "swain"
+                client,
+                _STREAM_MAP,
+                "trunk",
+                received.append,
+                registry,
+                loop,
+                "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
             )
 
         assert len(received) == 1
@@ -492,6 +525,7 @@ class TestFullRoundTripMockLlm:
                 "trunk",
                 registry,
                 loop,
+                TypingIndicator(client, loop),
             )
 
         assert client.send_message.call_count == 1
@@ -528,6 +562,7 @@ class TestFullRoundTripMockLlm:
                 "trunk",
                 registry,
                 loop,
+                TypingIndicator(client, loop),
             )
 
         assert client.send_message.call_count == 0

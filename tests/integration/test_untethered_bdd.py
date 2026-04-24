@@ -28,7 +28,11 @@ import pytest
 from swain_helm.protocol import Event, Command
 from swain_helm.bridges.project import ProjectBridge, SessionState
 from swain_helm.adapters.zulip_chat import ZulipChatAdapter
-from swain_helm.plugins.zulip_chat import _poll_zulip, SessionTopicRegistry
+from swain_helm.plugins.zulip_chat import (
+    _poll_zulip,
+    SessionTopicRegistry,
+    TypingIndicator,
+)
 from swain_helm.plugin_process import PluginProcess
 
 
@@ -85,6 +89,9 @@ class TestZulipMessageRouting:
                 SessionTopicRegistry(),
                 loop,
                 "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
             )
 
         assert len(received) == 1
@@ -109,6 +116,9 @@ class TestZulipMessageRouting:
                 SessionTopicRegistry(),
                 loop,
                 "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
             )
 
         assert len(received) == 1
@@ -131,6 +141,9 @@ class TestZulipMessageRouting:
                 SessionTopicRegistry(),
                 loop,
                 "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
             )
 
         assert len(received) == 0
@@ -174,6 +187,9 @@ class TestZulipBlockingCallsAreOffloaded:
                 SessionTopicRegistry(),
                 loop,
                 "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
             )
         )
 

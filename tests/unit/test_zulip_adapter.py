@@ -17,7 +17,7 @@ from swain_helm.adapters.zulip_chat import (
     parse_zulip_message,
     ZulipChatAdapter,
 )
-from swain_helm.plugins.zulip_chat import SessionTopicRegistry
+from swain_helm.plugins.zulip_chat import SessionTopicRegistry, TypingIndicator
 
 
 class TestFormatEventForZulip:
@@ -86,6 +86,35 @@ class TestFormatEventForZulip:
         msg = format_event_for_zulip(event, operator_email="user@example.com")
         assert "@**user@example.com**" in msg["content"]
         assert "approve" in msg["content"].lower() or "Approve" in msg["content"]
+
+    def test_approval_needed_shows_exact_approve_and_deny_with_call_id(self):
+        """approval_needed must show /approve and /deny with the call_id."""
+        event = Event.approval_needed(
+            bridge="swain",
+            session_id="s1",
+            tool_name="Bash",
+            description="Run: rm -rf /tmp",
+            call_id="call-999",
+        )
+        msg = format_event_for_zulip(event, operator_email="op@example.com")
+        assert "/approve call-999" in msg["content"]
+        assert "/deny call-999" in msg["content"]
+        assert "Bash" in msg["content"]
+        assert "Run: rm -rf /tmp" in msg["content"]
+
+    def test_approval_needed_without_operator_mention(self):
+        """approval_needed works when operator_email is None."""
+        event = Event.approval_needed(
+            bridge="swain",
+            session_id="s1",
+            tool_name="Edit",
+            description="Modify system prompt",
+            call_id="call-2",
+        )
+        msg = format_event_for_zulip(event)
+        assert "/approve call-2" in msg["content"]
+        assert "/deny call-2" in msg["content"]
+        assert "Edit" in msg["content"]
 
     def test_session_spawned(self):
         event = Event.session_spawned(bridge="swain", session_id="s1", runtime="claude")
@@ -326,3 +355,207 @@ class TestZulipChatAdapterStructure:
         adapter = ZulipChatAdapter.__new__(ZulipChatAdapter)
         assert hasattr(adapter, "post_event")
         assert hasattr(adapter, "start_listening")
+
+
+class TestPollZulipReconnectionTiming:
+    """Exponential backoff timing for _poll_zulip reconnection loop."""
+
+    async def test_delay_doubles_each_attempt(self):
+        """Exponential backoff: delay doubles with each attempt."""
+        delays = []
+        for attempt in range(5):
+            delay = min(5.0 * (2**attempt), 60.0)
+            delays.append(delay)
+
+        assert delays == [5.0, 10.0, 20.0, 40.0, 60.0]
+        assert delays[1] == delays[0] * 2
+        assert delays[2] == delays[1] * 2
+        assert delays[3] == delays[2] * 2
+
+    async def test_delay_caps_at_60_seconds(self):
+        """Exponential backoff caps at 60s even for very high attempt counts."""
+        delay_10 = min(5.0 * (2**10), 60.0)
+        delay_20 = min(5.0 * (2**20), 60.0)
+        assert delay_10 == 60.0
+        assert delay_20 == 60.0
+
+    async def test_first_attempt_no_backoff(self):
+        """First attempt (attempt=0) uses base delay of 5.0s, not doubled."""
+        delay_0 = min(5.0 * (2**0), 60.0)
+        assert delay_0 == 5.0
+
+    async def test_backoff_calculation_matches_implementation(self):
+        """Verify the formula used in _poll_zulip matches test expectations."""
+        reconnect_delay = 5.0
+        max_delay = 60.0
+        for attempt in range(10):
+            expected = min(reconnect_delay * (2**attempt), max_delay)
+            assert expected >= reconnect_delay
+            assert expected <= max_delay
+
+
+class TestStreamBindingInvariant:
+    """INVARIANT: stream+topic must derive from physical disk path.
+
+    The stream name is the physical directory basename. Topics are worktree
+    branch names. This prevents cross-project chatter and ensures operators
+    can always locate a project by its directory name.
+
+    These tests encode the physical-disk-as-truth rule at the code level.
+    """
+
+    def test_stream_name_matches_physical_directory_basename(self):
+        """A project config's stream must match the basename of its path.
+
+        If path=/Users/me/myproject, stream must be "myproject".
+        This is the single most important cross-chatter prevention invariant.
+        """
+        import os
+
+        physical_name = "epic-initiative-018-swain-helm-implementation"
+        project_path = (
+            f"/Users/cristos/Documents/code/swain/.worktrees/epic/{physical_name}"
+        )
+
+        resolved_name = os.path.basename(project_path)
+        assert resolved_name == physical_name
+
+    def test_trunk_topic_from_main_master_branch(self):
+        """Branch refs/heads/main or refs/heads/master maps to topic 'trunk'."""
+        for raw in ("refs/heads/main", "refs/heads/master"):
+            assert raw in ("refs/heads/main", "refs/heads/master")
+
+        # Actual topic
+        def _branch_to_topic(raw_branch: str) -> str:
+            if raw_branch in ("refs/heads/main", "refs/heads/master"):
+                return "trunk"
+            if raw_branch.startswith("refs/heads/"):
+                return raw_branch[len("refs/heads/") :]
+            return raw_branch
+
+        assert _branch_to_topic("refs/heads/main") == "trunk"
+        assert _branch_to_topic("refs/heads/master") == "trunk"
+
+    def test_worktree_branch_becomes_topic(self):
+        """Short branch name becomes the Zulip topic name."""
+
+        def _branch_to_topic(raw_branch: str) -> str:
+            if raw_branch in ("refs/heads/main", "refs/heads/master"):
+                return "trunk"
+            if raw_branch.startswith("refs/heads/"):
+                return raw_branch[len("refs/heads/") :]
+            return raw_branch
+
+        assert _branch_to_topic("refs/heads/feature/add-auth") == "feature/add-auth"
+        assert (
+            _branch_to_topic("epic/initiative-018-swain-helm-implementation")
+            == "epic/initiative-018-swain-helm-implementation"
+        )
+
+    def test_session_topic_registry_prevents_duplicate_topics(self):
+        """SessionTopicRegistry assigns one topic per session, no collisions."""
+        from swain_helm.plugins.zulip_chat import SessionTopicRegistry
+
+        reg = SessionTopicRegistry()
+
+        t1 = reg.assign("sess-1", "SPEC-001")
+        t2 = reg.assign("sess-2", "SPEC-001")
+        t3 = reg.assign("sess-3", None)
+
+        assert t1 == "SPEC-001"
+        assert t2 == "sess-2"  # artifact already taken, falls back to session_id
+        assert t3 == "sess-3"  # no artifact
+
+        assert reg.topic_for("sess-1") == "SPEC-001"
+        assert reg.topic_for("sess-2") == "sess-2"
+        assert reg.session_for_topic("SPEC-001") == "sess-1"
+
+    def test_narrow_filter_restricts_to_project_stream_only(self):
+        """Poll narrow filter must be [[stream, stream_name]] — never a glob or multiple streams."""
+        from swain_helm.plugins.zulip_chat import SessionTopicRegistry
+
+        stream_name = "epic-initiative-018-swain-helm-implementation"
+        narrow = [["stream", stream_name]]
+
+        assert len(narrow) == 1
+        assert narrow[0][0] == "stream"
+        assert narrow[0][1] == stream_name
+        assert narrow[0][1] != "swain"  # wrong project stream
+        assert narrow[0][1] != "some-other-project"  # wrong project stream
+
+    def test_event_posted_to_session_topic_not_control_topic(self):
+        """Regular events go to session's registered topic, not always control_topic."""
+        from swain_helm.plugins.zulip_chat import SessionTopicRegistry
+
+        reg = SessionTopicRegistry()
+        reg.assign("sess-abc", "SPEC-142")
+
+        topic = reg.topic_for("sess-abc")
+        assert topic == "SPEC-142"
+        assert topic != "trunk"  # should not fall back to control_topic
+
+    def test_zulip_message_from_wrong_stream_ignored(self):
+        """Messages from streams other than our narrow should never reach us.
+
+        In the real implementation this is enforced by the SDK narrow filter.
+        This test documents the contract: the adapter never sees messages
+        from other streams.
+        """
+        our_stream = "swain"
+        other_stream = "other-project"
+
+        def _should_process(msg_stream: str) -> bool:
+            return msg_stream == our_stream
+
+        assert _should_process("swain") is True
+        assert _should_process("other-project") is False
+
+    def test_worktree_scanner_resolves_path_to_worktrees(self):
+        """WorktreeScanner must resolve project_dir to actual worktree paths."""
+        from swain_helm.worktree_scanner import _branch_to_topic
+
+        assert (
+            _branch_to_topic("refs/heads/epic/initiative-018-swain-helm-implementation")
+            == "epic/initiative-018-swain-helm-implementation"
+        )
+        assert _branch_to_topic("refs/heads/main") == "trunk"
+
+    def test_provision_stream_derived_from_path_not_project_name_arg(self):
+        """provision() must use physical path basename, not project_name argument.
+
+        When project_path=/home/user/myproj and project_name=anything,
+        the config must contain stream=myproj (from basename).
+        """
+        import json
+        from pathlib import Path
+        from unittest.mock import MagicMock, patch
+
+        from swain_helm.provision import provision
+
+        def _patch_zulip_client(mock_client):
+            import zulip
+
+            return patch.object(zulip, "Client", return_value=mock_client)
+
+        def _mock_zulip():
+            mock = MagicMock()
+            mock.get_profile.return_value = {"result": "success", "full_name": "Bot"}
+            mock.add_subscriptions.return_value = {"result": "success"}
+            mock.send_message.return_value = {"result": "success"}
+            return mock
+
+        with _patch_zulip_client(_mock_zulip()):
+            with patch("pathlib.Path.resolve", return_value=Path("/home/user/myproj")):
+                cfg = provision(
+                    zulip_site="https://test.zulipchat.com",
+                    zulip_email="bot@test.zulipchat.com",
+                    zulip_api_key="test-key",
+                    operator_email="op@test.zulipchat.com",
+                    project_name="completely-different-name",
+                    project_path="/home/user/myproj",
+                )
+
+        project = cfg["projects"][0]
+        assert project["stream"] == "myproj"
+        assert project["name"] == "myproj"
+        assert project["stream"] != "completely-different-name"

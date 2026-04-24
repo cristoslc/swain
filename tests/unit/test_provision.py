@@ -100,7 +100,29 @@ class TestProvisionWritesConfigs:
             helm["chat"]["bot_api_key"] == "op://Private/bot@test.zulipchat.com/api_key"
         )
 
-    def test_custom_stream_name(self, config_dir: Path) -> None:
+    def test_stream_defaults_to_physical_path_basename(self, config_dir: Path) -> None:
+        with _patch_zulip_client(_mock_zulip()):
+            provision(
+                zulip_site="https://test.zulipchat.com",
+                zulip_email="bot@test.zulipchat.com",
+                zulip_api_key="test-key",
+                operator_email="op@test.zulipchat.com",
+                project_name="myproj",
+                project_path="/home/user/myproj",
+                config_dir=config_dir,
+            )
+
+        project = json.loads((config_dir / "projects" / "myproj.json").read_text())
+        assert project["stream"] == "myproj"
+        assert project["name"] == "myproj"
+        assert project["path"].endswith("myproj")
+
+    def test_stream_override_rarely_needed(self, config_dir: Path) -> None:
+        """--stream is an escape hatch for aliases, not the common case.
+
+        When provided, it overrides the physical disk basename for the Zulip
+        stream while preserving the physical path as the project name.
+        """
         with _patch_zulip_client(_mock_zulip()):
             provision(
                 zulip_site="https://test.zulipchat.com",
@@ -115,6 +137,26 @@ class TestProvisionWritesConfigs:
 
         project = json.loads((config_dir / "projects" / "myproj.json").read_text())
         assert project["stream"] == "custom-stream"
+        assert project["name"] == "myproj"
+
+    def test_resolves_to_physical_path_basename(self, config_dir: Path) -> None:
+        """Stream name comes from the physical disk path, not project_name arg."""
+        with _patch_zulip_client(_mock_zulip()):
+            provision(
+                zulip_site="https://test.zulipchat.com",
+                zulip_email="bot@test.zulipchat.com",
+                zulip_api_key="test-key",
+                operator_email="op@test.zulipchat.com",
+                project_name="ignored-name",
+                project_path="/home/user/real-project-dir",
+                config_dir=config_dir,
+            )
+
+        project = json.loads(
+            (config_dir / "projects" / "real-project-dir.json").read_text()
+        )
+        assert project["name"] == "real-project-dir"
+        assert project["stream"] == "real-project-dir"
 
     def test_zulip_auth_failure_exits(self, config_dir: Path) -> None:
         mock = _mock_zulip()

@@ -256,7 +256,7 @@ class TestChatPluginPollEmit:
 import asyncio, sys
 from unittest.mock import MagicMock
 
-from swain_helm.plugins.zulip_chat import _poll_zulip, _emit, SessionTopicRegistry
+from swain_helm.plugins.zulip_chat import _poll_zulip, _emit, SessionTopicRegistry, TypingIndicator
 
 def make_client():
     client = MagicMock()
@@ -281,6 +281,9 @@ async def main():
     try:
         await _poll_zulip(
             client, "swain", "trunk", _emit, registry, loop, "swain",
+            TypingIndicator(client, loop),
+            max_reconnect_attempts=1,
+            reconnect_delay=0.01,
         )
     except SystemExit:
         pass

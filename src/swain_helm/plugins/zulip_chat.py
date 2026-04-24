@@ -115,6 +115,8 @@ async def _poll_zulip(
     loop: asyncio.AbstractEventLoop,
     bridge: str,
     typing: TypingIndicator,
+    max_reconnect_attempts: int = 5,
+    reconnect_delay: float = 5.0,
 ) -> None:
     """Poll Zulip for operator messages with a narrow stream filter.
 
