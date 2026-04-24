@@ -1,0 +1,162 @@
+trove: worktree-aware-session-bridge
+created: 2026-04-23
+refreshed: 2026-04-23
+tags:
+  - worktree-isolation
+  - session-management
+  - chat-bridge
+  - agent-orchestration
+  - watchdog
+  - process-supervision
+  - tmux
+  - notification
+  - agent-memory
+  - session-handoff
+  - swain-helm
+  - untethered-operator
+  - git-worktree
+
+freshness-ttl:
+  repository: 60d
+  web: 30d
+
+related-troves:
+  - agentic-runtime-chat-adapters
+  - agent-session-persistence
+  - process-supervision-patterns
+
+history:
+  - event: created
+    date: 2026-04-23
+    commit: "--"
+    sources: 12
+
+sources:
+  # === Session + worktree management ===
+  - source-id: agent-of-empires
+    type: repository
+    url: "https://github.com/njbrake/agent-of-empires"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Agent of Empires — TUI for managing multiple opencode sessions in tmux with git worktree integration and Docker sandboxing"
+    hash: "974965c0c7322bc1250dd6baac69c26dea97aa158811b13de80eb0b27b6002b2"
+    selective: true
+    highlights:
+      - tmux/
+      - git/
+      - session/
+      - containers/
+      - Cargo.toml
+
+  - source-id: opencode-worktree
+    type: repository
+    url: "https://github.com/kdcokenny/opencode-worktree"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Opencode Worktree — Zero-friction git worktrees for OpenCode with auto-spawn, file sync, and cleanup"
+    hash: "8779b52cee1ae343bcad2fda85c8bbb0745aad91d04f6e26967ef7a7b587fdd6"
+    selective: true
+    highlights:
+      - opencode-worktree-snapshot.md
+
+  - source-id: micode
+    type: repository
+    url: "https://github.com/vtemian/micode"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Micode — Brainstorm-Plan-Implement workflow with subagent orchestration, git worktree isolation, and session continuity"
+    hash: "7c2e36620e28fe2c9bdf56a5de2a6099e6dff0a81c871deb58ca1931f1656ea7"
+    selective: true
+    highlights:
+      - micode-snapshot.md
+      - CLAUDE.md
+
+  - source-id: pocket-universe
+    type: repository
+    url: "https://github.com/spoons-and-mirrors/pocket-universe"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Pocket Universe — Closed-loop async agents with coordination and communication tools for parallel subagents"
+    hash: "e03de4812704ed6b2fbd8eead07be72490de185bae7fd3889fa16af4409f3e72"
+    selective: true
+    highlights:
+      - pocket-universe-snapshot.md
+
+  # === Session management ===
+  - source-id: opencode-sessions
+    type: repository
+    url: "https://github.com/malhashemi/opencode-sessions"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Opencode Sessions — Session management plugin with multi-agent collaboration support"
+    hash: "9c62ce106df708cf88df07ce654efdad011caef077211882e3812902889d9509"
+    selective: true
+    highlights:
+      - opencode-sessions-snapshot.md
+
+  - source-id: opencode-agent-tmux
+    type: repository
+    url: "https://github.com/AnganSamadder/opencode-agent-tmux"
+    fetched: 2026-04-23T00:00:00Z
+    title: "OpenCode Agent Tmux — Smart tmux integration that auto-spawns panes to stream agent output with cleanup"
+    hash: "50143ee867a819bf4c95d5083f61c72811f94193383c4677cbb156bcb464f7d0"
+    selective: true
+    highlights:
+      - opencode-agent-tmux-snapshot.md
+
+  - source-id: opencode-pilot
+    type: repository
+    url: "https://github.com/athal7/opencode-pilot"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Pilot — Automation daemon polling GitHub issues and Linear tickets to spawn OpenCode sessions"
+    hash: "195039933affe1d994efe3f27f0d9ad4f41bce1cd95660157fd1fb381c5ce901"
+    selective: true
+    highlights:
+      - opencode-pilot-snapshot.md
+
+  # === Notifications ===
+  - source-id: opencode-notify
+    type: repository
+    url: "https://github.com/kdcokenny/opencode-notify"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Opencode Notify — Native OS notifications for OpenCode task completion"
+    hash: "b286f346d2c07584701adb543fe5e8720701b5d45233012545aa341f9c3e26d1"
+    selective: true
+    highlights:
+      - opencode-notify-snapshot.md
+
+  - source-id: opencode-ntfy
+    type: repository
+    url: "https://github.com/lannuttia/opencode-ntfy.sh"
+    fetched: 2026-04-23T00:00:00Z
+    title: "OpenCode ntfy.sh — Push notifications via ntfy.sh for task completion"
+    hash: "d803f7d038563adfb0bdcaa1591614d72bc9c6d365db56a21a29c60b17ac487c"
+    selective: true
+    highlights:
+      - opencode-ntfy-snapshot.md
+
+  # === Memory and session handoff ===
+  - source-id: opencode-agent-memory
+    type: repository
+    url: "https://github.com/joshuadavidthomas/opencode-agent-memory"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Agent Memory — Letta-inspired persistent, self-editable memory blocks for OpenCode"
+    hash: "9b39d0bf15608c8746e76239f74022643f1e36fd7ae41ed431626aaa848555b6"
+    selective: true
+    highlights:
+      - opencode-agent-memory-snapshot.md
+
+  - source-id: opencode-mem
+    type: repository
+    url: "https://github.com/tickernelz/opencode-mem"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Opencode Mem — Persistent memory system with local vector database, dual scopes, and auto-capture"
+    hash: "d684df51bb84f9a9c8e18f6059f10278a3dba5819c3a2ce7d4e72af6288d4763"
+    selective: true
+    highlights:
+      - opencode-mem-snapshot.md
+
+  - source-id: opencode-handoff
+    type: repository
+    url: "https://github.com/joshuadavidthomas/opencode-handoff"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Handoff — Focused handoff prompts for continuing work across sessions"
+    hash: "56cbc04092958c5619cd00071b64040f61f382ca27b0b1e11921556dfe08c6d2"
+    selective: true
+    highlights:
+      - opencode-handoff-snapshot.md

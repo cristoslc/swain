@@ -1,0 +1,128 @@
+{
+  "name": "golembot",
+  "version": "0.46.0",
+  "description": "GolemBot - Local-first AI assistant powered by Coding Agent CLI engines. Connect to Slack, Telegram, Discord, Feishu, DingTalk, WeCom, WeChat.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "golembot": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev:gateway": "pnpm build && node dist/cli.js gateway --verbose",
+    "e2e": "tsx examples/e2e-test.ts",
+    "e2e:headless": "tsx examples/e2e-headless.ts",
+    "e2e:claude-code": "tsx examples/e2e-claude-code.ts",
+    "e2e:opencode": "tsx examples/e2e-opencode.ts",
+    "e2e:codex": "tsx examples/e2e-codex.ts",
+    "e2e:codex:launch": "tsx examples/e2e-codex-launch.ts",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "prepublishOnly": "pnpm run build",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/",
+    "release": "semantic-release",
+    "prepare": "husky"
+  },
+  "files": [
+    "dist",
+    "!dist/__tests__",
+    "skills",
+    "templates"
+  ],
+  "keywords": [
+    "ai",
+    "agent",
+    "assistant",
+    "cursor",
+    "claude-code",
+    "opencode",
+    "coding-agent",
+    "cli"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0xranx/golembot"
+  },
+  "homepage": "https://github.com/0xranx/golembot#readme",
+  "bugs": {
+    "url": "https://github.com/0xranx/golembot/issues"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "cross-spawn": "^7.0.6",
+    "inquirer": "^12.0.0",
+    "js-yaml": "^4.1.0",
+    "qrcode-terminal": "^0.12.0",
+    "sharp": "^0.34.5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "peerDependencies": {
+    "@larksuiteoapi/node-sdk": "^1.24.0",
+    "@slack/bolt": "^4.0.0",
+    "@wecom/aibot-node-sdk": "^1.0.0",
+    "dingtalk-stream": "^2.0.0",
+    "grammy": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@larksuiteoapi/node-sdk": {
+      "optional": true
+    },
+    "@slack/bolt": {
+      "optional": true
+    },
+    "dingtalk-stream": {
+      "optional": true
+    },
+    "@wecom/aibot-node-sdk": {
+      "optional": true
+    },
+    "grammy": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.6",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.6",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "@slack/bolt": "^4.6.0",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "@types/sharp": "^0.32.0",
+    "grammy": "^1.41.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.2",
+    "semantic-release": "^25.0.3",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.0.18"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
+  }
+}

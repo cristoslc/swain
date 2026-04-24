@@ -101,3 +101,29 @@ This stack keeps the primary runtime Python-native while allowing selective use 
 
 - Related trove: `claude-code-remote-interaction` covers Claude Code's native channels, remote control, and headless modes.
 - This trove focuses on third-party projects that wrap or extend those native capabilities.
+
+---
+
+## Extension: awesome-opencode chat bridge projects (2026-04-23)
+
+Five additional projects were analyzed with full code snapshots for the chat adapter layer:
+
+### Kimaki (BUSL-1.1) — Discord-to-opencode bridge
+
+Kimaki creates a Discord thread per opencode session, mapping the chat thread to a running agent instance. The `ThreadSessionRuntime` manages lifecycle: creating sessions, attaching to existing ones, and sweeping idle sessions. Message formatting converts agent output (markdown, code blocks) to Discord-compatible embeds. The `DigitalTwinGateway` provides a fake Discord server for E2E testing without a real bot token. **Key borrowable pattern:** thread-per-session with state machine (`ThreadRuntimeState` — spawning, running, idle, dead). **License concern:** BUSL-1.1 prohibits commercial use without a separate license — pattern is borrowable but code is not.
+
+### GolemBot (MIT) — Multi-IM adapter framework
+
+GolemBot implements a `ChannelAdapter` interface with 7 platform backends (Feishu, Slack, Telegram, Discord, DingTalk, WeChat, WeCom). Each adapter implements `onMessage()`, `onCommand()`, and platform-specific formatting. The gateway routes messages through an `Assistant.chat()` call to a pluggable engine (claude-code, codex, cursor, opencode). The engine abstraction maps directly to swain-helm's runtime adapter concept. Session persistence is file-based (`.golem/sessions.json`) with 30-day TTL pruning. Group chat has three policies (mention-only, smart, always). **Key borrowable pattern:** `ChannelAdapter` interface and engine abstraction. License: MIT — fully permissive.
+
+### Open Dispatch (MIT) — Slack/Teams-to-agent bridge
+
+Open Dispatch uses a `ChatProvider` abstract class with three implementations (Slack via `@slack/bolt` Socket Mode, Teams via `botbuilder` + `restify`, Discord via `discord.js`). The `bot-engine.js` wires `onMessage`/`onCommand` handlers. Free-text messages auto-route to the AI instance bound to that channel; commands (`od-start`, `od-stop`, etc.) are explicitly parsed. Session persistence is in-memory only — a `Map` with no disk/database. Sessions resume via CLI flags. **Key borrowable pattern:** `ChatProvider` base class and provider registry (`createProvider('slack', config)`). License: MIT — fully permissive.
+
+### hcom (MIT) — Inter-agent messaging with collision detection
+
+hcom uses SQLite append-only events + per-instance cursors + TCP `notify()` for instant wake-up. No external broker needed for local operation. The `DeliveryGate` implements a state machine (Idle→Pending→Inject→Verify) that prevents clobbering agent PTY state when injecting tool results. Collisions are handled by sequential injection, not file locking. Cross-device relay uses MQTT with ChaCha20-Poly1305 encryption. **Key borrowable pattern:** `DeliveryGate` state machine for safe message injection into running agents. License: MIT.
+
+### opencode-telegram-bot (MIT) — Telegram-to-opencode bridge
+
+This bot uses SSE event subscription (`@opencode-ai/sdk`) as its backbone — it connects to `opencode serve`, subscribes to events, and auto-reconnects with exponential backoff. The `Aggregator` maps SSE events to UI callbacks. Sessions are managed via settings-based tracking with `attach/detach` controlling event routing. Messages are sent with fire-and-forget pattern (critical for long-polling bots). Streaming uses throttled message editing (500ms) to update Telegram messages in-place. **Key borrowable pattern:** SSE event subscription with auto-reconnect and event aggregation. The adapter is tightly coupled to grammy/Telegram — Zulip adapter needs fresh code. License: MIT.
