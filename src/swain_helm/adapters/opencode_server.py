@@ -504,6 +504,9 @@ class OpenCodeServerAdapter:
                     )
                 )
         elif part_type in ("thinking", "reasoning"):
+            pid = part.get("id", "")
+            if pid:
+                self._part_types[pid] = part_type
             thinking_text = part.get("thinking", "") or part.get("text", "")
             if thinking_text:
                 flushed = self._flushed_up_to.get(part.get("id", ""), 0)
