@@ -101,6 +101,32 @@ def _emit(cmd: Command) -> None:
     sys.stdout.flush()
 
 
+def _ensure_stream(client: zulip.Client, stream_name: str) -> None:
+    """Ensure the Zulip stream exists. Creates it if missing.
+
+    The chat adapter owns stream creation so the bridge can come online
+    in any environment without pre-provisioning.
+    """
+    try:
+        result = client.get_stream_id(stream_name)
+        if result.get("result") == "success":
+            log.info("Stream %r already exists", stream_name)
+            return
+    except Exception as exc:
+        log.warning("Could not check stream %r: %s", stream_name, exc)
+
+    try:
+        result = client.add_subscriptions(
+            [{"name": stream_name, "description": f"swain-helm — {stream_name}"}]
+        )
+        if result.get("result") == "success":
+            log.info("Created stream %r", stream_name)
+        else:
+            log.error("Failed to create stream %r: %s", stream_name, result.get("msg"))
+    except Exception as exc:
+        log.error("Error creating stream %r: %s", stream_name, exc)
+
+
 # ---------------------------------------------------------------------------
 # Zulip → kernel: poll for operator messages
 # ---------------------------------------------------------------------------
@@ -456,6 +482,15 @@ async def _relay_events(
                 await batcher.flush_all()
                 typing.stop(stream, topic)
 
+        elif msg.type == "bridge_online":
+            zulip_msg = format_event_for_zulip(
+                msg,
+                operator_email=operator_email,
+                control_topic=control_topic,
+            )
+            typing.stop(stream, control_topic)
+            await _post(stream, control_topic, zulip_msg["content"])
+
         else:
             # All other events: post to the session's registered topic.
             topic = registry.topic_for(session_id)
@@ -506,6 +541,9 @@ async def _amain() -> None:
     )
 
     stream_name = cfg.get("stream_name", "")
+
+    _ensure_stream(client, stream_name)
+
     control_topic = cfg.get("control_topic", "trunk")
     bridge = cfg.get("bridge", "")
 

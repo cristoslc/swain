@@ -144,6 +144,21 @@ class TestSerialization:
         assert parsed["session_id"] == "sess-001"
         assert parsed["payload"]["content"] == "hello"
 
+    def test_bridge_online_roundtrips_correctly(self):
+        event = Event.bridge_online(
+            project="myproject",
+            stream="myproject",
+            worktree_path="/home/user/myproject",
+        )
+        line = encode_message(event)
+        decoded = decode_message(line)
+        assert decoded is not None
+        assert decoded.type == "bridge_online"
+        assert decoded.bridge == "myproject"
+        assert decoded.payload["project"] == "myproject"
+        assert decoded.payload["stream"] == "myproject"
+        assert decoded.payload["worktree_path"] == "/home/user/myproject"
+
     def test_decode_ndjson_to_event(self):
         raw = json.dumps(
             {
@@ -213,3 +228,20 @@ class TestSerialization:
     def test_parse_ndjson_line_returns_none_for_malformed(self):
         assert parse_ndjson_line("not json at all") is None
         assert parse_ndjson_line('{"no_type": true}') is None
+
+    def test_bridge_online_event_roundtrip(self):
+        event = Event.bridge_online(
+            project="myproject",
+            stream="myproject",
+            worktree_path="/home/user/myproject",
+        )
+        assert event.type == "bridge_online"
+        assert event.bridge == "myproject"
+        assert event.payload["project"] == "myproject"
+        assert event.payload["stream"] == "myproject"
+        assert event.payload["worktree_path"] == "/home/user/myproject"
+        line = encode_message(event)
+        decoded = decode_message(line)
+        assert decoded.type == event.type
+        assert decoded.bridge == event.bridge
+        assert decoded.payload == event.payload

@@ -132,6 +132,20 @@ def _render_event_content(event: Event, *, operator_email: str | None = None) ->
         reason = p.get("reason", "")
         return f"Bridge stopped for project `{project}`: {reason}."
 
+    if t == "bridge_online":
+        project = p.get("project", "?")
+        stream = p.get("stream", "?")
+        worktree_path = p.get("worktree_path", "?")
+        return (
+            f"Bridge online for `{project}`.\n\n"
+            f"Stream: `{stream}`\n"
+            f"Worktree: `{worktree_path}`\n\n"
+            f"Topics:\n"
+            f"- **trunk** — the main workspace\n"
+            f"- **[branch name]** — per-worktree sessions\n\n"
+            f"Reply in **trunk** to send a prompt."
+        )
+
     return f"[{t}] {json.dumps(p)}"
 
 

@@ -128,6 +128,21 @@ class TestFormatEventForZulip:
         msg = format_event_for_zulip(event)
         assert "ended" in msg["content"].lower() or "died" in msg["content"].lower()
 
+    def test_bridge_online_posted_to_control_topic(self):
+        """bridge_online posts to control topic (trunk) with orientation info."""
+        event = Event.bridge_online(
+            project="epic-initiative-018-swain-helm-implementation",
+            stream="epic-initiative-018-swain-helm-implementation",
+            worktree_path="/Users/cristos/Documents/code/swain/.worktrees/epic/epic-initiative-018-swain-helm-implementation",
+        )
+        msg = format_event_for_zulip(event, control_topic="trunk")
+        assert msg["topic"] == "trunk"
+        assert "epic-initiative-018-swain-helm-implementation" in msg["content"]
+        assert "Stream:" in msg["content"]
+        assert "Worktree:" in msg["content"]
+        assert "trunk" in msg["content"]
+        assert "Reply in **trunk**" in msg["content"]
+
     def test_host_event_topic_uses_session_id_not_trunk(self):
         """Per ADR-046: no __host__ routing to trunk topic.
 

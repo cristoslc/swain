@@ -28,6 +28,7 @@ _PROJECT_EVENT_TYPES = {
     "web_output_available",
     "worktree_added",
     "worktree_removed",
+    "bridge_online",
 }
 
 # Event types — host scope
@@ -349,6 +350,20 @@ class Event:
             session_id=None,
             timestamp=_now_ms(),
             payload={"project": project, "bridge_id": bridge_id, "reason": reason},
+        )
+
+    @classmethod
+    def bridge_online(cls, *, project: str, stream: str, worktree_path: str) -> Event:
+        return cls(
+            type="bridge_online",
+            bridge=project,
+            session_id=None,
+            timestamp=_now_ms(),
+            payload={
+                "project": project,
+                "stream": stream,
+                "worktree_path": worktree_path,
+            },
         )
 
 

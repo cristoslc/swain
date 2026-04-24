@@ -112,10 +112,20 @@ class ProjectBridge:
                 "control_topic": chat_cfg.get("control_topic", "trunk"),
                 "operator_email": chat_cfg.get("operator_email"),
                 "bridge": self.project,
+                "stream": stream,
+                "worktree_path": self.project_dir or "",
             },
             on_message=self._on_chat_message,
         )
         await self._chat_plugin.start()
+        if self._chat_plugin:
+            await self._chat_plugin.write(
+                Event.bridge_online(
+                    project=self.project,
+                    stream=stream,
+                    worktree_path=self.project_dir or "",
+                )
+            )
 
     async def run(self) -> None:
         """Start the bridge and keep running until the chat plugin exits."""
