@@ -126,7 +126,7 @@ Score each candidate on these dimensions:
 ### Open questions to resolve in the spike
 
 - **Golembot's `workspaceRouter` patch** — is it ~100 LOC TS as estimated? Does engine invocation have hidden workspace coupling? Read `gateway.ts:966-1150` and `index.ts:258` end-to-end.
-- **Kimaki's abstraction extensibility** — is `ThreadSessionRuntime` Discord-specific? Or does it factor out a reusable thread/channel abstraction? See [SPIKE-074](../(SPIKE-074)-Kimaki-Extensibility-And-Python-Rewrite/(SPIKE-074)-Kimaki-Extensibility-And-Python-Rewrite.md).
+- **Kimaki's abstraction extensibility** — is `ThreadSessionRuntime` Discord-specific? Or does it factor out a reusable thread/channel abstraction? See [SPIKE-074](../../Complete/(SPIKE-074)-Kimaki-Extensibility-And-Python-Rewrite/(SPIKE-074)-Kimaki-Extensibility-And-Python-Rewrite.md).
 - **Open-dispatch's ChatProvider sufficiency** — does the `ChatProvider` interface expose thread or topic semantics? Would those let Zulip topics map to workspace directories? Read `src/providers/chat-provider.js`.
 - **Process-per-workspace scaling** — a user with 10 worktrees would run 10 golembot processes. Is that acceptable? Measure memory per idle golembot. Does each hold an open HTTP server and SSE connection?
 - **Fleet coordination cost** — does golembot's fleet registry need an external broker (Redis, etcd)? Or is it filesystem-based? What happens when a peer crashes mid-session?
