@@ -2,10 +2,11 @@
 title: "swain-helm Watchdog Architecture"
 artifact: ADR-047
 track: standing
-status: Active
+status: Superseded
 author: cristos
 created: 2026-04-18
-last-updated: 2026-04-18
+last-updated: 2026-04-24
+superseded-by: ADR-049
 linked-artifacts:
   - VISION-006
   - INITIATIVE-018
@@ -88,3 +89,4 @@ The watchdog is a Python asyncio process that reconciles desired state against r
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-18 | -- | Decided during swain-helm architecture refactor. |
+| Superseded | 2026-04-24 | -- | Superseded by ADR-049. Watchdog eliminated for container deployment; process hygiene moves to process groups. |

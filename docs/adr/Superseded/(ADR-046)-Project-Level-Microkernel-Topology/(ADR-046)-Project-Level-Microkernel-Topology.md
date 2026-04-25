@@ -2,10 +2,11 @@
 title: "Project-Level Microkernel Topology"
 artifact: ADR-046
 track: standing
-status: Active
+status: Superseded
 author: cristos
 created: 2026-04-18
-last-updated: 2026-04-18
+last-updated: 2026-04-24
+superseded-by: ADR-048
 linked-artifacts:
   - VISION-006
   - INITIATIVE-018
@@ -67,3 +68,4 @@ Key properties:
 | Phase | Date | Commit | Notes |
 |-------|------|--------|-------|
 | Active | 2026-04-18 | -- | Supersedes ADR-039. Decided during swain-helm architecture refactor. |
+| Superseded | 2026-04-24 | -- | Superseded by ADR-048. Watchdog-per-host model replaced by container-per-project with Caddy gateway. |

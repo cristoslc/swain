@@ -3,11 +3,11 @@ title: "swain-helm Deployment Topology"
 artifact: DESIGN-032
 track: standing
 domain: system
-status: Active
+status: Superseded
 author: cristos
 created: 2026-04-18
-last-updated: 2026-04-18
-superseded-by: ""
+last-updated: 2026-04-24
+superseded-by: DESIGN-033
 linked-artifacts:
   - VISION-006
   - INITIATIVE-018
@@ -105,3 +105,4 @@ flowchart LR
 | Status | Date | Until | Note |
 |--------|------|-------|------|
 | Active | 2026-04-18 | -- | Replaces DESIGN-023. |
+| Superseded | 2026-04-24 | -- | Superseded by DESIGN-033. Container-per-project topology replaces host-level native deployment. |
