@@ -70,6 +70,16 @@ A discovery module that, at bridge startup, scans configured and previously seen
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Discovery finds running instance | `test_opencode_discovery.py::TestDiscoveryScans` | Pass (Docker) |
+| AC2: Discovery starts opencode if needed | `test_opencode_discovery.py::TestDiscoveryIntegration` | Pass (Docker) |
+| AC3: Auth mismatch detected | `test_opencode_discovery.py::TestDiscoveryScans::test_auth_mismatch` | Pass |
+| AC4: Unconfigured port never authenticated | `test_opencode_discovery.py::TestDiscoveryScans` | Pass |
+| AC5: Health check works | `test_opencode_discovery.py::TestDiscoveryScans` | Pass |
+| AC6: Auth test succeeds with valid creds | `test_opencode_discovery.py::TestDiscoveryScans` | Pass (Docker) |
+| AC7: Loopback URL validation | `test_opencode_discovery.py::TestLoopbackValidation` | Pass |
+| NEG: opencode missing | `test_opencode_discovery.py::TestNegativeCases` | Pass |
+| NEG: port in use by non-opencode | `test_opencode_discovery.py::TestNegativeCases` | Pass |
+| NEG: loopback enforcement | `test_opencode_discovery.py::TestLoopbackValidation` | Pass |
 
 ## Scope & Constraints
 

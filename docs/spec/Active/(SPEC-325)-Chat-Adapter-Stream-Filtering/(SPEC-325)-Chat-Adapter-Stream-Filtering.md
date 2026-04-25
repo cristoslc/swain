@@ -59,6 +59,17 @@ Each ZulipChatAdapter subscribes to exactly one stream (its project's stream). M
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Chat adapter subscribes to project stream only | `test_chat_stream_filtering.py::TestStreamFiltering` | Pass |
+| AC2: Messages in worktree topic routed to session | `test_chat_stream_filtering.py::TestMessageRouting` | Pass |
+| AC3: Messages in control topic routed as control_message | `test_chat_stream_filtering.py::TestMessageRouting::test_control_topic_plain_text` | Pass |
+| AC4: /work command creates session | `test_chat_stream_filtering.py::TestCommandHandling` | Pass |
+| AC5: /cancel cancels session | `test_chat_stream_filtering.py::TestCommandHandling` | Pass |
+| AC6: /approve and /deny commands | `test_chat_stream_filtering.py::TestCommandHandling` | Pass |
+| AC7: Bot ignores own messages | `test_chat_stream_filtering.py::TestStreamFiltering::test_bot_own_messages_skipped` | Pass |
+| AC8: Deduplication of seen IDs | `test_chat_stream_filtering.py::TestStreamFiltering` | Pass |
+| NEG: Unknown topic | `test_chat_stream_filtering.py::TestNegativeCases` | Pass |
+| NEG: No host-scope in adapter | `test_chat_stream_filtering.py::TestNegativeCases` | Pass |
+| NEG: Private messages ignored | `test_chat_stream_filtering.py::TestNegativeCases` | Pass |
 
 ## Scope & Constraints
 

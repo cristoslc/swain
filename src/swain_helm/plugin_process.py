@@ -1,7 +1,11 @@
 """Plugin subprocess manager — spawns and supervises NDJSON-over-stdio plugins.
 
-Implements ADR-038 (microkernel plugin architecture).
-A PluginProcess manages one subprocess (chat adapter or runtime adapter).
+Implements ADR-038 (microkernel plugin architecture) and ADR-049 (process
+hygiene). A PluginProcess manages one subprocess (chat adapter or runtime
+adapter). Each subprocess is launched in its own process group (os.setpgrp)
+so that stop() can cascade SIGTERM to the entire group, preventing orphan
+grandchildren (the bug that caused "typing indicator but no response").
+
 Protocol:
   stdin line 0 : ConfigMessage (JSON, sent by kernel on startup)
   stdin lines 1+: NDJSON Events or Commands from kernel
@@ -13,6 +17,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
+import signal
 from typing import Any, Callable
 
 from swain_helm.protocol import (
@@ -58,12 +64,17 @@ class PluginProcess:
         return self._proc is not None and self._proc.returncode is None
 
     async def start(self) -> None:
-        """Spawn the plugin subprocess, send config, and start stdout/stderr readers."""
+        """Spawn the plugin subprocess, send config, and start stdout/stderr readers.
+
+        Per ADR-049, each plugin runs in its own process group (setpgrp) so
+        that stop() can cascade termination to grandchildren.
+        """
         self._proc = await asyncio.create_subprocess_exec(
             *self.cmd,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            preexec_fn=os.setpgrp,
         )
         cfg_msg = ConfigMessage(plugin_type=self.plugin_type, config=self.config)
         assert self._proc.stdin is not None
@@ -114,7 +125,12 @@ class PluginProcess:
             )
 
     async def stop(self, timeout: float = 5.0) -> None:
-        """Cancel readers, terminate the subprocess, and wait for exit."""
+        """Cancel readers, terminate the process group, and wait for exit.
+
+        Per ADR-049, uses os.killpg to cascade SIGTERM to the entire process
+        group (set up by setpgrp in start()). This prevents orphan
+        grandchildren that caused the "typing indicator but no response" bug.
+        """
         for task in (self._reader_task, self._stderr_task):
             if task:
                 task.cancel()
@@ -124,14 +140,31 @@ class PluginProcess:
                     pass
         if self._proc:
             if self._proc.returncode is None:
+                pgid = None
                 try:
-                    self._proc.terminate()
-                except ProcessLookupError:
+                    pgid = os.getpgid(self._proc.pid)
+                except (ProcessLookupError, OSError):
                     pass
+                if pgid and pgid != os.getpgid(os.getpid()):
+                    try:
+                        os.killpg(pgid, signal.SIGTERM)
+                    except (ProcessLookupError, OSError):
+                        pass
+                else:
+                    try:
+                        self._proc.terminate()
+                    except ProcessLookupError:
+                        pass
                 try:
                     await asyncio.wait_for(self._proc.wait(), timeout=timeout)
                 except asyncio.TimeoutError:
-                    self._proc.kill()
+                    if pgid and pgid != os.getpgid(os.getpid()):
+                        try:
+                            os.killpg(pgid, signal.SIGKILL)
+                        except (ProcessLookupError, OSError):
+                            pass
+                    else:
+                        self._proc.kill()
             log.info("Plugin stopped: %s", self.name)
 
     async def _read_stdout(self) -> None:

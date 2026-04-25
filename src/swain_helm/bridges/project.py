@@ -12,10 +12,12 @@ import asyncio
 import enum
 import json
 import logging
+import os
 import sys
 import time
 import uuid
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Callable
 
 from swain_helm.protocol import Event, Command, ConfigMessage
@@ -549,15 +551,49 @@ class ProjectBridge:
         session.artifact = cmd.payload.get("artifact_id")
 
 
+def _config_from_env() -> dict[str, Any]:
+    """Build bridge config from environment variables in container mode.
+
+    Per ADR-048, when SWAIN_HELM_CONTAINER_MODE=1, the bridge reads config
+    from environment variables instead of stdin (since there's no watchdog
+    to send a ConfigMessage).
+    """
+    return {
+        "path": os.environ.get("PROJECT_PATH", ""),
+        "stream": os.environ.get("PROJECT_NAME", ""),
+        "chat": {
+            "server_url": os.environ.get(
+                "ZULIP_SITE", "https://cristoslc.zulipchat.com"
+            ),
+            "bot_email": os.environ.get("ZULIP_BOT_EMAIL", ""),
+            "bot_api_key": os.environ.get("ZULIP_BOT_API_KEY", ""),
+            "operator_email": os.environ.get("ZULIP_OPERATOR_EMAIL", ""),
+        },
+        "opencode": {
+            "base_url": "http://127.0.0.1:4098",
+            "default_port": 4098,
+        },
+    }
+
+
 def main() -> None:
     """CLI entry point for bridge subprocess.
 
     Reads a ConfigMessage from stdin (sent by the watchdog with fully-resolved
     credentials — no op:// references ever reach this process), creates a
     ProjectBridge, and runs its event loop.
+
+    Per ADR-049, runs startup zombie cleanup before initializing to prevent
+    orphan processes from interfering with the new bridge instance.
     """
     import argparse
     import asyncio
+    from pathlib import Path
+
+    from swain_helm.zombie_cleanup import (
+        cleanup_stale_processes,
+        cleanup_orphan_subprocesses,
+    )
 
     logging.basicConfig(
         level=logging.INFO,
@@ -570,22 +606,42 @@ def main() -> None:
 
     log.info("Bridge main() starting for project: %s", args.project)
 
-    config_line = sys.stdin.readline()
-    if not config_line:
-        log.error("No config received on stdin — bridge must be spawned by watchdog")
-        sys.exit(1)
+    stale_killed = cleanup_stale_processes(
+        Path.home() / ".config" / "swain-helm" / "run" / "bridges"
+    )
+    orphan_killed = cleanup_orphan_subprocesses()
+    if stale_killed or orphan_killed:
+        log.warning(
+            "Startup cleanup: killed %d stale and %d orphan processes",
+            stale_killed,
+            orphan_killed,
+        )
 
-    log.info("Bridge received config (%d bytes)", len(config_line))
+    container_mode = os.environ.get("SWAIN_HELM_CONTAINER_MODE", "") == "1"
 
-    from swain_helm.protocol import decode_message, ConfigMessage as CMsg
+    if container_mode:
+        cfg = _config_from_env()
+        project_dir = cfg.get("path", os.environ.get("PROJECT_PATH", ""))
+        log.info("Bridge running in container mode, project_dir=%s", project_dir)
+    else:
+        config_line = sys.stdin.readline()
+        if not config_line:
+            log.error(
+                "No config received on stdin — bridge must be spawned by watchdog"
+            )
+            sys.exit(1)
 
-    config_msg = decode_message(config_line)
-    if not isinstance(config_msg, CMsg):
-        log.error("Expected ConfigMessage on stdin, got: %r", config_line[:100])
-        sys.exit(1)
+        log.info("Bridge received config (%d bytes)", len(config_line))
 
-    cfg = getattr(config_msg, "config", {})
-    project_dir = cfg.get("path", "")
+        from swain_helm.protocol import decode_message, ConfigMessage as CMsg
+
+        config_msg = decode_message(config_line)
+        if not isinstance(config_msg, CMsg):
+            log.error("Expected ConfigMessage on stdin, got: %r", config_line[:100])
+            sys.exit(1)
+
+        cfg = getattr(config_msg, "config", {})
+        project_dir = cfg.get("path", "")
     log.info(
         "Bridge config: project_dir=%s, chat_keys=%s",
         project_dir,

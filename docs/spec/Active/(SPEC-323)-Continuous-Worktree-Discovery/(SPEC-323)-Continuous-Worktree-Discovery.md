@@ -66,6 +66,14 @@ ProjectBridge polls `git worktree list` on a configurable interval and acts on d
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Default poll interval 15s | `test_worktree_discovery.py::TestWorktreePolling::test_default_interval` | Pass |
+| AC2: Configurable poll interval | `test_worktree_discovery.py::TestWorktreePolling::test_configurable_interval` | Pass |
+| AC3: Worktree diff adds branches | `test_worktree_discovery.py::TestWorktreeDiff` | Pass |
+| AC4: No-op when unchanged | `test_worktree_discovery.py::TestWorktreeDiff` | Pass |
+| AC5: Branch name mapping | `test_worktree_discovery.py::TestBranchMapping` | Pass |
+| NEG: git not on PATH | `test_worktree_discovery.py::TestNegativeCases::test_git_not_found` | Pass |
+| NEG: detached HEAD | `test_worktree_discovery.py::TestNegativeCases` | Pass |
+| NEG: special chars in branch name | `test_worktree_discovery.py::TestNegativeCases` | Pass |
 
 ## Scope & Constraints
 

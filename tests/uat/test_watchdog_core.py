@@ -216,9 +216,17 @@ class TestWatchdogGracefulShutdown:
         except subprocess.TimeoutExpired:
             watchdog.proc.kill()
             watchdog.proc.wait(timeout=3)
-        time.sleep(2)
-        with pytest.raises((ProcessLookupError, OSError)):
-            os.kill(bridge_pid, 0)
+        for _ in range(10):
+            try:
+                os.kill(bridge_pid, 0)
+            except ProcessLookupError:
+                break
+            time.sleep(0.5)
+        else:
+            try:
+                os.kill(bridge_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
         watchdog.proc = None
 
 

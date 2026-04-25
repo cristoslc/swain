@@ -16,6 +16,10 @@ import time
 from pathlib import Path
 
 from swain_helm.config import load_helm_config, load_project_config
+from swain_helm.zombie_cleanup import (
+    cleanup_stale_processes,
+    cleanup_orphan_subprocesses,
+)
 
 log = logging.getLogger("swain_helm.watchdog")
 
@@ -152,8 +156,22 @@ class Watchdog:
         return None
 
     async def run(self, *, foreground: bool = True) -> None:
-        """Main loop: start opencode server, then reconcile bridges."""
+        """Main loop: start opencode server, then reconcile bridges.
+
+        Per ADR-049, runs startup zombie cleanup first to kill any orphan
+        processes from a previous watchdog or bridge instance.
+        """
         self.run_dir.mkdir(parents=True, exist_ok=True)
+
+        stale_killed = cleanup_stale_processes(self.run_dir)
+        orphan_killed = cleanup_orphan_subprocesses()
+        if stale_killed or orphan_killed:
+            log.warning(
+                "Startup cleanup: killed %d stale and %d orphan processes",
+                stale_killed,
+                orphan_killed,
+            )
+
         if foreground:
             self._write_watchdog_pid()
             loop = asyncio.get_running_loop()
@@ -296,6 +314,7 @@ class Watchdog:
                 stdin=subprocess.PIPE,
                 stdout=log_fd,
                 stderr=log_fd,
+                preexec_fn=os.setpgrp,
             )
             os.close(log_fd)
             assert proc.stdin is not None
@@ -312,14 +331,45 @@ class Watchdog:
             log.error("Failed to start bridge %s: %s", name, e)
 
     async def _stop_bridge(self, name: str) -> None:
-        """Stop a running bridge."""
+        """Stop a running bridge and its entire process group.
+
+        Per ADR-049, uses process group kill to cascade termination to
+        grandchildren (zulip_chat, etc.).
+        """
         proc = self._running.pop(name, None)
         if proc:
-            proc.terminate()
+            pgid = None
+            try:
+                pgid = os.getpgid(proc.pid)
+            except (ProcessLookupError, OSError):
+                pass
+            if pgid and pgid != os.getpgid(os.getpid()):
+                try:
+                    os.killpg(pgid, signal.SIGTERM)
+                except (ProcessLookupError, OSError):
+                    try:
+                        proc.terminate()
+                    except ProcessLookupError:
+                        pass
+            else:
+                try:
+                    proc.terminate()
+                except ProcessLookupError:
+                    pass
             try:
                 proc.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                proc.kill()
+                if pgid and pgid != os.getpgid(os.getpid()):
+                    try:
+                        os.killpg(pgid, signal.SIGKILL)
+                    except (ProcessLookupError, OSError):
+                        pass
+                else:
+                    proc.kill()
+                try:
+                    proc.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    pass
             log.info("Bridge %s stopped", name)
         pid_file = self.run_dir / f"{name}.pid"
         pid_file.unlink(missing_ok=True)
@@ -493,6 +543,12 @@ def main() -> None:
     if args.daemon:
         daemonize(config_dir)
     else:
+        if os.environ.get("SWAIN_HELM_CONTAINER_MODE") == "1":
+            log.info(
+                "SWAIN_HELM_CONTAINER_MODE=1 — watchdog is not used in container deployment. "
+                "Use python -m swain_helm.bridges.project directly."
+            )
+            sys.exit(0)
         watchdog = Watchdog(config_dir=config_dir)
         watchdog.load_helm_config()
         asyncio.run(watchdog.run(foreground=True))

@@ -129,7 +129,8 @@ docker compose up -d
 ## Known Issues
 
 - **Zulip queue expiration**: The Zulip SDK's `call_on_each_event` does not auto-reconnect when the event queue expires. The reconnection loop in `_poll_zulip` handles this with exponential backoff (up to 10 attempts, max 60s delay).
-- **Watchdog doesn't restart dead bridges (SPEC-330)**: If a bridge subprocess dies, the watchdog does not currently restart it. Restart the container manually.
+- **Watchdog doesn't restart dead bridges (SPEC-330)**: If a bridge subprocess dies, the watchdog detects it within the next reconciliation cycle but does not restart it automatically. Restart the bridge manually via `swain-helm host up`. A crash-loop limit is planned in SPEC-330: Watchdog Bridge Restart.
+- **Process tests must run in Docker (SPEC-331)**: Tests that spawn real watchdog/bridge processes must run inside the Docker test container to avoid interfering with host services (e.g., killing the real opencode server on port 4096). See `docker-compose.test.yml` and `Dockerfile.test`.
 
 ## Run Log
 
