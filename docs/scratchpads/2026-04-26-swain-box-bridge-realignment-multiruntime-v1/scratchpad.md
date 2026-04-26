@@ -22,6 +22,74 @@ Why this matters: opencode has `opencode serve` (HTTP/SSE), Claude Code does not
 
 The second is what the kernel was designed for. Lifting it from stdio to WebSocket is incremental compared to inventing a new shim.
 
+## The kernel is the new attach point
+
+This is the key architectural shift to internalize before reading the rest of this scratchpad. In the opencode-only world, "attach" means "open an HTTP/SSE connection to opencode serve." Operators talk to opencode directly; opencode is the serve.
+
+In the multi-runtime world, that doesn't work — claude has no equivalent of `opencode serve`. There is no `claude serve` daemon. So:
+
+**The kernel becomes the long-running daemon that operator surfaces connect to.** opencode serve is demoted to "an internal subprocess the opencode adapter happens to use" — bound to localhost inside the container, not exposed through Caddy. claude is run as one short-lived (or per-session-lived) subprocess per active claude session, owned by the claude adapter.
+
+What an operator surface sees: a single WSS endpoint per swain-box (`wss://<box-hostname>/`, terminated by the kernel). Send Commands, receive Events. Whether a given session is opencode-backed or claude-backed is invisible at that layer — runtime is just a field on `Command.spawn_session`.
+
+What lives inside swain-box:
+
+```
+┌── swain-box ────────────────────────────────────────┐
+│                                                     │
+│  kernel  ◄─── the only externally-reachable surface │
+│   │       (WSS NDJSON, on :4098, behind Caddy)      │
+│   │                                                 │
+│   ├── opencode adapter                              │
+│   │     │                                           │
+│   │     └─► opencode serve (localhost:4099)         │
+│   │           one process, multiplexes sessions     │
+│   │                                                 │
+│   └── claude adapter                                │
+│         │                                           │
+│         ├─► claude subprocess for session abc       │
+│         ├─► claude subprocess for session def       │
+│         └─► (one per active session, lazy spawn)    │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+So: **"how does an operator connect to claude" → they don't, they connect to the kernel; the kernel owns the claude subprocess.** The kernel is the attach surface; runtimes are implementation details behind it.
+
+### Concrete: how the kernel sends commands to claude
+
+The claude CLI supports a streaming mode designed for programmatic use:
+
+```
+claude --resume <session-id> \
+       --output-format stream-json \
+       --input-format stream-json
+```
+
+Stdin and stdout are NDJSON streams. The kernel keeps this process alive (per session) and:
+
+- **Sends a prompt**: write one JSON line to stdin
+  ```json
+  {"type":"user","message":{"role":"user","content":"please refactor X"}}
+  ```
+- **Reads events**: read stdout line by line; each line is a JSON object (system.init, assistant text/tool_use, tool result, result)
+- **Approves a tool use**: write another JSON line to stdin
+  ```json
+  {"type":"permission_response","tool_use_id":"toolu_abc","approved":true}
+  ```
+- **Interrupts**: send SIGINT to the process
+
+That's the entire mechanism. The kernel is just a pipe-and-WebSocket proxy that translates between operator-side NDJSON Commands/Events and runtime-side stdin/stdout (claude) or HTTP (opencode).
+
+### Verification needed before locking the contract
+
+Two specifics I'm asserting from memory that need a SPIKE to confirm against current claude-cli:
+
+1. **Multi-turn within one subprocess.** Whether `--input-format stream-json` keeps the process alive across multiple user-turn writes, or whether each turn requires a fresh `claude --resume` invocation. If the latter: kernel spawns per turn, adds 200-500ms cold start per turn, otherwise architecturally fine.
+2. **Exact JSON shape of `permission_response`** on stdin. The general shape is documented; the wire format for stream-json input needs verification.
+
+Neither blocks the architecture. Both shift implementation details, not contracts.
+
 ## C4 — System Context
 
 ```mermaid
