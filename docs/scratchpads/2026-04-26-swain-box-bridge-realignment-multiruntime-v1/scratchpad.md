@@ -311,10 +311,37 @@ The kernel becomes an **ACP client** that orchestrates ACP agent subprocesses. P
 ### Verification needed before locking the ACP-internal direction
 
 - Confirm the ACP version + transport stability story (currently stdio-only, HTTP/WebSocket per RFD). Pin to stable.
-- Verify opencode ACP support — adapter exists? Maintained? Or aspirational?
+- ~~Verify opencode ACP support — adapter exists? Maintained? Or aspirational?~~ **Verified**: opencode 1.14.19 has native `opencode acp` subcommand (with non-standard `--port`/`--hostname` TCP transport in addition to stdio). See "opencode ACP — known issues" below.
 - Test the Zed `claude-code-acp` adapter inside a container — auth flow, MCP config inheritance, tool-call streaming under load.
 - Confirm gemini's `--acp` mode works headless inside a container without a display server.
 - Read the ACP `terminal/create` flow vs swain's planned host-tmux capability bridge — confirm they compose cleanly.
+
+### opencode ACP — known issues (sampled 2026-04-26 from `anomalyco/opencode`)
+
+30 open ACP-tagged issues. The subset that would directly affect swain-box's kernel as an ACP client:
+
+**Stability (would bite us in production):**
+- `#22795` — opencode acp server exits immediately after startup
+- `#24481` — ACP in Zed: server shut down unexpectedly on macOS
+- `#24328` — Lock operations lack timeout/eviction; concurrency issues in acp/session
+
+**Wire-protocol corruption (forces defensive handling at the kernel):**
+- `#17282` — ACP mode emits terminal title escape sequences (OSC 0) to stdout, **corrupting JSON-RPC**. Kernel must filter ANSI escapes off the wire before parsing.
+- `#17019` — ACP stdio transport crashes on oversized `tool_call_update` payloads. Kernel needs payload-size guards.
+
+**Semantics gaps (kernel can't trust signals at face value):**
+- `#24494` — ACP adapter returns `end_turn` even when assistant message has internal error. Kernel must check for error markers separately, not trust `stopReason: end_turn` as success.
+- `#21718` — ACP resume does not replay history; session list titles stay generic. Affects kernel restart and session-list UX.
+- `#21013` — ACP agent never sends `session_info_update` notifications. Kernel can't track mid-session state changes.
+- `#21802` — ACP clients cannot see subagent activity from opencode's internal Task tool. Visibility gap for operator surfaces.
+- `#21556` — ACP doesn't respect default model from `opencode.json`. Config inheritance is partial.
+
+**Transport limitations:**
+- `#13388` — ACP over WebSocket for remote/network access — open feature request, not yet implemented. Today's opencode acp is stdio + raw TCP only. WebSocket transport is on the ACP roadmap (per the working group) but not in opencode yet. For our use (kernel spawns opencode-acp as subprocess inside the container), stdio is sufficient.
+
+**Architectural takeaway:** opencode ACP is real and shipping, but young. Stability + wire-corruption issues mean the kernel needs defensive handling on the opencode adapter specifically (ANSI escape filter, payload-size guard, error-detection beyond `end_turn`, graceful "subprocess died unexpectedly" recovery). None of these are architecturally blocking — all known integration friction that the kernel can absorb. The bugs trend toward "fixable in upstream" rather than "fundamentally wrong."
+
+**Operational implication for v1**: budget time for an opencode adapter that is *more* defensive than the gemini and claude-code-acp adapters, because opencode's ACP implementation is the youngest of the three. Track the issue list; pin opencode to a known-good version in the Dockerfile (already done at 1.14.19) and bump only after a soak window.
 
 ### Documentation risk to flag
 
