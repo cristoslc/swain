@@ -81,14 +81,63 @@ Stdin and stdout are NDJSON streams. The kernel keeps this process alive (per se
 
 That's the entire mechanism. The kernel is just a pipe-and-WebSocket proxy that translates between operator-side NDJSON Commands/Events and runtime-side stdin/stdout (claude) or HTTP (opencode).
 
-### Verification needed before locking the contract
+### Verified wire format (from Python SDK source, 2026-04-26)
 
-Two specifics I'm asserting from memory that need a SPIKE to confirm against current claude-cli:
+Verified against `anthropic/claude-agent-sdk-python` source (the official SDK is the de-facto spec — the CLI flags are officially undocumented, see "documentation risk" below).
 
-1. **Multi-turn within one subprocess.** Whether `--input-format stream-json` keeps the process alive across multiple user-turn writes, or whether each turn requires a fresh `claude --resume` invocation. If the latter: kernel spawns per turn, adds 200-500ms cold start per turn, otherwise architecturally fine.
-2. **Exact JSON shape of `permission_response`** on stdin. The general shape is documented; the wire format for stream-json input needs verification.
+**Required CLI invocation** (`_internal/transport/subprocess_cli.py:207,384`):
+```
+claude --output-format stream-json --verbose --input-format stream-json [--resume <id>] [other args]
+```
+Both `stream-json` flags work only with `--print` (`-p`). The SDK confirms `--verbose` is also passed.
 
-Neither blocks the architecture. Both shift implementation details, not contracts.
+**Multi-turn in one process: confirmed.** `ClaudeSDKClient` keeps the subprocess alive across many `query(...)` calls (`client.py`); `examples/streaming_mode.py:example_multi_turn_conversation` demos sequential turns against one open client. Stdin EOF terminates the process.
+
+**User message wire format** (`client.py:297-302`):
+```json
+{
+  "type": "user",
+  "message": {"role": "user", "content": "your prompt"},
+  "parent_tool_use_id": null,
+  "session_id": "default"
+}
+```
+followed by `\n`. Note `session_id` is per-message — see "session multiplexing" below.
+
+**Tool permission is a layered control protocol** on top of stream-json, not a simple permission_response (`query.py:264-310,335-383`):
+- CLI emits `{"type":"control_request","subtype":"can_use_tool","input":...}` to stdout
+- Caller writes back to stdin:
+  ```json
+  {"type":"control_response","response":{"behavior":"allow"}}
+  ```
+  or
+  ```json
+  {"type":"control_response","response":{"behavior":"deny","message":"...","interrupt":true}}
+  ```
+- The CLI can also emit `control_cancel_request` mid-flight
+
+**Interrupt is a control request** (`query.py:684`): `{"type":"control_request","subtype":"interrupt"}`
+
+### One open verification, sized for a 30-second SPIKE
+
+`session_id` appears on every stdin message. Two possibilities:
+
+- **Per-message routing into separate conversations** — a single claude subprocess multiplexes N sessions. The kernel's claude adapter becomes "one process for the whole swain-box, sessions multiplexed by ID." Cheaper, fewer processes.
+- **Just an SDK-side bookkeeping tag** — the CLI uses one conversation per process and ignores or only validates the field. Architecture matches the per-session-process sketch.
+
+Resolvable by spawning one CLI process, sending two user messages with different session_ids, and observing whether responses share or separate context. Worth doing before locking the kernel's process model.
+
+### Documentation risk to flag
+
+The CLI flags `--input-format stream-json` and `--output-format stream-json` are **officially undocumented** beyond the one-line description in `claude --help`. [GitHub issue #24594](https://github.com/anthropics/claude-code/issues/24594) tracks the gap. The Python SDK source is currently the de-facto spec.
+
+Implication: the wire format above could change without warning in a CLI version bump. Mitigations:
+
+- Pin the CLI version in the Dockerfile (already done for opencode at 1.14.19).
+- Track CLI version in the kernel and warn on mismatch with what was tested.
+- Layer the kernel's claude adapter through the official Python or TypeScript SDK rather than calling the CLI directly — push the wire-format risk onto Anthropic's SDK maintainers, who handle CLI version compatibility internally. Trade-off: SDK adds a runtime dep but kills the documentation-gap risk.
+
+The third option is probably the right call. It also gives us hooks (`PreToolUse`, `PostToolUse`, etc.), structured types for events, and the control-protocol implementation already battle-tested. The kernel's claude adapter becomes a thin wrapper around `ClaudeSDKClient` rather than a stdin/stdout marshaller of an undocumented format.
 
 ## C4 — System Context
 
