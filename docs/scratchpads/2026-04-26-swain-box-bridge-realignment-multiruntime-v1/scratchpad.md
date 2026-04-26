@@ -343,6 +343,133 @@ The kernel becomes an **ACP client** that orchestrates ACP agent subprocesses. P
 
 **Operational implication for v1**: budget time for an opencode adapter that is *more* defensive than the gemini and claude-code-acp adapters, because opencode's ACP implementation is the youngest of the three. Track the issue list; pin opencode to a known-good version in the Dockerfile (already done at 1.14.19) and bump only after a soak window.
 
+## Bridge-as-ACP-client: collapses the kernel (2026-04-26 update)
+
+This section supersedes the v1/v2 split above. After working through bridge-as-ACP-client feasibility, the kernel-as-bespoke-translator role disappears entirely.
+
+### ACP terminology
+
+- **Agent** = AI coding tool subprocess. Receives `session/prompt`; emits `session/update`. Examples: `gemini --acp`, `claude-code-acp`, `opencode acp`, `codex-acp`.
+- **Client** = the thing that launches and drives the agent. Examples: Zed editor, Neovim+CodeCompanion, **swain-bridge**.
+- **Default wire**: JSON-RPC 2.0 over stdio. Client launches agent as subprocess.
+- **Capability negotiation** at `initialize`: the client tells the agent what it supports (`fs/*`, `terminal/*`, etc.); the agent skips features the client lacks.
+
+In our model: runtimes are agents; swain-bridge is a client (alongside Zed and Neovim).
+
+### Architecture after the collapse
+
+```mermaid
+flowchart TB
+    subgraph Host["Host"]
+        Bridge["swain-bridge<br/>(ACP client)<br/>· chat adapter (Zulip / iMessage / ...)<br/>· ACP client lib<br/>· worktree scanner (host-side)<br/>· streaming coalescer<br/>· session ↔ topic map"]
+        Caddy["Caddy gateway"]
+    end
+
+    subgraph Box["swain-box (per-project container)"]
+        Proxy["ACP proxy<br/>(~200-400 lines)<br/>WSS ↔ stdio framing<br/>per-agent quirks filters"]
+        G["gemini --acp"]
+        CC["claude-code-acp"]
+        OC["opencode acp"]
+        CX["codex-acp (v2)"]
+        Caps["capability mounts<br/>(host tmux, MCP gateway)"]
+    end
+
+    Bridge -->|"WSS ACP frames"| Caddy
+    Caddy -->|"hostname route"| Proxy
+    Proxy -->|"stdio JSON-RPC"| G
+    Proxy -->|"stdio JSON-RPC"| CC
+    Proxy -->|"stdio JSON-RPC"| OC
+    Proxy -->|"stdio JSON-RPC"| CX
+    G -.-> Caps
+    CC -.-> Caps
+    OC -.-> Caps
+```
+
+### What the proxy does (and doesn't)
+
+The proxy doesn't understand ACP at the message level — it frames JSON-RPC and pipes bytes between WSS and a subprocess's stdio. URL path picks the agent: `wss://<box>/agent/gemini` spawns `gemini --acp`; `/agent/claude` spawns `claude-code-acp`; `/agent/opencode` spawns `opencode acp` (over stdio mode); etc.
+
+Per-agent defensive filters live in the proxy too — for example, opencode issue `#17282` (ANSI escape codes leaking into JSON-RPC) gets a sanitization filter on opencode's stdio specifically, so all ACP clients (not just the bridge) benefit.
+
+That's it. No per-runtime adapter code, no protocol translation, no bespoke event normalization, no swain-specific message types in the container.
+
+### Barriers, decomposed precisely
+
+The earlier "barrier 2" lumped four issues together. After analysis:
+
+| Sub-barrier | Verdict |
+|---|---|
+| Agent-initiated unsolicited messages | **Not a barrier.** While a turn runs, the agent emits `session/update` continuously — long-running turns stream updates throughout. The "ping operator 20 minutes later" use case is a swain-side notification (CI watcher, etc.), not an agent message. Goes on a side channel, not an ACP gap. |
+| Mid-session runtime swap | **Explicit non-goal.** Each ACP session = one agent. "Switch runtime mid-conversation" = `session/close` + new `initialize`. Sharing history across agents is incoherent (different tool surfaces, different memory formats). Document and move on. |
+| Filesystem / terminal capability mismatch | **Not a barrier.** ACP's `fs/*` and `terminal/*` are client capabilities the agent calls into when present (Zed exposes its open files via these). In our model, the agent runs in-container with direct access to the project mount; uses its own Read/Write/Bash tools. Bridge declares no `fs`/`terminal`, agent skips them. Standard "minimal capability client" path. |
+| Streaming coalescing (rate-limit-aware) | **Real, but already solved.** Existing `adapters/opencode_server.py` already coalesces SSE deltas into chat-shaped messages. Pattern transfers to ACP `agent_message_chunk` deltas unchanged. |
+
+The remaining real barrier is just streaming coalescing, which existing code handles.
+
+### Barrier 5 is the design intent, not a cost
+
+A bridge that is "just" a generic ACP-to-Zulip translator means **swain-bridge is reusable beyond swain-box**. Any ACP-speaking agent setup (Zed users on the road, hand-rolled local setups, alternate kernels) gets a chat surface for free by pointing swain-bridge at it. This is leverage, not scope creep — the bridge's value compounds with the ACP ecosystem.
+
+### What domain logic survives, and where
+
+| Concern | Lives where | Necessary? |
+|---|---|---|
+| Chat ↔ ACP-session mapping | Bridge | Yes (chat has no native ACP sessions) |
+| Streaming coalescing | Bridge | Yes (chat-platform rate limits) |
+| Runtime selection per session (URL path) | Bridge | Yes |
+| Worktree → topic mapping | Bridge (host-side file watcher) | Optional UX |
+| Auto-create chat stream per project | Bridge | Optional UX |
+| Reconnect / `session/list` + `session/resume` | Bridge | Yes for correctness |
+| Container filesystem isolation | Docker | Yes |
+| Capability bridges (host tmux, MCP gateway) | Container plumbing (mounted sockets) | Yes |
+| Per-runtime auth (API keys, OAuth) | Container env / mounted secrets | Yes |
+| Per-runtime session persistence | Per-runtime volumes | Yes |
+| Per-runtime wire quirks (ANSI escape filter, etc.) | Proxy (so all ACP clients benefit, not just chat) | Yes |
+
+Everything labeled **Bridge** is chat-shape — naturally different from Zed's IDE-shape. Everything labeled **Container** is infrastructure — independent of agent and client. The proxy holds defensive byte-level fixes that benefit any ACP client.
+
+### Code footprint estimate (post-collapse)
+
+| Component | Estimate | vs. today |
+|---|---|---|
+| ACP proxy (in container, any lang) | 200-400 LoC | replaces ~1500 LoC of `bridges/`, `protocol.py`, `plugin_process.py`, `adapters/*` |
+| Bridge: chat adapter (Zulip) | ~500 LoC | exists in `adapters/zulip_chat.py` |
+| Bridge: coalescer | ~200 LoC | exists in `adapters/opencode_server.py` (delta-handling logic) |
+| Bridge: session ↔ topic map + worktree bookkeeping | ~300-500 LoC | partly exists |
+| Bridge: worktree scanner | ~300 LoC | exists in `worktree_scanner.py` |
+| Bridge: runtime selection / URL routing | ~50 LoC | new |
+| Bridge: reconnect / resume orchestration | ~100 LoC | new |
+| Bridge: wiring + config + errors | ~300 LoC | partly exists |
+| ACP client lib | external dep | new dep |
+| **Total swain-specific** | **~2000 LoC** | vs. today's ~3000+ LoC across `src/swain_helm/` |
+
+About two-thirds the code, with the remaining code organized around one ecosystem-standard protocol instead of bespoke per-runtime translation.
+
+### Side channel for non-ACP swain events
+
+Some events don't fit ACP's session-conversation model:
+
+- `worktree_added` / `worktree_removed` — drives Zulip topic lifecycle.
+- `bridge_online` — drives stream auto-creation.
+- Future: capability-bridge events, container health, project state.
+
+These flow on a separate WSS channel (`wss://<box>/swain/events`) — small, swain-specific, distinct from the ACP path. Bridge subscribes to both. Proxy serves both. No mixing into ACP semantics.
+
+### Revised v1/v2 split
+
+- **v1**: ACP proxy in the container; bridge as ACP client. Drop the bespoke kernel and per-runtime adapters from day one — they were going to be deleted anyway. Spec-drift risk is bounded because we control both ends of the WSS (we pin our own ACP version).
+- **v2**: codex (when SDK matures), swain-stage Web UI (another ACP client).
+
+This collapses the multi-step migration sketched earlier: no chat-shaped intermediate protocol, no kernel-as-translator phase. Straight to ACP-everywhere with a tiny proxy.
+
+### Open questions before locking this direction
+
+- ACP-over-WebSocket: not in the stable spec yet. We'd implement it ourselves between bridge and proxy. Pin a draft version, document it, migrate when stable lands. Effort: small (JSON-RPC framing on a WS).
+- Which ACP client lib: agentclientprotocol.com lists Python, TypeScript, Elixir, Rust. Pick TypeScript (matches bridge's existing-ish runtime) or Python (matches existing `swain_helm` codebase). Probably TypeScript given we're rewriting anyway.
+- Verify `opencode acp` works correctly via stdio (not just its TCP variant) — the proxy will use stdio mode.
+- Verify `claude-code-acp` works without Anthropic OAuth UI inside a container (API key only path).
+- Verify `gemini --acp` works in headless container without a display server.
+
 ### Documentation risk to flag
 
 The CLI flags `--input-format stream-json` and `--output-format stream-json` are **officially undocumented** beyond the one-line description in `claude --help`. [GitHub issue #24594](https://github.com/anthropics/claude-code/issues/24594) tracks the gap. The Python SDK source is currently the de-facto spec.
