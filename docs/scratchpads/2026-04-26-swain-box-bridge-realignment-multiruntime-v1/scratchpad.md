@@ -2,6 +2,40 @@
 
 Status: thinking-in-progress. Not an artifact. Sibling to `../2026-04-26-swain-box-bridge-realignment/scratchpad.md` — that scratchpad assumed opencode-only v1; this one assumes **Claude Code AND opencode are both first-class harnesses in v1**. Written from scratch, not as a diff.
 
+## How to read this scratchpad
+
+The architecture evolved across the document as findings landed. **The current state is the section "Bridge-as-ACP-client: collapses the kernel"** near the bottom — earlier sections preserve the reasoning trail but use older terms (especially "kernel") that have since been retired. If you only have time to read one section, read that one.
+
+## Glossary (locked terms — current state)
+
+After the bridge-as-ACP-client analysis, the in-container component that earlier sections called the "kernel" no longer does any translation; it's just a framing proxy. The word "kernel" is retired going forward. Components in the current architecture:
+
+| Name | What | Where | How many | Speaks |
+|---|---|---|---|---|
+| **swain-box** | Per-project Docker container | host docker | one per project | n/a (the container itself) |
+| **swain-box-gateway** | Caddy reverse proxy | host docker | **singleton** per host | TLS + hostname routing + WSS pass-through |
+| **ACP proxy** | Tiny daemon inside swain-box. WSS in, stdio out. Per session, spawns the right agent subprocess and frames JSON-RPC | inside swain-box | **one per swain-box** | WSS-ACP outward; stdio-ACP to agents |
+| **ACP agent** | `gemini --acp`, `claude-code-acp`, `opencode acp`, `codex-acp` | inside swain-box, spawned by proxy | **one process per session** | stdio JSON-RPC ACP |
+| **swain-bridge** | Chat connector. Translates Zulip / iMessage / etc. ↔ ACP. Owns chat-shape concerns (topic mapping, coalescing, worktree-driven UX) | host (separate process) | **one per host**, serves N projects | WSS-ACP to proxies; chat APIs to chat services |
+| **swain-stage** (future) | Web UI ACP client | host | one per host | WSS-ACP to proxies; HTTPS to browsers |
+
+Crucial distinction the rest of the document occasionally muddled:
+
+- **ACP proxy** = inside one container. Knows nothing about chat. Knows nothing about Zulip. Doesn't know swain-bridge exists. Just frames bytes between WSS and a chosen agent's stdio. Tiny, generic, dumb.
+- **swain-bridge** = on the host. Serves all projects. Knows about Zulip topics, worktrees, coalescing, runtime selection. Doesn't know how agents work — speaks ACP to whatever proxy it connects to. The chat-shaped intelligence lives here.
+
+Same protocol on the wire between them (ACP). Different jobs, different machines, different concerns.
+
+### Earlier-document term reconciliation
+
+| Earlier-document term | Current term |
+|---|---|
+| kernel | ACP proxy (in-container) |
+| ProjectBridge microkernel | (deleted — the translation role disappears under ACP-everywhere) |
+| runtime adapter (in-container) | (deleted — ACP agent subprocesses replace per-runtime adapters) |
+| operator surface | ACP client (`swain-bridge`, `swain-stage`, also Zed/Neovim/etc.) |
+| chat-shaped WSS protocol | (deleted — ACP-over-WS is the only WSS protocol) |
+
 ## The realignment in one paragraph
 
 Three peer primitives plus a singleton gateway. Inside swain-box, a runtime-agnostic kernel exposes a single contract (NDJSON over WebSocket) that abstracts over multiple runtime harnesses. Operator surfaces talk to the kernel, never to runtimes directly.
