@@ -118,14 +118,97 @@ followed by `\n`. Note `session_id` is per-message — see "session multiplexing
 
 **Interrupt is a control request** (`query.py:684`): `{"type":"control_request","subtype":"interrupt"}`
 
-### One open verification, sized for a 30-second SPIKE
+### SPIKE result (2026-04-26): `session_id` is ignored, multi-turn confirmed
 
-`session_id` appears on every stdin message. Two possibilities:
+Ran `cat msgs.jsonl | claude -p --input-format stream-json --output-format stream-json --verbose` with three messages tagged `sess-A`, `sess-A`, `sess-B`.
 
-- **Per-message routing into separate conversations** — a single claude subprocess multiplexes N sessions. The kernel's claude adapter becomes "one process for the whole swain-box, sessions multiplexed by ID." Cheaper, fewer processes.
-- **Just an SDK-side bookkeeping tag** — the CLI uses one conversation per process and ignores or only validates the field. Architecture matches the per-session-process sketch.
+What the CLI emitted on stdout:
 
-Resolvable by spawning one CLI process, sending two user messages with different session_ids, and observing whether responses share or separate context. Worth doing before locking the kernel's process model.
+```json
+{"type":"system","subtype":"init","session_id":"514d5cf8-680f-4aaa-9ae5-afc236389f14",...}
+{"type":"assistant","session_id":"514d5cf8-...","message":{"content":[{"type":"text","text":"OK"}]}}
+{"type":"result","subtype":"success","session_id":"514d5cf8-...","result":"OK"}
+{"type":"system","subtype":"init","session_id":"514d5cf8-680f-4aaa-9ae5-afc236389f14",...}
+{"type":"assistant","session_id":"514d5cf8-...","message":{"content":[{"type":"text","text":"42"}]}}
+{"type":"result","subtype":"success","session_id":"514d5cf8-...","result":"42"}
+```
+
+Conclusions:
+
+- **The `session_id` field on input messages is ignored.** The CLI generated one UUID at startup and used it for all events, regardless of what I sent. Per-message session multiplexing inside one process is **not supported** at the CLI wire level.
+- **Multi-turn within one process works.** The second message asked "what number did I tell you?" and the answer was "42" — context retained across turns within the same subprocess.
+- **The third message wasn't processed** — likely a stdin-EOF-too-soon artifact of bulk-feeding via `cat | claude`. The SDK pattern (write-one-message → wait-for-`result` → write-next) avoids this; the kernel will follow the same pattern.
+- **Each turn re-emits a `system.init` event** describing the available tools, MCP servers, model, etc. Useful for the kernel to track per-turn state changes (model swap, MCP server config, etc.) but verbose if forwarded raw to operator surfaces.
+
+**Architectural consequence:** the kernel's claude adapter must keep one subprocess per claude-backed session — the "one process multiplexes many sessions" optimization is off the table for claude. Process count = active session count (with lazy spawn keeping idle sessions cold).
+
+The CLI does also accept `--session-id <uuid>` at process start (per `claude --help`), so the kernel can pre-assign UUIDs rather than letting claude generate them. That's the right pattern for kernel session bookkeeping.
+
+## Session model comparison: opencode vs claude vs codex
+
+The three runtimes pick three different programmatic shapes. Each adapter inside swain-box's kernel has to deal with a different transport — but the kernel's external contract (NDJSON over WSS) hides this from operator surfaces.
+
+| Aspect | opencode | claude (Claude Code) | codex (OpenAI Codex) |
+|---|---|---|---|
+| Programmatic mode | `opencode serve` (HTTP daemon) | `claude -p --input-format stream-json` (subprocess) | `codex exec --json` (one-shot) OR Codex SDK (JSON-RPC) |
+| Daemon process? | Yes — long-lived server | No — subprocess per session | Optional — SDK uses local "app-server" via JSON-RPC |
+| Session multiplexing | Native — N sessions per daemon, addressable by ID | None — 1 process = 1 session | Native via app-server (SDK); none via `exec` (one-shot) |
+| Multi-turn in one invocation | Yes (server keeps sessions alive across requests) | Yes (within one subprocess, sequential turns) | Yes via SDK threads; no via `exec` (use `exec resume <id>`) |
+| Wire protocol | HTTP + SSE for events | NDJSON over stdin/stdout | JSON-RPC (SDK); JSON Lines stdout only (`exec --json`) |
+| Event format | SSE: `message.part.delta`, `session.idle`, `permission.asked`, etc. | NDJSON: `system`, `assistant`, `tool`, `result`, `control_request` | JSON Lines: `thread.started`, `turn.started`, `item.*`, `turn.completed` |
+| Tool permission callback | Yes — `permission.asked` SSE event + `POST /session/<id>/permission` reply | Yes — `control_request` (subtype `can_use_tool`) + `control_response` reply | **No documented mechanism** — only inline auto-approve modes (`--full-auto`, `--sandbox` levels) |
+| Session resume | Sessions persist on disk; daemon restores on restart | `claude --resume <uuid>` spawns a new process for an existing session | `codex exec resume <id>` or `--last`; SDK `resumeThread(id)` |
+| Session ID origin | Server-assigned at `POST /session` | Auto-generated; can override with `--session-id <uuid>` at process start | Server-assigned thread_id (in `thread.started` event) |
+| Official SDK | None first-party in Python (HTTP is the canonical interface) | `claude-agent-sdk` (Python + TypeScript) | Python SDK (experimental, JSON-RPC); TypeScript library |
+| Existing swain code | `adapters/opencode_server.py` already implements this | `adapters/claude_code.py` exists in worktree (subprocess wrapper) | None |
+
+### Three different transports, one external contract
+
+```mermaid
+flowchart TB
+    K["swain-box kernel<br/>(WSS NDJSON to operator surfaces)"]
+    OA["opencode adapter"]
+    CA["claude adapter"]
+    XA["codex adapter (NEW)"]
+
+    OS["opencode serve<br/>(HTTP daemon, multi-session)"]
+    CCx["claude subprocess<br/>per session<br/>(NDJSON stdio)"]
+    XS["codex app-server<br/>(JSON-RPC, multi-thread)"]
+
+    K <-->|"in-process<br/>RuntimeSession contract"| OA
+    K <-->|"in-process<br/>RuntimeSession contract"| CA
+    K <-->|"in-process<br/>RuntimeSession contract"| XA
+
+    OA <-->|"HTTP + SSE"| OS
+    CA <-->|"stdin/stdout NDJSON<br/>via Anthropic SDK"| CCx
+    XA <-->|"JSON-RPC<br/>via OpenAI SDK"| XS
+```
+
+Each adapter is meaningfully different inside but exposes the same `RuntimeSession`-style contract to the kernel. The complexity is contained.
+
+### Permission model asymmetry — a real architectural tension
+
+Claude and opencode both support operator-in-the-loop tool approval via callback / event mechanisms. **Codex does not** — its permission model is inline-only (`--sandbox` levels, `--full-auto`). To run codex with operator approval, you have to either:
+
+- Trust the container as the safety boundary (run `codex exec --full-auto --sandbox danger-full-access` inside swain-box's already-isolated filesystem + capability sandbox), and skip per-tool approval entirely for codex sessions.
+- Wait for OpenAI to add a permission callback to the SDK or `codex exec`.
+- Build a wrapper that gates codex by intercepting at the OS level (filesystem, network, shell exec) — high effort, fragile.
+
+The first option is the realistic one. It means **per-tool approval is opencode/claude only**; codex sessions are container-sandboxed and operator approval happens at session level (start it / kill it), not at tool level. Worth being explicit about in the operator UX.
+
+### Implementation cost ranking, lowest to highest
+
+1. **opencode adapter** — already exists in the worktree (`adapters/opencode_server.py`), production-tested.
+2. **claude adapter** — exists as subprocess wrapper (`adapters/claude_code.py`); replace with a thin layer over the official `claude-agent-sdk` Python package to eliminate the documentation-gap risk. Net effort: rewrite the existing adapter on top of the SDK.
+3. **codex adapter** — does not exist; would use OpenAI's experimental Python SDK (JSON-RPC to local app-server). Need to bundle the codex binary in the Dockerfile alongside opencode and claude, and add the SDK as a dependency.
+
+For v1, "first-class opencode + claude" is the realistic scope. **Codex as v2** because: (a) the SDK is experimental, (b) the permission asymmetry needs explicit UX design, (c) operational scope creep — three runtimes triple the auth/credential/upgrade surface area on day one.
+
+### Updated implication for the scratchpad's earlier "first-class multi-runtime" framing
+
+The original premise was "claude and opencode both first-class in v1." That holds and the architecture supports it cleanly. **Codex is a clean add-on for v2** under the same kernel — the RuntimeSession contract absorbs the JSON-RPC transport without disturbing operator surfaces.
+
+The earlier doc-gap mitigation (layering through the official Anthropic SDK rather than the raw CLI) generalizes: **every runtime adapter should layer through the official SDK where one exists** (Anthropic's for claude, OpenAI's for codex), and use direct HTTP only when no SDK exists (opencode). This pushes upstream-API drift onto the SDK maintainers and lets us track stable SDK version pins instead of CLI flag stability.
 
 ### Documentation risk to flag
 
