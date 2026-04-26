@@ -186,15 +186,22 @@ flowchart TB
 
 Each adapter is meaningfully different inside but exposes the same `RuntimeSession`-style contract to the kernel. The complexity is contained.
 
-### Permission model asymmetry — a real architectural tension
+### Approval model: sandbox-level, not per-tool
 
-Claude and opencode both support operator-in-the-loop tool approval via callback / event mechanisms. **Codex does not** — its permission model is inline-only (`--sandbox` levels, `--full-auto`). To run codex with operator approval, you have to either:
+Operator-in-the-loop *per-tool* approval is **not a goal** of swain-box. The container is the safety boundary — read-only rootfs, tmpfs shadowing, scoped paths, no host filesystem access outside the project mount. Agents run autonomously inside.
 
-- Trust the container as the safety boundary (run `codex exec --full-auto --sandbox danger-full-access` inside swain-box's already-isolated filesystem + capability sandbox), and skip per-tool approval entirely for codex sessions.
-- Wait for OpenAI to add a permission callback to the SDK or `codex exec`.
-- Build a wrapper that gates codex by intercepting at the OS level (filesystem, network, shell exec) — high effort, fragile.
+Concretely, every runtime is launched in its most-permissive mode:
 
-The first option is the realistic one. It means **per-tool approval is opencode/claude only**; codex sessions are container-sandboxed and operator approval happens at session level (start it / kill it), not at tool level. Worth being explicit about in the operator UX.
+| Runtime | Autonomous-mode flag |
+|---|---|
+| opencode | (no equivalent — opencode currently emits `permission.asked`; kernel auto-allows) |
+| claude | `--dangerously-skip-permissions` |
+| codex | `--full-auto --sandbox danger-full-access` |
+| gemini | `--yolo` (or `--approval-mode=yolo`) |
+
+Operator visibility into what the agent is doing comes from forwarding tool-call events to the operator surface (chat shows "ran: rm -rf /tmp/staging") *as a notification*, not as a gate. The operator can interrupt or kill the session at the session level, but doesn't approve individual tool uses.
+
+This kills the "codex has no permission callback" worry — that's not a gap, it's the design.
 
 ### Implementation cost ranking, lowest to highest
 
@@ -209,6 +216,105 @@ For v1, "first-class opencode + claude" is the realistic scope. **Codex as v2** 
 The original premise was "claude and opencode both first-class in v1." That holds and the architecture supports it cleanly. **Codex is a clean add-on for v2** under the same kernel — the RuntimeSession contract absorbs the JSON-RPC transport without disturbing operator surfaces.
 
 The earlier doc-gap mitigation (layering through the official Anthropic SDK rather than the raw CLI) generalizes: **every runtime adapter should layer through the official SDK where one exists** (Anthropic's for claude, OpenAI's for codex), and use direct HTTP only when no SDK exists (opencode). This pushes upstream-API drift onto the SDK maintainers and lets us track stable SDK version pins instead of CLI flag stability.
+
+## Gemini and the ACP convergence (2026-04-26 update)
+
+Adding Gemini to the comparison turned up a result that supersedes the per-runtime-adapter framing above.
+
+### Gemini CLI (verified locally, version 0.38.1)
+
+| Aspect | Gemini |
+|---|---|
+| Programmatic mode | `gemini -p <prompt>` (single-shot) OR `gemini --acp` (bidirectional ACP server) |
+| Output formats | `text`, `json`, `stream-json` |
+| Session resume | `gemini --resume <index|latest>`, `--list-sessions`, `--delete-session` |
+| Approval modes | `default` (prompts), `auto_edit`, `yolo`, `plan` |
+| MCP | `gemini mcp` subcommand |
+| Skills | `gemini skills` (extension surface) |
+| Hooks | `gemini hooks` |
+| Notable | First-class **`--acp` flag** — speaks the Agent Client Protocol natively |
+
+### Agent Client Protocol (ACP) — the actual convergent standard
+
+**ACP is JSON-RPC 2.0 over stdio**, designed for "external thing controls AI coding agent." Stabilizing additional transports (HTTP and WebSocket) per a published RFD. It standardizes the exact pattern this scratchpad has been sketching ad-hoc: spawn an agent subprocess, send `session/prompt`, receive streaming `session/update` notifications, optionally respond to `session/request_permission`, terminate via `session/close`.
+
+Key methods (from the spec):
+
+| Direction | Method | Purpose |
+|---|---|---|
+| Client → Agent | `session/prompt` | Start a turn (returns `{stopReason}` when complete) |
+| Client → Agent | `session/list`, `session/resume`, `session/close` | Session lifecycle |
+| Agent → Client (notification) | `session/update` with `sessionUpdate: agent_message_chunk` | Streaming text |
+| Agent → Client (notification) | `session/update` with `sessionUpdate: tool_call` / `tool_call_update` | Tool execution events |
+| Agent → Client (notification) | `session/update` with `sessionUpdate: plan` | Agent's task plan |
+| Agent → Client (request) | `session/request_permission` | Permission gate (auto-allowed in swain-box) |
+
+`session/prompt` returns one of: `end_turn`, `max_tokens`, `max_turn_requests`, `refusal`, `cancelled`. Tool calls support embedded terminal streaming for live shell output.
+
+### Who speaks ACP
+
+| Runtime | ACP support |
+|---|---|
+| Gemini CLI | Native (`--acp` flag, reference implementation) |
+| Claude Code | Official Zed adapter `@zed-industries/claude-code-acp` (Apache-licensed, wraps the Anthropic SDK) |
+| Codex | Community ACP adapters; listed in Zed's external-agents docs |
+| OpenCode | Listed as ACP-implementing on agentclientprotocol.com (verify before depending on it) |
+
+Other ecosystem members: Cline, Cursor, GitHub Copilot (beta), OpenHands, Mistral Vibe — 30+ agents on the official agent list. Clients consuming ACP: Zed, Neovim (CodeCompanion plugin), and growing.
+
+### Architectural pivot: ACP-internal, custom-external
+
+The "three different transports inside swain-box, kernel hides this" picture is now **outdated**. Better:
+
+```mermaid
+flowchart TB
+    OS["operator surfaces<br/>(chat / web UI / future)"]
+    K["swain-box kernel<br/>(ACP host)"]
+    G["gemini --acp<br/>(native)"]
+    CC["claude-code-acp<br/>(Zed adapter wraps Anthropic SDK)"]
+    CX["codex-acp adapter<br/>(community)"]
+    OC["opencode-acp adapter<br/>(if available; else direct HTTP)"]
+
+    OS <-->|"WSS chat-shaped NDJSON<br/>(swain's own contract,<br/>optimized for Zulip/web/etc.)"| K
+    K <-->|"ACP JSON-RPC stdio"| G
+    K <-->|"ACP JSON-RPC stdio"| CC
+    K <-->|"ACP JSON-RPC stdio"| CX
+    K <-->|"ACP JSON-RPC stdio<br/>(or direct HTTP fallback)"| OC
+```
+
+The kernel becomes an **ACP client** that orchestrates ACP agent subprocesses. Per-runtime bespoke code largely disappears: spawn the right agent subprocess, route `session/prompt` to the right session, forward `session/update` notifications. Auto-allow all `session/request_permission`. The kernel's residual swain-specific work is the chat-friendly translation layer for operator surfaces (because chat is shaped differently than IDE-shaped ACP clients) plus worktree scanning and capability bridges.
+
+### Cost/benefit of going ACP-internal
+
+**Wins:**
+- One protocol inside the container instead of three or four. Less code, less drift exposure.
+- Every new ACP-implementing runtime is a near-zero-cost addition. The runtime ecosystem is converging here.
+- Tool-call streaming and session lifecycle are already designed; we don't reinvent them.
+- ACP's terminal-embedding for live shell output maps cleanly to swain's existing tmux-bridge ambitions.
+- Operator surfaces stay decoupled from the runtime mix — they speak swain's chat-shaped contract; the kernel translates ACP events.
+- Free interop bonus: future power-users can plug Zed or Neovim directly at one of the swain-box's ACP-speaking subprocesses, bypassing the kernel for IDE-shape work.
+
+**Risks / costs:**
+- ACP is young — protocol can evolve. Pin a version; track the Transports Working Group output.
+- The Claude Code and Codex ACP adapters are third-party (Zed-maintained / community), not vendor-maintained. We get one layer of indirection for both.
+- ACP is opinionated — if our needs (chat-shaped events, custom MCP wiring, worktree integration) don't map, we either extend or work around.
+- OpenCode ACP support listed but not yet verified — may need a thin shim or stay HTTP-direct.
+- The chat-shaped WSS façade still has to exist; ACP doesn't replace it (ACP is IDE-shaped, swain's surfaces are chat-shaped).
+
+### Where this lands the v1 architecture
+
+- **Kernel speaks ACP internally to all runtime subprocesses where possible.** Where an ACP adapter doesn't exist (e.g., opencode if its support turns out to be aspirational), keep a direct adapter as the exception, not the rule.
+- **Kernel's external WSS protocol stays swain's own** — chat-shaped, includes worktree events, capability bridge events, and other swain-specific concerns ACP doesn't model.
+- **Sandbox-level safety**: every agent launched in its autonomous mode (`--yolo` / `--dangerously-skip-permissions` / `--full-auto`); permission requests over ACP get auto-allowed. The container is the safety boundary.
+- **v1 scope**: opencode + claude + gemini (gemini joins because ACP makes it nearly free). Codex bumps to v2 only because the SDK is experimental — not because the wire model is hard.
+
+### Verification needed before locking the ACP-internal direction
+
+- Confirm the ACP version + transport stability story (currently stdio-only, HTTP/WebSocket per RFD). Pin to stable.
+- Verify opencode ACP support — adapter exists? Maintained? Or aspirational?
+- Test the Zed `claude-code-acp` adapter inside a container — auth flow, MCP config inheritance, tool-call streaming under load.
+- Confirm gemini's `--acp` mode works headless inside a container without a display server.
+- Read the ACP `terminal/create` flow vs swain's planned host-tmux capability bridge — confirm they compose cleanly.
 
 ### Documentation risk to flag
 
