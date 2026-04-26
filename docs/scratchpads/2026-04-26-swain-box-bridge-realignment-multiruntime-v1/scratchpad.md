@@ -123,6 +123,138 @@ flowchart TB
 
 The mapper is runtime-agnostic — it speaks the kernel's NDJSON, not opencode-specific or claude-specific shapes. Sessions identify which runtime they're on (a field in the spawn command) but events look the same downstream.
 
+## Steering: how the kernel actually drives both runtimes
+
+This is the load-bearing concrete detail that the C4 diagrams skip. Every operator action becomes a Command in the kernel's NDJSON protocol; each runtime adapter implements those Commands by mapping to runtime-native operations.
+
+### Verb mapping
+
+| Kernel Command | opencode adapter (drives `opencode serve` via HTTP) | Claude Code adapter (drives `claude` subprocess via stdio) |
+|---|---|---|
+| `spawn_session(runtime, system_prompt?, model?)` | `POST /session` to opencode serve; capture session_id from response | Generate session_id (uuid); record in registry; do NOT spawn process yet (lazy) |
+| `attach_session(session_id)` | Subscribe to opencode SSE stream filtered to session_id | If process not running, spawn `claude --resume <session_id> --output-format stream-json --input-format stream-json`; wire up its stdout |
+| `send_prompt(session_id, text)` | `POST /session/<id>/message` with `{role:"user", content:text}` | Write `{"type":"user","message":{"role":"user","content":text}}\n` to claude's stdin |
+| `interrupt_session(session_id)` | `POST /session/<id>/interrupt` (or DELETE on the active stream) | Send SIGINT to claude process |
+| `approve_tool(session_id, tool_use_id, approve, feedback?)` | `POST /session/<id>/permission` with the decision | Write `{"type":"permission_response","tool_use_id":...,"approved":true/false}\n` to stdin |
+| `list_sessions()` | `GET /session` | Read directory listing of `~/.claude/projects/<project>/` (claude persists each session as a `.jsonl` file) |
+| `kill_session(session_id)` | `DELETE /session/<id>` (or just stop tracking) | SIGTERM the process; leave session file on disk for resume |
+| `set_model(session_id, model)` | `POST /session/<id>/model` (if exposed) | Write `{"type":"set_model","model":...}\n` to stdin (claude supports mid-session model switch) |
+
+### Event mapping (runtime → kernel domain)
+
+| Runtime event | opencode (SSE event types) | Claude (stream-json types) | Kernel `Event` |
+|---|---|---|---|
+| Text delta from agent | `message.delta` with text chunk | `assistant` message with `content[].type=="text"` | `Event.text_output(content=...)` |
+| Tool invocation | `tool.start` | `assistant` message with `content[].type=="tool_use"` | `Event.tool_call(name, input, tool_use_id, approval_required)` |
+| Tool result | `tool.complete` | `tool` message (tool_result) | `Event.tool_result(tool_use_id, output, is_error)` |
+| Thinking | `thinking` event | `assistant` message with `content[].type=="thinking"` | `Event.thinking_output(content=...)` |
+| Permission needed | `permission.request` | system message of `subtype:"permission_required"` (or stalled tool_use awaiting response) | `Event.tool_call(approval_required=true)` |
+| Turn complete | `message.complete` | `result` message (subtype: `success`/`error_max_turns`/etc.) | `Event.turn_ended(reason, usage)` |
+| Compaction occurred | `session.compacted` | `system.compaction_summary` | `Event.compaction(summary)` |
+| Process death | (HTTP connection drop) | stdout EOF + non-zero exit | `Event.session_dead(reason)` |
+
+### Sequence: one full chat round-trip, opencode session
+
+```mermaid
+sequenceDiagram
+    actor User as Operator
+    participant Z as Zulip
+    participant Br as swain-bridge<br/>(chat surface)
+    participant K as swain-box kernel
+    participant OA as opencode adapter
+    participant OS as opencode serve<br/>(internal :4099)
+
+    User->>Z: "@bot please refactor X"
+    Z->>Br: chat event (msg, topic=branch-foo)
+    Br->>Br: lookup session by topic<br/>(or spawn if new)
+    Br->>K: WSS Command.send_prompt(session=abc, text="...")
+    K->>K: registry: session abc → runtime=opencode
+    K->>OA: route Command
+    OA->>OS: POST /session/abc/message
+    OS-->>OA: SSE: thinking, text.delta×N, tool.start, ...
+    loop for each SSE event
+        OA->>K: NDJSON Event
+        K->>Br: WSS Event
+        Br->>Z: edit/append message in topic
+    end
+    OS-->>OA: SSE: message.complete
+    OA->>K: Event.turn_ended
+    K->>Br: WSS Event.turn_ended
+    Br->>Z: post final summary or react
+```
+
+### Sequence: same round-trip, Claude Code session (lazy spawn)
+
+```mermaid
+sequenceDiagram
+    actor User as Operator
+    participant Z as Zulip
+    participant Br as swain-bridge
+    participant K as swain-box kernel
+    participant CA as Claude Code adapter
+    participant CC as claude<br/>(subprocess, may not exist)
+
+    User->>Z: "@bot please refactor X"
+    Z->>Br: chat event
+    Br->>K: WSS Command.send_prompt(session=def, text="...")
+    K->>K: registry: session def → runtime=claude
+    K->>CA: route Command
+    CA->>CA: process for def alive?
+    alt process not running
+        CA->>CC: spawn `claude --resume def<br/>--output-format stream-json<br/>--input-format stream-json`
+        CC-->>CA: stdout: system.init {session_id, tools, mcp, ...}
+        CA->>K: Event.session_ready
+    end
+    CA->>CC: stdin: {"type":"user","message":{"role":"user","content":"..."}}\n
+    CC-->>CA: stdout: assistant text+tool_use blocks (one JSON line each)
+    loop for each stdout line
+        CA->>CA: parse JSON, normalize to Event
+        CA->>K: NDJSON Event
+        K->>Br: WSS Event
+        Br->>Z: edit/append message in topic
+    end
+    CC-->>CA: stdout: result {subtype:"success", usage, ...}
+    CA->>K: Event.turn_ended
+    K->>Br: WSS Event.turn_ended
+    Br->>Z: post final summary
+```
+
+### Sequence: tool approval, both runtimes (same surface contract)
+
+```mermaid
+sequenceDiagram
+    participant K as kernel
+    participant A as runtime adapter
+    participant R as runtime
+    participant Br as swain-bridge
+    participant Z as Zulip
+    actor User
+
+    R-->>A: tool_use event (Bash, rm -rf /important)
+    A->>K: Event.tool_call(approval_required=true, tool_use_id=t1)
+    K->>Br: WSS Event
+    Br->>Z: post: "wants to run: rm -rf /important — approve? (yes/no)"
+    User->>Z: "no, use a safer path"
+    Z->>Br: chat event
+    Br->>K: WSS Command.approve_tool(t1, approve=false, feedback="use a safer path")
+    K->>A: route
+    alt opencode
+        A->>R: POST /session/<id>/permission {tool_use_id:t1, approved:false, ...}
+    else claude
+        A->>R: stdin: {"type":"permission_response","tool_use_id":"t1","approved":false,"feedback":"use a safer path"}\n
+    end
+    R-->>A: continues with denial in context
+```
+
+### What's still hand-wavy and needs SPIKE work
+
+- **Exact wire format of claude's `permission_response`**. The stream-json input format supports user messages cleanly; permission/interactive flows are documented but I haven't verified the exact JSON shape against current claude-cli behavior. Confirm before committing to the contract.
+- **opencode serve's permission API surface**. The existing `adapters/opencode_server.py` is the closest reference — verify its assumptions are still current with opencode 1.14.19+.
+- **Claude session file format**. Listing sessions by reading `~/.claude/projects/<project>/*.jsonl` is reasonable but the format is private and could change. Alternative: keep our own session registry and ignore claude's directory layout.
+- **Streaming back-pressure**. opencode SSE and claude stdout both push events fast. Operator surface (especially chat) can't keep up — needs coalescing/batching at the kernel or surface side. Today's `bridges/project.py` has some batching logic worth preserving.
+- **Session ownership across runtime restarts**. If swain-box restarts: opencode serve restores its session state from its volume; claude sessions are file-based so resume works; but the kernel's session registry needs to reconcile both sources without ghost sessions.
+- **Mid-conversation runtime switch**. Could a session that started on opencode be continued on claude (or vice versa)? Probably not in v1 — different conversation history formats. Document as out-of-scope.
+
 ## Contracts (the seams)
 
 | Seam | Direction | Protocol | Auth | Notes |
