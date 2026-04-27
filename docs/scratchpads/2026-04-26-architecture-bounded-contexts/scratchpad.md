@@ -255,6 +255,67 @@ The kernel needs to run deterministic operations *inside* the container — heal
 
 **Multi-host operator surface.** When the TUI talks to two hosts, it shows projects from both. Each host kernel knows only its own projects. Aggregation happens in the operator surface (or in a future operator-surface-side aggregator). No host-to-host communication required.
 
+## Two paths into the runtime: ACP and TTY
+
+The architecture has been describing the **ACP path** — kernel-mediated, what chat/web/the-project-kernel use. But operators also need direct interactive access to runtimes for:
+
+- **First-time sign-in.** Claude OAuth, opencode auth login, gemini auth — all bootstrap via interactive CLI (device flow → paste code → runtime polls → writes credentials to its volume). One-time per project per runtime.
+- **Full TUI experience.** Operator preference for the rich runtime-native TUI over chat-mediated streaming. Just `claude` (no `--print`, no `--acp`) inside `docker exec -it`.
+- **Direct attach / "remote control."** Same mechanism as full TUI; the runtime's own attach machinery handles the rest (e.g., Claude Code's `--remote-control-session-name-prefix`).
+
+These all collapse to one second path: **TTY**. Operator shell → `docker exec -it <container> <command>`. The kernel is not in the data path.
+
+### Path comparison
+
+| Operation | Path | Through |
+|---|---|---|
+| Chat prompt → runtime | ACP | chat adapter → host adapter → project kernel → harness ACL → runtime |
+| Web UI prompts runtime | ACP | swain-stage → host adapter → kernel → ACL → runtime |
+| TUI dashboard view (read) | ACP read-only | TUI → host adapter → kernel state |
+| `swain-box shell <project>` | TTY | operator shell → docker exec -it |
+| `swain-box auth <project> <runtime>` | TTY | operator shell → docker exec -it `<runtime>` auth flow |
+| `swain-box exec <project> -- <cmd>` | TTY | operator shell → docker exec -it |
+
+### Why the two paths compose
+
+State lives on disk in the container's volumes, not in the kernel:
+
+- Runtime credentials (e.g., `/root/.claude/.credentials.json`)
+- Runtime session files (e.g., `/root/.claude/projects/<project>/<id>.jsonl`)
+
+Both paths read and write the same disk. So:
+
+- Sign-in via TTY → credentials on disk → ACP-mode picks them up next call.
+- TTY-started session → appears in claude's session files → ACP `session/list` (which queries those files via the runtime) sees it automatically.
+- No kernel coordination needed. Runtimes don't care who started them; they just persist to disk.
+
+### What this adds to the swain-box agent
+
+- `pty_exec(runtime, args)` verb: allocate a PTY, run the command, stream stdin/stdout/stderr to the operator's terminal. Wraps `docker exec -it`. MVP via the docker exec abstraction the agent already uses.
+
+### What this adds to the operator-local CLI
+
+The host-side `swain-box` tool gains:
+
+- `swain-box auth <project> <runtime>` — convenience for the right auth-bootstrap command per runtime
+- `swain-box exec <project> -- <command>` — generic `pty_exec` passthrough
+- `swain-box shell <project>` — sugar for `exec ... bash`
+
+These commands query the kernel for "what's project A's container?" then run `docker exec -it` directly from the operator's shell. Kernel routes; doesn't see the session.
+
+### Multi-node implication
+
+TTY path requires docker access **on the same node as the container**. If the operator surface runs on a different node than the host (allowed by the bounded-context hierarchy), then:
+
+- **MVP**: operator SSHes to the host first, then runs `swain-box shell ...`. Document this constraint.
+- **Future**: WebSocket-multiplexed terminal relay (xterm.js-style) through the host adapter. The TUI gets a "shell" tab that pipes to docker exec via the host. Real work, not in scope for v1.
+
+### Open concerns the TTY path introduces
+
+- **Concurrent use of the same session from both paths.** If TTY-claude is running a session and ACP-claude wants to drive the same session, they spawn parallel claude processes against the same session file. Likely race. Mitigations: kernel detects "session is currently TTY-held" and refuses parallel ACP spawn for the same id; or trust claude's own session-file locking. Worth a small SPIKE before locking.
+- **Persistent detached TUI** (operator disconnects without killing). Out of scope for swain core. Document: use tmux inside the container if you want detached TUI.
+- **OAuth flows that need a real browser** (no device-flow path). Operator must do auth on a host (where browsers exist) and volume-mount the credentials in. Per-runtime case work; document as needed.
+
 ## Open decisions deferred
 
 - **Auth between layers.** Bearer tokens? mTLS? Caddy basic auth? Defer until model is finalized; will come with a security-minded ADR.
