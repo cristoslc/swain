@@ -6,7 +6,7 @@ status: Active
 author: Cristos L-C
 authored-by: Claude Opus 4.7 (1M context)
 created: 2026-04-26
-last-updated: 2026-04-26
+last-updated: 2026-04-28
 parent-initiative: INITIATIVE-002
 question: "Should swain-design treat scenario modeling — alternative artifact trees under varying assumptions, ADR sets, or constraints — as a first-class feature? What would the data model, UX, and integration with existing supersession and roadmap views look like?"
 gate: Pre-MVP
@@ -14,7 +14,8 @@ risks-addressed:
   - Operators cannot easily compare strategic forks before committing.
   - ADR supersession history loses the "what would the tree have looked like" alternatives.
   - Roadmap reasoning is single-track; counterfactuals live only in operator memory.
-evidence-pool: ""
+evidence-pool: "scenario-modeling-prior-art@e1ca9829"
+trove: scenario-modeling-prior-art@e1ca9829
 ---
 
 # First-Class Scenario Modeling in swain-design
@@ -82,6 +83,24 @@ If the gate fails, do not drop the question. Two narrower fallbacks:
 <!-- Populated during Active phase. Each method thread gets a subsection. -->
 
 ### Thread 1 — Prior art
+
+**Status: Complete.** See trove `scenario-modeling-prior-art@e1ca9829` for all 10 sources.
+
+**Key findings:**
+
+Two distinct primitives emerged across all tools: *projection* (same model, different display filter — covered by existing `swain chart` lenses) and *scenario* (different input assumptions, same schema, different computed graph — unmet by any existing tool).
+
+**Convergence across six tool categories:**
+- *ADR tooling* (adr-tools, Log4brains, pyadr): zero tools model the counterfactual artifact tree. Supersession is a linear chain; the alternative tree is prose-only. Confirmed gap.
+- *Config management* (Kustomize, Helm): the **overlay-as-delta** pattern — scenarios express only the diff from base, never a full copy. This is the recommended data model primitive.
+- *Feature flags* (LaunchDarkly, Unleash): **named activation states + dependency-aware re-evaluation**. Key risk: flag/scenario lifecycle is mandatory to prevent stale scenario debt.
+- *Decision modeling* (DMN, MCDA/1000minds): DMN's **input context as scenario parameter** is the right framing. MCDA's **sensitivity analysis** (sweep one variable, find the tipping point) is more useful than full scenario enumeration.
+- *Strategic planning* (Wardley Maps, Anaplan, Farseer): scenarios must be **promotable to canonical** — the "promote to plan" pattern keeps scenarios as reversible explorations. Wardley Maps' key insight: model *where* scenarios diverge, not just *what* they contain.
+- *Knowledge graph tools* (Obsidian, Roam, Logseq): exhausted the "query/filter" solution space for projection. Structural alternatives (scenarios) are genuinely absent — confirming the gap is real and unserved.
+
+**Recommended primitive:** a named YAML overlay file that pins specific artifact-graph inputs (ADR states, priority weights) to non-canonical values, evaluated against the canonical graph. Invocation: `swain chart --scenario=name`. Comparison: `swain chart --compare=canonical,name`.
+
+**Feeds into:** Thread 2 (the overlay YAML model is the leading candidate), Thread 3 (`--scenario` and `--compare` flags are the target surface), Thread 4 (dependency-aware re-evaluation and scenario lifecycle are the two integration design concerns).
 
 ### Thread 2 — Data model
 
