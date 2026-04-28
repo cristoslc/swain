@@ -1,0 +1,102 @@
+id: scenario-modeling-prior-art
+created: 2026-04-28
+refreshed: 2026-04-28
+tags:
+  - scenario-modeling
+  - decision-modeling
+  - artifact-graph
+  - what-if-analysis
+  - architecture-decision-records
+  - configuration-management
+  - feature-flags
+  - strategic-planning
+  - SPIKE-070
+referenced-by:
+  - docs/research/Active/(SPIKE-070)-First-Class-Scenario-Modeling-In-Swain-Design/(SPIKE-070)-First-Class-Scenario-Modeling-In-Swain-Design.md
+related-troves:
+  - likec4
+freshness-ttl:
+  web-page: 90d
+  web-search-synthesis: 60d
+  cross-reference: never
+
+sources:
+  - id: structurizr-perspectives
+    title: "Structurizr Perspectives — Annotation Overlays on Architecture Diagrams"
+    url: https://docs.structurizr.com/ui/diagrams/perspectives
+    type: web-page
+    fetched: 2026-04-28
+    content-hash: 1351a32892818df520c268a4ede2531cbb97be9f3e7739d0b801fb59452ed7cf
+    snapshot: .agents/search-snapshots/raw/2026-04-28T14-54-24Z-docs-structurizr-com-ui-diagrams-perspectives.txt
+
+  - id: adr-tooling-ecosystem
+    title: "ADR Tooling Ecosystem — Decision Capture Without Branching"
+    url: https://adr.github.io/adr-tooling/
+    type: web-page
+    fetched: 2026-04-28
+    content-hash: 97dd772050a900c389b9b2b077b5c5cf7cd175e905dafed8221990ecd106761c
+    snapshot: .agents/search-snapshots/raw/2026-04-28T14-54-24Z-adr-github-io-adr-tooling.txt
+
+  - id: 1000minds-mcda
+    title: "1000minds MCDA — Sensitivity Analysis as the Core Scenario UX"
+    url: https://www.1000minds.com/decision-making/what-is-mcdm-mcda
+    type: web-page
+    fetched: 2026-04-28
+    content-hash: fbbfccd3bddf7d256805c9c7ddcf759cdb42d4f2d667ef72a33ad35d0e07b9d1
+    snapshot: .agents/search-snapshots/raw/2026-04-28T14-54-24Z-www-1000minds-com-decision-making-what-is-mcdm-mcda.txt
+
+  - id: kustomize-helm-overlay-model
+    title: "Kustomize / Helm — Base + Overlay as Config Variant Modeling"
+    url: https://spacelift.io/blog/kustomize-vs-helm
+    type: web-search-synthesis
+    fetched: 2026-04-28
+    content-hash: 9ecc416e56c52483abe72b2150523c74b17126bdbf9ca1c1f5c1714579b7ca7f
+
+  - id: feature-flags-scenario-modeling
+    title: "Feature Flags — Runtime Behavioral Branching"
+    url: https://launchdarkly.com/blog/feature-flags-beyond-the-boolean/
+    type: web-search-synthesis
+    fetched: 2026-04-28
+    content-hash: 25eadb0faffa9b6a8ce877e7edbe79c746307f50d8fc487a25e826524974a99e
+
+  - id: dmn-decision-model-notation
+    title: "DMN — Decision Model and Notation"
+    url: https://camunda.com/dmn/
+    type: web-search-synthesis
+    fetched: 2026-04-28
+    content-hash: 3166d61b72d2c74bbe01f65876dab33e0129c607a913bbbb4244829ccd333a15
+
+  - id: wardley-maps-scenario-planning
+    title: "Wardley Maps — Strategic Landscape with Assumption Visualization"
+    url: https://wardleymaps.com
+    type: web-search-synthesis
+    fetched: 2026-04-28
+    content-hash: cec6d51020d7b2b79fa4e177b5012b1d16519de476e0ee4b990b897635477b66
+
+  - id: scenario-planning-software-2025
+    title: "Scenario Planning Software — Financial What-If Modeling (2025 Landscape)"
+    url: https://www.farseer.com/blog/scenario-planning-software/
+    type: web-search-synthesis
+    fetched: 2026-04-28
+    content-hash: 58ad92fc1669ff41ef58e053c98c2477e9b8569d24a19175f8ce3333feae4ecb
+
+  - id: knowledge-graph-tools-branching
+    title: "Knowledge Graph Tools — No Native Branching"
+    url: https://obsidian.md
+    type: web-search-synthesis
+    fetched: 2026-04-28
+    content-hash: 1fbbdcc80ad97043257f9dff0b8acfa4b5b1fa51fd1ed82a54198479867f4f54
+
+  - id: likec4-views-cross-reference
+    title: "LikeC4 — Predicate Views and Dynamic Scenarios (Cross-Reference)"
+    url: https://likec4.dev
+    type: cross-reference
+    fetched: 2026-04-28
+    content-hash: 5f55ce974a07de0ee7070199f7fefa5c0e4b9a90593c7f89751380181317c067
+    freshness-ttl: never
+
+history:
+  - event: created
+    date: 2026-04-28
+    commit: "--"
+    sources: 10
