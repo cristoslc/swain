@@ -1,36 +1,41 @@
 # swain architecture — bounded-context layering
 
-Status: thinking-in-progress. Not an artifact. Supersedes prior scratchpads at `2026-04-26-swain-box-bridge-realignment*` (deleted; preserved in git history).
+Status: thinking-in-progress. Not an artifact. Living scratchpad — updates as decisions land.
 
-This scratchpad consolidates the layered model the operator articulated. Earlier scratchpads were wrong about kernel placement (had it inside the container) and conflated chat-aware domain logic with the chat-transport layer. This one corrects both and bakes in the multi-host hierarchy.
+This consolidates the layered design: how operator surfaces, host services, project services, and runtime processes compose. The biggest commitments: ACP everywhere inside the container, tmux mandatory for native-runtime TTY, chat sessions are dedicated, project state on host (not in container), and two stream types (ACP and tmux-mediated TTY) over one routing stack.
 
-## Glossary
+## Glossary (locked terms)
 
 | Name | What | Where | How many | Speaks |
 |---|---|---|---|---|
-| **Operator surface** | Bounded context that presents to humans. Includes TUI, web UI (`swain-stage`), chat adapter | host (today), separate node (eventually) | many surface processes | varies (chat APIs, HTTPS, terminal) |
-| **Chat adapter** | Marshals chat-service messages to/from operator-surface event stream. Pluggable: Zulip / iMessage / Slack | operator-surface node | one process, internal backends per service | chat APIs outward; WSS to host adapter inward |
-| **TUI** | Host operator terminal UI | operator-surface node | one per operator | terminal; WSS to host adapter |
+| **Operator surface** | Bounded context that presents to humans. Includes laptop TUI (swain-tui), web UI (swain-stage), chat adapter | host (today), separate node (eventually) | many surface processes | varies (chat APIs, HTTPS, terminal) |
+| **swain-tui** | Laptop client. Thin remote-PTY client that attaches to a project's tmux server through the host adapter | operator-surface node | one process per attach | WSS terminal stream to host adapter |
+| **Chat adapter** | Marshals chat-service messages to/from operator-surface event stream. Pluggable: Zulip / iMessage / Slack | operator-surface node | one process; internal backends per service | chat APIs outward; WSS to host adapter inward |
 | **swain-stage** | Web UI (future) | operator-surface node | one per operator | HTTPS to browser; WSS to host adapter |
 | **Host adapter** | Caddy. Routing fabric for the host bounded context. TLS, hostname routing, WSS pass-through | host | singleton per host | TLS, HTTP/WS routing |
-| **Host kernel** | Per-host orchestrator. Manages project lifecycle, project registry, container start/stop, project-kernel processes. Ex-watchdog, but more | host | singleton per host | WSS to host adapter; spawns project kernels and swain-boxes |
-| **Project kernel** | Per-project domain logic. Owns worktree, session, conversation state. Stateful | host | one per project | ACP outward to harness ACLs; structured RPC to swain-box agent; WSS to host adapter for surface traffic |
+| **Host orchestrator** | Per-host control plane. Owns project registry, project lifecycle, container lifecycle, project-kernel supervision, Caddy config management | host | singleton per host (`swain-hostd`) | WSS via Caddy at `host.<hostname>` |
+| **Project kernel** | Per-project domain logic. Owns ACP sessions (and their chat-topic mappings), worktree state | host | one per project | ACP outward to harness ACLs; structured RPC + PTY streams to swain-box agent; WSS to host adapter for surface traffic |
 | **Project state file** | Persisted kernel state | host, in project dir, **gitignored** (`<project>/.swain/state.*`) | one per project | (storage) |
 | **MCP gateway** | Per-project MCP server pass-through, kernel-hosted, published to swain-box | host | one per project | MCP wire to runtimes-in-box; configurable upstream |
 | **swain-box** | Per-project Docker container | host docker | one per project | n/a |
-| **swain-box agent** | Deterministic-ops helper inside the container. Health, git, shell-with-allowlist | inside swain-box | one per swain-box | `docker exec` (MVP); structured RPC (future) |
-| **Harness ACL** | Anti-corruption layer per active session. Spawns the runtime, normalizes its quirks, exposes clean ACP to the project kernel | inside swain-box | **one per active session** | ACP outward to kernel; ACP stdio to runtime |
-| **Runtime ACP agent** | The actual AI coding tool: `gemini --acp`, `claude-code-acp`, `opencode acp`, `codex-acp` | inside swain-box, child of harness ACL | one process per session | ACP stdio |
+| **swain-box agent** | In-container daemon. Owns deterministic ops, tmux server lifecycle, runtime-daemon lifecycle (e.g., opencode acp), PTY allocation | inside swain-box | one per swain-box | docker exec (MVP); structured RPC + PTY streams (future) |
+| **Tmux server** | Persistent terminal multiplexer inside swain-box. Default-on. Operators attach via swain-tui to run runtimes natively | inside swain-box | one per swain-box | tmux wire (operator side via PTY relay) |
+| **Harness ACL** | Anti-corruption layer per active **ACP** session. Spawns or connects to the runtime, normalizes its quirks, exposes clean ACP to project kernel | inside swain-box | **one per active ACP session** | ACP outward to kernel; ACP stdio or TCP to runtime |
+| **Runtime ACP agent** | The runtime in ACP mode: `gemini --acp`, `claude-code-acp`, `opencode acp`, `codex-acp` | inside swain-box | per-session subprocess (claude/gemini) OR shared daemon (opencode acp on TCP) | stdio JSON-RPC ACP (claude/gemini) or TCP (opencode) |
+| **Runtime in TTY mode** | The runtime in interactive mode: plain `claude`, `opencode`, `gemini`, etc. | inside swain-box, inside tmux | one per tmux window | terminal bytes |
 
-The word "bridge" is retired (it overloaded with too many things — historical opencode bridge, generic ACP bridge, the chat connector, etc.). The kernel-on-host correction means the in-container "kernel" of earlier scratchpads is now just the swain-box agent + harness ACLs.
+Notable terms retired or absent:
+
+- **"Conversation"** — collapsed for MVP. Chat sessions are dedicated 1:1 with a chat-topic mapping; no separate conversation entity needed. Resurrect later if multi-session-per-conversation routing becomes a real requirement.
+- **"Bridge"** — overloaded historically; doesn't appear in the current model.
 
 ## Bounded context hierarchy
 
 ```
-operator surface  (TUI, swain-stage, chat adapter)
+operator surface  (swain-tui, swain-stage, chat adapter)
         │
         ▼
-host  (host kernel, host adapter, MCP gateways, project kernels)
+host  (host orchestrator, host adapter, MCP gateways, project kernels)
         │
         ▼
 project  (project kernel, swain-box)
@@ -41,12 +46,11 @@ worktree / branch  (within a project)
 
 **Cross-context properties:**
 
-- An operator surface can run on a different node than a host. (TUI on laptop → host on home server.)
-- One operator surface can talk to multiple hosts. (Aggregate dashboard across machines.)
+- An operator surface can run on a different node than the host (laptop TUI talking to home-server host).
+- One operator surface can talk to multiple hosts.
 - Each host can manage multiple projects.
 - Each project has multiple worktrees/branches.
-
-This is the property that justifies splitting "chat adapter" out of the host into the operator surface: chat adapter coordinates *operator inputs* across services; it doesn't belong to any specific host. Today it'll co-locate with a host (no network configured), but the model permits separation.
+- Operator-surface authentication is at the host adapter boundary (Caddy WSS).
 
 ## C4 — System context
 
@@ -54,17 +58,17 @@ This is the property that justifies splitting "chat adapter" out of the host int
 flowchart TB
     Op(("Operator"))
     Browser(("Browser"))
-    ChatSvc[("Zulip / iMessage / Slack")]
+    ChatSvc[("Chat service<br/>Zulip / iMessage / Slack")]
 
     subgraph OS["Operator surface (one node, eventually movable)"]
-        TUI["TUI"]
+        TUI["swain-tui<br/>(laptop)"]
         Stage["swain-stage<br/>(web UI, future)"]
         ChatA["Chat adapter<br/>(pluggable backends)"]
     end
 
     subgraph Host1["Host machine 1"]
         HA1["Host adapter<br/>(Caddy)"]
-        HK1["Host kernel<br/>(orchestrator)"]
+        HO1["Host orchestrator<br/>(swain-hostd)"]
         K1A["Project kernel A"]
         K1B["Project kernel B"]
         Box1A["swain-box A<br/>(container)"]
@@ -79,20 +83,20 @@ flowchart TB
     Op <-->|"chat"| ChatSvc
     ChatSvc <--> ChatA
 
-    TUI <-->|"WSS"| HA1
+    TUI <-->|"WSS terminal"| HA1
     Stage <-->|"WSS"| HA1
     ChatA <-->|"WSS"| HA1
     TUI <-.->|"WSS"| HostN
     Stage <-.->|"WSS"| HostN
     ChatA <-.->|"WSS"| HostN
 
-    HA1 <--> HK1
+    HA1 <--> HO1
     HA1 <--> K1A
     HA1 <--> K1B
-    HK1 -.->|"manages"| K1A
-    HK1 -.->|"manages"| K1B
-    HK1 -.->|"manages"| Box1A
-    HK1 -.->|"manages"| Box1B
+    HO1 -.->|"manages"| K1A
+    HO1 -.->|"manages"| K1B
+    HO1 -.->|"manages"| Box1A
+    HO1 -.->|"manages"| Box1B
     K1A <--> Box1A
     K1B <--> Box1B
 ```
@@ -103,19 +107,20 @@ flowchart TB
 flowchart TB
     subgraph Host["Host machine"]
         HA["Host adapter (Caddy)<br/>TLS + hostname routing<br/>+ WSS pass-through"]
-        HK["Host kernel<br/>· project registry<br/>· container lifecycle<br/>· project-kernel lifecycle<br/>· health"]
+        HO["Host orchestrator<br/>(swain-hostd)<br/>· project registry<br/>· container lifecycle<br/>· project-kernel supervision<br/>· Caddy config mgmt"]
 
         subgraph Project["Project A (host-side processes + container)"]
-            K["Project kernel A<br/>· worktree mgmt<br/>· session mgmt<br/>· conversation mgmt<br/>· chat-shape coalescing<br/>· serializes commands"]
+            K["Project kernel A<br/>· ACP session mgmt<br/>· worktree mgmt<br/>· chat-topic mapping<br/>· serializes commands"]
             State[("state file<br/>.swain/state.* in project<br/>(gitignored)")]
             MCP["MCP gateway A<br/>(pass-through MVP)"]
 
             subgraph Box["swain-box A (container)"]
-                ACL_S1["Harness ACL: session 1"]
-                ACL_S2["Harness ACL: session 2"]
-                R1["claude-code-acp<br/>session 1"]
-                R2["gemini --acp<br/>session 2"]
-                SBA["swain-box agent<br/>(docker exec MVP)"]
+                SBA["swain-box agent<br/>· deterministic ops (docker exec MVP)<br/>· tmux server lifecycle<br/>· opencode daemon lifecycle<br/>· PTY allocation"]
+                Tmux["tmux server<br/>(operator's windows)"]
+                ACL_S1["Harness ACL: ACP session 1"]
+                ACL_S2["Harness ACL: ACP session 2"]
+                R_CC["claude-code-acp<br/>(per-session)"]
+                R_OCD["opencode acp daemon<br/>(shared, TCP)"]
                 ProjFS[("project FS bind mount")]
             end
         end
@@ -123,260 +128,396 @@ flowchart TB
         OtherProj["Project B<br/>(same shape)"]
     end
 
-    HA <-->|"hostname route<br/>to project A"| K
-    HK -.->|"start/stop/health"| K
-    HK -.->|"start/stop/health"| Box
+    HA <-->|"hostname route"| K
+    HO -.->|"start/stop/health"| K
+    HO -.->|"start/stop/health"| Box
     K <-->|"ACP"| ACL_S1
     K <-->|"ACP"| ACL_S2
-    K -->|"docker exec"| SBA
+    K <-->|"RPC + PTY streams"| SBA
     K <-->|"reads/writes"| State
-    ACL_S1 <-->|"ACP stdio"| R1
-    ACL_S2 <-->|"ACP stdio"| R2
-    R1 -->|"MCP wire"| MCP
-    R2 -->|"MCP wire"| MCP
-    R1 <--> ProjFS
-    R2 <--> ProjFS
+    SBA -.->|"manages"| Tmux
+    SBA -.->|"manages"| R_OCD
+    ACL_S1 <-->|"ACP stdio"| R_CC
+    ACL_S2 <-->|"ACP TCP"| R_OCD
+    R_CC <--> ProjFS
+    R_OCD <--> ProjFS
 ```
 
 ## Seams (canonical list)
 
-Categorized by which bounded contexts they cross. "BC" = bounded context.
+Categorized by which bounded contexts they cross.
 
-### Operator surface ↔ host (BC crossing — networked even when co-located)
+### Operator surface ↔ host (BC crossing — always networked, even when co-located)
 
-1. **TUI ↔ host adapter** — WSS, ACP-shaped events for runtime traffic + side channel for swain events (worktree, project list)
-2. **swain-stage ↔ host adapter** — WSS, same protocols as TUI
-3. **Chat adapter ↔ host adapter** — WSS, same protocols
-4. **Chat adapter ↔ chat service** — chat-service-specific (Zulip API long-poll, iMessage, etc.)
+1. **swain-tui ↔ host adapter** — WSS, terminal stream (PTY bytes from tmux client)
+2. **swain-stage ↔ host adapter** — WSS, ACP frames + future swain-event side channel
+3. **Chat adapter ↔ host adapter** — WSS, ACP frames for the chat session
+4. **Chat adapter ↔ chat service** — service-specific (Zulip API, etc.)
 
-### Within host: between host kernel and host adapter
+### Host: between host orchestrator and host adapter
 
-5. **Host kernel ↔ host adapter** — host kernel registers project routes, configures Caddy, listens for control commands
+5. **Host orchestrator ↔ host adapter** — registers project routes, signals Caddy reload, listens for control commands (WSS via Caddy at `host.<hostname>`)
 
-### Within host: project kernel boundaries (BC crossing — process boundary)
+### Host: project-kernel boundaries
 
-6. **Host adapter ↔ project kernel** — WSS routed by hostname; surface traffic flows here
-7. **Host kernel ↔ project kernel** — lifecycle: start, stop, health, restart, registration
+6. **Host adapter ↔ project kernel** — WSS routed by hostname; ACP frames + terminal streams + future swain-event channel
+7. **Host orchestrator ↔ project kernel** — lifecycle: start, stop, health, restart, registration
 
 ### Project kernel ↔ container
 
-8. **Project kernel ↔ harness ACL** — ACP over WSS or local TCP; one connection per active session
-9. **Project kernel ↔ swain-box agent** — docker exec (MVP) or structured RPC (future)
-10. **Runtime (in box) ↔ MCP gateway (on host)** — MCP wire over network into the container
+8. **Project kernel ↔ harness ACL** — ACP frames; one connection per active ACP session
+9. **Project kernel ↔ swain-box agent** — structured RPC for ops; PTY streams forwarded for swain-tui
+10. **Runtime (in box) ↔ MCP gateway (on host)** — MCP wire over container network into the kernel-hosted gateway
 
 ### Within container
 
-11. **Harness ACL ↔ runtime ACP agent** — ACP JSON-RPC over stdio; the ACL spawns the runtime
-12. **swain-box agent ↔ container OS** — runs allowlisted shell, reads logs, checks state
+11. **Harness ACL ↔ runtime ACP agent** — ACP JSON-RPC over stdio (claude/gemini) or TCP (opencode acp daemon)
+12. **swain-box agent ↔ container OS** — runs allowlisted ops, manages tmux server and runtime daemons, allocates PTYs
 13. **Runtime ↔ project filesystem** — bind mount
 
 ## Persistence
 
-**Project state file**: `<project-root>/.swain/state.*` on the host filesystem. Gitignored.
+**Project state file** at `<project-root>/.swain/state.*` (gitignored). Contents:
 
-Contents:
-- Active sessions per worktree, with runtime + ACP session-id mapping
-- Conversation history references (which Zulip topic / TUI buffer corresponds to which session)
+- Active ACP sessions per project: kernel-internal session-id, runtime, ACP session-id (from runtime), chat-topic mapping (if chat-bound), created-by, created-at, last-activity-at
 - Worktree map snapshot
-- Per-conversation defaults (preferred runtime, etc.)
+- Per-runtime defaults
 
-The state file lives **in the project**, not in the swain-box volume, because:
-- Operator can inspect / back up via normal filesystem tools
-- Survives container destroy/recreate cleanly
-- Co-located with project metadata (CLAUDE.md, etc.) is conceptually right
+The file lives in the project, not in the swain-box volume:
 
-The kernel reads state on start, writes on every meaningful change. Probably SQLite or JSON-with-fsync depending on traffic; SQLite for the typical case.
+- Operator can inspect/back up via normal filesystem tools.
+- Survives container destroy/recreate cleanly.
+- Co-located with project metadata (CLAUDE.md, etc.).
 
-**Host kernel state**: project registry (which projects are registered, hostnames, container references). Lives at `~/.swain/host/registry.*`. Not gitignored (operator-level, not project-level).
+The kernel reads state on start, writes on every meaningful change. SQLite for the typical case; JSON-with-fsync acceptable for a starter.
 
-**Why kernel can't live in container**: a kernel that lives inside its own swain-box can't kill, restart, or manage the lifecycle of that swain-box (the kernel goes down with the container). Lifecycle management requires an outside-the-container controller. Either the host kernel does it directly, or the project kernel does it (and lives on host). Both put the project kernel on the host.
+**Host orchestrator state** at `~/.swain/host/`:
+
+- `projects.{db,yaml}` — registry
+- `config.yaml` — host identity, defaults, Caddy mode setting
+- `swain-projects.caddyfile` (or similar) — Caddy fragment generated by orchestrator
+
+**Why kernel can't live in container**: a kernel inside its own swain-box can't kill, restart, or manage the lifecycle of that swain-box (the kernel goes down with the container). Lifecycle management requires an outside-the-container controller.
+
+## Host orchestrator (pinned)
+
+The per-host control plane. Was historically the "watchdog"; in this model it's bigger than supervision.
+
+### What it owns (state)
+
+- **Project registry** — name, project path, hostname assigned, container ID (when running), runtime credential volumes assigned, capability bridge config. Persisted at `~/.swain/host/projects.{db,yaml}`.
+- **Project-kernel runtime registry** — which project-kernel processes are currently running, PIDs, last health check. In-memory; reconciled on orchestrator restart against docker + on-disk state.
+- **Host config** — operator identity, host name, defaults, paths to host-managed sockets, Caddy mode setting. At `~/.swain/host/config.yaml`.
+- **Caddy config fragments** — per-project hostname routes. Written so a hand-edited Caddyfile and the orchestrator's projects don't fight (orchestrator owns its own fragment included by main config).
+
+Notably **absent**: anything per-project beyond identity. Worktrees, sessions, conversations — all live in the project kernel or below.
+
+### API surface
+
+```
+Project lifecycle:
+  POST   /projects                   register a new project
+  GET    /projects                   list (name, status, hostname, container, kernel pid)
+  GET    /projects/:name             project detail
+  DELETE /projects/:name             deregister (does not delete project filesystem)
+  POST   /projects/:name/up          bring up (container + kernel + Caddy refresh)
+  POST   /projects/:name/down        bring down
+  POST   /projects/:name/restart     restart kernel + container
+
+Project status:
+  GET    /projects/:name/health      aggregated health
+  GET    /projects/:name/logs        kernel logs (read-only stream)
+
+Host:
+  GET    /info                       host identity, version, config summary
+  GET    /health                     orchestrator self-health
+  GET    /clients                    connected operator surfaces (introspection)
+```
+
+Transport: **WSS-only for v1**, via Caddy on `host.<hostname>`. Same auth boundary as project-kernel WSS. Unix socket for local-CLI fast path is a v1.5 add if local-auth friction shows up.
+
+### Lifecycle
+
+- systemd / launchd unit runs `swain-hostd` at host boot. Restart on failure.
+- Caddy mode is one of three (`managed` / `integrate` / `auto`):
+  - **managed**: orchestrator starts Caddy as a child process, owns lifecycle, restarts on crash.
+  - **integrate**: existing Caddy is running (managed by something else); orchestrator writes a config fragment and signals reload via Caddy's admin API.
+  - **auto** (default): detect on startup; integrate if Caddy reachable on its admin port, else managed.
+- Hard guarantee: **after orchestrator startup, Caddy is running and configured**. If Caddy fails, orchestrator fails to start (no silent degraded mode).
+- On orchestrator startup: read project registry, reconcile against docker + Caddy state, bring up auto-start projects.
+- On clean shutdown: configurable — usually leave running projects alone.
+- On crash + restart: reattach to existing project kernels and containers (they survive). Rebuild in-memory state.
+
+Net: **orchestrator restarts are recoverable without disrupting running projects**.
+
+### What it is NOT
+
+- Not the routing fabric (Caddy).
+- Not a domain-logic owner (project kernel does that).
+- Not an operator surface.
+- Not the chat adapter (operator-surface bounded context).
+- Not docker compose; uses docker for container lifecycle.
+- Not a per-project event router (operator-surface ↔ project-kernel traffic goes through Caddy, not orchestrator).
+- Not the auth policy store (Caddy + token storage handle that).
+
+### Distinguishing from "docker compose + scripts"
+
+Compose can do static container lifecycle for a fixed list. The orchestrator adds:
+
+- Dynamic project addition without editing files
+- Non-docker process supervision (project kernels run on host)
+- Caddy config coordination with project lifecycle
+- Runtime API for operators
+- Reconciliation after partial failures
+
+Compose is fine underneath for individual project containers if it's there; orchestrator manages the compose file as project config.
 
 ## Multi-runtime: ACP everywhere, ACL per session
 
-ACP (Agent Client Protocol) is the wire format inside the container, between the harness ACL and the runtime ACP agent. JSON-RPC 2.0 over stdio, designed for "external thing controls AI coding agent." Industry standard governed by Zed's working group.
+ACP (Agent Client Protocol) is the wire format inside the container, between the harness ACL and the runtime ACP agent. JSON-RPC 2.0 over stdio (or opencode's TCP variant). Industry standard, governed by Zed's working group.
 
 Runtimes that speak ACP:
+
 - **gemini**: native (`gemini --acp`)
 - **claude-code-acp**: official Zed adapter wrapping the Anthropic SDK
-- **opencode acp**: native (`opencode acp` subcommand). Has open issues — see "known integration friction" below
+- **opencode acp**: native (`opencode acp`); listens on TCP, multi-session capable. Has open issues — defensive parsing required.
 - **codex-acp**: community adapter (v2 — wait for stability)
 
-**One harness ACL per active session.** Reasons:
-- claude can't multiplex sessions in one process (verified empirically: SPIKE 2026-04-26 showed `session_id` field in stream-json input is ignored by the CLI; one process = one conversation)
-- Per-session ACL is a clean isolation boundary — one session's quirks/bugs don't bleed
-- Process count = active session count (acceptable cost; sessions are typically <10)
+### ACL per session — but underlying processes vary
 
-**The harness ACL is the runtime-side anti-corruption layer.** It:
-- Spawns the runtime subprocess with the right flags (e.g. `--yolo`, `--dangerously-skip-permissions`, `--full-auto`)
-- Filters known runtime quirks (e.g., opencode #17282 ANSI-escape leak in JSON-RPC)
-- Translates runtime-specific events into normalized ACP that the kernel can consume uniformly
-- Auto-allows `session/request_permission` (sandbox-level approval, not per-tool)
+The kernel sees N ACL handles, one per active ACP session. Underneath:
 
-**Sandbox-level approval, not per-tool.** Operator approval at session level (start/kill); container is the safety boundary. Each runtime launched in its most permissive mode. ACP `session/request_permission` is auto-allowed.
+- **Per-session subprocess** (claude, gemini): each ACL spawns its own runtime subprocess. Process count = active session count.
+- **Shared daemon** (opencode): one `opencode acp` daemon per swain-box; ACLs connect via TCP. Long-lived process, multi-session over connections.
 
-### Known integration friction (sampled 2026-04-26)
+The swain-box agent owns the long-lived daemons (ensure opencode acp running before any opencode session). Per-session subprocesses are owned by the harness ACL that spawned them.
 
-Per-runtime issues the harness ACL must defend against:
+### Sandbox-level approval, not per-tool
 
-- **opencode acp**: `#22795` (server exits immediately on startup), `#17282` (ANSI escapes corrupt JSON-RPC), `#24494` (`end_turn` returned on errors), `#21013` (no `session_info_update`), `#17019` (oversized payload crashes). Defensive parsing + retry on startup + payload-size guard required.
-- **claude-code-acp**: third-party (Zed-maintained) — version pinning + soak testing before bumps.
-- **gemini --acp**: less battle-tested than the others; verify headless container behavior without a display server.
+The container is the safety boundary. Each runtime is launched in autonomous mode:
+
+| Runtime | Autonomous-mode flag |
+|---|---|
+| opencode | (kernel auto-allows on `permission.asked`) |
+| claude | `--dangerously-skip-permissions` (or equivalent on the SDK adapter) |
+| codex | `--full-auto --sandbox danger-full-access` |
+| gemini | `--yolo` / `--approval-mode=yolo` |
+
+ACP `session/request_permission` is auto-allowed by the ACL. Operator visibility comes from forwarding tool-call events to surfaces as notifications (not gates).
+
+### Known integration friction
+
+Per-runtime issues the harness ACL must defend against (sampled 2026-04-26 — opencode `anomalyco/opencode`):
+
+- **opencode acp**: `#22795` (server exits on startup), `#17282` (ANSI escapes corrupt JSON-RPC), `#24494` (`end_turn` returned on errors), `#21013` (no `session_info_update`), `#17019` (oversized payload crashes). Defensive parsing + retry on startup + payload-size guard.
+- **claude-code-acp**: third-party (Zed-maintained) — version pinning + soak testing.
+- **gemini --acp**: less battle-tested — verify headless container behavior.
 - **codex-acp**: deferred to v2; SDK still experimental.
+
+## swain-box agent
+
+In-container daemon. Owns three concerns:
+
+1. **Deterministic ops** — `health_check`, `git_status`, `read_log`, etc. (request/response RPC)
+2. **Tmux server lifecycle** — start tmux server on container up; restart on death; expose default session for swain-tui attaches
+3. **Long-lived runtime daemons** — currently just opencode acp; spawn before first opencode session, monitor health, restart on death
+4. **PTY allocation** — `pty_attach(command, args, env)` returns a stream-id; bytes flow bidirectionally between kernel and PTY (used by swain-tui terminal streams)
+
+**Implementation transport**: WSS or local TCP carrying JSON frames for RPC + binary frames for PTY streams, multiplexed. **MVP**: rides atop `docker exec -i` for structured RPC and `docker exec -it` for PTY (same docker-exec abstraction in code). **Future**: long-running RPC daemon supports both natively.
+
+**RPC verb list** (deferred — small, allowlisted set; no arbitrary shell).
 
 ## MCP gateway: per-project on host, pass-through MVP
 
-One MCP gateway process per project, hosted by (or alongside) the project kernel on the host. Published to the swain-box container via a network socket / port mount. Runtimes inside the container connect to it.
+One MCP gateway process per project, host-side, kernel-hosted (or alongside). Published to the swain-box container via a network socket / port. Runtimes inside connect to it.
 
 **MVP behavior**: pass-through to the upstream MCP servers configured for the project. No filtering, no caching, no rewriting.
 
-**Future**: kernel can intercept (rate-limit, audit-log, redact) without changing the runtime-facing wire.
+**Future**: kernel can intercept (rate-limit, audit-log, redact).
 
-**Why per-project**: each project has different MCP needs (different toolsets, different upstreams). Per-project also means a misbehaving MCP server in one project can't take down others.
+**Why per-project**: each project has different MCP needs; misbehaving server in one project can't take down others.
 
-**Why on host**: kernel hosts it because the kernel is where project domain logic lives, including "which MCP servers does this project use." Putting it in the container would couple it to container lifecycle (restart on rebuild), which we don't want.
+**Why on host (not in container)**: kernel is where project domain logic lives, including MCP server configuration. In-container coupling would mean restart-on-rebuild, which we don't want.
 
-## swain-box agent: docker exec MVP, designed for RPC future
+## Two stream types into the runtime: ACP and tmux-mediated TTY
 
-The kernel needs to run deterministic operations *inside* the container — health checks, git operations on the project mount, log inspection. Two implementations:
+Operators reach runtimes via **two stream types**, both flowing through the same routing stack (operator surface → host adapter → project kernel → swain-box agent), differing only at the agent's last hop:
 
-**MVP — docker exec.** Kernel shells out: `docker exec <container> <command>`. Each call is a separate process. Simple, no extra long-running processes inside the container. Latency-OK for the volume of calls expected.
+- **ACP stream** — structured JSON-RPC. Kernel-mediated; ACP session in kernel state; harness ACL spawns/connects to runtime.
+- **Tmux-mediated TTY stream** — bidirectional bytes. Kernel routes; swain-box agent allocates a PTY that's attached as a tmux client to the project's tmux server. Operator runs the runtime's native CLI inside a tmux window.
 
-**Future — RPC daemon.** A small in-container daemon (`swain-box-agentd`) listening on a unix socket or local TCP. Kernel sends structured RPC requests over a long-lived connection. Lower latency, cleaner observability, structured surface. Required if call volume grows or if we need streaming responses (e.g., live log tailing).
+### Why TTY is mediated through tmux
 
-**Design constraint**: build the kernel-side abstraction so swapping MVP for RPC is purely an implementation detail of one module. The kernel's call sites use a `BoxAgent` interface; the implementation today shells out, the implementation later RPCs. Same verbs.
+- Persistence: WSS dies → tmux session keeps running; operator reattaches and sees their state intact.
+- Multiplexing: native tmux windows for runtime sessions, shells, etc.
+- Multi-operator on same screen: free (tmux's native client mode).
+- Native runtime TUIs (claude, opencode, gemini) work because they're literally running inside a real terminal session — same as if SSHed in.
 
-**RPC surface (deferred)**: small allowlisted set — health, git status/log, read project file, restart-runtime, inspect-runtime-state, stream logs. Explicit verbs only. No arbitrary shell.
+### Why TTY is a surface stream, not a `docker exec` bypass
 
-## Coordination concerns
+It flows through the same auth boundary (host adapter), same routing (project kernel via Caddy hostname), same agent (swain-box agent allocates PTYs). Multi-node works: web UI on phone reaches container PTY through Caddy. No requirement that the operator surface be on the host node.
 
-**Multiple operator surfaces don't know about each other.** A TUI says "kill session X" while chat says "send prompt to session X" — both arrive at the project kernel. Kernel serializes its command intake (actor-style). Last-arriving wins for conflicting commands; non-conflicting commands compose naturally.
-
-**Read access multiplexes naturally.** All operator surfaces subscribe to the project kernel's event stream. Each renders events in its own way. No coordination required for reads.
-
-**Multi-host operator surface.** When the TUI talks to two hosts, it shows projects from both. Each host kernel knows only its own projects. Aggregation happens in the operator surface (or in a future operator-surface-side aggregator). No host-to-host communication required.
-
-## Two stream types into the runtime: ACP and terminal
-
-Operators need both structured-conversation access (chat, web) AND direct interactive access (sign-in, native runtime TUI, attach). Both are operator-surface concerns and both flow through the same routing stack:
-
-> **operator surface → host adapter → project kernel → swain-box agent**
-
-What differs is the stream type carried over that stack:
-
-- **ACP stream**: structured JSON-RPC, kernel mediates and tracks runtime sessions. Used by chat, web, and any read-only dashboard view.
-- **Terminal stream**: bidirectional bytes, kernel routes but doesn't interpret. Used for any time-sliced operator interaction with a runtime CLI or shell.
-
-Both diverge only at the swain-box agent: ACP streams go on to harness ACL → runtime; terminal streams go to a PTY allocated in the container.
-
-### Why TTY is a surface concern, not a bypass
-
-A prior draft modeled TTY as `docker exec -it` from the operator's shell. That:
-
-- violated the bounded-context hierarchy (operator activity skipping host adapter)
-- broke multi-node operation (operator surface on a different node than the host has no docker access)
-- couldn't be rendered by web UIs
-
-Correcting: terminal access is just another operator-surface stream. Same routing, same auth boundary, same multi-node story as ACP and read-only dashboard streams.
-
-### Use cases unified
-
-Every interactive-runtime case becomes "operator surface opens a terminal stream":
+### Use cases all collapse to this path
 
 | Case | Surface action | Stream content |
 |---|---|---|
-| First-time auth (Claude OAuth device flow) | TUI: "auth claude in project A" | `pty_attach('claude', ['/login'])` — operator types device code, watches polling output |
-| Native claude TUI | TUI: "open claude TUI in project A, session X" | `pty_attach('claude', ['--resume', 'X'])` |
-| Remote-control / attach existing TUI | TUI: "attach to TUI session in project A" | `pty_attach('claude', ['--resume', 'X'])` (or runtime-specific attach mech) |
-| Ad-hoc shell | TUI: "shell into project A's box" | `pty_attach('bash', [])` |
-| opencode auth bootstrap | TUI: "auth opencode in project A" | `pty_attach('opencode', ['auth', 'login'])` |
+| First-time auth (claude OAuth device flow) | swain-box auth claude | tmux window runs `claude /login`; operator types device code, watches polling output |
+| Native claude TUI | swain-box tui | tmux attach; operator runs `claude` (or `claude --resume <id>`) in a window |
+| Remote-control / attach existing TUI | swain-box tui (re-attach) | tmux's native shared-attach; both clients see the same screen |
+| Ad-hoc shell | swain-box tui | tmux attach; new window: `bash` |
 
-Same path for all. No "you must be on the host" caveat.
-
-### What the swain-box agent surface looks like
-
-The agent exposes both stream types over its single connection back to the project kernel:
-
-- **Structured RPC** (request/response): `health_check`, `git_status`, `read_log`, `restart_runtime`, list-active-PTYs, kill-PTY, etc.
-- **Streaming** (long-lived bidirectional): `pty_attach(command, args, env)` returns a stream-id; bytes flow both ways keyed to that id
-
-Implementation transport: WebSocket (or local TCP) carrying JSON frames for RPC + binary frames for PTY streams, multiplexed. MVP can ride atop `docker exec -i` for the structured RPC and `docker exec -it` for PTY (same docker-exec abstraction in code). Future RPC daemon supports both natively.
-
-### Which surfaces render terminals
+### Surfaces that render terminals
 
 | Surface | Renders terminal? | How |
 |---|---|---|
-| TUI (host operator TUI) | Yes | Pass-through to operator's terminal, or sub-pane |
-| swain-stage (web UI) | Yes | xterm.js |
+| swain-tui (laptop) | Yes | Pass-through to operator's actual terminal |
+| swain-stage (web UI) | Yes (future) | xterm.js |
 | Chat adapter | **No** | Auth/shell don't fit chat shape; chat is ACP-only |
-
-Chat being ACP-only is a deliberate scope decision. Anyone who needs to authenticate or directly TUI uses the TUI surface or the web UI.
 
 ### Kernel involvement in terminal streams
 
-Kernel is in the routing path; doesn't parse bytes. It tracks:
+Kernel routes; doesn't parse bytes. State tracked:
 
-- Which terminal streams are open against which sessions (state visibility — chat can show "operator is currently in a TUI session" if useful)
-- Per-session lock: if a TTY stream is held against session X, kernel refuses parallel ACP spawn for X. Resolves the same-session-conflict concern from earlier drafts. Need a small SPIKE to verify the lock semantics work for runtimes whose attach is process-spawn (claude `--resume` spins a fresh process; another `--resume` for the same id while one's running races at the session-file level — kernel's lock is the cleaner gate)
+- Which terminal streams are open (for visibility)
+- Per-session lock if relevant: not strictly needed because TTY-mode runs are not kernel-tracked sessions; they're tmux windows. Operator manages their own conflicts (running `claude --resume <id>` twice is on them).
 
-### What this means for the operator-local `swain-box` CLI
+### State sharing
 
-The CLI doesn't bypass the surface model. Commands like `swain-box shell <project>` become **thin clients** — they connect to a TUI surface (or directly to the host adapter as a one-shot ACP/terminal client) and open a terminal stream just like the full TUI would. Same path; just a CLI shape instead of an interactive UI.
+Credentials and runtime session files live on disk in container volumes:
 
-### State sharing across both stream types
+- `/root/.claude/.credentials.json`, `/root/.opencode/...`
+- `/root/.claude/projects/<project>/<session-id>.jsonl` (and per-runtime equivalents)
 
-Credentials and session files live on disk in the container's volumes:
+Both stream types read/write the same disk. Auth done via tmux → credentials persisted → next ACP-mode runtime spawn picks them up. TTY-mode runtime sessions are visible to chat-mode runtime via on-disk reads (see "Cross-session visibility" below).
 
-- `/root/.claude/.credentials.json`
-- `/root/.claude/projects/<project>/<session-id>.jsonl`
-- `/root/.opencode/...`
+## swain-box CLI surface (operator-side commands)
 
-Both stream types read and write the same disk:
+```
+swain-box tui [host:]<project>          attach to project's tmux server
+                                         no args → auto-detect from cwd via .swain/project.yaml walk-up
+                                         default localhost; <host>:<project> for remote
+swain-box auth <project> <runtime>      sugar for tui that runs the runtime's auth flow in a tmux window
+                                         (e.g., for claude: opens window, runs `claude /login`)
+swain-host list                          list projects on a host
+swain-host up <project>                  bring project up
+swain-host down <project>                bring project down
+swain-host status [project]              health summary
+```
 
-- Auth done over a terminal stream → credentials persisted → next ACP-mode runtime spawn reads them
-- TTY-started session → claude writes to its session-files dir → ACP's `session/list` (queried via the runtime) sees it
-- No kernel coordination needed for state propagation; runtimes are stateless about who's calling
+For MVP: `swain-box tui` is the only TTY-side entry point. If operator wants raw shell, they get one inside tmux (new window or pane). "Everything is tmux."
 
-### Open concerns
+## Chat: dedicated session and hierarchy mapping
 
-- **Concurrent same-session conflict** — addressed by kernel-side locking (above), with a SPIKE to verify under real claude/opencode behavior.
-- **OAuth flows that require a real browser** (no device flow). Operator does auth on a host with a browser, then a tooling step copies credentials into the container's volume. Per-runtime case work; document as needed.
-- **Persistent detached TUI** (operator disconnects without killing). Out of scope for swain core. Operators who want this run `tmux` inside the container themselves.
+### Dedicated session
+
+Chat adapter creates and owns **one ACP session per chat-topic mapping**. That session never picks up activity from other sessions in the project. TTY-mode sessions are invisible to chat. Other ACP sessions (e.g., a future web UI's session) are also invisible to chat.
+
+Implications:
+
+- Routing within a topic is unambiguous (always the dedicated session).
+- "Conversation" as a kernel entity collapses out — session-with-chat-topic-mapping is the unit.
+- If operator wants chat-mode runtime to know what their TTY-mode work was about, that's the cross-session-visibility story (next section).
+
+### Hierarchy mapping
+
+Swain hierarchy: **host → project → session**. Most chat services have a similar two-level hierarchy.
+
+| Chat service | Bot identity | Top-level (project) | Inner (session) |
+|---|---|---|---|
+| Zulip | one per host | stream named after project | topic named after session |
+| Slack | one per host | channel named after project | thread within channel |
+| Discord | one per host | category or channel named after project | thread |
+| iMessage / SMS | one per host | (no native channels) | (no native threads) — degraded UX, single-bot-single-session-per-chat |
+
+**Bot per host**: each host runs one chat-adapter bot identity per service. The bot owns its top-level objects (streams/channels/categories) one per project, and inner objects (topics/threads) one per session.
+
+For services without rich hierarchy (iMessage), the chat adapter does best-effort: one chat = one project's currently-active session, with text markers to disambiguate.
+
+This mapping is chat-adapter logic, not kernel-side. The kernel just records `chat_topic` as opaque dict on the session.
+
+## Cross-session visibility
+
+Question that comes up: "if my TUI claude session was working on something, can my chat-mode session see what happened?"
+
+**MVP answer**: yes, via on-disk inspection by the chat-mode runtime.
+
+### Mechanism
+
+Runtime session files live on a shared volume readable by all in-container processes:
+
+- Claude: `/root/.claude/projects/<project>/<session-id>.jsonl`
+- OpenCode: `/root/.opencode/sessions/...` (verify exact path; see also opencode-daemon caveat below)
+- Gemini: per-project session directory
+
+Chat-mode runtime can use its built-in tools (Read/Grep/Bash) to inspect those files. Operator asks "summarize what I worked on this morning" → runtime Reads recent session files, summarizes.
+
+### Helpers (existing prior art to ride on)
+
+Don't invent in swain. Lean on:
+
+- **`session-history-redacter`** (`~/Documents/code/session-history-redacter`) — already documents on-disk session formats and provides safe scrubbing. Useful for "show me this session but redact secrets" use cases.
+- **`@ccusage/*` family** (used by `~/Documents/code/ai-usage-cost-analysis`) — per-runtime telemetry over the same on-disk files (`@ccusage/codex`, `@ccusage/opencode`, `@ccusage/mcp` exposes via MCP). Useful for cost/usage queries from chat ("what did this session cost?").
+- **swain EPIC-022 / claude-code-recap trove** — recap-architecture work in swain itself. Claude Code has native `/recap` (v2.1.108+) that produces an "away summary." When EPIC-022 lands, chat-mode runtime can invoke recap-style summaries directly.
+- **`claude-acp-harness`** (`~/Documents/code/claude-acp-harness`) — separate but related project (ACP + tmux + REST API for Claude Code). Worth watching for shared concerns.
+
+### MVP setup for cross-session visibility
+
+- Ensure session-files volume is readable by chat-mode runtime's user inside the swain-box.
+- Inject a CLAUDE.md hint pointing chat-mode runtime to where session files live: `/root/.claude/projects/<project>/`.
+- Optionally bundle `ccusage`-related tools in the swain-box image for telemetry queries.
+- Defer recap-summary integration to when EPIC-022 lands.
+
+### Asymmetry: opencode
+
+OpenCode's session state lives in the daemon's memory (when started via `opencode acp`), not on disk. TTY-mode opencode sessions (run directly in tmux) are also separate from the daemon's state. Cross-session visibility between TTY-opencode and chat-opencode is degraded for MVP — document the tradeoff. Resolvable later by exposing the daemon's session list via its API.
+
+## Coordination concerns
+
+**Multiple operator surfaces don't know about each other.** Surfaces send commands to project kernel; kernel serializes intake (actor-style). Last-arriving wins for conflicting commands; non-conflicting commands compose naturally.
+
+**Read access multiplexes naturally.** All operator surfaces subscribe to project kernel's event stream. Each renders independently.
+
+**Multi-host operator surface.** TUI/web/chat connect to multiple hosts; aggregation happens client-side. Each host orchestrator knows only its own projects.
 
 ## Open decisions deferred
 
-- **Auth between layers.** Bearer tokens? mTLS? Caddy basic auth? Defer until model is finalized; will come with a security-minded ADR.
-- **Single chat adapter process or one per service.** Operationally minor; design adapter so either works.
-- **Kernel discovery.** When chat adapter receives "user X says hi in project A topic Y", how does it find project A's kernel? Likely Caddy hostname routing — chat adapter targets `https://swain-projecta.localhost`, hostname is in its registration record. Fully resolved during host-kernel definition.
-- **swain-box agent RPC verb list** (when we move past MVP).
-- **Session persistence semantics across kernel restart.** ACP `session/list` + `session/resume` is the mechanism; what we replay on the chat surface side is a UX decision.
-- **Capability bridges for host tmux.** Per-project mount of host tmux socket into the swain-box. Mostly just config; no architectural moving parts beyond the mount.
+- **Auth between layers.** Bearer tokens? mTLS? Caddy basic auth? Defer; will come with a security-minded ADR.
+- **swain-box agent RPC verb list** (when we move past `docker exec` MVP).
+- **Idle eviction policy.** Auto-stop idle ACP sessions after N minutes? Lean: no, configurable per project.
+- **Capability bridges (host tmux, etc.).** Per-project mounts; mostly config rather than architectural moving parts.
+- **Multi-host federation aggregation.** Currently client-side; possible host-side aggregator later if needed.
+- **OpenCode cross-session visibility.** Resolvable via daemon API expose; deferred.
 
 ## What this scratchpad commits to
 
 - Bounded contexts: operator surface → host → project → worktree
 - Project kernel runs on host, one per project, stateful
-- Host kernel is a real component (more than a watchdog) — ex-watchdog promoted to orchestrator
+- Host orchestrator is a real component (ex-watchdog, promoted to control plane), one per host
 - Operator surface can move off-host eventually
-- ACP is the wire inside the container, ACL per session
-- MCP gateway: per-project, host-side, pass-through to start
-- swain-box agent: docker exec MVP, RPC-shaped abstraction in code from day one
-- Persistence: project state in `.swain/` (gitignored), host registry in `~/.swain/host/`
-- Sandbox-level approval, not per-tool; auto-allow ACP permission requests
+- ACP everywhere inside the container; ACL per session
+- Tmux server is mandatory and default-on inside swain-box
+- swain-tui is a thin tmux-client over WSS PTY relay
+- swain-box CLI: `swain-box tui [host:]<project>`, `swain-box auth <project> <runtime>`
+- Chat sessions are dedicated 1:1 with chat-topic mappings
+- "Conversation" entity collapsed for MVP; sessions are the unit
+- TTY-mode sessions are NOT kernel-tracked
+- Cross-session visibility via on-disk reads, riding on existing prior-art tools
+- Persistence: project state in `<project>/.swain/state.*` (gitignored), host state in `~/.swain/host/`
+- Sandbox-level approval; ACP `session/request_permission` auto-allowed
+- Caddy as routing fabric in three modes (managed / integrate / auto) with strict-running guarantee
+- WSS-only transport for v1
 
-## What this throws away from prior scratchpads
+## ADR roadmap
 
-- "Kernel-in-container" — wrong placement; kernel is host-side
-- Generic "ACP proxy in container" framing — replaced by harness ACLs (per session) + swain-box agent (deterministic ops) + (no proxy as a separate component)
-- "swain-bridge" as one host process bundling chat adapter + chat-shape domain logic — split into chat adapter (transport, in operator surface) + project kernel (domain, on host)
-- Singular "WSS endpoint per swain-box" — replaced by per-session ACP connections from kernel to harness ACL; runtime traffic doesn't traverse the host adapter
-- Mixed glossary in v1/v2/multiruntime variants — superseded by this single scratchpad
+This scratchpad is pre-ADR thinking. Promotion path:
 
-## What needs to happen before this becomes an ADR
+1. Operator review and lock-in.
+2. Promote to one or more ADRs:
+   - **Bounded-context architecture ADR** — extends ADR-048 (Container-Per-Project Topology) with the operator-surface and host-orchestrator layers and the ACP-everywhere container internals.
+   - **Host orchestrator ADR** — name, scope, API, lifecycle, Caddy integration.
+   - **Tmux-mediated TTY path ADR** — captures the swain-box-tui design.
+   - Possibly: **Chat-dedicated-session ADR** if it's worth its own decision record vs. folding into the bounded-context ADR.
+3. Per-runtime SPECs for harness ACL implementations.
+4. SPEC for the swain-box agent's MVP (docker exec) and its planned RPC successor.
 
-1. Operator review and sign-off on this layered model
-2. Decide host kernel naming (use "host kernel" or different?)
-3. Settle the still-open decisions above (auth, kernel discovery details)
-4. Verify the integration-friction issues actually behave as described under load (read existing worktree code; dispatch a small SPIKE per runtime)
-5. Promote to ADR(s): probably one per bounded context (operator-surface ADR, host ADR, project-kernel ADR) — or one big ADR with sections
-
-The current ADR-048 (Container-Per-Project Topology) sits at the host-and-project-container layer; it stays valid. The new ADRs would extend it upward (operator surface) and inward (kernel/ACL split).
+ADR-048 stays valid at the host-and-project-container layer; the new ADRs extend it upward (operator surface) and inward (kernel/ACL split).
