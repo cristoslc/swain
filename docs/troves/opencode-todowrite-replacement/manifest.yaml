@@ -1,0 +1,74 @@
+trove: opencode-todowrite-replacement
+created: 2026-04-30
+refreshed: 2026-04-30
+tags:
+  - opencode
+  - todowrite
+  - custom-tools
+  - tool-replacement
+  - tk
+  - task-tracking
+  - open-weight-models
+  - swain
+
+freshness-ttl:
+  web: 14d
+  local: 30d
+
+history:
+  - event: created
+    date: 2026-04-30
+    commit: "--"
+    sources: 7
+
+referenced-by: []
+
+sources:
+  - source-id: opencode-tools-docs
+    type: web
+    url: "https://opencode.ai/docs/tools/"
+    fetched: 2026-04-30T00:00:00Z
+    title: "OpenCode Tools Documentation"
+    hash: "376ed1236e1086ed69f5fc8d52331ed08cf9aa9397d5a9d9f6399effdfcc726c"
+
+  - source-id: opencode-custom-tools-docs
+    type: web
+    url: "https://opencode.ai/docs/custom-tools/"
+    fetched: 2026-04-30T00:00:00Z
+    title: "OpenCode Custom Tools Documentation"
+    hash: "ca9b09bd68fd53d3f78a28bb4a63ca3c6fc38f5d2a367fbcf922021a07c1aac3"
+
+  - source-id: opencode-plugins-docs
+    type: web
+    url: "https://opencode.ai/docs/plugins/"
+    fetched: 2026-04-30T00:00:00Z
+    title: "OpenCode Plugins Documentation"
+    hash: "ae77252144e091e91162ba12a807b069d6b5668ac51684376ac2b741e465fbc3"
+
+  - source-id: opencode-todowrite-source
+    type: web
+    url: "https://github.com/anomalyco/opencode/blob/dev/packages/opencode/src/tool/todowrite.txt"
+    fetched: 2026-04-30T00:00:00Z
+    title: "OpenCode todowrite Tool Source"
+    hash: "d3bb52d94335db7a4886a1b88400b9a4a0b81df5167a169ddf6453151144dbe5"
+
+  - source-id: opencode-todowrite-issues
+    type: forum
+    url: "https://github.com/anomalyco/opencode/issues (composite)"
+    fetched: 2026-04-30T00:00:00Z
+    title: "OpenCode todowrite Tool Issues (Aggregated: #10813, #7512, #1373, #12938, #234, #11357)"
+    hash: "2c6ddeef97ceb72592a3ef79aa7d5316bc02fcdf81ad4e3cfb0e7be6afd80fa1"
+
+  - source-id: opencode-persistent-todo-issue
+    type: forum
+    url: "https://github.com/anomalyco/opencode/issues/18071"
+    fetched: 2026-04-30T00:00:00Z
+    title: "OpenCode Issue #18071: Add persistent todo list"
+    hash: "ab78339f91db5b1a978422c6874652ab96b4b0be73c5605478b51af918c9c8a4"
+
+  - source-id: opencode-agents-context
+    type: web
+    url: "https://opencode.ai/docs/agents/"
+    fetched: 2026-04-30T00:00:00Z
+    title: "OpenCode Agents Documentation"
+    hash: "e58ba7d0f6f2de1442575f289d911bf5618b17b8cd5cc08c2eea6c6c32e441ff"
