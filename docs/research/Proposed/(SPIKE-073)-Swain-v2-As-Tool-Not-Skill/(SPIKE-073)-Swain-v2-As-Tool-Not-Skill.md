@@ -325,7 +325,141 @@ The value of MCP over skills is real but narrow:
 
 But none of this addresses *whether the ceremony happens at all*. [See Agent-as-Router Problem above.]
 
-### 2. Solving the Router Problem Requires External Triggers
+### 2. The Persistence Fork: Files-in-Repo vs SQLite Authority
+
+EPIC-033 and SPIKE-030 assume SQLite persistence for the MCP server. But artifact state currently lives in `.md` files under `docs/` — the same files specgraph parses to build the graph. This creates a fork with three paths:
+
+**Path A: Files stay in the repo. MCP is a pass-through.**
+- Artifacts remain `.md` files under `docs/` (exactly as today).
+- MCP tools read/write frontmatter directly in those files (using existing parsers).
+- specgraph works unchanged — reads files from disk, builds graph from frontmatter.
+- MCP server has no persistent store of its own; it's a thin wrapper over the filesystem + specgraph.
+- Git tracks everything. Operator reads files directly. No duplication risk.
+
+**What this looks like in practice:**
+```
+Agent calls: swain__lifecycle_transition(spec="SPEC-073", phase="Complete")
+MCP handler:
+  1. Reads docs/spec/Proposed/(SPEC-073)*/SPEC-073.md
+  2. Parses frontmatter → checks tasks resolved, valid transition
+  3. Edits status: Proposed → Complete
+  4. Moves file: docs/spec/Proposed/... → docs/spec/Complete/...
+  5. Returns success or error with reason
+
+Agent calls: swain__chart_query(kind="roadmap")
+MCP handler:
+  1. Runs specgraph --build if stale
+  2. Calls specgraph overview --json
+  3. Returns structured output
+```
+
+**Strengths:**
+- No second source of truth. Files ARE the state.
+- specgraph works unchanged. Zero migration of existing parsers.
+- Operator can still read/edit files directly. MCP is not mandatory.
+- Git diffs are meaningful — see exactly what changed.
+- Phase changes are git-tracked (file moves between phase directories).
+- No synchronization risk between SQLite and files.
+
+**Weaknesses:**
+- No SQL-level structured queries on artifact state. Every query parses files or reads specgraph cache.
+- MCP state (task tracking, sessions, bookmarks) has nowhere to live except .md files or separate files.
+- Concurrent access from multiple agents could conflict (write races on same file).
+- specgraph cache invalidation adds latency on every query that touches changed files.
+- No transaction guarantees — file moves + frontmatter edits are not atomic.
+
+**Path B: Lift state into SQLite. Files become a mirror or disappear.**
+- Artifact state lives in SQLite as the authority.
+- MCP tools read/write SQLite exclusively.
+- `.md` files under `docs/` are either generated from SQLite (sync script) or abandoned entirely.
+- specgraph would need to read from SQLite instead of file frontmatter (rewrite parser).
+- Git tracks generated files (diverge risk) or they're gitignored (lose git history).
+
+**What this looks like in practice:**
+```
+Agent calls: swain__lifecycle_transition(spec="SPEC-073", phase="Complete")
+MCP handler:
+  1. SQL query: SELECT status, depends_on FROM artifacts WHERE id='SPEC-073'
+  2. Checks all depends_on targets are Complete
+  3. UPDATE artifacts SET status='Complete', phase_dir='Complete' WHERE id='SPEC-073'
+  4. Regenerate markdown file at new location (or defer to sync)
+  5. Returns success or error
+
+Agent calls: swain__chart_query(kind="roadmap")
+MCP handler:
+  1. Runs SQL queries joining artifacts, edges, statuses
+  2. Assembles graph in-memory
+  3. Returns structured output
+```
+
+**Strengths:**
+- Structured queries are fast and powerful — "all specs with phase=Proposed AND parent_epic=EPIC-033".
+- Concurrent access handled by SQLite's WAL mode.
+- Task tracking, sessions, bookmarks live naturally alongside artifacts.
+- Transactional — phase transitions are atomic (SQL file move + status update in one commit).
+- specgraph becomes a SQL reader, not a filesystem parser.
+
+**Weaknesses:**
+- specgraph parser must be rewritten to read SQLite instead of YAML frontmatter (significant migration).
+- Git loses meaningful diffs — SQLite binary blobs or generated markdown (divergence risk).
+- Operator cannot directly edit artifact state without a tool (`swain edit SPEC-073 --field status=Active`).
+- Two sources of truth if files are kept: SQLite + generated files must stay in sync.
+- If files are abandoned, all existing scripts (design-check.sh, adr-check.sh, renumber-artifact.sh, relink.sh) must be rewritten for SQLite.
+- Loss of git history for artifact changes — SQL commits replace git commits.
+
+**Path C: Hybrid — SQLite for operational state, files for artifact truth.**
+- Artifact definitions and lifecycle remain authoritative in `.md` files.
+- specgraph continues to read files as today (unchanged).
+- MCP server adds SQLite only for operational state: task tracking, session state, bookmarks, decision logs.
+- MCP tools read files for artifact queries (via specgraph), use SQLite for session-scoped state.
+- No second source of truth for artifacts — files are always canonical.
+- SQLite is disposable (session scratch space), not authoritative.
+
+**What this looks like in practice:**
+```
+Agent calls: swain__task_claim(task_id="T15", spec="SPEC-073")
+MCP handler:
+  1. Checks SQLite session_tasks for conflicts
+  2. INSERT INTO session_tasks (task_id, spec, status, claimed_at)
+  3. No file touched — tasks are session-scoped
+
+Agent calls: swain__lifecycle_transition(spec="SPEC-073", phase="Complete")
+MCP handler:
+  1. Reads SQLite session_tasks to verify all tasks done
+  2. Reads .md file, validates transition
+  3. Edits frontmatter, moves file (filesystem operation)
+  4. No SQLite artifact write — files are the authority
+
+Agent calls: swain__session_start()
+MCP handler:
+  1. Creates session row in SQLite
+  2. Loads last session's bookmark from SQLite
+  3. Returns current specgraph overview (read from files)
+```
+
+**Strengths:**
+- Files remain the single source of truth for artifacts. specgraph unchanged.
+- Operational state (tasks, sessions, bookmarks) gets SQL benefits without contaminating artifact truth.
+- No migration of file-based scripts.
+- SQLite session data can be gitignored or ephemeral.
+- Phase transitions remain git-tracked.
+- Implementation is incremental — add SQLite for operational state, keep files for artifacts.
+
+**Weaknesses:**
+- Artifact queries still go through specgraph cache (same latency as today).
+- Task state is not git-tracked (unless session_tasks.db is committed).
+- Two stores to manage (files + SQLite), though with clear ownership boundaries.
+- Less structurally clean than Path B (single store), but preserves existing investment.
+
+### Which Path Aligns With Swain's Identity?
+
+Swain's core value is artifacts on disk that encode decisions, scope, and constraints. This is in AGENTS.md: *"Artifacts on disk — specs, epics, spikes, ADRs — live under docs/ and encode what was decided, what to build, and what constraints apply."*
+
+Path A (files in repo, MCP pass-through) or Path C (hybrid, files authoritative) preserve this identity. Path B (SQLite authority, files optional) changes what swain IS — from a documentation discipline to a database application.
+
+Path C is the recommended starting point. It adds operational state (tasks, sessions, bookmarks) — the things that currently have no structured persistence — without changing what artifacts are. Path B is a valid long-term direction but changes swain's fundamental nature and needs its own evaluation separate from the tool-vs-skill question.
+
+### 3. Solving the Router Problem Requires External Triggers
 
 Mechanisms that bypass agent routing:
 - **Hooks** fire on tool execution events — agent cannot skip them.
@@ -335,7 +469,7 @@ Mechanisms that bypass agent routing:
 
 These are the complement to tools, not an alternative to them. A swain tool provides the enforcement logic; a hook or gate provides the trigger that ensures the tool is consulted.
 
-### 3. The Design Space Splits Along the Router Line
+### 4. The Design Space Splits Along the Router Line
 
 | Approach | Solves call-side | Solves check-side | Overhead |
 |----------|-----------------|-------------------|----------|
@@ -348,7 +482,7 @@ These are the complement to tools, not an alternative to them. A swain tool prov
 
 The best approach depends on which ceremonies need enforcement most.
 
-### 4. Phase Transitions Are the Hardest Problem
+### 5. Phase Transitions Are the Hardest Problem
 
 The ceremonies that matter most — artifact phase transitions — are the hardest to enforce automatically. They happen at moments with no obvious trigger event. "I finished implementing SPEC-073" has no hook-compatible signal. The agent must initiate the transition voluntarily.
 
@@ -360,11 +494,11 @@ Options that address this:
 
 No fully automated solution exists for phase transitions without an explicit trigger event. This is not a swain-specific limitation — it's inherent to voluntary ceremonies.
 
-### 5. Token Economics Are Less Relevant to the Real Problem
+### 6. Token Economics Are Less Relevant to the Real Problem
 
-The token overhead debate (skills 30–50 tokens vs MCP 1–10k) is secondary. The primary design question is: what's the enforcement surface? A 30-token skill that the agent ignores is worse than a 10k-token MCP tool that the agent ignores — both fail equally. Token overhead only matters once we've solved the invocation question.
+The token overhead debate (skills 30–50 tokens vs MCP 1–10k) is secondary. The primary design questions are: what's the enforcement surface, and where does state live? A 30-token skill that the agent ignores is worse than a 10k-token MCP tool that the agent ignores — both fail equally. Token overhead only matters once we've solved the invocation question and the persistence question.
 
-### 6. Existing Artifacts to Leverage
+### 7. Existing Artifacts to Leverage
 
 | Artifact | Status | Relevance |
 |----------|--------|-----------|
@@ -376,21 +510,43 @@ The token overhead debate (skills 30–50 tokens vs MCP 1–10k) is secondary. T
 
 ## Recommendations
 
-### Go on Staged Tool Architecture — With Router Awareness
+### Go on Staged Tool Architecture — Path C for Persistence
 
-Swain v2 as a tool is viable and recommended, but with a critical caveat: tools alone don't solve enforcement. The strategy needs both a call-side plan and a check-side plan.
+Swain v2 as a tool is viable and recommended, with two critical constraints:
+1. **Tools alone don't solve enforcement** — the agent is still the router.
+2. **Files remain authoritative** — adopt Path C (SQLite for operational state, files for artifact truth).
 
-#### Phase 1 — MCP Server with Domain Logic (6-8 weeks)
+Phase 1 starts with Path C. Path B (full SQLite authority) would change swain's fundamental nature and needs its own evaluation.
 
-Build the MCP server as a *structured state resource* that enforces rules when consulted:
-- Implement EPIC-033 (already decomposed into 9 SPECs).
-- 10–15 tools covering artifact CRUD, lifecycle transitions, chart queries, status.
-- SQLite persistence, deterministic lifecycle state machine.
-- `load_methodology` tool for portable method delivery (not enforcement — this still relies on agent routing).
+#### Phase 1 — MCP Server + Path C Persistence (6-8 weeks)
+
+Build the MCP server with Path C architecture:
+- **Artifact tools** (CRUD, lifecycle transitions, chart queries, status) operate on `.md` files under `docs/`, using existing specgraph as the query layer. No SQLite for artifacts.
+- **Operational tools** (task tracking, session state, bookmarks, decision logs) use SQLite. This data is session-scoped and optionally git-tracked.
+- 10–15 tools total. Deterministic gate-checking in handlers. `load_methodology` for portable method delivery.
 - Claude Code plugin packaging (bundles MCP + existing skills).
 - npm distribution for any MCP client.
 
-**What Phase 1 solves:** persistent state, cross-session visibility, deterministic gate-checking (when called), cross-client portability.
+```python
+# Example: artifact transition (filesystem path)
+@mcp.tool()
+def lifecycle_transition(artifact_id: str, new_phase: str) -> dict:
+    filepath = resolve_artifact_path(artifact_id)      # finds .md file under docs/spec/etc
+    frontmatter = parse_frontmatter(filepath)
+    validate_transition(frontmatter["status"], new_phase)  # code gate
+    update_frontmatter(filepath, {"status": new_phase})
+    move_to_phase_directory(filepath, new_phase)       # git-tracked file move
+    return {"status": "ok", "new_phase": new_phase}
+
+# Example: task claim (SQLite path)
+@mcp.tool()
+def task_claim(task_id: str, spec_id: str) -> dict:
+    db.execute("INSERT INTO session_tasks (task_id, spec, status) VALUES (?, ?, 'claimed')",
+               (task_id, spec_id))
+    return {"status": "ok", "task": task_id}
+```
+
+**What Phase 1 solves:** persistent operational state, cross-session visibility, deterministic gate-checking (when called), cross-client portability. Files remain authoritative; specgraph works unchanged.
 **What Phase 1 does not solve:** whether the agent calls the tools at the right moments.
 
 #### Phase 2 — Git Hooks for Passive Enforcement (2-3 weeks)
@@ -451,6 +607,7 @@ The only architectural solution to this is the shell wrapper (Phase 5), which wo
 - **CLI-only as a standalone solution**: same issue, plus loses structured tool discovery.
 - **ACP agent as v2 launch scope**: ecosystem too new, same router problem.
 - **Skills-only status quo**: advisory-only enforcement is the root problem.
+- **Path B (SQLite authority for artifacts)**: changes what swain IS. Artifacts-on-disk is swain's defining property. This belongs in a separate evaluation, not as a dependency of tool-vs-skill.
 
 ### Open Questions for a Future VISION
 
@@ -460,6 +617,7 @@ The only architectural solution to this is the shell wrapper (Phase 5), which wo
 4. **Language choice**: Python (FastMCP) for fastest iteration, or Rust/Go for a single binary? Current skills are shell, scripts are Python.
 5. **Distribution channel**: brew for CLI, npm for MCP, plugin.json for Claude Code? How many channels to maintain?
 6. **MCP Apps UI**: should swain provide interactive dashboards via MCP Apps (Jan 2026 spec), or stay text-output?
+7. **Path B re-evaluation trigger**: under what conditions would lifting artifacts into SQLite become the right call? (e.g., scale beyond what filesystem parsing handles, multi-operator teams, CI/CD automation needs).
 
 ## Lifecycle
 
