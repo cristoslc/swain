@@ -11,10 +11,11 @@ gate: Pre-Vision
 parent-vision: ""
 parent-initiative: ""
 risks-addressed:
-  - Skill-injected methodology has no deterministic enforcement — agents can ignore instructions.
-  - Skill files consume context window tokens even with progressive disclosure.
-  - Skills are surface-specific (Claude Code, Codex, Gemini CLI each need adaptation).
-  - Operator cannot directly invoke swain outside an agent session.
+    - Skill-injected methodology has no deterministic enforcement — agents can ignore instructions.
+    - Skill files consume context window tokens even with progressive disclosure.
+    - Skills are surface-specific (Claude Code, Codex, Gemini CLI each need adaptation).
+    - Operator cannot directly invoke swain outside an agent session.
+    - Agent-as-router problem: both skills AND MCP tools depend on the agent choosing to invoke them correctly and at the right moments.
 trove: "skills-as-tools@1d55769"
 linked-artifacts:
   - SPIKE-030
@@ -209,7 +210,93 @@ acpx swain exec 'create trove for auth-patterns research'
 
 **Verdict:** Forward-looking. Interesting for multi-agent setups. Overengineering for the primary solo-operator use case. Defer to post-VISION exploration.
 
-## Decision Matrix
+## The Agent-as-Router Problem
+
+MCP tools and skills share a fundamental weakness: both depend on the agent choosing to invoke them. The agent is the router. The tool does not decide when it runs — the agent does.
+
+### Three Layers of Enforcement
+
+| Layer | What enforces it | When it fires | Agent can skip? |
+|-------|-----------------|---------------|-----------------|
+| **Skill** | Agent's own reasoning | Agent decides to follow instructions | Yes — entirely advisory |
+| **MCP tool** | Code gate in handler | Agent decides to call the tool | Yes — tool is never called |
+| **Hooks / pre-commit / CI** | External trigger | Automatically on events | No — fires regardless of agent intent |
+
+Skills and MCP tools only differ at layer 2: what happens *after* invocation. Neither improves layer 1: whether invocation happens at all.
+
+### What Swain Actually Needs Enforcement For
+
+Consider SPEC-073's lifecycle transitions. The current skill says "when a spec is implemented, transition it to Complete." The agent decides whether to do that. An MCP tool `swain__lifecycle_transition(spec="SPEC-073", phase="Complete")` checks that tasks are done before allowing the transition. But the agent still decides whether to call the tool.
+
+The enforcement chain has two links:
+1. **The agent must initiate the transition.**
+2. **The transition must be valid.**
+
+An MCP server hardens link 2. It does nothing for link 1.
+
+### Where the Router Problem Hurts Most
+
+| Swain ceremony | Router risk | Severity |
+|---------------|------------|----------|
+| Phase transitions (spec/epic lifecycle) | Agent forgets to transition after finishing work | High — state drifts from reality |
+| Task tracking (claim, close, depend) | Agent does work without tracking | High — no visibility into progress |
+| ADR compliance checks | Agent skips checking ADRs before changes | Medium — constraint violations accumulate |
+| Session bookmarks | Agent doesn't bookmark context | Low — operator can still resume manually |
+| Retrospectives | Agent doesn't reflect after completion | Medium — learning lost |
+
+Skills fail at these because the agent ignores them under context pressure. An MCP server fails at these for the same reason: the agent must still *choose* to call `swain__transition` or `swain__task_claim`.
+
+### What Actually Escapes the Router: External Triggers
+
+The only interventions that bypass the agent's routing decision are mechanisms that fire independently:
+
+1. **Hooks** (Claude Code's PreToolUse/PostToolUse). Fires before/after tool calls. Can block or augment behavior. Example: a PostToolUse hook on `Write` that checks `git diff` and warns if no spec tracking matches the changed files. The agent cannot skip this — the hook fires regardless.
+
+2. **Git hooks** (pre-commit, pre-push). Runs `swain validate` before commits. Refuses commits that violate ADR constraints or reference unparented artifacts. The agent cannot commit without passing validation.
+
+3. **CI/CD gates**. Runs `swain check --all` in CI. Blocks merge if lifecycle state doesn't match branch content. Works across agents and sessions.
+
+4. **Operator-manual enforcement**. The operator runs `swain check` and sees violations. This doesn't prevent anything but creates visibility.
+
+5. **Shell wrapper / shim**. A `swain-shell` that wraps the agent's tool execution, intercepting bash calls and refusing ones that violate process constraints. More invasive but more powerful.
+
+### Where MCP Actually Helps vs Skills
+
+MCP's value is not in solving the router problem. It's in:
+
+| Value | MCP provides | Skills also provide? |
+|-------|-------------|---------------------|
+| Structured state query | Yes (chart_query, artifact_content as Resources) | No |
+| Persistent state across sessions | Yes (SQLite) | No |
+| Deterministic gate-check (if called) | Yes (lifecycle state machine) | No |
+| Cross-client portability | Yes (any MCP client) | Partial (Claude + Codex + Gemini CLI) |
+| Testable logic | Yes (standard test frameworks) | No |
+| Operator CLI access | Only with wrapper | No |
+| Automatic invocation | No | No |
+
+The right framing: MCP makes swain a *usable resource* that enforces rules when consulted. It doesn't make swain a *proactive enforcer* that prevents process violations.
+
+## Revised Decision Matrix
+
+Adding "escapes router problem" as a criterion changes the analysis:
+
+| Criterion | CLI-Only | MCP-Only | Full Hybrid | Hook/Gate | Shell Wrapper |
+|-----------|----------|----------|-------------|-----------|---------------|
+| Deterministic enforcement (if called) | ++ | ++ | ++ | ++ | ++ |
+| Escapes agent-as-router | - | - | - | ++ | ++ |
+| Operator direct access | ++ | - | ++ | -- | - |
+| Agent ergonomics | - | ++ | ++ | -- | + |
+| Cross-runtime portability | + | ++ | ++ | - | - |
+| Structured tool discovery | - | ++ | ++ | - | - |
+| Token overhead | ++ | + | + | ++ | ++ |
+| Implementation complexity | + | + | - | + | - |
+| Distribution simplicity | ++ | + | - | + | - |
+| State persistence | + | ++ | ++ | - | - |
+| Blocks invalid actions | - | - | - | ++ | ++ |
+| Visibility into state | + | ++ | ++ | - | - |
+
+(Hook/Gate = pre-commit hooks + CI gates + Claude Code hooks; Shell Wrapper = shim intercepting agent tool calls)
+
 
 | Criterion | CLI-Only | MCP-Only | Full Hybrid | ACP Agent |
 |-----------|----------|----------|-------------|-----------|
@@ -227,120 +314,151 @@ acpx swain exec 'create trove for auth-patterns research'
 
 ## Findings
 
-### 1. Tools Solve the Enforcement Gap
+### 1. MCP Does Not Escape the Agent-as-Router Problem
 
-The fundamental weakness of skill-injected methodology is that it's advisory. [skills-as-tools trove] establishes this as the industry's shared diagnosis. Skills say "you should follow this workflow." Tools say "this transition is invalid — refused." The AI coding agents deconstructed analysis [ai-coding-agents-deconstructed] identifies modes without hard permissions as the key limitation: plan mode is just a prompt, and agents routinely drift from methodology under context pressure.
+This is the critical finding. Skills fail at enforcement because the agent decides whether to follow instructions. MCP tools fail at enforcement for the identical reason: the agent decides whether to call the tool. A lifecycle state machine that refuses invalid transitions is worthless if the agent never calls the transition tool.
 
-Swain v2 as a tool eliminates this gap. Lifecycle state machines become code. Phase transitions become validated gate conditions. Methodology becomes a constraint, not a suggestion.
+The value of MCP over skills is real but narrow:
+- Once called, MCP provides deterministic gate-checking (skills provide advisory text).
+- MCP provides persistent, queryable state (skills provide only current context).
+- MCP provides cross-client portability (skills need per-runtime adaptation).
 
-### 2. The Industry Trajectory Favors Tools Over Skills
+But none of this addresses *whether the ceremony happens at all*. [See Agent-as-Router Problem above.]
 
-SPIKE-030 (Complete) already established that MCP can serve as swain's distribution layer. The skills-as-tools trove adds new evidence:
-- MCP is now under the Linux Foundation with formal governance.
-- 2026 roadmap addresses auth, context bloat, and enterprise readiness.
-- Tools-as-methodology is a growing pattern (lifecycle-mcp, spec-workflow-mcp).
-- ACPX demonstrates headless agent orchestration as a practical cross-harness pattern.
+### 2. Solving the Router Problem Requires External Triggers
 
-The "skills killed MCP" narrative has been rebutted: both layers coexist in 2026 architecture.
+Mechanisms that bypass agent routing:
+- **Hooks** fire on tool execution events — agent cannot skip them.
+- **Git hooks** fire on git operations — agent cannot commit without passing checks.
+- **CI gates** fire on push/PR — process violations block merge.
+- **Shell wrappers** intercept agent tool calls — refuse invalid operations before they execute.
 
-### 3. A Phased Approach Minimizes Risk
+These are the complement to tools, not an alternative to them. A swain tool provides the enforcement logic; a hook or gate provides the trigger that ensures the tool is consulted.
 
-A single "build everything" approach is too risky. Recommended phasing:
+### 3. The Design Space Splits Along the Router Line
 
-**Phase 1 — MCP Server (6-8 weeks)**
-- Implement EPIC-033 (already decomposed into 9 SPECs).
-- 10–15 tools covering core swain operations.
-- SQLite persistence, deterministic lifecycle state machine.
-- `load_methodology` tool for skill-chaining bridge.
-- Claude Code plugin packaging (bundles MCP + existing skills).
-- npm distribution for any MCP client.
-- Existing skills continue to work unchanged (hybrid coexistence).
+| Approach | Solves call-side | Solves check-side | Overhead |
+|----------|-----------------|-------------------|----------|
+| Skills-only | No (agent decides) | No (advisory) | Lowest |
+| MCP-only | No (agent decides) | Yes (code gates) | Medium |
+| MCP + hooks | Partially (hooks fire on events) | Yes (code gates) | Medium-high |
+| MCP + git hooks | Yes (commit/push gates) | Yes (code gates) | Medium-high |
+| Shell wrapper | Yes (intercepts tool calls) | Yes (code gates) | High |
+| Full CI/CD | Yes (merge gates) | Yes (code gates) | Highest |
 
-**Phase 2 — Thin CLI Wrapper (2–4 weeks)**
-- Wrap the MCP server's domain library in a CLI.
-- `swain design`, `swain do`, `swain status`, `swain session`, etc.
-- JSON output mode for agent consumption.
-- Human-readable output for operator direct use.
-- Same persistence layer as MCP (operators and agents see the same state).
+The best approach depends on which ceremonies need enforcement most.
 
-**Phase 3 — Skills Become Thin Wrappers (ongoing)**
-- As agents adopt MCP-native invocation, skill files shrink to routing instructions.
-- Example: `/swain-design` skill becomes: "Use the swain__design tool. Here's how to interpret its output."
-- Eventually, skills may be removed entirely for MCP-native clients.
+### 4. Phase Transitions Are the Hardest Problem
 
-**Phase 4 — ACP Integration (post-VISION, speculative)**
-- If multi-agent workflows become a priority, add ACP support.
-- Swain participates as a methodology agent in multi-agent sessions.
-- acpx-compatible for headless orchestration.
+The ceremonies that matter most — artifact phase transitions — are the hardest to enforce automatically. They happen at moments with no obvious trigger event. "I finished implementing SPEC-073" has no hook-compatible signal. The agent must initiate the transition voluntarily.
 
-### 4. What Happens to Existing Skills?
+Options that address this:
+- **Hooks on `git commit`**: check if changed files belong to active specs; prompt transition.
+- **Hooks on `Write` + `Edit`**: track which specs' files are modified; suggest transition on session end.
+- **Operator manual**: the operator runs `swain status` and sees stale artifacts; transitions manually.
+- **Convention**: agent is *expected* to call the transition tool; violations are visible but not blocked.
 
-Skills do not disappear in v2. They evolve:
-- **Phase 1**: skills coexist with MCP tools (hybrid architecture from SPIKE-030).
-- **Phase 2**: skills become thin wrappers calling `swain` CLI or MCP tools.
-- **Phase 3**: skills are optional — agents can use MCP natively or fall back to skills.
-- **End-state**: skills exist for agents without MCP support; MCP tools are primary for compatible agents.
+No fully automated solution exists for phase transitions without an explicit trigger event. This is not a swain-specific limitation — it's inherent to voluntary ceremonies.
 
-The operator never loses the readable governance that skills provide. CLI output and MCP resource URIs replace `SKILL.md` as the documentation surface.
+### 5. Token Economics Are Less Relevant to the Real Problem
 
-### 5. Token Economics Are Acceptable
+The token overhead debate (skills 30–50 tokens vs MCP 1–10k) is secondary. The primary design question is: what's the enforcement surface? A 30-token skill that the agent ignores is worse than a 10k-token MCP tool that the agent ignores — both fail equally. Token overhead only matters once we've solved the invocation question.
 
-A 10–15 tool MCP server consumes ~1–10k tokens of context. With Tool Search (Claude Code Sonnet 4+), this drops ~85% to ~150–1,500 on-demand tokens. For agents without Tool Search, the full cost applies — but swain's lean tool count (not one tool per artifact operation) keeps it manageable.
-
-The CLI path has no tool-definition overhead at all. Agents see only the output of `swain status`, not the schema of every possible command. This is a meaningful advantage for context-constrained sessions.
-
-### 6. Operator Experience Changes Significantly
-
-**Current (skills):**
-- Operator reads `SKILL.md` files to understand swain's methodology.
-- Operator invokes skills through slash commands in agent sessions.
-- Operator cannot interact with swain outside an agent.
-
-**v2 (tools):**
-- Operator runs `swain status` directly in terminal.
-- Operator transitions artifacts via `swain design transition SPEC-082 Active`.
-- Operator reads CLI help (`swain --help`, `swain design --help`) instead of `SKILL.md`.
-- Operator can script swain operations (CI/CD, git hooks, automation).
-- Agent sessions still invoke swain, but operator has a parallel direct path.
-
-### 7. Existing Artifacts to Leverage
+### 6. Existing Artifacts to Leverage
 
 | Artifact | Status | Relevance |
 |----------|--------|-----------|
-| SPIKE-030 | Complete, Go | MCP viability proven; hybrid architecture recommended. |
-| EPIC-033 | Proposed, 9 child SPECs | Full MCP server decomposed and ready for implementation. |
-| SPIKE-047 | Active | All 5 runtimes compatible with CLI invocation via swain's shell launcher. |
-| SPEC-319 | Active | swain-helm CLI pattern (subcommand groups, shell scripts) as reference. |
+| SPIKE-030 | Complete, Go | MCP viability proved; hybrid architecture recommended. Router problem not examined. |
+| EPIC-033 | Proposed, 9 child SPECs | Full MCP server decomposed. Needs router-problem analysis added. |
+| SPIKE-047 | Active | All 5 runtimes compatible with CLI invocation. Relevant for hook/shim portability. |
+| SPEC-319 | Active | swain-helm CLI pattern as reference. |
 | SPEC-293 | — | swain-search CLI tool research pattern as reference. |
 
 ## Recommendations
 
-### Go (Staged Hybrid)
+### Go on Staged Tool Architecture — With Router Awareness
 
-Swain v2 as a tool is viable and recommended. The phased approach:
+Swain v2 as a tool is viable and recommended, but with a critical caveat: tools alone don't solve enforcement. The strategy needs both a call-side plan and a check-side plan.
 
-1. **Start with MCP server** (Phase 1). All 9 SPECs under EPIC-033 are ready. Implementation is straightforward with FastMCP + SQLite. Distribute as Claude Code plugin + npm package. Existing skills coexist.
+#### Phase 1 — MCP Server with Domain Logic (6-8 weeks)
 
-2. **Add thin CLI wrapper** (Phase 2). Share the MCP server's domain library. The CLI provides operator access and reduces token overhead for agents that prefer bash to MCP tool calls.
+Build the MCP server as a *structured state resource* that enforces rules when consulted:
+- Implement EPIC-033 (already decomposed into 9 SPECs).
+- 10–15 tools covering artifact CRUD, lifecycle transitions, chart queries, status.
+- SQLite persistence, deterministic lifecycle state machine.
+- `load_methodology` tool for portable method delivery (not enforcement — this still relies on agent routing).
+- Claude Code plugin packaging (bundles MCP + existing skills).
+- npm distribution for any MCP client.
 
-3. **Evolve skills into routing shims** (Phase 3). As MCP-native clients dominate, skills shrink to one-liners delegating to tools.
+**What Phase 1 solves:** persistent state, cross-session visibility, deterministic gate-checking (when called), cross-client portability.
+**What Phase 1 does not solve:** whether the agent calls the tools at the right moments.
 
-4. **Defer ACP integration** to post-VISION exploration. The use case is multi-agent setups, which swain's solo-operator model does not currently require.
+#### Phase 2 — Git Hooks for Passive Enforcement (2-3 weeks)
+
+Add git hook integration that runs `swain check` without agent involvement:
+- `pre-commit` hook: validates that changed artifact files follow lifecycle rules. Warns (or blocks, opt-in) on stale artifacts, unparented references, ADR violations.
+- `post-commit` hook: updates artifact indexes, stamps lifecycle hashes.
+- Agent cannot skip these — git hooks fire regardless.
+
+**What Phase 2 adds:** automatic visibility into process violations. Operator sees warnings even if agent skipped ceremonies.
+
+#### Phase 3 — Claude Code Hooks for Active Enforcement (2-3 weeks)
+
+Implement Claude Code PreToolUse/PostToolUse hooks:
+- `PreToolUse(Write)`: checks if the file being written belongs to an active spec. Prompts the agent to confirm phase transitions.
+- `PostToolUse(Edit)`: tracks which specs are being modified. Suggests task claim updates.
+- `SessionStart`: loads current artifact state, flags stale items.
+- `PostToolUse(Commit)`: prompts for `swain sync` after commits touch artifact files.
+
+**What Phase 3 adds:** hooks fire automatically on specific trigger events — agent cannot skip them. This partially addresses the router problem for ceremonies with detectable trigger signals (file writes, commits, session starts).
+
+#### Phase 4 — Thin CLI Wrapper (2-4 weeks)
+
+Wrap the MCP server's domain library in a CLI for operator direct use:
+- `swain design`, `swain do`, `swain status`, `swain check`, `swain session`.
+- JSON output mode for scripting and CI.
+- Human-readable output for operator direct use.
+- Operator fills the enforcement gap manually — sees `swain check` violations and addresses them.
+
+**What Phase 4 adds:** operator access. Not automatic enforcement, but visibility into what the agent missed.
+
+#### Phase 5 — Shell Wrapper (exploratory, post-VISION)
+
+A `swain-shell` shim that wraps the agent's `bash` tool, intercepting commands and refusing ones that violate process constraints. This is the most invasive approach but the only one that provides proactive, real-time enforcement across all tool calls.
+
+**Deferred** as a post-VISION exploration. The implementation complexity is high and the user experience impact is unknown.
+
+### Phases 1-4 Combined Enforce This
+
+| Ceremony | Router risk | Phase 1 (MCP) | Phase 2 (git hooks) | Phase 3 (CC hooks) | Phase 4 (CLI) |
+|----------|------------|---------------|---------------------|--------------------|-------------------|
+| Phase transitions | High | Gate-checks work *if called* | Warns on stale artifacts at commit | Prompts on Write/Edit of spec files | Operator sees violations |
+| Task tracking | High | Claim/close tools work *if called* | — | Prompts on file changes matching active specs | Operator sees untracked work |
+| ADR compliance | Medium | Check tool works *if called* | Blocks commits violating ADRs | Prompts on ADR-touching changes | Operator runs `swain check --adr` |
+| Session bookmarks | Low | Session tools work *if called* | — | SessionStart loads state | Operator runs `swain session` |
+| Retrospectives | Medium | Retro tool works *if called* | — | — | Operator runs `swain retro` |
+| Sync workflow | Medium | Sync tools work *if called* | — | PostToolUse(Commit) triggers sync | Operator runs `swain sync` |
+
+### What Remains Unsolved
+
+Phase transitions are the hardest problem. No automatic trigger exists for "I finished implementing this spec." The combination of git hooks (warn), Claude Code hooks (prompt), and CLI visibility (operator catch) makes violations visible — but doesn't prevent them.
+
+The only architectural solution to this is the shell wrapper (Phase 5), which would need to understand enough about what the agent is doing to know when ceremonies are due. That's an open research question.
 
 ### Not Recommended
 
-- **CLI-only** as the sole interface: loses structured tool discovery for agents.
-- **MCP-only** as the sole interface: loses operator direct access.
-- **ACP agent** as v2 launch scope: ecosystem too new, overengineering for current needs.
-- **Big-bang rewrite**: implementing all three interfaces simultaneously is unnecessary risk.
+- **MCP-only as a standalone solution**: doesn't address the router problem.
+- **CLI-only as a standalone solution**: same issue, plus loses structured tool discovery.
+- **ACP agent as v2 launch scope**: ecosystem too new, same router problem.
+- **Skills-only status quo**: advisory-only enforcement is the root problem.
 
 ### Open Questions for a Future VISION
 
-1. **Language choice**: Python (FastMCP) for fastest iteration, or Rust/Go for a single binary? Current skills are shell, scripts are Python. MCP ecosystem favors Python/TypeScript.
-2. **Distribution channel**: brew for CLI, npm for MCP, plugin.json for Claude Code? How many channels to maintain?
-3. **Skill sunset timeline**: when can skills be removed for MCP-native clients? What's the trigger?
-4. **Backward compatibility**: how long must the hybrid mode persist? What happens to projects using swain v1 skills?
-5. **Auth model**: local stdio (no auth) is fine for personal use. What does auth look like for team MCP servers?
+1. **What ceremonies actually need automatic enforcement vs visibility?** Some violations (stale phase tracking) are visible to the operator without blocking. Others (ADR violations in committed code) might warrant hard blocking.
+2. **Shell wrapper feasibility**: can a shim reliably detect when ceremonies are due without excessive false positives?
+3. **Hook portability**: Claude Code hooks don't work on other runtimes. How important is cross-runtime hook support?
+4. **Language choice**: Python (FastMCP) for fastest iteration, or Rust/Go for a single binary? Current skills are shell, scripts are Python.
+5. **Distribution channel**: brew for CLI, npm for MCP, plugin.json for Claude Code? How many channels to maintain?
 6. **MCP Apps UI**: should swain provide interactive dashboards via MCP Apps (Jan 2026 spec), or stay text-output?
 
 ## Lifecycle
