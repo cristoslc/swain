@@ -24,6 +24,7 @@ freshness-ttl:
 
 related-troves:
   - claude-code-remote-interaction
+  - worktree-aware-session-bridge
 
 history:
   - event: created
@@ -35,6 +36,11 @@ history:
     commit: "2565704"
     sources-added: 4
     sources-total: 14
+  - event: extended
+    date: 2026-04-23
+    commit: "--"
+    sources-added: 5
+    sources-total: 19
 
 sources:
   # === Web UIs (multi-runtime) ===
@@ -138,3 +144,66 @@ sources:
     fetched: 2026-04-06T00:00:00Z
     title: "Agent Client Protocol Python SDK — A New Chapter (Official Org Adoption)"
     hash: "4177319220adbcf3409f5039b84c5d149f343946836421e9285b3473de15286b"
+
+  # === Messaging platform adapters (awesome-opencode extension) ===
+  - source-id: kimaki
+    type: repository
+    url: "https://github.com/remorses/kimaki"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Kimaki — Discord bot to control opencode sessions on any computer via Discord"
+    hash: "c270b37cff7518dcea78f94f57834014d3fec913619abfe58d8474657d46307f"
+    selective: true
+    highlights:
+      - discord-bot.ts
+      - thread-session-runtime.ts
+      - thread-runtime-state.ts
+      - opencode.ts
+      - database.ts
+
+  - source-id: golembot
+    type: repository
+    url: "https://github.com/0xranx/golembot"
+    fetched: 2026-04-23T00:00:00Z
+    title: "GolemBot — Unified AI assistant with 7 IM adapters (Feishu, Slack, Telegram, Discord, DingTalk, WeCom, WeChat)"
+    hash: "266733916b9904bfd3c24e6e14aca282b96c5b7097d3520b613bd683c9c9b101"
+    selective: true
+    highlights:
+      - channel.ts
+      - dingtalk.ts
+      - discord.ts
+      - engine.ts
+      - feishu-format.ts
+
+  - source-id: open-dispatch
+    type: repository
+    url: "https://github.com/bobum/open-dispatch"
+    fetched: 2026-04-23T00:00:00Z
+    title: "Open Dispatch — Bridge app connecting Slack/Teams to AI coding assistants with session persistence and smart message routing"
+    hash: "9bc30ffcc1e8037cbce94db86de0f907951f750886d5266dd2bee629f9a9097f"
+    selective: true
+    highlights:
+      - chat-provider.js
+      - bot-engine.js
+      - webhook-server.js
+
+  - source-id: hcom
+    type: repository
+    url: "https://github.com/aannoo/hcom"
+    fetched: 2026-04-23T00:00:00Z
+    title: "hcom — Inter-agent messaging with collision detection, TUI dashboard, and MQTT cross-device relay"
+    hash: "3b13ab8f52753bcbf5e5eaa516d798ca555bc7206640d828aada836ca3e355d8"
+    selective: true
+    highlights:
+      - golembot-snapshot.md
+      - hcom-snapshot.md
+
+  - source-id: opencode-telegram-bot
+    type: repository
+    url: "https://github.com/grinev/opencode-telegram-bot"
+    fetched: 2026-04-23T00:00:00Z
+    title: "OpenCode Telegram Bot — Run and monitor AI coding tasks from your phone via Telegram"
+    hash: "cd0ac0ace78f23e0882c651242f331c17fb2aa8285dbead26888da7259324e8e"
+    selective: true
+    highlights:
+      - events.ts
+      - aggregator.ts

@@ -1,8 +1,9 @@
 """RED tests for the NDJSON plugin protocol — the published language from DESIGN-024."""
+
 import json
 import time
 
-from untethered.protocol import (
+from swain_helm.protocol import (
     Event,
     Command,
     ConfigMessage,
@@ -24,6 +25,17 @@ class TestEventCreation:
         assert event.session_id == "sess-001"
         assert event.payload["content"] == "Hello from the runtime"
         assert isinstance(event.timestamp, int)
+
+    def test_thinking_output_event(self):
+        event = Event.thinking_output(
+            bridge="swain",
+            session_id="sess-001",
+            content="Hmm, let me think about this...",
+        )
+        assert event.type == "thinking_output"
+        assert event.bridge == "swain"
+        assert event.session_id == "sess-001"
+        assert event.payload["content"] == "Hmm, let me think about this..."
 
     def test_tool_call_event(self):
         event = Event.tool_call(
@@ -132,26 +144,47 @@ class TestSerialization:
         assert parsed["session_id"] == "sess-001"
         assert parsed["payload"]["content"] == "hello"
 
+    def test_bridge_online_roundtrips_correctly(self):
+        event = Event.bridge_online(
+            project="myproject",
+            stream="myproject",
+            worktree_path="/home/user/myproject",
+            branch_name="trunk",
+        )
+        line = encode_message(event)
+        decoded = decode_message(line)
+        assert decoded is not None
+        assert decoded.type == "bridge_online"
+        assert decoded.bridge == "myproject"
+        assert decoded.payload["project"] == "myproject"
+        assert decoded.payload["stream"] == "myproject"
+        assert decoded.payload["branch_name"] == "trunk"
+        assert decoded.payload["worktree_path"] == "/home/user/myproject"
+
     def test_decode_ndjson_to_event(self):
-        raw = json.dumps({
-            "type": "text_output",
-            "bridge": "swain",
-            "session_id": "sess-001",
-            "timestamp": int(time.time() * 1000),
-            "payload": {"content": "hello"},
-        })
+        raw = json.dumps(
+            {
+                "type": "text_output",
+                "bridge": "swain",
+                "session_id": "sess-001",
+                "timestamp": int(time.time() * 1000),
+                "payload": {"content": "hello"},
+            }
+        )
         msg = decode_message(raw)
         assert isinstance(msg, Event)
         assert msg.type == "text_output"
 
     def test_decode_ndjson_to_command(self):
-        raw = json.dumps({
-            "type": "send_prompt",
-            "bridge": "swain",
-            "session_id": "sess-001",
-            "timestamp": int(time.time() * 1000),
-            "payload": {"text": "hello"},
-        })
+        raw = json.dumps(
+            {
+                "type": "send_prompt",
+                "bridge": "swain",
+                "session_id": "sess-001",
+                "timestamp": int(time.time() * 1000),
+                "payload": {"text": "hello"},
+            }
+        )
         msg = decode_message(raw)
         assert isinstance(msg, Command)
         assert msg.type == "send_prompt"
@@ -181,13 +214,15 @@ class TestSerialization:
         assert decoded.payload == event.payload
 
     def test_parse_ndjson_line_ignores_unknown_type(self):
-        raw = json.dumps({
-            "type": "future_event_type",
-            "bridge": "swain",
-            "session_id": None,
-            "timestamp": int(time.time() * 1000),
-            "payload": {"some": "data"},
-        })
+        raw = json.dumps(
+            {
+                "type": "future_event_type",
+                "bridge": "swain",
+                "session_id": None,
+                "timestamp": int(time.time() * 1000),
+                "payload": {"some": "data"},
+            }
+        )
         msg = parse_ndjson_line(raw)
         assert msg is not None
         assert msg.type == "future_event_type"
@@ -195,3 +230,22 @@ class TestSerialization:
     def test_parse_ndjson_line_returns_none_for_malformed(self):
         assert parse_ndjson_line("not json at all") is None
         assert parse_ndjson_line('{"no_type": true}') is None
+
+    def test_bridge_online_event_roundtrip(self):
+        event = Event.bridge_online(
+            project="myproject",
+            stream="myproject",
+            worktree_path="/home/user/myproject",
+            branch_name="trunk",
+        )
+        assert event.type == "bridge_online"
+        assert event.bridge == "myproject"
+        assert event.payload["project"] == "myproject"
+        assert event.payload["stream"] == "myproject"
+        assert event.payload["worktree_path"] == "/home/user/myproject"
+        assert event.payload["branch_name"] == "trunk"
+        line = encode_message(event)
+        decoded = decode_message(line)
+        assert decoded.type == event.type
+        assert decoded.bridge == event.bridge
+        assert decoded.payload == event.payload

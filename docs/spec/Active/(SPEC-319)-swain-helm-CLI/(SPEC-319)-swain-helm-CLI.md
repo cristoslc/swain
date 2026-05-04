@@ -71,6 +71,17 @@ swain-helm project list                # List all registered projects with statu
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: host up starts watchdog | `test_cli.py::TestHostUp` | Pass (Docker) |
+| AC2: host up --foreground | `test_cli.py::TestHostUp::test_host_up_foreground` | Pass (Docker) |
+| AC3: host down stops all | `test_cli.py::TestHostDown` | Pass (Docker) |
+| AC4: host down --project stops single bridge | `test_cli.py::TestHostDown::test_host_down_project` | Pass (Docker) |
+| AC5: host status shows state | `test_cli.py::TestHostStatus` | Pass (Docker) |
+| AC6: host provision writes config | `test_cli.py::TestHostProvision` | Pass (Docker) |
+| AC7: project add registers git repo | `test_cli.py::TestProjectAdd` | Pass |
+| AC8: project add rejects non-git | `test_cli.py::TestProjectAdd::test_rejects_non_git_dir` | Pass |
+| AC9: project add with absolute path | `test_cli.py::TestProjectAdd::test_adds_absolute_path` | Pass |
+| AC10: project remove deletes config | `test_cli.py::TestProjectRemove` | Pass |
+| AC11: project list shows all | `test_cli.py::TestProjectList` | Pass |
 
 ## Scope & Constraints
 

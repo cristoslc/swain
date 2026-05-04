@@ -1,0 +1,203 @@
+"""Plugin subprocess manager — spawns and supervises NDJSON-over-stdio plugins.
+
+Implements ADR-038 (microkernel plugin architecture) and ADR-049 (process
+hygiene). A PluginProcess manages one subprocess (chat adapter or runtime
+adapter). Each subprocess is launched in its own process group (os.setpgrp)
+so that stop() can cascade SIGTERM to the entire group, preventing orphan
+grandchildren (the bug that caused "typing indicator but no response").
+
+Protocol:
+  stdin line 0 : ConfigMessage (JSON, sent by kernel on startup)
+  stdin lines 1+: NDJSON Events or Commands from kernel
+  stdout lines  : NDJSON Commands or Events to kernel
+  stderr        : logged at DEBUG level
+"""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+import os
+import signal
+from typing import Any, Callable
+
+from swain_helm.protocol import (
+    Event,
+    Command,
+    ConfigMessage,
+    encode_message,
+    decode_message,
+)
+
+log = logging.getLogger("swain_helm.plugin_process")
+
+
+class PluginProcess:
+    """One plugin subprocess — chat adapter, runtime adapter, or project bridge."""
+
+    def __init__(
+        self,
+        name: str,
+        cmd: list[str],
+        *,
+        plugin_type: str,
+        config: dict[str, Any],
+        on_message: Callable[[Event | Command | ConfigMessage], None] | None = None,
+    ) -> None:
+        self.name = name
+        self.cmd = cmd
+        self.plugin_type = plugin_type
+        self.config = config
+        self.on_message = on_message
+        self._proc: asyncio.subprocess.Process | None = None
+        self._reader_task: asyncio.Task | None = None
+        self._stderr_task: asyncio.Task | None = None
+        self._pending: list[Event | Command | ConfigMessage] = []
+        self._started: asyncio.Event = asyncio.Event()
+
+    @property
+    def pid(self) -> int | None:
+        return self._proc.pid if self._proc else None
+
+    @property
+    def is_running(self) -> bool:
+        return self._proc is not None and self._proc.returncode is None
+
+    async def start(self) -> None:
+        """Spawn the plugin subprocess, send config, and start stdout/stderr readers.
+
+        Per ADR-049, each plugin runs in its own process group (setpgrp) so
+        that stop() can cascade termination to grandchildren.
+        """
+        self._proc = await asyncio.create_subprocess_exec(
+            *self.cmd,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            preexec_fn=os.setpgrp,
+        )
+        cfg_msg = ConfigMessage(plugin_type=self.plugin_type, config=self.config)
+        assert self._proc.stdin is not None
+        self._proc.stdin.write(encode_message(cfg_msg).encode())
+        await self._proc.stdin.drain()
+        self._reader_task = asyncio.create_task(
+            self._read_stdout(), name=f"{self.name}.stdout"
+        )
+        self._stderr_task = asyncio.create_task(
+            self._log_stderr(), name=f"{self.name}.stderr"
+        )
+        log.info("Plugin started: %s (pid %s)", self.name, self._proc.pid)
+        self._started.set()
+        if self._pending:
+            for msg in self._pending:
+                try:
+                    assert self._proc.stdin is not None
+                    self._proc.stdin.write(encode_message(msg).encode())
+                except Exception:
+                    log.warning("Failed to flush pending message to %s", self.name)
+                    break
+            try:
+                await self._proc.stdin.drain()
+            except (BrokenPipeError, ConnectionResetError):
+                log.warning("Pipe error flushing pending to %s", self.name)
+            self._pending.clear()
+
+    async def write(self, msg: Event | Command | ConfigMessage) -> None:
+        """Send a message to the plugin's stdin. Queues if not yet started."""
+        if not self._started.is_set():
+            self._pending.append(msg)
+            log.debug("Queued message for %s (not started yet)", self.name)
+            return
+        if not self._proc or not self._proc.stdin:
+            log.warning("Cannot write to %s — process not running", self.name)
+            return
+        try:
+            assert self._proc.stdin is not None
+            self._proc.stdin.write(encode_message(msg).encode())
+            await self._proc.stdin.drain()
+        except BrokenPipeError:
+            log.warning(
+                "Broken pipe writing to %s — process may have exited", self.name
+            )
+        except ConnectionResetError:
+            log.warning(
+                "Connection reset writing to %s — process may have exited", self.name
+            )
+
+    async def stop(self, timeout: float = 5.0) -> None:
+        """Cancel readers, terminate the process group, and wait for exit.
+
+        Per ADR-049, uses os.killpg to cascade SIGTERM to the entire process
+        group (set up by setpgrp in start()). This prevents orphan
+        grandchildren that caused the "typing indicator but no response" bug.
+        """
+        for task in (self._reader_task, self._stderr_task):
+            if task:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+        if self._proc:
+            if self._proc.returncode is None:
+                pgid = None
+                try:
+                    pgid = os.getpgid(self._proc.pid)
+                except (ProcessLookupError, OSError):
+                    pass
+                if pgid and pgid != os.getpgid(os.getpid()):
+                    try:
+                        os.killpg(pgid, signal.SIGTERM)
+                    except (ProcessLookupError, OSError):
+                        pass
+                else:
+                    try:
+                        self._proc.terminate()
+                    except ProcessLookupError:
+                        pass
+                try:
+                    await asyncio.wait_for(self._proc.wait(), timeout=timeout)
+                except asyncio.TimeoutError:
+                    if pgid and pgid != os.getpgid(os.getpid()):
+                        try:
+                            os.killpg(pgid, signal.SIGKILL)
+                        except (ProcessLookupError, OSError):
+                            pass
+                    else:
+                        self._proc.kill()
+            log.info("Plugin stopped: %s", self.name)
+
+    async def _read_stdout(self) -> None:
+        """Read NDJSON lines from plugin stdout and dispatch to on_message callback.
+
+        Exceptions in the callback are caught and logged to prevent them from
+        killing the reader task.
+        """
+        if not self._proc or not self._proc.stdout:
+            return
+        while True:
+            line = await self._proc.stdout.readline()
+            if not line:
+                log.warning("Plugin %s stdout closed", self.name)
+                break
+            msg = decode_message(line.decode())
+            if msg is not None and self.on_message:
+                try:
+                    self.on_message(msg)
+                except Exception:
+                    log.exception("on_message callback error in %s", self.name)
+
+    async def _log_stderr(self) -> None:
+        """Read stderr lines from the plugin and log them.
+
+        Plugin subprocesses use stderr for their own logging. The bridge
+        re-emits these at INFO level so they appear in the bridge log file
+        alongside bridge-level messages.
+        """
+        if not self._proc or not self._proc.stderr:
+            return
+        while True:
+            line = await self._proc.stderr.readline()
+            if not line:
+                break
+            log.info("[%s] %s", self.name, line.decode().rstrip())

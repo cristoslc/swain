@@ -69,6 +69,13 @@ A watchdog daemon that continuously maintains the bridge fleet at the desired st
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Reads all project configs | `test_watchdog_lifecycle.py::TestWatchdogStartsBridge`, `test_watchdog_lifecycle.py::TestWatchdogZeroConfigs` | Pass (Docker) |
+| AC2: Starts bridge for auto_start=true | `test_watchdog_lifecycle.py::TestWatchdogStartsBridge::test_bridge_pid_file_created`, `test_bridge_process_alive`, `test_two_projects_two_bridges` | Pass (Docker) |
+| AC3: Restarts stale PID | `test_watchdog_lifecycle.py::TestWatchdogStalePID` | Pass (Docker) |
+| AC4: Removes bridge when config removed | Not yet tested | Pending |
+| AC5: PID file location | `test_watchdog_lifecycle.py::test_bridge_pid_file_created` | Pass (Docker) |
+| AC6: Daemon mode writes watchdog.pid | Not yet tested | Pending |
+| AC7: SIGINT graceful shutdown | `test_watchdog_lifecycle.py::TestWatchdogGracefulShutdown` | Flaky (Docker) |
 
 ## Scope & Constraints
 

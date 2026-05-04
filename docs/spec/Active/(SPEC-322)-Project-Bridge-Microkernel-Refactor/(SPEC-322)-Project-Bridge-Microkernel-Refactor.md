@@ -67,6 +67,17 @@ ProjectBridge spawns every adapter — chat and runtime — as a subprocess plug
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: Bridge spawns chat plugin | `test_project_bridge_microkernel.py::TestBridgeSpawnsPlugins` | Pass |
+| AC2: Chat plugin receives ConfigMessage | `test_project_bridge_microkernel.py::TestNDJSONProtocol` | Pass |
+| AC3: ConfigMessage contains scoped creds | `test_project_bridge_microkernel.py::TestBridgeSpawnsPlugins::test_chat_config_passed_to_plugin` | Pass |
+| AC4: Runtime adapter spawned on /work | `test_project_bridge_microkernel.py::TestBridgeSpawnsPlugins` | Pass |
+| AC5: Runtime adapter receives scoped config | `test_project_bridge_microkernel.py::TestBridgeSpawnsPlugins` | Pass |
+| AC6: Adapter crash detected | `test_project_bridge_microkernel.py::TestPluginProcessManagement` | Pass |
+| AC7: Non-NDJSON handled gracefully | `test_project_bridge_microkernel.py::TestNDJSONProtocol::test_invalid_json_logged_not_crashed` | Pass |
+| AC8: Old kernel files deleted | `test_project_bridge_microkernel.py::TestOldFilesRemoved` | Pass |
+| AC9: Console scripts registered | `test_project_bridge_microkernel.py::TestConsoleScripts` | Pass |
+| NEG: Bridge receives malformed ConfigMessage | `test_project_bridge_microkernel.py::TestNegativeCases` | Pass |
+| NEG: Bridge receives empty stdin | `test_project_bridge_microkernel.py::TestNegativeCases` | Pass |
 
 ## Scope & Constraints
 

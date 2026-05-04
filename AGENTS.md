@@ -72,6 +72,16 @@ Not all artifacts age the same way. **Standing artifacts** — ADRs, Personas, a
 
 **Actionable artifacts** — Specs, Spikes, Epics, Designs, Chores — are the unit of work. Staleness is the number of days since the last commit touching the artifact file. Age buckets: fresh (<7d), aging (7-20d), stale (21-30d), dormant (>30d).
 
+### 1Password auth discipline
+
+**Never submit more than one 1Password CLI authentication request per session.** If auth fails or times out, use a cached `.env` file instead of retrying. If no `.env` exists, create one manually with the correct values (known from prior sessions), then use `op run --env-file=.env` for subsequent calls.
+
+具体规则:
+- **Max 1 auth attempt**: If the first `op signin` or `op run` fails, stop trying to auth. Find another way.
+- **Use `.env` files**: After getting credentials once, write them to a `.env` file and use `op run --env-file=.env` to cache the session going forward.
+- **Never loop on auth**: Do not retry `op signin`, `eval "$(op signin ...)"`, or `op run --env-file=.env` in a loop.
+- **Escalate if blocked**: If you cannot get credentials and the operator is not present, stop and ask.
+
 ### Conflict resolution
 
 When swain skills overlap with other installed skills or built-in agent capabilities, **prefer swain**.

@@ -37,7 +37,7 @@ import tempfile
 
 import pytest
 
-from untethered.protocol import Event, Command
+from swain_helm.protocol import Event, Command
 
 
 # ---------------------------------------------------------------------------
@@ -72,19 +72,19 @@ class TestAnsiStripping:
     """strip_ansi removes terminal escape codes."""
 
     def test_strips_color_codes(self):
-        from untethered.adapters.tmux_pane import strip_ansi
+        from swain_helm.adapters.tmux_pane import strip_ansi
         assert strip_ansi("\x1b[91m\x1b[1mError:\x1b[0m unauthorized") == "Error: unauthorized"
 
     def test_strips_cursor_codes(self):
-        from untethered.adapters.tmux_pane import strip_ansi
+        from swain_helm.adapters.tmux_pane import strip_ansi
         assert strip_ansi("\x1b[2Khello\x1b[0m") == "hello"
 
     def test_preserves_plain_text(self):
-        from untethered.adapters.tmux_pane import strip_ansi
+        from swain_helm.adapters.tmux_pane import strip_ansi
         assert strip_ansi("plain text here") == "plain text here"
 
     def test_empty_after_strip(self):
-        from untethered.adapters.tmux_pane import strip_ansi
+        from swain_helm.adapters.tmux_pane import strip_ansi
         assert strip_ansi("\x1b[0m") == ""
 
 
@@ -102,7 +102,7 @@ class TestTmuxSessionLifecycle:
     """TmuxPaneAdapter creates and manages tmux sessions."""
 
     async def test_start_creates_tmux_session(self):
-        from untethered.adapters.tmux_pane import TmuxPaneAdapter
+        from swain_helm.adapters.tmux_pane import TmuxPaneAdapter
 
         events: list[Event] = []
         adapter = TmuxPaneAdapter(
@@ -126,7 +126,7 @@ class TestTmuxSessionLifecycle:
             tmux_kill_session("test-create")
 
     async def test_pane_exit_emits_session_died(self):
-        from untethered.adapters.tmux_pane import TmuxPaneAdapter
+        from swain_helm.adapters.tmux_pane import TmuxPaneAdapter
 
         events: list[Event] = []
         adapter = TmuxPaneAdapter(
@@ -159,7 +159,7 @@ class TestTmuxOutputStreaming:
     """pipe-pane streams runtime output to the adapter in real time."""
 
     async def test_output_emitted_as_text_events(self):
-        from untethered.adapters.tmux_pane import TmuxPaneAdapter
+        from swain_helm.adapters.tmux_pane import TmuxPaneAdapter
 
         events: list[Event] = []
         adapter = TmuxPaneAdapter(
@@ -194,7 +194,7 @@ class TestTmuxInputRelay:
     """Commands are relayed to the pane via tmux send-keys."""
 
     async def test_send_prompt_sends_keys(self):
-        from untethered.adapters.tmux_pane import TmuxPaneAdapter
+        from swain_helm.adapters.tmux_pane import TmuxPaneAdapter
 
         events: list[Event] = []
         adapter = TmuxPaneAdapter(
@@ -237,7 +237,7 @@ class TestTmuxAttachability:
     """The tmux session is visible and attachable by the operator."""
 
     async def test_session_visible_in_list(self):
-        from untethered.adapters.tmux_pane import TmuxPaneAdapter
+        from swain_helm.adapters.tmux_pane import TmuxPaneAdapter
 
         adapter = TmuxPaneAdapter(
             bridge="swain",

@@ -1,0 +1,168 @@
+version: "3.8"
+
+# External Test Environment
+# -------------------------
+# This compose file sets up swain-helm services for testing from OUTSIDE the container.
+# Tests run on the host machine and interact with the containerized services via ports.
+#
+# Quick start:
+#   docker compose -f docker-compose.external-tests.yml up -d
+#   python -m pytest tests/external/ -v
+#   docker compose -f docker-compose.external-tests.yml down
+#
+# The watchdog service exposes:
+#   - Port 8080: Health/status HTTP endpoint
+#   - Config directory mounted for test visibility
+
+services:
+  # Main watchdog service for external testing
+  watchdog:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: swain-helm-external-test
+    volumes:
+      - swain-external-config:/root/.config/swain-helm
+      - swain-external-run:/root/.config/swain-helm/run
+      - /tmp:/tmp:rw
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+      - SWAIN_HELM_EXTERNAL_TEST=1
+      - ZULIP_BOT_EMAIL=${ZULIP_BOT_EMAIL:-test@example.com}
+      - ZULIP_BOT_API_KEY=${ZULIP_BOT_API_KEY:-test-key}
+      - ZULIP_SITE=${ZULIP_SITE:-https://example.zulipchat.com}
+      - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL:-test@example.com}
+    ports:
+      # Health/status endpoint for external verification
+      - "18080:8080"
+      # opencode server port (if started by bridge)
+      - "14098:4098"
+    working_dir: /app
+    command: >
+      sh -c "
+        mkdir -p /root/.config/swain-helm/projects &&
+        mkdir -p /root/.config/swain-helm/run/bridges &&
+        echo '{\"scan_paths\": [\"/tmp\"], \"chat\": {\"server_url\": \"https://example.zulipchat.com\", \"bot_email\": \"test@example.com\", \"bot_api_key\": \"test-key\", \"operator_email\": \"test@example.com\", \"control_topic\": \"control\"}, \"opencode\": {\"default_port\": 4098}}' > /root/.config/swain-helm/helm.config.json &&
+        echo 'Watchdog ready - create projects to start bridges' &&
+        python -m swain_helm.watchdog --config-dir /root/.config/swain-helm
+      "
+    healthcheck:
+      test: ["CMD", "test", "-f", "/root/.config/swain-helm/run/watchdog.pid"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Service specifically for smoke tests (lightweight, fast startup)
+  smoke-test-target:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: swain-helm-smoke-test
+    volumes:
+      - smoke-config:/root/.config/swain-helm
+      - /tmp/smoke-tests:/tmp/smoke-tests:rw
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+      - SWAIN_HELM_EXTERNAL_TEST=1
+    ports:
+      - "18081:8080"
+      - "14099:4099"
+    working_dir: /app
+    command: >
+      sh -c "
+        mkdir -p /root/.config/swain-helm/run &&
+        echo \$$ > /root/.config/swain-helm/run/health.pid &&
+        echo 'Smoke test target ready' &&
+        tail -f /dev/null
+      "
+    healthcheck:
+      test: ["CMD", "test", "-f", "/root/.config/swain-helm/run/health.pid"]
+      interval: 2s
+      timeout: 2s
+      retries: 2
+
+  # UAT test target - pre-configured with test projects
+  uat-test-target:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: swain-helm-uat-test
+    volumes:
+      - uat-config:/root/.config/swain-helm
+      - uat-run:/root/.config/swain-helm/run
+      - /tmp/uat-tests:/tmp/uat-tests:rw
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+      - SWAIN_HELM_EXTERNAL_TEST=1
+      - ZULIP_BOT_EMAIL=${ZULIP_BOT_EMAIL:-test@example.com}
+      - ZULIP_BOT_API_KEY=${ZULIP_BOT_API_KEY:-test-key}
+      - ZULIP_SITE=${ZULIP_SITE:-https://example.zulipchat.com}
+      - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL:-test@example.com}
+    ports:
+      - "18082:8080"
+      - "14100:4098"
+    working_dir: /app
+    command: >
+      sh -c "
+        mkdir -p /root/.config/swain-helm/projects &&
+        mkdir -p /root/.config/swain-helm/run/bridges &&
+        mkdir -p /tmp/uat-tests/project-alpha &&
+        mkdir -p /tmp/uat-tests/project-beta &&
+        echo '{\"scan_paths\": [\"/tmp/uat-tests\"], \"chat\": {\"server_url\": \"https://example.zulipchat.com\", \"bot_email\": \"test@example.com\", \"bot_api_key\": \"test-key\", \"operator_email\": \"test@example.com\", \"control_topic\": \"control\"}, \"opencode\": {\"default_port\": 4098}}' > /root/.config/swain-helm/helm.config.json &&
+        echo '{\"name\": \"alpha\", \"path\": \"/tmp/uat-tests/project-alpha\", \"stream\": \"alpha\", \"runtime\": \"claude\", \"auto_start\": true, \"worktree_poll_interval_s\": 15}' > /root/.config/swain-helm/projects/alpha.json &&
+        echo '{\"name\": \"beta\", \"path\": \"/tmp/uat-tests/project-beta\", \"stream\": \"beta\", \"runtime\": \"claude\", \"auto_start\": true, \"worktree_poll_interval_s\": 15}' > /root/.config/swain-helm/projects/beta.json &&
+        python -m swain_helm.watchdog --config-dir /root/.config/swain-helm
+      "
+    healthcheck:
+      test: ["CMD", "test", "-f", "/root/.config/swain-helm/run/watchdog.pid"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # E2E test target - for full pipeline testing with optional Zulip
+  e2e-test-target:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: swain-helm-e2e-test
+    volumes:
+      - e2e-config:/root/.config/swain-helm
+      - e2e-run:/root/.config/swain-helm/run
+      - /tmp/e2e-tests:/tmp/e2e-tests:rw
+    environment:
+      - SWAIN_HELM_TEST_MODE=1
+      - SWAIN_HELM_EXTERNAL_TEST=1
+      - ZULIP_BOT_EMAIL=${ZULIP_BOT_EMAIL}
+      - ZULIP_BOT_API_KEY=${ZULIP_BOT_API_KEY}
+      - ZULIP_SITE=${ZULIP_SITE:-https://cristoslc.zulipchat.com}
+      - ZULIP_OPERATOR_EMAIL=${ZULIP_OPERATOR_EMAIL}
+    ports:
+      - "18083:8080"
+      - "14101:4098"
+    working_dir: /app
+    command: >
+      sh -c "
+        mkdir -p /root/.config/swain-helm/projects &&
+        mkdir -p /root/.config/swain-helm/run/bridges &&
+        mkdir -p /tmp/e2e-tests/e2e-project &&
+        echo '{\"scan_paths\": [\"/tmp/e2e-tests\"], \"chat\": {\"server_url\": \"\"\$ZULIP_SITE\"\", \"bot_email\": \"\"\$ZULIP_BOT_EMAIL\"\", \"bot_api_key\": \"\"\$ZULIP_BOT_API_KEY\"\", \"operator_email\": \"\"\$ZULIP_OPERATOR_EMAIL\"\", \"control_topic\": \"control\"}, \"opencode\": {\"default_port\": 4098}}' > /root/.config/swain-helm/helm.config.json &&
+        echo '{\"name\": \"e2e-project\", \"path\": \"/tmp/e2e-tests/e2e-project\", \"stream\": \"e2e-project\", \"runtime\": \"claude\", \"auto_start\": true, \"worktree_poll_interval_s\": 15}' > /root/.config/swain-helm/projects/e2e-project.json &&
+        python -m swain_helm.watchdog --config-dir /root/.config/swain-helm
+      "
+    healthcheck:
+      test: ["CMD", "test", "-f", "/root/.config/swain-helm/run/watchdog.pid"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  swain-external-config:
+  swain-external-run:
+  smoke-config:
+  uat-config:
+  uat-run:
+  e2e-config:
+  e2e-run:

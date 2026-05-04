@@ -68,6 +68,17 @@ A persistent session registry on disk that survives bridge restarts. On startup,
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: State writes to registry | `test_session_registry.py::TestRegistryWrites` | Pass |
+| AC2: Keyed by branch name | `test_session_registry.py::TestRegistryWrites::test_keyed_by_branch` | Pass |
+| AC3: Required fields present | `test_session_registry.py::TestRegistryWrites::test_required_fields` | Pass |
+| AC4: Reads on startup | `test_session_registry.py::TestRegistryWrites::test_read_on_startup` | Pass |
+| AC5: Orphaned entries cleaned | `test_session_registry.py::TestRegistryReconciliation` | Pass |
+| Atomic write via tmp+rename | `test_session_registry.py::TestRegistryAtomicity` | Pass |
+| Permissions 0600 | `test_session_registry.py::TestRegistryAtomicity::test_file_permissions` | Pass |
+| NEG: Missing file | `test_session_registry.py::TestNegativeCases::test_missing_file` | Pass |
+| NEG: Corrupted JSON | `test_session_registry.py::TestNegativeCases::test_corrupted_json` | Pass |
+| NEG: Path traversal (dict key) | `test_session_registry.py::TestNegativeCases::test_path_traversal_dict_key` | Pass |
+| NEG: Concurrent write | `test_session_registry.py::TestRegistryAtomicity::test_concurrent_write` | Pass |
 
 ## Scope & Constraints
 

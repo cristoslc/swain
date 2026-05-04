@@ -1,0 +1,113 @@
+# Example config.yaml for opencode-pilot
+# Copy to ~/.config/opencode/pilot/config.yaml
+
+# Preferred OpenCode server port for attaching sessions
+# When multiple OpenCode instances are running, pilot will attach new sessions
+# to this port. If not set, pilot discovers servers automatically.
+# server_port: 4096
+
+# Startup delay in milliseconds before first poll (default: 10000)
+# Allows OpenCode server time to fully initialize after restart.
+# Set to 0 for immediate polling.
+# startup_delay: 10000
+
+# Directory containing your git repos - enables auto-discovery
+# Pilot scans for repos by checking git remotes (origin and upstream)
+# This means PRs from upstream forks will match your local clones
+repos_dir: ~/code
+
+defaults:
+  agent: plan
+  prompt: default
+  # Model selection: override the agent's default model
+  # Format: provider/model-id (e.g., anthropic/claude-sonnet-4-20250514)
+  # If no provider prefix, defaults to "anthropic"
+  # model: anthropic/claude-sonnet-4-20250514
+  # Session reuse: append to existing non-archived session instead of creating new
+  # Default: true. Set to false to always create new sessions.
+  # reuse_active_session: true
+  # Sandbox reuse: reuse existing worktree/sandbox with matching name
+  # Default: true. Set to false to always create new sandboxes.
+  # prefer_existing_sandbox: true
+
+sources:
+  # Presets - common patterns with sensible defaults
+  - preset: github/my-issues
+    prompt: worktree
+
+  # PR presets have detect_stacks: true by default, enabling session reuse
+  # across stacked PRs (where one PR's head branch = another's base branch)
+  - preset: github/review-requests
+    # Per-source model override (takes precedence over defaults.model and repos.*.model)
+    # model: anthropic/claude-haiku-3.5
+
+  # PRs needing attention (conflicts OR human feedback)
+  # Session names dynamically indicate the condition: "Conflicts: ...", "Feedback: ...", or "Conflicts+Feedback: ..."
+  - preset: github/my-prs-attention
+    repos:
+      - myorg/backend
+      - myorg/frontend
+
+  # Linear (requires teamId and assigneeId)
+  - preset: linear/my-issues
+    args:
+      teamId: "your-team-uuid"
+      assigneeId: "your-user-uuid"
+      status: "In Progress"
+    working_dir: ~/code/myproject
+    prompt: worktree
+
+  # Example with worktree support - run each issue in a fresh git worktree
+  # - preset: github/my-issues
+  #   worktree: "new"                    # Create a new worktree per session
+  #   worktree_name: "issue-{number}"    # Name template for new worktrees
+  #   prompt: worktree
+  
+  # Use an existing worktree by name
+  # - preset: github/review-requests
+  #   worktree: "review-worktree"        # Must exist in project sandboxes
+
+  # GitHub shorthand syntax
+  # - name: urgent-issues
+  #   github: "is:issue assignee:@me label:urgent state:open"
+
+  # Full syntax for custom MCP sources (e.g., Apple Reminders)
+  # - name: agent-tasks
+  #   tool:
+  #     mcp: apple-reminders
+  #     name: list_reminders
+  #   args:
+  #     list_name: "Agent Tasks"
+  #     completed: false
+  #   item:
+  #     id: "reminder:{id}"
+  #   session:
+  #     name: "{title}"  # Optional: custom session name (presets have semantic defaults)
+
+# Tool config for custom MCP servers (GitHub/Linear have built-in config)
+# tools:
+#   apple-reminders:
+#     response_key: reminders
+#     mappings:
+#       title: name
+#       body: notes
+
+# Explicit repo mappings (overrides repos_dir auto-discovery)
+# Only needed if a repo isn't in repos_dir or needs custom settings
+# Repos can also specify per-directory overrides for model, agent, and prompt.
+# Priority: source override > repo override > defaults
+# repos:
+#   myorg/backend:
+#     path: ~/code/backend
+#     # Per-directory model override (overrides defaults.model, overridden by source.model)
+#     # model: anthropic/claude-sonnet-4-20250514
+#   myorg/legacy-service:
+#     path: ~/code/legacy-service
+#     model: anthropic/claude-haiku-3.5  # use cheaper model for this repo
+
+# Cleanup config (optional, sensible defaults)
+# cleanup:
+#   ttl_days: 30
+
+# Available presets: github/my-issues, github/review-requests,
+# github/my-prs-attention, linear/my-issues

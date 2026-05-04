@@ -1,0 +1,1615 @@
+//! PTY message delivery loop — injects messages via TCP, verifies via cursor advance.
+
+use std::io::Write;
+use std::net::TcpStream;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::{Duration, Instant};
+
+use crate::config::Config;
+use crate::db::HcomDb;
+use crate::log::{log_error, log_info, log_warn};
+use crate::notify::NotifyServer;
+use crate::shared::{ST_ACTIVE, ST_BLOCKED, ST_LISTENING};
+
+/// Safely truncate a string to at most `max_chars` characters.
+/// Unlike byte slicing `&s[..n]`, this won't panic on multi-byte UTF-8.
+pub(crate) fn truncate_chars(s: &str, max_chars: usize) -> String {
+    s.chars().take(max_chars).collect()
+}
+
+/// Build full display name: "{tag}-{name}" if tag exists, else "{name}".
+fn full_display_name(db: &HcomDb, name: &str) -> String {
+    match db.get_instance_tag(name) {
+        Some(tag) => format!("{}-{}", tag, name),
+        None => name.to_string(),
+    }
+}
+
+/// Check process binding and update current_name if it changed.
+/// Returns true if the name changed.
+fn refresh_binding(
+    db: &HcomDb,
+    process_id: &str,
+    current_name: &mut String,
+    shared_name: &Option<Arc<std::sync::RwLock<String>>>,
+) {
+    if process_id.is_empty() {
+        return;
+    }
+    match db.get_process_binding(process_id) {
+        Ok(Some(new_name)) if new_name != *current_name => {
+            log_info(
+                "native",
+                "delivery.binding_refresh",
+                &format!("Instance name changed: {} -> {}", current_name, new_name),
+            );
+            if let Err(e) = db.migrate_notify_endpoints(current_name, &new_name) {
+                log_warn(
+                    "native",
+                    "delivery.migrate_endpoints_fail",
+                    &format!("{}", e),
+                );
+            }
+            if let Err(e) = db.update_tcp_mode(&new_name, true) {
+                log_warn("native", "delivery.update_tcp_mode_fail", &format!("{}", e));
+            }
+            if let Some(shared) = shared_name {
+                if let Ok(mut s) = shared.write() {
+                    *s = full_display_name(db, &new_name);
+                }
+            }
+            *current_name = new_name;
+        }
+        Ok(_) => {}
+        Err(e) => {
+            log_error(
+                "native",
+                "delivery.binding_refresh",
+                &format!("DB error checking process binding: {}", e),
+            );
+        }
+    }
+}
+
+/// Refresh shared status from DB. Updates current_status if changed.
+fn refresh_status(
+    db: &HcomDb,
+    current_name: &str,
+    current_status: &mut String,
+    shared_status: &Option<Arc<std::sync::RwLock<String>>>,
+) {
+    let new_status = match db.get_status(current_name) {
+        Ok(Some((status, _))) => status,
+        Ok(None) => "stopped".to_string(),
+        Err(e) => {
+            log_error(
+                "native",
+                "delivery.status_check",
+                &format!("DB error getting status: {}", e),
+            );
+            // Fail closed: don't inject into a PTY whose state we can't verify.
+            "stopped".to_string()
+        }
+    };
+    if new_status != *current_status {
+        if let Some(shared) = shared_status {
+            if let Ok(mut s) = shared.write() {
+                *s = new_status.clone();
+            }
+        }
+        *current_status = new_status;
+    }
+}
+
+/// Refresh shared display name (picks up tag changes at runtime).
+fn refresh_display_name(
+    db: &HcomDb,
+    current_name: &str,
+    shared_name: &Option<Arc<std::sync::RwLock<String>>>,
+) {
+    if let Some(shared) = shared_name {
+        let new_display = full_display_name(db, current_name);
+        if let Ok(mut s) = shared.write() {
+            if *s != new_display {
+                *s = new_display;
+            }
+        }
+    }
+}
+
+/// Human-readable descriptions for gate block reasons.
+pub(crate) fn gate_block_detail(reason: &str) -> &'static str {
+    match reason {
+        "not_idle" => "waiting for idle status",
+        "user_active" => "user is typing",
+        "not_ready" => "prompt not visible",
+        "output_unstable" => "output still streaming",
+        "prompt_has_text" => "uncommitted text in prompt",
+        "approval" => "waiting for user approval",
+        _ => "blocked",
+    }
+}
+
+/// Build message preview with DB access for Gemini/OpenCode bootstrap injection.
+///
+/// Format: `<hcom>sender → recipient (+N)</hcom>`
+///
+/// ## Why different tools need different injection strategies:
+///
+/// - **Claude**: Injects minimal `<hcom>` trigger only. The Claude hook shows the full
+///   message to human via system message in TUI + separate text for agent. Minimal
+///   trigger is sufficient since hook handles both human and agent presentation.
+///
+/// - **Codex**: Similar to Claude except the agent message is shown to humans as well.
+///   So theres no seperate system message, the hook shows the full message in TUI.
+///   Minimal <hcom> trigger because the hook shows the full message in TUI already.
+///
+/// - **Gemini**: Injects message preview for human visibility. The Gemini hook only
+///   shows JSON to agent (no human-visible system message like Claude). Preview in
+///   terminal gives human context since hook output is agent-only. BeforeAgent hook
+///   still delivers full message to agent via additionalContext.
+/// 
+/// - **OpenCode**: Similar to Gemini.
+///   The OpenCode plugin just shows this one line and not the full message in TUI.
+///   So preview gives more context than a minimal <hcom> trigger.
+
+fn build_message_preview_with_db(db: &HcomDb, name: &str) -> String {
+    let messages = db.get_unread_messages(name);
+    if messages.is_empty() {
+        return "<hcom></hcom>".to_string();
+    }
+
+    // Build preview from first message:
+    // [intent:thread #id] sender → recipient
+    let msg = &messages[0];
+
+    let prefix = match (&msg.intent, &msg.thread) {
+        (Some(i), Some(t)) => format!("{}:{}", i, t),
+        (Some(i), None) => i.clone(),
+        (None, Some(t)) => format!("thread:{}", t),
+        (None, None) => "new message".to_string(),
+    };
+    let id_ref = msg
+        .event_id
+        .map(|id| format!(" #{}", id))
+        .unwrap_or_default();
+    let envelope = format!("[{}{}]", prefix, id_ref);
+
+    let sender_display = full_display_name(db, &msg.from);
+    let recipient_display = full_display_name(db, name);
+
+    let preview = if messages.len() == 1 {
+        format!("{} {} → {}", envelope, sender_display, recipient_display)
+    } else {
+        format!(
+            "{} {} → {} (+{})",
+            envelope,
+            sender_display,
+            recipient_display,
+            messages.len() - 1
+        )
+    };
+
+    // Reuse messages.rs truncation + wrapping (max 60 chars)
+    crate::messages::build_message_preview(&preview, 60)
+}
+
+/// Tool-specific configuration for delivery gate.
+///
+/// ## Status Semantics
+///
+/// - `status="blocked"` - Permission prompt showing. Set by:
+///   - Claude/Gemini: hooks detect approval prompt
+///   - Codex: PTY detects OSC9 escape sequence (primary mechanism, no hooks)
+/// - `status="active"` - Agent processing. Messages not delivering is normal, no alert.
+/// - `status="listening"` - Agent idle. Can show status_context for delivery issues.
+///
+/// ## Gate Logic
+///
+/// The gate answers one question: "If we inject a single line + Enter right now,
+/// will it land as a fresh user turn without clobbering an approval prompt,
+/// a running command, or the user's typing?"
+///
+/// NOTE: Gate check order determines gate.reason, but status updates check
+/// screen.approval directly so Codex OSC9 works even when agent is active.
+///
+/// Gate checks are evaluated in order (fails fast):
+/// 1. `require_idle` - DB status must be "listening" (set by hooks after turn completes).
+///    Claude/Gemini hooks also set status="blocked" on approval which fails this check.
+/// 2. `block_on_approval` - No pending approval prompt (OSC9 detection in PTY).
+/// 3. `block_on_user_activity` - No keystrokes within cooldown (default 0.5s, 3s for Claude).
+/// 4. `require_ready_prompt` - Ready pattern visible on screen (e.g., "? for shortcuts").
+///    Pattern hidden when user has uncommitted text or is in a submenu (slash menu).
+///    Note: Claude hides this in accept-edits mode, so Claude disables this check.
+/// 5. `require_prompt_empty` - Check if prompt has no user text.
+///    Claude-specific: Uses VT100 dim attribute detection to distinguish placeholder text
+///    (dim) from user input (not dim). Implemented in screen.rs get_claude_input_text().
+#[derive(Clone)]
+pub struct ToolConfig {
+    /// Tool name (claude, gemini, codex)
+    pub tool: String,
+    /// Require DB status == ST_LISTENING before inject
+    pub require_idle: bool,
+    /// Require ready pattern visible on screen
+    pub require_ready_prompt: bool,
+    /// Require prompt to be empty (no user text)
+    pub require_prompt_empty: bool,
+    /// Block if user is actively typing
+    pub block_on_user_activity: bool,
+    /// Block if approval prompt detected
+    pub block_on_approval: bool,
+}
+
+impl ToolConfig {
+    /// Get config for Claude.
+    ///
+    /// - `require_ready_prompt=false`: Status bar ("? for shortcuts") hides in accept-edits mode.
+    /// - `require_prompt_empty=true`: Uses vt100 dim attribute detection to distinguish
+    ///   placeholder text from user input. Placeholder (dim) = safe, user text (not dim) = block.
+    pub fn claude() -> Self {
+        Self {
+            tool: "claude".to_string(),
+            require_idle: true,
+            require_ready_prompt: false,
+            require_prompt_empty: true,
+            block_on_user_activity: true,
+            block_on_approval: true,
+        }
+    }
+
+    /// Get config for Gemini.
+    ///
+    /// - `require_ready_prompt=true`: "Type your message" placeholder disappears instantly when
+    ///   user types. Pattern visibility indicates 100% empty prompt. (but could be processing or idle)
+    ///
+    /// Note: Previously used DebouncedIdleChecker (0.4s debounce) because AfterAgent fired
+    /// multiple times per turn during tool loops. However, Gemini CLI commit 15c9f88da
+    /// (Dec 2025) fixed the underlying skipNextSpeakerCheck bug - AfterAgent now fires
+    /// consistently after processTurn completes, making debouncing unnecessary.
+    pub fn gemini() -> Self {
+        Self {
+            tool: "gemini".to_string(),
+            require_idle: true,
+            require_ready_prompt: true,
+            require_prompt_empty: false,
+            block_on_user_activity: true,
+            block_on_approval: true,
+        }
+    }
+
+    /// Get config for Codex.
+    ///
+    /// - `require_ready_prompt=false`: "? for shortcuts" is dropped by Codex's responsive
+    ///   footer in narrow terminals, making it unreliable as a gate signal.
+    /// - `require_prompt_empty=true`: Uses vt100 dim attribute detection on the `›` prompt
+    ///   character (always visible) to distinguish placeholder text from user input.
+    /// - `require_idle=true`: Native hooks set status synchronously (SessionStart→listening,
+    ///   UserPromptSubmit→active), so idle detection is near-instant.
+    pub fn codex() -> Self {
+        Self {
+            tool: "codex".to_string(),
+            require_idle: true,
+            require_ready_prompt: false,
+            require_prompt_empty: true,
+            block_on_user_activity: true,
+            block_on_approval: true,
+        }
+    }
+
+    /// Get config for OpenCode.
+    ///
+    /// OpenCode delivery is handled by the TypeScript plugin after session bootstrap.
+    /// PTY injects the first message to bootstrap the session, then the plugin takes over.
+    /// All gate checks disabled since the bootstrap inject is gated on the ready pattern
+    /// (`ctrl+p commands`) in tool.rs, and subsequent delivery is plugin-controlled.
+    pub fn opencode() -> Self {
+        Self {
+            tool: "opencode".to_string(),
+            require_idle: false,
+            require_ready_prompt: false,
+            require_prompt_empty: false,
+            block_on_user_activity: false,
+            block_on_approval: false,
+        }
+    }
+
+    /// Get config by tool name
+    pub fn for_tool(tool: &str) -> Self {
+        use crate::tool::Tool;
+        use std::str::FromStr;
+
+        match Tool::from_str(tool) {
+            Ok(Tool::Claude) => Self::claude(),
+            Ok(Tool::Gemini) => Self::gemini(),
+            Ok(Tool::Codex) => Self::codex(),
+            Ok(Tool::OpenCode) => Self::opencode(),
+            Ok(Tool::Adhoc) => Self::claude(),
+            Err(_) => Self::claude(), // Default to Claude config for unknown tools
+        }
+    }
+}
+
+/// Gate evaluation result
+pub struct GateResult {
+    pub safe: bool,
+    pub reason: &'static str,
+}
+
+/// Shared state for delivery thread
+pub struct DeliveryState {
+    pub screen: Arc<std::sync::RwLock<ScreenState>>,
+    pub inject_port: u16,
+    pub user_activity_cooldown_ms: u64,
+}
+
+/// Screen state snapshot for gate checks
+#[derive(Clone)]
+pub struct ScreenState {
+    pub ready: bool,
+    pub approval: bool,
+    pub prompt_empty: bool,
+    pub input_text: Option<String>,
+    pub last_user_input: Instant,
+    /// Timestamp of last output (for stability-based recovery)
+    pub last_output: Instant,
+    /// Terminal width in columns
+    pub cols: u16,
+}
+
+impl Default for ScreenState {
+    fn default() -> Self {
+        Self {
+            ready: false,
+            approval: false,
+            prompt_empty: false,
+            input_text: None,
+            last_user_input: Instant::now(),
+            last_output: Instant::now(),
+            cols: 80,
+        }
+    }
+}
+
+impl DeliveryState {
+    /// Check if user is actively typing (within cooldown)
+    fn is_user_active(&self) -> bool {
+        let screen = self.screen.read().unwrap();
+        screen.last_user_input.elapsed().as_millis() < self.user_activity_cooldown_ms as u128
+    }
+
+    /// Check if user is actively typing using existing screen guard (avoids double lock)
+    fn is_user_active_with_guard(&self, screen: &ScreenState) -> bool {
+        screen.last_user_input.elapsed().as_millis() < self.user_activity_cooldown_ms as u128
+    }
+}
+
+/// Evaluate gate conditions for message injection.
+///
+/// Returns whether it's safe to inject AND the reason if not.
+/// NOTE: This only determines injection safety. Status updates (setting "blocked")
+/// happen separately in the delivery loop by checking screen.approval directly.
+///
+/// Check order determines gate.reason but NOT status behavior:
+/// 1. require_idle - if agent active, reason="not_idle"
+/// 2. approval - if approval showing, reason="approval"
+/// 3. etc.
+///
+/// The delivery loop checks screen.approval directly for status="blocked",
+/// so Codex OSC9 detection works even when agent is active (gate returns "not_idle").
+pub(crate) fn evaluate_gate(
+    config: &ToolConfig,
+    state: &DeliveryState,
+    is_idle: bool,
+) -> GateResult {
+    let screen = state.screen.read().unwrap();
+
+    // Check idle FIRST - if agent is busy, that's normal, don't alert
+    if config.require_idle && !is_idle {
+        return GateResult {
+            safe: false,
+            reason: "not_idle",
+        };
+    }
+    // Approval check only runs if agent is idle (passed require_idle)
+    if config.block_on_approval && screen.approval {
+        return GateResult {
+            safe: false,
+            reason: "approval",
+        };
+    }
+    if config.block_on_user_activity && state.is_user_active_with_guard(&screen) {
+        return GateResult {
+            safe: false,
+            reason: "user_active",
+        };
+    }
+    if config.require_ready_prompt && !screen.ready {
+        return GateResult {
+            safe: false,
+            reason: "not_ready",
+        };
+    }
+    if config.require_prompt_empty && !screen.prompt_empty {
+        return GateResult {
+            safe: false,
+            reason: "prompt_has_text",
+        };
+    }
+
+    GateResult {
+        safe: true,
+        reason: "ok",
+    }
+}
+
+/// Inject text to PTY via TCP (text only, no Enter).
+/// Strips all C0 control chars (0x00-0x1F) except tab. This blocks ESC (0x1B),
+/// so ANSI escape sequences cannot pass through.
+fn inject_text(port: u16, text: &str) -> bool {
+    let safe_text: String = text
+        .chars()
+        .filter(|c| *c >= ' ' || *c == '\t') // >= 0x20 or tab; blocks ESC, NULL, BEL, etc.
+        .collect();
+
+    if safe_text.is_empty() {
+        return false;
+    }
+
+    match TcpStream::connect(format!("127.0.0.1:{}", port)) {
+        Ok(mut stream) => stream.write_all(safe_text.as_bytes()).is_ok(),
+        Err(_) => false,
+    }
+}
+
+/// Inject Enter key to PTY via TCP
+fn inject_enter(port: u16) -> bool {
+    match TcpStream::connect(format!("127.0.0.1:{}", port)) {
+        Ok(mut stream) => stream.write_all(b"\r").is_ok(),
+        Err(_) => false,
+    }
+}
+
+/// Fixed retry delay between gate-blocked delivery attempts.
+/// TCP notify handles the fast path (instant wake on status change);
+/// this is the fallback polling interval for missed notifications.
+/// Initial retry delay: 0.25s.
+const RETRY_DELAY: Duration = Duration::from_millis(250);
+
+/// Timeout for phase 1 (text render verification).
+const PHASE1_TIMEOUT: Duration = Duration::from_secs(2);
+
+/// Timeout for phase 2 (text clear verification).
+const PHASE2_TIMEOUT: Duration = Duration::from_secs(2);
+
+/// Overall verification timeout for cursor advance.
+const VERIFY_TIMEOUT: Duration = Duration::from_secs(10);
+
+/// How long to wait in idle state before checking again.
+const IDLE_WAIT: Duration = Duration::from_secs(30);
+
+/// Maximum number of Enter-key retries during phase 2 (text clear).
+const MAX_ENTER_ATTEMPTS: u32 = 3;
+
+/// Delivery state machine for the native PTY path (Claude/Gemini/Codex).
+///
+/// OpenCode bypasses this entirely — it early-returns with its own loop
+/// inside `run_delivery_loop`.
+/// - `Pending`: evaluates gate + idle checks, performs text injection
+/// - `WaitTextRender`: confirms injected text appeared in the prompt, sends Enter on match
+/// - `WaitTextClear`: verifies prompt cleared after Enter, retries Enter on timeout
+/// - `VerifyCursor`: waits for hook-side cursor advance (falls back to has_pending==false)
+///
+/// Failed verification returns to `Pending`; success goes to `Idle` or `Pending` (if more queued).
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum State {
+    Idle,
+    Pending,
+    WaitTextRender,
+    WaitTextClear,
+    VerifyCursor,
+}
+
+/// Run the delivery loop — surfaces out-of-band hcom messages into the tool's
+/// conversation by injecting text at a safe prompt state.
+///
+/// This is the main delivery thread function. It:
+/// 1. Waits for messages (notify-driven)
+/// 2. Evaluates gate conditions
+/// 3. Injects text and verifies delivery
+/// 4. Retries with backoff on failure
+///
+/// The optional `shared_name` and `shared_status` Arcs are updated on rebind/status change
+/// to keep the main PTY loop's OSC title override in sync.
+#[allow(clippy::too_many_arguments)] // Tracked: hook-comms-8vs (refactor delivery loop)
+pub fn run_delivery_loop(
+    running: Arc<AtomicBool>,
+    db: &mut HcomDb,
+    notify: &NotifyServer,
+    state: &DeliveryState,
+    instance_name: &str,
+    config: &ToolConfig,
+    shared_name: Option<Arc<std::sync::RwLock<String>>>,
+    shared_status: Option<Arc<std::sync::RwLock<String>>>,
+) {
+    // Resolve authoritative instance name from process binding.
+    // The instance_name parameter is a fallback - the binding is the source of truth
+    // because it can change (e.g., Claude session resume switches to canonical instance).
+    let process_id = Config::get().process_id.unwrap_or_default();
+    let mut current_name = if !process_id.is_empty() {
+        match db.get_process_binding(&process_id) {
+            Ok(Some(name)) => name,
+            Ok(None) => instance_name.to_string(),
+            Err(e) => {
+                log_error(
+                    "native",
+                    "delivery.init",
+                    &format!(
+                        "DB error getting process binding: {} - using instance_name",
+                        e
+                    ),
+                );
+                instance_name.to_string()
+            }
+        }
+    } else {
+        instance_name.to_string()
+    };
+
+    log_info(
+        "native",
+        "delivery.init",
+        &format!(
+            "Delivery loop starting: name={}, process_id={}, tool={}, require_idle={}",
+            current_name, process_id, config.tool, config.require_idle
+        ),
+    );
+
+    // Set initial listening status AFTER resolving authoritative name
+    if let Err(e) = db.set_status(&current_name, "listening", "start") {
+        log_error(
+            "native",
+            "delivery.status.fail",
+            &format!("Failed to set initial status: {}", e),
+        );
+    }
+
+    // Set tcp_mode flag to indicate native PTY is handling delivery.
+    // Also re-asserted on every heartbeat (self-heals after DB reset/instance recreation).
+    if let Err(e) = db.update_tcp_mode(&current_name, true) {
+        log_warn(
+            "native",
+            "delivery.tcp_mode_fail",
+            &format!("Failed to set tcp_mode: {}", e),
+        );
+    } else {
+        log_info(
+            "native",
+            "delivery.tcp_mode",
+            &format!("Set tcp_mode=true for {}", current_name),
+        );
+    }
+
+    // Set shared display name for PTY title (tag-name or just name)
+    if let Some(ref shared) = shared_name {
+        if let Ok(mut s) = shared.write() {
+            *s = full_display_name(db, &current_name);
+        }
+    }
+
+    // OpenCode: plugin handles delivery after session exists. The delivery thread
+    // only injects the FIRST message via PTY to bootstrap the session in the TUI.
+    // After that, the plugin takes over (messages.transform for active, promptAsync for idle).
+    use crate::tool::Tool;
+    use std::str::FromStr;
+    if matches!(Tool::from_str(&config.tool), Ok(Tool::OpenCode)) {
+        log_info(
+            "native",
+            "delivery.opencode_mode",
+            &format!(
+                "OpenCode mode for {}: first-message PTY bootstrap, then plugin handles delivery",
+                current_name
+            ),
+        );
+        let mut first_message_injected = false;
+
+        // Status tracking for terminal title updates
+        let mut current_status = "listening".to_string();
+
+        while running.load(Ordering::Acquire) {
+            refresh_binding(db, &process_id, &mut current_name, &shared_name);
+            refresh_status(db, &current_name, &mut current_status, &shared_status);
+            refresh_display_name(db, &current_name, &shared_name);
+
+            // Wait for notify or timeout
+            notify.wait(IDLE_WAIT);
+            if !running.load(Ordering::Acquire) {
+                break;
+            }
+
+            // First-message bootstrap: inject via PTY to create session in TUI.
+            // Only fires once — after this, the plugin handles all delivery.
+            // Skip if plugin already has a session (e.g. user typed first, or session resumed).
+            if !first_message_injected && db.has_session(&current_name) {
+                first_message_injected = true;
+                log_info(
+                    "native",
+                    "delivery.opencode_skip_inject",
+                    &format!(
+                        "{}: session already exists, plugin handles delivery",
+                        current_name
+                    ),
+                );
+            }
+            if !first_message_injected && db.has_pending(&current_name) {
+                let text = build_message_preview_with_db(db, &current_name);
+                // Truncate to input box width, fall back to <hcom> tag
+                let cols = state.screen.read().map(|s| s.cols).unwrap_or(80);
+                let input_box_width = (cols as usize).saturating_sub(15).max(10);
+                let text = if text.len() > input_box_width {
+                    "<hcom>".to_string()
+                } else {
+                    text
+                };
+                if inject_text(state.inject_port, &text) {
+                    // 200ms delay: let TUI process injected text before Enter
+                    std::thread::sleep(Duration::from_millis(200));
+                    if inject_enter(state.inject_port) {
+                        first_message_injected = true;
+                        log_info(
+                            "native",
+                            "delivery.bootstrap_inject",
+                            &format!(
+                                "Bootstrap inject for {}: '{}'",
+                                current_name,
+                                truncate_chars(&text, 40)
+                            ),
+                        );
+                    }
+                }
+            }
+
+            // Detect DB file replacement (hcom reset / schema bump) and reconnect
+            db.reconnect_if_stale();
+
+            // Heartbeat + port re-registration
+            if let Err(e) = db.update_heartbeat(&current_name) {
+                log_warn("native", "delivery.heartbeat_fail", &format!("{}", e));
+            }
+            if let Err(e) = db.register_notify_port(&current_name, notify.port()) {
+                log_warn("native", "delivery.register_notify_fail", &format!("{}", e));
+            }
+            if let Err(e) = db.register_inject_port(&current_name, state.inject_port) {
+                log_warn("native", "delivery.register_inject_fail", &format!("{}", e));
+            }
+        }
+    } else {
+        // Active delivery mode (existing state machine)
+
+        // State machine
+        let mut delivery_state = State::Pending; // Start pending to check immediately
+        let mut attempt: u32 = 0;
+        let mut inject_attempt: u32 = 0;
+        let mut enter_attempt: u32 = 0;
+        let mut injected_text = String::new();
+        let mut phase_started_at = Instant::now();
+        let mut cursor_before: i64 = 0;
+        // Gate block tracking for TUI status updates
+        let mut block_since: Option<Instant> = None;
+        let mut last_block_context: String = String::new();
+
+        // Status tracking for terminal title updates
+        let mut current_status = "listening".to_string();
+
+        while running.load(Ordering::Acquire) {
+            refresh_binding(db, &process_id, &mut current_name, &shared_name);
+            refresh_status(db, &current_name, &mut current_status, &shared_status);
+            refresh_display_name(db, &current_name, &shared_name);
+
+            match delivery_state {
+                State::Idle => {
+                    // Capture wall clock before wait to detect system sleep
+                    let wall_before = crate::shared::time::now_epoch_i64() as u64;
+
+                    // Wait for notification or timeout
+                    let notified = notify.wait(IDLE_WAIT);
+
+                    if !running.load(Ordering::Acquire) {
+                        log_info(
+                            "native",
+                            "delivery.shutdown",
+                            "Running flag cleared, exiting loop",
+                        );
+                        break;
+                    }
+
+                    // Detect sleep/wake: wall clock jumped more than expected for IDLE_WAIT
+                    let wall_after = crate::shared::time::now_epoch_i64() as u64;
+                    let wall_elapsed = wall_after.saturating_sub(wall_before);
+                    if wall_elapsed > 45 {
+                        log_info(
+                            "native",
+                            "delivery.sleep_wake",
+                            &format!(
+                                "System sleep detected for {}: wall clock jumped {}s during 30s poll",
+                                current_name, wall_elapsed
+                            ),
+                        );
+                    }
+
+                    // Detect DB file replacement (hcom reset / schema bump) and reconnect
+                    db.reconnect_if_stale();
+
+                    // Update heartbeat to prove we're alive (also re-asserts tcp_mode=true)
+                    if let Err(e) = db.update_heartbeat(&current_name) {
+                        log_warn(
+                            "native",
+                            "delivery.heartbeat_fail",
+                            &format!("Failed to update heartbeat: {}", e),
+                        );
+                    }
+                    // Re-register endpoints (self-heals after DB reset/instance recreation)
+                    if let Err(e) = db.register_notify_port(&current_name, notify.port()) {
+                        log_warn("native", "delivery.register_notify_fail", &format!("{}", e));
+                    }
+                    if let Err(e) = db.register_inject_port(&current_name, state.inject_port) {
+                        log_warn("native", "delivery.register_inject_fail", &format!("{}", e));
+                    }
+
+                    // Clear stale PTY-owned approval state even when no messages are pending.
+                    if let Ok(Some((status, context))) = db.get_status(&current_name) {
+                        if status == ST_BLOCKED && context == "pty:approval" {
+                            let approval_showing = {
+                                let screen = state.screen.read().unwrap();
+                                screen.approval
+                            };
+                            if !approval_showing {
+                                if let Err(e) = db.set_status(
+                                    &current_name,
+                                    ST_LISTENING,
+                                    "pty:approval_cleared",
+                                ) {
+                                    log_warn(
+                                        "native",
+                                        "delivery.set_status_fail",
+                                        &format!("Failed to clear PTY approval status: {}", e),
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    // Check for pending messages
+                    let has_pending = db.has_pending(&current_name);
+                    if has_pending {
+                        log_info(
+                            "native",
+                            "delivery.wake",
+                            &format!(
+                                "Woke up (notified={}) with pending messages for {}",
+                                notified, current_name
+                            ),
+                        );
+                        delivery_state = State::Pending;
+                    } else if notified {
+                        // Woke by notification but no pending messages — log for diagnostics
+                        log_info(
+                            "native",
+                            "delivery.wake_no_pending",
+                            &format!(
+                                "Woke up (notified=true) but no pending messages for {}",
+                                current_name
+                            ),
+                        );
+                    }
+                }
+
+                State::Pending => {
+                    // Check if still pending
+                    if !db.has_pending(&current_name) {
+                        log_info(
+                            "native",
+                            "delivery.no_pending",
+                            &format!("No pending messages for {}", current_name),
+                        );
+                        delivery_state = State::Idle;
+                        attempt = 0;
+                        continue;
+                    }
+
+                    // Evaluate gate
+                    let is_idle = if config.require_idle {
+                        db.is_idle(&current_name)
+                    } else {
+                        true
+                    };
+
+                    let gate = evaluate_gate(config, state, is_idle);
+
+                    if gate.safe {
+                        log_info(
+                            "native",
+                            "delivery.gate_pass",
+                            &format!("Gate passed, injecting to port {}", state.inject_port),
+                        );
+
+                        // Snapshot cursor before injection
+                        cursor_before = db.get_cursor(&current_name);
+
+                        // Re-check pending immediately before inject
+                        if !db.has_pending(&current_name) {
+                            delivery_state = State::Idle;
+                            attempt = 0;
+                            inject_attempt = 0;
+                            continue;
+                        }
+
+                        // Build inject text - use DB for Gemini/Codex message preview
+                        // Codex: use hint version after failed inject attempt
+                        use crate::tool::Tool;
+                        use std::str::FromStr;
+
+                        let parsed_tool = Tool::from_str(&config.tool).ok();
+                        let text = match parsed_tool {
+                            Some(Tool::Claude) | Some(Tool::Codex) => "<hcom>".to_string(),
+                            _ => {
+                                // Gemini/OpenCode: build preview from DB
+                                build_message_preview_with_db(db, &current_name)
+                            }
+                        };
+                        // Contract to minimal <hcom> if preview won't fit in input box
+                        let cols = state.screen.read().map(|s| s.cols).unwrap_or(80);
+                        let input_box_width = (cols as usize).saturating_sub(15).max(10);
+                        let text = if text.len() > input_box_width {
+                            "<hcom>".to_string()
+                        } else {
+                            text
+                        };
+
+                        if inject_text(state.inject_port, &text) {
+                            log_info(
+                                "native",
+                                "delivery.injected",
+                                &format!(
+                                    "Injected '{}' (len={}, inject_attempt={})",
+                                    truncate_chars(&text, 40),
+                                    text.len(),
+                                    inject_attempt
+                                ),
+                            );
+                            injected_text = text;
+                            phase_started_at = Instant::now();
+                            enter_attempt = 0;
+                            delivery_state = State::WaitTextRender;
+                            continue; // Skip retry delay - now in WaitTextRender phase
+                        } else {
+                            log_warn("native", "delivery.inject_fail", "TCP inject failed");
+                            attempt += 1;
+                        }
+                    } else {
+                        // Gate blocked - refresh heartbeat so we don't go stale while waiting
+                        // (DB status is still "listening" until message is delivered and hooks fire)
+                        if let Err(e) = db.update_heartbeat(&current_name) {
+                            log_warn("native", "delivery.heartbeat_fail", &format!("{}", e));
+                        }
+
+                        // Log gate failure
+                        if attempt == 0 || attempt % 5 == 0 {
+                            let screen = state.screen.read().unwrap();
+                            log_info(
+                                "native",
+                                "delivery.gate_blocked",
+                                &format!(
+                                    "Gate blocked: {} (attempt={}, ready={}, approval={}, user_active={})",
+                                    gate.reason,
+                                    attempt,
+                                    screen.ready,
+                                    screen.approval,
+                                    state.is_user_active()
+                                ),
+                            );
+                        }
+
+                        // Track when blocking started
+                        if block_since.is_none() {
+                            block_since = Some(Instant::now());
+                        }
+
+                        // Update status based on PTY-detected approval
+                        // Check screen.approval directly, not gate.reason (gate may return
+                        // "not_idle" even when approval is showing due to check order)
+                        let approval_showing = {
+                            let screen = state.screen.read().unwrap();
+                            screen.approval
+                        };
+                        if approval_showing {
+                            // Approval detected via PTY (currently Codex OSC9).
+                            // Only PTY-owned blocked state should be cleared from this path.
+                            if let Err(e) = db.set_status(&current_name, "blocked", "pty:approval")
+                            {
+                                log_warn(
+                                    "native",
+                                    "delivery.set_status_fail",
+                                    &format!("Failed to set blocked status: {}", e),
+                                );
+                            }
+                        } else if gate.reason == "not_idle" {
+                            // Stability-based recovery: if status stuck "active" but output stable 10s,
+                            // or stale PTY approval was left behind after the PTY cleared,
+                            // flip back to listening.
+                            // NOTE: stability tracking has false positives from escape sequences,
+                            // but still useful for true idle detection when no data arrives at all.
+                            match db.get_status(&current_name) {
+                                Ok(Some((status, _))) if status == ST_ACTIVE => {
+                                    let screen = state.screen.read().unwrap();
+                                    let stable_10s =
+                                        screen.last_output.elapsed().as_millis() > 10000;
+                                    drop(screen);
+                                    if stable_10s {
+                                        if let Err(e) = db.set_status(
+                                            &current_name,
+                                            "listening",
+                                            "pty:recovered",
+                                        ) {
+                                            log_warn(
+                                                "native",
+                                                "delivery.set_status_fail",
+                                                &format!("Failed to set recovered status: {}", e),
+                                            );
+                                        }
+                                        log_info(
+                                            "native",
+                                            "delivery.recovered",
+                                            &format!(
+                                                "Status recovered: output stable 10s, {} -> listening",
+                                                status
+                                            ),
+                                        );
+                                        attempt = 0;
+                                        continue;
+                                    }
+                                }
+                                Ok(Some((status, context)))
+                                    if status == ST_BLOCKED && context == "pty:approval" =>
+                                {
+                                    if let Err(e) = db.set_status(
+                                        &current_name,
+                                        ST_LISTENING,
+                                        "pty:approval_cleared",
+                                    ) {
+                                        log_warn(
+                                            "native",
+                                            "delivery.set_status_fail",
+                                            &format!("Failed to clear PTY approval status: {}", e),
+                                        );
+                                    }
+                                    attempt = 0;
+                                    continue;
+                                }
+                                Ok(Some(_)) | Ok(None) => {
+                                    // Status not "active" or not found - skip recovery
+                                }
+                                Err(e) => {
+                                    log_error(
+                                        "native",
+                                        "delivery.recovery_check",
+                                        &format!("DB error checking status: {}", e),
+                                    );
+                                }
+                            }
+                            // Fall through to TUI status update
+                            if let Some(since) = block_since {
+                                if since.elapsed().as_secs_f64() >= 2.0 {
+                                    match db.get_status(&current_name) {
+                                        Ok(Some((status, _))) if status == ST_LISTENING => {
+                                            let context = "tui:not-idle".to_string();
+                                            if context != last_block_context {
+                                                if let Err(e) = db.set_gate_status(
+                                                    &current_name,
+                                                    &context,
+                                                    "waiting for idle status",
+                                                ) {
+                                                    log_warn(
+                                                        "native",
+                                                        "delivery.gate_status_fail",
+                                                        &format!("{}", e),
+                                                    );
+                                                }
+                                                last_block_context = context;
+                                            }
+                                        }
+                                        Ok(Some(_)) | Ok(None) => {
+                                            // Status not "listening" or not found - skip
+                                        }
+                                        Err(e) => {
+                                            log_error(
+                                                "native",
+                                                "delivery.tui_status_update",
+                                                &format!("DB error checking status: {}", e),
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+                        } else if let Some(since) = block_since {
+                            // After 2 seconds of blocking, update TUI status context
+                            if since.elapsed().as_secs_f64() >= 2.0 {
+                                // Only update if status is "listening" (don't overwrite active/blocked)
+                                match db.get_status(&current_name) {
+                                    Ok(Some((status, _))) if status == ST_LISTENING => {
+                                        // Format context: tui:not-ready, tui:user-active, etc.
+                                        let reason_formatted = gate.reason.replace("_", "-");
+                                        let context = format!("tui:{}", reason_formatted);
+
+                                        // Only update if context changed
+                                        if context != last_block_context {
+                                            let detail = gate_block_detail(gate.reason);
+                                            let _ =
+                                                db.set_gate_status(&current_name, &context, detail);
+                                            last_block_context = context;
+                                        }
+                                    }
+                                    Ok(Some(_)) | Ok(None) => {
+                                        // Status not "listening" or not found - skip
+                                    }
+                                    Err(e) => {
+                                        log_error(
+                                            "native",
+                                            "delivery.gate_status_update",
+                                            &format!("DB error checking status: {}", e),
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        attempt += 1;
+                    }
+
+                    // Fixed 1s poll — TCP notify handles the fast path
+                    if attempt > 0 {
+                        let notified = notify.wait(RETRY_DELAY);
+                        if notified {
+                            attempt = 0;
+                        }
+                    }
+                }
+
+                State::WaitTextRender => {
+                    let elapsed = phase_started_at.elapsed();
+
+                    if elapsed > PHASE1_TIMEOUT {
+                        // Timeout - retry from pending
+                        log_warn(
+                            "native",
+                            "delivery.phase1_timeout",
+                            &format!(
+                                "Text render timeout after {:?}, inject_attempt={}",
+                                elapsed, inject_attempt
+                            ),
+                        );
+                        delivery_state = State::Pending;
+                        inject_attempt += 1;
+                        attempt += 1;
+                        continue;
+                    }
+
+                    // Check if injected text appeared in input box
+                    let screen = state.screen.read().unwrap();
+                    // Debug: log what we see at start and every 500ms
+                    if elapsed.as_millis() < 50 || elapsed.as_millis() % 500 < 50 {
+                        log_info(
+                            "native",
+                            "delivery.phase1_poll",
+                            &format!(
+                                "t={}ms input={:?} want={} ready={}",
+                                elapsed.as_millis(),
+                                screen.input_text.as_deref().unwrap_or("None"),
+                                truncate_chars(&injected_text, 25),
+                                screen.ready
+                            ),
+                        );
+                    }
+                    if let Some(ref input_text) = screen.input_text {
+                        if !injected_text.is_empty() && input_text.contains(&injected_text) {
+                            drop(screen);
+                            log_info(
+                                "native",
+                                "delivery.text_rendered",
+                                "Injected text appeared in input box, sending Enter",
+                            );
+                            // Text appeared - send Enter
+                            delivery_state = State::WaitTextClear;
+                            phase_started_at = Instant::now();
+                            enter_attempt = 0;
+
+                            // Re-check submit hazards only. The full gate ran before
+                            // injection; by now a permission prompt or user typing may
+                            // have appeared. Text in the prompt is harmless — pressing
+                            // Enter is what would clobber state.
+                            if !state.is_user_active() {
+                                let screen = state.screen.read().unwrap();
+                                if !screen.approval {
+                                    drop(screen);
+                                    log_info("native", "delivery.send_enter", "Sending Enter key");
+                                    inject_enter(state.inject_port);
+                                } else {
+                                    log_info(
+                                        "native",
+                                        "delivery.enter_blocked",
+                                        "Enter blocked by approval prompt",
+                                    );
+                                }
+                            } else {
+                                log_info(
+                                    "native",
+                                    "delivery.enter_blocked",
+                                    "Enter blocked by user activity",
+                                );
+                            }
+                            continue;
+                        }
+                    }
+                    drop(screen);
+
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+
+                State::WaitTextClear => {
+                    let elapsed = phase_started_at.elapsed();
+
+                    // Check if text cleared (prompt is empty)
+                    let screen = state.screen.read().unwrap();
+                    let input_text = screen.input_text.clone();
+                    let text_cleared = input_text.as_ref().map(|t| t.is_empty()).unwrap_or(false);
+                    drop(screen);
+
+                    if text_cleared {
+                        // Text cleared - verify cursor advance
+                        log_info(
+                            "native",
+                            "delivery.text_cleared",
+                            "Input box cleared, verifying cursor",
+                        );
+                        delivery_state = State::VerifyCursor;
+                        phase_started_at = Instant::now();
+                        continue;
+                    }
+
+                    if elapsed > PHASE2_TIMEOUT {
+                        if enter_attempt < MAX_ENTER_ATTEMPTS {
+                            // Retry Enter with backoff
+                            let screen = state.screen.read().unwrap();
+                            let can_send = !state.is_user_active() && !screen.approval;
+                            drop(screen);
+
+                            if can_send {
+                                log_info(
+                                    "native",
+                                    "delivery.retry_enter",
+                                    &format!(
+                                        "Retrying Enter (attempt={}, input_text={:?})",
+                                        enter_attempt, input_text
+                                    ),
+                                );
+                                inject_enter(state.inject_port);
+                                enter_attempt += 1;
+                                phase_started_at = Instant::now();
+                                let backoff = Duration::from_millis(200 * (1 << enter_attempt));
+                                std::thread::sleep(backoff);
+                            } else {
+                                log_info(
+                                    "native",
+                                    "delivery.enter_retry_blocked",
+                                    &format!(
+                                        "Enter retry blocked (user_active={})",
+                                        state.is_user_active()
+                                    ),
+                                );
+                            }
+                            continue;
+                        }
+
+                        // Max retries - go back to pending
+                        log_warn(
+                            "native",
+                            "delivery.phase2_max_retries",
+                            &format!(
+                                "Max Enter retries ({}) reached, going back to pending",
+                                MAX_ENTER_ATTEMPTS
+                            ),
+                        );
+                        delivery_state = State::Pending;
+                        inject_attempt += 1;
+                        attempt += 1;
+                        continue;
+                    }
+
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+
+                State::VerifyCursor => {
+                    let elapsed = phase_started_at.elapsed();
+
+                    // Check if cursor advanced (hook processed messages)
+                    let current_cursor = db.get_cursor(&current_name);
+                    if current_cursor > cursor_before {
+                        // Success! Clear gate block status
+                        if !last_block_context.is_empty() {
+                            if let Err(e) = db.set_gate_status(&current_name, "", "") {
+                                log_warn("native", "delivery.gate_clear_fail", &format!("{}", e));
+                            }
+                            last_block_context.clear();
+                        }
+                        block_since = None;
+
+                        log_info(
+                            "native",
+                            "delivery.success",
+                            &format!(
+                                "Cursor advanced {} -> {}, delivery successful",
+                                cursor_before, current_cursor
+                            ),
+                        );
+                        if db.has_pending(&current_name) {
+                            log_info(
+                                "native",
+                                "delivery.more_pending",
+                                "More messages pending, continuing",
+                            );
+                            delivery_state = State::Pending;
+                        } else {
+                            log_info(
+                                "native",
+                                "delivery.complete",
+                                "All messages delivered, going idle",
+                            );
+                            delivery_state = State::Idle;
+                        }
+                        attempt = 0;
+                        inject_attempt = 0;
+                        continue;
+                    }
+
+                    if elapsed > VERIFY_TIMEOUT {
+                        inject_attempt += 1;
+                        log_warn(
+                            "native",
+                            "delivery.verify_timeout",
+                            &format!(
+                                "Cursor verify timeout (before={}, current={}, inject_attempt={})",
+                                cursor_before, current_cursor, inject_attempt
+                            ),
+                        );
+
+                        if inject_attempt < 3 {
+                            // Retry
+                            log_info(
+                                "native",
+                                "delivery.retry",
+                                &format!("Retrying delivery (inject_attempt={})", inject_attempt),
+                            );
+                            delivery_state = State::Pending;
+                            attempt += 1;
+                            continue;
+                        }
+
+                        // Cursor advance is the primary proof, but "no pending rows"
+                        // is also sufficient — avoids wedging when hook delivery
+                        // succeeded but cursor bookkeeping didn't advance.
+                        if !db.has_pending(&current_name) {
+                            // Success (cursor tracking issue but delivery worked)
+                            // Clear gate block status
+                            if !last_block_context.is_empty() {
+                                if let Err(e) = db.set_gate_status(&current_name, "", "") {
+                                    log_warn(
+                                        "native",
+                                        "delivery.gate_clear_fail",
+                                        &format!("{}", e),
+                                    );
+                                }
+                                last_block_context.clear();
+                            }
+                            block_since = None;
+
+                            log_info(
+                                "native",
+                                "delivery.success_no_cursor",
+                                "Messages gone despite cursor not advancing - delivery successful",
+                            );
+                            delivery_state = State::Idle;
+                            attempt = 0;
+                            inject_attempt = 0;
+                            continue;
+                        }
+
+                        // Delivery failed - reset and wait
+                        log_warn(
+                            "native",
+                            "delivery.failed",
+                            &format!(
+                                "Delivery failed after {} attempts, resetting",
+                                inject_attempt
+                            ),
+                        );
+                        delivery_state = State::Pending;
+                        attempt = 0;
+                    }
+
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+            }
+        }
+    } // end active delivery mode else block
+
+    // Cleanup on exit — tear down PTY and stop instance
+    log_info(
+        "native",
+        "delivery.cleanup",
+        &format!("Cleaning up instance {}", current_name),
+    );
+
+    // Ownership check: verify we still own this instance name.
+    // If a new process launched with the same name, the process_binding now points
+    // to the new process — skip destructive cleanup to avoid nuking the new instance.
+    let owns_instance = if process_id.is_empty() {
+        true // No process_id to check — assume ownership (legacy/adhoc)
+    } else {
+        match db.get_process_binding(&process_id) {
+            Ok(Some(bound_name)) => bound_name == current_name,
+            Ok(None) => false, // Binding deleted — new process took over
+            Err(_) => false,   // DB error — be conservative, don't delete
+        }
+    };
+
+    if owns_instance {
+        // 1. Get snapshot before deletion (for life event)
+        let snapshot = match db.get_instance_snapshot(&current_name) {
+            Ok(snap) => snap,
+            Err(e) => {
+                log_error(
+                    "native",
+                    "delivery.cleanup",
+                    &format!("DB error getting instance snapshot: {}", e),
+                );
+                None
+            }
+        };
+
+        // 2. Set status to "inactive" with appropriate context
+        // exit:closed = normal exit, exit:killed = SIGHUP/SIGTERM
+        let was_killed = crate::pty::EXIT_WAS_KILLED.load(std::sync::atomic::Ordering::Acquire);
+        let (exit_context, exit_reason) = if was_killed {
+            ("exit:killed", "killed")
+        } else {
+            ("exit:closed", "closed")
+        };
+        if let Err(e) = db.set_status(&current_name, "inactive", exit_context) {
+            log_warn(
+                "native",
+                "delivery.set_status_fail",
+                &format!("Failed to set inactive status: {}", e),
+            );
+        }
+
+        // 3. Delete notify endpoints and event subscriptions
+        if let Err(e) = db.delete_notify_endpoints(&current_name) {
+            log_warn(
+                "native",
+                "delivery.cleanup_endpoints_fail",
+                &format!("{}", e),
+            );
+        }
+        if let Err(e) = db.cleanup_subscriptions(&current_name) {
+            log_warn("native", "delivery.cleanup_subs_fail", &format!("{}", e));
+        }
+        // 4. Log life event BEFORE delete — if log fails, row stays (stale cleanup catches it).
+        //    Previous order (delete first) lost snapshots when log_life_event hit DB lock.
+        if let Err(e) = db.log_life_event(&current_name, "stopped", "pty", exit_reason, snapshot) {
+            log_warn(
+                "native",
+                "delivery.life_event_fail",
+                &format!("Failed to log life event: {}", e),
+            );
+        }
+
+        // 5. Delete instance row
+        if let Err(e) = db.delete_instance(&current_name) {
+            eprintln!("[hcom] warn: delete_instance failed for {current_name}: {e}");
+        }
+    } else {
+        log_info(
+            "native",
+            "delivery.cleanup_skipped",
+            &format!(
+                "Skipping instance cleanup for {} — name reassigned to new process",
+                current_name
+            ),
+        );
+    }
+
+    // Always clean up our own process binding (keyed by our process_id, not name)
+    if !process_id.is_empty() {
+        if let Err(e) = db.delete_process_binding(&process_id) {
+            log_warn("native", "delivery.cleanup_binding_fail", &format!("{}", e));
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::shared::status_icon;
+
+    /// Helper: create DeliveryState with given screen state
+    fn make_state(screen: ScreenState, cooldown_ms: u64) -> DeliveryState {
+        DeliveryState {
+            screen: Arc::new(std::sync::RwLock::new(screen)),
+            inject_port: 0,
+            user_activity_cooldown_ms: cooldown_ms,
+        }
+    }
+
+    /// Helper: screen state where everything is safe for injection
+    fn safe_screen() -> ScreenState {
+        ScreenState {
+            ready: true,
+            approval: false,
+            prompt_empty: true,
+            input_text: None,
+            last_user_input: Instant::now() - Duration::from_secs(10),
+            last_output: Instant::now() - Duration::from_secs(10),
+            cols: 80,
+        }
+    }
+
+    // ---- evaluate_gate tests ----
+
+    #[test]
+    fn gate_all_conditions_pass() {
+        let config = ToolConfig::claude();
+        let state = make_state(safe_screen(), 500);
+        let result = evaluate_gate(&config, &state, true);
+        assert!(result.safe);
+        assert_eq!(result.reason, "ok");
+    }
+
+    #[test]
+    fn gate_blocks_when_not_idle() {
+        let config = ToolConfig::claude();
+        let state = make_state(safe_screen(), 500);
+        let result = evaluate_gate(&config, &state, false);
+        assert!(!result.safe);
+        assert_eq!(result.reason, "not_idle");
+    }
+
+    #[test]
+    fn gate_blocks_on_approval() {
+        let config = ToolConfig::claude();
+        let mut screen = safe_screen();
+        screen.approval = true;
+        let state = make_state(screen, 500);
+        let result = evaluate_gate(&config, &state, true);
+        assert!(!result.safe);
+        assert_eq!(result.reason, "approval");
+    }
+
+    #[test]
+    fn gate_blocks_on_user_activity() {
+        let config = ToolConfig::claude();
+        let mut screen = safe_screen();
+        screen.last_user_input = Instant::now(); // just typed
+        let state = make_state(screen, 500);
+        let result = evaluate_gate(&config, &state, true);
+        assert!(!result.safe);
+        assert_eq!(result.reason, "user_active");
+    }
+
+    #[test]
+    fn gate_blocks_when_not_ready_for_gemini() {
+        let config = ToolConfig::gemini();
+        let mut screen = safe_screen();
+        screen.ready = false;
+        let state = make_state(screen, 500);
+        let result = evaluate_gate(&config, &state, true);
+        assert!(!result.safe);
+        assert_eq!(result.reason, "not_ready");
+    }
+
+    #[test]
+    fn gate_claude_skips_ready_check() {
+        // Claude has require_ready_prompt=false
+        let config = ToolConfig::claude();
+        let mut screen = safe_screen();
+        screen.ready = false;
+        let state = make_state(screen, 500);
+        let result = evaluate_gate(&config, &state, true);
+        assert!(result.safe);
+    }
+
+    #[test]
+    fn gate_blocks_on_prompt_text_for_claude() {
+        let config = ToolConfig::claude();
+        let mut screen = safe_screen();
+        screen.prompt_empty = false;
+        let state = make_state(screen, 500);
+        let result = evaluate_gate(&config, &state, true);
+        assert!(!result.safe);
+        assert_eq!(result.reason, "prompt_has_text");
+    }
+
+    #[test]
+    fn gate_gemini_skips_prompt_empty_check() {
+        // Gemini has require_prompt_empty=false
+        let config = ToolConfig::gemini();
+        let mut screen = safe_screen();
+        screen.prompt_empty = false;
+        let state = make_state(screen, 500);
+        let result = evaluate_gate(&config, &state, true);
+        assert!(result.safe);
+    }
+
+    #[test]
+    fn gate_fail_fast_order() {
+        // When multiple gates fail, first one wins
+        let config = ToolConfig::gemini();
+        let mut screen = safe_screen();
+        screen.approval = true;
+        screen.ready = false;
+        let state = make_state(screen, 500);
+        // not idle + approval + not ready → not_idle wins
+        let result = evaluate_gate(&config, &state, false);
+        assert_eq!(result.reason, "not_idle");
+    }
+
+    // ---- Lookup functions ----
+
+    #[test]
+    fn status_icon_known_values() {
+        assert_eq!(status_icon("listening"), "◉");
+        assert_eq!(status_icon("active"), "▶");
+        assert_eq!(status_icon("blocked"), "■");
+        assert_eq!(status_icon("stopped"), "⊘");
+        assert_eq!(status_icon("whatever"), "○");
+    }
+
+    #[test]
+    fn gate_block_detail_known_reasons() {
+        assert_eq!(gate_block_detail("not_idle"), "waiting for idle status");
+        assert_eq!(gate_block_detail("approval"), "waiting for user approval");
+        assert_eq!(gate_block_detail("unknown"), "blocked");
+    }
+
+    // ---- ToolConfig ----
+
+    #[test]
+    fn tool_config_for_tool_defaults_to_claude() {
+        let config = ToolConfig::for_tool("nonexistent");
+        assert!(config.require_prompt_empty);
+        assert!(!config.require_ready_prompt);
+    }
+
+    #[test]
+    fn tool_configs_match_expected_differences() {
+        let claude = ToolConfig::claude();
+        let gemini = ToolConfig::gemini();
+        let codex = ToolConfig::codex();
+
+        // Claude: no ready_prompt, yes prompt_empty
+        assert!(!claude.require_ready_prompt);
+        assert!(claude.require_prompt_empty);
+
+        // Gemini: yes ready_prompt, no prompt_empty
+        assert!(gemini.require_ready_prompt);
+        assert!(!gemini.require_prompt_empty);
+
+        // Codex: same as Claude (ready pattern unreliable in narrow terminals)
+        assert!(!codex.require_ready_prompt);
+        assert!(codex.require_prompt_empty);
+
+        // All require idle
+        assert!(claude.require_idle);
+        assert!(gemini.require_idle);
+        assert!(codex.require_idle);
+    }
+}

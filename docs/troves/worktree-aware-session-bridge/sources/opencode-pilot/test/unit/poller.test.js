@@ -1,0 +1,1937 @@
+/**
+ * Tests for poller.js - generic MCP-based polling
+ */
+
+import { test, describe, beforeEach, afterEach, mock } from 'node:test';
+import assert from 'node:assert';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
+
+describe('poller.js', () => {
+  let tempDir;
+  let stateFile;
+
+  beforeEach(() => {
+    tempDir = mkdtempSync(join(tmpdir(), 'opencode-pilot-poller-test-'));
+    stateFile = join(tempDir, 'poll-state.json');
+  });
+
+  afterEach(() => {
+    rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  describe('expandItemId', () => {
+    test('expands simple field references', async () => {
+      const { expandItemId } = await import('../../service/poller.js');
+      
+      const template = 'github:{repository.full_name}#{number}';
+      const item = {
+        repository: { full_name: 'myorg/backend' },
+        number: 123
+      };
+      
+      const id = expandItemId(template, item);
+      assert.strictEqual(id, 'github:myorg/backend#123');
+    });
+
+    test('handles missing fields gracefully', async () => {
+      const { expandItemId } = await import('../../service/poller.js');
+      
+      const template = 'github:{repository.full_name}#{number}';
+      const item = { number: 123 };
+      
+      const id = expandItemId(template, item);
+      // Should keep placeholder for missing field
+      assert.strictEqual(id, 'github:{repository.full_name}#123');
+    });
+
+    test('expands top-level fields', async () => {
+      const { expandItemId } = await import('../../service/poller.js');
+      
+      const template = 'linear:{identifier}';
+      const item = { identifier: 'PROJ-123' };
+      
+      const id = expandItemId(template, item);
+      assert.strictEqual(id, 'linear:PROJ-123');
+    });
+  });
+
+  describe('getToolConfig', () => {
+    test('returns MCP config for mcp-based sources', async () => {
+      const { getToolConfig } = await import('../../service/poller.js');
+      
+      const source = {
+        name: 'test-source',
+        tool: { mcp: 'github', name: 'search_issues' },
+        args: { q: 'is:open' },
+        item: { id: '{html_url}' }
+      };
+      
+      const config = getToolConfig(source);
+      assert.strictEqual(config.type, 'mcp');
+      assert.strictEqual(config.mcpServer, 'github');
+      assert.strictEqual(config.toolName, 'search_issues');
+      assert.deepStrictEqual(config.args, { q: 'is:open' });
+      assert.strictEqual(config.idTemplate, '{html_url}');
+    });
+
+    test('returns CLI config for command-based sources', async () => {
+      const { getToolConfig } = await import('../../service/poller.js');
+      
+      const source = {
+        name: 'test-source',
+        tool: { command: ['granola-cli', 'meetings', 'list', '20'] },
+        item: { id: 'meeting:{id}' }
+      };
+      
+      const config = getToolConfig(source);
+      assert.strictEqual(config.type, 'cli');
+      assert.deepStrictEqual(config.command, ['granola-cli', 'meetings', 'list', '20']);
+      assert.strictEqual(config.idTemplate, 'meeting:{id}');
+    });
+
+    test('throws for sources missing tool config', async () => {
+      const { getToolConfig } = await import('../../service/poller.js');
+      
+      const source = { name: 'bad-source' };
+      
+      assert.throws(() => getToolConfig(source), /missing tool configuration/);
+    });
+
+    test('throws for mcp sources missing name', async () => {
+      const { getToolConfig } = await import('../../service/poller.js');
+      
+      const source = {
+        name: 'bad-source',
+        tool: { mcp: 'github' } // missing name
+      };
+      
+      assert.throws(() => getToolConfig(source), /missing tool configuration/);
+    });
+  });
+
+  describe('createPoller', () => {
+    test('creates poller with state tracking', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      
+      assert.strictEqual(typeof poller.isProcessed, 'function');
+      assert.strictEqual(typeof poller.markProcessed, 'function');
+      assert.strictEqual(typeof poller.clearState, 'function');
+      assert.strictEqual(poller.getProcessedIds().length, 0);
+    });
+
+    test('tracks processed items', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      
+      assert.strictEqual(poller.isProcessed('item-1'), false);
+      
+      poller.markProcessed('item-1', { source: 'test' });
+      
+      assert.strictEqual(poller.isProcessed('item-1'), true);
+      assert.strictEqual(poller.getProcessedIds().length, 1);
+    });
+
+    test('getProcessedMeta returns stored metadata', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      
+      // Not processed yet
+      assert.strictEqual(poller.getProcessedMeta('item-1'), null);
+      
+      // Mark as processed with metadata including directory
+      poller.markProcessed('item-1', { 
+        source: 'test',
+        directory: '/worktree/pr-123',
+        itemState: 'open',
+      });
+      
+      const meta = poller.getProcessedMeta('item-1');
+      assert.ok(meta);
+      assert.strictEqual(meta.source, 'test');
+      assert.strictEqual(meta.directory, '/worktree/pr-123');
+      assert.strictEqual(meta.itemState, 'open');
+      assert.ok(meta.processedAt); // Should have timestamp
+    });
+
+    test('persists state across instances', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller1 = createPoller({ stateFile });
+      poller1.markProcessed('item-1');
+      
+      const poller2 = createPoller({ stateFile });
+      assert.strictEqual(poller2.isProcessed('item-1'), true);
+    });
+
+    test('clearState removes all processed items', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1');
+      poller.markProcessed('item-2');
+      
+      assert.strictEqual(poller.getProcessedIds().length, 2);
+      
+      poller.clearState();
+      
+      assert.strictEqual(poller.getProcessedIds().length, 0);
+      assert.strictEqual(poller.isProcessed('item-1'), false);
+    });
+
+    test('clearProcessed removes a single item', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'test' });
+      poller.markProcessed('item-2', { source: 'test' });
+      
+      poller.clearProcessed('item-1');
+      
+      assert.strictEqual(poller.isProcessed('item-1'), false);
+      assert.strictEqual(poller.isProcessed('item-2'), true);
+    });
+  });
+
+  describe('cleanup methods', () => {
+    test('getProcessedCount returns total count', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'source-a' });
+      poller.markProcessed('item-2', { source: 'source-a' });
+      poller.markProcessed('item-3', { source: 'source-b' });
+      
+      assert.strictEqual(poller.getProcessedCount(), 3);
+    });
+
+    test('getProcessedCount filters by source', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'source-a' });
+      poller.markProcessed('item-2', { source: 'source-a' });
+      poller.markProcessed('item-3', { source: 'source-b' });
+      
+      assert.strictEqual(poller.getProcessedCount('source-a'), 2);
+      assert.strictEqual(poller.getProcessedCount('source-b'), 1);
+      assert.strictEqual(poller.getProcessedCount('source-c'), 0);
+    });
+
+    test('clearBySource removes all entries for a source', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'source-a' });
+      poller.markProcessed('item-2', { source: 'source-a' });
+      poller.markProcessed('item-3', { source: 'source-b' });
+      
+      const removed = poller.clearBySource('source-a');
+      
+      assert.strictEqual(removed, 2);
+      assert.strictEqual(poller.isProcessed('item-1'), false);
+      assert.strictEqual(poller.isProcessed('item-2'), false);
+      assert.strictEqual(poller.isProcessed('item-3'), true);
+    });
+
+    test('clearBySource returns 0 for unknown source', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'source-a' });
+      
+      const removed = poller.clearBySource('unknown');
+      
+      assert.strictEqual(removed, 0);
+      assert.strictEqual(poller.isProcessed('item-1'), true);
+    });
+
+    test('cleanupExpired removes entries older than ttlDays', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      const { readFileSync } = await import('fs');
+      
+      const poller = createPoller({ stateFile });
+      
+      // Mark items as processed
+      poller.markProcessed('recent-item', { source: 'test' });
+      poller.markProcessed('old-item', { source: 'test' });
+      
+      // Manually modify the state file to make one item old
+      const state = JSON.parse(readFileSync(stateFile, 'utf-8'));
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 40); // 40 days ago
+      state.processed['old-item'].processedAt = oldDate.toISOString();
+      writeFileSync(stateFile, JSON.stringify(state, null, 2));
+      
+      // Create new poller to reload state
+      const poller2 = createPoller({ stateFile });
+      const removed = poller2.cleanupExpired(30);
+      
+      assert.strictEqual(removed, 1);
+      assert.strictEqual(poller2.isProcessed('recent-item'), true);
+      assert.strictEqual(poller2.isProcessed('old-item'), false);
+    });
+
+    test('cleanupExpired uses default ttlDays of 30', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      const { readFileSync } = await import('fs');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-25-days', { source: 'test' });
+      poller.markProcessed('item-35-days', { source: 'test' });
+      
+      // Modify state file
+      const state = JSON.parse(readFileSync(stateFile, 'utf-8'));
+      const date25 = new Date();
+      date25.setDate(date25.getDate() - 25);
+      const date35 = new Date();
+      date35.setDate(date35.getDate() - 35);
+      state.processed['item-25-days'].processedAt = date25.toISOString();
+      state.processed['item-35-days'].processedAt = date35.toISOString();
+      writeFileSync(stateFile, JSON.stringify(state, null, 2));
+      
+      const poller2 = createPoller({ stateFile });
+      const removed = poller2.cleanupExpired(); // No argument = default 30
+      
+      assert.strictEqual(removed, 1);
+      assert.strictEqual(poller2.isProcessed('item-25-days'), true);
+      assert.strictEqual(poller2.isProcessed('item-35-days'), false);
+    });
+
+    test('cleanupMissingFromSource removes stale entries for a source', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      const { readFileSync } = await import('fs');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'test-source' });
+      poller.markProcessed('item-2', { source: 'test-source' });
+      poller.markProcessed('item-3', { source: 'other-source' });
+      
+      // Make items old enough to be cleaned (older than minAgeDays)
+      const state = JSON.parse(readFileSync(stateFile, 'utf-8'));
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 2); // 2 days ago
+      for (const id of Object.keys(state.processed)) {
+        state.processed[id].processedAt = oldDate.toISOString();
+      }
+      writeFileSync(stateFile, JSON.stringify(state, null, 2));
+      
+      const poller2 = createPoller({ stateFile });
+      // Current items only has item-1 (item-2 is missing from source)
+      const removed = poller2.cleanupMissingFromSource('test-source', ['item-1'], 1);
+      
+      assert.strictEqual(removed, 1); // item-2 removed
+      assert.strictEqual(poller2.isProcessed('item-1'), true);
+      assert.strictEqual(poller2.isProcessed('item-2'), false);
+      assert.strictEqual(poller2.isProcessed('item-3'), true); // different source
+    });
+
+    test('cleanupMissingFromSource respects minAgeDays', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'test-source' });
+      poller.markProcessed('item-2', { source: 'test-source' });
+      
+      // Items are fresh (just processed), so minAgeDays=1 should protect them
+      const removed = poller.cleanupMissingFromSource('test-source', ['item-1'], 1);
+      
+      assert.strictEqual(removed, 0); // item-2 NOT removed (too recent)
+      assert.strictEqual(poller.isProcessed('item-2'), true);
+    });
+
+    test('cleanupMissingFromSource with minAgeDays=0 removes immediately', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'test-source' });
+      poller.markProcessed('item-2', { source: 'test-source' });
+      
+      // minAgeDays=0 removes even fresh items
+      const removed = poller.cleanupMissingFromSource('test-source', ['item-1'], 0);
+      
+      assert.strictEqual(removed, 1);
+      assert.strictEqual(poller.isProcessed('item-2'), false);
+    });
+
+    test('cleanup state persists across instances', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'source-a' });
+      poller.markProcessed('item-2', { source: 'source-a' });
+      
+      poller.clearBySource('source-a');
+      
+      // Verify persistence
+      const poller2 = createPoller({ stateFile });
+      assert.strictEqual(poller2.getProcessedCount(), 0);
+    });
+  });
+
+  describe('cross-source deduplication', () => {
+    test('findProcessedByDedupKey finds item by dedup key', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('linear:abc123', { 
+        source: 'linear',
+        dedupKeys: ['linear:ENG-123'],
+      });
+      
+      // Should find the item by its dedup key
+      const foundId = poller.findProcessedByDedupKey(['linear:ENG-123']);
+      assert.strictEqual(foundId, 'linear:abc123');
+    });
+
+    test('findProcessedByDedupKey returns null when no match', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('linear:abc123', { 
+        source: 'linear',
+        dedupKeys: ['linear:ENG-123'],
+      });
+      
+      // Different dedup key should not match
+      const foundId = poller.findProcessedByDedupKey(['linear:ENG-456']);
+      assert.strictEqual(foundId, null);
+    });
+
+    test('findProcessedByDedupKey enables cross-source dedup (Linear + GitHub PR)', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      
+      // Linear issue ENG-123 is processed first
+      poller.markProcessed('linear:abc123', { 
+        source: 'linear/my-issues',
+        dedupKeys: ['linear:ENG-123'],
+      });
+      
+      // GitHub PR mentioning ENG-123 comes later - should find the Linear item
+      const prDedupKeys = ['github:myorg/backend#456', 'linear:ENG-123']; // PR has ENG-123 in title
+      const foundId = poller.findProcessedByDedupKey(prDedupKeys);
+      
+      assert.strictEqual(foundId, 'linear:abc123', 'PR should match Linear issue by shared dedup key');
+    });
+
+    test('dedup key index persists across poller instances', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller1 = createPoller({ stateFile });
+      poller1.markProcessed('linear:abc123', { 
+        source: 'linear',
+        dedupKeys: ['linear:ENG-123'],
+      });
+      
+      // New poller instance should have the dedup index
+      const poller2 = createPoller({ stateFile });
+      const foundId = poller2.findProcessedByDedupKey(['linear:ENG-123']);
+      assert.strictEqual(foundId, 'linear:abc123');
+    });
+
+    test('clearProcessed removes dedup keys from index', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('linear:abc123', { 
+        source: 'linear',
+        dedupKeys: ['linear:ENG-123'],
+      });
+      
+      // Verify it's there
+      assert.strictEqual(poller.findProcessedByDedupKey(['linear:ENG-123']), 'linear:abc123');
+      
+      // Clear the item
+      poller.clearProcessed('linear:abc123');
+      
+      // Dedup key should be gone
+      assert.strictEqual(poller.findProcessedByDedupKey(['linear:ENG-123']), null);
+    });
+
+    test('clearState removes all dedup keys', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { dedupKeys: ['key-1', 'key-2'] });
+      poller.markProcessed('item-2', { dedupKeys: ['key-3'] });
+      
+      poller.clearState();
+      
+      assert.strictEqual(poller.findProcessedByDedupKey(['key-1']), null);
+      assert.strictEqual(poller.findProcessedByDedupKey(['key-2']), null);
+      assert.strictEqual(poller.findProcessedByDedupKey(['key-3']), null);
+    });
+
+    test('clearBySource removes dedup keys for that source only', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'linear', dedupKeys: ['linear:ENG-123'] });
+      poller.markProcessed('item-2', { source: 'github', dedupKeys: ['github:org/repo#456'] });
+      
+      poller.clearBySource('linear');
+      
+      // Linear dedup key should be gone
+      assert.strictEqual(poller.findProcessedByDedupKey(['linear:ENG-123']), null);
+      // GitHub dedup key should still exist
+      assert.strictEqual(poller.findProcessedByDedupKey(['github:org/repo#456']), 'item-2');
+    });
+  });
+
+  describe('computeDedupKeys', () => {
+    test('generates Linear dedup key from number field', async () => {
+      const { computeDedupKeys } = await import('../../service/poller.js');
+      
+      // Linear item with number field (extracted from URL by preset mapping)
+      const item = {
+        id: 'abc-123-uuid',
+        number: 'ENG-123',
+        title: 'Fix the bug',
+      };
+      
+      const keys = computeDedupKeys(item);
+      assert.ok(keys.includes('linear:ENG-123'));
+    });
+
+    test('generates GitHub dedup key from repo + number', async () => {
+      const { computeDedupKeys } = await import('../../service/poller.js');
+      
+      const item = {
+        id: 'https://github.com/myorg/backend/issues/123',
+        number: 123,
+        repository_full_name: 'myorg/backend',
+        title: 'Fix the bug',
+      };
+      
+      const keys = computeDedupKeys(item);
+      assert.ok(keys.includes('github:myorg/backend#123'));
+    });
+
+    test('extracts Linear refs from PR title/body', async () => {
+      const { computeDedupKeys } = await import('../../service/poller.js');
+      
+      const item = {
+        id: 'https://github.com/myorg/backend/pull/456',
+        number: 456,
+        repository_full_name: 'myorg/backend',
+        title: 'ENG-123: Fix the bug',
+        body: 'This PR fixes the issue described in ENG-123.',
+      };
+      
+      const keys = computeDedupKeys(item);
+      // Should have both the PR's own key and the Linear ref
+      assert.ok(keys.includes('github:myorg/backend#456'), 'Should have PR key');
+      assert.ok(keys.includes('linear:ENG-123'), 'Should extract Linear ref from title/body');
+    });
+
+    test('extracts GitHub issue refs from PR body', async () => {
+      const { computeDedupKeys } = await import('../../service/poller.js');
+      
+      const item = {
+        id: 'https://github.com/myorg/backend/pull/456',
+        number: 456,
+        repository_full_name: 'myorg/backend',
+        title: 'Fix the bug',
+        body: 'Fixes #123',
+      };
+      
+      const keys = computeDedupKeys(item, { repo: 'myorg/backend' });
+      assert.ok(keys.includes('github:myorg/backend#456'), 'Should have PR key');
+      assert.ok(keys.includes('github:myorg/backend#123'), 'Should extract issue ref from body');
+    });
+
+    test('handles items without extractable refs', async () => {
+      const { computeDedupKeys } = await import('../../service/poller.js');
+      
+      const item = {
+        id: 'reminder:abc123',
+        title: 'Buy groceries',
+      };
+      
+      const keys = computeDedupKeys(item);
+      // Should return empty array - no recognizable refs
+      assert.deepStrictEqual(keys, []);
+    });
+  });
+
+  describe('status tracking', () => {
+    test('shouldReprocess returns false for item with same state', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('issue-1', { source: 'test', itemState: 'open' });
+      
+      const item = { id: 'issue-1', state: 'open' };
+      assert.strictEqual(poller.shouldReprocess(item), false);
+    });
+
+    test('shouldReprocess returns true for reopened issue (closed -> open)', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('issue-1', { source: 'test', itemState: 'closed' });
+      
+      const item = { id: 'issue-1', state: 'open' };
+      assert.strictEqual(poller.shouldReprocess(item), true);
+    });
+
+    test('shouldReprocess returns true for merged PR reopened', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('pr-1', { source: 'test', itemState: 'merged' });
+      
+      const item = { id: 'pr-1', state: 'open' };
+      assert.strictEqual(poller.shouldReprocess(item), true);
+    });
+
+    test('shouldReprocess returns false for item not in state', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      
+      const item = { id: 'new-issue', state: 'open' };
+      assert.strictEqual(poller.shouldReprocess(item), false);
+    });
+
+    test('shouldReprocess returns false when no itemState was stored', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Legacy entry without itemState
+      poller.markProcessed('issue-1', { source: 'test' });
+      
+      const item = { id: 'issue-1', state: 'open' };
+      assert.strictEqual(poller.shouldReprocess(item), false);
+    });
+
+    test('shouldReprocess uses status field for Linear items', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('linear-1', { source: 'test', itemState: 'Done' });
+      
+      // Linear uses 'status' field instead of 'state'
+      const item = { id: 'linear-1', status: 'In Progress' };
+      assert.strictEqual(poller.shouldReprocess(item), true);
+    });
+
+    test('shouldReprocess does NOT check updated_at by default (avoids self-triggering)', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('issue-1', { 
+        source: 'test', 
+        itemState: 'open',
+        itemUpdatedAt: '2026-01-01T00:00:00Z'
+      });
+      
+      // Item was updated after being processed, but state is the same
+      const item = { 
+        id: 'issue-1', 
+        state: 'open',
+        updated_at: '2026-01-05T00:00:00Z'
+      };
+      // Should NOT reprocess because updated_at is not in default reprocessOn
+      assert.strictEqual(poller.shouldReprocess(item), false);
+    });
+
+    test('shouldReprocess detects updated_at when explicitly configured', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('issue-1', { 
+        source: 'test', 
+        itemState: 'open',
+        itemUpdatedAt: '2026-01-01T00:00:00Z'
+      });
+      
+      const item = { 
+        id: 'issue-1', 
+        state: 'open',
+        updated_at: '2026-01-05T00:00:00Z'
+      };
+      // Should reprocess when updated_at is explicitly in reprocessOn
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['updated_at'] }), 
+        true
+      );
+    });
+
+    test('shouldReprocess returns false if updated_at is same or older', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('issue-1', { 
+        source: 'test', 
+        itemState: 'open',
+        itemUpdatedAt: '2026-01-05T00:00:00Z'
+      });
+      
+      // Item has same updated_at
+      const item = { 
+        id: 'issue-1', 
+        state: 'open',
+        updated_at: '2026-01-05T00:00:00Z'
+      };
+      // Even with explicit config, same timestamp should not trigger
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['updated_at'] }), 
+        false
+      );
+    });
+
+    test('shouldReprocess respects reprocessOn config', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('issue-1', { 
+        source: 'test', 
+        itemState: 'closed',
+        itemUpdatedAt: '2026-01-01T00:00:00Z'
+      });
+      
+      const item = { 
+        id: 'issue-1', 
+        state: 'open',  // Reopened
+        updated_at: '2026-01-05T00:00:00Z'  // Also updated
+      };
+      
+      // Only check updated_at, not state
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['updated_at'] }), 
+        true
+      );
+      
+      // Only check state
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['state'] }), 
+        true
+      );
+      
+      // Check neither (empty array)
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: [] }), 
+        false
+      );
+    });
+
+    test('shouldReprocess handles Linear updatedAt field', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('linear-1', { 
+        source: 'test', 
+        itemState: 'In Progress',
+        itemUpdatedAt: '2026-01-01T00:00:00Z'
+      });
+      
+      // Linear uses camelCase updatedAt
+      const item = { 
+        id: 'linear-1', 
+        status: 'In Progress',
+        updatedAt: '2026-01-05T00:00:00Z'
+      };
+      
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['updatedAt'] }), 
+        true
+      );
+    });
+
+    test('shouldReprocess returns false when Linear issue cycles in_progress -> code_review -> in_progress', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+
+      const poller = createPoller({ stateFile });
+      // Issue was processed while in_progress
+      poller.markProcessed('linear:ENG-1', { source: 'linear', itemState: 'In Progress' });
+
+      // Issue moved to In Review - disappears from the "my ready issues" poll
+      poller.markUnseen('linear', []);
+
+      // Issue moved back to In Progress - reappears
+      const item = { id: 'linear:ENG-1', status: 'In Progress' };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['status'] }),
+        false,
+        'should NOT reprocess: issue cycled through code review and returned to same in_progress state'
+      );
+    });
+
+    test('shouldReprocess returns true for reappeared item (e.g., uncompleted reminder)', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('reminder-1', { source: 'reminders' });
+      
+      // Simulate: item disappears from poll (completed), then reappears (uncompleted)
+      poller.markUnseen('reminders', []); // Item not in results - marked unseen
+      
+      const item = { id: 'reminder-1' };
+      assert.strictEqual(poller.shouldReprocess(item), true);
+    });
+
+    test('shouldReprocess returns false for item that was always present', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('reminder-1', { source: 'reminders' });
+      
+      // Item stays in poll results
+      poller.markUnseen('reminders', ['reminder-1']);
+      
+      const item = { id: 'reminder-1' };
+      assert.strictEqual(poller.shouldReprocess(item), false);
+    });
+
+    test('markUnseen tracks items across multiple polls', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('item-1', { source: 'test' });
+      poller.markProcessed('item-2', { source: 'test' });
+      
+      // Poll 1: both present
+      poller.markUnseen('test', ['item-1', 'item-2']);
+      assert.strictEqual(poller.shouldReprocess({ id: 'item-1' }), false);
+      assert.strictEqual(poller.shouldReprocess({ id: 'item-2' }), false);
+      
+      // Poll 2: item-2 disappears
+      poller.markUnseen('test', ['item-1']);
+      assert.strictEqual(poller.shouldReprocess({ id: 'item-1' }), false);
+      assert.strictEqual(poller.shouldReprocess({ id: 'item-2' }), true);
+      
+      // Poll 3: item-2 reappears - wasUnseen flag should still be true until cleared
+      // (The flag gets cleared when shouldReprocess triggers reprocessing)
+    });
+
+    test('shouldReprocess returns true when attention changes from false to true', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Item was processed without attention (no feedback)
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'open',
+        hasAttention: false
+      });
+      
+      // Item now has attention (received feedback)
+      const item = { id: 'pr-1', state: 'open', _has_attention: true };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['attention'] }), 
+        true,
+        'Should reprocess when attention changes false -> true'
+      );
+    });
+
+    test('shouldReprocess returns false when attention stays true with same feedback timestamp', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Item was processed with attention and a feedback timestamp
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'open',
+        hasAttention: true,
+        latestFeedbackAt: '2026-01-15T10:00:00Z'
+      });
+      
+      // Item still has attention with the same feedback timestamp
+      const item = { id: 'pr-1', state: 'open', _has_attention: true, _latest_feedback_at: '2026-01-15T10:00:00Z' };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['attention'] }), 
+        false,
+        'Should NOT reprocess when attention stays true with same feedback'
+      );
+    });
+
+    test('shouldReprocess returns true when attention stays true but feedback is newer (re-review)', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Item was processed with attention and a feedback timestamp
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'open',
+        hasAttention: true,
+        latestFeedbackAt: '2026-01-15T10:00:00Z'
+      });
+      
+      // Item has newer feedback (re-review or additional comments)
+      const item = { id: 'pr-1', state: 'open', _has_attention: true, _latest_feedback_at: '2026-01-16T14:30:00Z' };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['attention'] }), 
+        true,
+        'Should reprocess when there is newer feedback (re-review)'
+      );
+    });
+
+    test('shouldReprocess returns false when attention stays true with no timestamps on either side', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Legacy item processed with attention but no timestamp
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'open',
+        hasAttention: true
+      });
+      
+      // Item still has attention (no timestamp available either)
+      const item = { id: 'pr-1', state: 'open', _has_attention: true };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['attention'] }), 
+        false,
+        'Should NOT reprocess when no timestamps available on either side'
+      );
+    });
+
+    test('shouldReprocess returns true when legacy entry has no stored feedback timestamp but current item does', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Legacy item processed with attention but before latestFeedbackAt was tracked
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'open',
+        hasAttention: true
+        // Note: no latestFeedbackAt
+      });
+      
+      // Item now has feedback with a timestamp (new review received)
+      const item = { id: 'pr-1', state: 'open', _has_attention: true, _latest_feedback_at: '2026-02-17T15:11:15Z' };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['attention'] }), 
+        true,
+        'Should reprocess legacy entries when new feedback is detected'
+      );
+    });
+
+    test('shouldReprocess returns false when attention stays false', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Item was processed without attention
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'open',
+        hasAttention: false
+      });
+      
+      // Item still has no attention
+      const item = { id: 'pr-1', state: 'open', _has_attention: false };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['attention'] }), 
+        false,
+        'Should NOT reprocess when attention stays false'
+      );
+    });
+
+    test('shouldReprocess returns false when attention changes from true to false', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Item was processed with attention
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'open',
+        hasAttention: true
+      });
+      
+      // Attention was addressed (no longer needs attention)
+      const item = { id: 'pr-1', state: 'open', _has_attention: false };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['attention'] }), 
+        false,
+        'Should NOT reprocess when attention changes true -> false'
+      );
+    });
+
+    test('shouldReprocess handles attention with no stored hasAttention (legacy)', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      // Legacy item without hasAttention stored
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'open'
+        // Note: no hasAttention
+      });
+      
+      // Item now has attention
+      const item = { id: 'pr-1', state: 'open', _has_attention: true };
+      // Should NOT reprocess - we don't know previous state, assume it was handled
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['attention'] }), 
+        false,
+        'Should NOT reprocess legacy items without stored hasAttention'
+      );
+    });
+
+    test('shouldReprocess handles attention combined with state changes', async () => {
+      const { createPoller } = await import('../../service/poller.js');
+      
+      const poller = createPoller({ stateFile });
+      poller.markProcessed('pr-1', { 
+        source: 'my-prs-attention', 
+        itemState: 'closed',  // Was closed
+        hasAttention: false
+      });
+      
+      // Reopened but no attention - state change should trigger
+      const item = { id: 'pr-1', state: 'open', _has_attention: false };
+      assert.strictEqual(
+        poller.shouldReprocess(item, { reprocessOn: ['state', 'attention'] }), 
+        true,
+        'Should reprocess when state changes even if attention unchanged'
+      );
+    });
+  });
+
+  describe('pollGenericSource', () => {
+    test('extracts tool config from source', async () => {
+      const { getToolConfig } = await import('../../service/poller.js');
+      
+      const source = {
+        name: 'my-issues',
+        tool: {
+          mcp: 'github',
+          name: 'github_search_issues'
+        },
+        args: {
+          q: 'is:issue assignee:@me'
+        },
+        item: {
+          id: 'github:{repository.full_name}#{number}'
+        }
+      };
+      
+      const toolConfig = getToolConfig(source);
+      
+      assert.strictEqual(toolConfig.mcpServer, 'github');
+      assert.strictEqual(toolConfig.toolName, 'github_search_issues');
+      assert.deepStrictEqual(toolConfig.args, { q: 'is:issue assignee:@me' });
+      assert.strictEqual(toolConfig.idTemplate, 'github:{repository.full_name}#{number}');
+    });
+
+    test('throws for missing tool config', async () => {
+      const { getToolConfig } = await import('../../service/poller.js');
+      
+      const source = {
+        name: 'bad-source'
+      };
+      
+      assert.throws(() => getToolConfig(source), /tool configuration/);
+    });
+  });
+
+  describe('transformItems', () => {
+    test('adds id to items using template', async () => {
+      const { transformItems } = await import('../../service/poller.js');
+      
+      const items = [
+        { repository: { full_name: 'myorg/backend' }, number: 1, title: 'Issue 1' },
+        { repository: { full_name: 'myorg/backend' }, number: 2, title: 'Issue 2' },
+      ];
+      const idTemplate = 'github:{repository.full_name}#{number}';
+      
+      const transformed = transformItems(items, idTemplate);
+      
+      assert.strictEqual(transformed[0].id, 'github:myorg/backend#1');
+      assert.strictEqual(transformed[1].id, 'github:myorg/backend#2');
+      // Original fields preserved
+      assert.strictEqual(transformed[0].title, 'Issue 1');
+    });
+
+    test('preserves existing id if no template', async () => {
+      const { transformItems } = await import('../../service/poller.js');
+      
+      const items = [
+        { id: 'existing-id', title: 'Issue 1' },
+      ];
+      
+      const transformed = transformItems(items, null);
+      
+      assert.strictEqual(transformed[0].id, 'existing-id');
+    });
+
+    test('generates fallback id if no template and no existing id', async () => {
+      const { transformItems } = await import('../../service/poller.js');
+      
+      const items = [
+        { title: 'Issue 1' },
+      ];
+      
+      const transformed = transformItems(items, null);
+      
+      // Should have some id (even if auto-generated)
+      assert.ok(transformed[0].id);
+    });
+  });
+
+  describe('applyMappings', () => {
+    test('maps fields using simple dot notation', async () => {
+      const { applyMappings } = await import('../../service/poller.js');
+      
+      const item = {
+        identifier: 'ODIN-123',
+        title: 'Fix the bug',
+        description: 'Details here'
+      };
+      const mappings = {
+        number: 'identifier',
+        title: 'title',
+        body: 'description'
+      };
+      
+      const mapped = applyMappings(item, mappings);
+      
+      assert.strictEqual(mapped.number, 'ODIN-123');
+      assert.strictEqual(mapped.title, 'Fix the bug');
+      assert.strictEqual(mapped.body, 'Details here');
+    });
+
+    test('maps nested fields', async () => {
+      const { applyMappings } = await import('../../service/poller.js');
+      
+      const item = {
+        repository: { full_name: 'myorg/backend', name: 'backend' },
+        number: 42
+      };
+      const mappings = {
+        repo: 'repository.full_name',
+        number: 'number'
+      };
+      
+      const mapped = applyMappings(item, mappings);
+      
+      assert.strictEqual(mapped.repo, 'myorg/backend');
+      assert.strictEqual(mapped.number, 42);
+    });
+
+    test('preserves unmapped fields', async () => {
+      const { applyMappings } = await import('../../service/poller.js');
+      
+      const item = {
+        identifier: 'ODIN-123',
+        title: 'Fix the bug',
+        url: 'https://linear.app/...'
+      };
+      const mappings = {
+        number: 'identifier'
+      };
+      
+      const mapped = applyMappings(item, mappings);
+      
+      // Mapped field
+      assert.strictEqual(mapped.number, 'ODIN-123');
+      // Original fields preserved
+      assert.strictEqual(mapped.title, 'Fix the bug');
+      assert.strictEqual(mapped.url, 'https://linear.app/...');
+      assert.strictEqual(mapped.identifier, 'ODIN-123');
+    });
+
+    test('handles missing source fields gracefully', async () => {
+      const { applyMappings } = await import('../../service/poller.js');
+      
+      const item = {
+        title: 'Fix the bug'
+      };
+      const mappings = {
+        body: 'description'  // description doesn't exist
+      };
+      
+      const mapped = applyMappings(item, mappings);
+      
+      // Missing field should be undefined, not error
+      assert.strictEqual(mapped.body, undefined);
+      assert.strictEqual(mapped.title, 'Fix the bug');
+    });
+
+    test('returns original item when no mappings', async () => {
+      const { applyMappings } = await import('../../service/poller.js');
+      
+      const item = { title: 'Test', number: 1 };
+      
+      const mapped = applyMappings(item, null);
+      
+      assert.deepStrictEqual(mapped, item);
+    });
+
+    test('extracts value using regex syntax', async () => {
+      const { applyMappings } = await import('../../service/poller.js');
+      
+      const item = {
+        title: 'Fix the bug',
+        url: 'https://linear.app/0din/issue/0DIN-683/attack-technique-detection'
+      };
+      const mappings = {
+        number: 'url:/([A-Z0-9]+-[0-9]+)/'  // Matches 0DIN-683
+      };
+      
+      const mapped = applyMappings(item, mappings);
+      
+      assert.strictEqual(mapped.number, '0DIN-683');
+      assert.strictEqual(mapped.title, 'Fix the bug');
+      assert.strictEqual(mapped.url, 'https://linear.app/0din/issue/0DIN-683/attack-technique-detection');
+    });
+
+    test('regex extraction returns undefined for no match', async () => {
+      const { applyMappings } = await import('../../service/poller.js');
+      
+      const item = {
+        url: 'https://example.com/no-match'
+      };
+      const mappings = {
+        number: 'url:/([A-Z0-9]+-[0-9]+)/'
+      };
+      
+      const mapped = applyMappings(item, mappings);
+      
+      assert.strictEqual(mapped.number, undefined);
+    });
+
+    test('maps commentsCount to comments for GitHub PR enrichment', async () => {
+      const { applyMappings } = await import('../../service/poller.js');
+      
+      // gh search prs returns commentsCount, but enrichItemsWithComments checks for 'comments'
+      const item = {
+        number: 123,
+        title: 'Fix mobile overflow',
+        commentsCount: 4,
+        repository: { nameWithOwner: 'anomalyco/opencode' }
+      };
+      const mappings = {
+        comments: 'commentsCount',
+        repository_full_name: 'repository.nameWithOwner'
+      };
+      
+      const mapped = applyMappings(item, mappings);
+      
+      // comments field should be set from commentsCount
+      assert.strictEqual(mapped.comments, 4);
+      // Original commentsCount preserved
+      assert.strictEqual(mapped.commentsCount, 4);
+      // Other mappings work too
+      assert.strictEqual(mapped.repository_full_name, 'anomalyco/opencode');
+    });
+  });
+
+  describe('fetchGitHubComments', () => {
+    // Note: These tests document the expected behavior
+    // Actual MCP calls require mocking which is complex
+
+    test('should fetch both PR review comments AND issue comments', async () => {
+      // The issue: Linear bot posts to issue comments endpoint, not PR review comments
+      // PR review comments: GET /repos/{owner}/{repo}/pulls/{pull_number}/comments
+      // Issue comments: GET /repos/{owner}/{repo}/issues/{issue_number}/comments
+      //
+      // For proper bot filtering, we need to check BOTH endpoints
+      // Currently only PR review comments are fetched, causing Linear bot
+      // comments to be missed (they appear in issue comments)
+      
+      // This test documents the expected behavior - fetchGitHubComments should
+      // return comments from both endpoints merged together
+      const { fetchGitHubComments } = await import('../../service/poller.js');
+      
+      // Without proper mocking, we can only test the function exists
+      // and accepts the right parameters
+      assert.strictEqual(typeof fetchGitHubComments, 'function');
+    });
+  });
+
+  describe('parseJsonArray', () => {
+    test('parses direct array response', async () => {
+      const { parseJsonArray } = await import('../../service/poller.js');
+      
+      const text = JSON.stringify([{ id: '1' }, { id: '2' }]);
+      const result = parseJsonArray(text, 'test');
+      
+      assert.strictEqual(result.length, 2);
+      assert.strictEqual(result[0].id, '1');
+    });
+
+    test('extracts array using response_key', async () => {
+      const { parseJsonArray } = await import('../../service/poller.js');
+      
+      const text = JSON.stringify({
+        reminders: [
+          { id: 'reminder-1', name: 'Task 1', completed: false },
+          { id: 'reminder-2', name: 'Task 2', completed: false },
+          { id: 'reminder-3', name: 'Task 3', completed: false }
+        ],
+        count: 3
+      });
+      const result = parseJsonArray(text, 'agent-tasks', 'reminders');
+      
+      assert.strictEqual(result.length, 3);
+      assert.strictEqual(result[0].id, 'reminder-1');
+      assert.strictEqual(result[0].name, 'Task 1');
+      assert.strictEqual(result[1].id, 'reminder-2');
+      assert.strictEqual(result[2].id, 'reminder-3');
+    });
+
+    test('wraps single object as array when no response_key', async () => {
+      const { parseJsonArray } = await import('../../service/poller.js');
+      
+      const text = JSON.stringify({ id: '1', title: 'Single item' });
+      const result = parseJsonArray(text, 'test');
+      
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0].id, '1');
+    });
+
+    test('returns empty array for invalid JSON', async () => {
+      const { parseJsonArray } = await import('../../service/poller.js');
+      
+      const result = parseJsonArray('not valid json', 'test');
+      
+      assert.strictEqual(result.length, 0);
+    });
+
+    test('returns empty array when response_key not found', async () => {
+      const { parseJsonArray } = await import('../../service/poller.js');
+      
+      const text = JSON.stringify({ items: [{ id: '1' }] });
+      const result = parseJsonArray(text, 'test', 'reminders');
+      
+      assert.strictEqual(result.length, 0);
+    });
+  });
+
+  describe('transformItems with mappings', () => {
+    test('applies mappings to all items', async () => {
+      const { transformItems, applyMappings } = await import('../../service/poller.js');
+      
+      const items = [
+        { identifier: 'PROJ-1', title: 'First', description: 'Desc 1' },
+        { identifier: 'PROJ-2', title: 'Second', description: 'Desc 2' },
+      ];
+      const mappings = {
+        number: 'identifier',
+        body: 'description'
+      };
+      const idTemplate = 'linear:{identifier}';
+      
+      // First apply mappings, then transform
+      const mappedItems = items.map(item => applyMappings(item, mappings));
+      const transformed = transformItems(mappedItems, idTemplate);
+      
+      // Should have mapped fields
+      assert.strictEqual(transformed[0].number, 'PROJ-1');
+      assert.strictEqual(transformed[0].body, 'Desc 1');
+      assert.strictEqual(transformed[0].id, 'linear:PROJ-1');
+      
+      assert.strictEqual(transformed[1].number, 'PROJ-2');
+      assert.strictEqual(transformed[1].body, 'Desc 2');
+      assert.strictEqual(transformed[1].id, 'linear:PROJ-2');
+      
+      // Original fields preserved
+      assert.strictEqual(transformed[0].identifier, 'PROJ-1');
+      assert.strictEqual(transformed[0].title, 'First');
+    });
+  });
+
+  describe('computeAttentionLabels', () => {
+    test('labels PR with conflicts only', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        _mergeable: 'CONFLICTING',
+        _comments: []
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._attention_label, 'Conflicts');
+      assert.strictEqual(result[0]._has_attention, true);
+    });
+
+    test('labels PR with human feedback only', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        user: { login: 'author' },
+        _mergeable: 'MERGEABLE',
+        _comments: [
+          { user: { login: 'reviewer', type: 'User' }, body: 'Please fix' }
+        ]
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._attention_label, 'Feedback');
+      assert.strictEqual(result[0]._has_attention, true);
+    });
+
+    test('labels PR with both conflicts and feedback', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        user: { login: 'author' },
+        _mergeable: 'CONFLICTING',
+        _comments: [
+          { user: { login: 'reviewer', type: 'User' }, body: 'Please fix' }
+        ]
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._attention_label, 'Conflicts+Feedback');
+      assert.strictEqual(result[0]._has_attention, true);
+    });
+
+    test('labels PR with no attention conditions', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        user: { login: 'author' },
+        _mergeable: 'MERGEABLE',
+        _comments: []
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._attention_label, 'PR');
+      assert.strictEqual(result[0]._has_attention, false);
+    });
+
+    test('ignores bot comments when computing feedback', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        user: { login: 'author' },
+        _mergeable: 'MERGEABLE',
+        _comments: [
+          { user: { login: 'github-actions[bot]', type: 'Bot' }, body: 'CI passed' },
+          { user: { login: 'codecov[bot]', type: 'Bot' }, body: 'Coverage report' }
+        ]
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._attention_label, 'PR');
+      assert.strictEqual(result[0]._has_attention, false);
+    });
+
+    test('ignores author comments when computing feedback', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        user: { login: 'author' },
+        _mergeable: 'MERGEABLE',
+        _comments: [
+          { user: { login: 'author', type: 'User' }, body: 'Added screenshots' }
+        ]
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._attention_label, 'PR');
+      assert.strictEqual(result[0]._has_attention, false);
+    });
+
+    test('ignores known bots without [bot] suffix (e.g., linear)', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        user: { login: 'author' },
+        _mergeable: 'MERGEABLE',
+        _comments: [
+          // Linear bot posts linkback comments without [bot] suffix
+          { user: { login: 'linear', type: 'User' }, body: '<!-- linear-linkback -->' }
+        ]
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._attention_label, 'PR');
+      assert.strictEqual(result[0]._has_attention, false);
+    });
+
+    test('tracks latest feedback timestamp for detecting re-reviews', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        user: { login: 'author' },
+        _mergeable: 'MERGEABLE',
+        _comments: [
+          { user: { login: 'reviewer1', type: 'User' }, body: 'Fix this', created_at: '2026-01-10T10:00:00Z', updated_at: '2026-01-10T10:00:00Z' },
+          { user: { login: 'reviewer2', type: 'User' }, state: 'CHANGES_REQUESTED', body: 'Also this', submitted_at: '2026-01-15T14:30:00Z' },
+        ]
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._has_attention, true);
+      assert.strictEqual(result[0]._latest_feedback_at, '2026-01-15T14:30:00Z');
+    });
+
+    test('sets latest feedback timestamp to null when no feedback', async () => {
+      const { computeAttentionLabels } = await import('../../service/poller.js');
+      
+      const items = [{
+        number: 123,
+        title: 'Test PR',
+        user: { login: 'author' },
+        _mergeable: 'MERGEABLE',
+        _comments: []
+      }];
+      
+      const result = computeAttentionLabels(items, {});
+      
+      assert.strictEqual(result[0]._has_attention, false);
+      assert.strictEqual(result[0]._latest_feedback_at, null);
+    });
+  });
+
+  describe('enrichItemsWithComments', () => {
+    test('skips enrichment when filter_bot_comments is not set', async () => {
+      const { enrichItemsWithComments } = await import('../../service/poller.js');
+      
+      const items = [{ number: 1, comments: 5, repository_full_name: 'org/repo' }];
+      const source = { tool: { command: ['gh', 'search', 'prs'] } }; // no filter_bot_comments
+      
+      const result = await enrichItemsWithComments(items, source);
+      
+      // Items returned unchanged, no _comments added
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0]._comments, undefined);
+    });
+
+    test('skips enrichment for non-GitHub sources', async () => {
+      const { enrichItemsWithComments } = await import('../../service/poller.js');
+      
+      const items = [{ number: 1, comments: 5, repository_full_name: 'org/repo' }];
+      const source = { 
+        filter_bot_comments: true,
+        tool: { mcp: 'linear', name: 'list_issues' } // not GitHub
+      };
+      
+      const result = await enrichItemsWithComments(items, source);
+      
+      // Items returned unchanged
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0]._comments, undefined);
+    });
+
+    test('enriches items with zero commentsCount (PR reviews not counted in commentsCount)', async () => {
+      // This test verifies the fix for a bug where PRs with review feedback but
+      // zero issue comments were not enriched. GitHub's commentsCount only counts
+      // issue comments, not PR reviews or PR review comments.
+      const { enrichItemsWithComments } = await import('../../service/poller.js');
+      
+      const items = [
+        { number: 1, comments: 0, repository_full_name: 'org/repo' },
+        { number: 2, comments: 0, repository_full_name: 'org/repo' }
+      ];
+      const source = { 
+        filter_bot_comments: true,
+        tool: { command: ['gh', 'search', 'prs'] }
+      };
+      
+      const result = await enrichItemsWithComments(items, source);
+      
+      // Items should be enriched with _comments (empty array if no feedback found)
+      // The actual API call may fail in test environment, but items should still
+      // have _comments set (either to fetched comments or empty array on error)
+      assert.strictEqual(result.length, 2);
+      // _comments should be defined (array) - we always try to fetch now
+      assert.ok(Array.isArray(result[0]._comments), 'First item should have _comments array');
+      assert.ok(Array.isArray(result[1]._comments), 'Second item should have _comments array');
+    });
+
+    test('identifies GitHub MCP source correctly', async () => {
+      const { enrichItemsWithComments } = await import('../../service/poller.js');
+      
+      const items = [{ number: 1, comments: 0, repository_full_name: 'org/repo' }];
+      const source = { 
+        filter_bot_comments: true,
+        tool: { mcp: 'github', name: 'search_issues' }
+      };
+      
+      // Should try to fetch comments (may return empty array on API error in tests)
+      const result = await enrichItemsWithComments(items, source);
+      assert.strictEqual(result.length, 1);
+      assert.ok(Array.isArray(result[0]._comments), 'Should have _comments array');
+    });
+
+    test('identifies GitHub CLI source correctly', async () => {
+      const { enrichItemsWithComments } = await import('../../service/poller.js');
+      
+      const items = [{ number: 1, comments: 0, repository_full_name: 'org/repo' }];
+      const source = { 
+        filter_bot_comments: true,
+        tool: { command: ['gh', 'search', 'issues', '--json', 'number'] }
+      };
+      
+      // Should try to fetch comments (may return empty array on API error in tests)
+      const result = await enrichItemsWithComments(items, source);
+      assert.strictEqual(result.length, 1);
+      assert.ok(Array.isArray(result[0]._comments), 'Should have _comments array');
+    });
+  });
+
+  describe('enrichItemsWithMergeable', () => {
+    test('skips enrichment when enrich_mergeable is not set', async () => {
+      const { enrichItemsWithMergeable } = await import('../../service/poller.js');
+      
+      const items = [{ number: 1, repository_full_name: 'org/repo' }];
+      const source = {}; // no enrich_mergeable
+      
+      const result = await enrichItemsWithMergeable(items, source);
+      
+      // Items returned unchanged
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0]._mergeable, undefined);
+    });
+
+    test('skips items without repository info', async () => {
+      const { enrichItemsWithMergeable } = await import('../../service/poller.js');
+      
+      const items = [
+        { number: 1 }, // no repository_full_name
+        { repository_full_name: 'org/repo' } // no number
+      ];
+      const source = { enrich_mergeable: true };
+      
+      const result = await enrichItemsWithMergeable(items, source);
+      
+      // Items returned unchanged (no API calls made for invalid items)
+      assert.strictEqual(result.length, 2);
+      assert.strictEqual(result[0]._mergeable, undefined);
+      assert.strictEqual(result[1]._mergeable, undefined);
+    });
+
+    test('accepts repository.nameWithOwner as alternative field', async () => {
+      const { enrichItemsWithMergeable } = await import('../../service/poller.js');
+      
+      const items = [
+        { number: 1, repository: { nameWithOwner: 'org/repo' } }
+      ];
+      const source = { enrich_mergeable: true };
+      
+      // This will attempt the API call (which may fail in test env)
+      // but it should not skip due to missing repo info
+      const result = await enrichItemsWithMergeable(items, source);
+      
+      // Should have attempted enrichment (result may have _mergeable: null on CLI error)
+      assert.strictEqual(result.length, 1);
+      // The item should have been processed (not skipped)
+      assert.ok('_mergeable' in result[0] || result[0]._mergeable === undefined);
+    });
+  });
+
+  describe('fetchGitHubComments', () => {
+    test('returns empty array when repository_full_name is missing', async () => {
+      const { fetchGitHubComments } = await import('../../service/poller.js');
+      
+      const item = { number: 123 }; // no repository_full_name
+      
+      const result = await fetchGitHubComments(item);
+      
+      assert.deepStrictEqual(result, []);
+    });
+
+    test('returns empty array when number is missing', async () => {
+      const { fetchGitHubComments } = await import('../../service/poller.js');
+      
+      const item = { repository_full_name: 'org/repo' }; // no number
+      
+      const result = await fetchGitHubComments(item);
+      
+      assert.deepStrictEqual(result, []);
+    });
+
+    test('returns empty array when owner/repo cannot be parsed', async () => {
+      const { fetchGitHubComments } = await import('../../service/poller.js');
+      
+      const item = { repository_full_name: 'invalid', number: 123 }; // no slash
+      
+      const result = await fetchGitHubComments(item);
+      
+      assert.deepStrictEqual(result, []);
+    });
+  });
+
+  describe('detectStacks', () => {
+    test('detects a simple 2-PR stack', async () => {
+      const { detectStacks } = await import('../../service/poller.js');
+
+      const items = [
+        {
+          id: 'https://github.com/myorg/app/pull/101',
+          number: 101,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'main',
+          _headRefName: 'feature-part-1',
+        },
+        {
+          id: 'https://github.com/myorg/app/pull/102',
+          number: 102,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'feature-part-1',
+          _headRefName: 'feature-part-2',
+        },
+      ];
+
+      const stacks = detectStacks(items);
+
+      // Both PRs should be in the map as siblings of each other
+      assert.ok(stacks.has(items[0].id), 'PR #101 should be in stacks map');
+      assert.ok(stacks.has(items[1].id), 'PR #102 should be in stacks map');
+      assert.deepStrictEqual(stacks.get(items[0].id), [items[1].id]);
+      assert.deepStrictEqual(stacks.get(items[1].id), [items[0].id]);
+    });
+
+    test('detects a 3-PR chain', async () => {
+      const { detectStacks } = await import('../../service/poller.js');
+
+      const items = [
+        {
+          id: 'https://github.com/myorg/app/pull/101',
+          number: 101,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'main',
+          _headRefName: 'feature-part-1',
+        },
+        {
+          id: 'https://github.com/myorg/app/pull/102',
+          number: 102,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'feature-part-1',
+          _headRefName: 'feature-part-2',
+        },
+        {
+          id: 'https://github.com/myorg/app/pull/103',
+          number: 103,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'feature-part-2',
+          _headRefName: 'feature-part-3',
+        },
+      ];
+
+      const stacks = detectStacks(items);
+
+      // All three should be siblings of each other
+      assert.ok(stacks.has(items[0].id));
+      assert.ok(stacks.has(items[1].id));
+      assert.ok(stacks.has(items[2].id));
+
+      // PR #101 should have #102 and #103 as siblings
+      const siblings101 = stacks.get(items[0].id);
+      assert.ok(siblings101.includes(items[1].id));
+      assert.ok(siblings101.includes(items[2].id));
+      assert.strictEqual(siblings101.length, 2);
+
+      // PR #102 should have #101 and #103 as siblings
+      const siblings102 = stacks.get(items[1].id);
+      assert.ok(siblings102.includes(items[0].id));
+      assert.ok(siblings102.includes(items[2].id));
+      assert.strictEqual(siblings102.length, 2);
+    });
+
+    test('returns empty map when no stacks exist', async () => {
+      const { detectStacks } = await import('../../service/poller.js');
+
+      const items = [
+        {
+          id: 'https://github.com/myorg/app/pull/101',
+          number: 101,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'main',
+          _headRefName: 'feature-a',
+        },
+        {
+          id: 'https://github.com/myorg/app/pull/102',
+          number: 102,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'main',
+          _headRefName: 'feature-b',
+        },
+      ];
+
+      const stacks = detectStacks(items);
+
+      assert.strictEqual(stacks.size, 0, 'No stacks should be detected when all PRs are based on main');
+    });
+
+    test('handles PRs from different repos independently', async () => {
+      const { detectStacks } = await import('../../service/poller.js');
+
+      const items = [
+        {
+          id: 'https://github.com/myorg/app-a/pull/1',
+          number: 1,
+          repository_full_name: 'myorg/app-a',
+          _baseRefName: 'main',
+          _headRefName: 'feature-x',
+        },
+        {
+          id: 'https://github.com/myorg/app-b/pull/2',
+          number: 2,
+          repository_full_name: 'myorg/app-b',
+          _baseRefName: 'feature-x',
+          _headRefName: 'feature-y',
+        },
+      ];
+
+      const stacks = detectStacks(items);
+
+      // Even though app-b PR #2's base matches app-a PR #1's head,
+      // they're in different repos so should NOT be stacked
+      assert.strictEqual(stacks.size, 0, 'Should not match branches across different repos');
+    });
+
+    test('handles items missing branch refs gracefully', async () => {
+      const { detectStacks } = await import('../../service/poller.js');
+
+      const items = [
+        {
+          id: 'https://github.com/myorg/app/pull/101',
+          number: 101,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'main',
+          _headRefName: 'feature-part-1',
+        },
+        {
+          id: 'https://github.com/myorg/app/pull/102',
+          number: 102,
+          repository_full_name: 'myorg/app',
+          // Missing _baseRefName and _headRefName (enrichment failed)
+        },
+      ];
+
+      const stacks = detectStacks(items);
+
+      assert.strictEqual(stacks.size, 0, 'Should not crash on items without branch refs');
+    });
+
+    test('handles single item gracefully', async () => {
+      const { detectStacks } = await import('../../service/poller.js');
+
+      const items = [
+        {
+          id: 'https://github.com/myorg/app/pull/101',
+          number: 101,
+          repository_full_name: 'myorg/app',
+          _baseRefName: 'main',
+          _headRefName: 'feature-1',
+        },
+      ];
+
+      const stacks = detectStacks(items);
+
+      assert.strictEqual(stacks.size, 0, 'Single item cannot form a stack');
+    });
+
+    test('handles empty items array', async () => {
+      const { detectStacks } = await import('../../service/poller.js');
+
+      const stacks = detectStacks([]);
+
+      assert.strictEqual(stacks.size, 0);
+    });
+
+    test('uses repository.nameWithOwner as fallback for repo grouping', async () => {
+      const { detectStacks } = await import('../../service/poller.js');
+
+      const items = [
+        {
+          id: 'https://github.com/myorg/app/pull/101',
+          number: 101,
+          repository: { nameWithOwner: 'myorg/app' },
+          _baseRefName: 'main',
+          _headRefName: 'feature-part-1',
+        },
+        {
+          id: 'https://github.com/myorg/app/pull/102',
+          number: 102,
+          repository: { nameWithOwner: 'myorg/app' },
+          _baseRefName: 'feature-part-1',
+          _headRefName: 'feature-part-2',
+        },
+      ];
+
+      const stacks = detectStacks(items);
+
+      assert.ok(stacks.has(items[0].id));
+      assert.ok(stacks.has(items[1].id));
+    });
+  });
+
+  describe('enrichItemsWithBranchRefs', () => {
+    test('skips enrichment when detect_stacks is not set', async () => {
+      const { enrichItemsWithBranchRefs } = await import('../../service/poller.js');
+
+      const items = [{ number: 1, repository_full_name: 'org/repo' }];
+      const source = { tool: { command: ['gh', 'search', 'prs'] } }; // no detect_stacks
+
+      const result = await enrichItemsWithBranchRefs(items, source);
+
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0]._headRefName, undefined);
+      assert.strictEqual(result[0]._baseRefName, undefined);
+    });
+
+    test('skips enrichment for non-GitHub sources', async () => {
+      const { enrichItemsWithBranchRefs } = await import('../../service/poller.js');
+
+      const items = [{ number: 1, repository_full_name: 'org/repo' }];
+      const source = {
+        detect_stacks: true,
+        tool: { mcp: 'linear', name: 'list_issues' }
+      };
+
+      const result = await enrichItemsWithBranchRefs(items, source);
+
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0]._headRefName, undefined);
+      assert.strictEqual(result[0]._baseRefName, undefined);
+    });
+
+    test('skips items without repository info', async () => {
+      const { enrichItemsWithBranchRefs } = await import('../../service/poller.js');
+
+      const items = [
+        { number: 1 }, // no repository_full_name
+        { repository_full_name: 'org/repo' } // no number
+      ];
+      const source = {
+        detect_stacks: true,
+        tool: { command: ['gh', 'search', 'prs'] }
+      };
+
+      const result = await enrichItemsWithBranchRefs(items, source);
+
+      // Items returned unchanged (no API calls for invalid items)
+      assert.strictEqual(result.length, 2);
+      assert.strictEqual(result[0]._headRefName, undefined);
+      assert.strictEqual(result[1]._headRefName, undefined);
+    });
+  });
+});

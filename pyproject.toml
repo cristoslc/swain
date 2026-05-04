@@ -1,16 +1,17 @@
 [project]
-name = "untethered"
+name = "swain-helm"
 version = "0.1.0"
-description = "Untethered Operator — chat bridge for steering agentic sessions"
+description = "swain-helm — watchdog and project bridges for steering agentic sessions from any device"
 requires-python = ">=3.11"
 dependencies = [
     "zulip>=0.9.0",
 ]
 
 [project.scripts]
-untethered-host = "untethered.main:main"
-untethered-zulip-chat = "untethered.plugins.zulip_chat:main"
-untethered-project-bridge = "untethered.plugins.project_bridge:main"
+swain-helm-zulip-chat = "swain_helm.plugins.zulip_chat:main"
+swain-helm-opencode = "swain_helm.adapters.opencode_server:main"
+swain-helm-claude = "swain_helm.adapters.claude_code:main"
+swain-helm-tmux = "swain_helm.adapters.tmux_pane:main"
 
 [project.optional-dependencies]
 dev = [

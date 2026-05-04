@@ -64,6 +64,13 @@ A config resolution module that walks the config tree, resolves all `op://` refe
 
 | Criterion | Evidence | Result |
 |-----------|----------|--------|
+| AC1: op:// references resolved | `test_config_credential_resolution.py::TestOpReferenceResolution` | Pass |
+| AC2: Each op:// resolved once (cached) | `test_config_credential_resolution.py::TestOnePasswordIntegration::test_op_references_resolved_once` | Pass |
+| AC3: Failed op:// causes exit | `test_config_credential_resolution.py::TestOpReferenceResolution::test_resolution_error_on_bad_reference` | Pass |
+| AC4: Resolved secrets not on disk | `test_config_credential_resolution.py::TestOnePasswordIntegration::test_resolved_secrets_not_in_config_files` | Pass |
+| AC5: Resolved secrets not in logs | `test_config_credential_resolution.py::TestOnePasswordIntegration::test_no_secrets_in_process_output` | Pass (Docker) |
+| AC6: Project config schema validation | `test_config_credential_resolution.py::TestConfigValidation` | Pass |
+| AC7: Helm config schema validation | `test_config_credential_resolution.py::TestConfigValidation` | Pass |
 
 ## Scope & Constraints
 

@@ -1,0 +1,812 @@
+// =============================================================================
+// State management for the Pocket Universe plugin
+// All in-memory stores, constants, cleanup, and alias management
+// =============================================================================
+
+import type {
+  Message,
+  CachedParentId,
+  SessionState,
+  SubagentInfo,
+  OpenCodeSessionClient,
+} from './types';
+import { log, LOG } from './logger';
+import {
+  RECALL_AGENT_ACTIVE,
+  RECALL_AGENT_IDLE_NO_OUTPUT,
+  RECALL_NO_STATUS_UPDATES,
+} from './prompts/recall.prompts';
+import { isRecallCrossPocket } from './config';
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+export const CHAR_CODE_A = 65; // ASCII code for 'A'
+export const ALPHABET_SIZE = 26;
+export const MAX_DESCRIPTION_LENGTH = 300;
+export const MAX_STATUS_HISTORY = 50; // Keep last N status updates per agent
+export const MESSAGE_TTL_MS = 30 * 60 * 1000; // 30 minutes for handled messages
+export const UNHANDLED_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours for unhandled messages
+export const MAX_INBOX_SIZE = 100; // Max messages per inbox
+export const PARENT_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+export const CLEANUP_INTERVAL_MS = 60 * 1000; // Run cleanup every minute
+export const DEFAULT_MODEL_ID = 'gpt-4o-2024-08-06';
+export const DEFAULT_PROVIDER_ID = 'openai';
+export const MAX_MESSAGE_LENGTH = 10000; // Prevent excessively long messages
+export const WORKTREES_DIR = '.worktrees'; // Directory for agent worktrees
+
+// ============================================================================
+// Completed Agent History (persists across pocket universe cleanups)
+// ============================================================================
+
+export interface CompletedAgentRecord {
+  alias: string;
+  statusHistory: string[];
+  finalOutput: string;
+  state: 'completed';
+  completedAt: number;
+  /** Main session ID that this agent belonged to (pocket universe identifier) */
+  pocketId?: string;
+}
+
+// History of completed agents - survives cleanup within same opencode session
+// When recall_cross_pocket is false, filtering happens in recallAgents()
+export const completedAgentHistory: CompletedAgentRecord[] = [];
+
+// Track current pocket universe's main session ID
+let currentPocketId: string | null = null;
+
+// Track the actual parent/main session ID (the user's session, not the first child)
+let currentMainSessionId: string | null = null;
+
+export function setCurrentPocketId(pocketSessionId: string): void {
+  currentPocketId = pocketSessionId;
+  log.debug(LOG.SESSION, `Current pocket ID set`, { pocketId: pocketSessionId });
+}
+
+export function getCurrentPocketId(): string | null {
+  return currentPocketId;
+}
+
+/**
+ * Set the actual main session ID (user's session, parent of all agents).
+ * This is the session where ignored user messages should be sent for session updates.
+ */
+export function setMainSessionId(mainSessionId: string): void {
+  currentMainSessionId = mainSessionId;
+  log.debug(LOG.SESSION, `Main session ID set`, { mainSessionId });
+}
+
+/**
+ * Get the actual main session ID (user's session).
+ * Returns null if no pocket universe is active.
+ */
+export function getMainSessionId(): string | null {
+  return currentMainSessionId;
+}
+
+// Store final outputs for agents as they complete (used before saving to history)
+export const agentFinalOutputs = new Map<string, string>(); // alias -> output
+
+/**
+ * Save an agent's data to the completed history.
+ * Called when an agent completes its work.
+ *
+ * IMPORTANT: Uses session ID to determine which pocket/main session the agent belongs to.
+ * This ensures proper scoping when multiple main sessions exist.
+ *
+ * @param sessionId - The session ID of the completing agent
+ * @param alias - The agent's alias
+ * @param finalOutput - The agent's final output
+ */
+export function saveAgentToHistory(sessionId: string, alias: string, finalOutput: string): void {
+  const statusHistory = agentDescriptions.get(alias) || [];
+  // Use the agent's root session ID as the pocket identifier
+  // This is session-specific, not a global
+  const pocketId = getRootIdForSession(sessionId);
+
+  // Check if already in history (avoid duplicates)
+  const existing = completedAgentHistory.find((r) => r.alias === alias);
+  if (existing) {
+    log.debug(LOG.SESSION, `Agent already in history, updating`, { alias });
+    existing.statusHistory = [...statusHistory];
+    existing.finalOutput = finalOutput;
+    existing.completedAt = Date.now();
+    existing.pocketId = pocketId || undefined;
+    return;
+  }
+
+  const record: CompletedAgentRecord = {
+    alias,
+    statusHistory: [...statusHistory],
+    finalOutput,
+    state: 'completed',
+    completedAt: Date.now(),
+    pocketId: pocketId || undefined,
+  };
+
+  completedAgentHistory.push(record);
+  log.info(LOG.SESSION, `Saved agent to history`, {
+    alias,
+    sessionId,
+    statusCount: statusHistory.length,
+    outputLength: finalOutput.length,
+    totalHistory: completedAgentHistory.length,
+    pocketId,
+  });
+}
+
+/**
+ * Get agent info for recall tool - queries both active agents and history.
+ * Output is only included when showOutput=true AND agentName is specified.
+ * When recall_cross_pocket is false, only shows agents from current pocket universe.
+ *
+ * IMPORTANT: Uses caller's session ID to determine which main session to filter by.
+ * This ensures agents only see other agents from the same main session.
+ *
+ * @param callerSessionId - The session ID of the agent calling recall (for scoping)
+ * @param agentName - Optional specific agent to recall
+ * @param showOutput - Whether to include output (only works with agentName)
+ */
+export function recallAgents(
+  callerSessionId: string,
+  agentName?: string,
+  showOutput?: boolean,
+): {
+  agents: Array<{
+    name: string;
+    status_history: string[];
+    state: 'active' | 'idle' | 'completed';
+    output?: string;
+  }>;
+} {
+  const results: Array<{
+    name: string;
+    status_history: string[];
+    state: 'active' | 'idle' | 'completed';
+    output?: string;
+  }> = [];
+
+  // Only include output if BOTH agent_name is specified AND show_output is true
+  const includeOutput = Boolean(agentName && showOutput);
+
+  // Check if cross-pocket recall is enabled
+  const crossPocket = isRecallCrossPocket();
+
+  // Get the caller's root session (main session) for proper scoping
+  // This is the ONLY correct way to filter - using the caller's own root
+  const callerRootId = getRootIdForSession(callerSessionId);
+
+  // First, add historical (completed) agents
+  for (const record of completedAgentHistory) {
+    if (agentName && record.alias !== agentName) continue;
+    // Filter by pocket if cross-pocket is disabled
+    // Use callerRootId comparison - pocketId in history should match caller's root
+    if (!crossPocket && callerRootId && record.pocketId !== callerRootId) continue;
+    const entry: {
+      name: string;
+      status_history: string[];
+      state: 'active' | 'idle' | 'completed';
+      output?: string;
+    } = {
+      name: record.alias,
+      status_history:
+        record.statusHistory.length > 0 ? record.statusHistory : [RECALL_NO_STATUS_UPDATES],
+      state: 'completed',
+    };
+    if (includeOutput) {
+      entry.output = record.finalOutput;
+    }
+    results.push(entry);
+  }
+
+  // Then add active agents (not yet in history)
+  // Filter by caller's root session - agents NEVER cross main sessions
+  for (const [alias, sessionId] of aliasToSession) {
+    // Skip if already in history
+    if (completedAgentHistory.some((r) => r.alias === alias)) continue;
+    if (agentName && alias !== agentName) continue;
+
+    // Always filter by caller's root session - agents from different main sessions must never be visible
+    if (callerRootId) {
+      const agentRootId = sessionToRootId.get(sessionId);
+      if (agentRootId !== callerRootId) {
+        continue; // Different main session (or untracked), skip
+      }
+    }
+
+    const statusHistory = agentDescriptions.get(alias) || [];
+    const sessionState = sessionStates.get(sessionId);
+    const state = sessionState?.status === 'idle' ? 'idle' : 'active';
+
+    const entry: {
+      name: string;
+      status_history: string[];
+      state: 'active' | 'idle' | 'completed';
+      output?: string;
+    } = {
+      name: alias,
+      status_history: statusHistory.length > 0 ? statusHistory : [RECALL_NO_STATUS_UPDATES],
+      state,
+    };
+    if (includeOutput) {
+      const storedOutput = agentFinalOutputs.get(alias);
+      if (storedOutput) {
+        entry.output = storedOutput;
+      } else if (state === 'active') {
+        entry.output = RECALL_AGENT_ACTIVE;
+      } else {
+        entry.output = RECALL_AGENT_IDLE_NO_OUTPUT;
+      }
+    }
+    results.push(entry);
+  }
+
+  return { agents: results };
+}
+
+// ============================================================================
+// In-memory message store
+// ============================================================================
+
+// Inboxes indexed by recipient session ID
+export const inboxes = new Map<string, Message[]>();
+
+// Message index counter per session (for numeric IDs)
+export const sessionMsgCounter = new Map<string, number>();
+
+// Track ALL active sessions
+export const activeSessions = new Set<string>();
+
+// Track sessions that have announced themselves (called broadcast at least once)
+export const announcedSessions = new Set<string>();
+
+// Track sessions that have had pocket universe summary injected (prevent double injection)
+export const summaryInjectedSessions = new Set<string>();
+
+// Alias mappings: sessionId <-> alias (e.g., "agentA", "agentB")
+export const sessionToAlias = new Map<string, string>();
+export const aliasToSession = new Map<string, string>();
+export const agentDescriptions = new Map<string, string[]>(); // alias -> status history (most recent last)
+
+// Root session tracking: sessionId -> rootSessionId (main session)
+// Used to filter agents by pocket universe - only show agents from the same main session
+export const sessionToRootId = new Map<string, string>();
+
+/**
+ * Get the root session ID (main session) for a given session.
+ * Returns undefined if not tracked.
+ */
+export function getRootIdForSession(sessionId: string): string | undefined {
+  return sessionToRootId.get(sessionId);
+}
+
+// Atomic alias counter with registration lock
+// Per-root session naming counters (rootSessionId -> nextIndex)
+const sessionNamingCounters = new Map<string, number>();
+const registeringSessionsLock = new Set<string>(); // Prevent race conditions
+
+// DORMANT: parent alias feature
+// Cache for parentID lookups with expiry
+export const sessionParentCache = new Map<string, CachedParentId>();
+
+// Cache for child session checks (fast path)
+export const childSessionCache = new Set<string>();
+
+// Store pending task descriptions by parent session ID
+// parentSessionId -> array of descriptions (most recent last)
+export const pendingTaskDescriptions = new Map<string, string[]>();
+
+// Track messages that were presented to an agent via transform injection
+// Key: sessionId, Value: Set of msgIndex that were presented
+export const presentedMessages = new Map<string, Set<number>>();
+
+// Maps parentSessionId -> array of subagent info
+export const pendingSubagents = new Map<string, SubagentInfo[]>();
+
+// Track active subagents by sessionId for completion updates
+export const activeSubagents = new Map<string, SubagentInfo>();
+
+// Track pending subagents per CALLER session (not parent)
+// When agentA spawns agentB, we track that agentA has a pending subagent
+// Key: caller session ID, Value: Set of spawned session IDs
+export const callerPendingSubagents = new Map<string, Set<string>>();
+
+// Track active first-level children per MAIN session
+// This prevents premature summary injection when main session spawns multiple task tools in parallel
+// Key: main session ID, Value: Set of active child session IDs
+export const mainSessionActiveChildren = new Map<string, Set<string>>();
+
+// Track completed first-level children to prevent re-adding them after completion
+// Key: main session ID, Value: Set of completed child session IDs
+export const completedFirstLevelChildren = new Map<string, Set<string>>();
+
+// Track coordinator (first child) per main session for /pocket command
+// Key: main session ID, Value: { sessionId, alias } of the first child
+export const mainSessionCoordinator = new Map<string, { sessionId: string; alias: string }>();
+
+// Store agent/model info per session for resumption and /pocket command
+// When sending messages to a session, we need to use ITS agent/model, not the current session's
+// Key: session ID, Value: { agent, model }
+export interface SessionModelInfo {
+  agent?: string;
+  model?: { modelID?: string; providerID?: string };
+}
+export const sessionModelInfo = new Map<string, SessionModelInfo>();
+
+export function getSessionModelInfo(sessionId: string): SessionModelInfo | undefined {
+  return sessionModelInfo.get(sessionId);
+}
+
+export function setSessionModelInfo(sessionId: string, info: SessionModelInfo): void {
+  sessionModelInfo.set(sessionId, info);
+  log.debug(LOG.SESSION, `Session model info stored`, {
+    sessionId,
+    agent: info.agent,
+    modelID: info.model?.modelID,
+    providerID: info.model?.providerID,
+  });
+}
+
+/**
+ * Fetch model info from a session's last user message.
+ * This mimics OpenCode's internal `lastModel` function.
+ * Used as a fallback when we don't have stored model info.
+ */
+export async function fetchSessionModelInfo(
+  client: OpenCodeSessionClient,
+  sessionId: string,
+): Promise<SessionModelInfo | null> {
+  try {
+    const messagesResult = await client.session.messages({
+      path: { id: sessionId },
+    });
+
+    const messages = messagesResult.data;
+    if (!messages || messages.length === 0) {
+      return null;
+    }
+
+    // Find the latest USER message (model/agent info is stored on user messages in OpenCode)
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msg = messages[i];
+      if (msg.info.role === 'user') {
+        const msgInfo = msg.info as {
+          agent?: string;
+          model?: { modelID?: string; providerID?: string };
+        };
+
+        if (msgInfo.agent || msgInfo.model) {
+          const info: SessionModelInfo = {
+            agent: msgInfo.agent,
+            model: msgInfo.model,
+          };
+
+          log.debug(LOG.SESSION, `Fetched model info from session messages`, {
+            sessionId,
+            agent: info.agent,
+            modelID: info.model?.modelID,
+            providerID: info.model?.providerID,
+          });
+
+          return info;
+        }
+      }
+    }
+
+    return null;
+  } catch (e) {
+    log.warn(LOG.SESSION, `Failed to fetch session model info`, {
+      sessionId,
+      error: String(e),
+    });
+    return null;
+  }
+}
+
+/**
+ * Get model info for a session, with fallback to fetching from session messages.
+ * First checks stored model info, then fetches from session if not stored.
+ */
+export async function getOrFetchModelInfo(
+  client: OpenCodeSessionClient,
+  sessionId: string,
+): Promise<SessionModelInfo | undefined> {
+  // First try stored model info
+  let modelInfo = getSessionModelInfo(sessionId);
+
+  if (modelInfo) {
+    return modelInfo;
+  }
+
+  // Fallback: fetch from session messages
+  const fetched = await fetchSessionModelInfo(client, sessionId);
+  if (fetched) {
+    // Cache it for future use
+    setSessionModelInfo(sessionId, fetched);
+    return fetched;
+  }
+
+  return undefined;
+}
+
+// Store the client reference for use in hooks.ts resume logic
+let storedClientForHooks: OpenCodeSessionClient | null = null;
+
+export function setStoredClientForHooks(client: OpenCodeSessionClient): void {
+  storedClientForHooks = client;
+}
+
+export function getStoredClientForHooks(): OpenCodeSessionClient | null {
+  return storedClientForHooks;
+}
+
+// Track sessions that have been cleaned up to prevent re-registration
+// After cleanup, hooks may still fire for these sessions - we must ignore them
+export const cleanedUpSessions = new Set<string>();
+
+// Pending subagent outputs for the "no forced attention" code path
+// When subagent completes and we want to inject as user message, we store here
+// session.before_complete picks this up and sets resumePrompt
+// Key: recipient session ID, Value: { senderAlias, output }
+export const pendingSubagentOutputs = new Map<string, { senderAlias: string; output: string }>();
+
+// Track sessions currently inside session.before.idle hook
+// Used to distinguish "truly active" (making LLM calls) vs "waiting in hook"
+// Key: session ID that is currently in the hook
+export const sessionsInBeforeIdleHook = new Set<string>();
+
+// Track sessions where noReply was successfully delivered
+// The hook checks this to avoid double-delivering via resumePrompt
+// Key: session ID where noReply was used
+export const noReplyDeliveredSessions = new Set<string>();
+
+// ============================================================================
+// Virtual Depth Tracking (for spawn chain limits without actual nesting)
+// ============================================================================
+
+// Map sessionId -> virtual depth (0 = main, 1 = first-level child, 2 = spawned by level 1, etc.)
+export const sessionVirtualDepth = new Map<string, number>();
+
+/**
+ * Get virtual depth for a session.
+ * Returns 1 for first-level children (spawned by main via task tool).
+ * Returns stored depth for subagent-spawned sessions.
+ */
+export function getVirtualDepth(sessionId: string): number {
+  return sessionVirtualDepth.get(sessionId) ?? 1; // Default to 1 for first-level children
+}
+
+/**
+ * Set virtual depth for a session.
+ * Called when creating a new subagent with the spawner's depth + 1.
+ */
+export function setVirtualDepth(sessionId: string, depth: number): void {
+  sessionVirtualDepth.set(sessionId, depth);
+  log.info(LOG.SESSION, `Virtual depth set`, { sessionId, depth });
+}
+
+// ============================================================================
+// Worktree Tracking (isolated working directories per agent)
+// ============================================================================
+
+// Map sessionId -> absolute worktree path
+export const sessionWorktrees = new Map<string, string>();
+
+export function getWorktree(sessionId: string): string | undefined {
+  return sessionWorktrees.get(sessionId);
+}
+
+export function setWorktree(sessionId: string, worktreePath: string): void {
+  sessionWorktrees.set(sessionId, worktreePath);
+  log.info(LOG.SESSION, `Worktree assigned`, { sessionId, worktreePath });
+}
+
+export function removeWorktree(sessionId: string): void {
+  sessionWorktrees.delete(sessionId);
+}
+
+// ============================================================================
+// Session State Tracking (for broadcast resumption)
+// ============================================================================
+
+// Track session states for resumption
+export const sessionStates = new Map<string, SessionState>();
+
+// Store the client reference for resumption calls
+let storedClient: OpenCodeSessionClient | null = null;
+
+export function getStoredClient(): OpenCodeSessionClient | null {
+  return storedClient;
+}
+
+export function setStoredClient(client: OpenCodeSessionClient): void {
+  storedClient = client;
+}
+
+// ============================================================================
+// Cleanup - prevent memory leaks
+// ============================================================================
+
+function cleanupExpiredMessages(): void {
+  const now = Date.now();
+  let totalRemoved = 0;
+
+  for (const [sessionId, messages] of inboxes) {
+    const before = messages.length;
+
+    // Remove expired messages based on handled status
+    const filtered = messages.filter((m: Message) => {
+      if (m.handled) {
+        return now - m.timestamp < MESSAGE_TTL_MS;
+      }
+      // Keep unhandled messages much longer
+      return now - m.timestamp < UNHANDLED_TTL_MS;
+    });
+
+    // Trim to max size if needed
+    if (filtered.length > MAX_INBOX_SIZE) {
+      const unhandled = filtered.filter((m: Message) => !m.handled);
+      const handled = filtered.filter((m: Message) => m.handled);
+      handled.sort((a: Message, b: Message) => b.timestamp - a.timestamp);
+
+      if (unhandled.length > MAX_INBOX_SIZE) {
+        unhandled.sort((a: Message, b: Message) => b.timestamp - a.timestamp);
+        inboxes.set(sessionId, unhandled.slice(0, MAX_INBOX_SIZE));
+        totalRemoved += before - MAX_INBOX_SIZE;
+      } else {
+        const kept = [...unhandled, ...handled.slice(0, MAX_INBOX_SIZE - unhandled.length)];
+        inboxes.set(sessionId, kept);
+        totalRemoved += before - kept.length;
+      }
+    } else {
+      inboxes.set(sessionId, filtered);
+      totalRemoved += before - filtered.length;
+    }
+
+    // Remove empty queues
+    if (inboxes.get(sessionId)!.length === 0) {
+      inboxes.delete(sessionId);
+    }
+  }
+
+  // DORMANT: parent alias feature
+  // Cleanup expired parent cache entries
+  for (const [sessionId, cached] of sessionParentCache) {
+    if (now - cached.cachedAt > PARENT_CACHE_TTL_MS) {
+      sessionParentCache.delete(sessionId);
+    }
+  }
+
+  if (totalRemoved > 0) {
+    log.debug(LOG.MESSAGE, `Cleanup removed ${totalRemoved} expired messages`);
+  }
+}
+
+// Start cleanup interval
+setInterval(cleanupExpiredMessages, CLEANUP_INTERVAL_MS);
+
+// ============================================================================
+// Alias management
+// ============================================================================
+
+/**
+ * Get the next alias for a new agent, scoped to a root session.
+ * Each main session has its own naming sequence (agentA, agentB, ...).
+ * If no rootId is provided, falls back to a global counter.
+ */
+export function getNextAlias(rootId?: string): string {
+  const counterKey = rootId || '__global__';
+  const index = sessionNamingCounters.get(counterKey) || 0;
+  sessionNamingCounters.set(counterKey, index + 1);
+
+  const letter = String.fromCharCode(CHAR_CODE_A + (index % ALPHABET_SIZE));
+  const suffix = index >= ALPHABET_SIZE ? Math.floor(index / ALPHABET_SIZE).toString() : '';
+  const alias = `agent${letter}${suffix}`;
+
+  log.debug(LOG.SESSION, `Generated alias`, { rootId: counterKey, index, alias });
+  return alias;
+}
+
+export function getAlias(sessionId: string): string {
+  return sessionToAlias.get(sessionId) || sessionId;
+}
+
+export function setDescription(sessionId: string, description: string): void {
+  const alias = getAlias(sessionId);
+  const truncated = description.substring(0, MAX_DESCRIPTION_LENGTH);
+
+  // Get or create status history array
+  let history = agentDescriptions.get(alias);
+  if (!history) {
+    history = [];
+    agentDescriptions.set(alias, history);
+  }
+
+  // Add new status to history
+  history.push(truncated);
+
+  // Trim to max history size
+  if (history.length > MAX_STATUS_HISTORY) {
+    history.shift(); // Remove oldest
+  }
+
+  log.info(LOG.SESSION, `Agent status updated`, {
+    alias,
+    status: truncated,
+    historyLength: history.length,
+  });
+}
+
+export function getDescription(alias: string): string[] | undefined {
+  return agentDescriptions.get(alias);
+}
+
+export function getLatestStatus(alias: string): string | undefined {
+  const history = agentDescriptions.get(alias);
+  return history && history.length > 0 ? history[history.length - 1] : undefined;
+}
+
+export function resolveAlias(
+  aliasOrSessionId: string,
+  // DORMANT: parent alias feature
+  parentId?: string | null,
+): string | undefined {
+  // Handle special "parent" alias (DORMANT)
+  if (aliasOrSessionId === 'parent' && parentId) {
+    return parentId;
+  }
+  // Try alias first, then assume it's a session ID
+  return (
+    aliasToSession.get(aliasOrSessionId) ||
+    (activeSessions.has(aliasOrSessionId) ? aliasOrSessionId : undefined)
+  );
+}
+
+export function generateId(): string {
+  return Math.random().toString(36).substring(2, 10);
+}
+
+export function getNextMsgIndex(sessionId: string): number {
+  const current = sessionMsgCounter.get(sessionId) || 0;
+  const next = current + 1;
+  sessionMsgCounter.set(sessionId, next);
+  return next;
+}
+
+export function getInbox(sessionId: string): Message[] {
+  if (!inboxes.has(sessionId)) {
+    inboxes.set(sessionId, []);
+  }
+  return inboxes.get(sessionId)!;
+}
+
+/**
+ * Register a session and assign it an alias.
+ * Alias naming is scoped to the root session (main session).
+ * @param sessionId - The session to register
+ * @param rootId - Optional root session ID for scoped naming (if known)
+ */
+export function registerSession(sessionId: string, rootId?: string): void {
+  // Don't re-register sessions that have been cleaned up
+  if (cleanedUpSessions.has(sessionId)) {
+    log.debug(LOG.SESSION, `Skipping registration for cleaned up session`, {
+      sessionId,
+    });
+    return;
+  }
+
+  if (activeSessions.has(sessionId)) {
+    return;
+  }
+
+  if (registeringSessionsLock.has(sessionId)) {
+    return;
+  }
+
+  registeringSessionsLock.add(sessionId);
+
+  try {
+    if (!activeSessions.has(sessionId)) {
+      activeSessions.add(sessionId);
+      const alias = getNextAlias(rootId);
+      sessionToAlias.set(sessionId, alias);
+      aliasToSession.set(alias, sessionId);
+      // Track root session for pocket universe scoping
+      if (rootId) {
+        sessionToRootId.set(sessionId, rootId);
+      }
+      log.info(LOG.SESSION, `Session registered`, {
+        sessionId,
+        alias,
+        rootId: rootId || 'unknown',
+        totalSessions: activeSessions.size,
+      });
+    }
+  } finally {
+    registeringSessionsLock.delete(sessionId);
+  }
+}
+
+// ============================================================================
+// Cleanup completed agents
+// ============================================================================
+
+/**
+ * Clean up all completed agents after the Pocket Universe Summary is injected.
+ * This prevents stale agents from appearing in getParallelAgents() for subsequent tasks.
+ *
+ * Called right after injectPocketUniverseSummaryToMain() succeeds.
+ * Clears all agent-related state so the next task batch starts fresh.
+ */
+export function cleanupCompletedAgents(): void {
+  // Collect stats for logging
+  const stats = {
+    sessions: activeSessions.size,
+    aliases: sessionToAlias.size,
+    descriptions: agentDescriptions.size,
+    inboxes: inboxes.size,
+    announced: announcedSessions.size,
+    worktrees: sessionWorktrees.size,
+    virtualDepths: sessionVirtualDepth.size,
+    sessionStates: sessionStates.size,
+    childCache: childSessionCache.size,
+    presentedMsgs: presentedMessages.size,
+    pendingSubagents: pendingSubagents.size,
+    activeSubagents: activeSubagents.size,
+    callerPendingSubagents: callerPendingSubagents.size,
+    mainSessionActiveChildren: mainSessionActiveChildren.size,
+    completedFirstLevelChildren: completedFirstLevelChildren.size,
+    mainSessionCoordinator: mainSessionCoordinator.size,
+    cleanedUpSessions: cleanedUpSessions.size,
+    sessionRootIds: sessionToRootId.size,
+  };
+
+  // Mark all current sessions as cleaned up BEFORE clearing
+  // This prevents them from being re-registered when post-cleanup hooks fire
+  for (const sessionId of activeSessions) {
+    cleanedUpSessions.add(sessionId);
+  }
+
+  // Clear all agent-related state
+  activeSessions.clear();
+  sessionToAlias.clear();
+  aliasToSession.clear();
+  agentDescriptions.clear();
+  sessionToRootId.clear();
+  inboxes.clear();
+  sessionMsgCounter.clear();
+  announcedSessions.clear();
+  sessionWorktrees.clear();
+  sessionVirtualDepth.clear();
+  sessionStates.clear();
+  childSessionCache.clear();
+  presentedMessages.clear();
+  pendingSubagents.clear();
+  activeSubagents.clear();
+  callerPendingSubagents.clear();
+  mainSessionActiveChildren.clear();
+  completedFirstLevelChildren.clear();
+  mainSessionCoordinator.clear();
+  sessionModelInfo.clear();
+  pendingSubagentOutputs.clear();
+  // Note: We do NOT clear cleanedUpSessions here - it tracks sessions across cleanups
+  pendingTaskDescriptions.clear();
+
+  // Reset current pocket ID - next pocket universe gets a new one
+  currentPocketId = null;
+  currentMainSessionId = null;
+
+  // Note: We do NOT clear summaryInjectedSessions here
+  // because that's used to track which main sessions got summaries
+  // (prevents double-injection for the same parent)
+
+  // Note: We do NOT clear sessionParentCache - that's a cache optimization
+  // and clearing it would just cause extra API calls
+
+  // Note: We do NOT reset nextAgentIndex - aliases continue incrementing
+  // across batches to avoid confusion (agentA in batch 1 vs agentA in batch 2)
+
+  log.info(LOG.SESSION, `Cleaned up completed agents`, stats);
+}

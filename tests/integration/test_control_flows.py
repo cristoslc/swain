@@ -1,45 +1,49 @@
-"""BDD integration tests — control topic flows (DESIGN-025 / SPEC-291).
+"""BDD integration tests — trunk topic flows (DESIGN-025 / SPEC-291).
 
 Scenarios covered:
 
-  Control-topic plain text (query flow):
-    - Plain text in control topic becomes a control_message command
-    - control_message spawns a lightweight session with origin=control
-    - Events from control-origin sessions post to control topic (no thread)
-    - session_died for control-origin sessions is silent (no noise)
-
-  Control-topic /work (launcher flow):
-    - /work in control topic becomes a launch_session command
-    - launch_session spawns bin/swain --non-interactive --format ndjson
-    - Launcher info/question output posts to control topic
-    - Operator follow-up text relays as answer to launcher stdin
-    - Launcher ready signal promotes session (session_promoted event)
-    - session_promoted creates a dedicated Zulip thread
-    - After promotion, events post to the dedicated thread
+  Trunk-topic plain text (query flow):
+    - Plain text in trunk topic becomes a send_prompt command
+    - send_prompt forwards to an existing trunk-origin session
+    - Events from trunk-origin sessions post to trunk topic (no thread)
+    - session_died for trunk-origin sessions is silent (no noise)
 
   End-to-end message routing:
     - Zulip operator message → chat plugin → kernel → project bridge
     - Project bridge event → kernel → chat plugin → Zulip post
 """
+
 from __future__ import annotations
 
 import asyncio
-import json
-from unittest.mock import AsyncMock, MagicMock, patch, call
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from untethered.protocol import Event, Command, ConfigMessage, encode_message, decode_message
-from untethered.bridges.project import ProjectBridge, SessionState, LauncherProcess
-from untethered.adapters.zulip_chat import parse_zulip_message, format_event_for_zulip
-from untethered.plugins.zulip_chat import _poll_zulip, _relay_events, SessionTopicRegistry
+from swain_helm.protocol import (
+    Event,
+    Command,
+    ConfigMessage,
+    encode_message,
+    decode_message,
+)
+from swain_helm.bridges.project import ProjectBridge, SessionState
+from swain_helm.plugin_process import PluginProcess
+from swain_helm.adapters.zulip_chat import parse_zulip_message, format_event_for_zulip
+from swain_helm.plugins.zulip_chat import (
+    _poll_zulip,
+    _relay_events,
+    SessionTopicRegistry,
+    TypingIndicator,
+)
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_zulip_msg(content: str, stream: str = "swain", topic: str = "control") -> dict:
+
+def _make_zulip_msg(content: str, stream: str = "swain", topic: str = "trunk") -> dict:
     return {
         "type": "stream",
         "sender_email": "operator@example.com",
@@ -50,124 +54,120 @@ def _make_zulip_msg(content: str, stream: str = "swain", topic: str = "control")
 
 
 def _make_poll_client(messages: list[dict]) -> MagicMock:
-    """Build a mock Zulip client that delivers messages via call_on_each_message."""
+    """Build a mock Zulip client that delivers messages via call_on_each_event."""
     client = MagicMock()
     client.email = "bot@zulip.com"
 
-    def call_on_each_message(callback):
+    def call_on_each_event(callback, event_types=None, narrow=None, **kwargs):
         for msg in messages:
-            callback(msg)
+            callback({"type": "message", "message": msg})
         raise asyncio.CancelledError()
 
-    client.call_on_each_message.side_effect = call_on_each_message
+    client.call_on_each_event.side_effect = call_on_each_event
     return client
 
 
-_STREAM_MAP = {"swain": "swain"}
+_STREAM_MAP = "swain"
+_STREAM_NAME = "swain"
+_BRIDGE = "swain"
 
 
 # ---------------------------------------------------------------------------
-# Scenario: Plain text in control → control_message
+# Scenario: Plain text in trunk → send_prompt
 # ---------------------------------------------------------------------------
 
-class TestControlMessageParsing:
-    """Plain text in the control topic produces a control_message command."""
 
-    def test_plain_text_in_control_becomes_control_message(self):
-        msg = _make_zulip_msg("what specs are ready?", topic="control")
-        cmd = parse_zulip_message(msg, bridge="swain", control_topic="control")
+class TestTrunkMessageParsing:
+    """Plain text in the trunk topic produces a send_prompt command."""
+
+    def test_plain_text_in_trunk_becomes_send_prompt(self):
+        msg = _make_zulip_msg("what specs are ready?", topic="trunk")
+        cmd = parse_zulip_message(msg, bridge="swain", control_topic="trunk")
         assert cmd is not None
-        assert cmd.type == "control_message"
+        assert cmd.type == "send_prompt"
+        assert cmd.session_id == "trunk"
         assert cmd.payload["text"] == "what specs are ready?"
 
     def test_plain_text_in_session_topic_becomes_send_prompt(self):
         msg = _make_zulip_msg("keep going", topic="SPEC-142")
-        cmd = parse_zulip_message(msg, bridge="swain", control_topic="control")
+        cmd = parse_zulip_message(msg, bridge="swain", control_topic="trunk")
         assert cmd is not None
         assert cmd.type == "send_prompt"
         assert cmd.session_id == "SPEC-142"
 
-    def test_work_command_becomes_launch_session(self):
-        msg = _make_zulip_msg("/work fix the login bug", topic="control")
-        cmd = parse_zulip_message(msg, bridge="swain", control_topic="control")
-        assert cmd is not None
-        assert cmd.type == "launch_session"
-        assert cmd.payload["text"] == "fix the login bug"
-
-    def test_session_command_becomes_launch_session(self):
-        msg = _make_zulip_msg("/session", topic="control")
-        cmd = parse_zulip_message(msg, bridge="swain", control_topic="control")
-        assert cmd is not None
-        assert cmd.type == "launch_session"
-
 
 # ---------------------------------------------------------------------------
-# Scenario: control_message spawns lightweight session
+# Scenario: send_prompt on trunk session
 # ---------------------------------------------------------------------------
 
-class TestControlMessageBridge:
-    """ProjectBridge handles control_message by spawning a lightweight session."""
 
-    async def test_control_message_spawns_session_with_origin_control(self):
-        with patch("untethered.bridges.project.OpenCodeServerAdapter") as MockAdapter:
-            mock_instance = AsyncMock()
-            mock_instance.wait_for_health = AsyncMock(return_value=True)
-            MockAdapter.return_value = mock_instance
+class TestTrunkSessionBridge:
+    """ProjectBridge handles send_prompt on the trunk session."""
 
+    async def test_send_prompt_forwards_to_trunk_origin_session(self):
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
             bridge = ProjectBridge(project="swain", project_dir="/tmp/swain")
-            cmd = Command.control_message(bridge="swain", text="what specs are ready?")
-            bridge.handle_command(cmd)
-            await asyncio.sleep(0.1)
+            bridge.handle_command(
+                Command.start_session(bridge="swain", runtime="opencode")
+            )
+            await asyncio.sleep(0)
 
-            # Session created with origin=control
-            assert len(bridge.sessions) == 1
-            session = list(bridge.sessions.values())[0]
-            assert session.origin == "control"
-            assert session.runtime == "opencode"
+            sid = list(bridge.sessions.keys())[0]
+            bridge.sessions[sid].origin = "trunk"
+            bridge.sessions[sid].state = SessionState.ACTIVE
 
-            # Adapter created and message sent
-            MockAdapter.assert_called_once()
-            mock_instance.send_command.assert_awaited_once()
+            cmd = Command.send_prompt(
+                bridge="swain", session_id=sid, text="what specs are ready?"
+            )
+            plugin = bridge._runtime_plugins[sid]
+            with patch.object(plugin, "write", new_callable=AsyncMock) as mock_write:
+                bridge.handle_command(cmd)
+                await asyncio.sleep(0)
+                mock_write.assert_awaited_once()
 
-    async def test_control_origin_events_tagged_with_origin(self):
-        """Events from control-origin sessions carry origin=control in payload."""
+    async def test_trunk_origin_events_tagged_with_origin(self):
+        """Events from trunk-origin sessions carry origin=trunk in payload."""
         delivered: list[Event] = []
         bridge = ProjectBridge(project="swain", on_event=delivered.append)
 
-        with patch("untethered.bridges.project.OpenCodeServerAdapter") as MockAdapter:
-            mock_instance = AsyncMock()
-            mock_instance.wait_for_health = AsyncMock(return_value=True)
-            MockAdapter.return_value = mock_instance
+        with patch.object(PluginProcess, "start", new_callable=AsyncMock):
             bridge.handle_command(
-                Command.control_message(bridge="swain", text="status?")
+                Command.start_session(bridge="swain", runtime="opencode")
             )
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0)
 
         sid = list(bridge.sessions.keys())[0]
+        bridge.sessions[sid].origin = "trunk"
+        bridge.sessions[sid].state = SessionState.ACTIVE
+
         event = Event.text_output(bridge="swain", session_id=sid, content="All good")
         bridge.handle_runtime_event(event)
 
-        assert len(delivered) == 1
-        assert delivered[0].payload["origin"] == "control"
+        text_events = [e for e in delivered if e.type == "text_output"]
+        assert len(text_events) == 1
+        assert text_events[0].payload["origin"] == "trunk"
 
 
 # ---------------------------------------------------------------------------
-# Scenario: Control-origin events post to control topic (no thread)
+# Scenario: Trunk-origin events post to trunk topic (no thread)
 # ---------------------------------------------------------------------------
 
-class TestControlOriginRelayEvents:
-    """_relay_events routes control-origin events to the control topic."""
 
-    async def test_control_origin_text_posts_to_control_topic(self):
-        """Text output from control-origin session goes to control, not a new thread."""
+class TestTrunkOriginRelayEvents:
+    """_relay_events routes trunk-origin events to the trunk topic."""
+
+    async def test_trunk_origin_text_posts_to_trunk_topic(self):
+        """Text output from trunk-origin session goes to trunk, not a new thread."""
         client = MagicMock()
         client.send_message = MagicMock()
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
         posted: list[dict] = []
 
-        event = Event.text_output(bridge="swain", session_id="sess-abc", content="3 specs ready")
-        event.payload["origin"] = "control"
+        event = Event.text_output(
+            bridge="swain", session_id="sess-abc", content="3 specs ready"
+        )
+        event.payload["origin"] = "trunk"
         event_line = encode_message(event)
 
         # Simulate stdin with one event then EOF
@@ -178,24 +178,31 @@ class TestControlOriginRelayEvents:
 
             # Run _relay_events — it will read one event then exit on empty line
             await _relay_events(
-                client, {"swain": "swain"}, "op@example.com", "control",
-                registry, loop,
+                client,
+                _STREAM_NAME,
+                "op@example.com",
+                "trunk",
+                registry,
+                loop,
+                TypingIndicator(client, loop),
             )
 
-        # Should have posted to control topic, not created a thread
+        # Should have posted to trunk topic, not created a thread
         assert client.send_message.call_count == 1
         call_args = client.send_message.call_args[0][0]
-        assert call_args["topic"] == "control"
+        assert call_args["topic"] == "trunk"
         assert "3 specs ready" in call_args["content"]
 
-    async def test_control_origin_session_spawned_is_silent(self):
-        """session_spawned with origin=control produces no Zulip post."""
+    async def test_trunk_origin_session_spawned_is_silent(self):
+        """session_spawned with origin=trunk produces no Zulip post."""
         client = MagicMock()
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
 
-        event = Event.session_spawned(bridge="swain", session_id="sess-abc", runtime="claude")
-        event.payload["origin"] = "control"
+        event = Event.session_spawned(
+            bridge="swain", session_id="sess-abc", runtime="claude"
+        )
+        event.payload["origin"] = "trunk"
         event_line = encode_message(event)
 
         lines = iter([event_line, ""])
@@ -203,19 +210,25 @@ class TestControlOriginRelayEvents:
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, None, "control", registry, loop,
+                client,
+                "swain",
+                None,
+                "trunk",
+                registry,
+                loop,
+                TypingIndicator(client, loop),
             )
 
         assert client.send_message.call_count == 0
 
-    async def test_control_origin_session_died_is_silent(self):
-        """session_died with origin=control produces no Zulip post."""
+    async def test_trunk_origin_session_died_is_silent(self):
+        """session_died with origin=trunk produces no Zulip post."""
         client = MagicMock()
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
 
         event = Event.session_died(bridge="swain", session_id="sess-abc", reason="done")
-        event.payload["origin"] = "control"
+        event.payload["origin"] = "trunk"
         event_line = encode_message(event)
 
         lines = iter([event_line, ""])
@@ -223,7 +236,13 @@ class TestControlOriginRelayEvents:
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, None, "control", registry, loop,
+                client,
+                "swain",
+                None,
+                "trunk",
+                registry,
+                loop,
+                TypingIndicator(client, loop),
             )
 
         assert client.send_message.call_count == 0
@@ -233,8 +252,9 @@ class TestControlOriginRelayEvents:
 # Scenario: session_promoted creates a dedicated thread
 # ---------------------------------------------------------------------------
 
+
 class TestSessionPromotedRelay:
-    """session_promoted event creates a Zulip thread and announces in control."""
+    """session_promoted event creates a Zulip thread and announces in trunk."""
 
     async def test_promoted_creates_thread_and_announces(self):
         client = MagicMock()
@@ -242,7 +262,8 @@ class TestSessionPromotedRelay:
         loop = asyncio.get_running_loop()
 
         event = Event.session_promoted(
-            bridge="swain", session_id="sess-abc",
+            bridge="swain",
+            session_id="sess-abc",
             artifact="SPEC-142",
         )
         event_line = encode_message(event)
@@ -252,20 +273,25 @@ class TestSessionPromotedRelay:
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, "op@example.com", "control",
-                registry, loop,
+                client,
+                "swain",
+                "op@example.com",
+                "trunk",
+                registry,
+                loop,
+                TypingIndicator(client, loop),
             )
 
-        # Two posts: one in the new thread, one announcement in control
+        # Two posts: one in the new thread, one announcement in trunk
         assert client.send_message.call_count == 2
 
         calls = [c[0][0] for c in client.send_message.call_args_list]
-        thread_post = next(c for c in calls if c["topic"] != "control")
-        control_post = next(c for c in calls if c["topic"] == "control")
+        thread_post = next(c for c in calls if c["topic"] != "trunk")
+        trunk_post = next(c for c in calls if c["topic"] == "trunk")
 
         assert thread_post["topic"] == "SPEC-142"
         assert "Session started" in thread_post["content"]
-        assert "SPEC-142" in control_post["content"]
+        assert "SPEC-142" in trunk_post["content"]
 
         # Registry should have the assignment
         assert registry.topic_for("sess-abc") == "SPEC-142"
@@ -277,17 +303,27 @@ class TestSessionPromotedRelay:
         loop = asyncio.get_running_loop()
 
         promoted = Event.session_promoted(
-            bridge="swain", session_id="sess-abc", artifact="SPEC-142",
+            bridge="swain",
+            session_id="sess-abc",
+            artifact="SPEC-142",
         )
         text_out = Event.text_output(
-            bridge="swain", session_id="sess-abc", content="Working on it...",
+            bridge="swain",
+            session_id="sess-abc",
+            content="Working on it...",
         )
         lines = iter([encode_message(promoted), encode_message(text_out), ""])
 
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, None, "control", registry, loop,
+                client,
+                "swain",
+                None,
+                "trunk",
+                registry,
+                loop,
+                TypingIndicator(client, loop),
             )
 
         # 2 from promotion + 1 text output = 3
@@ -298,181 +334,37 @@ class TestSessionPromotedRelay:
 
 
 # ---------------------------------------------------------------------------
-# Scenario: /work triggers launcher, follow-up relays as answer
-# ---------------------------------------------------------------------------
-
-class TestLaunchSessionBridge:
-    """ProjectBridge handles launch_session by spawning the launcher."""
-
-    async def test_launch_session_creates_interviewing_session(self):
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
-            mock_instance = AsyncMock()
-            MockLauncher.return_value = mock_instance
-
-            bridge = ProjectBridge(project="swain", project_dir="/tmp/swain")
-            cmd = Command.launch_session(bridge="swain", text="fix login")
-            bridge.handle_command(cmd)
-            await asyncio.sleep(0)
-
-            assert len(bridge.sessions) == 1
-            session = list(bridge.sessions.values())[0]
-            assert session.origin == "control"
-            assert session.state == SessionState.INTERVIEWING
-
-            MockLauncher.assert_called_once()
-            mock_instance.start.assert_awaited_once()
-
-    async def test_followup_control_message_relays_to_launcher(self):
-        """Second control_message while interviewing relays as answer."""
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
-            mock_instance = AsyncMock()
-            MockLauncher.return_value = mock_instance
-
-            bridge = ProjectBridge(project="swain", project_dir="/tmp/swain")
-
-            # First: /work starts the interview
-            bridge.handle_command(Command.launch_session(bridge="swain", text="fix it"))
-            await asyncio.sleep(0)
-
-            # Second: plain text while interviewing → relay as answer
-            bridge.handle_command(
-                Command.control_message(bridge="swain", text="resume")
-            )
-            await asyncio.sleep(0)
-
-            mock_instance.send_answer.assert_awaited_once_with("resume")
-
-    async def test_launcher_ready_promotes_session(self):
-        """When launcher emits ready, session is promoted and runtime spawned."""
-        delivered: list[Event] = []
-
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
-            mock_instance = AsyncMock()
-            MockLauncher.return_value = mock_instance
-
-            with patch("untethered.bridges.project.TmuxPaneAdapter") as MockAdapter:
-                adapter_instance = AsyncMock()
-                MockAdapter.return_value = adapter_instance
-
-                bridge = ProjectBridge(
-                    project="swain", project_dir="/tmp/swain",
-                    on_event=delivered.append,
-                )
-
-                # Start the interview
-                bridge.handle_command(Command.launch_session(bridge="swain", text="fix login"))
-                await asyncio.sleep(0)
-
-                sid = list(bridge.sessions.keys())[0]
-
-                # Simulate launcher emitting ready
-                on_output = MockLauncher.call_args.kwargs["on_output"]
-                on_output("ready", {
-                    "purpose": "fix login",
-                    "worktree": "/tmp/swain/worktrees/fix-login",
-                    "runtime": "claude",
-                    "prompt": "/swain-session Session purpose: fix login",
-                })
-                await asyncio.sleep(0)
-
-                # Session promoted event should be emitted
-                promoted_events = [e for e in delivered if e.type == "session_promoted"]
-                assert len(promoted_events) == 1
-                assert promoted_events[0].payload["artifact"] == "fix login"
-
-                # Session should no longer be control-origin
-                session = bridge.sessions[sid]
-                assert session.origin is None
-                assert session.state == SessionState.SPAWNING
-
-                # Runtime adapter should be spawned in the launcher's worktree
-                MockAdapter.assert_called_once()
-                assert MockAdapter.call_args.kwargs["project_dir"] == "/tmp/swain/worktrees/fix-login"
-                adapter_instance.start.assert_awaited_once()
-
-    async def test_launcher_info_relays_to_control(self):
-        """Launcher info messages become text_output events with origin=control."""
-        delivered: list[Event] = []
-
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
-            mock_instance = AsyncMock()
-            MockLauncher.return_value = mock_instance
-
-            bridge = ProjectBridge(
-                project="swain", project_dir="/tmp/swain",
-                on_event=delivered.append,
-            )
-
-            bridge.handle_command(Command.launch_session(bridge="swain", text="status"))
-            await asyncio.sleep(0)
-
-            on_output = MockLauncher.call_args.kwargs["on_output"]
-            on_output("info", {"text": "Previous session detected."})
-
-            assert len(delivered) == 1
-            assert delivered[0].type == "text_output"
-            assert delivered[0].payload["content"] == "Previous session detected."
-            assert delivered[0].payload["origin"] == "control"
-
-    async def test_launcher_question_relays_with_options(self):
-        """Launcher question messages show options in the text."""
-        delivered: list[Event] = []
-
-        with patch("untethered.bridges.project.LauncherProcess") as MockLauncher:
-            mock_instance = AsyncMock()
-            MockLauncher.return_value = mock_instance
-
-            bridge = ProjectBridge(
-                project="swain", project_dir="/tmp/swain",
-                on_event=delivered.append,
-            )
-
-            bridge.handle_command(Command.launch_session(bridge="swain", text="work"))
-            await asyncio.sleep(0)
-
-            on_output = MockLauncher.call_args.kwargs["on_output"]
-            on_output("question", {
-                "text": "Resume or fresh?",
-                "options": ["resume", "fresh"],
-            })
-
-            assert len(delivered) == 1
-            assert "Resume or fresh?" in delivered[0].payload["content"]
-            assert "resume/fresh" in delivered[0].payload["content"]
-
-
-# ---------------------------------------------------------------------------
 # Scenario: Full Zulip poll → command routing
 # ---------------------------------------------------------------------------
 
-class TestZulipPollControlRouting:
-    """_poll_zulip correctly routes control-topic messages as control_message."""
 
-    async def test_control_topic_plain_text_emits_control_message(self):
+class TestZulipPollTrunkRouting:
+    """_poll_zulip correctly routes trunk-topic messages as send_prompt."""
+
+    async def test_trunk_topic_plain_text_emits_send_prompt(self):
         received: list[Command] = []
-        client = _make_poll_client([_make_zulip_msg("what's next?", topic="control")])
+        client = _make_poll_client([_make_zulip_msg("what's next?", topic="trunk")])
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+            await _poll_zulip(
+                client,
+                _STREAM_MAP,
+                "trunk",
+                received.append,
+                registry,
+                loop,
+                "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
+            )
 
         assert len(received) == 1
-        assert received[0].type == "control_message"
+        assert received[0].type == "send_prompt"
+        assert received[0].session_id == "trunk"
         assert received[0].payload["text"] == "what's next?"
-
-    async def test_control_topic_work_command_emits_launch_session(self):
-        received: list[Command] = []
-        client = _make_poll_client([_make_zulip_msg("/work SPEC-142", topic="control")])
-        registry = SessionTopicRegistry()
-        loop = asyncio.get_running_loop()
-
-        with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
-
-        assert len(received) == 1
-        assert received[0].type == "launch_session"
-        assert received[0].payload["text"] == "SPEC-142"
 
     async def test_session_topic_plain_text_emits_send_prompt(self):
         received: list[Command] = []
@@ -483,7 +375,18 @@ class TestZulipPollControlRouting:
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+            await _poll_zulip(
+                client,
+                _STREAM_MAP,
+                "trunk",
+                received.append,
+                registry,
+                loop,
+                "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
+            )
 
         assert len(received) == 1
         assert received[0].type == "send_prompt"
@@ -494,29 +397,24 @@ class TestZulipPollControlRouting:
 # Scenario: Protocol roundtrip for new types
 # ---------------------------------------------------------------------------
 
+
 class TestProtocolNewTypes:
     """New protocol types encode/decode correctly."""
 
-    def test_control_message_roundtrip(self):
-        cmd = Command.control_message(bridge="swain", text="what's up?")
+    def test_send_prompt_roundtrip(self):
+        cmd = Command.send_prompt(bridge="swain", session_id="trunk", text="what's up?")
         line = encode_message(cmd)
         restored = decode_message(line)
         assert isinstance(restored, Command)
-        assert restored.type == "control_message"
+        assert restored.type == "send_prompt"
         assert restored.payload["text"] == "what's up?"
-
-    def test_launch_session_roundtrip(self):
-        cmd = Command.launch_session(bridge="swain", text="fix login")
-        line = encode_message(cmd)
-        restored = decode_message(line)
-        assert isinstance(restored, Command)
-        assert restored.type == "launch_session"
-        assert restored.payload["text"] == "fix login"
 
     def test_session_promoted_roundtrip(self):
         event = Event.session_promoted(
-            bridge="swain", session_id="sess-abc",
-            artifact="SPEC-142", topic="SPEC-142",
+            bridge="swain",
+            session_id="sess-abc",
+            artifact="SPEC-142",
+            topic="SPEC-142",
         )
         line = encode_message(event)
         restored = decode_message(line)
@@ -529,6 +427,7 @@ class TestProtocolNewTypes:
 # Scenario: Zulip Cloud message format (real-world format)
 # ---------------------------------------------------------------------------
 
+
 class TestZulipCloudMessageFormat:
     """Messages from Zulip Cloud use specific sender_email and HTML content."""
 
@@ -538,12 +437,13 @@ class TestZulipCloudMessageFormat:
             "type": "stream",
             "sender_email": "user1065126@cristoslc.zulipchat.com",
             "display_recipient": "swain",
-            "subject": "control",
+            "subject": "trunk",
             "content": "<p>what specs are ready?</p>",
         }
-        cmd = parse_zulip_message(msg, bridge="swain", control_topic="control")
+        cmd = parse_zulip_message(msg, bridge="swain", control_topic="trunk")
         assert cmd is not None
-        assert cmd.type == "control_message"
+        assert cmd.type == "send_prompt"
+        assert cmd.session_id == "trunk"
         # Content includes HTML tags — that's what Zulip sends
         assert "what specs are ready?" in cmd.payload["text"]
 
@@ -554,7 +454,7 @@ class TestZulipCloudMessageFormat:
             "type": "stream",
             "sender_email": "user1065126@cristoslc.zulipchat.com",
             "display_recipient": "swain",
-            "subject": "control",
+            "subject": "trunk",
             "content": "<p>What gh issues are left?</p>",
         }
         client = _make_poll_client([zulip_msg])
@@ -562,101 +462,120 @@ class TestZulipCloudMessageFormat:
         loop = asyncio.get_running_loop()
 
         with pytest.raises(asyncio.CancelledError):
-            await _poll_zulip(client, _STREAM_MAP, "control", received.append, registry, loop)
+            await _poll_zulip(
+                client,
+                _STREAM_MAP,
+                "trunk",
+                received.append,
+                registry,
+                loop,
+                "swain",
+                TypingIndicator(client, loop),
+                max_reconnect_attempts=1,
+                reconnect_delay=0.01,
+            )
 
         assert len(received) == 1
-        assert received[0].type == "control_message"
+        assert received[0].type == "send_prompt"
+        assert received[0].session_id == "trunk"
 
 
 # ---------------------------------------------------------------------------
 # Scenario: Full round trip — mock LLM
 # ---------------------------------------------------------------------------
 
+
 class TestFullRoundTripMockLlm:
-    """End-to-end: control_message → mock response → event back to control."""
+    """End-to-end: send_prompt → mock runtime → event back to trunk."""
 
-    async def test_mock_llm_returns_response_to_control(self):
-        """With UNTETHERED_MOCK_LLM=1, control_message gets a canned response."""
-        import os
-        delivered: list[Event] = []
-
-        with patch.dict(os.environ, {"UNTETHERED_MOCK_LLM": "1"}):
-            bridge = ProjectBridge(
-                project="swain", project_dir="/tmp/swain",
-                on_event=delivered.append,
-            )
-            bridge.handle_command(
-                Command.control_message(bridge="swain", text="what specs are ready?")
-            )
-            await asyncio.sleep(0.1)
-
-        # Should have text_output + session_died
-        text_events = [e for e in delivered if e.type == "text_output"]
-        died_events = [e for e in delivered if e.type == "session_died"]
-        assert len(text_events) == 1
-        assert "[mock] Received your message: what specs are ready?" in text_events[0].payload["content"]
-        assert text_events[0].payload.get("origin") == "control"
-        assert len(died_events) == 1
-
-    async def test_mock_response_posts_to_control_topic_via_relay(self):
-        """Full pipeline: mock response event → _relay_events → Zulip control post."""
+    async def test_runtime_event_relay_to_trunk_via_relay(self):
+        """Runtime event from trunk-origin session posts to trunk topic via _relay_events."""
         client = MagicMock()
         registry = SessionTopicRegistry()
         loop = asyncio.get_running_loop()
 
-        # Simulate the events the mock LLM would produce
         text_event = Event.text_output(
-            bridge="swain", session_id="sess-mock",
-            content="[mock] Here are your specs",
+            bridge="swain",
+            session_id="sess-abc",
+            content="Here are your specs",
         )
-        text_event.payload["origin"] = "control"
+        text_event.payload["origin"] = "trunk"
 
         died_event = Event.session_died(
-            bridge="swain", session_id="sess-mock", reason="mock complete",
+            bridge="swain",
+            session_id="sess-abc",
+            reason="done",
         )
-        died_event.payload["origin"] = "control"
+        died_event.payload["origin"] = "trunk"
 
-        lines = iter([
-            encode_message(text_event),
-            encode_message(died_event),
-            "",
-        ])
+        lines = iter(
+            [
+                encode_message(text_event),
+                encode_message(died_event),
+                "",
+            ]
+        )
 
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.readline = lambda: next(lines)
             await _relay_events(
-                client, {"swain": "swain"}, None, "control", registry, loop,
+                client,
+                "swain",
+                None,
+                "trunk",
+                registry,
+                loop,
+                TypingIndicator(client, loop),
             )
 
-        # Text output should post to control topic
         assert client.send_message.call_count == 1
         call_args = client.send_message.call_args[0][0]
-        assert call_args["topic"] == "control"
-        assert "[mock] Here are your specs" in call_args["content"]
+        assert call_args["topic"] == "trunk"
+        assert "Here are your specs" in call_args["content"]
+
+    async def test_trunk_origin_session_died_is_silent_via_relay(self):
+        """session_died with origin=trunk via _relay_events produces no Zulip post."""
+        client = MagicMock()
+        registry = SessionTopicRegistry()
+        loop = asyncio.get_running_loop()
+
+        died_event = Event.session_died(
+            bridge="swain",
+            session_id="sess-abc",
+            reason="mock complete",
+        )
+        died_event.payload["origin"] = "trunk"
+
+        lines = iter(
+            [
+                encode_message(died_event),
+                "",
+            ]
+        )
+
+        with patch("sys.stdin") as mock_stdin:
+            mock_stdin.readline = lambda: next(lines)
+            await _relay_events(
+                client,
+                "swain",
+                None,
+                "trunk",
+                registry,
+                loop,
+                TypingIndicator(client, loop),
+            )
+
+        assert client.send_message.call_count == 0
 
 
 # ---------------------------------------------------------------------------
 # Scenario: bin/swain NDJSON mode (subprocess test)
 # ---------------------------------------------------------------------------
 
+
+@pytest.mark.skip(reason="Launcher flow superseded by worktree scanner (SPEC-323)")
 class TestLauncherNdjsonMode:
     """bin/swain --format ndjson produces structured NDJSON output."""
 
     async def test_launcher_emits_ready_with_fresh_flag(self):
-        """--fresh skips interview, goes straight to ready."""
-        import subprocess
-        result = subprocess.run(
-            ["bash", "bin/swain", "--format", "ndjson", "--fresh", "--trunk"],
-            input="",
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-        lines = [l for l in result.stdout.strip().split("\n") if l]
-        # Should have at least a ready message
-        ready_lines = [json.loads(l) for l in lines if '"ready"' in l]
-        assert len(ready_lines) >= 1
-        ready = ready_lines[0]
-        assert ready["type"] == "ready"
-        assert "runtime" in ready
-        assert "worktree" in ready
+        pass
