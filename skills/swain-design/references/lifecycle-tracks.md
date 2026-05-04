@@ -6,7 +6,7 @@ Three-track lifecycle model from ADR-003. Each artifact type belongs to exactly 
 
 | Track | Artifact Types | Phases (ordered) | Terminal Phases | Resolution Rule |
 |-------|---------------|-----------------|-----------------|-----------------|
-| `implementable` | SPEC | Proposed → Ready → Active → Complete | Complete, Abandoned, Retired, Superseded | Status equals a terminal phase |
+| `implementable` | SPEC, CHORE | Proposed → Ready → Active → Complete | Complete, Abandoned, Retired, Superseded | Status equals a terminal phase |
 | `container` | INITIATIVE, EPIC, SPIKE | Proposed → Active → Complete | Complete, Abandoned, Retired, Superseded | Status equals a terminal phase |
 | `standing` | VISION, JOURNEY, PERSONA, ADR, RUNBOOK, DESIGN | Proposed → Active → (Retired \| Superseded) | Retired, Superseded | Active OR status equals a terminal phase |
 

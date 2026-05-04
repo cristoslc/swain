@@ -45,9 +45,9 @@ Operators get consistent health checks regardless of whether the script runs or 
 
 ## Child Specs
 
-- [SPEC-288](../../spec/Active/(SPEC-288)-Reconcile-Doctor-Script-And-Skill/(SPEC-288)-Reconcile-Doctor-Script-And-Skill.md) — reconcile script ↔ SKILL.md drift.
-- [SPIKE-061](../../research/Active/(SPIKE-061)-Doctor-Script-Simplification/(SPIKE-061)-Doctor-Script-Simplification.md) — can we simplify the 1,100-line bash script?
-- [SPIKE-062](../../research/Active/(SPIKE-062)-Doctor-Python-Migration/(SPIKE-062)-Doctor-Python-Migration.md) — should we rewrite doctor in Python via uv?
+- [SPEC-288](../../../spec/Active/(SPEC-288)-Reconcile-Doctor-Script-And-Skill/(SPEC-288)-Reconcile-Doctor-Script-And-Skill.md) — reconcile script ↔ SKILL.md drift.
+- [SPIKE-061](../../../research/Active/(SPIKE-061)-Doctor-Script-Simplification/(SPIKE-061)-Doctor-Script-Simplification.md) — can we simplify the 1,100-line bash script?
+- [SPIKE-062](../../../research/Active/(SPIKE-062)-Doctor-Python-Migration/(SPIKE-062)-Doctor-Python-Migration.md) — should we rewrite doctor in Python via uv?
 
 ## Key Dependencies
 

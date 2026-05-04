@@ -13,13 +13,23 @@ __pycache__/
 
 # Runtime artifacts
 *.log
-.agents/specwatch.log
-.agents/specwatch-ignore
-.agents/status-cache.json
-.agents/session.json
-.agents/session-state.json
-.agents/search-snapshots/
 SESSION-ROADMAP.md
+
+# .agents runtime artifacts (track code, ignore state)
+.agents/*.log
+.agents/*.json
+.agents/.env
+.agents/cache/
+.agents/hook-state/
+.agents/search-snapshots/
+.agents/session.json
+.agents/specwatch-ignore
+.agents/worktrees/
+.agents/.agents
+
+# .claude runtime state (track skills symlink and settings, ignore local overrides and worktrees)
+.claude/settings.local.json
+.claude/worktrees/
 
 # Skill eval workspaces
 *-workspace/
@@ -39,8 +49,7 @@ skills-lock.json
 *.db
 
 # Installed skills (consumer-side)
-.claude/skills
-.agents/skills
+# Ignored here because they are usually mirrored in skills/ for publishing
 
 # Ignore all skills, then un-ignore swain's own skills
 skills/*
@@ -55,13 +64,9 @@ skills/*
 .commandcode
 .continue
 .codex
-.cortex
 .crush
 .factory
 .goose
-.iflow
-.junie
-.kilocode
 .kiro
 .kode
 .mcpjam
@@ -79,4 +84,8 @@ skills/*
 .zencoder
 .superpowers
 .sandboxes/
+.agents/skills/skills
 .swain-init
+.swain/
+.env
+bridge.json

@@ -11,12 +11,12 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-16 | 01:03 | `fd7d041` | feat: complete trove migration (reconcile kanban-tools, fix stale frontmatter) |
-| 2026-03-16 | 00:13 | `014408f` | feat: add SPEC-052, SPEC-053, implementation plan, and tk tracking |
-
+| 2026-03-16 | 01:03 | `fd7d0415` | feat: complete trove migration (reconcile kanban-tools, fix stale frontmatter) |
+| 2026-03-16 | 00:13 | `014408fc` | feat: add SPEC-052, SPEC-053, implementation plan, and tk tracking |
 
 ## Children
 
 ### Active
 
-- [SPEC-053](../../../spec/Active/(SPEC-053)-Namespace-Swain-Docs-Directory/(SPEC-053)-Namespace-Swain-Docs-Directory.md) — Namespace Swain Docs Directory (in progress)
+- [SPEC-053](../../../spec/Active/(SPEC-053)-Namespace-Swain-Docs-Directory/(SPEC-053)-Namespace-Swain-Docs-Directory.md) — Namespace Swain Docs Directory, in progress
+

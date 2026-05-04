@@ -107,6 +107,16 @@ if [[ -d "$REPO_ROOT/docs/evidence-pools" ]]; then
   issues+=("docs/evidence-pools/ detected — trove migration needed")
 fi
 
+# 5b. Worktree context (ADR-034) — location sanity gate
+_git_common="$(git rev-parse --git-common-dir 2>/dev/null || true)"
+_git_dir="$(git rev-parse --git-dir 2>/dev/null || true)"
+if [[ -n "$_git_common" ]] && [[ "$_git_common" != "$_git_dir" ]]; then
+  _main_root="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+  if [[ -n "$_main_root" ]] && [[ "$REPO_ROOT" != "$_main_root/.worktrees"/* ]]; then
+    issues+=("worktree outside .worktrees/ (ADR-034: swain-doctor can auto-move)")
+  fi
+fi
+
 # Legacy swain skill directories
 check_legacy_skill_dirs
 

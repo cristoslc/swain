@@ -1,1 +1,1 @@
-../../skills/swain-doctor/scripts/swain-preflight.sh
+../../.claude/skills/swain-doctor/scripts/swain-preflight.sh

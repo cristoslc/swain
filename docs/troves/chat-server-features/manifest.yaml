@@ -1,0 +1,246 @@
+trove: chat-server-features
+created: 2026-04-06
+refreshed: 2026-04-06
+tags:
+  - chat-server
+  - self-hosted
+  - bot-api
+  - threading
+  - matrix
+  - zulip
+  - campfire
+  - mattermost
+  - rocket-chat
+  - conduit
+  - lightweight
+  - telegram
+  - discord
+  - irc
+  - ntfy
+  - hosted-transport
+  - zero-ops
+  - slack
+  - teams
+  - zulip-cloud
+  - hosted-vs-selfhosted
+  - python-sdk
+  - whatsapp
+  - whatsapp-business-api
+  - pywa
+
+freshness-ttl:
+  web: 14d
+
+history:
+  - event: created
+    date: 2026-04-06
+    commit: "d012d49"
+    sources: 8
+  - event: extended
+    date: 2026-04-07
+    commit: "2e691eb"
+    sources: 5
+  - event: extended
+    date: 2026-04-07
+    commit: "4a69c96"
+    sources: 7
+  - event: extended
+    date: 2026-04-06
+    commit: "81575e1"
+    sources: 5
+  - event: extended
+    date: 2026-04-06
+    commit: "cb0917c"
+    sources: 2
+
+referenced-by: []
+
+sources:
+  - source-id: "zulip-self-hosting"
+    type: web
+    url: "https://zulip.com/self-hosting/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Self-host Zulip — Requirements, Features, and Pricing"
+    hash: "3fa87af51845cab5529ce4e5323baaf64acc7fff827f34576a2a35c7a572c4f8"
+
+  - source-id: "matrix-synapse-self-hosting-2025"
+    type: web
+    url: "https://blog.klein.ruhr/self-hosting-matrix-in-2025"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Self-hosting Matrix in 2025 — Matthias Klein"
+    hash: "cf4dd36b3155c9aa42bcdcf750e7fa6ce242bc0cf682de8d21fcd49608904705"
+
+  - source-id: "conduit-matrix-homeserver"
+    type: web
+    url: "https://conduit.rs/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Conduit and conduwuit — Lightweight Matrix Homeservers"
+    hash: "fbfc73cf5fc07430ced367aaff5f3e703e18a855c4da1ff85542194cb4757d22"
+
+  - source-id: "campfire-37signals"
+    type: web
+    url: "https://once.com/campfire"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Campfire by 37signals — Simple Self-Hosted Group Chat"
+    hash: "da8f04c9d7401b6c5b277ad5921a0f5ad23cd9e140cd7256906af82d63b06e5e"
+
+  - source-id: "mattermost-vs-rocketchat-comparison"
+    type: web
+    url: "https://blog.canadianwebhosting.com/mattermost-vs-rocket-chat-self-hosted-team-chat/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Mattermost vs Rocket.Chat — Self-Hosted Team Chat Comparison"
+    hash: "984396b6cf18bd379affd7307338e25879413818647e548a4a6fe26816430a62"
+
+  - source-id: "zulip-bot-api"
+    type: web
+    url: "https://zulip.com/api/writing-bots"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Zulip Bot API and ChatOps Integration"
+    hash: "61c1eb5a5864f68d07ee7222e4ee64feb3d9f76089689c42c79d1a38d7cccbc4"
+
+  - source-id: "matrix-threading-msc3440"
+    type: web
+    url: "https://matrix.org/blog/2022/09/29/matrix-v-1-4-release/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Matrix Threading via MSC3440 — Status and Implementation"
+    hash: "b9c037ee356c77cb288ec5d28caeeb8c1fed38da967050eee1bf52c3703fd344"
+
+  - source-id: "self-hosted-chat-comparison-2026"
+    type: web
+    url: "https://zap-hosting.com/en/blog/2026/02/the-best-self-hosted-discord-alternatives-2026-ranking-pros-cons/"
+    fetched: 2026-04-06T20:00:00Z
+    title: "Self-Hosted Chat Server Landscape — 2026 Overview"
+    hash: "c4534669a5e49cb46500d6bb96c34698dfdada8cfd9df21242845970961d5479"
+
+  - source-id: "campfire-bot-kit-api"
+    type: web
+    url: "https://github.com/basecamp/campfire-bot-kit"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Campfire Bot Kit — API Capabilities and Limitations"
+    hash: "f8aa58a2b1118133255de536c664885871337d8b14c4b6df0c2dabf40fa48d14"
+
+  - source-id: "campfire-room-prefix-threading-analysis"
+    type: web
+    url: "https://github.com/basecamp/once-campfire/discussions"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Campfire Prefix-as-Thread Workaround — Viability Analysis"
+    hash: "e4da73cbd0cbd6f09c3923fea16f9a4a9b88c066703495f253bdb6cd1c819d07"
+
+  - source-id: "zulip-upgrade-operations"
+    type: web
+    url: "https://zulip.readthedocs.io/en/stable/production/upgrade.html"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Zulip Operational Profile — Upgrade, Rollback, and Backup"
+    hash: "059a181110f16b7e7918aa36f418afc1a3687c6bdc10d6f085caa206fe76b61b"
+
+  - source-id: "conduwuit-deployment-operations"
+    type: web
+    url: "https://github.com/girlbossceo/conduwuit"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Conduwuit Operational Profile — Deployment, Upgrade, and Backup"
+    hash: "2683e255abe19cdd793bd39ef30e3d7f68d8bde4015c2234d2c177ddcbf7f5f8"
+
+  - source-id: "mattermost-upgrade-operations"
+    type: web
+    url: "https://docs.mattermost.com/administration-guide/upgrade/upgrading-mattermost-server.html"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Mattermost Operational Profile — Upgrade, Rollback, and Backup"
+    hash: "e822db50e649dab745e4e5627543759c539075c18e8d378e211413369fba9495"
+
+  - source-id: "ntfy-push-notification-service"
+    type: web
+    url: "https://ntfy.sh/"
+    fetched: 2026-04-07T06:00:00Z
+    title: "ntfy — Lightweight Push Notification Service as Pseudo-Chat Surface"
+    hash: "3055c624d862ec7d2bc9dd6b78f595332dbc7502cf7c334d100fa162681b74db"
+
+  - source-id: "telegram-forum-topics-bot-api"
+    type: web
+    url: "https://core.telegram.org/api/forum"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Telegram Forum Topics and Bot API — Zero-Ops Chat Transport"
+    hash: "6e5fde1dbbf46654311e36f8179b1954d8eef0cf20fe3ee8d4b26d302d84dcff"
+
+  - source-id: "tinode-lightweight-chat-server"
+    type: web
+    url: "https://github.com/tinode/chat"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Tinode — Lightweight Self-Hosted Chat Server with Native Clients and Bot Support"
+    hash: "ccae5a0d4f4be655109d3838cf458dcf6196636389a3f270b64e2b8c3b8729c6"
+
+  - source-id: "discord-hosted-bot-transport"
+    type: web
+    url: "https://discord.com/developers/docs/topics/threads"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Discord as Hosted Bot Transport — Threads, Forums, and Zero-Ops Trade-Offs"
+    hash: "a164e42f60d365c7883496a2826f11576c4b403110f40f196d1a26ae6848b941"
+
+  - source-id: "irc-thelounge-lightweight-chat"
+    type: web
+    url: "https://thelounge.chat/"
+    fetched: 2026-04-07T06:00:00Z
+    title: "IRC + The Lounge — Ultra-Lightweight Self-Hosted Chat with Modern Web UI"
+    hash: "a251bb9e50eaa771c8a1a10de74211d15bf440e43e6849099f42a327cdac6c4e"
+
+  - source-id: "matterbridge-chat-bridge"
+    type: web
+    url: "https://github.com/42wim/matterbridge"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Matterbridge — Single-Binary Chat Bridge Across 30+ Platforms"
+    hash: "0fc0e7bf0c292968a8775750af6fea9d373dab75ab65f92ff37bbf6548f12f3e"
+
+  - source-id: "custom-websocket-chat-assessment"
+    type: web
+    url: "https://socket.io/get-started/chat"
+    fetched: 2026-04-07T06:00:00Z
+    title: "Custom WebSocket Chat — Build vs. Buy Assessment for Minimal Chat Server"
+    hash: "7f3795d237fc0db3762e029e8fc4c5f2dbe08865a1cfab8b1a7306ee4bdecb35"
+
+  - source-id: "zulip-cloud-hosted"
+    type: web
+    url: "https://zulip.com/plans/"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Zulip Cloud — Hosted Platform with Full API Parity to Self-Hosted"
+    hash: "872c41f359622d2eaecd509c59e1336dfe28317c3a6cee35a4450d79ea5e6d1b"
+
+  - source-id: "slack-hosted-bot-platform"
+    type: web
+    url: "https://docs.slack.dev/tools/bolt-python/"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Slack — Hosted Bot Platform with Bolt SDK and Threading"
+    hash: "7c09844c406d096a3dd25949c960ea937e8ec153c22489ac71d8220da25f9b1e"
+
+  - source-id: "discord-hosted-bot-detailed"
+    type: web
+    url: "https://docs.discord.com/developers/topics/rate-limits"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Discord — Hosted Bot Platform with Forum Channels, Rate Limits, and Security Trade-Offs"
+    hash: "cc7a6b402d132999085260b5b612193e7e40943bb4904aa2bd61b9cb45cf35d2"
+
+  - source-id: "telegram-bot-sdk-detailed"
+    type: web
+    url: "https://docs.python-telegram-bot.org/en/stable/index.html"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Telegram — python-telegram-bot SDK, Rate Limits, and Hosted Transport Details"
+    hash: "0ef6118d5bb1dbda80385760545cd60f3262ea218443908289c9fde17b22db90"
+
+  - source-id: "teams-hosted-bot-platform"
+    type: web
+    url: "https://github.com/microsoft/teams.py"
+    fetched: 2026-04-06T22:00:00Z
+    title: "Microsoft Teams — Graph API Complexity, M365 Requirement, and Enterprise Lock-In"
+    hash: "9178a0029f486b952867f40dfd8d3ca95e4bc930ceb258cc51abe51a519139d3"
+
+  - source-id: "whatsapp-business-api-platform"
+    type: web
+    url: "https://business.whatsapp.com/products/platform-pricing"
+    fetched: 2026-04-06T22:00:00Z
+    title: "WhatsApp Business API — Pricing, Rate Limits, Threading, and Provisioning for Bot-Driven Workflows"
+    hash: "7470ecb95907d76e9b9bd48d794c0b5071c508faf4e98ea90c757ff7f5dec87c"
+
+  - source-id: "whatsapp-pywa-python-sdk"
+    type: web
+    url: "https://github.com/david-lev/pywa"
+    fetched: 2026-04-06T22:00:00Z
+    title: "PyWa — Python SDK for WhatsApp Cloud API: Features, Maturity, and Bot Development"
+    hash: "b6e6dc3e33d69ca8c0e2f040e07b8867f45313ee8fd5a1345e0bef047b6b000d"

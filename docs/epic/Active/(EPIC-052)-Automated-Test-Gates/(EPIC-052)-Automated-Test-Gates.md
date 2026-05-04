@@ -60,7 +60,7 @@ The operator no longer needs to intervene before merges. Agents self-verify befo
 
 - [SPEC-215](../../../spec/Active/(SPEC-215)-Consumer-Integration-Test-Harness/(SPEC-215)-Consumer-Integration-Test-Harness.md) — Consumer integration test harness (re-parented)
 - [SPEC-220](../../../spec/Active/(SPEC-220)-swain-test-sh-Script/(SPEC-220)-swain-test-sh-Script.md) — swain-test.sh script
-- [SPEC-221](../../../spec/Active/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill
+- [SPEC-221](../../../spec/Complete/(SPEC-221)-swain-test-Skill/(SPEC-221)-swain-test-Skill.md) — swain-test skill
 - [SPEC-226](../../../spec/Active/(SPEC-226)-Verification-Evidence-Recording/(SPEC-226)-Verification-Evidence-Recording.md) — Evidence recording
 - [SPEC-223](../../../spec/Active/(SPEC-223)-swain-sync-Test-Gate-Integration/(SPEC-223)-swain-sync-Test-Gate-Integration.md) — swain-sync integration
 - [SPEC-224](../../../spec/Active/(SPEC-224)-swain-release-Test-Gate-Integration/(SPEC-224)-swain-release-Test-Gate-Integration.md) — swain-release integration

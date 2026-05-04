@@ -1,1 +1,1 @@
-../../skills/swain-doctor/scripts/crash-debris-lib.sh
+../../.claude/skills/swain-doctor/scripts/crash-debris-lib.sh

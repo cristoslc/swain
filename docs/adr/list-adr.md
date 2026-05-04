@@ -5,7 +5,6 @@
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | ADR-007 | Event-Driven Orchestrator Replaces Prose Chaining Table | 2026-03-17 | — |
-| ADR-019 | Project-Root Script Convention | 2026-03-28 | — |
 | ADR-031 | Skill Naming Convention: Verbs Not Nouns | 2026-04-04 | — |
 
 ## Active
@@ -26,7 +25,6 @@
 | ADR-014 | Data Contracts For Agent-Produced Data | 2026-03-21 | -- |
 | ADR-015 | Tickets Are Ephemeral Execution Scaffolding | 2026-03-23 | — |
 | ADR-016 | Deprecate swain-dispatch | 2026-03-25 | -- |
-| ADR-017 | Supported Agentic CLI Runtimes | 2026-03-27 | — |
 | ADR-018 | Structural Not Prosaic Session Invocation | 2026-03-27 | — |
 | ADR-020 | Preflight Self-Healing Convention | 2026-03-29 | 3435901 |
 | ADR-021 | Bake Superpowers Practices into Core Swain without Vendored Chaining | 2026-04-01 | TBD |
@@ -39,13 +37,30 @@
 | ADR-029 | RTK As Optional Git Compression Dependency | 2026-04-03 | 1e95f94 |
 | ADR-030 | Deprecate swain-session — Split Lifecycle into Init and Teardown | 2026-04-04 | — |
 | ADR-032 | Gherkin As Notation, Not Infrastructure | 2026-04-04 | _pending_ |
+| ADR-032 | Gherkin As Notation, Not Infrastructure | 2026-04-04 | _pending_ |
+| ADR-033 | Born-in-Worktree Session Isolation | 2026-04-05 | d2a8412a |
 | ADR-033 | Born-in-Worktree Session Isolation | 2026-04-05 | d2a8412a |
 | ADR-034 | Standardize Worktree Location to .worktrees/ | 2026-04-05 | — |
+| ADR-034 | Standardize Worktree Location to .worktrees/ | 2026-04-05 | — |
 | ADR-035 | Title-Based Artifact Identifiers | 2026-04-05 | — |
+| ADR-036 | Plugin-Namespaced Script Aggregation | 2026-04-06 | -- |
+| ADR-037 | Chat Platform and Deployment Model | 2026-04-06 | 0c008b41 |
+| ADR-038 | Microkernel Plugin Architecture | 2026-04-18 | -- |
+| ADR-041 | Swain runtime state in .swain/; leave .agents/ to the emerging spec | 2026-04-13 | — |
+| ADR-042 | Track runtime and peer-agent dirs instead of symlinking via hook | 2026-04-13 | — |
+| ADR-043 | Shared Ticket State Across Worktrees | 2026-04-13 | 96c36167 |
+| ADR-044 | Supported Agentic CLI Runtimes | 2026-04-13 | — |
+| ADR-045 | Chores As A Lightweight Artifact Type | 2026-04-14 | 538e563e |
+| ADR-046 | Project-Level Microkernel Topology | 2026-04-18 | -- |
+| ADR-047 | swain-helm Watchdog Architecture | 2026-04-18 | -- |
 
 ## Superseded
 
 | Artifact | Title | Last Updated | Commit |
 |----------|-------|-------------|--------|
 | ADR-005 | Worktree Lifecycle: swain-do Creates, swain-sync Lands | 2026-03-20 | aa9ca7b |
+| ADR-017 | Supported Agentic CLI Runtimes | 2026-04-13 | — |
+| ADR-019 | Project-Root Script Convention | 2026-04-06 | -- |
+| ADR-039 | Hub-and-Spoke Topology | 2026-04-18 | -- |
+| ADR-040 | Worktree bootstrap via tracked post-checkout hook | 2026-04-13 | — |
 

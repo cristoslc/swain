@@ -11,9 +11,9 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-25 | 21:41 | `5573527` | Merge remote-tracking branch 'origin/trunk' into worktree-spec-168-gitignore-skill-folders |
-| 2026-03-23 | 09:39 | `b2259cc` | docs: retro for SPIKE-038 platform hooks validation session |
-| 2026-03-23 | 09:19 | `af1d2f5` | docs(SPIKE-038): stamp completion hash |
+| 2026-03-25 | 21:41 | `55735272` | Merge remote-tracking branch 'origin/trunk' into worktree-spec-168-gitignore-skill-folders |
+| 2026-03-23 | 09:39 | `b2259cca` | docs: retro for SPIKE-038 platform hooks validation session |
+| 2026-03-23 | 09:19 | `af1d2f52` | docs(SPIKE-038): stamp completion hash |
 
 ## Priority Subset
 
@@ -27,9 +27,9 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Platform Enforcement Substrate]((INITIATIVE-020)-Platform-Enforcement-Substrate.md) | [MCP Session-State Tracker Design](../../../research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) | 0/0 | 0 | **activate or drop** |
-|  | [Post-Hoc Process Audit Pipeline](../../../research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) | 0/0 | 0 | **activate or drop** |
-|  | [Cross-Platform Deny-Rule Portability](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) | 0/0 | 0 | **activate or drop** |
+| [Platform Enforcement Substrate](docs/initiative/Proposed/(INITIATIVE-020)-Platform-Enforcement-Substrate/(INITIATIVE-020)-Platform-Enforcement-Substrate.md) | [MCP Session-State Tracker Design](docs/research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) | 0/0 | 0 | **activate or drop** |
+|  | [Post-Hoc Process Audit Pipeline](docs/research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) | 0/0 | 0 | **activate or drop** |
+|  | [Cross-Platform Deny-Rule Portability](docs/research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
@@ -46,9 +46,11 @@
 
 ### Proposed
 
-- [SPIKE-039](../../../research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) — MCP Session-State Tracker Design (in progress)
-- [SPIKE-040](../../../research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) — Post-Hoc Process Audit Pipeline (in progress)
-- [SPIKE-041](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) — Cross-Platform Deny-Rule Portability (in progress)
+- [SPIKE-039](../../../research/Proposed/(SPIKE-039)-MCP-Session-State-Tracker-Design/(SPIKE-039)-MCP-Session-State-Tracker-Design.md) — MCP Session-State Tracker Design, in progress
+- [SPIKE-040](../../../research/Proposed/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline/(SPIKE-040)-Post-Hoc-Process-Audit-Pipeline.md) — Post-Hoc Process Audit Pipeline, in progress
+- [SPIKE-041](../../../research/Proposed/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability/(SPIKE-041)-Cross-Platform-Deny-Rule-Portability.md) — Cross-Platform Deny-Rule Portability, in progress
+
 ### Complete
 
-- [SPIKE-038](../../../research/Complete/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility.md) — PreToolUse Hook Adapter Feasibility (done)
+- [SPIKE-038](../../../research/Complete/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility/(SPIKE-038)-PreToolUse-Hook-Adapter-Feasibility.md) — PreToolUse Hook Adapter Feasibility, done
+

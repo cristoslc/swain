@@ -54,7 +54,7 @@ detect_test_command() {
   elif [[ -f "$REPO_ROOT/Cargo.toml" ]]; then
     cmd="cargo test"
   elif [[ -f "$REPO_ROOT/pyproject.toml" ]] && grep -q '\[tool.pytest' "$REPO_ROOT/pyproject.toml" 2>/dev/null; then
-    cmd="pytest"
+    cmd="uv run --extra dev pytest"
   elif [[ -f "$REPO_ROOT/requirements.txt" ]] && grep -q 'pytest' "$REPO_ROOT/requirements.txt" 2>/dev/null; then
     cmd="pytest"
   elif [[ -f "$REPO_ROOT/go.mod" ]]; then

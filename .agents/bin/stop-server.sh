@@ -1,0 +1,1 @@
+../../.claude/skills/brainstorming/scripts/stop-server.sh

@@ -25,7 +25,7 @@ Add preflight and doctor detection for repos that haven't adopted the trunk+rele
 ## Deliverables
 
 ### Preflight (swain-preflight.sh)
-- Check `.agents/bin/swain-trunk.sh` exists and is executable (per [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) agent-facing convention)
+- Check `.agents/bin/swain-trunk.sh` exists and is executable (per [ADR-019](../../../adr/Superseded/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) agent-facing convention)
 - Run it and verify the detected trunk branch has a remote
 - Check whether a `release` branch exists
 - Advisory message pointing to `scripts/migrate-to-trunk-release.sh --dry-run`

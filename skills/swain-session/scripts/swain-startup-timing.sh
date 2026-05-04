@@ -64,8 +64,8 @@ run_single() {
 
   local total_start=$(_ts)
 
-  # Phase 1: .swain-init marker check (what the shell launcher would do)
-  time_phase "init_marker_check" test -f "$REPO_ROOT/.swain-init"
+  # Phase 1: .swain/init.json marker check (what the shell launcher would do)
+  time_phase "init_marker_check" test -f "$REPO_ROOT/.swain/init.json"
 
   # Phase 2: Preflight
   time_phase "preflight" bash "$(dirname "$(dirname "$SCRIPT_DIR")")/swain-doctor/scripts/swain-preflight.sh"

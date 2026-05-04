@@ -9,6 +9,22 @@
 {{ item.body }}
 {% endfor %}
 {% endif %}
+{% if in_progress %}
+
+### In Progress
+{% for item in in_progress %}
+{% if item is mapping and item.heading %}
+
+#### {{ item.heading }}
+
+{{ item.body }}
+{% elif item is mapping and item.text %}
+- {{ item.text }}
+{% else %}
+- {{ item }}
+{% endif %}
+{% endfor %}
+{% endif %}
 {% if roadmap %}
 
 ### Planned

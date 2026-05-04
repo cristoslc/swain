@@ -11,16 +11,16 @@
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-19 | 20:43 | `81dcbc3` | feat(swain-box): rewrite as unified two-step sandbox launcher (SPEC-092) |
-| 2026-03-18 | 22:29 | `4f505f8` | docs: add VISION-002 (Safe Autonomy) and reorganize sandbox initiatives |
-| 2026-03-18 | 13:46 | `1e02225` | docs(swain-box): document sandbox scoping and correct credential handling |
-
+| 2026-03-19 | 20:43 | `81dcbc37` | feat(swain-box): rewrite as unified two-step sandbox launcher (SPEC-092) |
+| 2026-03-18 | 22:29 | `4f505f84` | docs: add VISION-002 (Safe Autonomy) and reorganize sandbox initiatives |
+| 2026-03-18 | 13:46 | `1e022255` | docs(swain-box): document sandbox scoping and correct credential handling |
 
 ## Children
 
 ### Complete
 
-- [EPIC-005](../../../epic/Complete/(EPIC-005)-Isolated-Claude-Code-Environment/(EPIC-005)-Containerized-Claude-Code-Environment.md) — Isolated Claude Code Environment (2/2)
+- [EPIC-005](../../../epic/Complete/(EPIC-005)-Isolated-Claude-Code-Environment/(EPIC-005)-Containerized-Claude-Code-Environment.md) — Isolated Claude Code Environment, 2/2
   - [SPEC-048](../../../spec/Complete/(SPEC-048)-claude-sandbox-Tier1-Native-Sandbox-Launcher/(SPEC-048)-claude-sandbox-Tier1-Native-Sandbox-Launcher.md) — claude-sandbox: Tier 1 Native Sandbox Launcher (Complete, done)
   - [SPEC-049](../../../spec/Superseded/(SPEC-049)-claude-sandbox-Tier2-Docker-Runner/(SPEC-049)-claude-sandbox-Tier2-Docker-Runner.md) — claude-sandbox: Tier 2 Docker Container Runner (Superseded, done)
-- [SPEC-067](../../../spec/Complete/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md) — swain-box: Docker Sandboxes Launcher (done)
+- [SPEC-067](../../../spec/Complete/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher/(SPEC-067)-swain-box-Docker-Sandboxes-Launcher.md) — swain-box: Docker Sandboxes Launcher, done
+

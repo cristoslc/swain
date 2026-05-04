@@ -5,7 +5,7 @@ license: UNLICENSED
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion
 metadata:
   short-description: Version bump, changelog, and git tag
-  version: 1.5.1
+  version: 1.6.0
   author: cristos
   source: swain
 ---
@@ -96,18 +96,21 @@ Before writing, read the existing CHANGELOG.md (if any) to match the voice, dens
 
 The changelog is rendered from a Jinja2 template (`templates/changelog.md.j2`) fed by a JSON data file. This separates the bucketing decision (which section does a change belong in?) from the rendering (how does the markdown look?).
 
-**Step 4a — Classify commits into four buckets.** Each commit goes into exactly one:
+**Step 4a — Classify commits into five buckets.** Each commit goes into exactly one:
 
 | Bucket | What belongs here | What does NOT belong here |
 |--------|-------------------|--------------------------|
-| `features` | Shipped capability that the operator can interact with today: new skills, new CLI commands, new scripts the operator invokes, bug fixes to operator-facing workflows. The test: "can the operator do something new or different because of this?" | Planning artifacts, internal quality improvements, threshold tweaks to internal tools, internal test suites, bug fixes to scripts the operator never invokes directly. |
-| `roadmap` | Forward-looking previews of planned work — what's coming and why it matters to the user. Write as "X is being planned/designed because Y" not "SPEC-NNN created". Omit artifact IDs unless the reader would search for them. Skip items that are pure internal housekeeping. | Artifact state transitions ("EPIC activated", "SPEC created"), anything that shipped (that's features). |
-| `research` | Trove collections, spike completions, research artifacts, evidence gathered. | Specs that resulted from research (those are roadmap). |
+| `features` | Shipped capability that the operator can interact with today: new skills, new CLI commands, new scripts the operator invokes, bug fixes to operator-facing workflows. The test: "can the operator do something new or different because of this?" The artifact must be in Complete (or the work is deployed with no tracking artifact). | Planning artifacts, internal quality improvements, threshold tweaks to internal tools, internal test suites, bug fixes to scripts the operator never invokes directly, partially-implemented work still in Active. |
+| `in_progress` | Work that has shipped partially — code is in trunk, the operator can use some of it, but the tracking artifact is still Active (not yet Complete). Write as "X is now available in an early form because Y still needs Z." Be honest about gaps. | Fully shipped work (that's features). Purely planned work with no code in trunk (that's roadmap). |
+| `roadmap` | Forward-looking previews of planned work — what's coming and why it matters to the user. Write as "X is being planned/designed because Y" not "SPEC-NNN created". Omit artifact IDs unless the reader would search for them. Skip items that are pure internal housekeeping. | Artifact state transitions ("EPIC activated", "SPEC created"), anything that shipped (that's features), anything with code in trunk (that's in_progress). |
+| `research` | Trove collections, spike completions, research artifacts, evidence gathered. | Specs that resulted from research (those are roadmap or in_progress). |
 | `supporting` | Internal quality improvements, internal test suites, threshold changes to internal tools, bug fixes to internal scripts, dependency bumps, cross-ref enrichment, minor refactors, CI changes. | Anything the operator interacts with directly (that's features). |
 
 The key distinction agents get wrong: **creating a SPEC or EPIC is a roadmap change, not a feature.** A feature is something the operator can use *today* because it shipped in this release. A SPEC is a plan for something that will ship *later*.
 
-The second distinction agents get wrong: **internal improvements are supporting, not features.** Raising an internal threshold, fixing an anti-pattern in internal scripts, adding a test suite for swain's own code — these improve quality but don't give the operator a new capability. Ask: "would the operator notice this in their daily workflow?" If the answer is "only if something was broken before," it's supporting.
+The second distinction agents get wrong: **code in trunk with an Active artifact is in-progress, not a feature.** If the tracking spec's phase is Active, the work is partially available — use the `in_progress` bucket. Only move it to `features` when the artifact reaches Complete (or there is no artifact and the work is deployed and usable).
+
+The third distinction agents get wrong: **internal improvements are supporting, not features.** Raising an internal threshold, fixing an anti-pattern in internal scripts, adding a test suite for swain's own code — these improve quality but don't give the operator a new capability. Ask: "would the operator notice this in their daily workflow?" If the answer is "only if something was broken before," it's supporting.
 
 **Roadmap anti-pattern:** "EPIC-029 activated with 3 child SPECs (SPEC-118, SPEC-119, SPEC-120)" is noise — it describes artifact state transitions that only matter to the project maintainer. Instead write: "Trunk detection is being generalized so swain works on any branch name without configuration." The reader should understand *what's coming and why they'd care*, not which internal tracking artifacts changed state.
 
@@ -121,7 +124,7 @@ The second distinction agents get wrong: **internal improvements are supporting,
 
 Omit mechanical commits entirely: merge commits, lifecycle hash stamps, index refreshes, bookmark advances.
 
-**Bucket assignment is mutually exclusive.** If something appears in features it does not appear in roadmap or supporting. If it appears in roadmap it is not in supporting. Every commit goes in exactly one bucket or is omitted.
+**Bucket assignment is mutually exclusive.** If something appears in features it does not appear in in_progress, roadmap, or supporting. If it appears in in_progress it is not in features or roadmap. If it appears in roadmap it is not in supporting. Every commit goes in exactly one bucket or is omitted.
 
 **Step 4b — Write the changelog markdown directly.** Use the template at `templates/changelog.md.j2` as a **structure guide**, not as a render target. Write the markdown yourself following this format:
 
@@ -136,6 +139,12 @@ chart.sh roadmap --cli produces deterministic, terminal-friendly
 output grouped by Eisenhower quadrant with all first-degree children
 nested under their parent initiative. New swain-roadmap skill wraps
 it as the user-facing entry point: regenerate, open, display.
+
+### In Progress
+
+- CHORE artifact type — ADR-045 and script support are in
+  trunk, but skill docs and Python tooling (SPEC-312/313) are still
+  Active.
 
 ### Planned
 
@@ -153,6 +162,7 @@ it as the user-facing entry point: regenerate, open, display.
 
 **Formatting rules:**
 - The Features section uses **headings only** — each feature gets an `#### Heading` with a narrative paragraph. No standalone bullets in Features. If a change is too small for its own heading, fold it into a related heading's narrative or move it to Supporting.
+- In Progress can mix headings and bullets — use whatever best communicates the partial state and remaining gaps.
 - Planned and Roadmap sections can mix headings and bullets — headings for major planned work with enough substance for a paragraph, bullets for one-liners.
 - Research and Supporting sections are always flat bullet lists.
 - Omit empty sections entirely.

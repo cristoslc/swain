@@ -1,0 +1,35 @@
+---
+title: "{{ title }}"
+artifact: CHORE-{{ number }}
+track: implementable
+status: {{ status | default("Active") }}
+author: {{ author }}
+created: {{ created_date }}
+last-updated: {{ last_updated_date }}
+linked-artifacts:
+{%- for artifact in linked_artifacts | default([]) %}
+  - {{ artifact }}
+{%- endfor %}
+---
+
+# {{ title }}
+
+## Problem
+
+{{ problem_statement | default("What needs to be cleaned up and why.") }}
+
+## Checklist
+
+{%- for step in checklist | default([]) %}
+- [ ] {{ step }}
+{%- endfor %}
+
+## Notes
+
+{{ notes | default("Any relevant context or follow-up items.") }}
+
+## Lifecycle
+
+| Phase | Date | Commit | Notes |
+|-------|------|--------|-------|
+| {{ status | default("Active") }} | {{ created_date }} | {{ commit_hash }} | Initial creation |

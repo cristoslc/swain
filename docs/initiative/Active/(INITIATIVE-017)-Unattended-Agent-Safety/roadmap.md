@@ -5,14 +5,14 @@
 
 ## Progress
 
-░░░░░░░░░░░░ 0/4 complete (0%)
+██░░░░░░░░░░ 1/5 complete (20%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-21 | 23:03 | `c063592` | docs: renumber artifact IDs, add 3 new SPECs, complete EPIC-038 |
-| 2026-03-20 | 00:23 | `ffdf7df` | feat(safety): add INITIATIVE-017, EPIC-037, SPIKE-037 for unattended agent safety guardrails |
+| 2026-03-21 | 23:03 | `c063592a` | docs: renumber artifact IDs, add 3 new SPECs, complete EPIC-038 |
+| 2026-03-20 | 00:23 | `ffdf7dfb` | feat(safety): add INITIATIVE-017, EPIC-037, SPIKE-037 for unattended agent safety guardrails |
 
 ## Priority Subset
 
@@ -21,7 +21,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unattended Agent Safety]((INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
+| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](docs/epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -38,16 +38,22 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unattended Agent Safety]((INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
+| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](docs/epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
 
 
 ## Children
 
 ### Active
 
-- [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails (—)
+- [EPIC-037](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) — PR-Only Agent Guardrails, —
+
 ### Proposed
 
-- [EPIC-040](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) — Sandbox Capability Bridges (0/2)
+- [EPIC-040](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) — Sandbox Capability Bridges, 0/2
   - [SPEC-130](../../../spec/Proposed/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents/(SPEC-130)-Host-tmux-Bridge-for-Sandboxed-Agents.md) — Host tmux Bridge for Sandboxed Agents (Proposed, in progress)
   - [SPEC-131](../../../spec/Proposed/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents/(SPEC-131)-Docker-MCP-Gateway-Profile-Access-for-Sandboxed-Agents.md) — Docker MCP Gateway Profile Access for Sandboxed Agents (Proposed, in progress)
+
+### Abandoned
+
+- [EPIC-076](../../../epic/Abandoned/(EPIC-076)-Worktree-Bootstrap-Via-Post-Checkout-Hook/(EPIC-076)-Worktree-Bootstrap-Via-Post-Checkout-Hook.md) — Worktree Bootstrap via Post-Checkout Hook, —
+

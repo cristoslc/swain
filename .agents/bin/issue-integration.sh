@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/issue-integration.sh
+../../.claude/skills/swain-design/scripts/issue-integration.sh

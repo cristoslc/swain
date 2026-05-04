@@ -28,7 +28,7 @@ trove: agent-script-directory-conventions
 
 ## Goal / Objective
 
-The flat `.agents/bin/` layout from [ADR-019](../../adr/Superseded/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) risks collisions and doesn't match the Agent Skills standard. This epic replaces it with namespaced dirs per [ADR-036](../../adr/Active/(ADR-036)-Plugin-Namespaced-Script-Aggregation/(ADR-036)-Plugin-Namespaced-Script-Aggregation.md). Agent scripts move to `.agents/scripts/swain/`. Operator scripts move to `.agents/bin/swain/`. The `bin/` dir at project root goes away.
+The flat `.agents/bin/` layout from [ADR-019](../../../adr/Superseded/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) risks collisions and doesn't match the Agent Skills standard. This epic replaces it with namespaced dirs per [ADR-036](../../../adr/Active/(ADR-036)-Plugin-Namespaced-Script-Aggregation/(ADR-036)-Plugin-Namespaced-Script-Aggregation.md). Agent scripts move to `.agents/scripts/swain/`. Operator scripts move to `.agents/bin/swain/`. The `bin/` dir at project root goes away.
 
 ## Desired Outcomes
 
@@ -64,7 +64,7 @@ The flat `.agents/bin/` layout from [ADR-019](../../adr/Superseded/(ADR-019)-Pro
 
 ## Key Dependencies
 
-- [ADR-036](../../adr/Active/(ADR-036)-Plugin-Namespaced-Script-Aggregation/(ADR-036)-Plugin-Namespaced-Script-Aggregation.md) must be Active before implementation begins. *(Done.)*
+- [ADR-036](../../../adr/Active/(ADR-036)-Plugin-Namespaced-Script-Aggregation/(ADR-036)-Plugin-Namespaced-Script-Aggregation.md) must be Active before implementation begins. *(Done.)*
 
 ## Lifecycle
 

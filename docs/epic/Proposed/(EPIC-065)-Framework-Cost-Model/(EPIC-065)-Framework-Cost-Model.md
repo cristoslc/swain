@@ -35,7 +35,7 @@ When an agent creates a Spec, the template prompts for `cost-estimate` with both
 
 **In scope:** Frontmatter schema for `cost-estimate` (two-axis t-shirt sizing), cost axis documentation in swain framework docs, cost composition formula (blocked on SPIKE-060), frontmatter contract, definition updates, template updates.
 
-**Out of scope:** Value model (EPIC-064), scoring formula (EPIC-066), project-level cost axis weighting (follow-on — lets operator say "I'm attention-constrained right now").
+**Out of scope:** Value model (EPIC-077), scoring formula (EPIC-066), project-level cost axis weighting (follow-on — lets operator say "I'm attention-constrained right now").
 
 ## Child Specs
 

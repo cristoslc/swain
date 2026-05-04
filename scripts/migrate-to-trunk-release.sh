@@ -42,14 +42,11 @@ REMOTE_URL="$(git remote get-url origin 2>/dev/null)" || die "No 'origin' remote
 info "Remote URL: $REMOTE_URL"
 
 # Extract owner/repo from SSH or HTTPS URLs
-if [[ "$REMOTE_URL" =~ .*:(.+/.+)\.git$ ]]; then
-  OWNER_REPO="${BASH_REMATCH[1]}"
-elif [[ "$REMOTE_URL" =~ .*:(.+/.+)$ ]]; then
-  OWNER_REPO="${BASH_REMATCH[1]}"
-elif [[ "$REMOTE_URL" =~ github\.com/(.+/.+)\.git$ ]]; then
-  OWNER_REPO="${BASH_REMATCH[1]}"
-elif [[ "$REMOTE_URL" =~ github\.com/(.+/.+)$ ]]; then
-  OWNER_REPO="${BASH_REMATCH[1]}"
+# Bash 3.2 (macOS) lacks non-greedy matching, so use split checks + suffix strip.
+if [[ "$REMOTE_URL" =~ ^(git@|ssh://) ]] && [[ "$REMOTE_URL" =~ [:/]([^/:]+/[^/]+)$ ]]; then
+  OWNER_REPO="${BASH_REMATCH[1]%.git}"
+elif [[ "$REMOTE_URL" =~ github\.com[:/]+(.+)$ ]]; then
+  OWNER_REPO="${BASH_REMATCH[1]%.git}"
 else
   die "Could not extract owner/repo from remote URL: $REMOTE_URL"
 fi

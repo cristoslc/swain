@@ -1,0 +1,27 @@
+name: builders-vs-shippers-agentic-coding
+description: >
+  Research-backed archetype analysis identifying Builder, Shipper, and Coaster
+  personas in software engineering. Based on the Pragmatic Engineer 2026 AI
+  tooling survey (900+ respondents) and cross-referenced with tech-debt and
+  developer-productivity synthesis from Boswell.
+created: 2026-04-18
+tags:
+  - ai-coding-agents
+  - developer-productivity
+  - tech-debt
+  - ai-slop
+  - builder-archetype
+  - shipper-archetype
+linked-artifacts:
+  - PERSONA-003
+  - PERSONA-004
+sources:
+  - slug: the-impact-of-ai-on-software-engineers-in-2026-key-trends
+    kind: survey-analysis
+    provenance: boswell-query
+  - slug: tech-debt
+    kind: tag-synthesis
+    provenance: boswell-tag
+  - slug: developer-productivity
+    kind: tag-synthesis
+    provenance: boswell-tag

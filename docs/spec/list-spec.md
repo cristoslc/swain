@@ -53,6 +53,9 @@
 | SPEC-273 | Commit-Hash Staleness Detection | 2026-04-05 | _pending_ |
 | SPEC-274 | Swain-Verify Command | 2026-04-05 | _pending_ |
 | SPEC-275 | BDD Retrofit Migration | 2026-04-05 | _pending_ |
+| SPEC-314 | Deterministic Worktree Path Function and Convention | 2026-04-14 | 88924d4d |
+| SPEC-315 | Update swain-do SKILL.md Worktree Isolation Preamble | 2026-04-14 | 88924d4d |
+| SPEC-316 | Investigate specwatch Scan Timeout | 2026-04-14 | e3fbc288 |
 
 ## Active
 
@@ -134,7 +137,6 @@
 | SPEC-213 | Portable skill path resolution | 2026-03-31 | — |
 | SPEC-215 | Consumer integration test harness | 2026-03-31 | — |
 | SPEC-220 | swain-test.sh script | 2026-03-31 | — |
-| SPEC-221 | swain-test skill | 2026-03-31 | — |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | — |
 | SPEC-223 | swain-sync test gate integration | 2026-03-31 | — |
 | SPEC-224 | swain-release test gate integration | 2026-03-31 | — |
@@ -154,13 +156,39 @@
 | SPEC-256 | Worktree preamble must commit dirty tracked files before branching | 2026-04-03 | — |
 | SPEC-257 | swain-do Completion Chain | 2026-04-04 | 683a04e6 |
 | SPEC-258 | swain-teardown Completion Guardrail | 2026-04-04 | 683a04e6 |
-| SPEC-259 | Consumer Gitignore Coverage Gaps | 2026-04-04 | — |
 | SPEC-259 | Swain-Sync Preflight Script | 2026-04-04 | — |
 | SPEC-260 | Improve swain-search snapshot evidence | 2026-04-02 | — |
 | SPEC-285 | Raise FK Grade Threshold To 10 | 2026-04-04 | — |
 | SPEC-286 | bin/swain Missing Tmux Wrapping | 2026-04-05 | -- |
+| SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 | SPEC-288 | Reconcile Doctor Script and Skill | 2026-04-06 | _pending_ |
-| SPEC-257 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
+| SPEC-289 | Readability checker scores markdown syntax as prose | 2026-04-06 | -- |
+| SPEC-290 | .swain-init not symlinked into pre-existing worktrees | 2026-04-06 | — |
+| SPEC-291 | Non-Interactive Launcher Mode | 2026-04-06 | — |
+| SPEC-292 | OpenCode Server Adapter | 2026-04-06 | — |
+| SPEC-293 | Output Shaping for Chat | 2026-04-07 | a194674c |
+| SPEC-294 | Mermaid Rendering for Chat | 2026-04-07 | a194674c |
+| SPEC-296 | Worktree Session Isolation with Dedicated opencode serve Processes | 2026-04-18 | -- |
+| SPEC-298 | Control Thread Worktree and Session Spawning | 2026-04-18 | -- |
+| SPEC-300 | Resolve Duplicate Artifact ID Collisions in SpecGraph | 2026-04-08 | — |
+| SPEC-301 | Consolidate swain-init inline bash into a single preflight script | 2026-04-04 | — |
+| SPEC-302 | Swain-Sync Preflight Script | 2026-04-04 | — |
+| SPEC-304 | Adopt trafilatura for main-content extraction in swain-search | 2026-04-11 | -- |
+| SPEC-305 | Gitignore .swain/session/ in consumer projects | 2026-04-13 | — |
+| SPEC-306 | swain-search: X-Thread Source Type and Media Transcript Ingestion | 2026-04-13 | 2bf515cb |
+| SPEC-307 | Change traceability — auto-resolve upstream drift on edits | 2026-04-13 | — |
+| SPEC-311 | Bash Script Support for CHORE Prefix | 2026-04-14 | — |
+| SPEC-312 | Python Tooling Support for CHORE Type | 2026-04-14 | — |
+| SPEC-313 | Skill Docs and Index for CHORE Type | 2026-04-14 | — |
+| SPEC-317 | Source Quality Ranking for swain-search | 2026-04-16 | be506b4 |
+| SPEC-318 | swain-helm Watchdog Core | 2026-04-18 | -- |
+| SPEC-319 | swain-helm CLI | 2026-04-18 | -- |
+| SPEC-320 | Config and Credential Resolution | 2026-04-18 | -- |
+| SPEC-321 | OpenCode Serve Discovery and Auth | 2026-04-18 | -- |
+| SPEC-322 | Project Bridge Microkernel Refactor | 2026-04-18 | -- |
+| SPEC-323 | Continuous Worktree Discovery | 2026-04-18 | -- |
+| SPEC-324 | Session Registry Persistence | 2026-04-18 | -- |
+| SPEC-325 | Chat Adapter Stream Filtering | 2026-04-18 | -- |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 
 ## Complete
@@ -279,6 +307,7 @@
 | SPEC-217 | Worktree Link Resolution on Merge | 2026-03-31 | — |
 | SPEC-218 | Link Safety Worktree Completion Integration | 2026-03-31 | — |
 | SPEC-219 | Worktree Entry Must Commit Staged Artifacts First | 2026-03-31 | 2f49e1f |
+| SPEC-221 | swain-test skill | 2026-04-12 | — |
 | SPEC-222 | Doctor Warn-Only Check Auto-Repair Audit | 2026-03-31 | ee81e05 |
 | SPEC-227 | Doctor Artifact Index Staleness Repair | 2026-04-01 | — |
 | SPEC-239 | Worktree-Bookmark Lifecycle Coupling | — | — |
@@ -294,6 +323,9 @@
 | SPEC-282 | Alignment Audit | 2026-04-04 | — |
 | SPEC-283 | Artifact-Aware Worktree Naming | 2026-04-04 | — |
 | SPEC-284 | swain-sync Merge Logic | 2026-04-04 | — |
+| SPEC-295 | swain-bridge Daemon Mode | 2026-04-18 | — |
+| SPEC-297 | Fix swain-init Session Purpose Text Drop | 2026-04-13 | ad2b33c0 |
+| SPEC-308 | Fix Duplicate SPIKE IDs Blocking Artifact Graph | 2026-04-14 | — |
 
 ## Superseded
 
@@ -305,6 +337,7 @@
 | SPEC-106 | Blocking flowchart initiative subgraphs | 2026-03-20 | — |
 | SPEC-132 | specgraph: deterministic roadmap output based on priorities | 2026-03-20 | — |
 | SPEC-133 | swain-status roadmap integration | 2026-03-20 | — |
+| SPEC-303 | Output Shaping for Chat | 2026-04-18 | — |
 
 ## Abandoned
 

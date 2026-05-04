@@ -1,0 +1,217 @@
+[
+  {
+    "entry": {
+      "id": "blog-ghuntley-ralph",
+      "category": "blog",
+      "url": "https://ghuntley.com/ralph/"
+    },
+    "raw_size": 82572,
+    "results": [
+      {
+        "library": "trafilatura",
+        "elapsed_seconds": 0.014,
+        "output_len": 28622,
+        "metadata": {
+          "title": "Ralph Wiggum as a \"software engineer\"",
+          "author": "Geoffrey Huntley",
+          "date": "2025-07-14",
+          "description": "How Ralph Wiggum went from 'The Simpsons' to the biggest name in AI right now - Venture Beat \ud83d\ude0eHere's a cool little field report from a Y Combinator hackathon event where they put Ralph Wiggum to the test. \"We Put a Coding Agent in a While Loop and It Shipped"
+        }
+      },
+      {
+        "library": "readability-lxml",
+        "elapsed_seconds": 0.019,
+        "output_len": 32351,
+        "metadata": {
+          "title": "Ralph Wiggum as a \"software engineer\"",
+          "author": null,
+          "date": null,
+          "description": null
+        }
+      },
+      {
+        "library": "newspaper3k",
+        "elapsed_seconds": 0.042,
+        "output_len": 28781,
+        "metadata": {
+          "title": "Ralph Wiggum as a \"software engineer\"",
+          "author": "Geoffrey Huntley",
+          "date": "2025-07-14 04:22:55+00:00",
+          "description": null
+        }
+      }
+    ]
+  },
+  {
+    "entry": {
+      "id": "docs-mdn-websocket",
+      "category": "docs",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebSocket"
+    },
+    "raw_size": 149610,
+    "results": [
+      {
+        "library": "trafilatura",
+        "elapsed_seconds": 0.038,
+        "output_len": 3572,
+        "metadata": {
+          "title": "WebSocket",
+          "author": null,
+          "date": "2024-09-25",
+          "description": "The WebSocket object provides the API for creating and managing a WebSocket connection to a server, as well as for sending and receiving data on the connection."
+        }
+      },
+      {
+        "library": "readability-lxml",
+        "elapsed_seconds": 0.019,
+        "output_len": 856,
+        "metadata": {
+          "title": "WebSocket - Web APIs | MDN",
+          "author": null,
+          "date": null,
+          "description": null
+        }
+      },
+      {
+        "library": "newspaper3k",
+        "elapsed_seconds": 0.024,
+        "output_len": 203,
+        "metadata": {
+          "title": "WebSocket - Web APIs",
+          "author": null,
+          "date": null,
+          "description": "The WebSocket object provides the API for creating and managing a WebSocket connection to a server, as well as for sending and receiving data on the connection."
+        }
+      }
+    ]
+  },
+  {
+    "entry": {
+      "id": "forum-hn-gastown",
+      "category": "forum",
+      "url": "https://news.ycombinator.com/item?id=46463757"
+    },
+    "raw_size": 30959,
+    "results": [
+      {
+        "library": "trafilatura",
+        "elapsed_seconds": 0.119,
+        "output_len": 5843,
+        "metadata": {
+          "title": "Hacker News",
+          "author": null,
+          "date": "2026-01-02",
+          "description": null
+        }
+      },
+      {
+        "library": "readability-lxml",
+        "elapsed_seconds": 0.014,
+        "output_len": 1488,
+        "metadata": {
+          "title": "This is clearly going to develop the same problem Beads has. I've used it. I'm i... | Hacker News",
+          "author": null,
+          "date": null,
+          "description": null
+        }
+      },
+      {
+        "library": "newspaper3k",
+        "elapsed_seconds": 0.013,
+        "output_len": 0,
+        "metadata": {
+          "title": "This is clearly going to develop the same problem Beads has. I've used it. I'm i...",
+          "author": null,
+          "date": null,
+          "description": null
+        }
+      }
+    ]
+  },
+  {
+    "entry": {
+      "id": "news-theverge-sample",
+      "category": "news",
+      "url": "https://www.theverge.com/tech"
+    },
+    "raw_size": 659065,
+    "results": [
+      {
+        "library": "trafilatura",
+        "elapsed_seconds": 0.07,
+        "output_len": 1281,
+        "metadata": {
+          "title": "Tech",
+          "author": null,
+          "date": "2026-03-13",
+          "description": "The latest tech news about the world\u2019s best (and sometimes worst) hardware, apps, and much more. From top companies like Google and Apple to tiny startups vying for your attention, Verge Tech has the latest in what matters in technology daily."
+        }
+      },
+      {
+        "library": "readability-lxml",
+        "elapsed_seconds": 0.041,
+        "output_len": 555,
+        "metadata": {
+          "title": "Tech | The Verge",
+          "author": null,
+          "date": null,
+          "description": null
+        }
+      },
+      {
+        "library": "newspaper3k",
+        "elapsed_seconds": 0.082,
+        "output_len": 432,
+        "metadata": {
+          "title": "Tech",
+          "author": null,
+          "date": null,
+          "description": "The latest tech news about the world\u2019s best (and sometimes worst) hardware, apps, and much more. From top companies like Google and Apple to tiny startups vying for your attention, Verge Tech has the latest in what matters in technology daily."
+        }
+      }
+    ]
+  },
+  {
+    "entry": {
+      "id": "garden-appleton-gastown",
+      "category": "digital-garden",
+      "url": "https://maggieappleton.com/gastown"
+    },
+    "raw_size": 1570008,
+    "results": [
+      {
+        "library": "trafilatura",
+        "elapsed_seconds": 0.062,
+        "output_len": 32182,
+        "metadata": {
+          "title": "Gas Town\u2019s Agent Patterns, Design Bottlenecks, and Vibecoding at Scale",
+          "author": "Bsky Brid Gy",
+          "date": "2026-01-24",
+          "description": "On agent orchestration patterns, why design and critical thinking are the new bottlenecks, and whether we should let go of looking at code"
+        }
+      },
+      {
+        "library": "readability-lxml",
+        "elapsed_seconds": 0.057,
+        "output_len": 31561,
+        "metadata": {
+          "title": "Gas Town\u2019s Agent Patterns, Design Bottlenecks, and Vibecoding at Scale",
+          "author": null,
+          "date": null,
+          "description": null
+        }
+      },
+      {
+        "library": "newspaper3k",
+        "elapsed_seconds": 0.097,
+        "output_len": 31670,
+        "metadata": {
+          "title": "Gas Town\u2019s Agent Patterns, Design Bottlenecks, and Vibecoding at Scale",
+          "author": "Bill Mccormick, Ant Stanley, David Nelson, Adam Rowe, Marco Zocca, Aaron Z. Best, E, Mr. Penguin \u8c9d\u514b\u9580, Maggie Appleton, Rich Harris",
+          "date": null,
+          "description": "On agent orchestration patterns, why design and critical thinking are the new bottlenecks, and whether we should let go of looking at code"
+        }
+      }
+    ]
+  }
+]

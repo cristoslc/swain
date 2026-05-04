@@ -1,1 +1,1 @@
-../../skills/swain-search/scripts/migrate-to-troves.sh
+../../.claude/skills/swain-search/scripts/migrate-to-troves.sh

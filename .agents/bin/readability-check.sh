@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/readability-check.sh
+../../.claude/skills/swain-design/scripts/readability-check.sh

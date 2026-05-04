@@ -214,7 +214,7 @@ process_body_link() {
 
   # Extract artifact ID from link text first, then from path
   local artifact_id=""
-  local id_re='(SPEC|EPIC|INITIATIVE|VISION|SPIKE|ADR|PERSONA|RUNBOOK|DESIGN|JOURNEY|TRAIN)-[0-9]+'
+  local id_re='(SPEC|EPIC|INITIATIVE|VISION|SPIKE|ADR|PERSONA|RUNBOOK|DESIGN|JOURNEY|TRAIN|CHORE)-[0-9]+'
 
   # Try link text
   if [[ "$link_text" =~ $id_re ]]; then

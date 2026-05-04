@@ -1,0 +1,58 @@
+trove: subtask2-opencode-commands
+created: 2026-04-19
+tags:
+  - opencode
+  - subtask2
+  - command-handler
+  - plugin
+  - agent-orchestration
+  - subtask-dispatch
+  - chaining
+  - loop
+  - parallel
+  - context-passing
+
+freshness-ttl:
+  web: 14d
+  repository: 30d
+
+related-troves:
+  - opencode-crush-cli
+  - agentic-control-loops
+  - process-supervision-patterns
+
+history:
+  - event: created
+    date: 2026-04-19
+    commit: "dffc9aaed672e3638a1605a10a42ab885901d213"
+    sources: 2
+
+sources:
+  - id: subtask2-readme
+    type: web
+    title: "subtask2: A Better opencode /command Handler"
+    url: https://github.com/spoons-and-mirrors/subtask2
+    fetched: 2026-04-19
+    content-hash: 8492b79876931ef2060285de9781e002e8c325e7826c25ffa826c6c0c494f3d7
+    notes: "Complete README documentation covering return chaining, loops, parallel execution, $TURN context, named results, inline overrides, and auto mode"
+
+  - id: subtask2-source
+    type: repository
+    title: "subtask2 Source Code Analysis"
+    url: https://github.com/spoons-and-mirrors/subtask2
+    fetched: 2026-04-19
+    content-hash: b8d26ff793a2fe97565a445f5eca634b6b7fd66288630acc70c399d0080c43c6
+    selective: true
+    highlights:
+      - src/core/plugin.ts
+      - src/core/state.ts
+      - src/types.ts
+      - src/loop.ts
+      - src/features/returns.ts
+      - src/features/parallel.ts
+      - src/features/inline-subtasks.ts
+      - src/hooks/command-hooks.ts
+      - src/hooks/session-idle-hook.ts
+      - src/hooks/message-hooks.ts
+      - package.json
+    notes: "Selective analysis of core modules, state management, feature implementations, and hook system"

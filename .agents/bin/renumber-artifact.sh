@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/renumber-artifact.sh
+../../.claude/skills/swain-design/scripts/renumber-artifact.sh

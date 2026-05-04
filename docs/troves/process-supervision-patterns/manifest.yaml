@@ -1,0 +1,94 @@
+trove: process-supervision-patterns
+created: 2026-04-06
+refreshed: 2026-04-06
+tags:
+  - process-supervision
+  - daemon-management
+  - launchd
+  - systemd
+  - supervisord
+  - s6
+  - runit
+  - pm2
+  - graceful-shutdown
+  - child-process
+  - macos
+  - linux
+  - docker
+
+freshness-ttl:
+  web: 30d
+  forum: 90d
+
+history:
+  - event: created
+    date: 2026-04-06
+    commit: "95b6ce3"
+    sources: 9
+
+referenced-by: []
+
+sources:
+  - source-id: apple-creating-launchd-jobs
+    type: web
+    url: "https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html"
+    fetched: 2026-04-06T17:02:19Z
+    title: "Creating Launch Daemons and Agents — Apple Developer Documentation"
+    hash: "dd6449e42db34bf2d90eaa0a771a6b0af1e210f91b020b130b0e5c556ddff178"
+
+  - source-id: launchd-info-tutorial
+    type: web
+    url: "https://www.launchd.info/"
+    fetched: 2026-04-06T17:02:20Z
+    title: "A launchd Tutorial — launchd.info"
+    hash: "d4178a72c3a853b83317b4a0cf7a510b205169572977d31398b8ad18d7350eb2"
+
+  - source-id: systemd-indefinite-restarts
+    type: web
+    url: "https://michael.stapelberg.ch/posts/2024-01-17-systemd-indefinite-service-restarts/"
+    fetched: 2026-04-06T17:02:21Z
+    title: "systemd: enable indefinite service restarts — Michael Stapelberg"
+    hash: "632d9691fdda2c19d7f22895d802d5241ae192e50a69cb3eaf24e21245a3cc0f"
+
+  - source-id: systemd-auto-restart-freshman
+    type: web
+    url: "https://freshman.tech/snippets/linux/auto-restart-systemd-service/"
+    fetched: 2026-04-06T17:02:22Z
+    title: "How to automatically restart Linux services with systemd — Freshman"
+    hash: "45717d98740b883d768441fab42f375f2756d33ac858cec78e98c8900886327d"
+
+  - source-id: s6-why-another-suite
+    type: web
+    url: "https://skarnet.org/software/s6/why.html"
+    fetched: 2026-04-06T17:02:23Z
+    title: "s6: why another supervision suite — skarnet.org"
+    hash: "76ca476c7c4ee9aac051d2b53fddd9c11e838c5dc263cc821beae8265c4811f8"
+
+  - source-id: supervisord-logging
+    type: web
+    url: "https://supervisord.org/logging.html"
+    fetched: 2026-04-06T17:02:24Z
+    title: "Logging — Supervisor 4.3.0 documentation"
+    hash: "0e49de6abe4fc4a87a40046e0013111e1e7e44c1ba085e300aabc2e37c4e0376"
+
+  - source-id: pm2-single-page-docs
+    type: web
+    url: "https://pm2.keymetrics.io/docs/usage/pm2-doc-single-page/"
+    fetched: 2026-04-06T17:02:25Z
+    title: "PM2 — Single Page Documentation"
+    hash: "ee8a6080b8e1336210f4ed6a864b21f51a8997a21140b4b4c722ca343d445a6d"
+
+  - source-id: child-process-graceful-shutdown
+    type: web
+    url: "https://medium.com/@muhammedsaidkaya/child-process-graceful-shutdown-in-shell-scripting-8827ea45982a"
+    fetched: 2026-04-06T17:02:00Z
+    title: "Child Process Graceful Shutdown in Shell Scripting — Muhammed Said Kaya"
+    hash: "88e2b8ac9f9404ed741b1b3e4dea9e07f3efa830a571472f66b767f98cc65794"
+    notes: "Direct export failed (403). Content from WebFetch fallback."
+
+  - source-id: systemd-restart-without-killing-children
+    type: forum
+    url: "https://bbs.archlinux.org/viewtopic.php?id=212380"
+    fetched: 2026-04-06T17:02:34Z
+    title: "Restart a systemd service without killing its children — Arch Linux Forums"
+    hash: "862c5a2c0fb7a55e78480d6386a697b3645483a9079bd6dd7437ff682953aa1d"

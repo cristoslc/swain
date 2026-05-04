@@ -1,0 +1,193 @@
+# Claude Code
+.claude/
+# CLAUDE.md is tracked — workers need it in worktrees
+CLAUDE.local.md
+.claude.json
+
+# Cursor
+.cursor/
+.cursorrules
+.cursorignore
+.cursorindexingignore
+
+# GitHub Copilot
+.github/copilot-instructions.md
+.copilot/
+
+# Aider
+.aider*
+.aiderignore
+
+# Continue
+.continue/
+
+# Codeium / Windsurf
+.codeium/
+.windsurf/
+.windsurfrules
+
+# Cline / Roo Code
+.clinerules/
+.clinerules
+.roo/
+.roorules
+
+# Gemini CLI
+.gemini/
+GEMINI.md
+
+# OpenAI Codex
+.codex/
+AGENTS.md
+
+# Zed AI
+.zed/
+
+# Tabnine
+.tabnine/
+
+# Sourcegraph Cody
+.sourcegraph/
+.cody/
+
+# Generic AI assistant configs
+.ai/
+.llm/
+.prompts/
+
+# ─── OS / Filesystem ──────────────────────────────────────────
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon?
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ─── Editors / IDEs ───────────────────────────────────────────
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*.swn
+*.un~
+Session.vim
+.netrwhist
+tags
+.tags
+.ctags
+.vim/
+.nvim/
+.helix/
+.zed/
+
+# ─── Logs / Temp / Backup ─────────────────────────────────────
+*.log
+logs/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.cache
+.cache/
+tmp/
+temp/
+
+# ─── Secrets / Env ────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets
+credentials.json
+.netrc
+
+# ─── Build / Dependencies ─────────────────────────────────────
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.turbo/
+.parcel-cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+htmlcov/
+*.whl
+
+# Rust
+target/
+Cargo.lock.bak
+
+# Go
+vendor/
+*.test
+*.out
+
+# Java / JVM
+*.class
+*.jar
+*.war
+.gradle/
+.mvn/
+
+# ─── Test / Coverage ──────────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+junit.xml
+test-results/
+.orchestrator/

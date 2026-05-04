@@ -1,1 +1,1 @@
-../../skills/swain-session/scripts/swain-session-greeting.sh
+../../.claude/skills/swain-session/scripts/swain-session-greeting.sh

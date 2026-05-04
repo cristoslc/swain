@@ -5,20 +5,24 @@
 
 ## Progress
 
-░░░░░░░░░░░░ 0/2 complete (0%)
+░░░░░░░░░░░░ 0/3 complete (0%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-03-19 | 23:31 | `cd18990` | feat(swain-box): auth-before-isolation flow, login confirmation, reliability initiative |
+| 2026-04-14 | 22:59 | `7a7e9f91` | fix(artifacts): resolve duplicate SPIKE IDs blocking artifact graph (SPEC-308) |
+| 2026-04-14 | 22:51 | `4ce9b173` | research(SPIKE-069): add agentrc primitives adoption spike; fix SPEC-308 duplicate IDs; resolve synthesis gaps |
+| 2026-04-14 | 00:45 | `881edc37` | sync: renumber collisions, add ADR-041/042, transition ADR-017 to Superseded, add SPEC-305/307, rebuild indexes |
 
 ## Priority Subset
 
 ### Do First
 *High priority, active or unblocking*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Agent Implementation Reliability](docs/initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) | [Agentrc Primitives Adoption For Swain](docs/research/Active/(SPIKE-069)-Agentrc-Primitives-Adoption-For-Swain/(SPIKE-069)-Agentrc-Primitives-Adoption-For-Swain.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -30,21 +34,24 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Implementation Reliability]((INITIATIVE-016)-Agent-Implementation-Reliability.md) | [External CLI Assumption Verification](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) | 0/0 | 1 | **needs decomposition** |
+| [Agent Implementation Reliability](docs/initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) | [External CLI Assumption Verification](docs/research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) | 0/0 | 1 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Implementation Reliability]((INITIATIVE-016)-Agent-Implementation-Reliability.md) | [CLI Command Verification in Agent Execution](../../../spec/Proposed/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution.md) | 0/0 | 0 | **activate or drop** |
+| [Agent Implementation Reliability](docs/initiative/Active/(INITIATIVE-016)-Agent-Implementation-Reliability/(INITIATIVE-016)-Agent-Implementation-Reliability.md) | [CLI Command Verification in Agent Execution](docs/spec/Proposed/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
 
 ### Active
 
-- [SPIKE-036](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) — External CLI Assumption Verification (in progress)
+- [SPIKE-036](../../../research/Active/(SPIKE-036)-External-CLI-Assumption-Verification/(SPIKE-036)-External-CLI-Assumption-Verification.md) — External CLI Assumption Verification, in progress
+- [SPIKE-069](../../../research/Active/(SPIKE-069)-Agentrc-Primitives-Adoption-For-Swain/(SPIKE-069)-Agentrc-Primitives-Adoption-For-Swain.md) — Agentrc Primitives Adoption For Swain, in progress
+
 ### Proposed
 
-- [SPEC-126](../../../spec/Proposed/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution.md) — CLI Command Verification in Agent Execution (in progress)
+- [SPEC-126](../../../spec/Proposed/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution/(SPEC-126)-CLI-Command-Verification-In-Agent-Execution.md) — CLI Command Verification in Agent Execution, in progress
+

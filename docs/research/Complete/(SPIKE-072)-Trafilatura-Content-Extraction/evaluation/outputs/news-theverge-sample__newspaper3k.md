@@ -1,0 +1,3 @@
+DHS is trying to force Reddit to expose a user who said mean things about ICE.
+
+After failing to get details about a user who said “TSA sucks and we all know it,” via a traditional court order, DHS is now dragging Reddit in front of a grand jury. The government has grown increasingly aggressive in its attempts to deal with online critics. Reddit has not said whether it plans to fight the subpoena, but according to The Intercept:

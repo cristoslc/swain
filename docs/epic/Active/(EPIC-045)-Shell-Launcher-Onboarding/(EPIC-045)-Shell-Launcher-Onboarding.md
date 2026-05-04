@@ -67,7 +67,7 @@ The operator gets a frictionless first-run experience: swain-init detects which 
 
 **Terminal state:** Active (retro at first-pass completion, not formal EPIC closure)
 **Period:** 2026-03-26 — 2026-03-27
-**Related artifacts:** [SPEC-175](../../../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md), [SPEC-176](../../../spec/Active/(SPEC-176)-TDD-Coverage-Self-Critique-Gate/(SPEC-176)-TDD-Coverage-Self-Critique-Gate.md), [SPIKE-047](../../../research/Active/(SPIKE-047)-Agentic-CLI-Runtime-Invocation-Patterns/(SPIKE-047)-Agentic-CLI-Runtime-Invocation-Patterns.md), [ADR-017](../../../adr/Active/(ADR-017)-Supported-Agentic-CLI-Runtimes/(ADR-017)-Supported-Agentic-CLI-Runtimes.md), [ADR-018](../../../adr/Active/(ADR-018)-Structural-Not-Prosaic-Session-Invocation/(ADR-018)-Structural-Not-Prosaic-Session-Invocation.md)
+**Related artifacts:** [SPEC-175](../../../spec/Complete/(SPEC-175)-Session-Bootstrap-Script-Consolidation/(SPEC-175)-Session-Bootstrap-Script-Consolidation.md), [SPEC-176](../../../spec/Active/(SPEC-176)-TDD-Coverage-Self-Critique-Gate/(SPEC-176)-TDD-Coverage-Self-Critique-Gate.md), [SPIKE-047](../../../research/Active/(SPIKE-047)-Agentic-CLI-Runtime-Invocation-Patterns/(SPIKE-047)-Agentic-CLI-Runtime-Invocation-Patterns.md), [ADR-017](../../../adr/Superseded/(ADR-017)-Supported-Agentic-CLI-Runtimes/(ADR-017)-Supported-Agentic-CLI-Runtimes.md), [ADR-018](../../../adr/Active/(ADR-018)-Structural-Not-Prosaic-Session-Invocation/(ADR-018)-Structural-Not-Prosaic-Session-Invocation.md)
 
 ### Summary
 

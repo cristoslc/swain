@@ -124,6 +124,18 @@ bash "$REPO_ROOT/.agents/bin/migrate-to-troves.sh"            # migrate
 
 Stale worktrees (branch already merged into HEAD) can be pruned: `git worktree remove <path>`. Orphaned worktrees (directory missing) can be pruned: `git worktree prune`. Stale lockfiles and unclaimed worktrees are reported in the detail field. Read [references/worktree-detection.md](references/worktree-detection.md) for classification rules.
 
+## worktree_context
+
+Validates the current session's worktree, not all linked worktrees (that's `worktrees`). All four sub-checks **auto-fix** deterministically — warnings mean auto-fix failed, advisory means auto-fix succeeded.
+
+**Location outside .worktrees/** (auto-move): ADR-034 mandates `.worktrees/` as the canonical location. The script auto-moves the worktree via `git worktree move <path> <main_root>/.worktrees/<branch>`. Failure (warning) means the target path already exists or `git worktree move` failed — resolve manually.
+
+**Missing lockfile** (auto-create): The script auto-creates a lockfile at `.agents/worktrees/<branch>.lock` using `swain-lockfile.sh claim`, or falls back to writing the lockfile directly. On collision (existing lockfile for same branch), a PID-suffixed lockfile is created. Advisory = auto-created; warning = creation failed.
+
+**Branch name violates ADR-025** (auto-rename): The script auto-renames the branch and moves the worktree folder to match ADR-025 naming. It uses `swain-worktree-name.sh` when a purpose is available, or falls back to `session-<timestamp>`. The lockfile is also renamed. Advisory = renamed; warning = rename failed.
+
+**Folder name != branch name** (auto-move): The script auto-moves the worktree folder so `basename` matches the branch name via `git worktree move`. Advisory = moved; warning = move failed (target already exists).
+
 ## lifecycle_dirs
 
 Old phase directories from before ADR-003's three-track normalization. Read [references/lifecycle-migration.md](references/lifecycle-migration.md) for detection commands, remediation steps, and the migration script.
@@ -208,6 +220,7 @@ swain-doctor summary:
   Artifact indexes ... ok
   Evidence pools ..... ok
   Worktrees .......... ok
+  Worktree context ... ok
   Lifecycle dirs ..... ok
   tk health .......... ok
   Operator bin/ ...... ok

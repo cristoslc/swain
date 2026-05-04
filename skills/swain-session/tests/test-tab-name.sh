@@ -282,6 +282,60 @@ else
   fail "AC14" "$hook_count hook entries"
 fi
 
+# ─── AC15: TMUX_PANE targets calling pane's session (gh#116) ───
+# Regression: subprocess invoked from session alpha must rename alpha, not
+# whichever session display-message would resolve to. We create two sessions
+# and stage things so that without the fix, display-message (resolving to the
+# "current/focused" session in the test server) would target the *other*
+# session. With the fix, TMUX_PANE pins resolution to the calling pane's
+# session regardless of what display-message returns.
+echo "--- AC15: TMUX_PANE targets calling pane's session (gh#116) ---"
+cleanup
+# Create beta first so it's the most-recently-created/focused session in the
+# test server — this mirrors the bug's "operator is looking at another session"
+# condition. Then create alpha as the caller.
+$T new-session -d -s "beta" -c "/tmp" 2>/dev/null
+start_session "alpha" "$REPO_ROOT"
+alpha_pane=$($T list-panes -t "alpha" -F '#{pane_id}' 2>/dev/null | head -1)
+beta_pane=$($T list-panes -t "beta" -F '#{pane_id}' 2>/dev/null | head -1)
+# Force beta to be the "current" client target by attaching via switch-client.
+# Test servers don't have attached clients, but we can bias display-message
+# resolution by leaving beta as the last-touched session. Record pre-state:
+sessions_before=$($T list-sessions -F '#{session_name}' 2>/dev/null | sort | tr '\n' ',')
+# Invoke script with TMUX_PANE set to alpha's pane. SWAIN_HOOK_SESSION left
+# unset so it exercises the TMUX_PANE branch specifically.
+unset SWAIN_HOOK_SESSION
+TMUX="$TMUX_SOCK,0,0" TMUX_PANE="$alpha_pane" bash "$TAB_NAME" --auto >/dev/null 2>&1
+# Verify alpha was renamed (to "$EXPECTED"), beta is untouched.
+beta_after=$($T list-sessions -F '#{session_name}' 2>/dev/null | grep -cE '^beta$')
+expected_after=$($T list-sessions -F '#{session_name}' 2>/dev/null | grep -cFx "$EXPECTED")
+alpha_still=$($T list-sessions -F '#{session_name}' 2>/dev/null | grep -cE '^alpha$')
+if [[ "$beta_after" == "1" && "$expected_after" == "1" && "$alpha_still" == "0" ]]; then
+  pass "AC15: TMUX_PANE pinned rename to alpha (alpha→'$EXPECTED'); beta untouched"
+else
+  fail "AC15" "beta-count=$beta_after expected-count=$expected_after alpha-count=$alpha_still (pre: $sessions_before)"
+fi
+
+# ─── AC16: TMUX_PANE pointing to beta renames beta only (gh#116 mirror) ───
+echo "--- AC16: TMUX_PANE targets beta when pane is beta's (gh#116) ---"
+# Complementary test: same setup, but TMUX_PANE points to beta — beta should
+# be renamed, alpha should remain. Catches a fix that hard-codes "first session."
+cleanup
+start_session "alpha" "$REPO_ROOT"
+$T new-session -d -s "beta" -c "$REPO_ROOT" 2>/dev/null
+beta_pane=$($T list-panes -t "beta" -F '#{pane_id}' 2>/dev/null | head -1)
+unset SWAIN_HOOK_SESSION
+TMUX="$TMUX_SOCK,0,0" TMUX_PANE="$beta_pane" bash "$TAB_NAME" --auto >/dev/null 2>&1
+# beta should have been renamed to "$EXPECTED"; alpha should still be "alpha"
+alpha_still=$($T list-sessions -F '#{session_name}' 2>/dev/null | grep -cE '^alpha$')
+beta_still=$($T list-sessions -F '#{session_name}' 2>/dev/null | grep -cE '^beta$')
+expected_count=$($T list-sessions -F '#{session_name}' 2>/dev/null | grep -cFx "$EXPECTED")
+if [[ "$alpha_still" == "1" && "$beta_still" == "0" && "$expected_count" == "1" ]]; then
+  pass "AC16: TMUX_PANE targeted beta (→'$EXPECTED'); alpha untouched"
+else
+  fail "AC16" "alpha-count=$alpha_still beta-count=$beta_still expected-count=$expected_count"
+fi
+
 # ─── Summary ───
 echo ""
 echo "=== Results: $PASS passed, $FAIL failed, $SKIP skipped ==="

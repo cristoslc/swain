@@ -5,28 +5,47 @@
 
 ## Progress
 
-░░░░░░░░░░░░ 0/0 complete (0%)
+█░░░░░░░░░░░ 2/19 complete (11%)
 
 ## Recent Activity
 
-_No recent commits reference child artifacts._
+| Date | Time | Commit | Message |
+|------|------|--------|---------|
+| 2026-04-14 | 00:45 | `881edc37` | sync: renumber collisions, add ADR-041/042, transition ADR-017 to Superseded, add SPEC-305/307, rebuild indexes |
+| 2026-04-11 | 20:15 | `89be551a` | feat(design): create DESIGN-026 - Project Bridge Session Routing Architecture |
+| 2026-04-07 | 20:29 | `926c98e4` | feat(vision-006): create SPEC-298 - Control Thread Worktree and Session Spawning |
 
 ## Priority Subset
 
 ### Do First
 *High priority, active or unblocking*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Remote Operator Interaction](docs/initiative/Active/(INITIATIVE-018)-Remote-Operator-Interaction/(INITIATIVE-018)-Remote-Operator-Interaction.md) | [Host Bridge Kernel](docs/epic/Active/(EPIC-070)-Host-Bridge-Kernel/(EPIC-070)-Host-Bridge-Kernel.md) | 0/0 | 3 | **needs decomposition** |
+|  | [Project Bridge Kernel](docs/epic/Active/(EPIC-071)-Project-Bridge-Kernel/(EPIC-071)-Project-Bridge-Kernel.md) | 0/5 | 1 | — |
+|  | [Chat Plugin System](docs/epic/Active/(EPIC-072)-Chat-Plugin-System/(EPIC-072)-Chat-Plugin-System.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Non-Interactive Launcher Mode](docs/spec/Active/(SPEC-291)-Non-Interactive-Launcher-Mode/(SPEC-291)-Non-Interactive-Launcher-Mode.md) | 0/0 | 1 | **needs decomposition** |
+|  | [OpenCode Server Adapter](docs/spec/Active/(SPEC-292)-OpenCode-Server-Adapter/(SPEC-292)-OpenCode-Server-Adapter.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Runtime Plugin System](docs/epic/Active/(EPIC-073)-Runtime-Plugin-System/(EPIC-073)-Runtime-Plugin-System.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Session Recovery After Host Restart](docs/research/Active/(SPIKE-068)-Session-Recovery-After-Host-Restart/(SPIKE-068)-Session-Recovery-After-Host-Restart.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Remote Operator Interaction](docs/initiative/Active/(INITIATIVE-018)-Remote-Operator-Interaction/(INITIATIVE-018)-Remote-Operator-Interaction.md) | [Agent Runtime I/O Compatibility for Mobile Bridge](docs/research/Proposed/(SPIKE-064)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge/(SPIKE-064)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Remote Operator Interaction](docs/initiative/Active/(INITIATIVE-018)-Remote-Operator-Interaction/(INITIATIVE-018)-Remote-Operator-Interaction.md) | [Provisioning (swain-stage)](docs/epic/Active/(EPIC-074)-Provisioning-Swain-Stage/(EPIC-074)-Provisioning-Swain-Stage.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Output Shaping for Chat](docs/spec/Active/(SPEC-293)-Output-Shaping-For-Chat/(SPEC-293)-Output-Shaping-For-Chat.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Mermaid Rendering for Chat](docs/spec/Active/(SPEC-294)-Mermaid-Rendering-For-Chat/(SPEC-294)-Mermaid-Rendering-For-Chat.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Output Shaping for Chat](docs/spec/Active/(SPEC-303)-Output-Shaping-For-Chat/(SPEC-303)-Output-Shaping-For-Chat.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
@@ -35,3 +54,32 @@ _No recent commits reference child artifacts._
 
 
 ## Children
+
+### Active
+
+- [EPIC-070](../../../epic/Active/(EPIC-070)-Host-Bridge-Kernel/(EPIC-070)-Host-Bridge-Kernel.md) — Host Bridge Kernel, —
+- [EPIC-071](../../../epic/Active/(EPIC-071)-Project-Bridge-Kernel/(EPIC-071)-Project-Bridge-Kernel.md) — Project Bridge Kernel, 0/5
+  - [SPEC-293](../../../spec/Active/(SPEC-293)-Output-Shaping-For-Chat/(SPEC-293)-Output-Shaping-For-Chat.md) — Output Shaping for Chat (Active, in progress)
+  - [SPEC-294](../../../spec/Active/(SPEC-294)-Mermaid-Rendering-For-Chat/(SPEC-294)-Mermaid-Rendering-For-Chat.md) — Mermaid Rendering for Chat (Active, in progress)
+  - [SPEC-296](../../../spec/Active/(SPEC-296)-Worktree-Session-Isolation/(SPEC-296)-Worktree-Session-Isolation.md) — Worktree Session Isolation with Dedicated opencode serve Processes (Active, in progress)
+  - [SPEC-298](../../../spec/Active/(SPEC-298)-Control-Thread-Worktree-and-Session-Spawning/(SPEC-298)-Control-Thread-Worktree-and-Session-Spawning.md) — Control Thread Worktree and Session Spawning (Active, in progress)
+  - [SPEC-303](../../../spec/Active/(SPEC-303)-Output-Shaping-For-Chat/(SPEC-303)-Output-Shaping-For-Chat.md) — Output Shaping for Chat (Active, in progress)
+- [EPIC-072](../../../epic/Active/(EPIC-072)-Chat-Plugin-System/(EPIC-072)-Chat-Plugin-System.md) — Chat Plugin System, —
+- [EPIC-073](../../../epic/Active/(EPIC-073)-Runtime-Plugin-System/(EPIC-073)-Runtime-Plugin-System.md) — Runtime Plugin System, —
+- [EPIC-074](../../../epic/Active/(EPIC-074)-Provisioning-Swain-Stage/(EPIC-074)-Provisioning-Swain-Stage.md) — Provisioning (swain-stage), —
+- [SPEC-291](../../../spec/Active/(SPEC-291)-Non-Interactive-Launcher-Mode/(SPEC-291)-Non-Interactive-Launcher-Mode.md) — Non-Interactive Launcher Mode, in progress
+- [SPEC-292](../../../spec/Active/(SPEC-292)-OpenCode-Server-Adapter/(SPEC-292)-OpenCode-Server-Adapter.md) — OpenCode Server Adapter, in progress
+- [SPEC-293](../../../spec/Active/(SPEC-293)-Output-Shaping-For-Chat/(SPEC-293)-Output-Shaping-For-Chat.md) — Output Shaping for Chat, in progress
+- [SPEC-294](../../../spec/Active/(SPEC-294)-Mermaid-Rendering-For-Chat/(SPEC-294)-Mermaid-Rendering-For-Chat.md) — Mermaid Rendering for Chat, in progress
+- [SPEC-303](../../../spec/Active/(SPEC-303)-Output-Shaping-For-Chat/(SPEC-303)-Output-Shaping-For-Chat.md) — Output Shaping for Chat, in progress
+- [SPIKE-068](../../../research/Active/(SPIKE-068)-Session-Recovery-After-Host-Restart/(SPIKE-068)-Session-Recovery-After-Host-Restart.md) — Session Recovery After Host Restart, in progress
+
+### Proposed
+
+- [SPIKE-064](../../../research/Proposed/(SPIKE-064)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge/(SPIKE-064)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge.md) — Agent Runtime I/O Compatibility for Mobile Bridge, in progress
+
+### Complete
+
+- [SPIKE-065](../../../research/Complete/(SPIKE-065)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge/(SPIKE-065)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge.md) — Agent Runtime I/O Compatibility for Mobile Bridge, done
+- [SPIKE-066](../../../research/Complete/(SPIKE-066)-Ollama-Launch-Argument-Passthrough/(SPIKE-066)-Ollama-Launch-Argument-Passthrough.md) — Ollama Launch Argument Passthrough, done
+

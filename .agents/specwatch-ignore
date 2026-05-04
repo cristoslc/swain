@@ -47,3 +47,21 @@ docs/initiative/Complete/(INITIATIVE-006)*
 # VISION-001 superseded by PURPOSE.md (2026-03-24)
 docs/vision/Superseded/(VISION-001)*
 PURPOSE.md
+
+# ADR-040 superseded by ADR-042 (2026-04-13)
+docs/adr/Superseded/(ADR-040)*
+docs/adr/Active/(ADR-042)*
+docs/spec/Active/(SPEC-305)*
+docs/epic/Abandoned/(EPIC-076)*
+
+# ADR-046 superseded by ADR-048 (2026-04-24)
+docs/adr/Superseded/(ADR-046)*
+docs/adr/Active/(ADR-048)*
+
+# ADR-047 superseded by ADR-049 (2026-04-24)
+docs/adr/Superseded/(ADR-047)*
+docs/adr/Active/(ADR-049)*
+
+# DESIGN-032 superseded by DESIGN-033 (2026-04-24)
+docs/design/Superseded/(DESIGN-032)*
+docs/design/Active/(DESIGN-033)*

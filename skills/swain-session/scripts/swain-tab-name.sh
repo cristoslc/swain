@@ -42,11 +42,21 @@ set_title() {
   local session_name="${2:-}"
 
   if [[ -n "$TMUX" ]]; then
-    # Use hook-provided session name for targeting, fall back to display-message.
-    # In run-shell contexts (hook callbacks), display-message resolves to the
-    # *calling client's* session, not the hook's session. SWAIN_HOOK_SESSION is
-    # expanded by tmux at hook fire time and gives us the correct target.
-    local target_session="${SWAIN_HOOK_SESSION:-}"
+    # Resolve the calling pane's session, not the "current client's" session.
+    # Priority:
+    #   1. $TMUX_PANE — tmux sets this for every process spawned in a pane;
+    #      authoritative for "which pane is invoking me" regardless of focus.
+    #   2. SWAIN_HOOK_SESSION — expanded by tmux at hook fire time (hook path).
+    #   3. display-message fallback — only safe for direct interactive use with
+    #      a single attached client; resolves to the most-recently-focused
+    #      client otherwise, which can target the wrong session (gh#116).
+    local target_session=""
+    if [[ -n "${TMUX_PANE:-}" ]]; then
+      target_session=$(tmux $TMUX_ARGS display-message -p -t "$TMUX_PANE" '#{session_name}' 2>/dev/null)
+    fi
+    if [[ -z "$target_session" ]]; then
+      target_session="${SWAIN_HOOK_SESSION:-}"
+    fi
     if [[ -z "$target_session" ]]; then
       target_session=$(tmux $TMUX_ARGS display-message -p '#{session_name}' 2>/dev/null)
     fi
@@ -104,9 +114,19 @@ reset_title() {
     tmux $TMUX_ARGS set-hook -uw pane-focus-in 2>/dev/null || true
     tmux $TMUX_ARGS set-option -pu @swain_path 2>/dev/null || true
     tmux $TMUX_ARGS set-option -pu @swain_path_explicit 2>/dev/null || true
-    # Reset the outer terminal title via this session's client only
+    # Reset the outer terminal title via this session's client only.
+    # Resolve target session from $TMUX_PANE (authoritative for calling pane)
+    # before falling back to display-message. See gh#116.
     local session_name_resolved client_tty
-    session_name_resolved=$(tmux $TMUX_ARGS display-message -p '#{session_name}' 2>/dev/null)
+    if [[ -n "${TMUX_PANE:-}" ]]; then
+      session_name_resolved=$(tmux $TMUX_ARGS display-message -p -t "$TMUX_PANE" '#{session_name}' 2>/dev/null)
+    fi
+    if [[ -z "${session_name_resolved:-}" ]]; then
+      session_name_resolved="${SWAIN_HOOK_SESSION:-}"
+    fi
+    if [[ -z "$session_name_resolved" ]]; then
+      session_name_resolved=$(tmux $TMUX_ARGS display-message -p '#{session_name}' 2>/dev/null)
+    fi
     if [[ -n "$session_name_resolved" ]]; then
       client_tty=$(tmux $TMUX_ARGS list-clients -t "$session_name_resolved" -F '#{client_tty}' 2>/dev/null | head -1)
     fi

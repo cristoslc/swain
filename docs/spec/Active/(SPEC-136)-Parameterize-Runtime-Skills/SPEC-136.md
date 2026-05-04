@@ -20,7 +20,7 @@ linked-artifacts:
 
 ## Goal
 
-Replace all hardcoded trunk branch references in runtime skill instructions with dynamic detection via `swain-trunk.sh` (resolved per [ADR-019](../../../adr/Proposed/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) agent-facing convention).
+Replace all hardcoded trunk branch references in runtime skill instructions with dynamic detection via `swain-trunk.sh` (resolved per [ADR-019](../../../adr/Superseded/(ADR-019)-Project-Root-Script-Convention/(ADR-019)-Project-Root-Script-Convention.md) agent-facing convention).
 
 ## Changes
 

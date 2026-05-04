@@ -4,12 +4,12 @@
 #
 # Launches GitHub Copilot CLI interactively with swain's recommended flags.
 # When arguments are provided, they become the session purpose.
-# SPEC-196: Checks .swain-init marker to skip the init skill on established projects.
+# SPEC-196: Checks .swain/init.json marker to skip the init skill on established projects.
 
-# Check .swain-init marker and return the appropriate initial prompt.
+# Check .swain/init.json marker and return the appropriate initial prompt.
 # Returns /swain-session if marker is current, /swain-init otherwise.
 _swain_check_marker() {
-  local marker=".swain-init"
+  local marker=".swain/init.json"
   if [ ! -f "$marker" ]; then
     echo "/swain-init"
     return
@@ -49,6 +49,7 @@ swain() {
   fi
   local _prompt
   if [ $# -gt 0 ]; then
+    export SWAIN_PURPOSE="$*"
     _prompt="/swain-session Session purpose: $*"
   else
     _prompt=$(_swain_check_marker)

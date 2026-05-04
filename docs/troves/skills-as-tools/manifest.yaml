@@ -1,0 +1,52 @@
+id: skills-as-tools
+created: 2026-05-01
+refreshed: 2026-05-01
+tags:
+  - skills
+  - mcp
+  - cli
+  - tool-vs-skill
+  - methodology-distribution
+  - agent-architecture
+  - deterministic-enforcement
+  - swain-v2
+default-freshness-ttl:
+  web-page: 30d
+  synthesis-page: 30d
+sources:
+  - id: morphlm-skills-mcp-plugins
+    url: "https://www.morphllm.com/claude-code-skills-mcp-plugins"
+    fetched: 2026-05-01
+    content-hash: 69f82bc99e09103b4f04874468951daace2689a8a6bc081a310491ae50bc0aaa
+    type: web-page
+    notes: "Definitive comparison of Claire Code's five extension types."
+  - id: ai-coding-agents-deconstructed
+    url: "https://blog.apiad.net/p/the-anatomy-of-ai-coding-agents"
+    fetched: 2026-05-01
+    content-hash: 8e4f0c02b27219880fabd9ea538eed328ced7b5b1826078c6eb29ac6910729c2
+    type: web-page
+    notes: "Architecture proposal for modes with hard enforcement vs advisory prompts."
+  - id: acpx-harness-adapter
+    url: "https://github.com/openclaw/acpx"
+    fetched: 2026-05-01
+    content-hash: b21cae7978d08ade1c987d136996c1fe8fc2e235ef0a52ebab053de1f165e96e
+    type: web-page
+    notes: "Standalone CLI tool that orchestrates agent sessions over ACP instead of injecting text."
+  - id: mcp-protocol-roadmap
+    url: "https://blog.modelcontextprotocol.io/posts/2026-mcp-roadmap/"
+    fetched: 2026-05-01
+    content-hash: 31507b28f4930acfc89059f86c725dc859c8deb92c0ec87cb91a03a820331d0f
+    type: web-page
+    notes: "Official 2026 MCP roadmap with four priority areas."
+  - id: skill-vs-mcp-comparisons
+    url: "https://www.verdent.ai/guides/claude-skills-vs-mcp"
+    fetched: 2026-05-01
+    content-hash: c2384189b12973d1c8cfb8a903061b25dba838fc33d486c30c0a2240dcf174b7
+    type: synthesis-page
+    notes: "Synthesis of five 2026 analyses on skills vs MCP architecture."
+referenced-by: []
+history:
+  - event: created
+    date: 2026-05-01
+    commit: "1d557691b483f9b81a6da75d8980186fa059fa62"
+    sources: 5

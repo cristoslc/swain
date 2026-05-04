@@ -5,74 +5,116 @@
 
 ## Progress
 
-███████████░ 27/30 complete (90%)
+██████░░░░░░ 27/53 complete (51%)
 
 ## Recent Activity
 
 | Date | Time | Commit | Message |
 |------|------|--------|---------|
-| 2026-04-02 | 23:24 | `a65153d` | fix(chart): ignore materialized symlink paths during discovery |
-| 2026-04-02 | 22:51 | `a27b743` | feat(chart): materialize hierarchy parenting view |
-| 2026-04-02 | 22:35 | `f475b61` | docs(session): add SPEC-264 and EPIC-060 execution plans |
+| 2026-04-14 | 00:45 | `881edc37` | sync: renumber collisions, add ADR-041/042, transition ADR-017 to Superseded, add SPEC-305/307, rebuild indexes |
+| 2026-04-09 | 22:22 | `9d05c38f` | fix: add missing artifact IDs to SPEC-290 and TROVE-001 for folder migration |
+| 2026-04-06 | 14:37 | `21ee644f` | test(swain-doctor): add Test 18 for SPEC-290 .swain-init worktree repair |
 
 ## Priority Subset
 
 ### Do First
 *High priority, active or unblocking*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [Automated Completion Pipeline](docs/epic/Active/(EPIC-059)-Automated-Completion-Pipeline/(EPIC-059)-Automated-Completion-Pipeline.md) | 0/2 | 0 | — |
+|  | [Plugin-Namespaced Script Aggregation](docs/epic/Active/(EPIC-069)-Plugin-Namespaced-Script-Aggregation/(EPIC-069)-Plugin-Namespaced-Script-Aggregation.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Worktree preamble must commit dirty tracked files before branching](docs/spec/Active/(SPEC-256)-Worktree-Preamble-Must-Commit-Dirty-Tracked-Files/(SPEC-256)-Worktree-Preamble-Must-Commit-Dirty-Tracked-Files.md) | 0/0 | 0 | **needs decomposition** |
+|  | [.swain-init not symlinked into pre-existing worktrees](docs/spec/Active/(SPEC-290)-swain-init-not-symlinked-into-pre-existing-worktrees/(SPEC-290)-swain-init-not-symlinked-into-pre-existing-worktrees.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [Materialized Artifact Parenting View](docs/epic/Proposed/(EPIC-061)-Materialized-Artifact-Parenting-View/(EPIC-061)-Materialized-Artifact-Parenting-View.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
 
-*(none)*
+| Initiative | Epic | Progress | Unblocks | Needs |
+|-----------|------|----------|----------|-------|
+| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [BDD Traceability](docs/epic/Active/(EPIC-062)-BDD-Traceability/(EPIC-062)-BDD-Traceability.md) | 0/7 | 0 | — |
+|  | [Retro ID renumbering migration](docs/spec/Active/(SPEC-252)-Retro-ID-Renumbering-Migration/(SPEC-252)-Retro-ID-Renumbering-Migration.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Git-Compact Wrapper Script](docs/spec/Active/(SPEC-253)-Git-Compact-Wrapper-Script/(SPEC-253)-Git-Compact-Wrapper-Script.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Doctor Bundle-And-Offer Fixes](docs/spec/Active/(SPEC-255)-Doctor-Bundle-And-Offer-Fixes/(SPEC-255)-Doctor-Bundle-And-Offer-Fixes.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Gitignore .swain/session/ in consumer projects](docs/spec/Active/(SPEC-305)-Gitignore-Agentic-Runtime-Folders/(SPEC-305)-Gitignore-Agentic-Runtime-Folders.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Artifact System Maturity]((INITIATIVE-002)-Artifact-System-Maturity.md) | [next-artifact-id Misses Untracked Artifacts In Other Worktrees](../../../spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) | 0/0 | 0 | **activate or drop** |
+| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [Related Artifacts Symlink Materialization](docs/epic/Proposed/(EPIC-058)-Related-Artifacts-Symlink-Materialization/(EPIC-058)-Related-Artifacts-Symlink-Materialization.md) | 0/3 | 0 | **activate or drop** |
+|  | [next-artifact-id Misses Untracked Artifacts In Other Worktrees](docs/spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children
 
+### Active
+
+- [EPIC-059](../../../epic/Active/(EPIC-059)-Automated-Completion-Pipeline/(EPIC-059)-Automated-Completion-Pipeline.md) — Automated Completion Pipeline, 0/2
+  - [SPEC-257](../../../spec/Active/(SPEC-257)-Swain-Do-Completion-Chain/(SPEC-257)-Swain-Do-Completion-Chain.md) — swain-do Completion Chain (Active, in progress)
+  - [SPEC-258](../../../spec/Active/(SPEC-258)-Swain-Teardown-Completion-Guardrail/(SPEC-258)-Swain-Teardown-Completion-Guardrail.md) — swain-teardown Completion Guardrail (Active, in progress)
+- [EPIC-062](../../../epic/Active/(EPIC-062)-BDD-Traceability/(EPIC-062)-BDD-Traceability.md) — BDD Traceability, 0/7
+  - [SPEC-269](../../../spec/Proposed/(SPEC-269)-Gherkin-Notation-Convention/(SPEC-269)-Gherkin-Notation-Convention.md) — Gherkin Notation Convention (Proposed, in progress)
+  - [SPEC-270](../../../spec/Proposed/(SPEC-270)-BDD-Test-Code-Markers/(SPEC-270)-BDD-Test-Code-Markers.md) — BDD Test-Code Markers (Proposed, in progress)
+  - [SPEC-271](../../../spec/Proposed/(SPEC-271)-Test-Results-JSON-Contract/(SPEC-271)-Test-Results-JSON-Contract.md) — Test Results JSON Contract (Proposed, in progress)
+  - [SPEC-272](../../../spec/Proposed/(SPEC-272)-Evidence-Sidecars/(SPEC-272)-Evidence-Sidecars.md) — Evidence Sidecars (Proposed, in progress)
+  - [SPEC-273](../../../spec/Proposed/(SPEC-273)-Commit-Hash-Staleness-Detection/(SPEC-273)-Commit-Hash-Staleness-Detection.md) — Commit-Hash Staleness Detection (Proposed, in progress)
+  - [SPEC-274](../../../spec/Proposed/(SPEC-274)-Swain-Verify-Command/(SPEC-274)-Swain-Verify-Command.md) — Swain-Verify Command (Proposed, in progress)
+  - [SPEC-275](../../../spec/Proposed/(SPEC-275)-BDD-Retrofit-Migration/(SPEC-275)-BDD-Retrofit-Migration.md) — BDD Retrofit Migration (Proposed, in progress)
+- [EPIC-069](../../../epic/Active/(EPIC-069)-Plugin-Namespaced-Script-Aggregation/(EPIC-069)-Plugin-Namespaced-Script-Aggregation.md) — Plugin-Namespaced Script Aggregation, —
+- [SPEC-252](../../../spec/Active/(SPEC-252)-Retro-ID-Renumbering-Migration/(SPEC-252)-Retro-ID-Renumbering-Migration.md) — Retro ID renumbering migration, in progress
+- [SPEC-253](../../../spec/Active/(SPEC-253)-Git-Compact-Wrapper-Script/(SPEC-253)-Git-Compact-Wrapper-Script.md) — Git-Compact Wrapper Script, in progress
+- [SPEC-255](../../../spec/Active/(SPEC-255)-Doctor-Bundle-And-Offer-Fixes/(SPEC-255)-Doctor-Bundle-And-Offer-Fixes.md) — Doctor Bundle-And-Offer Fixes, in progress
+- [SPEC-256](../../../spec/Active/(SPEC-256)-Worktree-Preamble-Must-Commit-Dirty-Tracked-Files/(SPEC-256)-Worktree-Preamble-Must-Commit-Dirty-Tracked-Files.md) — Worktree preamble must commit dirty tracked files before branching, in progress
+- [SPEC-290](../../../spec/Active/(SPEC-290)-swain-init-not-symlinked-into-pre-existing-worktrees/(SPEC-290)-swain-init-not-symlinked-into-pre-existing-worktrees.md) — .swain-init not symlinked into pre-existing worktrees, in progress
+- [SPEC-305](../../../spec/Active/(SPEC-305)-Gitignore-Agentic-Runtime-Folders/(SPEC-305)-Gitignore-Agentic-Runtime-Folders.md) — Gitignore .swain/session/ in consumer projects, in progress
+
 ### Proposed
 
-- [SPEC-236](../../../spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) — next-artifact-id Misses Untracked Artifacts In Other Worktrees (in progress)
+- [EPIC-058](../../../epic/Proposed/(EPIC-058)-Related-Artifacts-Symlink-Materialization/(EPIC-058)-Related-Artifacts-Symlink-Materialization.md) — Related Artifacts Symlink Materialization, 0/3
+  - [SPEC-248](../../../spec/Proposed/(SPEC-248)-Extend-Projection-Schema-with-Relationship-Fields/(SPEC-248)-Extend-Projection-Schema-with-Relationship-Fields.md) — Extend Projection Schema with Relationship Fields (Proposed, in progress)
+  - [SPEC-249](../../../spec/Proposed/(SPEC-249)-Materialize-Related-Artifacts-Symlinks/(SPEC-249)-Materialize-Related-Artifacts-Symlinks.md) — Materialize Related Artifacts Symlinks (Proposed, in progress)
+  - [SPEC-250](../../../spec/Proposed/(SPEC-250)-Cleanup-Stale-Relationship-Symlinks/(SPEC-250)-Cleanup-Stale-Relationship-Symlinks.md) — Cleanup Stale Relationship Symlinks (Proposed, in progress)
+- [EPIC-061](../../../epic/Proposed/(EPIC-061)-Materialized-Artifact-Parenting-View/(EPIC-061)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View, —
+- [SPEC-236](../../../spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) — next-artifact-id Misses Untracked Artifacts In Other Worktrees, in progress
+
 ### Complete
 
-- [EPIC-001](../../../epic/Complete/(EPIC-001)-Evidence-Pool-Collection-And-Normalization/(EPIC-001)-Evidence-Pool-Collection-And-Normalization.md) — Evidence Pool Collection and Normalization (3/3)
+- [EPIC-001](../../../epic/Complete/(EPIC-001)-Evidence-Pool-Collection-And-Normalization/(EPIC-001)-Evidence-Pool-Collection-And-Normalization.md) — Evidence Pool Collection and Normalization, 3/3
   - [SPEC-001](../../../spec/Complete/(SPEC-001)-Swain-Search-Skill/(SPEC-001)-Swain-Search-Skill.md) — swain-search Skill (Complete, done)
   - [SPEC-002](../../../spec/Complete/(SPEC-002)-Evidencewatch-Script/(SPEC-002)-Evidencewatch-Script.md) — trovewatch Script (Complete, done)
   - [SPEC-003](../../../spec/Complete/(SPEC-003)-Swain-Design-Integration/(SPEC-003)-Swain-Design-Integration.md) — swain-design Integration (Complete, done)
-- [EPIC-002](../../../epic/Complete/(EPIC-002)-Artifact-Type-System-and-Issue-Integration/(EPIC-002)-Artifact-Type-System-and-Issue-Integration.md) — Artifact Type System & Issue Integration (3/3)
+- [EPIC-002](../../../epic/Complete/(EPIC-002)-Artifact-Type-System-and-Issue-Integration/(EPIC-002)-Artifact-Type-System-and-Issue-Integration.md) — Artifact Type System & Issue Integration, 3/3
   - [SPEC-004](../../../spec/Complete/(SPEC-004)-Unified-SPEC-Type-System/(SPEC-004)-Unified-SPEC-Type-System.md) — Unified SPEC Type System (Complete, done)
   - [SPEC-005](../../../spec/Complete/(SPEC-005)-GitHub-Issues-Integration/(SPEC-005)-GitHub-Issues-Integration.md) — GitHub Issues Integration (Complete, done)
   - [SPEC-006](../../../spec/Complete/(SPEC-006)-BUG-to-SPEC-Migration/(SPEC-006)-BUG-to-SPEC-Migration.md) — BUG-to-SPEC Migration (Complete, done)
-- [EPIC-008](../../../epic/Complete/(EPIC-008)-Normalize-Artifact-Lifecycle-States/(EPIC-008)-Normalize-Artifact-Lifecycle-States.md) — Normalize Artifact Lifecycle States (5/5)
+- [EPIC-008](../../../epic/Complete/(EPIC-008)-Normalize-Artifact-Lifecycle-States/(EPIC-008)-Normalize-Artifact-Lifecycle-States.md) — Normalize Artifact Lifecycle States, 5/5
   - [SPEC-018](../../../spec/Complete/(SPEC-018)-Update-Artifact-Definitions-And-Templates/(SPEC-018)-Update-Artifact-Definitions-And-Templates.md) — Update Artifact Definitions and Templates (Complete, done)
   - [SPEC-019](../../../spec/Complete/(SPEC-019)-Update-Tooling-Scripts-For-Normalized-Lifecycle/(SPEC-019)-Update-Tooling-Scripts-For-Normalized-Lifecycle.md) — Update Tooling Scripts for Normalized Lifecycle (Complete, done)
   - [SPEC-020](../../../spec/Complete/(SPEC-020)-Migrate-Existing-Artifacts-To-New-Phase-Directories/(SPEC-020)-Migrate-Existing-Artifacts-To-New-Phase-Directories.md) — Migrate Existing Artifacts to New Phase Directories (Complete, done)
   - [SPEC-021](../../../spec/Complete/(SPEC-021)-Swain-Doctor-Lifecycle-Migration-Detection/(SPEC-021)-Swain-Doctor-Lifecycle-Migration-Detection.md) — swain-doctor Lifecycle Migration Detection (Complete, done)
   - [SPEC-022](../../../spec/Complete/(SPEC-022)-Remove-STORY-Artifact-Type/(SPEC-022)-Remove-STORY-Artifact-Type.md) — Remove STORY Artifact Type (Complete, done)
-- [EPIC-013](../../../epic/Complete/(EPIC-013)-Specgraph-Python-Rewrite/(EPIC-013)-Specgraph-Python-Rewrite.md) — Specgraph Python Rewrite (5/5)
+- [EPIC-013](../../../epic/Complete/(EPIC-013)-Specgraph-Python-Rewrite/(EPIC-013)-Specgraph-Python-Rewrite.md) — Specgraph Python Rewrite, 5/5
   - [SPEC-030](../../../spec/Complete/(SPEC-030)-Specgraph-Python-Core/(SPEC-030)-Specgraph-Python-Core.md) — Specgraph Python Core (Complete, done)
   - [SPEC-031](../../../spec/Complete/(SPEC-031)-Specgraph-Query-Commands/(SPEC-031)-Specgraph-Query-Commands.md) — Specgraph Query Commands (Complete, done)
   - [SPEC-032](../../../spec/Complete/(SPEC-032)-Cross-Reference-Validation/(SPEC-032)-Cross-Reference-Validation.md) — Cross-Reference Validation and Bidirectional Edge Enforcement (Complete, done)
   - [SPEC-033](../../../spec/Complete/(SPEC-033)-Swain-Status-Xref-Integration/(SPEC-033)-Swain-Status-Xref-Integration.md) — swain-status xref Integration (Complete, done)
   - [SPEC-038](../../../spec/Complete/(SPEC-038)-Dynamic-Track-Resolution-From-Artifact-Frontmatter/(SPEC-038)-Dynamic-Track-Resolution-From-Artifact-Frontmatter.md) — Dynamic Track Resolution from Artifact Frontmatter (Complete, done)
-- [EPIC-014](../../../epic/Complete/(EPIC-014)-Artifact-Workflow-Efficiency/(EPIC-014)-Artifact-Workflow-Efficiency.md) — Artifact Workflow Efficiency (5/5)
+- [EPIC-014](../../../epic/Complete/(EPIC-014)-Artifact-Workflow-Efficiency/(EPIC-014)-Artifact-Workflow-Efficiency.md) — Artifact Workflow Efficiency, 5/5
   - [SPEC-035](../../../spec/Complete/(SPEC-035)-ticket-query-TICKETS_DIR-Unbound-Variable/(SPEC-035)-ticket-query-TICKETS_DIR-Unbound-Variable.md) — ticket-query TICKETS_DIR Unbound Variable (Complete, done)
   - [SPEC-036](../../../spec/Complete/(SPEC-036)-Swain-Status-Decision-Support/(SPEC-036)-Swain-Status-Decision-Support.md) — swain-status Decision Support (Complete, done)
   - [SPEC-045](../../../spec/Complete/(SPEC-045)-Fast-Path-Authoring-Mode/(SPEC-045)-Fast-Path-Authoring-Mode.md) — Fast-Path Authoring Mode for Low-Complexity Artifacts (Complete, done)
   - [SPEC-046](../../../spec/Complete/(SPEC-046)-Inline-Lifecycle-Hash-Stamping/(SPEC-046)-Inline-Lifecycle-Hash-Stamping.md) — Inline Lifecycle Hash Stamping for Trivial Artifacts (Complete, done)
   - [SPEC-047](../../../spec/Complete/(SPEC-047)-lazy-index-refresh/(SPEC-047)-lazy-index-refresh.md) — Lazy Index Refresh for list-*.md Artifact Indices (Complete, done)
-- [EPIC-060](../../../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View (0/2)
+- [EPIC-060](../../../epic/Complete/(EPIC-060)-Materialized-Artifact-Parenting-View/(EPIC-060)-Materialized-Artifact-Parenting-View.md) — Materialized Artifact Parenting View, 0/2
   - [SPEC-240](../../../spec/Proposed/(SPEC-240)-Session-State-Tolerance-in-Retro-and-Teardown/(SPEC-240)-Session-State-Tolerance-in-Retro-and-Teardown.md) — Session-State Tolerance in Retro and Teardown (Proposed, in progress)
   - [SPEC-241](../../../spec/Proposed/(SPEC-241)-Bookmark-Creation-During-Worktree-Lifecycle/(SPEC-241)-Bookmark-Creation-During-Worktree-Lifecycle.md) — Bookmark Creation During Worktree Lifecycle (Proposed, in progress)
+

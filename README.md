@@ -12,6 +12,8 @@ The result is a project that maintains intent, not just one that accumulates cod
 
 Named for the *swain* in boat**swain**, the officer who keeps the rigging tight.
 
+**[Read the blog →](https://cristoslc.github.io/swain/)**
+
 ## Install
 
 ```bash

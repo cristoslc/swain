@@ -6,12 +6,12 @@
 # -y: auto-approve all tool actions (yolo mode)
 # -i: interactive mode with initial prompt
 # When arguments are provided, they become the session purpose.
-# SPEC-196: Checks .swain-init marker to skip the init skill on established projects.
+# SPEC-196: Checks .swain/init.json marker to skip the init skill on established projects.
 
-# Check .swain-init marker and return the appropriate initial prompt.
+# Check .swain/init.json marker and return the appropriate initial prompt.
 # Returns /swain-session if marker is current, /swain-init otherwise.
 function _swain_check_marker
-    set -l marker ".swain-init"
+    set -l marker ".swain/init.json"
     if not test -f "$marker"
         echo "/swain-init"
         return
@@ -50,6 +50,7 @@ function swain
     end
     set -l _prompt
     if test (count $argv) -gt 0
+        set -gx SWAIN_PURPOSE "$argv"
         set _prompt "/swain-session Session purpose: $argv"
     else
         set _prompt (_swain_check_marker)

@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/migrate-bugs.sh
+../../.claude/skills/swain-design/scripts/migrate-bugs.sh

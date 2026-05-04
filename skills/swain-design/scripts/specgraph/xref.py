@@ -7,10 +7,23 @@ from .parser import extract_list_ids, extract_scalar_id, _ARTIFACT_ID_RE
 
 # Known artifact type prefixes — used to filter body-scanned IDs and avoid
 # false positives from CVE identifiers, SPDX license tags, model names, etc.
-_KNOWN_ARTIFACT_PREFIXES = frozenset({
-    "VISION", "EPIC", "SPEC", "SPIKE", "ADR", "JOURNEY",
-    "PERSONA", "DESIGN", "RUNBOOK", "STORY", "BUG", "INITIATIVE",
-})
+_KNOWN_ARTIFACT_PREFIXES = frozenset(
+    {
+        "VISION",
+        "EPIC",
+        "SPEC",
+        "SPIKE",
+        "ADR",
+        "JOURNEY",
+        "PERSONA",
+        "DESIGN",
+        "RUNBOOK",
+        "STORY",
+        "BUG",
+        "INITIATIVE",
+        "CHORE",
+    }
+)
 
 # All list-type frontmatter fields that carry artifact cross-references.
 # Shared with graph.py to keep the two files in sync.
@@ -92,12 +105,14 @@ def check_reciprocal_edges(nodes: dict, edges: list[dict]) -> list[dict]:
         node = nodes.get(to_id)
         if node is None:
             # Target node is missing from graph — flag as gap
-            gaps.append({
-                "from": from_id,
-                "to": to_id,
-                "edge_type": "depends-on",
-                "expected_field": "linked-artifacts",
-            })
+            gaps.append(
+                {
+                    "from": from_id,
+                    "to": to_id,
+                    "edge_type": "depends-on",
+                    "expected_field": "linked-artifacts",
+                }
+            )
             continue
 
         # Check all xref list fields for a back-link — artifacts may use any
@@ -124,12 +139,14 @@ def check_reciprocal_edges(nodes: dict, edges: list[dict]) -> list[dict]:
                 back_linked.update(matches or [item_val])
 
         if from_id not in back_linked:
-            gaps.append({
-                "from": from_id,
-                "to": to_id,
-                "edge_type": "depends-on",
-                "expected_field": "linked-artifacts",
-            })
+            gaps.append(
+                {
+                    "from": from_id,
+                    "to": to_id,
+                    "edge_type": "depends-on",
+                    "expected_field": "linked-artifacts",
+                }
+            )
 
     return gaps
 
@@ -174,11 +191,13 @@ def compute_xref(artifacts: list[dict], edges: list[dict]) -> list[dict]:
     # Group reciprocal gaps by the "to" node (the one missing the back-link)
     reciprocal_by_artifact: dict[str, list[dict]] = {}
     for gap in reciprocal_gaps:
-        reciprocal_by_artifact.setdefault(gap["to"], []).append({
-            "from": gap["from"],
-            "edge_type": gap["edge_type"],
-            "expected_field": gap["expected_field"],
-        })
+        reciprocal_by_artifact.setdefault(gap["to"], []).append(
+            {
+                "from": gap["from"],
+                "edge_type": gap["edge_type"],
+                "expected_field": gap["expected_field"],
+            }
+        )
 
     results = []
     for artifact in artifacts:
@@ -192,7 +211,8 @@ def compute_xref(artifacts: list[dict], edges: list[dict]) -> list[dict]:
         # model names (GPT-4), pain-point IDs (PP-01), and other non-artifact
         # patterns that match the general [A-Z]+-\d+ shape.
         body_ids = {
-            ref for ref in _ARTIFACT_ID_RE.findall(body)
+            ref
+            for ref in _ARTIFACT_ID_RE.findall(body)
             if ref.split("-")[0] in _KNOWN_ARTIFACT_PREFIXES
         } - {artifact_id}
         fm_ids = collect_frontmatter_ids(frontmatter)
@@ -206,12 +226,18 @@ def compute_xref(artifacts: list[dict], edges: list[dict]) -> list[dict]:
         )
 
         if has_discrepancy:
-            results.append({
-                "artifact": artifact_id,
-                "file": artifact.get("file", ""),
-                "body_not_in_frontmatter": sorted(discrepancies["body_not_in_frontmatter"]),
-                "frontmatter_not_in_body": sorted(discrepancies["frontmatter_not_in_body"]),
-                "missing_reciprocal": missing_reciprocal,
-            })
+            results.append(
+                {
+                    "artifact": artifact_id,
+                    "file": artifact.get("file", ""),
+                    "body_not_in_frontmatter": sorted(
+                        discrepancies["body_not_in_frontmatter"]
+                    ),
+                    "frontmatter_not_in_body": sorted(
+                        discrepancies["frontmatter_not_in_body"]
+                    ),
+                    "missing_reciprocal": missing_reciprocal,
+                }
+            )
 
     return results

@@ -5,7 +5,7 @@ track: container
 status: Active
 author: cristos
 created: 2026-03-19
-last-updated: 2026-03-19
+last-updated: 2026-04-14
 parent-vision: VISION-001
 priority-weight: high
 success-criteria:
@@ -16,6 +16,7 @@ linked-artifacts:
   - INITIATIVE-004
   - SPEC-126
   - SPIKE-036
+  - SPIKE-069
   - VISION-002
 depends-on-artifacts: []
 addresses: []
@@ -44,6 +45,7 @@ None — scope is likely small enough for epic-less specs.
 
 - SPIKE-036: External CLI Assumption Verification (Active) — research what verification mechanisms agents can use
 - SPEC-126: CLI Command Verification in Agent Execution (Proposed) — implement findings into swain-do workflow
+- SPIKE-069: Agentrc Primitives Adoption For Swain (Active) — evaluate pushing deterministic mechanics into a binary that agents shell out to.
 
 ## Key Dependencies
 

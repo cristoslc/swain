@@ -45,7 +45,7 @@ sources:                           # Ordered list of collected sources
 ```yaml
 # Required
 source-id: "mdn-websocket-api"    # Slug-based ID (used as directory name)
-type: web | forum | document | media | local | repository | documentation-site
+type: web | forum | document | media | local | repository | documentation-site | cli-manpage | cli-help | cli-subcommand-help
 fetched: <ISO datetime>            # When this source was last fetched
 title: "WebSocket API - MDN"       # Source title
 
@@ -81,6 +81,20 @@ snapshot-metadata-digest: "..."    # Digest from metadata.jsonl for traceability
 | `local` | Local files already in markdown | 30 days |
 | `repository` | Git repositories — tree structure preserved | 30 days |
 | `documentation-site` | Documentation sites — section hierarchy preserved | 7 days |
+| `cli-manpage` | CLI tool manpage output | never |
+| `cli-help` | CLI tool `--help` or `-h` output | never |
+| `cli-subcommand-help` | CLI subcommand help output | never |
+
+## CLI-specific source fields
+
+For CLI source types, additional frontmatter fields apply:
+
+```yaml
+tool-name: "git"              # The CLI tool name (required for all CLI types)
+command: "remote"             # For cli-subcommand-help — the subcommand name
+depth: 1                      # For cli-subcommand-help — nesting level (1 or 2)
+failed: true                  # Optional — true if capture attempt failed
+```
 
 ## Freshness TTL format
 

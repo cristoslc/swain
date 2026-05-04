@@ -1,3 +1,132 @@
+## [v0.31.1-alpha] - 2026-05-03
+
+### Features
+
+#### Session Staleness Fix in Consumer Projects
+
+The swain launcher no longer writes session state to a wrong
+directory in consumer projects. REPO_ROOT now resolves via
+git rev-parse --show-toplevel instead of a relative path, and
+the launcher fails fast with a clear message when not in a git
+repository. Git is now a hard dependency for swain.
+
+## [v0.31.0-alpha] - 2026-04-18
+
+### Features
+
+#### swain-test Skill
+
+New gate skill for swain-sync and swain-release — runs integration tests and emits smoke instructions before shipping. SPEC-221 Complete.
+
+#### Session Purpose Capture
+
+swain-init now writes the session purpose deterministically in the greeting. SPEC-297 Complete.
+
+#### Untethered Runtime Commands
+
+Auto-spawn opencode serve when a bridge starts. Typing indicator persists until session death. Tool call and result events emitted to Zulip. SPEC-299 Complete.
+
+#### OpenCode as Full-Tier Runtime
+
+OpenCode promoted to Full-tier runtime alongside Claude Code. Gemini and Crush dropped from the runtime registry.
+
+#### swain-doctor Auto-Fix Worktree Context
+
+Doctor now auto-fixes stale worktree context (ADR-034, ADR-025, ADR-042) instead of just warning. Symlink checks dropped from the preflight worktree gate.
+
+#### Builder and Shipper Personas
+
+Research-backed operator personas (Builder, Shipper) and four design concerns surfaced from persona evaluation. These guide future UX decisions around cognitive load and workflow switching.
+
+#### Steering the Machine Blog
+
+Companion blog launched at steeringthemachine.com with dark/light mode, WCAG AAA-compliant colors, published-date filtering, and GitHub Actions deployment. Initial posts on swain philosophy and TDD for agentic workflows.
+
+### In Progress
+
+- CHORE artifact type — ADR-045 and bash script support are in trunk, but Python tooling (SPEC-312) and skill docs/index (SPEC-313) are still Active.
+- swain-search x-thread and media ingestion — SPEC-306 Active. X-thread ingestion and media transcript pipeline are committed; the spec needs verification.
+- Project bridge session routing — DESIGN-026 Active, SPEC-298 Active. Architecture and control-thread spec are written; implementation is pending.
+- Automated verification loop — INITIATIVE-022 Active, DESIGN-027 Active. Loop limit design committed; spec still needs implementation.
+- trafilatura for swain-search — SPEC-304 Active, SPIKE-069 complete (trafilatura wins). Adoption pending.
+
+### Planned
+
+- Deterministic worktree placement — path function and swain-do preamble update (EPIC-078, SPEC-314/315 Proposed).
+- Source quality ranking for swain-search — prioritize sources by relevance and recency (SPEC-317 Active).
+
+### Research
+
+- AgentRC claude-orchestrator trove — 3 sources plus full repo clone.
+- Claude Code recap trove — 4 sources, extended with 2 more.
+- Crispy agents trove — 7 sources on agent orchestration patterns.
+- Docs blog static generators trove — 6 sources on Eleventy, Hugo, and peers.
+- GarryTan brutalism tools trove — 3 sources on design philosophy.
+- Gastown agent orchestration trove — 1 source on local agent coordination.
+- OpenCode Crush CLI trove — 3 sources on server modes, extended with 3 more.
+- SemanticWiki build-an-agent trove — 3 sources, rewritten as SemanticWiki vs Swain comparison.
+- SPIKE-069 on agentrc primitives — trafilatura wins head-to-head for content extraction.
+
+### Supporting Changes
+
+- ADR-043: shared ticket state across worktrees.
+- Dirty file detection before worktree creation in swain-do.
+- Duplicate SPIKE ID resolution in artifact graph.
+- Fingerprint-based gitleaks allowlist replaces path-based.
+- Materialize bin/ symlinks from skills into scripts.
+- GitHub Actions workflow for blog deployment.
+- CNAME and custom domain setup for steeringthemachine.com.
+
+## [v0.30.0-alpha] - 2026-04-07
+
+### Features
+
+#### Untethered Operator (VISION-006 POC) — Experimental
+
+**Highly experimental POC** — Zulip-based chat interface for steering agentic coding sessions. Operators control Claude Code and other runtimes through natural language in Zulip. Sessions run in isolated tmux panes for operator attachment and debugging.
+
+**What's included:**
+- Zulip control topic (`swain-control`) for natural language queries
+- `bin/swain-bridge` daemon managing host and project bridges
+- `bin/swain` launcher with NDJSON mode for non-interactive flows
+- `swain-helm` skill for bridge lifecycle management
+- Per-session Zulip threads with artifact-preferred naming
+- Full operator attachment via `opencode attach`
+
+**Status:** POC only. Not production-ready. Interface and behavior may change without notice.
+
+#### Worktree Session Isolation
+
+Each Zulip topic (worktree session) spawns its own dedicated `opencode serve` process with dynamic port assignment. Provides complete isolation between sessions and enables `opencode attach` to any worktree session.
+
+#### CLI Tool Research Pattern
+
+swain-search now captures CLI tool documentation automatically: manpages, `--help` output, and recursive subcommand discovery (up to 2 levels deep). Test trove `git-cli` demonstrates the pattern.
+
+### Planned
+
+- Session facilitation rebuild — rethinking how swain helps the operator maintain focus, make decisions, and recover context across sessions.
+- HTTP API for session management — OpenCodeServerAdapter replaces tmux for control sessions, enabling lightweight queries without full Claude sessions.
+
+### Research
+
+- Agent memory systems trove extended — PEARL 2026 Path of Thought paper added.
+- Agentic coding dual modes trove extended — 5 new sources on Amp Code, Cline CLI, Continue CLI, Roo Code CLI, and GitHub Copilot CLI.
+- Git CLI trove created — 3 sources (manpage, help output, subcommand help) demonstrating CLI research pattern.
+- Grainulation trove created — 9 sources on agent memory granularity patterns.
+- Chat server features trove extended — WhatsApp integration patterns, hosted platform comparisons.
+
+### Supporting Changes
+
+- ADR-038 microkernel architecture rebuild — plugin protocol for chat adapters, runtime adapters, and project bridges.
+- TextBatcher for Zulip — coalesces rapid text_output lines into single posts to reduce notification spam.
+- Typing indicator persistence — indicator stays active until session dies, not just on first output.
+- ANSI code stripping from tmux output — prevents garbled messages in Zulip.
+- Session topic registry — per-session Zulip threads with artifact-preferred naming conventions.
+- Mock LLM for control queries — enables full Zulip round trip verification without API costs.
+- Dependency graph rendering switched to flowchart TD for clearer layout.
+- Gitignore cleanup — consolidated `.agents/` and `.claude/` ignores, removed noise patterns.
+- Retro documentation — comprehensive retrospectives for VISION-006 sessions, capturing timeline, pivots, bugs, and patterns.
 # Changelog
 
 ## [0.29.2-alpha] - 2026-04-06

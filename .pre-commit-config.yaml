@@ -3,3 +3,12 @@ repos:
     rev: v8.21.2
     hooks:
       - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: build-blog
+        name: Build blog
+        entry: docs/blog/build-blog.sh
+        language: script
+        files: ^docs/blog/src/.*\.(md|njk|css|json)$
+        pass_filenames: false

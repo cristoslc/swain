@@ -481,7 +481,50 @@ check_worktrees() {
     done < <(git worktree list --porcelain 2>/dev/null; echo "")
   fi
 
-  local total_issues=$((orphaned + stale + lockfile_orphans + unclaimed + stale_locks))
+  # SPEC-290: Repair missing .swain/init.json symlinks in existing worktrees.
+  # Worktrees created before the symlink code existed (or via using-git-worktrees)
+  # lack .swain/init.json, causing swain-init-preflight to report "onboard" instead of "delegate".
+  #
+  # Source is always the MAIN repo root (first entry in git worktree list), not $REPO_ROOT,
+  # which may itself be a linked worktree. Repair covers all linked worktrees including
+  # the current one when running from inside a worktree.
+  local swain_init_repaired=0
+  local swain_init_missing=0
+  local main_root=""
+  main_root="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+  if [[ -n "$main_root" ]] && [[ -f "$main_root/.swain/init.json" ]]; then
+    local si_in_first=1
+    local si_path=""
+    while IFS= read -r line; do
+      if [[ "$line" == worktree\ * ]]; then
+        si_path="${line#worktree }"
+      elif [[ -z "$line" ]]; then
+        if [[ $si_in_first -eq 1 ]]; then
+          si_in_first=0
+          si_path=""
+          continue
+        fi
+        if [[ -n "$si_path" ]] && [[ -d "$si_path" ]]; then
+          if [[ ! -e "$si_path/.swain/init.json" ]]; then
+            mkdir -p "$si_path/.swain" 2>/dev/null || true
+            ln -s "$main_root/.swain/init.json" "$si_path/.swain/init.json" 2>/dev/null \
+              && swain_init_repaired=$((swain_init_repaired + 1)) \
+              || swain_init_missing=$((swain_init_missing + 1))
+          fi
+        fi
+        si_path=""
+      fi
+    done < <(git worktree list --porcelain 2>/dev/null; echo "")
+    # Also repair the current worktree if it's a linked worktree (REPO_ROOT != main_root).
+    if [[ "$REPO_ROOT" != "$main_root" ]] && [[ ! -e "$REPO_ROOT/.swain/init.json" ]]; then
+      mkdir -p "$REPO_ROOT/.swain" 2>/dev/null || true
+      ln -s "$main_root/.swain/init.json" "$REPO_ROOT/.swain/init.json" 2>/dev/null \
+        && swain_init_repaired=$((swain_init_repaired + 1)) \
+        || swain_init_missing=$((swain_init_missing + 1))
+    fi
+  fi
+
+  local total_issues=$((orphaned + stale + lockfile_orphans + unclaimed + stale_locks + swain_init_missing))
   if [[ $total_issues -gt 0 ]]; then
     local details=""
     [[ $orphaned -gt 0 ]] && details="$orphaned orphaned"
@@ -489,9 +532,178 @@ check_worktrees() {
     [[ $lockfile_orphans -gt 0 ]] && details="${details:+$details, }$lockfile_orphans lockfile(s) without worktree"
     [[ $unclaimed -gt 0 ]] && details="${details:+$details, }$unclaimed unclaimed worktree(s)"
     [[ $stale_locks -gt 0 ]] && details="${details:+$details, }$stale_locks stale lockfile(s)"
+    [[ $swain_init_missing -gt 0 ]] && details="${details:+$details, }$swain_init_missing worktree(s) missing .swain/init.json (symlink failed)"
     add_check "worktrees" "warning" "$details"
   else
-    add_check "worktrees" "ok" "$((worktree_count - 1)) linked worktree(s), all active"
+    local ok_msg="$((worktree_count - 1)) linked worktree(s), all active"
+    [[ $swain_init_repaired -gt 0 ]] && ok_msg="$ok_msg (repaired .swain/init.json symlink in $swain_init_repaired worktree(s))"
+    add_check "worktrees" "ok" "$ok_msg"
+  fi
+}
+
+# ============================================================
+# Check 13a: Worktree context validation
+# ============================================================
+# Validates the CURRENT session's worktree (the one we're running
+# in), not all linked worktrees (that's check_worktrees).
+# Auto-fixes: ADR-034 location, lockfile creation, ADR-025 naming,
+# folder == branch consistency.
+# No symlink checks (ADR-042: track everything, not symlink).
+# ============================================================
+check_worktree_context() {
+  local git_common git_dir
+  git_common="$(git rev-parse --git-common-dir 2>/dev/null || true)"
+  git_dir="$(git rev-parse --git-dir 2>/dev/null || true)"
+
+  if [[ -n "$git_common" ]] && [[ "$git_common" != /* ]]; then
+    git_common="$(cd "$REPO_ROOT" && cd "$git_common" 2>/dev/null && pwd || echo "$git_common")"
+  fi
+  if [[ -n "$git_dir" ]] && [[ "$git_dir" != /* ]]; then
+    git_dir="$(cd "$REPO_ROOT" && cd "$git_dir" 2>/dev/null && pwd || echo "$git_dir")"
+  fi
+
+  if [[ -z "$git_common" ]] || [[ -z "$git_dir" ]] || [[ "$git_common" == "$git_dir" ]]; then
+    add_check "worktree_context" "ok" "not in a worktree"
+    return
+  fi
+
+  local fixed=0
+  local failed=0
+  local detail_parts=()
+  local main_root
+  main_root="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+  local branch
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
+  local current_wt_path="$REPO_ROOT"
+
+  # --- 1. Location sanity (ADR-034) — auto-move ---
+  local expected_parent="$main_root/.worktrees"
+  if [[ -n "$expected_parent" ]] && [[ "$current_wt_path" != "$expected_parent"/* ]]; then
+    local target_path="$expected_parent/$branch"
+    if [[ ! -e "$target_path" ]] && git worktree move "$current_wt_path" "$target_path" 2>/dev/null; then
+      fixed=$((fixed + 1))
+      detail_parts+=("moved to .worktrees/$branch (ADR-034)")
+      current_wt_path="$target_path"
+    else
+      failed=$((failed + 1))
+      detail_parts+=("outside .worktrees/ (ADR-034); fix: git worktree move $current_wt_path $target_path")
+    fi
+  fi
+
+  # --- 2. Lockfile creation — auto-create if missing ---
+  local lockfile_dir="$main_root/.agents/worktrees"
+  local lockfile_path="$lockfile_dir/$branch.lock"
+  local lockfile_script="$main_root/.agents/bin/swain-lockfile.sh"
+  if [[ ! -f "$lockfile_path" ]]; then
+    local lockfile_created=false
+    if [[ -x "$lockfile_script" ]]; then
+      local wt_purpose=""
+      if [[ -f "$main_root/.agents/session.json" ]]; then
+        wt_purpose=$(grep -o '"purpose":"[^"]*' "$main_root/.agents/session.json" 2>/dev/null | head -1 | sed 's/"purpose":"//')
+      fi
+      if bash "$lockfile_script" claim "$branch" "$REPO_ROOT" "$wt_purpose" >/dev/null 2>&1; then
+        fixed=$((fixed + 1))
+        lockfile_created=true
+        detail_parts+=("created lockfile for $branch")
+      fi
+    fi
+    if [[ "$lockfile_created" == "false" ]]; then
+      mkdir -p "$lockfile_dir"
+      local actual_lockfile="$lockfile_path"
+      if [[ -f "$lockfile_path" ]]; then
+        actual_lockfile="$lockfile_dir/$branch-$$.lock"
+      fi
+      local tmpfile
+      tmpfile="$(mktemp "$lockfile_dir/.claim-XXXXXX")"
+      cat > "$tmpfile" << LEOF
+version=1
+pid=$$
+user=$(whoami)
+exe=swain-doctor
+pane_id=
+claimed_at=$(date -Iseconds 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)
+worktree_path=$current_wt_path
+purpose=
+status=active
+LEOF
+      mv "$tmpfile" "$actual_lockfile"
+      fixed=$((fixed + 1))
+      detail_parts+=("created lockfile for $branch")
+    fi
+  fi
+
+  # --- 3. Branch/folder naming (ADR-025) — auto-rename ---
+  _wt_name_matches_adr025() {
+    local name="$1"
+    echo "$name" | grep -qiE '^(spec|spike|adr|vision|journey|persona|runbook|design|train|epic|initiative)-[0-9]+' && return 0
+    echo "$name" | grep -qiE '^[a-z].*-[0-9]{8}-(epic|initiative)-[0-9]+' && return 0
+    echo "$name" | grep -qiE '^session-[0-9]{8}-[0-9]{6}' && return 0
+    return 1
+  }
+
+  if ! _wt_name_matches_adr025 "$branch"; then
+    local new_name=""
+    local name_script="$main_root/.agents/bin/swain-worktree-name.sh"
+    local wt_purpose=""
+    if [[ -f "$lockfile_dir/$branch.lock" ]]; then
+      wt_purpose=$(grep '^purpose=' "$lockfile_dir/$branch.lock" | head -1 | sed 's/^purpose=//' | sed 's/^"//;s/"$//')
+    fi
+    if [[ -x "$name_script" ]] && [[ -n "$wt_purpose" ]]; then
+      new_name=$(REPO_ROOT="$main_root" PURPOSE="$wt_purpose" bash "$name_script" "$wt_purpose" 2>/dev/null || true)
+    fi
+    if [[ -z "$new_name" ]]; then
+      new_name="session-$(date +%Y%m%d-%H%M%S)"
+    fi
+    if [[ -n "$new_name" ]] && [[ "$new_name" != "$branch" ]]; then
+      if git branch -m "$branch" "$new_name" 2>/dev/null; then
+        local new_lockfile="$lockfile_dir/$new_name.lock"
+        if [[ -f "$lockfile_dir/$branch.lock" ]] && [[ ! -f "$new_lockfile" ]]; then
+          mv "$lockfile_dir/$branch.lock" "$new_lockfile" 2>/dev/null
+        fi
+        local old_wt_path new_wt_path
+        old_wt_path="$main_root/.worktrees/$branch"
+        new_wt_path="$main_root/.worktrees/$new_name"
+        if [[ -d "$old_wt_path" ]]; then
+          git worktree move "$old_wt_path" "$new_wt_path" 2>/dev/null || true
+        fi
+        fixed=$((fixed + 1))
+        detail_parts+=("renamed $branch -> $new_name (ADR-025)")
+        branch="$new_name"
+      else
+        failed=$((failed + 1))
+        detail_parts+=("branch '$branch' violates ADR-025; auto-rename failed")
+      fi
+    fi
+  fi
+
+  # --- 4. Folder name == branch name ---
+  local folder_name
+  folder_name="$(basename "$current_wt_path")"
+  if [[ "$folder_name" != "$branch" ]]; then
+    local target_path="$main_root/.worktrees/$branch"
+    if [[ ! -e "$target_path" ]]; then
+      if git worktree move "$current_wt_path" "$target_path" 2>/dev/null; then
+        fixed=$((fixed + 1))
+        detail_parts+=("renamed folder $folder_name -> $branch")
+        current_wt_path="$target_path"
+      else
+        failed=$((failed + 1))
+        detail_parts+=("folder '$folder_name' != branch '$branch'; fix: git worktree move $current_wt_path $target_path")
+      fi
+    fi
+  fi
+
+  # --- Build result ---
+  if [[ ${#detail_parts[@]} -eq 0 ]]; then
+    add_check "worktree_context" "ok" "in worktree for $branch"
+  elif [[ $failed -eq 0 ]]; then
+    local detail_str
+    detail_str=$(printf '%s; ' "${detail_parts[@]}" | sed 's/; $//')
+    add_check "worktree_context" "advisory" "auto-fixed: $detail_str"
+  else
+    local detail_str
+    detail_str=$(printf '%s; ' "${detail_parts[@]}" | sed 's/; $//')
+    add_check "worktree_context" "warning" "$detail_str"
   fi
 }
 
@@ -1137,6 +1349,14 @@ check_skill_gitignore() {
 }
 
 # ============================================================
+# Migrate legacy .swain-init marker to .swain/init.json
+# ============================================================
+if [[ -f ".swain-init" ]] && [[ ! -f ".swain/init.json" ]]; then
+  mkdir -p ".swain"
+  mv ".swain-init" ".swain/init.json"
+fi
+
+# ============================================================
 # Run all checks (set +e so failures don't cascade)
 # ============================================================
 set +e
@@ -1156,6 +1376,7 @@ check_readme
 check_artifact_indexes
 check_evidence_pools
 check_worktrees
+check_worktree_context
 check_lifecycle_dirs
 check_tk_health
 check_operator_bin_symlinks
