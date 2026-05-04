@@ -1,3 +1,15 @@
+## [v0.31.1-alpha] - 2026-05-03
+
+### Features
+
+#### Session Staleness Fix in Consumer Projects
+
+The swain launcher no longer writes session state to a wrong
+directory in consumer projects. REPO_ROOT now resolves via
+git rev-parse --show-toplevel instead of a relative path, and
+the launcher fails fast with a clear message when not in a git
+repository. Git is now a hard dependency for swain.
+
 ## [v0.31.0-alpha] - 2026-04-18
 
 ### Features
