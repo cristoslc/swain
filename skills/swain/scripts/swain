@@ -24,8 +24,11 @@ done
 
 SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
 SKILLS_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-# Resolve repo root: go up from skills/swain/scripts/ to project root
-REPO_ROOT="${REPO_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || true)}"
+if [ -z "$REPO_ROOT" ]; then
+  echo "swain: not in a git repository" >&2
+  exit 1
+fi
 CURRENT_ROOT="$REPO_ROOT"
 COMMON_ROOT="$REPO_ROOT"
 LAUNCH_ROOT="$REPO_ROOT"
