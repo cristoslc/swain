@@ -1,0 +1,29 @@
+id: agentcraft-docs
+created: 2026-05-04
+refreshed: 2026-05-04
+tags:
+  - agentcraft
+  - ai-coding
+  - rts-interface
+  - claude-code
+  - opencode
+  - cursor
+referenced-by: []
+freshness-ttl:
+  default: 90d
+  documentation: 90d
+
+sources:
+  - id: agentcraft-main-docs
+    title: AgentCraft Documentation
+    url: https://www.getagentcraft.com/docs
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: d54eea81ecfb20b48b0a9ae64939078998e8d89d099a7e6cb7e1f5d6b3a3acf0
+    freshness-ttl: 90d
+
+history:
+  - event: created
+    date: 2026-05-04
+    commit: "--"
+    sources: 1
