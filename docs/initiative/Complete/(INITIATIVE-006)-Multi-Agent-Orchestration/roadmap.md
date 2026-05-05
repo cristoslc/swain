@@ -19,7 +19,7 @@
 
 ### Active
 
-- [SPEC-295](../../../spec/Active/(SPEC-295)-swain-bridge-daemon-mode/(SPEC-295)-swain-bridge-daemon-mode.md) — swain-bridge Daemon Mode, in progress
+- [SPEC-295](../../../spec/Complete/(SPEC-295)-swain-bridge-daemon-mode/(SPEC-295)-swain-bridge-daemon-mode.md) — swain-bridge Daemon Mode, in progress
 
 ### Complete
 

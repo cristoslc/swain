@@ -9,7 +9,7 @@ last-updated: 2026-04-14
 linked-artifacts:
   - [ADR-027](../../../adr/Active/(ADR-027)-All-Artifacts-Must-Be-Foldered/(ADR-027)-All-Artifacts-Must-Be-Foldered.md)
   - [ADR-043](../../../adr/Active/(ADR-043)-Shared-Ticket-State-Across-Worktrees/(ADR-043)-Shared-Ticket-State-Across-Worktrees.md)
-  - [ADR-045](../(ADR-045)-Chores-As-A-Lightweight-Artifact-Type/(ADR-045)-Chores-As-A-Lightweight-Artifact-Type.md)
+  - [ADR-045](../../../adr/Active/(ADR-045)-Chores-As-A-Lightweight-Artifact-Type/(ADR-045)-Chores-As-A-Lightweight-Artifact-Type.md)
 ---
 
 # Artifact Cleanup And Restructuring

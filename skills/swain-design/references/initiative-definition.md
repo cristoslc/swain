@@ -30,6 +30,7 @@ A strategic focus that coordinates multiple Epics toward a shared direction. The
   - `status` — lifecycle phase (Proposed, Active, Complete, Abandoned, Superseded)
   - `parent-vision` — VISION-NNN parent(s) (required; YAML list, one or more). Initiatives may serve multiple Visions per ADR-009. Priority inheritance uses highest weight among parents unless explicitly overridden. Initiatives without a vision parent are flagged as orphans.
   - `author` — person who created it
+  - `authored-by` — AI model(s) that created it (e.g., `GLM-5.1`, or `GLM-5.1 (supervisor), Kimi-K2.5 (subagent)` when subagents were involved)
   - `created` — ISO-8601 date
   - `last-updated` — ISO-8601 date
 - **Optional frontmatter:**

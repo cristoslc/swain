@@ -5,6 +5,7 @@ artifact: SPEC-{{ number }}
 track: implementable
 status: {{ status | default("Proposed") }}
 author: {{ author }}
+authored-by: {{ authored_by }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 priority-weight: ""  # optional: high | medium | low. Omit to inherit from parent Epic or Initiative.

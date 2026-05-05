@@ -1,3 +1,29 @@
+## [v0.31.2-alpha] - 2026-05-04
+
+### Features
+
+#### Scenario Modeling in swain-design
+
+The operator can now ask "what if ADR-X were active?" and swain-design
+handles everything — branching, editing frontmatter, validating the
+tree, and surfacing impact via git diff. No new tooling required;
+this is a documented git-branching procedure baked into the skill.
+SPIKE-070 Complete.
+
+### Research
+
+- Agentcraft docs trove — 27 sources on agentic CLI documentation across Claude Code, Codex, Gemini, Copilot, and OpenCode.
+- Scenario modeling prior art trove — 10 sources. SPIKE-070 Complete.
+
+### Supporting Changes
+
+- Model attribution governance — `authored-by` frontmatter field and multi-model `Co-Authored-By` trailer convention across AGENTS.md, all artifact templates, contracts, and five skill SKILL.md files.
+- Symlinks migrated from `.claude/skills/` to `skills/` directory (77 scripts).
+- Roadmap links fixed from absolute to relative across 20 vision and initiative roadmap files.
+- Broken artifact links repaired in CHORE-001, DESIGN-026, EPIC-048, EPIC-059, EPIC-077, EPIC-022, SPEC-304, SPEC-305, synthesis.md, retro files, and VISION-006.
+- Stale `.agents/skills/` directory removed (46 files, 16 skill dirs).
+- swain-init frontmatter fix — `description` YAML field now parses correctly for `skills` CLI discovery.
+
 ## [v0.31.1-alpha] - 2026-05-03
 
 ### Features

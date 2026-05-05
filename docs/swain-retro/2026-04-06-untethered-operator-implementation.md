@@ -33,7 +33,7 @@ Second session on [VISION-006](../vision/Active/(VISION-006)-Untethered-Operator
 | [SPEC-291](../spec/Active/(SPEC-291)-Non-Interactive-Launcher-Mode/(SPEC-291)-Non-Interactive-Launcher-Mode.md) | Non-Interactive Launcher Mode | Implemented. `bin/swain --format ndjson` mode built. |
 | [DESIGN-024](../design/Active/(DESIGN-024)-Orchestrator-Event-Schema/(DESIGN-024)-Orchestrator-Event-Schema.md) | Orchestrator Event Schema | Updated to match implementation. Pipe-pane streaming, new command types. |
 | [DESIGN-025](../design/Active/(DESIGN-025)-Unified-Session-Launcher/(DESIGN-025)-Unified-Session-Launcher.md) | Unified Session Launcher | Created. Converges bin/swain and Zulip control topic launch paths. Revised for tmux model. |
-| [EPIC-070](../epic/Active/(EPIC-070)-Host-Bridge-Kernel/(EPIC-070)-Host-Bridge-Kernel.md) | Host Bridge Kernel | Active. Core kernel built and tested. |
+| [EPIC-070](../epic/Superseded/(EPIC-070)-Host-Bridge-Kernel/(EPIC-070)-Host-Bridge-Kernel.md) | Host Bridge Kernel | Active. Core kernel built and tested. |
 | [EPIC-071](../epic/Active/(EPIC-071)-Project-Bridge-Kernel/(EPIC-071)-Project-Bridge-Kernel.md) | Project Bridge Kernel | Active. Session lifecycle management built. |
 | [EPIC-072](../epic/Active/(EPIC-072)-Chat-Plugin-System/(EPIC-072)-Chat-Plugin-System.md) | Chat Plugin System | Active. Zulip adapter with call_on_each_message built. |
 | [EPIC-073](../epic/Active/(EPIC-073)-Runtime-Plugin-System/(EPIC-073)-Runtime-Plugin-System.md) | Runtime Plugin System | Active. TmuxPaneAdapter built — pipe-pane + tail -f streaming. |

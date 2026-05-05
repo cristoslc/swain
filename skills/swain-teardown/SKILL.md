@@ -561,10 +561,13 @@ git add .agents/session-state.json 2>/dev/null
 git add .agents/session-log.jsonl 2>/dev/null
 
 # Check if there's anything to commit
+# Resolve model name from the system prompt. When subagents ran under a
+# different model, include one Co-Authored-By trailer per model (see
+# AGENTS.md Model attribution).
 if [ -n "$(git diff --cached --name-only 2>/dev/null)" ]; then
   git commit -m "chore: session teardown handoff
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>"
 fi
 ```
 

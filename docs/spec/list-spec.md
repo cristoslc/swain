@@ -189,6 +189,8 @@
 | SPEC-323 | Continuous Worktree Discovery | 2026-04-18 | -- |
 | SPEC-324 | Session Registry Persistence | 2026-04-18 | -- |
 | SPEC-325 | Chat Adapter Stream Filtering | 2026-04-18 | -- |
+| SPEC-326 | Host Provision Command | 2026-04-18 | -- |
+| SPEC-327 | Multi-Project Registration | 2026-04-18 | -- |
 | SPEC-287 | Dual version display — show release and skill versions together | 2026-04-06 | — |
 
 ## Complete

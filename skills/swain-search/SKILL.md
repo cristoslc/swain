@@ -348,7 +348,9 @@ history:
 
 ```bash
 git add docs/troves/<trove-id>/
-git commit -m "research(<trove-id>): create trove with N sources"
+git commit -m "research(<trove-id>): create trove with N sources
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>"
 TROVE_HASH=$(git rev-parse HEAD)
 ```
 
@@ -359,7 +361,9 @@ TROVE_HASH=$(git rev-parse HEAD)
 # Update artifact frontmatter: trove: <trove-id>@<TROVE_HASH>
 git add docs/troves/<trove-id>/manifest.yaml
 git add docs/<artifact-type>/<phase>/<artifact-dir>/   # if artifact exists
-git commit -m "docs(<trove-id>): stamp history hash ${TROVE_HASH:0:7}"
+git commit -m "docs(<trove-id>): stamp history hash ${TROVE_HASH:0:7}
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>"
 ```
 
 If no referencing artifact exists yet (standalone research), Commit B still stamps the history entry — report the hash so it can be referenced later.
@@ -403,7 +407,9 @@ Add new sources to an existing trove.
 6. Regenerate `synthesis.md` incorporating all sources (old + new)
 7. Append a `history` entry with `event: extended` and `commit: "--"` placeholder
 8. Commit and stamp (same dual-commit pattern as Create step 5):
-   - **Commit A**: `git commit -m "research(<trove-id>): extend with N new sources"`
+   - **Commit A**: `git commit -m "research(<trove-id>): extend with N new sources
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>"`
    - Capture `TROVE_HASH=$(git rev-parse HEAD)`
    - **Commit B**: back-fill hash in history entry, update referencing artifact frontmatter (if artifact exists)
    - **Push** (mandatory): `git push origin trunk`
@@ -426,7 +432,9 @@ Re-fetch stale sources and update changed content.
 5. If any content changed, regenerate `synthesis.md`
 6. Append a `history` entry with `event: refreshed`, `sources-changed: M`, and `commit: "--"` placeholder
 7. Commit and stamp (same dual-commit pattern as Create step 5):
-   - **Commit A**: `git commit -m "research(<trove-id>): refresh N sources (M changed)"`
+   - **Commit A**: `git commit -m "research(<trove-id>): refresh N sources (M changed)
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>"`
    - Capture `TROVE_HASH=$(git rev-parse HEAD)`
    - **Commit B**: back-fill hash in history entry, update referencing artifact(s) frontmatter — check `referenced-by` in manifest for all dependents
    - **Push** (mandatory): `git push origin trunk`

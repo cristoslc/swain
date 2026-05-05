@@ -22,36 +22,36 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [Automated Completion Pipeline](docs/epic/Active/(EPIC-059)-Automated-Completion-Pipeline/(EPIC-059)-Automated-Completion-Pipeline.md) | 0/2 | 0 | — |
-|  | [Plugin-Namespaced Script Aggregation](docs/epic/Active/(EPIC-069)-Plugin-Namespaced-Script-Aggregation/(EPIC-069)-Plugin-Namespaced-Script-Aggregation.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Worktree preamble must commit dirty tracked files before branching](docs/spec/Active/(SPEC-256)-Worktree-Preamble-Must-Commit-Dirty-Tracked-Files/(SPEC-256)-Worktree-Preamble-Must-Commit-Dirty-Tracked-Files.md) | 0/0 | 0 | **needs decomposition** |
-|  | [.swain-init not symlinked into pre-existing worktrees](docs/spec/Active/(SPEC-290)-swain-init-not-symlinked-into-pre-existing-worktrees/(SPEC-290)-swain-init-not-symlinked-into-pre-existing-worktrees.md) | 0/0 | 0 | **needs decomposition** |
+| [Artifact System Maturity]((INITIATIVE-002)-Artifact-System-Maturity.md) | [Automated Completion Pipeline](../../../epic/Active/(EPIC-059)-Automated-Completion-Pipeline/(EPIC-059)-Automated-Completion-Pipeline.md) | 0/2 | 0 | — |
+|  | [Plugin-Namespaced Script Aggregation](../../../epic/Active/(EPIC-069)-Plugin-Namespaced-Script-Aggregation/(EPIC-069)-Plugin-Namespaced-Script-Aggregation.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Worktree preamble must commit dirty tracked files before branching](../../../spec/Active/(SPEC-256)-Worktree-Preamble-Must-Commit-Dirty-Tracked-Files/(SPEC-256)-Worktree-Preamble-Must-Commit-Dirty-Tracked-Files.md) | 0/0 | 0 | **needs decomposition** |
+|  | [.swain-init not symlinked into pre-existing worktrees](../../../spec/Active/(SPEC-290)-swain-init-not-symlinked-into-pre-existing-worktrees/(SPEC-290)-swain-init-not-symlinked-into-pre-existing-worktrees.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [Materialized Artifact Parenting View](docs/epic/Proposed/(EPIC-061)-Materialized-Artifact-Parenting-View/(EPIC-061)-Materialized-Artifact-Parenting-View.md) | 0/0 | 0 | **activate or drop** |
+| [Artifact System Maturity]((INITIATIVE-002)-Artifact-System-Maturity.md) | [Materialized Artifact Parenting View](../../../epic/Proposed/(EPIC-061)-Materialized-Artifact-Parenting-View/(EPIC-061)-Materialized-Artifact-Parenting-View.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [BDD Traceability](docs/epic/Active/(EPIC-062)-BDD-Traceability/(EPIC-062)-BDD-Traceability.md) | 0/7 | 0 | — |
-|  | [Retro ID renumbering migration](docs/spec/Active/(SPEC-252)-Retro-ID-Renumbering-Migration/(SPEC-252)-Retro-ID-Renumbering-Migration.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Git-Compact Wrapper Script](docs/spec/Active/(SPEC-253)-Git-Compact-Wrapper-Script/(SPEC-253)-Git-Compact-Wrapper-Script.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Doctor Bundle-And-Offer Fixes](docs/spec/Active/(SPEC-255)-Doctor-Bundle-And-Offer-Fixes/(SPEC-255)-Doctor-Bundle-And-Offer-Fixes.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Gitignore .swain/session/ in consumer projects](docs/spec/Active/(SPEC-305)-Gitignore-Agentic-Runtime-Folders/(SPEC-305)-Gitignore-Agentic-Runtime-Folders.md) | 0/0 | 0 | **needs decomposition** |
+| [Artifact System Maturity]((INITIATIVE-002)-Artifact-System-Maturity.md) | [BDD Traceability](../../../epic/Active/(EPIC-062)-BDD-Traceability/(EPIC-062)-BDD-Traceability.md) | 0/7 | 0 | — |
+|  | [Retro ID renumbering migration](../../../spec/Active/(SPEC-252)-Retro-ID-Renumbering-Migration/(SPEC-252)-Retro-ID-Renumbering-Migration.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Git-Compact Wrapper Script](../../../spec/Active/(SPEC-253)-Git-Compact-Wrapper-Script/(SPEC-253)-Git-Compact-Wrapper-Script.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Doctor Bundle-And-Offer Fixes](../../../spec/Active/(SPEC-255)-Doctor-Bundle-And-Offer-Fixes/(SPEC-255)-Doctor-Bundle-And-Offer-Fixes.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Gitignore .swain/session/ in consumer projects](../../../spec/Active/(SPEC-305)-Gitignore-Agentic-Runtime-Folders/(SPEC-305)-Gitignore-Agentic-Runtime-Folders.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Artifact System Maturity](docs/initiative/Active/(INITIATIVE-002)-Artifact-System-Maturity/(INITIATIVE-002)-Artifact-System-Maturity.md) | [Related Artifacts Symlink Materialization](docs/epic/Proposed/(EPIC-058)-Related-Artifacts-Symlink-Materialization/(EPIC-058)-Related-Artifacts-Symlink-Materialization.md) | 0/3 | 0 | **activate or drop** |
-|  | [next-artifact-id Misses Untracked Artifacts In Other Worktrees](docs/spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) | 0/0 | 0 | **activate or drop** |
+| [Artifact System Maturity]((INITIATIVE-002)-Artifact-System-Maturity.md) | [Related Artifacts Symlink Materialization](../../../epic/Proposed/(EPIC-058)-Related-Artifacts-Symlink-Materialization/(EPIC-058)-Related-Artifacts-Symlink-Materialization.md) | 0/3 | 0 | **activate or drop** |
+|  | [next-artifact-id Misses Untracked Artifacts In Other Worktrees](../../../spec/Proposed/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees/(SPEC-236)-next-artifact-id-Misses-Untracked-Artifacts-In-Other-Worktrees.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children

@@ -256,8 +256,12 @@ Stage the changed files (changelog + version bumps) and commit:
 
 ```bash
 git add <changed-files>
-git commit -m "release: v1.5.0"
+git commit -m "release: v1.5.0
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>"
 ```
+
+Resolve the model name from the system prompt. When subagents ran under a different model, include one `Co-Authored-By` trailer per model (see AGENTS.md Model attribution).
 
 Then create an annotated tag:
 
@@ -287,7 +291,9 @@ else
   # Squash-merge trunk into release
   git checkout release
   git merge --squash "$TRUNK"
-  git commit -m "release: <tag>"
+  git commit -m "release: <tag>
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>"
 
   # Return to trunk
   git checkout "$TRUNK"

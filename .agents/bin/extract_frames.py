@@ -1,1 +1,1 @@
-../../.claude/skills/swain-search/scripts/extract_frames.py
+../../skills/swain-search/scripts/extract_frames.py

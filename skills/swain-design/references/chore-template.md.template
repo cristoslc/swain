@@ -4,6 +4,7 @@ artifact: CHORE-{{ number }}
 track: implementable
 status: {{ status | default("Active") }}
 author: {{ author }}
+authored-by: {{ authored_by }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 linked-artifacts:

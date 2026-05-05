@@ -80,7 +80,7 @@ Anticipated specs:
 
 ## Key Dependencies
 
-- **[SPIKE-024](../../research/Proposed/(SPIKE-024)-Postflight-Summary-Design/(SPIKE-024)-Postflight-Summary-Design.md)** — must resolve invocation mechanism, "in flow" definition, and context-passing protocol.
+- **[SPIKE-024](../../../research/Proposed/(SPIKE-024)-Postflight-Summary-Design/(SPIKE-024)-Postflight-Summary-Design.md)** — must resolve invocation mechanism, "in flow" definition, and context-passing protocol.
 - **swain-status** — context recovery lives here; needs skill-creator to determine best modification approach.
 
 ## Lifecycle

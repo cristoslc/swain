@@ -1,7 +1,7 @@
 # Synthesis: Scenario Modeling Prior Art
 
 **Trove:** scenario-modeling-prior-art · 10 sources · created 2026-04-28
-**For:** [SPIKE-070](../../research/Active/(SPIKE-070)-First-Class-Scenario-Modeling-In-Swain-Design/(SPIKE-070)-First-Class-Scenario-Modeling-In-Swain-Design.md) — First-Class Scenario Modeling in swain-design
+**For:** [SPIKE-070](../../research/Complete/(SPIKE-070)-ADR-Alignment-Check-Invocation-Points/(SPIKE-070)-ADR-Alignment-Check-Invocation-Points.md) — First-Class Scenario Modeling in swain-design
 **Related trove:** likec4
 
 ---

@@ -7,6 +7,7 @@ track: standing
 status: {{ status | default("Proposed") }}
 product-type: {{ product_type }}  # "competitive" or "personal"
 author: {{ author }}
+authored-by: {{ authored_by }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 priority-weight: {{ priority_weight | default("") }}

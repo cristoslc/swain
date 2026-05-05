@@ -270,6 +270,28 @@ schema:
 # EVIDENCE AND PROVENANCE FIELDS
 # ─────────────────────────────────────────────────────────────────
 
+  authored-by:
+    type: string
+    required: true
+    semantic: >
+      The AI model(s) that created this artifact. Attribution for
+      provenance and quality tracking. When multiple models
+      collaborated, list all with roles — e.g., "GLM-5.1 (supervisor),
+      Kimi-K2.5 (subagent)". The author field records the operator
+      who requested the work; authored-by records the AI model(s)
+      that produced the content.
+    source: >
+      Set at creation from the agent's model identity, resolved
+      from the system prompt. Use "AI Assistant" as fallback when
+      the model identity is unavailable.
+    quality:
+      rules:
+        - Must include at least one model identifier
+        - Multiple models are comma-separated with optional role in parentheses
+      anti-patterns:
+        - pattern: "Using only the operator name"
+          why: "The author field records the operator; authored-by records the AI model(s)"
+
   trove:
     type: string
     required: false
@@ -520,6 +542,7 @@ schema:
 # track              |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
 # status             |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
 # author             |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  O
+# authored-by         |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  O
 # created            |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
 # last-updated       |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R  |  R
 # parent-vision      |  -  |  O  |  O  |  -  |  -  |  -  |  -  |  -  |  R  |  -  |  -  |  -

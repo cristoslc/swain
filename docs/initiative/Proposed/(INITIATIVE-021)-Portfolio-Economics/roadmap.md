@@ -22,17 +22,17 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Portfolio Economics](docs/initiative/Proposed/(INITIATIVE-021)-Portfolio-Economics/(INITIATIVE-021)-Portfolio-Economics.md) | [Framework Cost Model](docs/epic/Proposed/(EPIC-065)-Framework-Cost-Model/(EPIC-065)-Framework-Cost-Model.md) | 0/0 | 1 | **activate or drop** |
-|  | [ROI Scoring Engine](docs/epic/Proposed/(EPIC-066)-ROI-Scoring-Engine/(EPIC-066)-ROI-Scoring-Engine.md) | 0/0 | 1 | **activate or drop** |
+| [Portfolio Economics]((INITIATIVE-021)-Portfolio-Economics.md) | [Framework Cost Model](../../../epic/Proposed/(EPIC-065)-Framework-Cost-Model/(EPIC-065)-Framework-Cost-Model.md) | 0/0 | 1 | **activate or drop** |
+|  | [ROI Scoring Engine](../../../epic/Proposed/(EPIC-066)-ROI-Scoring-Engine/(EPIC-066)-ROI-Scoring-Engine.md) | 0/0 | 1 | **activate or drop** |
 
 ### Schedule
 *High priority, not yet started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Portfolio Economics](docs/initiative/Proposed/(INITIATIVE-021)-Portfolio-Economics/(INITIATIVE-021)-Portfolio-Economics.md) | [Appraisal Value Model](docs/epic/Proposed/(EPIC-064)-Appraisal-Value-Model/(EPIC-064)-Appraisal-Value-Model.md) | 0/0 | 0 | **activate or drop** |
-|  | [Backlog Appraisal Bootstrap](docs/epic/Proposed/(EPIC-067)-Backlog-Appraisal-Bootstrap/(EPIC-067)-Backlog-Appraisal-Bootstrap.md) | 0/0 | 0 | **activate or drop** |
-|  | [Appraisal Value Model](docs/epic/Proposed/(EPIC-075)-Appraisal-Value-Model/(EPIC-075)-Appraisal-Value-Model.md) | 0/0 | 0 | **activate or drop** |
+| [Portfolio Economics]((INITIATIVE-021)-Portfolio-Economics.md) | [Appraisal Value Model](../../../epic/Proposed/(EPIC-064)-Appraisal-Value-Model/(EPIC-064)-Appraisal-Value-Model.md) | 0/0 | 0 | **activate or drop** |
+|  | [Backlog Appraisal Bootstrap](../../../epic/Proposed/(EPIC-067)-Backlog-Appraisal-Bootstrap/(EPIC-067)-Backlog-Appraisal-Bootstrap.md) | 0/0 | 0 | **activate or drop** |
+|  | [Appraisal Value Model](../../../epic/Proposed/(EPIC-075)-Appraisal-Value-Model/(EPIC-075)-Appraisal-Value-Model.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*

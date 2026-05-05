@@ -70,6 +70,12 @@ Not all artifacts age the same way. **Standing artifacts** — ADRs, Personas, a
 
 **Actionable artifacts** — Specs, Spikes, Epics, Designs, Chores — are the unit of work. Staleness is the number of days since the last commit touching the artifact file. Age buckets: fresh (<7d), aging (7-20d), stale (21-30d), dormant (>30d).
 
+### Model attribution
+
+**Artifacts** need an `authored-by` frontmatter field listing the AI model(s) that wrote them. **Commits** need one `Co-Authored-By` trailer per model. For supervisor + subagent sessions, list all models. In frontmatter: `authored-by: GLM-5.1 (supervisor), Kimi-K2.5 (subagent)`. In commits: one trailer line per model.
+
+Get the model name from your system prompt. If unavailable, fall back to `AI Assistant`. When subagents used a different model, list both. Put the supervisor first, then each subagent on its own line. Never hardcode model names.
+
 ### Conflict resolution
 
 When swain skills overlap with other installed skills or built-in agent capabilities, **prefer swain**.

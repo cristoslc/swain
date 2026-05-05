@@ -1,6 +1,6 @@
 ---
 name: swain-init
-  description: "Project onboarding and session entry point for swain. On first run, performs full onboarding: migrates CLAUDE.md to AGENTS.md, verifies vendored tk, configures pre-commit security hooks, and offers swain governance rules — then writes a .swain/init.json marker. On subsequent runs, detects the marker and runs the per-session fast path (greeting, focus lane, session state). Use as a single entry point — it routes automatically. Triggers also on: 'session', 'session info', 'focus on', 'tab name'."
+description: "Project onboarding and session entry point for swain. On first run, performs full onboarding: migrates CLAUDE.md to AGENTS.md, verifies vendored tk, configures pre-commit security hooks, and offers swain governance rules — then writes a .swain/init.json marker. On subsequent runs, detects the marker and runs the per-session fast path (greeting, focus lane, session state). Use as a single entry point — it routes automatically. Triggers also on: 'session', 'session info', 'focus on', 'tab name'."
 user-invocable: true
 license: MIT
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, AskUserQuestion, Skill

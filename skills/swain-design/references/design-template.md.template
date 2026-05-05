@@ -28,6 +28,7 @@ track: standing
 domain: {{ domain | default("interaction") }}
 status: {{ status | default("Proposed") }}
 author: {{ author }}
+authored-by: {{ authored_by }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 superseded-by: {{ superseded_by | default("") }}

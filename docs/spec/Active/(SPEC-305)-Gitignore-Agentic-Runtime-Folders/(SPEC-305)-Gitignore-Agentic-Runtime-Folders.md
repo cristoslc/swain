@@ -41,7 +41,7 @@ Swain runtime state lives under `.swain/` (per [ADR-041](../../../adr/Active/(AD
 
 **swain-init gitignore block.** swain-init proposes a managed block for the consumer's `.gitignore`. The block contains:
 
-1. `.swain/session/` — the only gitignored path under `.swain/`. Everything else in `.swain/` is tracked project-level state (bin symlinks, gate markers, caches, specwatch-ignore). See [SPIKE-071](../../../research/Complete/(SPIKE-071)-Trafilatura-Content-Extraction/(SPIKE-071)-Trafilatura-Content-Extraction.md) section 8 for the track-vs-ignore breakdown.
+1. `.swain/session/` — the only gitignored path under `.swain/`. Everything else in `.swain/` is tracked project-level state (bin symlinks, gate markers, caches, specwatch-ignore). See [SPIKE-071](../../../research/Complete/(SPIKE-071)-ADR-041-Migration-Scope/(SPIKE-071)-ADR-041-Migration-Scope.md) section 8 for the track-vs-ignore breakdown.
 
 Marker comments delimit the block. The markers are `# >>> swain managed >>>` and `# <<< swain managed <<<`. Before any write, swain-init shows the operator the exact lines it plans to add or change and asks for confirmation. A non-interactive override flag exists for CI and scripted installs. Upgrades to an existing block work the same way: diff first, confirm, then write. The operator can decline, accept as-is, or edit the list.
 
@@ -127,5 +127,5 @@ Four TDD cycles, in dependency order. Assumes the `.agents/` to `.swain/` migrat
 |-------|------|--------|-------|
 | Active | 2026-04-12 | — | Initial creation |
 | Active | 2026-04-13 | — | Rescoped to `.swain/` after [ADR-041](../../../adr/Active/(ADR-041)-Swain-Runtime-State-Location.md); parent set to INITIATIVE-002 |
-| Active | 2026-04-13 | — | Rescoped: track `.swain/` except `.swain/session/` (per [SPIKE-071](../../../research/Complete/(SPIKE-071)-Trafilatura-Content-Extraction/(SPIKE-071)-Trafilatura-Content-Extraction.md) section 8); full-directory ignore removed |
+| Active | 2026-04-13 | — | Rescoped: track `.swain/` except `.swain/session/` (per [SPIKE-071](../../../research/Complete/(SPIKE-071)-ADR-041-Migration-Scope/(SPIKE-071)-ADR-041-Migration-Scope.md) section 8); full-directory ignore removed |
 | Active | 2026-04-13 | — | Hook removed per [ADR-042](../../../adr/Active/(ADR-042)-Track-Runtime-And-Peer-Agent-Dirs-Instead-Of-Symlinking.md); `.swain-init` removed from gitignore block; inline symlinking and hook sections deleted; replaced with remove-symlinking cleanup work |

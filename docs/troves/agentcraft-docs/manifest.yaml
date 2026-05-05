@@ -1,0 +1,211 @@
+id: agentcraft-docs
+created: 2026-05-04
+refreshed: 2026-05-04
+tags:
+  - agentcraft
+  - ai-coding
+  - rts-interface
+  - claude-code
+  - opencode
+  - cursor
+referenced-by: []
+freshness-ttl:
+  default: 90d
+  documentation: 90d
+
+sources:
+  - id: agentcraft-docs-index
+    title: AgentCraft Documentation
+    url: https://www.getagentcraft.com/docs
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: d54eea81ecfb20b48b0a9ae64939078998e8d89d099a7e6cb7e1f5d6b3a3acf0
+    freshness-ttl: 90d
+  - id: installation-setup
+    title: Installation & Setup
+    url: https://www.getagentcraft.com/docs/getting-started
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: c4bad4be35e3f7042e067b6c3ed1b412ee41f5fdbc647d40928785be179b5fd2
+    freshness-ttl: 90d
+  - id: first-hero
+    title: Your First Hero
+    url: https://www.getagentcraft.com/docs/getting-started/first-hero
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 672a4a7ec760e35e8c272d2a1769d7a809eac557097c75db2d4b1ba2f669a7cf
+    freshness-ttl: 90d
+  - id: settings
+    title: Settings
+    url: https://www.getagentcraft.com/docs/getting-started/settings
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 3093b5841294bb645ded45ac3b973fb5d19311582830ef04e3b0bd7f2727bde9
+    freshness-ttl: 90d
+  - id: side-panel
+    title: Side Panel
+    url: https://www.getagentcraft.com/docs/features/side-panel
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 4ae43d8128444821fff7d2c1c50da429d3a1fc73e63e82bbc2a11b9a177acfd2
+    freshness-ttl: 90d
+  - id: keyboard-shortcuts
+    title: Keyboard Shortcuts
+    url: https://www.getagentcraft.com/docs/features/keyboard-shortcuts
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 85e7fda43cebfa2e9bc9665b2fa7eb2c3d6033ba97742a6c8de1f7caf8b357bf
+    freshness-ttl: 90d
+  - id: agent-teams
+    title: Agent Teams
+    url: https://www.getagentcraft.com/docs/features/agent-teams
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 40cb629e27124149fb13a6b3989aad704673c7f0b914249dcd07ff845394487d
+    freshness-ttl: 90d
+  - id: remote-access
+    title: Remote Access & Mobile
+    url: https://www.getagentcraft.com/docs/features/remote-access
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 335f3618ed3577216e44aeb04d9f34f91ea0eeb8923ce8c84c46ccc11c4b41cd
+    freshness-ttl: 90d
+  - id: voice-input
+    title: Voice Input
+    url: https://www.getagentcraft.com/docs/features/voice-input
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 37034a4b89ece9daf756d626d91cba810775a11c025bd2c607159c736480cf6b
+    freshness-ttl: 90d
+  - id: containers
+    title: Isolated Agent Containers
+    url: https://www.getagentcraft.com/docs/features/containers
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 4f74f050d754c2adaeecf999a8d8eae6845552f41618c00715126651751a6405
+    freshness-ttl: 90d
+  - id: scheduled-tasks
+    title: Scheduled Tasks
+    url: https://www.getagentcraft.com/docs/features/scheduled-tasks
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: c1610ddb51e833155510849f2dbcce0342895f34ef3c709e591c5b5f3ce89b42
+    freshness-tl: 90d
+  - id: skill-scrolls
+    title: Skill Scrolls
+    url: https://www.getagentcraft.com/docs/features/skill-scrolls
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 3f10da38426ac44cbc1668ba4125a46245654d3f73d0022282210bd96a8c4654
+    freshness-ttl: 90d
+  - id: achievements
+    title: Achievements
+    url: https://www.getagentcraft.com/docs/features/achievements
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: eb510ef3917c4d33fe0f75583938946e37fa070d49b41c9a7f6ee9ed0528be70
+    freshness-ttl: 90d
+  - id: terminal
+    title: Integrated Terminal
+    url: https://www.getagentcraft.com/docs/features/terminal
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: c60f93d92063f40d52a61c2ed39add021a56b9e7c57f49be6e78567ea7e8dda6
+    freshness-ttl: 90d
+  - id: file-explorer
+    title: File Explorer
+    url: https://www.getagentcraft.com/docs/features/file-explorer
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 17c88ee9d16aad47eddcf45a6689dd4a9188b03fd0b5f6a766ebe5471d75fbfb
+    freshness-ttl: 90d
+  - id: fog-of-war
+    title: Fog of War
+    url: https://www.getagentcraft.com/docs/features/fog-of-war
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: d4464d37069d32a9b33c8ca301fb7490a4ca0e5548cb16a11a6c569c90e35aeb
+    freshness-ttl: 90d
+  - id: missions
+    title: Missions
+    url: https://www.getagentcraft.com/docs/features/missions
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 32ad77c316d6f6ce164a6bba09fc84f8bbd48e841c0b77e5cb6735fc16264610
+    freshness-ttl: 90d
+  - id: worktrees
+    title: Git Worktrees
+    url: https://www.getagentcraft.com/docs/features/worktrees
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 1254694a7ad06f15d67201cb079e60d85e733628061665fb1ef68e438363cf7d
+    freshness-ttl: 90d
+  - id: git-management
+    title: Git Management
+    url: https://www.getagentcraft.com/docs/features/git-management
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 8f742f0c2a9b8087a8aa3ab9b797f96b0821180a116240d579352f2fa0a76667
+    freshness-ttl: 90d
+  - id: music
+    title: Music
+    url: https://www.getagentcraft.com/docs/features/music
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 14b90088fcd58dfaabbead25bd0ddba11ef326fa5ce2826065f478fbc764a0b4
+    freshness-ttl: 90d
+  - id: race-skins
+    title: Race Skins
+    url: https://www.getagentcraft.com/docs/features/race-skins
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 5477da0056796de16f6629f7d747463319475267993a9d7b7f85d7cbcace4615
+    freshness-ttl: 90d
+  - id: claude-code
+    title: Claude Code Integration
+    url: https://www.getagentcraft.com/docs/integrations/claude-code
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 8f824a50d44a6e30374136c6062bede80f064beb87d2083408b4e7856502c575
+    freshness-ttl: 90d
+  - id: opencode
+    title: OpenCode Integration
+    url: https://www.getagentcraft.com/docs/integrations/opencode
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: f8b51cac722ea65e9d9dd1f05a9162e19a499195751039e2f3bdf5314c1137b4
+    freshness-ttl: 90d
+  - id: cursor
+    title: Cursor Integration
+    url: https://www.getagentcraft.com/docs/integrations/cursor
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 047c08524b3c2a6ec1861f3cd6a0178f2dee9f2f486463700eaa72087fb303f7
+    freshness-ttl: 90d
+  - id: openclaw
+    title: OpenClaw Integration
+    url: https://www.getagentcraft.com/docs/integrations/openclaw
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: e868c35fda4165cde3743d5494b2a6b9ba61a850aaf8e6d020cf4d9a47871b6f
+    freshness-ttl: 90d
+  - id: cli-reference
+    title: CLI Reference
+    url: https://www.getagentcraft.com/docs/cli
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 503f8d204e66357bd1ac2bff6706a2c1b5954bccfb0f84542f69b0a1292b4fca
+    freshness-ttl: 90d
+  - id: troubleshooting
+    title: Troubleshooting
+    url: https://www.getagentcraft.com/docs/troubleshooting
+    type: documentation
+    fetched: 2026-05-04
+    content-hash: 560ee80fd22f5ba4d4d57fc91545522a67007a1c998e4991e05209adeedb3201
+    freshness-ttl: 90d
+
+history:
+  - event: created
+    date: 2026-05-04
+    commit: "a65b6ae5ca20c4f8a554158104aead0aec3677e7"
+    sources: 26

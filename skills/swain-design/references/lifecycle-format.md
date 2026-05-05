@@ -38,11 +38,17 @@ Commit the transition first, then stamp the resulting hash into the lifecycle ta
 
 ```
 Commit A: lifecycle(SPEC-001): transition to Complete
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>
   ↳ lifecycle row: | Complete | 2026-03-14 | -- | ... |
 
 Commit B: docs(SPEC-001): stamp lifecycle hash for Complete transition
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>
   ↳ lifecycle row: | Complete | 2026-03-14 | <commit-A-hash> | ... |
 ```
+
+Resolve the model name from the system prompt. When subagents ran under a different model, include one `Co-Authored-By` trailer per model (see AGENTS.md Model attribution).
 
 Use two-commit stamp for:
 - All EPICs (always — they are linked by child SPECs)
@@ -58,7 +64,9 @@ IMPL_HASH=$(git rev-parse HEAD)
 # Edit lifecycle table: | Complete | 2026-03-14 | $IMPL_HASH | ... |
 git mv docs/spec/Ready/(SPEC-099)-.../ docs/spec/Complete/(SPEC-099)-.../
 git add ...
-git commit -m "lifecycle(SPEC-099): transition to Complete"
+git commit -m "lifecycle(SPEC-099): transition to Complete
+
+Co-Authored-By: <model-name-from-system-prompt> <noreply@unknown>"
 ```
 
 ```

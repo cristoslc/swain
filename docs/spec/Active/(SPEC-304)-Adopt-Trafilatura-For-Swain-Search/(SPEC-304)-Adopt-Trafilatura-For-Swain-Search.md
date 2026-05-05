@@ -24,7 +24,7 @@ swain-do: required
 
 ## Problem Statement
 
-swain-search relies on the agent to strip boilerplate from fetched web pages by hand. The results vary — navs, sidebars, footers, and cookie banners leak into trove sources based on model judgment and page layout. The Gastown trove needed hand-curation of ~52KB of raw fetch output to get a clean source. [SPIKE-071](../../../research/Complete/(SPIKE-071)-Trafilatura-Content-Extraction/(SPIKE-071)-Trafilatura-Content-Extraction.md) ran four candidates head-to-head and picked trafilatura as the winner.
+swain-search relies on the agent to strip boilerplate from fetched web pages by hand. The results vary — navs, sidebars, footers, and cookie banners leak into trove sources based on model judgment and page layout. The Gastown trove needed hand-curation of ~52KB of raw fetch output to get a clean source. [SPIKE-071](../../../research/Complete/(SPIKE-071)-ADR-041-Migration-Scope/(SPIKE-071)-ADR-041-Migration-Scope.md) ran four candidates head-to-head and picked trafilatura as the winner.
 
 ## Desired Outcomes
 
@@ -62,7 +62,7 @@ Trove sources are cleaner and more consistent. The agent spends less time on boi
 
 ## Implementation Approach
 
-Per [SPIKE-071](../../../research/Complete/(SPIKE-071)-Trafilatura-Content-Extraction/(SPIKE-071)-Trafilatura-Content-Extraction.md):
+Per [SPIKE-071](../../../research/Complete/(SPIKE-071)-ADR-041-Migration-Scope/(SPIKE-071)-ADR-041-Migration-Scope.md):
 
 1. Build `skills/swain-search/scripts/extract-content.sh`. It wraps `uv run --with trafilatura python3` and pulls main content and metadata from a URL. Output shape: YAML frontmatter (title, url, hostname, description, sitename, date) then a markdown body.
 2. Update SKILL.md's web page collection step to call the script before normalization.
