@@ -22,10 +22,10 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](docs/epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
-|  | [Session Startup Fast Path](docs/epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md) | 0/5 | 0 | — |
-|  | [Doctor Script Reconciliation](docs/epic/Active/(EPIC-068)-Doctor-Script-Reconciliation/(EPIC-068)-Doctor-Script-Reconciliation.md) | 0/1 | 0 | — |
-|  | [Specgraph Module Import Shadowing](docs/spec/Active/(SPEC-197)-Specgraph-Module-Import-Shadowing/(SPEC-197)-Specgraph-Module-Import-Shadowing.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Skill Audit Remediation](../../../epic/Active/(EPIC-031)-Skill-Audit-Remediation/(EPIC-031)-Skill-Audit-Remediation.md) | 1/9 | 0 | — |
+|  | [Session Startup Fast Path](../../../epic/Active/(EPIC-048)-Session-Startup-Fast-Path/(EPIC-048)-Session-Startup-Fast-Path.md) | 0/5 | 0 | — |
+|  | [Doctor Script Reconciliation](../../../epic/Active/(EPIC-068)-Doctor-Script-Reconciliation/(EPIC-068)-Doctor-Script-Reconciliation.md) | 0/1 | 0 | — |
+|  | [Specgraph Module Import Shadowing](../../../spec/Active/(SPEC-197)-Specgraph-Module-Import-Shadowing/(SPEC-197)-Specgraph-Module-Import-Shadowing.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -37,9 +37,9 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](docs/spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](docs/research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Doctor Single-Script Consolidation](docs/research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) | 0/0 | 0 | **needs decomposition** |
+| [Agent Runtime Efficiency]((INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [EPIC Child Specs Section Not Updated on Completion](../../../spec/Active/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion/(SPEC-162)-Epic-Child-Specs-Not-Updated-On-Completion.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Phase Complexity Model for Adaptive Ceremony and Autonomy](../../../research/Active/(SPIKE-043)-Phase-Complexity-Model/(SPIKE-043)-Phase-Complexity-Model.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Doctor Single-Script Consolidation](../../../research/Active/(SPIKE-049)-Doctor-Single-Script-Consolidation/SPIKE-049.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Backlog
 *Not yet prioritized or started*

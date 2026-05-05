@@ -22,26 +22,26 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Chart Critical Path Lens](docs/spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Retro Session Intelligence](docs/epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) | 0/5 | 0 | — |
-|  | [Context-Rich Progress Tracking](docs/epic/Active/(EPIC-049)-Context-Rich-Progress-Tracking/(EPIC-049)-Context-Rich-Progress-Tracking.md) | 0/5 | 0 | — |
-|  | [Computed Priority Scoring](docs/spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Worktree Timestamp Zeroed Time Component](docs/spec/Active/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Session End Operation](docs/spec/Active/(SPEC-184)-Session-End-Operation/(SPEC-184)-Session-End-Operation.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Flesch-Kincaid Readability Enforcement](docs/spec/Active/(SPEC-194)-Flesch-Kincaid-Readability-Enforcement/(SPEC-194)-Flesch-Kincaid-Readability-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
-|  | [Session Sleep Operation](docs/spec/Active/(SPEC-243)-Session-Sleep-Operation/(SPEC-243)-Session-Sleep-Operation.md) | 0/0 | 0 | **needs decomposition** |
-| [Portfolio Economics](docs/initiative/Proposed/(INITIATIVE-021)-Portfolio-Economics/(INITIATIVE-021)-Portfolio-Economics.md) | [Framework Cost Model](docs/epic/Proposed/(EPIC-065)-Framework-Cost-Model/(EPIC-065)-Framework-Cost-Model.md) | 0/0 | 1 | **activate or drop** |
-|  | [ROI Scoring Engine](docs/epic/Proposed/(EPIC-066)-ROI-Scoring-Engine/(EPIC-066)-ROI-Scoring-Engine.md) | 0/0 | 1 | **activate or drop** |
+| [Session-Scoped Decision Support](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Chart Critical Path Lens](../../../spec/Active/(SPEC-160)-Chart-Critical-Path-Lens/(SPEC-160)-Chart-Critical-Path-Lens.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Retro Session Intelligence](../../../epic/Active/(EPIC-042)-Retro-Session-Intelligence/(EPIC-042)-Retro-Session-Intelligence.md) | 0/5 | 0 | — |
+|  | [Context-Rich Progress Tracking](../../../epic/Active/(EPIC-049)-Context-Rich-Progress-Tracking/(EPIC-049)-Context-Rich-Progress-Tracking.md) | 0/5 | 0 | — |
+|  | [Computed Priority Scoring](../../../spec/Active/(SPEC-161)-Computed-Priority-Scoring/(SPEC-161)-Computed-Priority-Scoring.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Worktree Timestamp Zeroed Time Component](../../../spec/Active/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component/(SPEC-178)-Worktree-Timestamp-Zeroed-Time-Component.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Session End Operation](../../../spec/Active/(SPEC-184)-Session-End-Operation/(SPEC-184)-Session-End-Operation.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Flesch-Kincaid Readability Enforcement](../../../spec/Active/(SPEC-194)-Flesch-Kincaid-Readability-Enforcement/(SPEC-194)-Flesch-Kincaid-Readability-Enforcement.md) | 0/0 | 0 | **needs decomposition** |
+|  | [Session Sleep Operation](../../../spec/Active/(SPEC-243)-Session-Sleep-Operation/(SPEC-243)-Session-Sleep-Operation.md) | 0/0 | 0 | **needs decomposition** |
+| [Portfolio Economics](../../../initiative/Proposed/(INITIATIVE-021)-Portfolio-Economics/(INITIATIVE-021)-Portfolio-Economics.md) | [Framework Cost Model](../../../epic/Proposed/(EPIC-065)-Framework-Cost-Model/(EPIC-065)-Framework-Cost-Model.md) | 0/0 | 1 | **activate or drop** |
+|  | [ROI Scoring Engine](../../../epic/Proposed/(EPIC-066)-ROI-Scoring-Engine/(EPIC-066)-ROI-Scoring-Engine.md) | 0/0 | 1 | **activate or drop** |
 
 ### Schedule
 *High priority, not yet started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Session-Scoped Decision Support](docs/initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Session Gate Must Offer Startup Before Mutating Work](docs/spec/Proposed/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) | 0/0 | 0 | **activate or drop** |
-| [Portfolio Economics](docs/initiative/Proposed/(INITIATIVE-021)-Portfolio-Economics/(INITIATIVE-021)-Portfolio-Economics.md) | [Appraisal Value Model](docs/epic/Proposed/(EPIC-064)-Appraisal-Value-Model/(EPIC-064)-Appraisal-Value-Model.md) | 0/0 | 0 | **activate or drop** |
-|  | [Backlog Appraisal Bootstrap](docs/epic/Proposed/(EPIC-067)-Backlog-Appraisal-Bootstrap/(EPIC-067)-Backlog-Appraisal-Bootstrap.md) | 0/0 | 0 | **activate or drop** |
-|  | [Appraisal Value Model](docs/epic/Proposed/(EPIC-075)-Appraisal-Value-Model/(EPIC-075)-Appraisal-Value-Model.md) | 0/0 | 0 | **activate or drop** |
+| [Session-Scoped Decision Support](../../../initiative/Active/(INITIATIVE-019)-Session-Scoped-Decision-Support/(INITIATIVE-019)-Session-Scoped-Decision-Support.md) | [Session Gate Must Offer Startup Before Mutating Work](../../../spec/Proposed/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work/(SPEC-237)-Session-Gate-Must-Offer-Startup-Before-Mutating-Work.md) | 0/0 | 0 | **activate or drop** |
+| [Portfolio Economics](../../../initiative/Proposed/(INITIATIVE-021)-Portfolio-Economics/(INITIATIVE-021)-Portfolio-Economics.md) | [Appraisal Value Model](../../../epic/Proposed/(EPIC-064)-Appraisal-Value-Model/(EPIC-064)-Appraisal-Value-Model.md) | 0/0 | 0 | **activate or drop** |
+|  | [Backlog Appraisal Bootstrap](../../../epic/Proposed/(EPIC-067)-Backlog-Appraisal-Bootstrap/(EPIC-067)-Backlog-Appraisal-Bootstrap.md) | 0/0 | 0 | **activate or drop** |
+|  | [Appraisal Value Model](../../../epic/Proposed/(EPIC-075)-Appraisal-Value-Model/(EPIC-075)-Appraisal-Value-Model.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*

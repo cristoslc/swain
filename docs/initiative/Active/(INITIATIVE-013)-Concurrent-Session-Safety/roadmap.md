@@ -22,34 +22,34 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [swain-box: Unified Sandbox Launcher](docs/spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) | 0/0 | 5 | **needs decomposition** |
-|  | [Worktree-Enforced Sandbox Isolation](docs/spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) | 0/0 | 4 | **needs decomposition** |
-|  | [Sandbox Templates In Regular Docker Containers](docs/research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) | 0/0 | 1 | **needs decomposition** |
-|  | [Container-Compatible Auth Flows Per Runtime](docs/research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) | 0/0 | 1 | **needs decomposition** |
-|  | [swain-doctor SSH Binary Check](docs/spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) | 0/0 | 0 | **needs decomposition** |
-|  | [PR Queue MCP for Merge Handoff](docs/research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md) | 0/0 | 0 | **needs decomposition** |
+| [Concurrent Session Safety]((INITIATIVE-013)-Concurrent-Session-Safety.md) | [swain-box: Unified Sandbox Launcher](../../../spec/Active/(SPEC-092)-swain-box-Unified-Sandbox-Launcher/(SPEC-092)-swain-box-Unified-Sandbox-Launcher.md) | 0/0 | 5 | **needs decomposition** |
+|  | [Worktree-Enforced Sandbox Isolation](../../../spec/Active/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation/(SPEC-081)-Worktree-Enforced-Sandbox-Isolation.md) | 0/0 | 4 | **needs decomposition** |
+|  | [Sandbox Templates In Regular Docker Containers](../../../research/Active/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers/(SPIKE-034)-Sandbox-Templates-In-Regular-Docker-Containers.md) | 0/0 | 1 | **needs decomposition** |
+|  | [Container-Compatible Auth Flows Per Runtime](../../../research/Active/(SPIKE-035)-Container-Compatible-Auth-Flows/(SPIKE-035)-Container-Compatible-Auth-Flows.md) | 0/0 | 1 | **needs decomposition** |
+|  | [swain-doctor SSH Binary Check](../../../spec/Active/(SPEC-102)-swain-doctor-SSH-Binary-Check/(SPEC-102)-swain-doctor-SSH-Binary-Check.md) | 0/0 | 0 | **needs decomposition** |
+|  | [PR Queue MCP for Merge Handoff](../../../research/Active/(SPIKE-050)-PR-Queue-MCP-Merge-Handoff/SPIKE-050.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Container-Compatible Runtime Auth Commands](docs/spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) | 0/0 | 0 | **activate or drop** |
+| [Concurrent Session Safety]((INITIATIVE-013)-Concurrent-Session-Safety.md) | [Container-Compatible Runtime Auth Commands](../../../spec/Proposed/(SPEC-128)-Container-Compatible-Runtime-Auth/(SPEC-128)-Container-Compatible-Runtime-Auth.md) | 0/0 | 0 | **activate or drop** |
 
 ### In Progress
 *Active or unblocking, medium priority*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Worktree-Aware Session Bookmarks](docs/epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md) | 0/0 | 1 | **activate or drop** |
-|  | [Session-Aware Commit Atomization](docs/epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) | 0/2 | 0 | — |
+| [Concurrent Session Safety]((INITIATIVE-013)-Concurrent-Session-Safety.md) | [Worktree-Aware Session Bookmarks](../../../epic/Proposed/(EPIC-016)-Worktree-Aware-Session-Bookmarks/(EPIC-016)-Worktree-Aware-Session-Bookmarks.md) | 0/0 | 1 | **activate or drop** |
+|  | [Session-Aware Commit Atomization](../../../epic/Active/(EPIC-036)-Session-Aware-Commit-Atomization/(EPIC-036)-Session-Aware-Commit-Atomization.md) | 0/2 | 0 | — |
 
 ### Backlog
 *Not yet prioritized or started*
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Concurrent Session Safety](docs/initiative/Active/(INITIATIVE-013)-Concurrent-Session-Safety/(INITIATIVE-013)-Concurrent-Session-Safety.md) | [Multi-Agent Workdir Safety](docs/epic/Proposed/(EPIC-020)-Multi-Agent-Workdir-Safety/(EPIC-020)-Multi-Agent-Workdir-Safety.md) | 0/0 | 0 | **activate or drop** |
+| [Concurrent Session Safety]((INITIATIVE-013)-Concurrent-Session-Safety.md) | [Multi-Agent Workdir Safety](../../../epic/Proposed/(EPIC-020)-Multi-Agent-Workdir-Safety/(EPIC-020)-Multi-Agent-Workdir-Safety.md) | 0/0 | 0 | **activate or drop** |
 
 
 ## Children

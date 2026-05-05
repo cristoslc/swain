@@ -22,9 +22,9 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| — | [Deprecate and Replace Superpowers with Native Skills](docs/epic/Active/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills.md) | 0/4 | 0 | — |
-| [Agent Runtime Efficiency](docs/initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Doctor Script Reconciliation](docs/epic/Active/(EPIC-068)-Doctor-Script-Reconciliation/(EPIC-068)-Doctor-Script-Reconciliation.md) | 0/1 | 0 | — |
-| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](docs/epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
+| — | [Deprecate and Replace Superpowers with Native Skills](../../../epic/Active/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills/(EPIC-053)-Deprecate-and-Replace-Superpowers-with-Native-Skills.md) | 0/4 | 0 | — |
+| [Agent Runtime Efficiency](../../../initiative/Active/(INITIATIVE-003)-Agent-Runtime-Efficiency/(INITIATIVE-003)-Agent-Runtime-Efficiency.md) | [Doctor Script Reconciliation](../../../epic/Active/(EPIC-068)-Doctor-Script-Reconciliation/(EPIC-068)-Doctor-Script-Reconciliation.md) | 0/1 | 0 | — |
+| [Unattended Agent Safety](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [PR-Only Agent Guardrails](../../../epic/Active/(EPIC-037)-PR-Only-Agent-Guardrails/(EPIC-037)-PR-Only-Agent-Guardrails.md) | 0/0 | 0 | **needs decomposition** |
 
 ### Schedule
 *High priority, not yet started*
@@ -41,7 +41,7 @@
 
 | Initiative | Epic | Progress | Unblocks | Needs |
 |-----------|------|----------|----------|-------|
-| [Unattended Agent Safety](docs/initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](docs/epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
+| [Unattended Agent Safety](../../../initiative/Active/(INITIATIVE-017)-Unattended-Agent-Safety/(INITIATIVE-017)-Unattended-Agent-Safety.md) | [Sandbox Capability Bridges](../../../epic/Proposed/(EPIC-040)-Sandbox-Capability-Bridges/(EPIC-040)-Sandbox-Capability-Bridges.md) | 0/2 | 0 | **activate or drop** |
 
 
 ## Children
