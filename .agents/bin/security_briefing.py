@@ -1,1 +1,1 @@
-../../.claude/skills/swain-security-check/scripts/security_briefing.py
+../../skills/swain-security-check/scripts/security_briefing.py

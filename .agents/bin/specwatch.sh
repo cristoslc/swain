@@ -1,1 +1,1 @@
-../../.claude/skills/swain-design/scripts/specwatch.sh
+../../skills/swain-design/scripts/specwatch.sh

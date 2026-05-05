@@ -1,1 +1,1 @@
-../../.claude/skills/swain-search/scripts/bootstrap.sh
+../../skills/swain-search/scripts/bootstrap.sh

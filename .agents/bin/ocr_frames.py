@@ -1,1 +1,1 @@
-../../.claude/skills/swain-search/scripts/ocr_frames.py
+../../skills/swain-search/scripts/ocr_frames.py

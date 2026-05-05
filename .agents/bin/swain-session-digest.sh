@@ -1,1 +1,1 @@
-../../.claude/skills/swain-session/scripts/swain-session-digest.sh
+../../skills/swain-session/scripts/swain-session-digest.sh

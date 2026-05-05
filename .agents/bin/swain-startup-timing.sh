@@ -1,1 +1,1 @@
-../../.claude/skills/swain-session/scripts/swain-startup-timing.sh
+../../skills/swain-session/scripts/swain-startup-timing.sh

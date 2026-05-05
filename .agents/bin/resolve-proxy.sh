@@ -1,1 +1,1 @@
-../../.claude/skills/swain-search/scripts/resolve-proxy.sh
+../../skills/swain-search/scripts/resolve-proxy.sh

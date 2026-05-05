@@ -1,1 +1,1 @@
-../../.claude/skills/swain-design/scripts/adr-check.sh
+../../skills/swain-design/scripts/adr-check.sh

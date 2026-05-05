@@ -1,1 +1,1 @@
-../../.claude/skills/swain/scripts/swain-lockfile.sh
+../../skills/swain/scripts/swain-lockfile.sh

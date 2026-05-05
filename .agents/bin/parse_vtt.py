@@ -1,1 +1,1 @@
-../../.claude/skills/swain-search/scripts/parse_vtt.py
+../../skills/swain-search/scripts/parse_vtt.py

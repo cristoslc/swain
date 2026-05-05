@@ -1,1 +1,1 @@
-../../.claude/skills/swain-design/scripts/relink.sh
+../../skills/swain-design/scripts/relink.sh

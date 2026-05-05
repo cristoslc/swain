@@ -1,1 +1,1 @@
-../../.claude/skills/swain-design/scripts/artifact-context.sh
+../../skills/swain-design/scripts/artifact-context.sh

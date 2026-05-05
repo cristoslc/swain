@@ -1,1 +1,1 @@
-../../.claude/skills/swain-search/scripts/export-snapshot.sh
+../../skills/swain-search/scripts/export-snapshot.sh

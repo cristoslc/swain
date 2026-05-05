@@ -1,1 +1,1 @@
-../../.claude/skills/swain-test/scripts/swain-test.sh
+../../skills/swain-test/scripts/swain-test.sh

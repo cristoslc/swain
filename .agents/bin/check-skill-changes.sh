@@ -1,1 +1,1 @@
-../../.claude/skills/swain-doctor/scripts/check-skill-changes.sh
+../../skills/swain-doctor/scripts/check-skill-changes.sh

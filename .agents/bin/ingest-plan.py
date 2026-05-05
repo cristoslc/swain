@@ -1,1 +1,1 @@
-../../.claude/skills/swain-do/scripts/ingest-plan.py
+../../skills/swain-do/scripts/ingest-plan.py

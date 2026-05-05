@@ -1,1 +1,1 @@
-../../.claude/skills/swain-design/scripts/fix-collisions.sh
+../../skills/swain-design/scripts/fix-collisions.sh

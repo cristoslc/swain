@@ -1,1 +1,1 @@
-../../.claude/skills/swain-session/scripts/swain-preflight-timing.sh
+../../skills/swain-session/scripts/swain-preflight-timing.sh

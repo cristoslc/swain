@@ -1,1 +1,1 @@
-../../.claude/skills/swain-search/scripts/yt-dlp.sh
+../../skills/swain-search/scripts/yt-dlp.sh
