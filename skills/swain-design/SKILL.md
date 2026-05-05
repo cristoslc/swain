@@ -115,7 +115,7 @@ When fast-path applies, output: `[fast-path] Skipped: specwatch scan, scope chec
 2a. **For DESIGN artifacts:** First, ask which domain this design covers: `interaction` (UI/UX — screens, flows, states), `data` (data architecture — entities, schemas, flows, invariants), or `system` (system contracts — API boundaries, behavioral guarantees, integration interfaces). Default to `interaction` if unclear. Then prompt for Design Intent content — Context (one sentence anchoring the design to its purpose), Goals (what experience or guarantee we're trying to create), Constraints (reviewable boundaries), and Non-goals (what we explicitly decided not to do). This section is write-once: it is set at creation and not updated as the mutable sections evolve. Use the domain-specific template sections from the DESIGN template.
 3. Read the artifact's definition file and template from the lookup table above.
 4. Create the artifact in the correct phase subdirectory. Create the phase directory with `mkdir -p` if it doesn't exist yet. See the definition file for the exact directory structure.
-5. Populate frontmatter with the required fields for the type (see the template).
+5. Populate frontmatter with the required fields for the type (see the template). Set `authored-by` to the model identity resolved from the system prompt (e.g., `GLM-5.1`). If subagents were involved in creating the artifact, list all models with roles — e.g., `GLM-5.1 (supervisor), Kimi-K2.5 (subagent)`. If the model identity is unavailable, use `AI Assistant` as a fallback.
 6. Initialize the lifecycle table with the appropriate phase and current date, using this rule:
    - **User-requested → `Active`**: if the user explicitly asked for this artifact (e.g., "new SPIKE about X", "write a spec for Y"), create it directly in `Active`. The user has already decided they want this work — `Proposed` adds no value.
    - **Agent-suggested → `Proposed`**: if the agent creates the artifact on its own initiative (e.g., suggesting a SPIKE while the user asked for an EPIC, decomposing a Vision into child Epics), create it in `Proposed`. The user hasn't explicitly committed — `Proposed` signals "here's what I recommend, please confirm."
@@ -279,6 +279,87 @@ When the user requests an audit, read [references/auditing.md](references/auditi
 ## Implementation plans
 
 Implementation plans bridge declarative specs and execution tracking. When implementation begins, read [references/implementation-plans.md](references/implementation-plans.md) for TDD methodology, superpowers integration, plan workflow, and fallback procedures.
+
+## Scenario modeling
+
+<!-- swain-model-hint: opus, effort: high — scenario edits require graph-wide awareness -->
+
+Scenario modeling is point-in-time impact analysis via git branching. The operator surfaces a question; the agent does everything. The operator never touches git.
+
+The goal is to produce real edits on disk so `git diff` can surface the impact — changed artifacts, shifted roadmaps, and code references. The operator's only role is to review the impact and say "accept" or "reject."
+
+This is a pure LLM procedure within swain-design. No separate skill, no scripts, no new CLI flags.
+
+### Trigger phrases
+
+Activate scenario modeling when the operator says any of:
+
+- "what if ADR-X were active"
+- "what if we'd chosen Y instead of Z"
+- "compare the tree under different ADR assumptions"
+- "scenario: <description>"
+- "show me the impact of switching from A to B"
+
+### Procedure
+
+1. **Confirm intent.** Briefly confirm the counterfactual assumption with the operator: "You want to see the artifact tree if ADR-046 were Active instead of Superseded?"
+
+2. **Branch.**
+
+   ```bash
+   git checkout -b scenario/<kebab-case-name>
+   ```
+
+   Derive the name from the question (e.g., `scenario/adr-046-active`, `scenario/pre-helm-refactor`).
+
+3. **Identify the edit set.** Walk the supersession graph from the named ADR or decision. For each artifact the flip touches, trace:
+   - Artifacts that superseded it (also need flips).
+   - Designs paired with the ADR (e.g., ADR-048 ↔ DESIGN-033).
+   - Initiative and epic roadmaps that reference the flipped artifacts in `linked-artifacts`, `depends-on-artifacts`, or `addresses` arrays.
+
+   Use `swain chart` output and the graph cache to resolve references.
+
+4. **Apply edits.** Edit frontmatter on the scenario branch:
+   - Flip `status` on the primary ADRs and their paired designs.
+   - Update back-references in initiative/epic frontmatter arrays (`linked-artifacts`, etc.).
+   - Do not edit prose bodies — frontmatter fields only.
+   - Do not create or delete artifact files.
+
+5. **Validate.** Run `swain chart` on the branch. Confirm the tree resolves without broken references. Present the alternative tree to the operator.
+
+6. **Surface impact.** Run and summarize:
+
+   ```bash
+   git diff trunk...HEAD --stat
+   git diff trunk...HEAD -- docs/ | grep -oP 'sourcecode-refs:\K[^\n]+'
+   ```
+
+   Present to the operator: number of artifacts changed, which initiative/epic roadmaps shifted, source code paths referenced.
+
+7. **Offer actions:**
+   - **Accept:** merge to trunk and commit.
+   - **Compare side by side:** add a trunk worktree, run `swain chart` in both, present the diff.
+   - **Reject:** delete the branch.
+
+### Operator feedback loops
+
+If the operator says "also flip DESIGN-034" or "don't touch INITIATIVE-005," adjust the edit set and re-validate. Iteration is conversational — the operator steers, the agent acts.
+
+### Cleanup
+
+The agent handles both outcomes:
+
+- **Accepted:** `git checkout trunk && git merge scenario/<name>`, commit, push.
+- **Rejected:** `git branch -D scenario/<name>`.
+
+### Example
+
+> Operator: "what if ADR-046 had stood?"
+
+1. Branch: `git checkout -b scenario/adr-046-active`
+2. Edit set: flip ADR-046 → Active, ADR-048 → Superseded, DESIGN-032 → Active, DESIGN-033 → Superseded. Update INITIATIVE-018 roadmap to swap DESIGN-033 for DESIGN-032.
+3. Validate: `swain chart` — passes.
+4. Impact: 4 artifacts changed, 1 initiative roadmap shifted, 2 source code paths referenced.
 
 ---
 
