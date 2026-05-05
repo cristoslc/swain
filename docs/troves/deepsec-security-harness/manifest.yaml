@@ -1,0 +1,34 @@
+trove: deepsec-security-harness
+created: 2026-05-05
+refreshed: 2026-05-05
+tags:
+- deepsec
+- security-scanner
+- agentic-security
+- vercel
+- static-analysis
+- vulnerability-detection
+- coding-agent
+- open-source
+
+freshness-ttl:
+  web: 30d
+  media: never
+
+referenced-by: []
+
+sources:
+- source-id: vercel-deepsec-security-harness
+  type: web
+  url: "https://vercel.com/blog/introducing-deepsec-find-and-fix-vulnerabilities-in-your-code-base"
+  fetched: 2026-05-05T02:39:07Z
+  title: "Introducing deepsec: The Security Harness for Finding Vulnerabilities in Your Codebase"
+  hash: "7a36308dc0a3cc21be1b184b79bf5eaea209d9b56fa3a9e43785576096e570"
+  highlights: []
+  selective: false
+
+history:
+  - event: created
+    date: 2026-05-05
+    commit: "--"
+    sources: 1
