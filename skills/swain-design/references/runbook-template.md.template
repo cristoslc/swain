@@ -7,6 +7,7 @@ status: {{ status | default("Proposed") }}
 mode: {{ mode | default("manual") }}
 trigger: {{ trigger | default("on-demand") }}
 author: {{ author }}
+authored-by: {{ authored_by }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 validates:

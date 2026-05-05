@@ -243,9 +243,9 @@ Read the staged diff (`git --no-pager diff --cached`) and write a commit message
   - `test` — test additions or fixes
 - Includes a concise imperative-mood subject line (≤ 72 chars).
 - Adds a short body (2–5 lines) summarising *why*, not just *what*, when the diff is non-trivial.
-- Appends a `Co-Authored-By` trailer identifying the model that generated the commit. Use the model name from your system prompt (e.g., `Claude Opus 4.6`, `Gemini 2.5 Pro`). If you can't determine the model name, use `AI Assistant` as a fallback.
+- Appends one `Co-Authored-By` trailer per model participant. Resolve the model name from the system prompt (e.g., `Claude Opus 4.6`, `Gemini 2.5 Pro`, `GLM-5.1`). If the model identity is unavailable, use `AI Assistant` as a fallback. When the session involved subagents running under a different model, include one trailer per model — the supervisor first, then each subagent model on its own line. Do not hardcode model names.
 
-Example shape:
+Example shape (single model):
 ```
 feat(terraform): add Cloudflare DNS module for hub provisioning
 
@@ -254,6 +254,18 @@ Module is activated by dns_provider=cloudflare and requires only
 CLOUDFLARE_API_TOKEN — no other provider credentials are validated.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+
+Example shape (supervisor + subagent):
+```
+feat(terraform): add Cloudflare DNS module for hub provisioning
+
+Operators can now point DNS at Cloudflare without migrating their zone.
+Module is activated by dns_provider=cloudflare and requires only
+CLOUDFLARE_API_TOKEN — no other provider credentials are validated.
+
+Co-Authored-By: GLM-5.1 <noreply@unknown>
+Co-Authored-By: Kimi-K2.5 <noreply@unknown>
 ```
 
 ## Step 4.5 — Pre-commit hook check

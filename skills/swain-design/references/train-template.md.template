@@ -5,6 +5,7 @@ artifact: TRAIN-{{ number }}
 track: standing
 status: {{ status | default("Proposed") }}
 author: {{ author }}
+authored-by: {{ authored_by }}
 created: {{ created_date }}
 last-updated: {{ last_updated_date }}
 audience: {{ audience | default("") }}
