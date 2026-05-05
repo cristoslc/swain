@@ -24,7 +24,7 @@ Short session closing out VISION-006. The implementation was already complete an
 | Artifact | Title | Outcome |
 |----------|-------|---------|
 | `skills/swain-helm/SKILL.md` | swain-helm skill | New. Manages bridge lifecycle: start (daemon), stop, status, logs, restart, foreground. |
-| [SPEC-295](../spec/Active/(SPEC-295)-swain-bridge-daemon-mode/(SPEC-295)-swain-bridge-daemon-mode.md) | swain-bridge daemon mode | Committed. Was implemented in a prior session but left unstaged. |
+| [SPEC-295](../spec/Complete/(SPEC-295)-swain-bridge-daemon-mode/(SPEC-295)-swain-bridge-daemon-mode.md) | swain-bridge daemon mode | Committed. Was implemented in a prior session but left unstaged. |
 | RUNBOOK-003 | Untethered Operator Bridge | Updated for daemon mode. Committed alongside SPEC-295. |
 
 ## Reflection

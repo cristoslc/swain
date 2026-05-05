@@ -7,9 +7,9 @@ author: cristos
 created: 2026-04-14
 last-updated: 2026-04-14
 linked-artifacts:
-  - [ADR-045](../../adr/Active/(ADR-045)-Chores-As-A-Lightweight-Artifact-Type/(ADR-045)-Chores-As-A-Lightweight-Artifact-Type.md)
-  - [ADR-027](../../adr/Active/(ADR-027)-All-Artifacts-Must-Be-Foldered/(ADR-027)-All-Artifacts-Must-Be-Foldered.md)
-  - [ADR-003](../../adr/Active/(ADR-003)-Normalize-Artifact-Lifecycle-to-Three-Tracks/(ADR-003)-Normalize-Artifact-Lifecycle-to-Three-Tracks.md)
+  - [ADR-045](../../../adr/Active/(ADR-045)-Chores-As-A-Lightweight-Artifact-Type/(ADR-045)-Chores-As-A-Lightweight-Artifact-Type.md)
+  - [ADR-027](../../../adr/Active/(ADR-027)-All-Artifacts-Must-Be-Foldered/(ADR-027)-All-Artifacts-Must-Be-Foldered.md)
+  - [ADR-003](../../../adr/Active/(ADR-003)-Normalize-Artifact-Lifecycle-to-Three-Tracks/(ADR-003)-Normalize-Artifact-Lifecycle-to-Three-Tracks.md)
 depends-on-artifacts: []
 priority-weight: medium
 success-criteria:

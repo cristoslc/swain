@@ -2,11 +2,11 @@
 title: "First-Class Scenario Modeling in swain-design"
 artifact: SPIKE-070
 track: container
-status: Active
+status: Complete
 author: Cristos L-C
-authored-by: Claude Opus 4.7 (1M context)
+authored-by: Claude Opus 4.7 (1M context), DeepSeek V4 Pro (open code)
 created: 2026-04-26
-last-updated: 2026-04-28
+last-updated: 2026-04-29
 parent-initiative: INITIATIVE-002
 question: "Should swain-design treat scenario modeling — alternative artifact trees under varying assumptions, ADR sets, or constraints — as a first-class feature? What would the data model, UX, and integration with existing supersession and roadmap views look like?"
 gate: Pre-MVP
@@ -22,9 +22,13 @@ trove: scenario-modeling-prior-art@e1ca9829
 
 ## Summary
 
-<!-- Pending operator review before transitioning to Complete. Verdict drafted below. -->
+**Go — documented git branching process. No new tooling required.**
 
-**Go (narrow scope).** The gap is real and confirmed across six tool categories — no existing tool models the counterfactual artifact tree under alternative ADR states. The right primitive is a named YAML overlay file evaluated against the canonical graph at query time, not a git branch (which stales silently on low-touch long-lived scenarios) and not a full copy. Implementation is ~100 lines across two files, well within the one-week threshold. v1 ships `--scenario` and `--compare` flags on `swain chart` with field-only overrides. Cascade and schema validation are v2, gated on observed need.
+The YAML overlay was designed for long-lived scenarios consulted across weeks. That use case does not apply. The actual need is point-in-time impact analysis. "If we switch from X to Y, what artifacts change? What code do those artifacts reference?" You need the actual edits on disk to measure the diff, trace source code references, and estimate work. The overlay cannot produce a diff. It can flag artifacts but cannot show what changed.
+
+A documented git branching convention covers the real use case with zero new code. The scenario is a branch. The edits are real frontmatter changes. `git diff` at the end gives an impact report: every changed file, every source code reference, every shifted roadmap. The trunk-drift concern from the earlier analysis does not apply here. Trunk moving is the point. You want to see what the existing artifact set would need to adapt, not what new trunk work would not exist.
+
+The drift detection generalization from the session — `drift(artifact, graph)` with graph as a parameter — remains useful as a standalone improvement. It is scoped separately, not tied to scenario modeling.
 
 ## Hypothesis
 
@@ -60,25 +64,23 @@ Time-box: 2 working sessions, ~4 hours total. Stop sooner if any thread surfaces
 
 ## Go / No-Go Criteria
 
-**Go (proceed to EPIC):**
-- At least one data model survives the integration check without forcing breaking changes to ADR supersession.
-- The UX sketch shows an invocation surface an operator would actually use — single command, no new mental model larger than "scenarios are like git branches for artifacts".
-- The minimum prototype is implementable in under one week of focused work.
+All criteria pass under the revised verdict (git branching convention).
 
-**No-Go (stop):**
-- Every data model breaks supersession or roadmap rendering.
-- The smallest viable UX requires 3+ new commands or a new artifact type beyond `scenario`.
-- Prior art shows the pattern is well-known to fail in similar tools.
+**Go:**
+- The use case is point-in-time impact analysis, not standing what-if queries.
+- Git branches already produce the needed output: real diffs showing changed artifacts, traceable to code via `sourcecode-refs`.
+- No new tooling, schema, or CLI surface is required.
+- A documented convention is implementable immediately — zero lines of code.
 
-**Hybrid (narrow scope):**
-- Scenarios work as a chart-only filter (read-only overlay) but full branching is too costly. Recommend a smaller epic that ships the read-only path and defers branching.
+**No-Go (for YAML overlay):**
+- The use case the overlay was designed for (long-lived standing scenarios) was explicitly ruled out by the operator.
+- Without that use case, the overlay adds 160 lines of code that produce the wrong output (flags instead of diffs).
 
 ## Pivot Recommendation
 
-If the gate fails, do not drop the question. Two narrower fallbacks:
+If the git branching convention is insufficient in practice, revisit the YAML overlay design (Capture-070) — but only if a concrete pain point from the git approach surfaces. Do not pre-build for hypothetical future needs.
 
-1. **ADR alternatives section.** Extend the ADR template with a structured "Alternatives considered" block. Link to artifacts that *would* have been created. Cheap, no graph changes.
-2. **Roadmap forks document.** A standing `docs/roadmap-forks.md` captures named forks in prose. Manual diffs against the canonical tree. Zero tooling cost. Pure doc discipline.
+The drift detection generalization (`drift(artifact, graph)` accepting a graph parameter) remains a useful standalone improvement. Scope it as a separate item, not tied to scenario modeling.
 
 ## Findings
 
@@ -102,196 +104,100 @@ Two distinct primitives emerged across all tools: *projection* (same model, diff
 
 **Recommended primitive:** a named YAML overlay file that pins specific artifact-graph inputs (ADR states, priority weights) to non-canonical values, evaluated against the canonical graph. Invocation: `swain chart --scenario=name`. Comparison: `swain chart --compare=canonical,name`.
 
-**Feeds into:** Thread 2 (the overlay YAML model is the leading candidate), Thread 3 (`--scenario` and `--compare` flags are the target surface), Thread 4 (dependency-aware re-evaluation and scenario lifecycle are the two integration design concerns).
+**Feeds into:** Thread 2 (git branching is the leading candidate), Thread 3 (all UX is git operations the operator already knows), Thread 4 (no integration needed — existing tooling works on any branch).
 
 ### Thread 2 — Data model
 
-**Status: In progress.** Candidate models under evaluation.
+**Status: Complete.** Verdict: documented git branching process. No new schema.
 
-#### Candidate 0 — Git branch per scenario
+The YAML overlay (Candidate 2 from the earlier analysis) was designed for long-lived standing scenarios consulted across weeks. That use case was ruled out: the operator does not anticipate long-lived scenarios as an immediate need.
 
-The simplest approach: create a named branch (`scenario/no-adr-048`), edit ADR frontmatter directly, and run `swain chart` on that branch. Comparison via git worktrees (two branches checked out simultaneously).
+The real use case is point-in-time impact analysis:
 
-**Strengths:**
-- Zero new tooling. Operators know git. Lifecycle (create, name, abandon, merge-to-promote) is already there.
-- Any `swain chart` invocation already works against a branch's state.
-- Short-lived scenarios (hours to a day) feel natural here.
+> "If we switch from hexagonal to microkernel, what artifacts get updated and what is the measurable code impact from those updates?"
 
-**Staling problem — long-lived, low-touch:**
-The scenario branch doesn't drift because people commit to it. It drifts because **trunk moves and the scenario doesn't follow**. The scenario sits dormant for weeks. In that time, trunk gains new specs, completes epics, and transitions ADRs. When the operator wants to consult the scenario again, `swain chart` on the branch answers "what would the tree look like 3 weeks ago under these assumptions" — not "what would the tree look like *today*." That is the wrong answer.
+This requires actual edits on disk — you need to see the diff, trace `sourcecode-refs` in changed artifacts, and estimate the work. The overlay can flag "SPEC-330 premise shifted" but cannot produce a diff. Git branches give you exactly the right output:
 
-To get the right answer, the operator must first rebase the scenario branch onto trunk. That means resolving conflicts in the same frontmatter edits that define the scenario — on files that may have changed for unrelated reasons. This maintenance cost lands at the moment the operator wants to use the scenario, not while it was idle.
+1. Branch from trunk.
+2. Edit frontmatter to reflect the counterfactual world.
+3. `git diff` shows every file that changed, and every initiative/epic roadmap that shifted.
+4. `grep sourcecode-refs` in changed files estimates code impact.
 
-**Scattered delta:** A scenario like "ADR-046 active instead of superseded" isn't one file edit. It requires reverting ADR-046, ADR-048 (which superseded it), DESIGN-032 (moved to Superseded/), and back-references in ~25 initiative/epic roadmaps. The delta is semantically simple but physically scattered.
-
-**Verdict on Candidate 0:** Sufficient for short-lived exploration (hours). Breaks down for standing "what-if" questions consulted across weeks or months.
-
-#### Candidate 1 — Git patch file on trunk
-
-A `.patch` file stored in `docs/scenarios/` on trunk. To consult: `git apply docs/scenarios/no-adr-048.patch`, run `swain chart`, `git restore .`. Since it applies to HEAD, it is always current-trunk-aware — no rebase needed.
-
-**Strengths:** Same delta semantics as the overlay YAML, but uses git's native format. No new schema.
-
-**Weaknesses:** Git patches are fragile against context-line changes. Even whitespace or unrelated frontmatter edits in surrounding lines break `git apply`. Patches operate at the file/line level — they cannot validate that an override makes semantic sense (e.g., preventing a patch that sets an ADR to an invalid status). Ugly to author by hand.
-
-**Verdict on Candidate 1:** Conceptually right (delta on trunk HEAD) but too fragile for long-lived scenarios on files that evolve frequently.
-
-#### Candidate 2 — Overlay YAML (leading candidate)
-
-A named YAML file in `docs/scenarios/` on trunk. Evaluated against the canonical graph at query time:
-
-```yaml
-# docs/scenarios/no-adr-048.yaml
-scenario: no-adr-048
-description: "Tree under ADR-046 active (pre-helm-refactor)"
-overrides:
-  ADR-046: { status: Active }
-  ADR-048: { status: Superseded }
-  DESIGN-032: { status: Active }
-  DESIGN-033: { status: Superseded }
-```
-
-`swain chart --scenario=no-adr-048` applies the overlay to whatever trunk looks like *today* and computes the alternative graph. The overlay has no state of its own — it is a stateless lens, perpetually fresh.
-
-**Strengths:**
-- Always current: the overlay applies to HEAD. Three weeks of trunk evolution don't require any maintenance on the scenario file.
-- Domain-aware: the schema knows what fields are overridable (`status`, `priority-weight`). Invalid overrides are caught at parse time.
-- Human-readable and hand-authorable. Small file for simple scenarios.
-- Composable: multiple overlays can be stacked for complex scenarios.
-- Promotable: "adopt this scenario" means merging the frontmatter changes to trunk and deleting the overlay file.
-
-**Cost to implement:** A defined schema for overridable fields, `swain chart` accepting `--scenario` and `--compare` flags, and the overlay-apply step in the graph computation. Thread 4 will assess whether `chart.sh` / `chart_cli.py` can absorb this cleanly.
-
-**Verdict on Candidate 2:** Correct primitive for standing scenarios. Implementation cost is bounded.
+**The trunk-drift concern from the earlier analysis does not apply here.** When new specs land on trunk while the scenario branch is active, those specs exist independent of the scenario. They would exist in the counterfactual world too. This is a point-in-time analysis of the *existing* artifact set, not a standing what-if that must track trunk.
 
 #### Recommendation
 
-Use **Candidate 0** (git branch) for ad-hoc, short-lived exploration — it costs nothing and operators already know how. Build **Candidate 2** (overlay YAML) for standing scenarios that will be consulted across sessions and weeks. These are not competing — they serve different time horizons.
+Use a documented git branching convention. No new schema, no new tooling, no new CLI flags. The convention is described in Thread 3.
 
 ### Thread 3 — UX
 
-**Status: Complete.**
+**Status: Complete.** The operator prompts; the agent acts. The operator never touches git.
 
-#### Invocation surface
+The operator surfaces a question and the agent does everything: branch, edit, validate, measure, and report. The operator's only role is to review and decide.
 
-Two flags on `swain chart`. No new commands, no new artifact types.
+#### Operator surface
+
+The operator says one thing:
+
+> "What if ADR-046 had stood?"
+
+That is it. No branch names, no file edits, no `git diff`. The agent owns the rest.
+
+#### Agent workflow
+
+1. Confirm the counterfactual: *"You want to see the artifact tree if ADR-046 were Active instead of Superseded?"*
+2. Branch: `scenario/<name>` derived from the question.
+3. Walk the supersession graph. Identify every artifact the flip touches — paired ADRs, paired Designs, initiative/epic roadmaps that reference them.
+4. Apply frontmatter edits on the branch. Status flips, back-reference updates. No file creates or deletes.
+5. Run `swain chart`. Confirm the tree resolves.
+6. Present the impact:
+   - Number of artifacts changed.
+   - Which initiative/epic roadmaps shifted.
+   - Source code paths referenced (from `sourcecode-refs` in changed files).
+7. Offer: accept (merge to trunk), compare side-by-side (add a worktree for trunk), or reject (delete the branch).
+
+#### Operator feedback loops
+
+If the operator disagrees with the edit set — "also flip DESIGN-034" or "don't touch INITIATIVE-005" — the agent adjusts and re-runs. Iteration is conversational. The agent is in the scenario branch, the operator is steering.
+
+#### Side-by-side comparison
+
+If the operator wants to compare against trunk, the agent adds a worktree:
 
 ```
-swain chart --scenario=<name>       # apply overlay, render tree
-swain chart --compare=<a>,<b>       # render both, show divergence
+git worktree add ../swain-trunk trunk
 ```
 
-`<name>` resolves to `docs/scenarios/<name>.yaml` in the repo root.
+The operator now has two views: the scenario branch in the current terminal, trunk in the worktree. The agent runs `swain chart` in both. The operator reads the diff the agent already produced — they don't need to navigate two directories.
 
-#### Story 1 — "What does the tree look like if ADR-046 had not been superseded?"
+#### Cleanup
 
-The operator wants to understand what the EPIC-018 implementation path would have looked like if the original microkernel topology decision had stood.
+The agent handles both outcomes:
 
-```bash
-# Author the scenario file
-cat > docs/scenarios/pre-helm-refactor.yaml << 'EOF'
-scenario: pre-helm-refactor
-description: "Tree under original microkernel topology (ADR-046 active)"
-overrides:
-  ADR-046: { status: Active }
-  ADR-047: { status: Active }
-  ADR-048: { status: Superseded }
-  ADR-049: { status: Superseded }
-  DESIGN-032: { status: Active }
-  DESIGN-033: { status: Superseded }
-EOF
+- **Accepted:** merge to trunk, commit, push.
+- **Rejected:** delete the branch.
 
-# View the alternative tree
-swain chart --scenario=pre-helm-refactor
+The operator says "accept" or "reject" — that is the extent of their involvement.
 
-# Compare against canonical
-swain chart --compare=canonical,pre-helm-refactor
+### Branch naming convention
+
+All scenario branches live under `scenario/`:
+
+```
+scenario/<kebab-case-name>
 ```
 
-The compare output highlights nodes whose status, priority, or parent chain differs between views. The operator sees: "Under this scenario, SPEC-330 and SPEC-331 (Docker test infra) would not exist." That is the decision being examined.
+Examples: `scenario/adr-046-active`, `scenario/pre-helm-refactor`, `scenario/no-automated-intake`.
 
-#### Story 2 — "What floats up if INITIATIVE-018 is paused?"
-
-Before a planning meeting, the operator wants to see how the roadmap re-ranks if swain-helm work is deprioritized.
-
-```bash
-cat > docs/scenarios/pause-018.yaml << 'EOF'
-scenario: pause-018
-description: "Roadmap without INITIATIVE-018 weight"
-overrides:
-  INITIATIVE-018: { priority-weight: low }
-EOF
-
-swain chart --scenario=pause-018 recommend
-```
-
-The `recommend` lens re-scores under the scenario's weights. The operator sees what moves up. No canonical files touched.
-
-#### Story 3 — Explore, then promote
-
-The operator iterates on the overlay file over several sessions. When a direction is decided, they promote: apply the overrides to the canonical artifact files, delete the scenario file, and commit. The scenario's git history records the exploration.
-
-```bash
-# When ready to commit to the direction:
-# 1. Edit canonical ADR/DESIGN files to match scenario overrides
-# 2. Delete the scenario file
-# 3. swain sync  (commits, pushes)
-```
-
-Promotion is manual by design. The operator decides when exploration ends and decision begins.
-
-#### Smallest viable surface
-
-Three things ship in v1:
-1. `docs/scenarios/` directory convention (no schema enforcement yet — plain YAML).
-2. `swain chart --scenario=<name>` flag.
-3. `swain chart --compare=<a>,<b>` flag (where `canonical` is a reserved name for the unmodified graph).
-
-No new `swain scenario` command needed. The overlay file is self-describing. Lifecycle (create/iterate/promote/delete) maps to normal file operations.
+The agent derives the name from the operator's question. The prefix lets `git branch --list 'scenario/*'` enumerate all past and active scenarios.
 
 ### Thread 4 — Integration
 
-**Status: Complete.**
+**Status: Complete.** No integration needed.
 
-#### Hook point in chart_cli.py / graph.py
+With the git branching convention, there is nothing to integrate. All existing tooling — `swain chart`, `swain roadmap`, specwatch, drift resolution, phase transitions, artifact creation, index refresh — already operate against the current branch. A scenario branch is just a git branch. Everything works by default.
 
-`build_graph(repo_root)` in `specgraph/graph.py` iterates artifact files, parses frontmatter, and builds a `nodes` dict. The overlay applies cleanly as a post-parse mutation: after all nodes are built, iterate the overlay's `overrides` dict and update matching node fields in memory. No file is touched on disk.
-
-`chart_cli.py` calls `_ensure_cache()` which reads or rebuilds the graph cache. Scenario mode must **skip the cache write** — a scenario-overlaid graph written to cache would corrupt the canonical view for all subsequent non-scenario calls. The change: if `--scenario` is present, build fresh, apply overlay, render, and exit without writing to cache. ~30 lines in `chart_cli.py`, ~20 lines in `graph.py`. No other files change.
-
-#### Back-reference cascade — intentionally not cascading (v1)
-
-When a scenario flips ADR-046 to Active, the 25 initiative/epic roadmap files still have `linked-artifacts` entries pointing to ADR-048. In scenario mode, those artifacts still show as linked to ADR-048 — the scenario override changes ADR-046's displayed status, not the reference graph's edges.
-
-This means the scenario tree is *partially* counterfactual: statuses reflect the scenario, but cross-references reflect the canonical state. For v1 this is the right call — cascading reference rewrites would require a full reference-graph walk and introduce subtle correctness questions (which edges follow the scenario and which don't?). The limitation is visible: a compare output will show ADR-046 as Active while artifacts that *would* have referenced it still point at ADR-048.
-
-Document this as a known v1 limitation. Cascade is v2, gated on observed operator need.
-
-#### specwatch — one-line exclusion
-
-specwatch scans for stale references. Scenario overlay files intentionally reference superseded artifacts (that's the point). Without exclusion, specwatch would flag every scenario file. Fix: add `docs/scenarios/**` to `.agents/specwatch-ignore`. One line.
-
-#### What is unaffected
-
-- **Phase transitions:** read and write canonical files. Scenario mode is read-only. No interaction.
-- **Drift resolution:** runs on SPEC create/transition against the canonical parent. Unaffected.
-- **Roadmap generation** (`ROADMAP.md`): renders canonical graph. Could add `--scenario` flag later, but not needed for v1.
-- **ADR supersession back-reference updates:** the update-back-refs flow edits canonical files. Scenario files are never edited by this flow.
-- **Artifact creation and index refresh:** unaffected — they operate on canonical files.
-
-#### Breaking changes
-
-None. All existing code paths are unchanged. `--scenario` is a new optional flag. Scenario files are new files in a new directory. The cache skip is additive logic. No existing tests need to change.
-
-#### Implementation estimate
-
-- `graph.py`: add optional `overlay: dict | None` param to `build_graph`, apply post-parse. ~20 lines.
-- `chart_cli.py`: parse `--scenario` flag, load YAML, pass to `build_graph`, skip cache write. ~30 lines.
-- `chart_cli.py`: `--compare` flag — call `build_graph` twice (once canonical, once with overlay), diff `nodes`, render side-by-side. ~50 lines.
-- `specwatch-ignore`: one line.
-- Schema / validation: optional for v1; add as a follow-on SPEC.
-
-**Total: ~100 lines across 2 files + 1 config line.** Well within the "under one week" Go criterion.
+The drift detection generalization the session explored — `drift(artifact, graph)` with graph as a parameter — is a useful standalone improvement to the canonical drift machinery. It surfaced during scenario analysis but is not a scenario dependency. It can be scoped as a separate SPEC or chore.
 
 ## Acceptance
 

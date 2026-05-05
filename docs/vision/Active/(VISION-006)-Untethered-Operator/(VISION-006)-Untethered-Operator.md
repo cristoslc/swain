@@ -54,7 +54,7 @@ No existing solution provides a runtime-agnostic chat interface for agentic deve
 
 Tier 2 (glue existing tools). The components exist:
 
-- Headless runtimes with JSON I/O (validated by [SPIKE-059](../../../spike/Complete/(SPIKE-059)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge/(SPIKE-059)-Agent-Runtime-IO-Compatibility-For-Mobile-Bridge.md)).
+- Headless runtimes with JSON I/O (validated by [SPIKE-059](../../../research/Complete/(SPIKE-059)-ROI-Appraisal-Model-For-Portfolio-Economics/SPIKE-059.md)).
 - Hosted chat platforms with bot APIs and mobile clients (Zulip Cloud, Slack, etc.). Self-hosted is an option, not a requirement.
 - Commodore-infra for self-hosted deployments and (in v2) tunnel/ingress for the web pipe.
 

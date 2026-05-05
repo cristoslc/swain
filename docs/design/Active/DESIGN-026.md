@@ -10,7 +10,7 @@ last-updated: 2026-04-18
 priority-weight: high
 linked-artifacts:
   - "[SPEC-298](../../spec/Active/(SPEC-298)-Control-Thread-Worktree-and-Session-Spawning/(SPEC-298)-Control-Thread-Worktree-and-Session-Spawning.md)"
-  - "[EPIC-070](../../epic/Active/(EPIC-070)-Host-Bridge-Kernel/(EPIC-070)-Host-Bridge-Kernel.md)"
+  - "[EPIC-070](../../epic/Superseded/(EPIC-070)-Host-Bridge-Kernel/(EPIC-070)-Host-Bridge-Kernel.md)"
   - "[EPIC-071](../../epic/Active/(EPIC-071)-Project-Bridge-Kernel/(EPIC-071)-Project-Bridge-Kernel.md)"
   - "[EPIC-072](../../epic/Active/(EPIC-072)-Chat-Plugin-System/(EPIC-072)-Chat-Plugin-System.md)"
 artifact-refs:
