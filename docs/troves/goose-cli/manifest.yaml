@@ -1,0 +1,150 @@
+trove: goose-cli
+created: 2026-05-05
+refreshed: 2026-05-05
+tags:
+- goose
+- cli
+- agentic-coding
+- acp
+- agent-client-protocol
+- coding-agent
+- extensions
+- recipes
+- scheduling
+- gateway
+- local-models
+- terminal
+- session-management
+
+freshness-ttl:
+  web: never
+  media: never
+
+related-troves:
+  - agentic-coding-dual-modes
+
+referenced-by: []
+
+sources:
+- source-id: goose-cli-help
+  type: cli-help
+  url: "local: goose --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose --help output"
+  hash: "3b36a2347f4b303510d36bc53c3771c644972e47046485edd6c207b2a5f93ed9"
+  highlights: []
+  selective: false
+
+- source-id: goose-configure-help
+  type: cli-subcommand-help
+  url: "local: goose configure --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose configure --help"
+  hash: "8fe918ed2f4e88ce58b4d06c75c4e5aec97407ed71e8b1327093f60d680ed52d"
+  highlights: []
+  selective: false
+
+- source-id: goose-run-help
+  type: cli-subcommand-help
+  url: "local: goose run --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose run --help"
+  hash: "ffffb5de2429380810f7f7741dab593696e8632d85598a37d71b05da7ac59479"
+  highlights: []
+  selective: false
+
+- source-id: goose-session-help
+  type: cli-subcommand-help
+  url: "local: goose session --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose session --help"
+  hash: "67b301c823637d49fdbc4ca15e4b3c839c30712496e28a16d90a00fcb7184729"
+  highlights: []
+  selective: false
+
+- source-id: goose-acp-help
+  type: cli-subcommand-help
+  url: "local: goose acp --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose acp --help"
+  hash: "47a5c3952a9794d632885c23d19e487bb43ce0f37ca8ee2aa96dcc964a5612f3"
+  highlights: []
+  selective: false
+
+- source-id: goose-serve-help
+  type: cli-subcommand-help
+  url: "local: goose serve --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose serve --help"
+  hash: "56adae84355c7820bbf7e2e8568018e34b73a7845d84058cf9d838d76a3e5b4d"
+  highlights: []
+  selective: false
+
+- source-id: goose-recipe-help
+  type: cli-subcommand-help
+  url: "local: goose recipe --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose recipe --help"
+  hash: "073e71c9d4e92f0bb7c870c9335f029f8dd4efbc651f9dc3e22d8e30ee9459b3"
+  highlights: []
+  selective: false
+
+- source-id: goose-schedule-help
+  type: cli-subcommand-help
+  url: "local: goose schedule --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose schedule --help"
+  hash: "9189a62d4ce4d274fd42727e5a9b266a181e24d87116fa51e72974228e0619a5"
+  highlights: []
+  selective: false
+
+- source-id: goose-gateway-help
+  type: cli-subcommand-help
+  url: "local: goose gateway --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose gateway --help"
+  hash: "fa67040c5235f27ca6f3209f64653f7b7a50b1a11d1d18c5a904993ca40a32b3"
+  highlights: []
+  selective: false
+
+- source-id: goose-info-doctor-help
+  type: cli-subcommand-help
+  url: "local: goose info/doctor --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose info/doctor --help"
+  hash: "930b4e3c8bcbca508b476dd828618caeed105369d5fa026753a767f669ed8893"
+  highlights: []
+  selective: false
+
+- source-id: goose-mcp-term-help
+  type: cli-subcommand-help
+  url: "local: goose mcp/term --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose mcp/term --help"
+  hash: "0d87921e9a8e4093232681d6d7e03b7d46860f4bf22da08aa2abce17c1f9e080"
+  highlights: []
+  selective: false
+
+- source-id: goose-local-models-help
+  type: cli-subcommand-help
+  url: "local: goose local-models --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose local-models --help"
+  hash: "891cf75ef9fa79eef5904ad971fcd0b345891c9c33dc11cb252a7301d0caafc2"
+  highlights: []
+  selective: false
+
+- source-id: goose-project-help
+  type: cli-subcommand-help
+  url: "local: goose project/projects --help"
+  fetched: 2026-05-05T02:45:00Z
+  title: "goose project/projects --help"
+  hash: "09bdacdade613a3b920fa6017f26e5d2f7c58fa594d067ca5167968add3bbfc2"
+  highlights: []
+  selective: false
+
+history:
+  - event: created
+    date: 2026-05-05
+    commit: "--"
+    sources: 13
