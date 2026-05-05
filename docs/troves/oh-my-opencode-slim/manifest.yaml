@@ -1,0 +1,135 @@
+trove: oh-my-opencode-slim
+created: 2026-05-05
+refreshed: 2026-05-05
+tags:
+  - oh-my-opencode-slim
+  - opencode-plugin
+  - multi-agent-orchestration
+  - agent-harness
+  - token-optimization
+  - agent-routing
+  - specialist-agents
+  - council-consensus
+  - session-management
+  - tmux-multiplexer
+  - opencode-tui
+  - bun-typescript
+
+freshness-ttl:
+  web: 14d
+  repository: 30d
+
+referenced-by: []
+
+related-troves:
+  - trove: oh-my-openagent-vs-swain
+    overlap: Parent project lineage, agent orchestration for OpenCode, category systems, multi-model delegation
+  - trove: agentic-control-loops
+    overlap: Orchestrator workflow phases, autonomous iteration, completion token management
+  - trove: crispy-agents
+    overlap: Multi-agent orchestration for OpenCode, specialist roles, delegation patterns
+  - trove: agent-session-persistence
+    overlap: Session management, resumable child sessions, context reuse across delegations
+
+history:
+  - event: created
+    date: 2026-05-05
+    commit: "--"
+    sources: 12
+
+sources:
+  - source-id: omo-slim-readme
+    type: repository
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — README"
+    hash: "d67e276852be8b494982f77e68d937cb90190ce459b88de975848b891281fc4d"
+    notes: "Primary project README: overview, installation, agent roster, docs map"
+
+  - source-id: omo-slim-agents
+    type: repository
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/AGENTS.md"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — AGENTS.md (Coding Guidelines)"
+    hash: "3345cb271f9ccd32b5e25c03d99edd455e83a8497253e08c2caef24557108b75"
+    notes: "Agent coding conventions: commands, code style, project structure, tmux lifecycle, pre-push workflow"
+
+  - source-id: omo-slim-codemap
+    type: repository
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/codemap.md"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — Repository Atlas"
+    hash: "b11c1c15067dd994cce402c2b9814021c34dac2c328ceaefef0f91740dba23cb"
+    notes: "Full repository map: entry points, directory responsibilities, runtime control flow, integration points"
+
+  - source-id: omo-slim-package
+    type: repository
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/package.json"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — package.json"
+    hash: "edf25b44b60fba12acb2767e64301820f314bb140578fb5a49dc4ebbc46d85bd"
+    notes: "Package manifest v1.0.6: dependencies, scripts, build pipeline, published files"
+
+  - source-id: omo-slim-orchestrator
+    type: repository
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/src/agents/orchestrator.ts"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — Orchestrator Agent"
+    hash: "d785069e825cd6de5e7da2a5568f66166d6d65e9de315235cb5e759cc930736b"
+    notes: "Orchestrator prompt: 6-phase workflow, per-agent delegation rules, communication principles, dynamic filtering"
+
+  - source-id: omo-slim-config
+    type: documentation
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/configuration.md"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — Configuration Reference"
+    hash: "6b037a01ba03990c2e582378e8bc069062d270fb5a8c817d283d3794ded104c7"
+    notes: "Full config reference: files, JSONC, prompt overriding, preset/agent/multiplexer/council/fallback/session/todo options"
+
+  - source-id: omo-slim-tools
+    type: documentation
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/tools.md"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — Tools & Capabilities"
+    hash: "f994e4d23a9de926fdc74fcd607b164808018998950582dcf51b705734015313"
+    notes: "Tool docs: apply_patch rescue, webfetch, ast_grep, formatters, todo continuation"
+
+  - source-id: omo-slim-mcps
+    type: documentation
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/mcps.md"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — MCP Servers"
+    hash: "8f4beb7a8e80248be8c68233e187eabd346d2be1f4216c732d2fd65616f1c1bb"
+    notes: "Built-in MCPs (websearch/context7/grep_app), default per-agent permissions, access control syntax"
+
+  - source-id: omo-slim-index
+    type: repository
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/src/index.ts"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — Plugin Bootstrap (index.ts)"
+    hash: "a7b240312b8c866115806293e1a152fd6ebcdcffa9de12897f42c8d48a55bfea"
+    notes: "Central composition root: initialization sequence, subsystem wiring, hook registration, health checks"
+
+  - source-id: omo-slim-council
+    type: documentation
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/council.md"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — Council Agent Guide"
+    hash: "31873e29abfe50968a312c84ca2fdc3e0f1079a7f553be7385935a19c095523d"
+    notes: "Council architecture, two-model-layer design, preset examples, output format, failure handling"
+
+  - source-id: omo-slim-sessions
+    type: documentation
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/session-management.md"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — Session Management"
+    hash: "c5b4ef3d72e6f52a28d9d3f845e87f3237bd4938493452fa3da47d3c606dfc59"
+    notes: "Resumable child sessions, short aliases, read context tracking, configurable limits"
+
+  - source-id: omo-slim-multiplexer
+    type: documentation
+    url: "https://github.com/alvinunreal/oh-my-opencode-slim/blob/master/docs/multiplexer-integration.md"
+    fetched: 2026-05-05T20:20:00Z
+    title: "oh-my-opencode-slim — Multiplexer Integration"
+    hash: "711ab12b5b87f817e0304340a87bcf97f8b8db5a92ca44d4452b5b06f7ee8dab"
+    notes: "Tmux/Zellij pane integration for live subagent monitoring, layout presets, multiple session support"
