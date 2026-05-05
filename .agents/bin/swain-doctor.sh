@@ -1,1 +1,1 @@
-../../skills/swain-doctor/scripts/swain-doctor.sh
+../../.claude/skills/swain-doctor/scripts/swain-doctor.sh

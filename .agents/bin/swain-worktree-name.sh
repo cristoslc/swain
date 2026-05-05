@@ -1,1 +1,1 @@
-../../skills/swain-session/scripts/swain-worktree-name.sh
+../../.claude/skills/swain-session/scripts/swain-worktree-name.sh

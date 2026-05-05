@@ -1,1 +1,1 @@
-../../skills/swain-release/scripts/render_changelog.py
+../../.claude/skills/swain-release/scripts/render_changelog.py

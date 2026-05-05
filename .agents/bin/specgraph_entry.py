@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/specgraph_entry.py
+../../.claude/skills/swain-design/scripts/specgraph_entry.py

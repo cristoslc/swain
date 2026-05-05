@@ -1,0 +1,173 @@
+---
+title: "OpenHands SDK Getting Started"
+url: https://docs.openhands.dev/sdk/getting-started
+hostname: docs.openhands.dev
+description: "Install the OpenHands SDK and build AI agents that write software."
+date: 2025-01-13
+sitename: OpenHands Documentation
+type: web-page
+---
+
+# Getting Started
+
+> Install the OpenHands SDK and build AI agents that write software.
+
+The OpenHands SDK is a modular framework for building AI agents that interact with code, files, and system commands. Agents can execute bash commands, edit files, browse the web, and more.
+
+## Prerequisites
+
+Install the **[uv package manager](https://docs.astral.sh/uv/)** (version 0.8.13+):
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+## Installation
+
+### Step 1: Acquire an LLM API Key
+
+The SDK requires an LLM API key from any [LiteLLM-supported provider](https://docs.litellm.ai/docs/providers).
+
+**Option 1: Direct Provider**: Bring your own API key from providers like Anthropic, OpenAI, or other LiteLLM-supported providers.
+
+**Option 2: OpenHands Cloud (Recommended)**: Sign up for [OpenHands Cloud](https://app.all-hands.dev), add credits to your account, and get your OpenHands LLM API key from the API keys page.
+
+**Option 3: ChatGPT Subscription**: If you have a ChatGPT Plus or Pro subscription, you can use `LLM.subscription_login()` to authenticate with your ChatGPT account and access Codex models without consuming API credits.
+
+**Set Your API Key:**
+
+```bash
+export LLM_API_KEY=your-api-key-here
+```
+
+### Step 2: Install the SDK
+
+**Option 1: Install via PyPI**
+
+```bash
+pip install openhands-sdk # Core SDK (openhands.sdk)
+pip install openhands-tools  # Built-in tools (openhands.tools)
+# Optional: required for sandboxed workspaces in Docker or remote servers
+pip install openhands-workspace # Workspace backends (openhands.workspace)
+pip install openhands-agent-server # Remote agent server (openhands.agent_server)
+```
+
+**Option 2: Install from Source**
+
+```bash
+# Clone the repository
+git clone https://github.com/OpenHands/software-agent-sdk.git
+cd software-agent-sdk
+
+# Install dependencies and setup development environment
+make build
+```
+
+### Step 3: Run Your First Agent
+
+Here's a complete example that creates an agent and asks it to perform a simple task:
+
+```python
+import os
+
+from openhands.sdk import LLM, Agent, Conversation, Tool
+from openhands.tools.file_editor import FileEditorTool
+from openhands.tools.task_tracker import TaskTrackerTool
+from openhands.tools.terminal import TerminalTool
+
+llm = LLM(
+    model=os.getenv("LLM_MODEL", "anthropic/claude-sonnet-4-5-20250929"),
+    api_key=os.getenv("LLM_API_KEY"),
+    base_url=os.getenv("LLM_BASE_URL", None),
+)
+
+agent = Agent(
+    llm=llm,
+    tools=[
+        Tool(name=TerminalTool.name),
+        Tool(name=FileEditorTool.name),
+        Tool(name=TaskTrackerTool.name),
+    ],
+)
+
+cwd = os.getcwd()
+conversation = Conversation(agent=agent, workspace=cwd)
+
+conversation.send_message("Write 3 facts about the current project into FACTS.txt.")
+conversation.run()
+print("All done!")
+```
+
+Run the example:
+
+```bash
+# Using a direct provider key (Anthropic/OpenAI/etc.)
+uv run python examples/01_standalone_sdk/01_hello_world.py
+```
+
+```bash
+# Using OpenHands Cloud
+export LLM_MODEL="openhands/claude-sonnet-4-5-20250929"
+uv run python examples/01_standalone_sdk/01_hello_world.py
+```
+
+You should see the agent understand your request, explore the project, and create a file with facts about it.
+
+## Core Concepts
+
+**Agent**: An AI-powered entity that can reason, plan, and execute actions using tools.
+
+**Tools**: Capabilities like executing bash commands, editing files, or browsing the web.
+
+**Workspace**: The execution environment where agents operate (local, Docker, or remote).
+
+**Conversation**: Manages the interaction lifecycle between you and the agent.
+
+## Basic Workflow
+
+1. **Configure LLM**: Choose model and provide API key
+2. **Create Agent**: Use preset or custom configuration
+3. **Add Tools**: Enable capabilities (bash, file editing, etc.)
+4. **Start Conversation**: Create conversation context
+5. **Send Message**: Provide task description
+6. **Run Agent**: Agent executes until task completes or stops
+7. **Get Result**: Review agent's output and actions
+
+## Try More Examples
+
+The repository includes 24+ examples demonstrating various capabilities:
+
+```bash
+# Simple hello world
+uv run python examples/01_standalone_sdk/01_hello_world.py
+
+# Custom tools
+uv run python examples/01_standalone_sdk/02_custom_tools.py
+
+# With skills
+uv run python examples/01_standalone_sdk/03_activate_microagent.py
+
+# See all examples
+ls examples/01_standalone_sdk/
+```
+
+## Next Steps
+
+### Explore Documentation
+
+* **[SDK Architecture](/sdk/arch/sdk)** - Deep dive into components
+* **[Tool System](/sdk/arch/tool-system)** - Available tools
+* **[Workspace Architecture](/sdk/arch/workspace)** - Execution environments
+* **[LLM Configuration](/sdk/arch/llm)** - Deep dive into language model configuration
+
+### Build Custom Solutions
+
+* **[Custom Tools](/sdk/guides/custom-tools)** - Create custom tools to expand agent capabilities
+* **[MCP Integration](/sdk/guides/mcp)** - Connect to external tools via Model Context Protocol
+* **[Docker Workspaces](/sdk/guides/agent-server/docker-sandbox)** - Sandbox agent execution in containers
+
+### Get Help
+
+* **[Slack Community](https://openhands.dev/joinslack)** - Ask questions and share projects
+* **[GitHub Issues](https://github.com/OpenHands/software-agent-sdk/issues)** - Report bugs or request features
+* **[Example Directory](https://github.com/OpenHands/software-agent-sdk/tree/main/examples)** - Browse working code samples

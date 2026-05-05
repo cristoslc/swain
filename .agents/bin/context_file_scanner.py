@@ -1,1 +1,1 @@
-../../skills/swain-security-check/scripts/context_file_scanner.py
+../../.claude/skills/swain-security-check/scripts/context_file_scanner.py

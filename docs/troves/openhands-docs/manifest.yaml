@@ -1,0 +1,102 @@
+# OpenHands Documentation Trove
+
+id: openhands-docs
+created: 2026-05-05
+refreshed: 2026-05-05
+tags:
+  - openhands
+  - agent-sdk
+  - ai-coding
+  - cli-tools
+  - documentation
+  - mcp
+  - swain-helm
+  - bridge
+  - remote-operator
+
+# Default freshness TTLs
+freshness-ttl:
+  web-page: 30d
+  documentation: 30d
+  repository: 30d
+
+# Source provenance
+sources:
+  - id: openhands-introduction
+    title: "OpenHands Introduction"
+    url: https://docs.openhands.dev/overview/introduction
+    hostname: docs.openhands.dev
+    type: web-page
+    fetched: 2026-05-05
+    content-hash: 599ba55ffe771fee953ba7baa57f2dcad94b3edcc37907516a18de5327daaf32
+    
+  - id: openhands-llms-index
+    title: "OpenHands Documentation Index (llms.txt)"
+    url: https://docs.openhands.dev/llms.txt
+    hostname: docs.openhands.dev
+    type: documentation
+    fetched: 2026-05-05
+    content-hash: 39e5111c61fad875f4ebccabeb4aa9b696df9d5d6fba1610cb91c3838a651fad
+    
+  - id: openhands-sdk-overview
+    title: "OpenHands Software Agent SDK Overview"
+    url: https://docs.openhands.dev/sdk
+    hostname: docs.openhands.dev
+    type: web-page
+    fetched: 2026-05-05
+    content-hash: 410d116ff1a65f163a48ed978189f9882120f8e01af115e4057bde56bcc0d8c6
+    
+  - id: openhands-sdk-getting-started
+    title: "OpenHands SDK Getting Started"
+    url: https://docs.openhands.dev/sdk/getting-started
+    hostname: docs.openhands.dev
+    type: web-page
+    fetched: 2026-05-05
+    content-hash: 89a2bab1570c7ef91d7fcc65237463e0b7c7e9bb36298afc750eee79fddbd5ec
+    
+  - id: openhands-sdk-arch-overview
+    title: "OpenHands SDK Architecture Overview"
+    url: https://docs.openhands.dev/sdk/arch/overview
+    hostname: docs.openhands.dev
+    type: web-page
+    fetched: 2026-05-05
+    content-hash: 30201f8fd67f2e6eb61e40b0270c38104ac6abc56b6e5a801670bc28be5c608b
+    
+  - id: openhands-sdk-agent
+    title: "OpenHands Agent Architecture"
+    url: https://docs.openhands.dev/sdk/arch/agent
+    hostname: docs.openhands.dev
+    type: web-page
+    fetched: 2026-05-05
+    content-hash: 60e9caccc482511eec57dbfc7669daaee938847752dcd1d42f0c8c7bba0e81c7
+    
+  - id: openhands-sdk-tool-system
+    title: "OpenHands Tool System & MCP"
+    url: https://docs.openhands.dev/sdk/arch/tool-system
+    hostname: docs.openhands.dev
+    type: web-page
+    fetched: 2026-05-05
+    content-hash: fcdf5b884157cdbf1691d082c5bfc91e33ebaa2d6446c033f8689202c1408181
+    
+  - id: openhands-cli-installation
+    title: "OpenHands CLI Installation"
+    url: https://docs.openhands.dev/openhands/usage/cli/installation
+    hostname: docs.openhands.dev
+    type: web-page
+    fetched: 2026-05-05
+    content-hash: 8e25a4767c0320f7ee0be603b2b50bcde4eedc79527314df57e6d82e07659bb7
+    
+  - id: swain-helm-implementation
+    title: "swain-helm Implementation (GitHub Repository)"
+    url: https://github.com/cristoslc/swain/tree/epic/initiative-018-swain-helm-implementation/src/swain_helm
+    hostname: github.com
+    type: repository
+    fetched: 2026-05-05
+    content-hash: 13156d22cd2f114f00480edf74c60c99ba435b7e632d3589e7255b4a8ad995cf
+
+# History
+history:
+  - event: created
+    date: 2026-05-05
+    commit: "fc757ce8a208df8edb35f7a6357948fca452bd76"
+    sources: 9

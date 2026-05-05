@@ -1,1 +1,1 @@
-../../skills/swain-init/scripts/swain-init-preflight.sh
+../../.claude/skills/swain-init/scripts/swain-init-preflight.sh

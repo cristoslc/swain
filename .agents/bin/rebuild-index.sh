@@ -1,1 +1,1 @@
-../../skills/swain-design/scripts/rebuild-index.sh
+../../.claude/skills/swain-design/scripts/rebuild-index.sh
