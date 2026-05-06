@@ -1,3 +1,28 @@
+## [v0.32.0-alpha] - 2026-05-06
+
+### Features
+
+#### Forgejo GPG Signing Support in swain-keys
+
+`swain-keys --provision` now auto-detects the forge from the origin
+URL and dispatches to the right backend. Forgejo projects get
+unattended ed25519 GPG key generation, upload via `fj user gpg upload`,
+and local `gpg.format=openpgp` config with proper `gpg.program`
+override for 1Password users. Remote URLs and SSH config aliases are
+left untouched. Unknown forges exit with a clear error instructing
+the operator to set `SWAIN_FORGE`. 16 acceptance tests added for
+forge detection, GPG generation, reuse, and error paths.
+
+### Research
+
+- Agent orchestration frameworks trove — updated with corrected OpenCode info, activity metrics, and revised governance rankings (originally 11 sources).
+- OpenHands SDK documentation trove extended — 9 additional sources covering full SDK surface.
+- 4 new troves created: oh-my-opencode-slim (12 sources), goose-cli (13 CLI help sources), deepsec-security-harness (1 source), agentcraft-docs (27 sources).
+
+### Supporting Changes
+
+- Removed stale `.agents/skills/` directory (post-merge cleanup).
+
 ## [v0.31.2-alpha] - 2026-05-04
 
 ### Features
