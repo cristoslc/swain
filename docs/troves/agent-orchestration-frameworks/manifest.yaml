@@ -248,5 +248,5 @@ history:
     sources_total: 15
   - event: updated
     date: 2026-05-05
-    commit: "--"
+    commit: "41a2303a226a0b05476f74a811f24cbd0d43f9dc"
     notes: "Corrected OpenCode funding status (VC-backed, not indie); Added Activity Assessment section; Updated governance rankings with Aider and corrected risk levels"
