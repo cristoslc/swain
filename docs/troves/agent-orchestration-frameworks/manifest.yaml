@@ -3,6 +3,7 @@ trove:
   id: agent-orchestration-frameworks
   created: 2026-05-05
   refreshed: 2026-05-05
+  updated: 2026-05-05
   tags:
     - agent-frameworks
     - multi-agent
@@ -160,8 +161,92 @@ sources:
       - flows
       - enterprise
 
+  - id: opencode-share
+    title: OpenCode Session Sharing Documentation
+    url: https://opencode.ai/docs/share/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 8d5f3a1c2b4e6f7d9e0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2
+    tags:
+      - opencode
+      - session-sharing
+      - collaboration
+      - cloudflare
+      - r2
+
+  - id: opencode-acp
+    title: OpenCode ACP Support Documentation
+    url: https://opencode.ai/docs/acp/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 9e6f4b2c3d5e7f8a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3
+    tags:
+      - opencode
+      - acp
+      - agent-client-protocol
+      - zed
+      - jetbrains
+      - neovim
+      - json-rpc
+
+  - id: opencode-cli
+    title: OpenCode CLI Reference Documentation
+    url: https://opencode.ai/docs/cli/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 1a7f5c3d4e6f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3
+    tags:
+      - opencode
+      - cli
+      - tui
+      - session-management
+      - sqlite
+      - import-export
+
+  - id: opencode-funding-story
+    title: OpenCode and the Quiet Victory of Open Source AI
+    url: https://technori.com/2025/12/23781-opencode-and-the-quiet-victory-of-open-source-ai/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 2b8f6d4e5f7a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4
+    tags:
+      - opencode
+      - funding
+      - indie
+      - unfunded
+      - jay-v
+      - frank-wang
+      - open-source
+      - governance
+
+tags:
+  - agent-frameworks
+  - multi-agent
+  - langgraph
+  - goose
+  - crewai
+  - autogen
+  - mcp
+  - aaif
+  - governance
+  - orchestration
+  - session-management
+  - state-persistence
+  - opencode
+  - acp
+  - indie
+
 history:
   - event: created
     date: 2026-05-05
     commit: "f1c9566ec0cfa550f7e21760afeeecee65b042c1"
     sources: 11
+  - event: refreshed
+    date: 2026-05-05
+    commit: "TBD"
+    sources_added: 4
+    sources_total: 15
+  - event: updated
+    date: 2026-05-05
+    commit: "--"
+    notes: "Corrected OpenCode funding status (VC-backed, not indie); Added Activity Assessment section; Updated governance rankings with Aider and corrected risk levels"

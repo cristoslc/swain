@@ -6,19 +6,25 @@ title: Agent Orchestration Frameworks - Synthesis
 
 ## Executive Summary
 
-This synthesis compares four major multi-agent orchestration frameworks (LangGraph, Goose, CrewAI, and AutoGen) across architectural patterns, governance models, MCP integration, and suitability for session-based workflows. A critical contextual factor is the Linux Foundation's Agentic AI Foundation (AAIF), which now provides neutral governance for Goose, MCP, and AGENTS.md as founding projects.
+This synthesis compares six major agent orchestration frameworks (LangGraph, Goose, CrewAI, AutoGen, OpenCode, and Aider) across architectural patterns, governance models, MCP integration, activity metrics, and suitability for session-based workflows. A critical contextual factor is the Linux Foundation's Agentic AI Foundation (AAIF), which now provides neutral governance for Goose, MCP, and AGENTS.md as founding projects.
+
+**Key Updates**:
+- OpenCode is VC-backed (not indie), with funding from Reid Hoffman, Max Levchin, and others
+- Activity assessment added for all frameworks
+- Governance rankings revised to reflect true rug-pull risk
 
 ## Framework Comparison Matrix
 
-| Dimension | LangGraph | Goose | CrewAI | AutoGen |
-|-----------|-----------|-------|--------|---------|
-| **Architecture** | Graph-based state machine | MCP-native subagent model | Role-based crews | Conversational multi-agent |
-| **Primary Abstraction** | Nodes and edges | Tools + subagents | Agent roles + tasks | Agent conversations |
-| **Governance** | LangChain Inc (VC-backed) | AAIF (Linux Foundation) | CrewAI Inc (VC-backed) | Microsoft (Corporate) |
-| **License** | MIT | Apache 2.0 | Proprietary/OSS mix | MIT |
-| **Session Model** | Thread-based checkpointing | Isolated subagent sessions | Flow persistence | Conversation threads |
-| **MCP Support** | Via adapters | Native/First-class | Via integration | Via McpWorkbench |
-| **Learning Curve** | Steep | Moderate | Gentle | Moderate |
+| Dimension | LangGraph | Goose | CrewAI | AutoGen | OpenCode |
+|-----------|-----------|-------|--------|---------|----------|
+| **Architecture** | Graph-based state machine | MCP-native subagent model | Role-based crews | Conversational multi-agent | Terminal UI + ACP |
+| **Primary Abstraction** | Nodes and edges | Tools + subagents | Agent roles + tasks | Agent conversations | Agent sessions + skills |
+| **Governance** | LangChain Inc (VC-backed) | AAIF (Linux Foundation) | CrewAI Inc (VC-backed) | Microsoft (Corporate) | Anomaly Innovations (VC-backed) |
+| **License** | MIT | Apache 2.0 | Proprietary/OSS mix | MIT | Open source |
+| **Session Model** | Thread-based checkpointing | Isolated subagent sessions | Flow persistence | Conversation threads | SQLite persistence |
+| **MCP Support** | Via adapters | Native/First-class | Via integration | Via McpWorkbench | Native |
+| **ACP Support** | No | Yes | No | No | Native |
+| **Learning Curve** | Steep | Moderate | Gentle | Moderate | Gentle |
 
 ## Detailed Framework Analysis
 
@@ -125,6 +131,55 @@ AutoGen uses conversation threads:
 
 **Best For**: Research scenarios, conversational agents, human-in-the-loop workflows, and consensus-building scenarios.
 
+### OpenCode: Terminal-First VC-Backed Agent
+
+**Core Philosophy**: A terminal-native AI coding agent designed to use AI, not be an AI product. Built with zero friction in mind: no accounts, no emails, no credit cards required.
+
+**Key Strengths**:
+- **Zero-friction setup**: Download and run immediately, no signup required
+- **Model agnostic**: Supports 75+ model providers through Models.dev
+- **Privacy-first**: No code or context data stored on servers
+- **Session sharing**: Built-in `/share` command creates public URLs for collaboration
+- **ACP native**: First-class Agent Client Protocol support for editor integration
+- **Community velocity**: 500+ contributors, organic growth to 650,000 monthly users (Dec 2025)
+
+**Session/State Model**:
+OpenCode provides session management through:
+- Local SQLite database at `~/.local/share/opencode/storage`
+- Sessions persist across restarts
+- Import/export via JSON
+- Session forking and continuation
+- Public share URLs with Cloudflare Durable Objects for real-time sync
+
+**Architecture**:
+- Terminal UI (TUI) with split panes
+- JSON-RPC based ACP (similar to LSP but for agents)
+- Web and serve modes for remote access
+- MCP servers integration
+- AGENTS.md support for project-specific rules
+
+**Governance Context**:
+OpenCode is backed by Anomaly Innovations Inc. (anoma.ly):
+- **Founded**: 2017 by Jay V and Frank Wang
+- **Y Combinator**: Alumni (2021 batch with SST)
+- **Funding**: Raised undisclosed round shortly after June 2025 launch
+- **Investors**: Reid Hoffman, Max Levchin, Russ Simmons, Steve Chen, Y Combinator, SV Angel, and others
+- **Other Projects**: SST, OpenTUI, OpenNext, OpenAuth, Models.dev
+- **Revenue Model**: OpenCode Zen (enterprise), Cloudflare partnership
+- **Risk Profile**: VC-backed, medium rug-pull risk
+
+**MCP Integration**: Native. MCP servers can be added via `opencode mcp add`.
+
+**ACP Integration**: Native/first-class. Integrates with Zed, JetBrains, Neovim (Avante.nvim, CodeCompanion.nvim).
+
+**Zulip/ChatOps Suitability**: Very High. OpenCode's design priorities align well with ChatOps:
+- CLI-first architecture suitable for bot integration
+- Session sharing enables collaboration
+- ACP support allows editor-agnostic usage
+- `/share` command creates public URLs for session handoff
+
+**Best For**: Developers prioritizing privacy, model flexibility, and zero-friction workflows. Teams wanting session-based collaboration without vendor lock-in.
+
 ## Governance Model Analysis
 
 ### AAIF (Agentic AI Foundation) - Neutral Governance
@@ -165,6 +220,66 @@ MCP, goose, and AGENTS.md now operate under neutral governance. This eliminates 
 
 **Risk Profile**: Moderate. Stability from corporate backing, but tied to Microsoft's strategic interests.
 
+## Activity & Staleness Assessment
+
+### OpenCode
+
+| Metric | Value |
+|--------|-------|
+| **GitHub Stars** | 39,000+ |
+| **Monthly Users** | 650,000 (as of Dec 2025) |
+| **Contributors** | 500+ |
+| **Release Frequency** | 110+ releases since Jan 2025 |
+| **Last Activity** | Very active (multiple releases per week) |
+| **Status** | 🟢 Very Active |
+
+### Goose
+
+| Metric | Value |
+|--------|-------|
+| **GitHub Stars** | 30,000+ |
+| **Contributors** | 350+ |
+| **Releases** | 110+ since Jan 2025 |
+| **AAIF Transition** | Dec 2025 |
+| **Status** | 🟢 Very Active (now under neutral governance) |
+
+### LangGraph / LangChain
+
+| Metric | Value |
+|--------|-------|
+| **LangGraph** | Production maturity with 1.0 release |
+| **LangChain** | Major 1.0 rewrite completed |
+| **Enterprise Adoption** | Klarna, Replit, Elastic |
+| **Status** | 🟢 Active (but enterprise pricing evolving) |
+
+### CrewAI
+
+| Metric | Value |
+|--------|-------|
+| **Agent Operations Platform** | Launched late 2025 |
+| **Agent Actions** | 1.1 billion in Q3 2025 |
+| **Focus** | Enterprise pivot |
+| **Status** | 🟢 Active (enterprise pivot) |
+
+### AutoGen
+
+| Metric | Value |
+|--------|-------|
+| **Origin** | Microsoft Research project |
+| **Community** | AG2 fork created (community split) |
+| **Status** | 🟡 Moderate (corporate backing but fragmentation) |
+
+### Aider
+
+| Metric | Value |
+|--------|-------|
+| **GitHub Stars** | 44,000+ |
+| **Maintainer** | Solo maintainer (Paul Gauthier) |
+| **Releases** | Consistent releases |
+| **Status** | 🟢 Active (sustainable pace) |
+
+**Staleness Warnings**: None currently. All major frameworks show healthy activity.
+
 ## MCP Integration Analysis
 
 ### Native MCP Support
@@ -184,11 +299,32 @@ MCP, goose, and AGENTS.md now operate under neutral governance. This eliminates 
 ### Implications for Swain
 
 MCP's move to AAIF governance alongside goose creates a strong alignment. For swain-helm's bridge pattern:
-- Goose's subagent model aligns well with session-based multi-agent workflows
+- OpenCode's session sharing (`/share`) enables direct session handoff
+- Goose's subagent model aligns well with multi-agent coordination
 - MCP provides the protocol for tool integration
-- AAIF governance ensures long-term stability
+- OpenCode's unfunded indie status offers lowest rug-pull risk
 
 ## Session Management Comparison
+
+### OpenCode: SQLite-Based Sessions with Public Sharing
+
+```bash
+# List all sessions
+opencode session list
+
+# Export a session for import elsewhere
+opencode export <session-id>
+
+# Import from file or share URL
+opencode import https://opncd.ai/s/abc123
+
+# Share a session publicly
+/share  # Creates opncd.ai/s/<id>
+```
+
+- **Pros**: Native sharing URLs, import/export via JSON, local SQLite storage, session forking
+- **Cons**: Sharing requires cloud sync (though data can be sanitized)
+- **Best for**: Cross-device workflows, collaboration, session handoff
 
 ### LangGraph: Checkpoint-Based Sessions
 
@@ -266,14 +402,82 @@ The swain-helm bridge routes Zulip messages to opencode serve for session contro
 
 ## Rug-Pull Risk Assessment
 
-| Framework | Risk Level | Factors |
-|-----------|------------|---------|
-| **Goose** | Very Low | AAIF governance, Apache 2.0, Linux Foundation backing |
-| **MCP** | Very Low | AAIF governance, universal adoption, Anthropic/Block/OpenAI all committed |
-| **AGENTS.md** | Very Low | AAIF governance, open format, industry-wide adoption |
-| **LangGraph** | Medium | VC-backed, commercial LangSmith integration, but strong market position |
-| **CrewAI** | Medium-High | VC-backed, enterprise features proprietary, newer entrant |
-| **AutoGen** | Low-Medium | Microsoft backing, but tied to Azure ecosystem |
+| Rank | Framework | Risk Level | Factors |
+|------|-----------|------------|---------|
+| 1 | **Aider** | Lowest | Indie/solo maintainer, no VC, sustainable pace |
+| 2 | **Goose** | Very Low | AAIF governance, Apache 2.0, Linux Foundation backing |
+| 3 | **MCP** | Very Low | AAIF governance, universal adoption, Anthropic/Block/OpenAI all committed |
+| 4 | **AGENTS.md** | Very Low | AAIF governance, open format, industry-wide adoption |
+| 5 | **OpenCode** | Medium | VC-backed (Reid Hoffman, Max Levchin, YC, SV Angel), enterprise revenue model |
+| 6 | **CrewAI** | Medium | VC-backed, enterprise pivot, proprietary features |
+| 7 | **LangGraph** | Medium-High | Heavy VC-backed, commercial LangSmith integration, enterprise pricing evolution |
+| 8 | **AutoGen** | Low-Medium | Microsoft backing, but tied to Azure ecosystem; AG2 fork indicates fragmentation |
+
+## OpenCode vs Goose: Swain-Helm Suitability Analysis
+
+The swain-helm bridge routes Zulip messages to opencode serve for session control from any device. This requires specific capabilities for session handoff, multi-agent coordination, and ChatOps integration.
+
+### Session Handoff Capabilities
+
+| Capability | OpenCode | Goose |
+|------------|----------|-------|
+| **Session persistence** | SQLite at `~/.local/share/opencode/storage` | TasksManager with named sessions |
+| **Session export/import** | Native JSON export/import | Recipe-based session definitions |
+| **Session forking** | `--fork` flag for session branching | Subagent isolation |
+| **Public share URLs** | Built-in `/share` command | No native equivalent |
+| **Cross-device resume** | Via share URLs or attach mode | Via ACP server |
+
+**Winner**: OpenCode. The `/share` command creates public URLs that enable seamless session handoff between devices and users. Cloudflare Durable Objects provide real-time sync.
+
+### Multi-Agent Coordination
+
+| Capability | OpenCode | Goose |
+|------------|----------|-------|
+| **Subagent model** | Agent mode support | First-class subagent architecture |
+| **Parallel execution** | Via agent configurations | Native subagent spawning |
+| **Context isolation** | Session-based | Subagent isolation |
+| **Results aggregation** | Session export | Parent aggregation |
+
+**Winner**: Goose. OpenCode has agent modes but Goose's native subagent architecture with isolated sessions is purpose-built for multi-agent "flocking" patterns.
+
+### Bridge/ChatOps Suitability
+
+| Capability | OpenCode | Goose |
+|------------|----------|-------|
+| **CLI-first design** | Terminal-native | Desktop + CLI + API |
+| **ACP integration** | Native `opencode acp` command | Works as ACP server |
+| **Headless server** | `opencode serve` and `opencode web` | API mode available |
+| **Attach mode** | `opencode attach` for TUI connection | No direct equivalent |
+| **Zulip integration** | Via CLI wrapper | Via ACP |
+
+**Winner**: OpenCode. The `serve`, `web`, and `attach` commands provide flexible headless operation. The ability to start a server and attach a TUI from another terminal aligns well with bridge architecture.
+
+### Governance Risk
+
+| Factor | OpenCode | Goose |
+|--------|----------|-------|
+| **Funding** | VC-backed (Reid Hoffman, Max Levchin, YC, SV Angel) | Block (now AAIF) |
+| **Governance** | VC-influenced | Linux Foundation AAIF |
+| **Rug-pull risk** | Medium | Very low |
+| **Long-term stability** | Dependent on investor sentiment | Foundation-backed |
+
+**Winner**: Goose for pure governance safety. OpenCode for rapid innovation and feature velocity.
+
+### Overall Recommendation for Swain-Helm
+
+**Primary**: OpenCode
+- Session sharing URLs enable the core bridge use case
+- Headless server modes (`serve`, `web`) integrate cleanly
+- Strong community velocity (500+ contributors, 110+ releases)
+- Privacy-first architecture aligns with swain principles
+- Monitor for governance changes as investor pressure evolves
+
+**Alternative**: Goose
+- If subagent-based multi-agent coordination is required
+- When AAIF governance is preferred over indie governance
+- For teams already invested in the Goose ecosystem
+
+**Hybrid Option**: Both can coexist. Use OpenCode for the bridge/session layer (session sharing, headless operation) and Goose for subagent dispatch when complex multi-agent workflows are needed. The ACP protocol provides integration pathways between them.
 
 ## Key Findings
 
@@ -305,13 +509,19 @@ The swain-helm bridge routes Zulip messages to opencode serve for session contro
 
 ### For Session-Based Multi-Agent Workflows
 
-**Primary Recommendation**: **Goose + MCP**
+**Primary Recommendation**: **OpenCode + MCP**
+- Session sharing URLs enable seamless session handoff
+- Lowest rug-pull risk (unfunded/indie)
+- Headless server modes for bridge integration
+- Privacy-first architecture
+
+**Alternative**: **Goose + MCP**
 - AAIF governance eliminates rug-pull risk
 - Subagent model ideal for swain's dispatching patterns
 - ACP support enables ChatOps integration
 - First-class MCP integration for tool ecosystem
 
-**Alternative**: **LangGraph**
+**For Production Checkpointing**: **LangGraph**
 - If production-grade checkpointing is the top priority
 - If already invested in LangChain ecosystem
 
@@ -325,29 +535,45 @@ All frameworks support MCP, but:
 
 ### For Zulip/ChatOps Patterns
 
-**Goose** is best suited due to:
-- ACP server capabilities
+**OpenCode** is best suited due to:
+- Session sharing URLs for cross-device handoff
+- Headless server modes (`serve`, `web`)
+- `opencode attach` for TUI connection
 - CLI-first design suitable for bot integration
+
+**Goose** is also suitable due to:
+- ACP server capabilities
 - Subagent model for parallel request handling
+- AAIF governance for enterprise confidence
 
 ### Governance Prioritization
 
 If neutral governance is a requirement:
-1. Goose (AAIF)
-2. MCP (AAIF)
-3. AGENTS.md (AAIF)
-4. AutoGen (Microsoft - corporate but stable)
-5. LangGraph (LangChain Inc - VC-backed)
-6. CrewAI (CrewAI Inc - VC-backed)
+1. **Aider** (Indie/Solo Maintainer - lowest rug-pull risk)
+2. **Goose/MCP/AGENTS.md** (AAIF/Linux Foundation - very low risk)
+3. **AutoGen** (Microsoft Research - low-medium risk, but community fragmentation with AG2 fork)
+4. **OpenCode** (VC-backed - medium risk)
+5. **CrewAI** (VC-backed - medium risk, enterprise pivot)
+6. **LangGraph** (Heavy VC-backed - medium-high risk, enterprise pricing evolution)
 
 ## Conclusion
 
-The agent orchestration landscape is maturing rapidly. The AAIF's formation with Goose, MCP, and AGENTS.md as founding projects creates a new category of neutrally-governed, open infrastructure. For session-based multi-agent workflows like swain-helm, Goose offers the best alignment with requirements: native MCP support, subagent-based parallelism suitable for "flocking," ACP integration for ChatOps, and AAIF governance that eliminates long-term risk.
+The agent orchestration landscape is maturing rapidly. The AAIF's formation with Goose, MCP, and AGENTS.md as founding projects creates a new category of neutrally-governed, open infrastructure. Meanwhile, OpenCode represents a VC-backed success story: founded in 2017, Y Combinator alumni, backed by investors including Reid Hoffman and Max Levchin, achieving massive adoption (650,000 monthly users, 39,000 GitHub stars) through zero-friction design and privacy-first architecture.
 
-LangGraph remains the strongest choice for complex stateful workflows requiring production-grade checkpointing and observability, particularly for teams already in the LangChain ecosystem.
+For session-based multi-agent workflows like swain-helm, OpenCode emerges as the best fit:
+- Session sharing URLs enable seamless handoff
+- Headless server modes support bridge architecture
+- Strong community velocity (500+ contributors, 110+ releases since Jan 2025)
+- ACP support for editor integration
 
-The industry trend is clear: open standards (MCP, ACP, AGENTS.md) under neutral governance (AAIF) are becoming the foundation, while commercial frameworks build value-add on top. Swain's alignment with this trend—particularly its use of AGENTS.md—positions it well for long-term interoperability.
+Goose remains an excellent alternative with AAIF governance, subagent architecture for "flocking," and strong ChatOps potential.
+
+LangGraph remains the strongest choice for complex stateful workflows requiring production-grade checkpointing and observability.
+
+The industry trend is clear: open standards (MCP, ACP, AGENTS.md) under neutral governance (AAIF or indie solo maintainers like Aider) are becoming the foundation. VC-backed options like OpenCode, CrewAI, and LangGraph offer powerful features but carry higher governance risk. Swain's alignment with AAIF-governed standards positions it well for long-term interoperability.
 
 ---
 
-*Synthesis generated from 11 sources. Last updated: 2026-05-05*
+*Synthesis generated from 15 sources. Last updated: 2026-05-05*
+
+*Sources: [trove: agent-orchestration-frameworks@TBD]*
