@@ -52,6 +52,7 @@ detect_forge() {
 
 fj_forgejo_host() {
   local remote_url host
+  # nosemgrep: git remote get-url is local config lookup, not DNS
   remote_url="$(git remote get-url origin 2>/dev/null || true)"
   host="${SWAIN_FORGEJO_HOST:-}"
 
@@ -341,6 +342,7 @@ step_update_remote_url() {
     return 0
   fi
 
+  # nosemgrep: checking remote URL format, not DNS lookup
   if echo "$current_url" | grep -qF "$host_alias"; then
     skip "Remote URL already uses host alias: $current_url"
     return 0

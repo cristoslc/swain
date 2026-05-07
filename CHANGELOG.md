@@ -1,3 +1,19 @@
+## [v0.33.0-alpha] - 2026-05-07
+
+### Features
+
+#### Cookie Support in swain-search
+
+swain-search can now fetch pages behind authentication walls by
+accepting browser-exported cookies. Export a JSON cookie file from
+Firefox or Chrome DevTools (the format with `Host raw`, `Name raw`,
+`Content raw` fields), pass it to `export-snapshot.sh --cookies`, and
+the skill converts it to Netscape format for curl-based fetching.
+`convert-cookies.py` handles URL-decoding, host-only/scoping flags,
+and secure flag mapping. 9 acceptance tests cover the conversion
+pipeline. No cookie file means no change to existing behaviour —
+the flag is optional and backward-compatible.
+
 ## [v0.32.0-alpha] - 2026-05-06
 
 ### Features
