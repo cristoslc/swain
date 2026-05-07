@@ -18,7 +18,7 @@ bash skills/swain-search/scripts/bootstrap.sh
 
 | Type | Input | Script / capability |
 |------|-------|---------------------|
-| `web` | Any HTTP URL | web fetch capability |
+| `web` | Any HTTP URL (optionally with `--cookies` for auth) | web fetch capability or `scripts/export-snapshot.sh` |
 | `forum` | Forum thread URL | web fetch capability |
 | `media` | YouTube, Instagram, or podcast URL | `scripts/yt-dlp.sh`, `scripts/parse_vtt.py`, `scripts/extract_frames.py`, `scripts/ocr_frames.py` |
 | `x-thread` | X/Twitter status URL | `scripts/fetch_x_thread.py` |
@@ -51,7 +51,8 @@ To run swain-search fully autonomously, add these entries to your Claude Code `a
 "Bash(bash */scripts/export-snapshot.sh*)",
 "Bash(bash */scripts/log-snapshot-metadata.sh*)",
 "Bash(bash */scripts/verify-snapshot-evidence.sh*)",
-"Bash(bash */scripts/resolve-proxy.sh*)"
+"Bash(bash */scripts/resolve-proxy.sh*)",
+"Bash(python3 */scripts/convert-cookies.py*)"
 ```
 
 Why these are safe:

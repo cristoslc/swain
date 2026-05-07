@@ -140,6 +140,28 @@ For each source, use the appropriate capability. Read `references/normalization-
 3. Normalize to markdown per the web page format
 4. If fetch fails, record the URL in manifest with a `failed: true` flag and move on
 
+**Sites needing authentication (cookie support):**
+
+When a target site requires authentication or subscription access, supply browser-exported cookies:
+
+1. Export cookies from a browser where you are logged in to the target site:
+   - Firefox: use the "cookies.txt" extension, or export from DevTools → Storage → Cookies → right-click → "Export All".
+   - Chrome: use the "EditThisCookie" extension or DevTools → Application → Cookies → right-click → "Export".
+   - Any tool that produces a JSON array of cookie objects with `Host raw`, `Name raw`, `Content raw`, `Path raw`, `Expires raw`, `Send for raw`, and `This domain only raw` fields.
+
+2. Pass the exported JSON file to `export-snapshot.sh`:
+   ```bash
+   bash "<SKILL_DIR>/scripts/export-snapshot.sh" \
+     --url "<source-url>" \
+     --out-dir ".agents/search-snapshots/raw" \
+     --cookies "path/to/cookies.json"
+   ```
+   The `--cookies` flag triggers conversion to Netscape format via `convert-cookies.py` and attaches the cookie jar to the curl request. The export mode is recorded as `<mode>-with-cookies`.
+
+3. If no cookies are provided, the fetch proceeds without authentication (same behaviour as before).
+
+4. For the browser-based page-fetching path (MCP browser tools), cookies from the browser's own session are available automatically — no explicit cookies file is needed. This flag is useful for curl-based snapshot export.
+
 **Google Docs / Drive-like documents:**
 1. Export raw content first (required):
    - `bash "<SKILL_DIR>/scripts/export-snapshot.sh" --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
