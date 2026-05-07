@@ -11,7 +11,8 @@ Usage:
     --out-dir <snapshot-dir> \
     [--format txt|pdf] \
     [--browser-export-helper <helper-script>] \
-    [--mock-export-url <url>]
+    [--mock-export-url <url>] \
+    [--cookies <cookies.json>]
 
 Outputs one JSON object to stdout:
   {"source_url":"...","export_mode":"...","export_timestamp":"...","raw_path":"..."}
@@ -23,6 +24,7 @@ OUT_DIR=""
 EXPORT_FORMAT="txt"
 BROWSER_EXPORT_HELPER=""
 MOCK_EXPORT_URL=""
+COOKIES_JSON=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -44,6 +46,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --mock-export-url)
       MOCK_EXPORT_URL="${2:-}"
+      shift 2
+      ;;
+    --cookies)
+      COOKIES_JSON="${2:-}"
       shift 2
       ;;
     -h|--help)
@@ -94,9 +100,28 @@ else
   detected_mode="direct-export"
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Build curl cookie args if --cookies was provided
+CURL_COOKIE_ARGS=()
+if [[ -n "$COOKIES_JSON" ]]; then
+  if [[ ! -f "$COOKIES_JSON" ]]; then
+    echo "ERROR: cookies file not found: $COOKIES_JSON" >&2
+    exit 1
+  fi
+  COOKIE_JAR="$(mktemp -t swain-search-cookies.XXXXXX)"
+  trap "rm -f \"$COOKIE_JAR\"" EXIT
+  if ! python3 "$SCRIPT_DIR/convert-cookies.py" "$COOKIES_JSON" > "$COOKIE_JAR"; then
+    echo "ERROR: failed to convert cookies from $COOKIES_JSON" >&2
+    exit 1
+  fi
+  CURL_COOKIE_ARGS=(-b "$COOKIE_JAR")
+  detected_mode="${detected_mode}-with-cookies"
+fi
+
 download_ok=0
 if curl -fLsS --retry 3 --retry-all-errors --connect-timeout 10 \
-  --max-time 120 "$export_url" -o "$raw_path"; then
+  --max-time 120 "${CURL_COOKIE_ARGS[@]}" "$export_url" -o "$raw_path"; then
   download_ok=1
 fi
 

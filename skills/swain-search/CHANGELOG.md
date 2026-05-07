@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-05-07 — Cookie support
+
+### Added
+- **`scripts/convert-cookies.py`** — converts browser-exported JSON cookies (Firefox/Chrome DevTools format with `Host raw`, `Name raw`, `Content raw`, etc.) to Netscape cookie file format for use with `curl -b`. Handles URL-decoding of percent-encoded values, host-only vs subdomain scoping (leading dot), and secure flag mapping.
+- **`--cookies <file.json>` flag** on `export-snapshot.sh` — converts the JSON to a temporary Netscape cookie jar and attaches it to the curl request. Export mode recorded as `<mode>-with-cookies`.
+- **`tests/test-convert-cookies.py`** — 9 acceptance tests covering URL decoding, host-only/secure flag mapping, protocol stripping, multiple cookies, and subdomain leading-dot behaviour.
+
+### Changed
+- **SKILL.md** — added "Sites needing authentication" subsection under web page URL collection, documenting cookie export from browsers and the `--cookies` flag.
+- **README.md** — updated source types table and permissions list for `convert-cookies.py`.
+
 ## 2026-04-13 — SPEC-306
 
 ### Added

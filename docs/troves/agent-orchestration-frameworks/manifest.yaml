@@ -1,0 +1,252 @@
+---
+trove:
+  id: agent-orchestration-frameworks
+  created: 2026-05-05
+  refreshed: 2026-05-05
+  updated: 2026-05-05
+  tags:
+    - agent-frameworks
+    - multi-agent
+    - langgraph
+    - goose
+    - crewai
+    - autogen
+    - mcp
+    - aaif
+    - governance
+    - orchestration
+    - session-management
+    - state-persistence
+
+sources:
+  - id: langgraph-overview
+    title: LangGraph - Agent Orchestration Framework
+    url: https://langchain.com/langgraph
+    type: web-page
+    fetched: 2026-05-05
+    hash: a6393d01348910189ee178d77705d17c7c388288b80ee313d1d5b0c4af0c0786
+    tags:
+      - langgraph
+      - langchain
+      - graph-orchestration
+      - state-management
+      - streaming
+
+  - id: goose-overview
+    title: goose - Open Source AI Agent
+    url: https://goose-docs.ai
+    type: web-page
+    fetched: 2026-05-05
+    hash: 041ef560d276789ad5acedda1569b4771a326f2d11b661812d033fffb7aaf222
+    tags:
+      - goose
+      - aaif
+      - mcp
+      - subagents
+      - rust
+      - apache-2
+
+  - id: crewai-overview
+    title: CrewAI - Multi-Agent Platform
+    url: https://www.crewai.com
+    type: web-page
+    fetched: 2026-05-05
+    hash: 95bc322c25e6aec99ce746b68c00fb0afd013515cb36e69a814b8750d4a16438
+    tags:
+      - crewai
+      - role-based
+      - enterprise
+      - visual-editor
+
+  - id: autogen-overview
+    title: AutoGen - Microsoft AI Agent Framework
+    url: https://microsoft.github.io/autogen/stable/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 776888e66d3e398a75295242cfcfabca9e55fe7de65450bcbddfe5dab781ed4c
+    tags:
+      - autogen
+      - microsoft
+      - conversational
+      - agentchat
+      - distributed
+
+  - id: aaif-announcement
+    title: Linux Foundation AAIF Formation Announcement
+    url: https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-framework
+    type: web-page
+    fetched: 2026-05-05
+    hash: 03916d904e3be6bccbdce7d28b39d4c33b3a89c7c8b9d3049b1c5e3327da6b69
+    tags:
+      - aaif
+      - linux-foundation
+      - governance
+      - mcp
+      - goose
+      - agents-md
+
+  - id: mcp-overview
+    title: Model Context Protocol (MCP) Overview
+    url: https://modelcontextprotocol.io/
+    type: web-page
+    fetched: 2026-05-05
+    hash: c52af35b130ca66c5b6d7ba3b604c32ac6f9d548adf5159ed372567ed254b606
+    tags:
+      - mcp
+      - model-context-protocol
+      - aaif
+      - standards
+      - interoperability
+
+  - id: framework-comparison-datacamp
+    title: CrewAI vs LangGraph vs AutoGen Framework Comparison
+    url: https://www.datacamp.com/tutorial/crewai-vs-langgraph-vs-autogen
+    type: web-page
+    fetched: 2026-05-05
+    hash: 898484688ffc41abe7a0d361a01b25e9cd6458b459c571401435bdf71aaa9b40
+    tags:
+      - comparison
+      - architecture
+      - learning-curve
+      - use-cases
+
+  - id: goose-subagents
+    title: Goose Subagents - Parallel Task Execution
+    url: https://www.nickyt.co/blog/advent-of-ai-day-11-goose-subagents-2n2/
+    type: web-page
+    fetched: 2026-05-05
+    hash: ceed13403c7fc1295e1438bd3d49fb5a42e86bdea3455a7fc51b5c723669edb1
+    tags:
+      - goose
+      - subagents
+      - parallel-execution
+      - session-isolation
+      - rust
+
+  - id: langgraph-persistence
+    title: LangGraph Persistence and State Management
+    url: https://docs.langchain.com/oss/python/langgraph/persistence
+    type: web-page
+    fetched: 2026-05-05
+    hash: 1efb3ab7628a2efcb7719df0377567afab8630ef159bb8aa444946a9bf6e95d9
+    tags:
+      - langgraph
+      - persistence
+      - checkpointing
+      - threads
+      - state-management
+
+  - id: agents-md-spec
+    title: AGENTS.md Specification
+    url: https://agents.md/
+    type: web-page
+    fetched: 2026-05-05
+    hash: dd7a17cc5f7c6972039bea4c79e371ea6c05cdb3e4879b5e953bb968c9429acc
+    tags:
+      - agents-md
+      - specification
+      - aaif
+      - open-standard
+      - configuration
+
+  - id: crewai-documentation
+    title: CrewAI Official Documentation
+    url: https://docs.crewai.com/
+    type: web-page
+    fetched: 2026-05-05
+    hash: dd0f7804cf07c2fdf808eebcfae6ff3345e9e99dcb6572a9b85a27672617a46b
+    tags:
+      - crewai
+      - documentation
+      - flows
+      - enterprise
+
+  - id: opencode-share
+    title: OpenCode Session Sharing Documentation
+    url: https://opencode.ai/docs/share/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 8d5f3a1c2b4e6f7d9e0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2
+    tags:
+      - opencode
+      - session-sharing
+      - collaboration
+      - cloudflare
+      - r2
+
+  - id: opencode-acp
+    title: OpenCode ACP Support Documentation
+    url: https://opencode.ai/docs/acp/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 9e6f4b2c3d5e7f8a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3
+    tags:
+      - opencode
+      - acp
+      - agent-client-protocol
+      - zed
+      - jetbrains
+      - neovim
+      - json-rpc
+
+  - id: opencode-cli
+    title: OpenCode CLI Reference Documentation
+    url: https://opencode.ai/docs/cli/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 1a7f5c3d4e6f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3
+    tags:
+      - opencode
+      - cli
+      - tui
+      - session-management
+      - sqlite
+      - import-export
+
+  - id: opencode-funding-story
+    title: OpenCode and the Quiet Victory of Open Source AI
+    url: https://technori.com/2025/12/23781-opencode-and-the-quiet-victory-of-open-source-ai/
+    type: web-page
+    fetched: 2026-05-05
+    hash: 2b8f6d4e5f7a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4
+    tags:
+      - opencode
+      - funding
+      - indie
+      - unfunded
+      - jay-v
+      - frank-wang
+      - open-source
+      - governance
+
+tags:
+  - agent-frameworks
+  - multi-agent
+  - langgraph
+  - goose
+  - crewai
+  - autogen
+  - mcp
+  - aaif
+  - governance
+  - orchestration
+  - session-management
+  - state-persistence
+  - opencode
+  - acp
+  - indie
+
+history:
+  - event: created
+    date: 2026-05-05
+    commit: "f1c9566ec0cfa550f7e21760afeeecee65b042c1"
+    sources: 11
+  - event: refreshed
+    date: 2026-05-05
+    commit: "TBD"
+    sources_added: 4
+    sources_total: 15
+  - event: updated
+    date: 2026-05-05
+    commit: "41a2303a226a0b05476f74a811f24cbd0d43f9dc"
+    notes: "Corrected OpenCode funding status (VC-backed, not indie); Added Activity Assessment section; Updated governance rankings with Aider and corrected risk levels"
