@@ -1,0 +1,31 @@
+trove: spec-driven-agent-coding
+created: 2026-05-18
+refreshed: 2026-05-18
+tags:
+  - spec-driven-development
+  - agent-coding
+  - agentic-workflow
+  - software-engineering
+  - code-quality
+  - testing
+  - documentation
+  - process
+  - slop
+
+freshness-ttl:
+  web: 7d
+
+history:
+  - event: created
+    date: 2026-05-18
+    commit: "--"
+    sources: 1
+
+sources:
+  - source-id: lessons-in-spec-coding
+    type: web
+    url: "https://github.com/jlevy/speculate/blob/main/about/lessons_in_spec_coding.md"
+    fetched: 2026-05-18T22:46:07Z
+    title: "Lessons from 500K Lines of Spec-Driven Agent Coding"
+    hash: "035a3adf26e3c2abf40519e47b44fe06b9109747379cfd5e1a953e8a73a7c6d2"
+    snapshot-verified: true
