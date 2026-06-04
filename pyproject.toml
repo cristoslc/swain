@@ -5,6 +5,8 @@ description = "Untethered Operator — chat bridge for steering agentic sessions
 requires-python = ">=3.11"
 dependencies = [
     "zulip>=0.9.0",
+    "urllib3>=2.7.0",
+    "idna>=3.15",
 ]
 
 [project.scripts]
@@ -14,7 +16,7 @@ untethered-project-bridge = "untethered.plugins.project_bridge:main"
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.0",
+    "pytest>=9.0.3",
     "pytest-asyncio>=0.24",
 ]
 
