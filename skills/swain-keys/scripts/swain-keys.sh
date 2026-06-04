@@ -30,57 +30,77 @@ fj_is_authed() {
 # --- Forge detection ---
 
 detect_forge() {
-  local remote_url
-  remote_url="$(git remote get-url origin 2>/dev/null || true)"
-
   SWAIN_FORGE="${SWAIN_FORGE:-}"
-
-  if [[ -z "$SWAIN_FORGE" && -n "$remote_url" ]]; then
-    if echo "$remote_url" | grep -qE 'github\.com[:/-]'; then
-      SWAIN_FORGE="github"
-    elif echo "$remote_url" | grep -qE '(codeberg\.org|forgejo\.|gitea\.|localhost|127\.0\.0\.1)'; then
-      SWAIN_FORGE="forgejo"
-    fi
+  if [[ -n "$SWAIN_FORGE" ]]; then
+    return 0
   fi
 
+  local remote name url
+  for name in $(git remote 2>/dev/null); do
+    url="$(git remote get-url "$name" 2>/dev/null || true)"
+    if echo "$url" | grep -qE 'github\.com[:/-]'; then
+      SWAIN_FORGE="${SWAIN_FORGE}github "
+    elif echo "$url" | grep -qE '(codeberg\.org|forgejo\.|gitea\.|localhost|127\.0\.0\.1)'; then
+      SWAIN_FORGE="${SWAIN_FORGE}forgejo "
+    else
+      SWAIN_FORGE="${SWAIN_FORGE}unknown "
+    fi
+  done
+
+  SWAIN_FORGE="$(echo "$SWAIN_FORGE" | tr ' ' '\n' | sort -u | tr '\n' ' ' | xargs)"
   if [[ -z "$SWAIN_FORGE" ]]; then
-    echo "UNKNOWN_FORGE: Could not detect forge from remote URL." >&2
-    echo "Set SWAIN_FORGE to 'github' or 'forgejo' and re-run." >&2
+    echo "UNKNOWN_FORGE: Could not detect forge from any remote URL." >&2
+    echo "Set SWAIN_FORGE to 'github', 'forgejo', or 'github forgejo' and re-run." >&2
     exit 2
   fi
 }
 
 fj_forgejo_host() {
   local remote_url host
-  # nosemgrep: git remote get-url is local config lookup, not DNS
-  remote_url="$(git remote get-url origin 2>/dev/null || true)"
   host="${SWAIN_FORGEJO_HOST:-}"
 
-  if [[ -z "$host" ]]; then
-    if echo "$remote_url" | grep -qE 'localhost|127\.0\.0\.1'; then
-      host="http://localhost:3000"
-    elif echo "$remote_url" | grep -qE 'codeberg\.org'; then
-      host="https://codeberg.org"
-    elif [[ "$remote_url" =~ ^(https?://[^/]+) ]]; then
-      host="${BASH_REMATCH[1]}"
-    elif [[ "$remote_url" =~ ^git@([^:]+): ]]; then
-      host="https://${BASH_REMATCH[1]}"
-    fi
+  if [[ -n "$host" ]]; then
+    echo "$host"
+    return 0
   fi
 
-  echo "${host:-http://localhost:3000}"
+  local name
+  for name in $(git remote 2>/dev/null); do
+    remote_url="$(git remote get-url "$name" 2>/dev/null || true)"
+    if echo "$remote_url" | grep -qE 'localhost|127\.0\.0\.1'; then
+      echo "http://localhost:3000"
+      return 0
+    elif echo "$remote_url" | grep -qE 'codeberg\.org'; then
+      echo "https://codeberg.org"
+      return 0
+    elif [[ "$remote_url" =~ ^(https?://[^/]+) ]]; then
+      echo "${BASH_REMATCH[1]}"
+      return 0
+    elif [[ "$remote_url" =~ ^git@([^:]+): ]]; then
+      echo "https://${BASH_REMATCH[1]}"
+      return 0
+    fi
+  done
+
+  echo "http://localhost:3000"
 }
 
 # --- Derive project name ---
 
 derive_project_name() {
   local remote_url name
-  remote_url="$(git remote get-url origin 2>/dev/null || true)"
-  if [[ -n "$remote_url" ]]; then
-    name="$(basename "$remote_url" .git)"
-  else
-    name="$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")"
-  fi
+  local found_remote
+  for found_remote in $(git remote 2>/dev/null); do
+    remote_url="$(git remote get-url "$found_remote" 2>/dev/null || true)"
+    if [[ -n "$remote_url" ]]; then
+      name="$(basename "$remote_url" .git)"
+      if [[ -n "$name" ]]; then
+        echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g'
+        return 0
+      fi
+    fi
+  done
+  name="$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")"
   echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g'
 }
 
@@ -331,36 +351,49 @@ SSHEOF
 
 # --- Step: update remote URL (GitHub path) ---
 
-step_update_remote_url() {
+step_rename_remotes() {
   local project="$1"
   local host_alias="github.com-${project}"
-  local current_url
 
-  current_url="$(git remote get-url origin 2>/dev/null || true)"
-  if [[ -z "$current_url" ]]; then
-    warn "No origin remote — skipping URL update"
-    return 0
-  fi
+  local name url owner_repo new_url
+  for name in $(git remote 2>/dev/null); do
+    # Skip already-canonical remote names
+    if [[ "$name" == "gh" ]] || [[ "$name" == "fjl" ]]; then
+      skip "Remote '$name' already uses canonical name"
+      continue
+    fi
 
-  # nosemgrep: checking remote URL format, not DNS lookup
-  if echo "$current_url" | grep -qF "$host_alias"; then
-    skip "Remote URL already uses host alias: $current_url"
-    return 0
-  fi
+    url="$(git remote get-url "$name" 2>/dev/null || true)"
 
-  local owner_repo
-  if [[ "$current_url" =~ github\.com[:/](.+)$ ]]; then
-    owner_repo="${BASH_REMATCH[1]}"
-    owner_repo="${owner_repo%.git}"
-  else
-    warn "Could not parse GitHub owner/repo from: $current_url"
-    return 1
-  fi
+    # GitHub remotes
+    if echo "$url" | grep -qE 'github\.com[:/-]'; then
+      if echo "$url" | grep -qF "$host_alias"; then
+        skip "Remote '$name' already uses host alias: $url"
+      else
+        if [[ "$url" =~ github\.com[:/](.+)$ ]]; then
+          owner_repo="${BASH_REMATCH[1]}"
+          owner_repo="${owner_repo%.git}"
+          new_url="git@${host_alias}:${owner_repo}.git"
+          info "Renaming '$name' to 'gh' (URL: $url -> $new_url)"
+          git remote remove "$name" 2>/dev/null || true
+          git remote add gh "$new_url"
+          ok "Remote '$name' -> 'gh' with host alias URL: $new_url"
+        else
+          warn "Could not parse GitHub owner/repo from: $url"
+        fi
+      fi
 
-  local new_url="git@${host_alias}:${owner_repo}.git"
-  info "Updating remote URL: $current_url -> $new_url"
-  git remote set-url origin "$new_url"
-  ok "Remote URL updated to: $new_url"
+    # Forgejo remotes
+    elif echo "$url" | grep -qE '(forgejo\.|gitea\.|localhost|127\.0\.0\.1)'; then
+      info "Renaming '$name' to 'fjl' (URL: $url)"
+      git remote remove "$name" 2>/dev/null || true
+      git remote add fjl "$url"
+      ok "Remote '$name' -> 'fjl' with URL: $url"
+
+    else
+      info "Skipping remote '$name' — cannot classify URL: $url"
+    fi
+  done
 }
 
 # --- Step: git signing config ---
@@ -541,7 +574,7 @@ cmd_status() {
   echo "Git email:        $email"
   echo ""
 
-  if [[ "$SWAIN_FORGE" == "forgejo" ]]; then
+  if [[ "$SWAIN_FORGE" == *"forgejo"* ]]; then
     echo "GPG keyid file:   $([ -f "$gpg_keyid_file" ] && echo "EXISTS ($gpg_keyid_file)" || echo "MISSING")"
     if [[ -f "$gpg_keyid_file" ]]; then
       gpg_keyid="$(cat "$gpg_keyid_file")"
@@ -567,23 +600,25 @@ cmd_status() {
   echo "  commit.gpgsign: $commit_sign"
   echo ""
 
-  remote_url="$(git remote get-url origin 2>/dev/null || echo "(no remote)")"
-  echo "Remote URL:       $remote_url"
-
-  if [[ "$SWAIN_FORGE" == "github" ]]; then
-    host_alias="github.com-${project}"
-    if echo "$remote_url" | grep -qF "$host_alias"; then
-      echo "  (uses project-specific host alias)"
-    elif echo "$remote_url" | grep -q "^https://"; then
-      echo "  (HTTPS — will be changed to SSH alias on provision)"
+  echo "Remotes:"
+  local name url
+  for name in $(git remote 2>/dev/null); do
+    url="$(git remote get-url "$name" 2>/dev/null || true)"
+    echo "  $name: $url"
+    if [[ "$SWAIN_FORGE" == *"github"* ]] && [[ "$name" == "gh" ]]; then
+      if echo "$url" | grep -qF "$host_alias"; then
+        echo "    (uses project-specific host alias)"
+      elif echo "$url" | grep -q "^https://"; then
+        echo "    (HTTPS — will be changed to SSH alias on provision)"
+      fi
+    elif [[ "$SWAIN_FORGE" == *"forgejo"* ]] && [[ "$name" == "fjl" ]]; then
+      echo "    (Forgejo — left unchanged)"
     fi
-  else
-    echo "  (remote URL left unchanged for Forgejo)"
-  fi
+  done
 
   echo ""
 
-  if [[ "$SWAIN_FORGE" == "github" ]]; then
+  if [[ "$SWAIN_FORGE" == *"github"* ]]; then
     if gh_is_authed; then
       echo "GitHub keys:"
       local gh_keys
@@ -654,7 +689,9 @@ cmd_provision() {
   echo "Forge: $SWAIN_FORGE | Project: $project | Email: $email"
   echo ""
 
-  if [[ "$SWAIN_FORGE" == "forgejo" ]]; then
+  # Run forgejo provisioning
+  if [[ "$SWAIN_FORGE" == *"forgejo"* ]]; then
+    echo "--- Forgejo provisioning ---"
     local gpg_keyid_file gpg_keyid
     gpg_keyid_file="$HOME/.ssh/${project}_gpg_keyid"
 
@@ -671,7 +708,7 @@ cmd_provision() {
     step_configure_gpg_signing "$gpg_keyid"
     echo ""
 
-    echo "--- Verification ---"
+    echo "--- Verification (Forgejo) ---"
     step_verify_signing || had_errors=true
 
     if [[ "$fj_auth_ok" == true ]]; then
@@ -697,7 +734,11 @@ cmd_provision() {
       echo "Or, if fj becomes available later:"
       echo "  fj auth login && bash $0 --provision"
     fi
-  else
+  fi
+
+  # Run GitHub provisioning
+  if [[ "$SWAIN_FORGE" == *"github"* ]]; then
+    echo "--- GitHub provisioning ---"
     local key_path pub_key_path signers_path config_path host_alias
     key_path="$HOME/.ssh/${project}_signing"
     pub_key_path="${key_path}.pub"
@@ -723,13 +764,10 @@ cmd_provision() {
     step_create_ssh_config "$config_path" "$project" "$key_path"
     echo ""
 
-    step_update_remote_url "$project"
-    echo ""
-
     step_configure_git_signing "$key_path" "$signers_path"
     echo ""
 
-    echo "--- Verification ---"
+    echo "--- Verification (GitHub) ---"
     step_verify_signing || had_errors=true
 
     if [[ "$gh_auth_ok" == true ]]; then
@@ -759,6 +797,10 @@ cmd_provision() {
     fi
   fi
 
+  # Rename remotes (runs once, handles both forges)
+  step_rename_remotes "$project"
+  echo ""
+
   if [[ "$had_errors" == true ]]; then
     echo ""
     echo "Some verification steps had warnings — review output above."
@@ -769,16 +811,17 @@ cmd_provision() {
 }
 
 cmd_verify() {
-  local had_warnings=false
+  local had_warnings=false project host_alias gpg_keyid_file
   detect_forge
 
   echo "=== swain-keys verify (forge: $SWAIN_FORGE) ==="
 
-  if [[ "$SWAIN_FORGE" == "forgejo" ]]; then
-    local project gpg_keyid_file
-    project="$(derive_project_name)"
-    gpg_keyid_file="$HOME/.ssh/${project}_gpg_keyid"
+  project="$(derive_project_name)"
+  host_alias="github.com-${project}"
+  gpg_keyid_file="$HOME/.ssh/${project}_gpg_keyid"
 
+  if [[ "$SWAIN_FORGE" == *"forgejo"* ]]; then
+    echo "--- Forgejo ---"
     step_verify_signing || had_warnings=true
 
     if [[ -f "$gpg_keyid_file" ]]; then
@@ -786,11 +829,10 @@ cmd_verify() {
     else
       warn "No GPG keyid file found — run --provision first"
     fi
-  else
-    local project host_alias
-    project="$(derive_project_name)"
-    host_alias="github.com-${project}"
+  fi
 
+  if [[ "$SWAIN_FORGE" == *"github"* ]]; then
+    echo "--- GitHub ---"
     step_verify_connectivity "$host_alias" || had_warnings=true
     step_verify_signing || had_warnings=true
     step_verify_github_signing || had_warnings=true
@@ -821,9 +863,10 @@ case "${1:-}" in
     echo "  --verify     Test signing capability and forge registration"
     echo ""
     echo "Supports GitHub (SSH signing) and Forgejo (GPG signing)."
-    echo "Forge is auto-detected from the origin remote URL."
-    echo "  Set SWAIN_FORGE to 'github' or 'forgejo' to override detection."
+    echo "Forge is auto-detected from all git remotes."
+    echo "  Set SWAIN_FORGE to 'github', 'forgejo', or 'github forgejo' to override detection."
     echo "  Set SWAIN_FORGEJO_HOST to override the Forgejo instance URL."
+    echo "Remotes are renamed to canonical names: 'gh' (GitHub), 'fjl' (Forgejo)."
     ;;
   *)
     cmd_status
