@@ -58,13 +58,27 @@ detect_forge() {
 fj_forgejo_host() {
   local remote_url host
   host="${SWAIN_FORGEJO_HOST:-}"
-
   if [[ -n "$host" ]]; then
     echo "$host"
     return 0
   fi
 
+  # Priority 1: existing HTTPS remotes (most reliable)
   local name
+  for name in $(git remote 2>/dev/null); do
+    remote_url="$(git remote get-url "$name" 2>/dev/null || true)"
+    if [[ "$remote_url" =~ ^https?:// ]]; then
+      if echo "$remote_url" | grep -qE 'localhost|127\.0\.0\.1'; then
+        echo "http://localhost:3000"
+        return 0
+      elif [[ "$remote_url" =~ ^(https?://[^/]+) ]]; then
+        echo "${BASH_REMATCH[1]}"
+        return 0
+      fi
+    fi
+  done
+
+  # Priority 2: SSH remotes (extract hostname, guess HTTPS)
   for name in $(git remote 2>/dev/null); do
     remote_url="$(git remote get-url "$name" 2>/dev/null || true)"
     if echo "$remote_url" | grep -qE 'localhost|127\.0\.0\.1'; then
@@ -72,9 +86,6 @@ fj_forgejo_host() {
       return 0
     elif echo "$remote_url" | grep -qE 'codeberg\.org'; then
       echo "https://codeberg.org"
-      return 0
-    elif [[ "$remote_url" =~ ^(https?://[^/]+) ]]; then
-      echo "${BASH_REMATCH[1]}"
       return 0
     elif [[ "$remote_url" =~ ^git@([^:]+): ]]; then
       echo "https://${BASH_REMATCH[1]}"
@@ -383,12 +394,19 @@ step_rename_remotes() {
         fi
       fi
 
-    # Forgejo remotes
+    # Forgejo remotes — always use HTTPS (fj CLI bug: doesn't work with SSH)
     elif echo "$url" | grep -qE '(forgejo\.|gitea\.|localhost|127\.0\.0\.1)'; then
-      info "Renaming '$name' to 'fjl' (URL: $url)"
+      local fj_base fj_repo https_url
+      fj_base="$(fj_forgejo_host)"
+      # Extract owner/repo from any URL format
+      fj_repo="${url##*:}"
+      fj_repo="${fj_repo%.git}"
+      [[ "$fj_repo" == "$url" ]] && fj_repo="$(basename "$url" .git)"
+      https_url="${fj_base}/${fj_repo}.git"
+      info "Renaming '$name' to 'fjl' (URL: $url -> $https_url)"
       git remote remove "$name" 2>/dev/null || true
-      git remote add fjl "$url"
-      ok "Remote '$name' -> 'fjl' with URL: $url"
+      git remote add fjl "$https_url"
+      ok "Remote '$name' -> 'fjl' with HTTPS URL: $https_url"
 
     else
       info "Skipping remote '$name' — cannot classify URL: $url"
