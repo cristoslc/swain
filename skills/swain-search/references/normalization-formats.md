@@ -2,6 +2,16 @@
 
 Every source in a trove is normalized to a markdown file with YAML frontmatter. The frontmatter schema is consistent across types; the body structure varies by source type.
 
+## Verbatim mandate: sources are evidence, not summaries
+
+**A normalized source file MUST be a faithful, verbatim reproduction of the original document.** Condensing, paraphrasing, extracting "key points", or rewriting the original into an AI-generated summary is strictly forbidden. The normalized file must preserve the full content of the original — no truncation, no condensation, no AI rewrites.
+
+The only acceptable formats for summarization are:
+- **Trove-level `synthesis.md`** — canonical thematic distillation across all sources.
+- **Per-source `synthesis.md`** — optional additive commentary beside the normalized source file.
+
+A source file that reads as a summary instead of a reproduction is defective and must be regenerated from the raw snapshot.
+
 ## Snapshot-first normalization contract (SPEC-220)
 
 For remote documents (especially Google Docs/Drive links), normalization is not allowed until a raw snapshot is exported first.
@@ -16,6 +26,32 @@ Required sequence:
    - `bash skills/swain-search/scripts/verify-snapshot-evidence.sh --source-url "<source-url>"`
 
 If step 4 fails, the source is unverified and must not be published into trove synthesis.
+
+## Per-source synthesis.md (optional)
+
+Individual sources MAY include a `synthesis.md` alongside the normalized source file at `sources/<source-id>/synthesis.md`. This is additive commentary — it captures what the source says through the lens of the original search context, explains why the source was selected, or notes how it relates to the trove topic.
+
+```yaml
+---
+source-id: "mdn-websocket-api"
+relates-to: "web-socket-vs-sse"
+relevance: "Official specification — defines WebSocket protocol semantics"
+selected-because: "Authoritative reference for the protocol comparison"
+aspects-covered:
+  - "Protocol handshake"
+  - "Message framing"
+  - "Connection lifecycle"
+gaps:
+  - "Does not compare with SSE"
+  - "Does not discuss performance characteristics"
+---
+```
+
+Key rules:
+- Per-source synthesis.md is **optional** — only create it when there is useful commentary beyond what the verbatim source carries.
+- It MUST NOT replace or truncate the full normalized source content. The verbatim source file remains the primary artifact.
+- The trove-level `synthesis.md` remains the authoritative distillation across all sources.
+- Format: YAML-like structured notes (not prose markdown). Use the frontmatter fields above as a pattern; add freeform notes below as needed.
 
 ## Common frontmatter
 
@@ -211,17 +247,12 @@ transcript-source: vtt   # vtt | caption | vision-ocr | local-ocr
 **[02:15]** So the first pattern we'll look at is long polling...
 
 **[15:30]** Now, WebSockets solve many of these problems, but they introduce new ones...
-
-## Key Points
-
-- [Auto-extracted key points from the transcript]
-- [Major arguments, conclusions, recommendations]
 ```
 
 Key rules:
 - Timestamps in `[MM:SS]` or `[HH:MM:SS]` format — only when `transcript-source: vtt`.
 - Speaker labels on every speaker change (or every few minutes for single-speaker).
-- Include a "Key Points" section auto-extracted from the content.
+- Do NOT add a "Key Points" section — that is summarization, which is forbidden. Summarization belongs in `synthesis.md` only.
 - For podcasts with multiple speakers, clearly attribute each segment.
 - The `transcript-source` field records which tier produced the text. Omit `duration` and `speakers` when caption, vision-ocr, or local-ocr was used (those tiers do not recover that metadata).
 

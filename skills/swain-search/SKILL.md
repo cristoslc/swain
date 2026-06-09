@@ -90,6 +90,14 @@ If existing troves contain relevant sources:
 
 This step runs in all modes (Create, Extend, Discover) and before any web searches. Existing trove content is always checked first.
 
+## Verbatim snapshot requirement (sources are evidence, not summaries)
+
+**A normalized source file MUST be a faithful, verbatim reproduction of the original document.** It is evidence — raw material for the researcher. Condensing, paraphrasing, extracting "key points", or rewriting the original into an AI-generated summary is strictly forbidden. The only acceptable place for summarization is `synthesis.md` (trove-level or per-source).
+
+Any source file that reads as a summary, digest, or "TLDR" of the original instead of a faithful reproduction is defective and must be regenerated from the raw snapshot. If the original is a long document, the normalized file must still preserve its full content — the research value is in completeness, not brevity.
+
+Violations detected during review: flag the source as `unverified`, do not publish it downstream, and report the warning to the operator with the instruction to re-fetch from the original URL.
+
 ## Snapshot evidence gate (SPEC-220)
 
 Before a remote source can be treated as collected evidence, the run must produce a raw snapshot and a metadata ledger entry in `.agents/search-snapshots/metadata.jsonl`.
@@ -97,7 +105,7 @@ Before a remote source can be treated as collected evidence, the run must produc
 Required flow for remote sources:
 1. Export/download the raw snapshot first:
    - `bash "<SKILL_DIR>/scripts/export-snapshot.sh" --url "<source-url>" --out-dir ".agents/search-snapshots/raw"`
-2. Normalize the downloaded file using `writing-skills` or `skill-creator` (never summary-only browser notes).
+2. Normalize the downloaded file using `writing-skills` or `skill-creator` (never summary-only browser notes). The normalized output MUST preserve the full content of the original — no truncation, no condensation, no AI rewrites.
 3. Log metadata:
    - `bash "<SKILL_DIR>/scripts/log-snapshot-metadata.sh" --source-url "<source-url>" --export-mode "<mode>" --raw-path "<raw-path>" --normalized-path "<normalized-path>" --normalization-skill "<writing-skills|skill-creator>"`
 4. Verify before publication:
@@ -125,6 +133,8 @@ Ask the user (or infer from context) for:
 If invoked from swain-design (e.g., spike entering Active), the artifact context provides the topic, tags, and sometimes initial sources.
 
 ### Step 2 — Collect and normalize
+
+**Mandatory: every source must be a verbatim reproduction of the original document, not a summary.** The normalized source file is evidence — raw material for research. Condensing, paraphrasing, or extracting "key points" from the original is forbidden. Summarization belongs exclusively in `synthesis.md` (trove-level or per-source). See the "Verbatim snapshot requirement" section above for the full policy.
 
 For each source, use the appropriate capability. Read `references/normalization-formats.md` for the exact markdown structure per source type.
 
@@ -344,7 +354,13 @@ shasum -a 256 sources/mdn-websocket-api/mdn-websocket-api.md | cut -d' ' -f1
 
 Create `synthesis.md` — a structured distillation of key findings across all sources.
 
-Structure the synthesis by **theme**, not by source. Group related findings together, cite sources by ID, and surface:
+**Two levels of synthesis are permitted:**
+
+1. **Trove-level synthesis.md (required, authoritative).** The single `synthesis.md` at the trove root looks across ALL sources and produces a thematic distillation. This is the canonical summary of what the trove as a whole says.
+
+2. **Per-source synthesis.md (optional).** Individual sources MAY include their own `synthesis.md` alongside the normalized source file (e.g., `sources/<source-id>/synthesis.md`). These are useful for capturing what a source says through the lens of the original search context — e.g., commentary on why this source was selected, what aspect it illuminates, or how it relates to the trove topic. Per-source synthesis must NEVER replace or truncate the full normalized source content; the verbatim source file remains the primary artifact. Per-source synthesis is additive commentary, not a substitute for the original.
+
+Structure the trove-level synthesis by **theme**, not by source. Group related findings together, cite sources by ID, and surface:
 - **Key findings** — what the sources collectively say about the topic
 - **Points of agreement** — where sources converge
 - **Points of disagreement** — where sources conflict or present alternatives

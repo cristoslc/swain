@@ -68,6 +68,7 @@ selective: false                   # True if only a subset of the source was ing
 notes: "Focused on section 3"     # Freeform annotation
 snapshot-verified: true            # True when .agents/search-snapshots/metadata.jsonl contains this source URL
 snapshot-metadata-digest: "..."    # Digest from metadata.jsonl for traceability
+has-synthesis: false               # True if sources/<source-id>/synthesis.md exists (optional per-source commentary)
 ```
 
 ## Source types
